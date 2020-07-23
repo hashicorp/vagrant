@@ -58,7 +58,7 @@ module VagrantPlugins
 
       # This action boots the VM, assuming the VM is in a state that requires
       # a bootup (i.e. not saved).
-      def self.action_boot(**opts)
+      def self.action_boot()
         Vagrant::Action::Builder.new.tap do |b|
           b.use CheckAccessible
           b.use CleanMachineFolder
@@ -79,14 +79,22 @@ module VagrantPlugins
           b.use ForwardPorts
           b.use SetHostname
           b.use SaneDefaults
-          b.use CloudInitSetup if opts[:cloud_init]
+          b.use Call, IsEnvSet, :cloud_init do |env, b2|
+            if env[:result]
+              b2.use CloudInitSetup
+            end
+          end
           b.use CleanupDisks
           b.use Disk
           b.use Customize, "pre-boot"
           b.use Boot
           b.use Customize, "post-boot"
           b.use WaitForCommunicator, [:starting, :running]
-          b.use CloudInitWait if opts[:cloud_init]
+          b.use Call, IsEnvSet, :cloud_init do |env, b2|
+            if env[:result]
+              b2.use CloudInitWait
+            end
+          end
           b.use Customize, "post-comm"
           b.use CheckGuestAdditions
         end
@@ -318,7 +326,7 @@ module VagrantPlugins
 
       # This action starts a VM, assuming it is already imported and exists.
       # A precondition of this action is that the VM exists.
-      def self.action_start(**opts)
+      def self.action_start()
         Vagrant::Action::Builder.new.tap do |b|
           b.use CheckVirtualbox
           b.use ConfigValidate
@@ -345,8 +353,7 @@ module VagrantPlugins
 
                 # The VM is not saved, so we must have to boot it up
                 # like normal. Boot!
-                run_cloud_init = opts[:cloud_init] || false
-                b4.use action_boot(cloud_init: run_cloud_init)
+                b4.use action_boot()
               end
             end
           end
@@ -414,7 +421,8 @@ module VagrantPlugins
             end
           end
 
-          b.use action_start(cloud_init: true)
+          b.use EnvSet, cloud_init: true
+          b.use action_start()
         end
       end
     end

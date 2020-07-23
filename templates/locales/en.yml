@@ -788,6 +788,9 @@ en:
         Additionally, the created environment must be started with a provider
         matching this provider. For example, if you're using VirtualBox,
         the clone environment must also be using VirtualBox.
+      cloud_init_not_found: |-
+        cloud-init is not found. Please ensure that cloud-init is installed and 
+        available on path for guest '%{guest_name}'.
       command_deprecated: |-
         The command 'vagrant %{name}' has been deprecated and is no longer functional
         within Vagrant.
