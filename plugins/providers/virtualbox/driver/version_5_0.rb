@@ -982,7 +982,7 @@ module VagrantPlugins
                                uuid: uuid,
                                location: location }
 
-                extra_disk_data.each do |dk,dv|
+                extra_disk_data&.each do |dk,dv|
                   # NOTE: We convert the keys from VirtualBox to symbols
                   # to be consistent with the other keys
                   attachment[dk.downcase.gsub(' ', '_').to_sym] = dv
