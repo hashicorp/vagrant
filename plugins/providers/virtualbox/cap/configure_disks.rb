@@ -338,9 +338,6 @@ module VagrantPlugins
         def self.resize_disk(machine, disk_config, defined_disk, controller)
           machine.ui.detail(I18n.t("vagrant.cap.configure_disks.resize_disk", name: disk_config.name), prefix: true)
 
-          # grab disk to be resized port and device number
-          disk_info = machine.provider.driver.get_port_and_device(defined_disk[:uuid])
-
           if defined_disk[:storage_format] == "VMDK"
             LOGGER.warn("Disk type VMDK cannot be resized in VirtualBox. Vagrant will convert disk to VDI format to resize first, and then convert resized disk back to VMDK format")
 
@@ -356,7 +353,7 @@ module VagrantPlugins
             begin
               # Danger Zone
               # remove and close original volume
-              machine.provider.driver.remove_disk(controller.name, disk_info[:port], disk_info[:device])
+              machine.provider.driver.remove_disk(controller.name, defined_disk[:port], defined_disk[:device])
               # Create a backup of the original disk if something goes wrong
               LOGGER.warn("Making a backup of the original disk at #{defined_disk[:location]}")
               FileUtils.mv(defined_disk[:location], backup_disk_location)
@@ -368,8 +365,8 @@ module VagrantPlugins
               # clone back to original vmdk format and attach resized disk
               vmdk_disk_file = machine.provider.driver.vdi_to_vmdk(vdi_disk_file)
               machine.provider.driver.attach_disk(controller.name,
-                                                  disk_info[:port],
-                                                  disk_info[:device],
+                                                  defined_disk[:port],
+                                                  defined_disk[:device],
                                                   "hdd",
                                                   vmdk_disk_file)
             rescue ScriptError, SignalException, StandardError
@@ -377,7 +374,7 @@ module VagrantPlugins
               machine.ui.error(I18n.t("vagrant.cap.configure_disks.recovery_from_resize",
                                       location: original_disk[:location],
                                       name: machine.name))
-              recover_from_resize(machine, disk_info, backup_disk_location, original_disk, vdi_disk_file, controller)
+              recover_from_resize(machine, defined_disk, backup_disk_location, original_disk, vdi_disk_file, controller)
               raise
             ensure
               # Remove backup disk file if all goes well
@@ -398,7 +395,7 @@ module VagrantPlugins
           end
 
           disk_metadata = { uuid: defined_disk[:uuid], name: disk_config.name, controller: controller.name,
-                            port: disk_info[:port], device: disk_info[:device] }
+                            port: defined_disk[:port], device: defined_disk[:device] }
 
           disk_metadata
         end

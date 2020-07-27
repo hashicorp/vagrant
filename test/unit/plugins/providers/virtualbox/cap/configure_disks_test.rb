@@ -484,9 +484,6 @@ describe VagrantPlugins::ProviderVirtualBox::Cap::ConfigureDisks do
         expect(FileUtils).to receive(:mv).with(vmdk_disk_file, "#{vmdk_disk_file}.backup").
           and_return(true)
 
-        expect(driver).to receive(:get_port_and_device).with("12345").
-          and_return(attach_info)
-
         expect(driver).to receive(:vmdk_to_vdi).with(all_disks[0][:location]).
           and_return(vdi_disk_file)
 
@@ -516,9 +513,6 @@ describe VagrantPlugins::ProviderVirtualBox::Cap::ConfigureDisks do
         expect(FileUtils).to receive(:mv).with(vmdk_disk_file, "#{vmdk_disk_file}.backup").
           and_return(true)
 
-        expect(driver).to receive(:get_port_and_device).with("12345").
-          and_return(attach_info)
-
         expect(driver).to receive(:vmdk_to_vdi).with(all_disks[0][:location]).
           and_return(vdi_disk_file)
 
@@ -530,7 +524,7 @@ describe VagrantPlugins::ProviderVirtualBox::Cap::ConfigureDisks do
 
         allow(driver).to receive(:vdi_to_vmdk).and_raise(StandardError)
 
-        expect(subject).to receive(:recover_from_resize).with(machine, attach_info, "#{vmdk_disk_file}.backup", all_disks[0], vdi_disk_file, controller)
+        expect(subject).to receive(:recover_from_resize).with(machine, all_disks[0], "#{vmdk_disk_file}.backup", all_disks[0], vdi_disk_file, controller)
 
         expect{subject.resize_disk(machine, disk_config, all_disks[0], controller)}.to raise_error(Exception)
       end
@@ -542,9 +536,6 @@ describe VagrantPlugins::ProviderVirtualBox::Cap::ConfigureDisks do
                                  provider_config: nil) }
       it "resizes the disk" do
         expect(driver).to receive(:resize_disk).with(all_disks[1][:location], disk_config.size.to_i)
-
-        expect(driver).to receive(:get_port_and_device).with(all_disks[1][:uuid]).
-          and_return({port: "1", device: "0"})
 
         subject.resize_disk(machine, disk_config, all_disks[1], controller)
       end
