@@ -110,7 +110,7 @@ describe VagrantPlugins::ProviderVirtualBox::Cap::ConfigureDisks do
     allow(storage_controllers).to receive(:first).and_return(controller)
     allow(storage_controllers).to receive(:size).and_return(1)
     allow(driver).to receive(:read_storage_controllers).and_return(storage_controllers)
-    allow(driver).to receive(:list_hdds).and_return(all_disks)
+    allow(driver).to receive(:list_hdds).and_return(list_hdds_result)
   end
 
   describe "#configure_disks" do
@@ -245,12 +245,25 @@ describe VagrantPlugins::ProviderVirtualBox::Cap::ConfigureDisks do
                           :disk_name=>"ubuntu-18.04-amd64-disk001",
                           :location=>"/home/vagrant/VirtualBox VMs/ubuntu-18.04-amd64-disk001.vmdk"}] }
 
+      let(:list_hdds_result) { [{"UUID"=>"12345",
+                            "Parent UUID"=>"base",
+                            "State"=>"created",
+                            "Type"=>"normal (base)",
+                            "Location"=>"/home/vagrant/VirtualBox VMs/ubuntu-18.04-amd64-disk001.vmdk",
+                            "Disk Name"=>"ubuntu-18.04-amd64-disk001",
+                            "Storage format"=>"VMDK",
+                            "Capacity"=>"65536 MBytes",
+                            "Encryption"=>"disabled"}] }
+
       let(:disk_meta) { {uuid: "67890", name: "disk-0", controller: "controller", port: "1", device: "1"} }
 
       it "creates a new disk if it doesn't yet exist" do
         expect(subject).to receive(:create_disk).with(machine, defined_disks[1], controller)
           .and_return(disk_meta)
         expect(controller).to receive(:attachments).and_return(all_disks)
+
+        expect(storage_controllers).to receive(:get_primary_attachment)
+          .and_return(all_disks[0])
 
         subject.handle_configure_disk(machine, defined_disks[1], controller.name)
       end
@@ -259,6 +272,8 @@ describe VagrantPlugins::ProviderVirtualBox::Cap::ConfigureDisks do
         expect(subject).to receive(:create_disk).with(machine, defined_disks[1], controller)
           .and_return(disk_meta)
         expect(controller).to receive(:attachments).and_return(all_disks)
+        expect(storage_controllers).to receive(:get_primary_attachment)
+          .and_return(all_disks[0])
 
         disk_metadata = subject.handle_configure_disk(machine, defined_disks[1], controller.name)
         expect(disk_metadata).to have_key(:controller)
@@ -327,13 +342,10 @@ describe VagrantPlugins::ProviderVirtualBox::Cap::ConfigureDisks do
         expect(controller).to receive(:attachments).and_return(all_disks)
 
         expect(subject).to receive(:get_current_disk).
-          with(machine, defined_disks[1], all_disks).and_return(all_disks[1])
+          with(machine, defined_disks[1], all_disks).and_return(nil)
 
-        expect(subject).to receive(:compare_disk_size).
-          with(machine, defined_disks[1], all_disks[1]).and_return(false)
-
-        expect(driver).to receive(:get_port_and_device).with("67890").
-          and_return({})
+        expect(storage_controllers).to receive(:get_primary_attachment)
+          .and_return(all_disks[0])
 
         expect(driver).to receive(:attach_disk).with(controller.name,
                                                      (disk_info[:port].to_i + 1).to_s,
@@ -352,9 +364,6 @@ describe VagrantPlugins::ProviderVirtualBox::Cap::ConfigureDisks do
 
         expect(subject).to receive(:compare_disk_size).
           with(machine, defined_disks[1], all_disks[1]).and_return(false)
-
-        expect(driver).to receive(:get_port_and_device).with("67890").
-          and_return(disk_info)
 
         subject.handle_configure_disk(machine, defined_disks[1], controller.name)
       end

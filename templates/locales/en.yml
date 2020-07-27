@@ -946,7 +946,7 @@ en:
         Failed to build iso image. The following command returned an error:
 
         %{cmd}
-        
+
         Stdout from the command:
 
         %{stdout}
@@ -2265,12 +2265,11 @@ en:
         disk_not_found: |-
           Disk '%{name}' could not be found, and could not be properly removed. Please remove this disk manually if it still exists
       configure_disks:
-        start: "Configuring storage mediums..."
+        create_disk: |-
+          Disk '%{name}' not found in guest. Creating and attaching disk to guest...
         floppy_not_supported: "Floppy disk configuration not yet supported. Skipping disk '%{name}'..."
         shrink_size_not_supported: |-
           VirtualBox does not support shrinking disk sizes. Cannot shrink '%{name}' disks size.
-        create_disk: |-
-          Disk '%{name}' not found in guest. Creating and attaching disk to guest...
         resize_disk: |-
           Disk '%{name}' needs to be resized. Resizing disk...
         recovery_from_resize: |-
@@ -2279,6 +2278,7 @@ en:
           If Vagrant fails to reattach the original disk, it is recommended that you open the VirtualBox GUI and navigate to the current guests settings for '%{name}' and look at the 'storage' section. Here is where you can reattach a missing disk if Vagrant fails to do so...
         recovery_attached_disks: |-
           Disk has been reattached. Vagrant will now continue on an raise the exception receieved
+        start: "Configuring storage mediums..."
     cloud_init:
       content_type_not_set: |-
         'content_type' must be defined for a cloud_init config. Guest '%{machine}'

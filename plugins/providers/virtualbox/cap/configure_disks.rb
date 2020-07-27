@@ -114,36 +114,53 @@ module VagrantPlugins
 
           disk_metadata = {}
 
-          # Grab the existing configured disk, if it exists
+          # Grab the existing configured disk attached to guest, if it exists
           current_disk = get_current_disk(machine, disk, all_disks)
 
-          # Configure current disk
           if !current_disk
-            # create new disk and attach
-            disk_metadata = create_disk(machine, disk, controller)
-          elsif compare_disk_size(machine, disk, current_disk)
-            disk_metadata = resize_disk(machine, disk, current_disk, controller)
-          else
-            # TODO: What if it needs to be resized?
+            # Look for an existing disk that's not been attached but exists
+            # inside VirtualBox
+            #
+            # NOTE: This assumes that if that disk exists and was created by
+            # Vagrant, it exists in the same location as the primary disk file.
+            # Otherwise Vagrant has no good way to determining if the disk was
+            # associated with the guest, since disk names are not unique
+            # globally to VirtualBox.
+            primary = storage_controllers.get_primary_attachment
+            existing_disk = machine.provider.driver.list_hdds.detect do |d|
+              File.dirname(d["Location"]) == File.dirname(primary[:location]) &&
+                d["Disk Name"] == disk.name
+            end
 
-            disk_info = machine.provider.driver.get_port_and_device(current_disk[:uuid])
-            if disk_info.empty?
+            if !existing_disk
+              # create new disk and attach to guest
+              disk_metadata = create_disk(machine, disk, controller)
+            else
+              # Disk has been created but failed to be attached to guest, so
+              # this method recovers that disk from previous failure
+              # and attaches it onto the guest
               LOGGER.warn("Disk '#{disk.name}' is not connected to guest '#{machine.name}', Vagrant will attempt to connect disk to guest")
               dsk_info = get_next_port(machine, controller)
               machine.provider.driver.attach_disk(controller.name,
                                                   dsk_info[:port],
                                                   dsk_info[:device],
                                                   "hdd",
-                                                  current_disk[:location])
+                                                  existing_disk["Location"])
+
+              disk_metadata[:uuid] = existing_disk["UUID"]
               disk_metadata[:port] = dsk_info[:port]
               disk_metadata[:device] = dsk_info[:device]
-            else
-              LOGGER.info("No further configuration required for disk '#{disk.name}'")
-              disk_metadata[:port] = disk_info[:port]
-              disk_metadata[:device] = disk_info[:device]
+              disk_metadata[:name] = disk.name
+              disk_metadata[:controller] = controller.name
             end
-
+          elsif compare_disk_size(machine, disk, current_disk)
+            disk_metadata = resize_disk(machine, disk, current_disk, controller)
+          else
+            LOGGER.info("No further configuration required for disk '#{disk.name}'")
             disk_metadata[:uuid] = current_disk[:uuid]
+            disk_metadata[:port] = current_disk[:port]
+            disk_metadata[:device] = current_disk[:device]
+
             disk_metadata[:name] = disk.name
             disk_metadata[:controller] = controller.name
           end
