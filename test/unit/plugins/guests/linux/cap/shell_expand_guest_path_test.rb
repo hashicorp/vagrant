@@ -25,6 +25,14 @@ describe "VagrantPlugins::GuestLinux::Cap::ShellExpandGuestPath" do
       cap.shell_expand_guest_path(machine, path)
     end
 
+    it "expands a path with tilde" do
+      path = "~/folder"
+      allow(machine.communicate).to receive(:execute).
+          with(any_args).and_yield(:stdout, "/home/vagrant/folder")
+
+      cap.shell_expand_guest_path(machine, path)
+    end
+
     it "raises an exception if no path was detected" do
       path = "/home/vagrant/folder"
       expect { cap.shell_expand_guest_path(machine, path) }.

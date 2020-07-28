@@ -60,7 +60,7 @@ with third-party published boxes.
 
 ## Official Boxes
 
-HashiCorp (the makers of Vagrant) publish a basic Ubuntu 18.04 64-bit box that is available for minimal use cases. It is highly optimized, small in size, and includes support for Virtualbox, Hyper-V, and VMware. You can use it like this:
+HashiCorp (the makers of Vagrant) publish a basic Ubuntu 18.04 64-bit box that is available for minimal use cases. It is highly optimized, small in size, and includes support for VirtualBox, Hyper-V, and VMware. You can use it like this:
 
 ```shell-session
 $ vagrant init hashicorp/bionic64
@@ -74,10 +74,10 @@ Vagrant.configure("2") do |config|
 end
 ```
 
-For other users, we recommend the [Bento boxes](https://vagrantcloud.com/bento). The Bento boxes are [open source](https://github.com/chef/bento) and built for a number of providers including VMware, Virtualbox, and Parallels. There are a variety of operating systems and versions available.
+For other users, we recommend the [Bento boxes](https://vagrantcloud.com/bento). The Bento boxes are [open source](https://github.com/chef/bento) and built for a number of providers including VMware, VirtualBox, and Parallels. There are a variety of operating systems and versions available.
 
 These are the only two officially-recommended box sets.
 
 Special thanks to the Bento project for providing a solid base template for the `hashicorp/bionic64` box.
 
-~> **It is often a point of confusion**, but Canonical (the company that makes the Ubuntu operating system) publishes boxes under the "ubuntu" namespace on Vagrant Cloud. These boxes only support Virtualbox and do not provide an ideal experience for most users. If you encounter issues with these boxes, please try the Bento boxes instead.
+~> **It is often a point of confusion**, but Canonical (the company that makes the Ubuntu operating system) publishes boxes under the "ubuntu" namespace on Vagrant Cloud. These boxes only support VirtualBox and do not provide an ideal experience for most users. If you encounter issues with these boxes, please try the Bento boxes instead.

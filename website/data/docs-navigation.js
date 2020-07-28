@@ -108,10 +108,7 @@ export default [
   },
   {
     category: 'cloud-init',
-    content: [
-      'configuration',
-      'usage'
-    ],
+    content: ['configuration', 'usage'],
   },
   {
     category: 'disks',
@@ -119,6 +116,7 @@ export default [
       'configuration',
       'usage',
       { category: 'virtualbox', content: ['usage', 'common-issues'] },
+      { category: 'hyperv', content: ['usage', 'common-issues'] },
     ],
   },
   'multi-machine',

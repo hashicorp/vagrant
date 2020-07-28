@@ -8,7 +8,7 @@ describe VagrantPlugins::Kernel_V2::VMConfig do
   subject { described_class.new }
 
   let(:provider) { double("provider") }
-  let(:machine) { double("machine", provider: provider) }
+  let(:machine) { double("machine", provider: provider, provider_name: "provider", name: "default") }
 
   def assert_invalid
     errors = subject.validate(machine)
@@ -40,6 +40,8 @@ describe VagrantPlugins::Kernel_V2::VMConfig do
 
     allow(provider).to receive(:capability?).with(:validate_disk_ext).and_return(true)
     allow(provider).to receive(:capability).with(:validate_disk_ext, "vdi").and_return(true)
+    allow(provider).to receive(:capability?).with(:set_default_disk_ext).and_return(true)
+    allow(provider).to receive(:capability).with(:set_default_disk_ext).and_return("vdi")
 
     subject.box = "foo"
   end
@@ -439,15 +441,18 @@ describe VagrantPlugins::Kernel_V2::VMConfig do
     it "stores the provisioners" do
       subject.provision("shell", inline: "foo")
       subject.provision("shell", inline: "bar", run: "always") { |s| s.path = "baz" }
+      subject.provision("shell", inline: "foo", communicator_required: false)
       subject.finalize!
 
       r = subject.provisioners
-      expect(r.length).to eql(2)
+      expect(r.length).to eql(3)
       expect(r[0].run).to be_nil
       expect(r[0].config.inline).to eql("foo")
       expect(r[1].config.inline).to eql("bar")
       expect(r[1].config.path).to eql("baz")
       expect(r[1].run).to eql(:always)
+      expect(r[1].communicator_required).to eql(true)
+      expect(r[2].communicator_required).to eql(false)
     end
 
     it "allows provisioner settings to be overridden" do
@@ -616,6 +621,14 @@ describe VagrantPlugins::Kernel_V2::VMConfig do
     it "raises an error with duplicate names" do
       subject.disk(:disk, size: 100, name: "foo")
       subject.disk(:disk, size: 1000, name: "foo", primary: false)
+      subject.finalize!
+      assert_invalid
+    end
+
+    it "raises an error with duplicate disk files" do
+      allow(File).to receive(:file?).with("bar.vmdk").and_return(true)
+      subject.disk(:disk, size: 100, name: "foo1", file: "bar.vmdk")
+      subject.disk(:disk, size: 100, name: "foo2", file: "bar.vmdk")
       subject.finalize!
       assert_invalid
     end

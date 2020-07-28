@@ -1,0 +1,66 @@
+on:
+  push:
+    branches:
+      - 'spec-test-*'
+    paths-ignore:
+      - 'CHANGELOG.md'
+      - 'website/**'
+
+jobs:
+  setup-packet:
+    if: github.repository == 'hashicorp/vagrant-blackbox'
+    runs-on: self-hosted
+    name: Build Packet Instance
+    steps:
+      - name: Create packet instance
+        run: .ci/spec/create-packet.sh
+        working-directory: ${{github.workspace}}
+
+  setup-hosts:
+    if: github.repository == 'hashicorp/vagrant-blackbox'
+    runs-on: self-hosted
+    name: Vagrant-Spec Start Hosts
+    needs: setup-packet
+    strategy:
+      matrix:
+        host_os: ['hashicorp/bionic64']
+        guest_os: ['hashicorp-vagrant/ubuntu-16.04']
+    steps:
+      - name: Code Checkout
+        uses: actions/checkout@v1
+      - name: Create packet host for tests
+        run: .ci/spec/create-hosts.sh
+        working-directory: ${{github.workspace}}
+        env:
+          VAGRANT_HOST_BOXES: ${{matrix.host_os}}
+          VAGRANT_GUEST_BOXES: ${{matrix.guest_os}}
+
+  spec-tests:
+    if: github.repository == 'hashicorp/vagrant-blackbox'
+    runs-on: self-hosted
+    name: Vagrant-Spec Tests
+    needs: setup-hosts
+    strategy:
+      matrix:
+        host_os: ['hashicorp/bionic64']
+        guest_os: ['hashicorp-vagrant/ubuntu-16.04']
+    steps:
+      - name: Run Tests with host ${{ matrix.host_os }} using guest ${{ matrix.guest_os }}
+        run: .ci/spec/run-test.sh
+        working-directory: ${{github.workspace}}
+        env:
+          VAGRANT_HOST_BOXES: ${{matrix.host_os}}
+          VAGRANT_GUEST_BOXES: ${{matrix.guest_os}}
+
+  cleanup:
+    if: github.repository == 'hashicorp/vagrant-blackbox'
+    runs-on: self-hosted
+    name: Cleanup Post Vagrant-Spec Tests
+    needs: spec-tests
+    steps:
+      - name: Clean Packet
+        if: always()
+        run: .ci/spec/clean-packet.sh
+      - name: Clean Workspace
+        if: always()
+        run: rm -rf ${{ github.workspace }}

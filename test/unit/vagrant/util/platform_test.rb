@@ -4,7 +4,8 @@ require "vagrant/util/platform"
 
 describe Vagrant::Util::Platform do
   include_context "unit"
-  after{ described_class.reset! }
+  before(:all) { described_class.reset! }
+  after { described_class.reset! }
   subject { described_class }
 
   describe "#cygwin_path" do

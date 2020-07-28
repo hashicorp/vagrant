@@ -118,7 +118,7 @@ curl \
 
 curl \
   --header "Content-Type: application/json" \
-  --header "Authorization: Bearer \$VAGRANT_CLOUD_TOKEN" \
+  --header "Authorization: Bearer $VAGRANT_CLOUD_TOKEN" \
   https://app.vagrantup.com/api/v1/box/myuser/test/versions \
   --data '{ "version": { "version": "1.2.3" } }'
 
@@ -126,7 +126,7 @@ curl \
 
 curl \
   --header "Content-Type: application/json" \
-  --header "Authorization: Bearer \$VAGRANT_CLOUD_TOKEN" \
+  --header "Authorization: Bearer $VAGRANT_CLOUD_TOKEN" \
   https://app.vagrantup.com/api/v1/box/myuser/test/version/1.2.3/providers \
   --data '{ "provider": { "name": "virtualbox" } }'
 
@@ -147,7 +147,7 @@ curl $upload_path --request PUT --upload-file virtualbox-1.2.3.box
 # Release the version
 
 curl \
-  --header "Authorization: Bearer \$VAGRANT_CLOUD_TOKEN" \
+  --header "Authorization: Bearer $VAGRANT_CLOUD_TOKEN" \
   https://app.vagrantup.com/api/v1/box/myuser/test/version/1.2.3/release \
   --request PUT
 
@@ -1264,7 +1264,6 @@ end
   "download_url": "https://vagrantcloud.com/myuser/boxes/test/versions/1.2.3/providers/virtualbox.box",
   "checksum": "a59e7332e8bbe896f11f478fc61fa8a6",
   "checksum_type": "md5"
-
 }
 ```
 

@@ -56,6 +56,12 @@ module VagrantPlugins
       # @return [String, Symbol]
       attr_accessor :after
 
+      # Boolean, when true signifies that some communicator must
+      # be available in order for the provisioner to run.
+      #
+      # @return [Boolean]
+      attr_accessor :communicator_required
+
       def initialize(name, type, **options)
         @logger = Log4r::Logger.new("vagrant::config::vm::provisioner")
         @logger.debug("Provisioner defined: #{name}")
@@ -69,6 +75,7 @@ module VagrantPlugins
         @type    = type
         @before  = options[:before]
         @after   = options[:after]
+        @communicator_required = options.fetch(:communicator_required, true)
 
         # Attempt to find the provisioner...
         if !Vagrant.plugin("2").manager.provisioners[type]
@@ -118,6 +125,10 @@ module VagrantPlugins
 
         provisioner_names = provisioners.map { |i| i.name.to_s if i.name != name }.compact
 
+        if ![TrueClass, FalseClass].include?(@communicator_required.class)
+          errors << I18n.t("vagrant.provisioners.base.wrong_type", opt: "communicator_required", type: "boolean")
+        end
+
         if @before && @after
           errors << I18n.t("vagrant.provisioners.base.both_before_after_set")
         end
@@ -127,7 +138,7 @@ module VagrantPlugins
             if @before.is_a?(Symbol) && !VALID_BEFORE_AFTER_TYPES.include?(@before)
               errors << I18n.t("vagrant.provisioners.base.invalid_alias_value", opt: "before", alias: VALID_BEFORE_AFTER_TYPES.join(", "))
             elsif !@before.is_a?(String) && !VALID_BEFORE_AFTER_TYPES.include?(@before)
-              errors << I18n.t("vagrant.provisioners.base.wrong_type", opt: "before")
+              errors << I18n.t("vagrant.provisioners.base.wrong_type", opt: "before", type: "string")
             end
 
             if !provisioner_names.include?(@before)
@@ -153,7 +164,7 @@ module VagrantPlugins
             if @after.is_a?(Symbol)
               errors << I18n.t("vagrant.provisioners.base.invalid_alias_value", opt: "after", alias: VALID_BEFORE_AFTER_TYPES.join(", "))
             elsif !@after.is_a?(String)
-              errors << I18n.t("vagrant.provisioners.base.wrong_type", opt: "after")
+              errors << I18n.t("vagrant.provisioners.base.wrong_type", opt: "after", type: "string")
             end
 
             if !provisioner_names.include?(@after)

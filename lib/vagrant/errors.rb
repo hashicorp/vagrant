@@ -432,6 +432,10 @@ module Vagrant
       error_key(:host_explicit_not_detected)
     end
 
+    class ISOBuildFailed < VagrantError
+      error_key(:iso_build_failed)
+    end
+
     class LinuxMountFailed < VagrantError
       error_key(:linux_mount_failed)
     end
@@ -926,6 +930,22 @@ module Vagrant
 
     class VirtualBoxDisksDefinedExceedLimit < VagrantError
       error_key(:virtualbox_disks_defined_exceed_limit)
+    end
+
+    class VirtualBoxDisksControllerNotFound < VagrantError
+      error_key(:virtualbox_disks_controller_not_found)
+    end
+
+    class VirtualBoxDisksNoSupportedControllers < VagrantError
+      error_key(:virtualbox_disks_no_supported_controllers)
+    end
+
+    class VirtualBoxDisksPrimaryNotFound < VagrantError
+      error_key(:virtualbox_disks_primary_not_found)
+    end
+
+    class VirtualBoxDisksUnsupportedController < VagrantError
+      error_key(:virtualbox_disks_unsupported_controller)
     end
 
     class VirtualBoxGuestPropertyNotFound < VagrantError

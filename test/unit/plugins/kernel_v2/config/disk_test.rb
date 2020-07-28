@@ -9,20 +9,22 @@ describe VagrantPlugins::Kernel_V2::VagrantConfigDisk do
 
   subject { described_class.new(type) }
 
+  let(:ui) { double("ui") }
+  let(:env) { double("env", ui: ui) }
   let(:provider) { double("provider") }
-  let(:machine) { double("machine", provider: provider) }
-
+  let(:machine) { double("machine", name: "name", provider: provider, env: env,
+                         provider_name: :virtualbox) }
 
   def assert_invalid
     errors = subject.validate(machine)
-    if !errors.empty? { |v| !v.empty? }
+    if errors.empty?
       raise "No errors: #{errors.inspect}"
     end
   end
 
   def assert_valid
     errors = subject.validate(machine)
-    if !errors.empty? { |v| v.empty? }
+    if !errors.empty?
       raise "Errors: #{errors.inspect}"
     end
   end
@@ -30,13 +32,18 @@ describe VagrantPlugins::Kernel_V2::VagrantConfigDisk do
   before do
     env = double("env")
 
-    subject.name = "foo"
-    subject.size = 100
     allow(provider).to receive(:capability?).with(:validate_disk_ext).and_return(true)
     allow(provider).to receive(:capability).with(:validate_disk_ext, "vdi").and_return(true)
+    allow(provider).to receive(:capability?).with(:set_default_disk_ext).and_return(true)
+    allow(provider).to receive(:capability).with(:set_default_disk_ext).and_return("vdi")
   end
 
   describe "with defaults" do
+    before do
+      subject.name = "foo"
+      subject.size = 100
+    end
+
     it "is valid with test defaults" do
       subject.finalize!
       assert_valid
@@ -47,14 +54,65 @@ describe VagrantPlugins::Kernel_V2::VagrantConfigDisk do
       expect(subject.type).to eq(type)
     end
 
-    it "defaults to non-primray disk" do
+    it "defaults to non-primary disk" do
       subject.finalize!
       expect(subject.primary).to eq(false)
     end
   end
 
-  describe "defining a new config that needs to match internal restraints" do
+  describe "with an invalid config" do
     before do
+      subject.name = "bar"
+    end
+
+    it "raises an error if size not set" do
+      subject.finalize!
+      assert_invalid
+    end
+
+    context "with an invalid disk extension" do
+      before do
+        subject.size = 100
+        subject.disk_ext = "fake"
+
+        allow(provider).to receive(:capability?).with(:validate_disk_ext).and_return(true)
+        allow(provider).to receive(:capability).with(:validate_disk_ext, "fake").and_return(false)
+        allow(provider).to receive(:capability?).with(:default_disk_exts).and_return(true)
+        allow(provider).to receive(:capability).with(:default_disk_exts).and_return(["vdi", "vmdk"])
+      end
+
+      it "raises an error" do
+        subject.finalize!
+        assert_invalid
+      end
+    end
+  end
+
+  describe "config for dvd type" do
+    let(:iso_path) { "/tmp/untitled.iso" }
+
+    before do
+      subject.type = :dvd
+      subject.name = "untitled"
+      allow(File).to receive(:file?).with(iso_path).and_return(true)
+      subject.file = iso_path
+    end
+
+    it "is valid with test defaults" do
+      subject.finalize!
+      assert_valid
+    end
+
+    it "is invalid if file path is unset" do
+      subject.file = nil
+      subject.finalize!
+      assert_invalid
+    end
+
+    it "is invalid if primary" do
+      subject.primary = true
+      subject.finalize!
+      assert_invalid
     end
   end
 end

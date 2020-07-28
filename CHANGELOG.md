@@ -2,7 +2,17 @@
 
 FEATURES:
 
+- hyperv/disks: Add ability to manage virtual disks for guests [GH-11541]
+
 IMPROVEMENTS:
+
+- core: Allow provisioners to be run when a communicator is not available [GH-11579]
+- core: Add `autocomplete` command that allows for install of bash or zsh autocomplete scripts [GH-11523]
+- guest/arch: Use systemd-networkd to configure networking for guests [GH-11400]
+- guest/haiku: Rsync install for rsync synced folders [GH-11614]
+- guest/solaris11: Add guest capability shell_expand_guest_path [GH-11759]
+- host/darwin: Add ability to build ISO [GH-11694]
+- virtualbox/disks: Add ability to manage virtual dvds for guests [GH-11613]
 
 BUG FIXES:
 
@@ -10,9 +20,11 @@ BUG FIXES:
 - core: Fix `:all` special value on triggers [GH-11688]
 - core: Ensure network addresses have a valid netmask [GH-11679]
 - core: Recover local machine metadata in global index [GH-11656]
+- core: Print CLI help message is ambiguous option provided [GH-11746]
 - commands/destroy: Add gracefull option to switch beween gracefully or forcefully shutting down a vm [GH-11628]
 - config/vm: Add option `allow_hosts_modification` to allow/disable Vagrant editing the guests `/etc/hosts` file [GH-11565]
 - config/vm: Add config option `hostname` to `config.vm.network` [GH-11566]
+- config/vm: Don't ignore NFS synced folders on Windows hosts [GH-11631]
 - host: Use regular port check for loopback addresses [GH-11654]
 - guest/esxi: Be more permissive with permissions of ssh directory [GH-11587]
 - guest/linux: Add virtual box shared folders to guest fstab [GH-11570]

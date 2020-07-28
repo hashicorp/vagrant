@@ -12,6 +12,8 @@ module VagrantPlugins
 
       DEFAULT_DISK_TYPES = [:disk, :dvd, :floppy].freeze
 
+      FILE_CHAR_REGEX = /[^-a-z0-9_]/i.freeze
+
       # Note: This value is for internal use only
       #
       # @return [String]
@@ -39,7 +41,8 @@ module VagrantPlugins
       # @return [Integer,String]
       attr_accessor :size
 
-      # Path to the location of the disk file (Optional)
+      # Path to the location of the disk file (Optional for `:disk` type,
+      # required for `:dvd` type.)
       #
       # @return [String]
       attr_accessor :file
@@ -97,7 +100,11 @@ module VagrantPlugins
         end
 
         current = @provider_config.merge(current) if !@provider_config.empty?
-        @provider_config = current
+        if current
+          @provider_config = current[:provider_config]
+        else
+          @provider_config = {}
+        end
       end
 
       def finalize!
@@ -107,27 +114,25 @@ module VagrantPlugins
         @size = nil if @size == UNSET_VALUE
         @file = nil if @file == UNSET_VALUE
 
-        @disk_ext = "vdi" if @disk_ext == UNSET_VALUE
-
         if @primary == UNSET_VALUE
           @primary = false
         end
 
-        if @name == UNSET_VALUE
+        if @name.is_a?(String) && @name.match(FILE_CHAR_REGEX)
+            @logger.warn("Vagrant will remove detected invalid characters in '#{@name}' and convert the disk name into something usable for a file")
+            @name.gsub!(FILE_CHAR_REGEX, "_")
+        elsif @name == UNSET_VALUE
           if @primary
             @name = "vagrant_primary"
           else
             @name = nil
           end
         end
-
-        @provider_config = nil if @provider_config == {}
       end
 
       # @return [Array] array of strings of error messages from config option validation
       def validate(machine)
         errors = _detected_errors
-
         # validate type with list of known disk types
 
         if !DEFAULT_DISK_TYPES.include?(@type)
@@ -135,13 +140,20 @@ module VagrantPlugins
                            types: DEFAULT_DISK_TYPES.join(', '))
         end
 
-        if @disk_ext
+        if @disk_ext == UNSET_VALUE
+          if machine.provider.capability?(:set_default_disk_ext)
+            @disk_ext = machine.provider.capability(:set_default_disk_ext)
+          else
+            @logger.warn("No provider capability defined to set default 'disk_ext' type. Will use 'vdi' for disk extension.")
+            @disk_ext = "vdi"
+          end
+        elsif @disk_ext
           @disk_ext = @disk_ext.downcase
 
           if machine.provider.capability?(:validate_disk_ext)
             if !machine.provider.capability(:validate_disk_ext, @disk_ext)
-              if machine.provider.capability?(:get_default_disk_ext)
-                disk_exts = machine.provider.capability(:get_default_disk_ext).join(', ')
+              if machine.provider.capability?(:default_disk_exts)
+                disk_exts = machine.provider.capability(:default_disk_exts).join(', ')
               else
                 disk_exts = "not found"
               end
@@ -158,10 +170,18 @@ module VagrantPlugins
           if @size.is_a?(String)
             @size = Vagrant::Util::Numeric.string_to_bytes(@size)
           end
+        end
 
-          if !@size
-            errors << I18n.t("vagrant.config.disk.invalid_size", name: @name, machine: machine.name)
-          end
+        if !@size && type == :disk
+          errors << I18n.t("vagrant.config.disk.invalid_size", name: @name, machine: machine.name)
+        end
+
+        if @type == :dvd && !@file
+          errors << I18n.t("vagrant.config.disk.dvd_type_file_required", name: @name, machine: machine.name)
+        end
+
+        if @type == :dvd && @primary
+          errors << I18n.t("vagrant.config.disk.dvd_type_primary", name: @name, machine: machine.name)
         end
 
         if @file
@@ -174,10 +194,12 @@ module VagrantPlugins
         end
 
         if @provider_config
-          if !@provider_config.keys.include?(machine.provider_name)
-            machine.env.ui.warn(I18n.t("vagrant.config.disk.missing_provider",
-                                       machine: machine.name,
-                                       provider_name: machine.provider_name))
+          if !@provider_config.empty?
+            if !@provider_config.key?(machine.provider_name)
+              machine.env.ui.warn(I18n.t("vagrant.config.disk.missing_provider",
+                                         machine: machine.name,
+                                         provider_name: machine.provider_name))
+            end
           end
         end
 

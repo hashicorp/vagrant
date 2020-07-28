@@ -22,20 +22,22 @@ module VagrantPlugins
         # - Port: 0
         # - Device: 0
         #
+        # @param [String] controller_name - name of storage controller to attach disk to
         # @param [String] port - port on device to attach disk to
         # @param [String] device - device on controller for disk
-        # @param [String] file - disk file path
         # @param [String] type - type of disk to attach
+        # @param [String] file - disk file path
         # @param [Hash]   opts -  additional options
-        def attach_disk(port, device, file, type="hdd", **opts)
-          # Maybe only support SATA Controller for `:disk`???
-          controller = "SATA Controller"
-
+        def attach_disk(controller_name, port, device, type, file, **opts)
           comment = "This disk is managed externally by Vagrant. Removing or adjusting settings could potentially cause issues with Vagrant."
 
-          execute('storageattach', @uuid, '--storagectl', controller, '--port',
-                  port.to_s, '--device', device.to_s, '--type', type, '--medium',
-                  file, '--comment', comment)
+          execute('storageattach', @uuid,
+                  '--storagectl', controller_name,
+                  '--port', port.to_s,
+                  '--device', device.to_s,
+                  '--type', type,
+                  '--medium', file,
+                  '--comment', comment)
         end
 
         def clear_forwarded_ports
@@ -224,12 +226,15 @@ module VagrantPlugins
           raise
         end
 
+        # @param [String] controller_name - controller name to remove disk from
         # @param [String] port - port on device to attach disk to
         # @param [String] device - device on controller for disk
-        # @param [Hash]   opts -  additional options
-        def remove_disk(port, device)
-          controller = "SATA Controller"
-          execute('storageattach', @uuid, '--storagectl', controller, '--port', port.to_s, '--device', device.to_s, '--medium', "none")
+        def remove_disk(controller_name, port, device)
+          execute('storageattach', @uuid,
+                  '--storagectl', controller_name,
+                  '--port', port.to_s,
+                  '--device', device.to_s,
+                  '--medium', "none")
         end
 
         # @param [String] disk_file
@@ -388,20 +393,21 @@ module VagrantPlugins
         # Returns port and device for an attached disk given a disk uuid. Returns
         # empty hash if disk is not attachd to guest
         #
-        # @param [Hash] vm_info - A guests information from vboxmanage
         # @param [String] disk_uuid - the UUID for the disk we are searching for
         # @return [Hash] disk_info - Contains a device and port number
         def get_port_and_device(disk_uuid)
-          vm_info = show_vm_info
-
           disk = {}
-          disk_info_key = vm_info.key(disk_uuid)
-          return disk if !disk_info_key
 
-          disk_info = disk_info_key.split("-")
-
-          disk[:port] = disk_info[2]
-          disk[:device] = disk_info[3]
+          storage_controllers = read_storage_controllers
+          storage_controllers.each do |controller|
+            controller.attachments.each do |attachment|
+              if disk_uuid == attachment[:uuid]
+                disk[:port] = attachment[:port]
+                disk[:device] = attachment[:device]
+                return disk
+              end
+            end
+          end
 
           return disk
         end
@@ -921,6 +927,41 @@ module VagrantPlugins
           clone_disk(source, destination, 'VMDK')
 
           destination
+        end
+
+        # Helper method to get a list of storage controllers added to the
+        # current VM
+        #
+        # @return [VagrantPlugins::ProviderVirtualBox::Model::StorageControllerArray]
+        def read_storage_controllers
+          vm_info = show_vm_info
+          count = vm_info.count { |key, value| key.match(/^storagecontrollername\d+$/) }
+
+          storage_controllers = Model::StorageControllerArray.new
+
+          (0..count - 1).each do |n|
+            # basic controller metadata
+            name = vm_info["storagecontrollername#{n}"]
+            type = vm_info["storagecontrollertype#{n}"]
+            maxportcount = vm_info["storagecontrollermaxportcount#{n}"].to_i
+
+            # build attachments array
+            attachments = []
+            vm_info.each do |k, v|
+              if /^#{name}-ImageUUID-(\d+)-(\d+)$/ =~ k
+                port = $1.to_s
+                device = $2.to_s
+                uuid = v
+                location = vm_info["#{name}-#{port}-#{device}"]
+
+                attachments << {port: port, device: device, uuid: uuid, location: location}
+              end
+            end
+
+            storage_controllers << Model::StorageController.new(name, type, maxportcount, attachments)
+          end
+
+          storage_controllers
         end
 
         protected
