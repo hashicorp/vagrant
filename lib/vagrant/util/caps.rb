@@ -30,7 +30,8 @@ module Vagrant
           if file_destination.nil?
             tmpfile = Tempfile.new(["vagrant", ".iso"])
             file_destination = Pathname.new(tmpfile.path)
-            tmpfile.delete
+            tmpfile.close
+            tmpfile.unlink
           else
             file_destination = Pathname.new(file_destination.to_s)
             # If the file destination path is a folder, target the output to a randomly named

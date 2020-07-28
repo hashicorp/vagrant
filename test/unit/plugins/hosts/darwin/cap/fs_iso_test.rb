@@ -62,7 +62,8 @@ describe VagrantPlugins::HostDarwin::Cap::FsISO do
       ).and_return(double(exit_code: 0))
       # Should create a directory wherever Tempfile creates files by default
       expect(FileUtils).to receive(:mkdir_p).with(Pathname.new(file_destination).dirname)
-
+      allow(file_destination).to receive(:close)
+      allow(file_destination).to receive(:unlink)
       output = subject.create_iso(env, "/foo/src")
       expect(output.to_s).to eq(file_destination)
     end
