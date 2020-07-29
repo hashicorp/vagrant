@@ -2,12 +2,10 @@ require_relative "../../../../base"
 
 describe "VagrantPlugins::GuestLinux::Cap::ChangeHostName" do
   let(:described_class) do
-    Class.new do
-      extend VagrantPlugins::GuestLinux::Plugin
+    VagrantPlugins::GuestLinux::Plugin
         .components
         .guest_capabilities[:linux]
         .get(:change_host_name)
-    end
   end
 
   let(:machine) { double("machine") }
@@ -35,7 +33,6 @@ describe "VagrantPlugins::GuestLinux::Cap::ChangeHostName" do
 
       it "sets the hostname" do
         comm.stub_command("hostname -f | grep '^#{name}$'", exit_code: 1)
-
         described_class.change_host_name(machine, name)
         expect(comm.received_commands[2]).to match(/hostname '#{name}'/)
       end

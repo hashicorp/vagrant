@@ -13,10 +13,6 @@ module VagrantPlugins
           CURRENT_HOSTNAME_FULL="$(hostname -f)"
           CURRENT_HOSTNAME_SHORT="$(hostname -s)"
 
-          # New hostname to be saved in /etc/hosts
-          NEW_HOSTNAME_FULL='#{name}'
-          NEW_HOSTNAME_SHORT="${NEW_HOSTNAME_FULL%%.*}"
-
           # Set the hostname - use hostnamectl if available
           if command -v hostnamectl; then
             hostnamectl set-hostname --static '#{name}'

@@ -7,11 +7,7 @@ module VagrantPlugins
         extend VagrantPlugins::GuestLinux::Cap::ChangeHostName
 
         def self.change_name_command(name)
-          basename = name.split(".", 2)[0]
-          return <<-EOH.gsub(/^ {14}/, "")
-          # Set hostname
-          hostnamectl set-hostname '#{basename}'
-          EOH
+          "hostnamectl set-hostname '#{name.split(".", 2).first}'"
         end
       end
     end
