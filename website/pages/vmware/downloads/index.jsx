@@ -9,10 +9,10 @@ export default function DownloadsPage({ releaseData }) {
     <div className={s.root}>
       <HashiHead
         is={Head}
-        title="VMWare Utility Downloads | Vagrant by HashiCorp"
+        title="VMware Utility Downloads | Vagrant by HashiCorp"
       />
       <ProductDownloader
-        product="Vagrant VMWare Utility"
+        product="Vagrant VMware Utility"
         baseProduct="Vagrant"
         version={VMWARE_UTILITY_VERSION}
         releaseData={releaseData}

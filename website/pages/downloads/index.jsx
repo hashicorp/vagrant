@@ -15,7 +15,7 @@ export default function DownloadsPage({ releaseData }) {
         releaseData={releaseData}
       >
         <Link href="/vmware/downloads">
-          <a>&raquo; Download VMWare Utility</a>
+          <a>&raquo; Download VMware Utility</a>
         </Link>
       </ProductDownloader>
     </div>
