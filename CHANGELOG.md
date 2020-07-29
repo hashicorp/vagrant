@@ -12,6 +12,8 @@ IMPROVEMENTS:
 - guest/haiku: Rsync install for rsync synced folders [GH-11614]
 - guest/solaris11: Add guest capability shell_expand_guest_path [GH-11759]
 - host/darwin: Add ability to build ISO [GH-11694]
+- hosts/linux: Add ability to build ISO [GH-11750]
+- hosts/windows: Add ability to build ISO [GH-11750]
 - providers/hyperv: Add support for SecureBootTemplate setting on import [GH-11756]
 - virtualbox/disks: Add ability to manage virtual dvds for guests [GH-11613]
 
