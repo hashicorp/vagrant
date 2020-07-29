@@ -326,7 +326,7 @@ module Vagrant
     # @return [Array<[Gem::Specification, String]>] spec and directory pairs
     def vagrant_internal_specs
       list = {}
-      directories = [Gem::Specification.default_specifications_dir]
+      directories = [Gem.default_specifications_dir]
       Gem::Specification.find_all{true}.each do |spec|
         list[spec.full_name] = spec
       end
