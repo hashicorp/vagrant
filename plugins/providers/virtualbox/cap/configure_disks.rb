@@ -65,13 +65,11 @@ module VagrantPlugins
             end
           end
 
-          current_disks = machine.provider.driver.list_hdds
-
           configured_disks = { disk: [], floppy: [], dvd: [] }
 
           defined_disks.each do |disk|
             if disk.type == :disk
-              disk_data = handle_configure_disk(machine, disk, current_disks, disk_controller.name)
+              disk_data = handle_configure_disk(machine, disk, disk_controller.name)
               configured_disks[:disk] << disk_data unless disk_data.empty?
             elsif disk.type == :floppy
               # TODO: Write me
@@ -95,12 +93,9 @@ module VagrantPlugins
           current_disk = nil
           if disk.primary
             storage_controllers = machine.provider.driver.read_storage_controllers
-            primary = storage_controllers.get_primary_attachment
-            primary_uuid = primary[:uuid]
-
-            current_disk = all_disks.select { |d| d["UUID"] == primary_uuid }.first
+            current_disk = storage_controllers.get_primary_attachment
           else
-            current_disk = all_disks.detect { |d| d["Disk Name"] == disk.name }
+            current_disk = all_disks.detect { |d| d[:disk_name] == disk.name }
           end
 
           current_disk
@@ -110,45 +105,62 @@ module VagrantPlugins
         #
         # @param [Vagrant::Machine] machine - the current machine
         # @param [Config::Disk] disk - the current disk to configure
-        # @param [Array] all_disks - A list of all currently defined disks in VirtualBox
         # @param [String] controller_name - the name of the storage controller to use
         # @return [Hash] - disk_metadata
-        def self.handle_configure_disk(machine, disk, all_disks, controller_name)
+        def self.handle_configure_disk(machine, disk, controller_name)
           storage_controllers = machine.provider.driver.read_storage_controllers
           controller = storage_controllers.get_controller(controller_name)
+          all_disks = controller.attachments
 
           disk_metadata = {}
 
-          # Grab the existing configured disk, if it exists
+          # Grab the existing configured disk attached to guest, if it exists
           current_disk = get_current_disk(machine, disk, all_disks)
 
-          # Configure current disk
           if !current_disk
-            # create new disk and attach
-            disk_metadata = create_disk(machine, disk, controller)
-          elsif compare_disk_size(machine, disk, current_disk)
-            disk_metadata = resize_disk(machine, disk, current_disk, controller)
-          else
-            # TODO: What if it needs to be resized?
+            # Look for an existing disk that's not been attached but exists
+            # inside VirtualBox
+            #
+            # NOTE: This assumes that if that disk exists and was created by
+            # Vagrant, it exists in the same location as the primary disk file.
+            # Otherwise Vagrant has no good way to determining if the disk was
+            # associated with the guest, since disk names are not unique
+            # globally to VirtualBox.
+            primary = storage_controllers.get_primary_attachment
+            existing_disk = machine.provider.driver.list_hdds.detect do |d|
+              File.dirname(d["Location"]) == File.dirname(primary[:location]) &&
+                d["Disk Name"] == disk.name
+            end
 
-            disk_info = machine.provider.driver.get_port_and_device(current_disk["UUID"])
-            if disk_info.empty?
+            if !existing_disk
+              # create new disk and attach to guest
+              disk_metadata = create_disk(machine, disk, controller)
+            else
+              # Disk has been created but failed to be attached to guest, so
+              # this method recovers that disk from previous failure
+              # and attaches it onto the guest
               LOGGER.warn("Disk '#{disk.name}' is not connected to guest '#{machine.name}', Vagrant will attempt to connect disk to guest")
               dsk_info = get_next_port(machine, controller)
               machine.provider.driver.attach_disk(controller.name,
                                                   dsk_info[:port],
                                                   dsk_info[:device],
                                                   "hdd",
-                                                  current_disk["Location"])
+                                                  existing_disk["Location"])
+
+              disk_metadata[:uuid] = existing_disk["UUID"]
               disk_metadata[:port] = dsk_info[:port]
               disk_metadata[:device] = dsk_info[:device]
-            else
-              LOGGER.info("No further configuration required for disk '#{disk.name}'")
-              disk_metadata[:port] = disk_info[:port]
-              disk_metadata[:device] = disk_info[:device]
+              disk_metadata[:name] = disk.name
+              disk_metadata[:controller] = controller.name
             end
+          elsif compare_disk_size(machine, disk, current_disk)
+            disk_metadata = resize_disk(machine, disk, current_disk, controller)
+          else
+            LOGGER.info("No further configuration required for disk '#{disk.name}'")
+            disk_metadata[:uuid] = current_disk[:uuid]
+            disk_metadata[:port] = current_disk[:port]
+            disk_metadata[:device] = current_disk[:device]
 
-            disk_metadata[:uuid] = current_disk["UUID"]
             disk_metadata[:name] = disk.name
             disk_metadata[:controller] = controller.name
           end
@@ -211,7 +223,7 @@ module VagrantPlugins
         # @return [Boolean]
         def self.compare_disk_size(machine, disk_config, defined_disk)
           requested_disk_size = Vagrant::Util::Numeric.bytes_to_megabytes(disk_config.size)
-          defined_disk_size = defined_disk["Capacity"].split(" ").first.to_f
+          defined_disk_size = defined_disk[:capacity].split(" ").first.to_f
 
           if defined_disk_size > requested_disk_size
             machine.ui.warn(I18n.t("vagrant.cap.configure_disks.shrink_size_not_supported", name: disk_config.name))
@@ -326,46 +338,43 @@ module VagrantPlugins
         def self.resize_disk(machine, disk_config, defined_disk, controller)
           machine.ui.detail(I18n.t("vagrant.cap.configure_disks.resize_disk", name: disk_config.name), prefix: true)
 
-          # grab disk to be resized port and device number
-          disk_info = machine.provider.driver.get_port_and_device(defined_disk["UUID"])
-
-          if defined_disk["Storage format"] == "VMDK"
+          if defined_disk[:storage_format] == "VMDK"
             LOGGER.warn("Disk type VMDK cannot be resized in VirtualBox. Vagrant will convert disk to VDI format to resize first, and then convert resized disk back to VMDK format")
 
             # original disk information in case anything goes wrong during clone/resize
             original_disk = defined_disk
-            backup_disk_location = "#{original_disk["Location"]}.backup"
+            backup_disk_location = "#{original_disk[:location]}.backup"
 
             # clone disk to vdi formatted disk
-            vdi_disk_file = machine.provider.driver.vmdk_to_vdi(defined_disk["Location"])
+            vdi_disk_file = machine.provider.driver.vmdk_to_vdi(defined_disk[:location])
             # resize vdi
             machine.provider.driver.resize_disk(vdi_disk_file, disk_config.size.to_i)
 
             begin
               # Danger Zone
               # remove and close original volume
-              machine.provider.driver.remove_disk(controller.name, disk_info[:port], disk_info[:device])
+              machine.provider.driver.remove_disk(controller.name, defined_disk[:port], defined_disk[:device])
               # Create a backup of the original disk if something goes wrong
-              LOGGER.warn("Making a backup of the original disk at #{defined_disk["Location"]}")
-              FileUtils.mv(defined_disk["Location"], backup_disk_location)
+              LOGGER.warn("Making a backup of the original disk at #{defined_disk[:location]}")
+              FileUtils.mv(defined_disk[:location], backup_disk_location)
 
               # we have to close here, otherwise we can't re-clone after
               # resizing the vdi disk
-              machine.provider.driver.close_medium(defined_disk["UUID"])
+              machine.provider.driver.close_medium(defined_disk[:uuid])
 
               # clone back to original vmdk format and attach resized disk
               vmdk_disk_file = machine.provider.driver.vdi_to_vmdk(vdi_disk_file)
               machine.provider.driver.attach_disk(controller.name,
-                                                  disk_info[:port],
-                                                  disk_info[:device],
+                                                  defined_disk[:port],
+                                                  defined_disk[:device],
                                                   "hdd",
                                                   vmdk_disk_file)
             rescue ScriptError, SignalException, StandardError
               LOGGER.warn("Vagrant encountered an error while trying to resize a disk. Vagrant will now attempt to reattach and preserve the original disk...")
               machine.ui.error(I18n.t("vagrant.cap.configure_disks.recovery_from_resize",
-                                      location: original_disk["Location"],
+                                      location: original_disk[:location],
                                       name: machine.name))
-              recover_from_resize(machine, disk_info, backup_disk_location, original_disk, vdi_disk_file, controller)
+              recover_from_resize(machine, defined_disk, backup_disk_location, original_disk, vdi_disk_file, controller)
               raise
             ensure
               # Remove backup disk file if all goes well
@@ -376,14 +385,17 @@ module VagrantPlugins
             machine.provider.driver.close_medium(vdi_disk_file)
 
             # Get new updated disk UUID for vagrant disk_meta file
-            new_disk_info = machine.provider.driver.list_hdds.select { |h| h["Location"] == defined_disk["Location"] }.first
+            storage_controllers = machine.provider.driver.read_storage_controllers
+            updated_controller = storage_controllers.get_controller(controller.name)
+            new_disk_info = updated_controller.attachments.detect { |h| h[:location] == defined_disk[:location] }
+
             defined_disk = new_disk_info
           else
-            machine.provider.driver.resize_disk(defined_disk["Location"], disk_config.size.to_i)
+            machine.provider.driver.resize_disk(defined_disk[:location], disk_config.size.to_i)
           end
 
-          disk_metadata = { uuid: defined_disk["UUID"], name: disk_config.name, controller: controller.name,
-                            port: disk_info[:port], device: disk_info[:device] }
+          disk_metadata = { uuid: defined_disk[:uuid], name: disk_config.name, controller: controller.name,
+                            port: defined_disk[:port], device: defined_disk[:device] }
 
           disk_metadata
         end
@@ -402,13 +414,13 @@ module VagrantPlugins
         def self.recover_from_resize(machine, disk_info, backup_disk_location, original_disk, vdi_disk_file, controller)
           begin
             # move backup to original name
-            FileUtils.mv(backup_disk_location, original_disk["Location"], force: true)
+            FileUtils.mv(backup_disk_location, original_disk[:location], force: true)
             # Attach disk
             machine.provider.driver.attach_disk(controller.name,
                                                 disk_info[:port],
                                                 disk_info[:device],
                                                 "hdd",
-                                                original_disk["Location"])
+                                                original_disk[:location])
 
             # Remove cloned disk if still hanging around
             if vdi_disk_file

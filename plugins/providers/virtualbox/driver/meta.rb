@@ -146,6 +146,7 @@ module VagrantPlugins
           :set_mac_address,
           :set_name,
           :share_folders,
+          :show_medium_info,
           :ssh_port,
           :start,
           :suspend,

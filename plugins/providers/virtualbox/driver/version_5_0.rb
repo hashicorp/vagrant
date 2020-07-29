@@ -808,6 +808,26 @@ module VagrantPlugins
           end
         end
 
+        # Returns information for a given disk
+        #
+        # @param [String] disk_type - can be "disk", "dvd", or "floppy"
+        # @param [String] disk_uuid_or_file
+        # @return [Hash] disk
+        def show_medium_info(disk_type, disk_uuid_or_file)
+          disk = {}
+          execute('showmediuminfo', disk_type, disk_uuid_or_file, retryable: true).split("\n").each do |line|
+            parts = line.partition(":")
+            key = parts.first.strip
+            value = parts.last.strip
+            disk[key] = value
+
+            if key == "Location"
+              disk["Disk Name"] = File.basename(value, ".*")
+            end
+          end
+          disk
+        end
+
         def ssh_port(expected_port)
           @logger.debug("Searching for SSH port: #{expected_port.inspect}")
 
@@ -936,6 +956,7 @@ module VagrantPlugins
         def read_storage_controllers
           vm_info = show_vm_info
           count = vm_info.count { |key, value| key.match(/^storagecontrollername\d+$/) }
+          all_disks = list_hdds
 
           storage_controllers = Model::StorageControllerArray.new
 
@@ -954,7 +975,20 @@ module VagrantPlugins
                 uuid = v
                 location = vm_info["#{name}-#{port}-#{device}"]
 
-                attachments << {port: port, device: device, uuid: uuid, location: location}
+                extra_disk_data = all_disks.detect { |d| d["UUID"] == uuid }
+
+                attachment = { port: port,
+                               device: device,
+                               uuid: uuid,
+                               location: location }
+
+                extra_disk_data&.each do |dk,dv|
+                  # NOTE: We convert the keys from VirtualBox to symbols
+                  # to be consistent with the other keys
+                  attachment[dk.downcase.gsub(' ', '_').to_sym] = dv
+                end
+
+                attachments << attachment
               end
             end
 
