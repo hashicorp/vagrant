@@ -33,6 +33,7 @@ BUG FIXES:
 - guest/linux: Add virtual box shared folders to guest fstab [GH-11570]
 - guest/suse: Allow setting of hostname according to `hostname` option [GH-11567]
 - providers/docker: Ensure new containers don't grab existing bound ports [GH-11602]
+- providers/virtualbox: Fix inability to create disk with same name across multiple guests [GH-11767]
 - provisioners/shell: Ensure Windows shell provisioner gets the correct file extension [GH-11644]
 
 ## 2.2.9 (May 07, 2020)
