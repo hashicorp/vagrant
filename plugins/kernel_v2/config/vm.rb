@@ -508,7 +508,6 @@ module VagrantPlugins
 
       def finalize!
         # Defaults
-        @allow_fstab_modification = true if @allow_fstab_modification == UNSET_VALUE
         @allowed_synced_folder_types = nil if @allowed_synced_folder_types == UNSET_VALUE
         @base_mac = nil if @base_mac == UNSET_VALUE
         @base_address = nil if @base_address == UNSET_VALUE
@@ -725,6 +724,21 @@ module VagrantPlugins
 
       def validate(machine, ignore_provider=nil)
         errors = _detected_errors
+
+        if @allow_fstab_modification == UNSET_VALUE
+          plugins = Vagrant.plugin("2").manager.synced_folders
+          machine.synced_folders.each do |type, _|
+            instance = plugins[type.to_sym][0].new
+            instance._initialize(machine, type)
+            if instance.capability?(:default_fstab_modification)
+              if instance.capability(:default_fstab_modification) == false
+                @allow_fstab_modification = false
+                break
+              end
+            end
+          end
+          @allow_fstab_modification = true if @allow_fstab_modification == UNSET_VALUE
+        end
 
         if !box && !clone && !machine.provider_options[:box_optional]
           errors << I18n.t("vagrant.config.vm.box_missing")

@@ -257,7 +257,21 @@ module Vagrant
             end
           end
         end
+        
+        # This returns all the registered synced folder capabilities.
+        #
+        # @return [Hash]
+        def synced_folder_capabilities
+          results = Hash.new { |h, k| h[k] = Registry.new }
 
+          @registered.each do |plugin|
+            plugin.components.synced_folder_capabilities.each do |synced_folder, caps|
+              results[synced_folder].merge!(caps)
+            end
+          end
+
+          results
+        end
         # This registers a plugin. This should _NEVER_ be called by the public
         # and should only be called from within Vagrant. Vagrant will
         # automatically register V2 plugins when a name is set on the

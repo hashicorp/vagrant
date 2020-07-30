@@ -1,4 +1,5 @@
 require_relative "util/ssh"
+require_relative "action/builtin/mixin_synced_folders"
 
 require "digest/md5"
 require "thread"
@@ -10,6 +11,8 @@ module Vagrant
   # API for querying the state and making state changes to the machine, which
   # is backed by any sort of provider (VirtualBox, VMware, etc.).
   class Machine
+    include Vagrant::Action::Builtin::MixinSyncedFolders
+
     # The box that is backing this machine.
     #
     # @return [Box]
