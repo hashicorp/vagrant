@@ -86,6 +86,7 @@ Vagrant.configure(2) do |global_config|
         guest_boxes.each_with_index do |box_info, idx|
           guest_box, box_version = box_info
           guest_platform = guest_box.split('/').last.sub(/[^a-z]+$/, '')
+          guest_platform = PLATFORM_SCRIPT_MAPPING[guest_platform]
           spec_cmd_args = ENV["VAGRANT_SPEC_ARGS"]
           if idx != 0
             spec_cmd_args = "#{spec_cmd_args} --without-component cli/*".strip
