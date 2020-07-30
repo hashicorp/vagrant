@@ -1,7 +1,11 @@
+require 'vagrant/util/guest_hosts'
+
 module VagrantPlugins
   module GuestDarwin
     module Cap
       class ChangeHostName
+        extend Vagrant::Util::GuestHosts::BSD
+
         def self.change_host_name(machine, name)
           comm = machine.communicate
 
@@ -21,13 +25,13 @@ module VagrantPlugins
               fi
 
               hostname '#{name}'
-
-              # Prepend ourselves to /etc/hosts - sed on bsd is sad
-              grep -w '#{name}' /etc/hosts || {
-                echo -e '127.0.0.1\\t#{name}\\t#{basename}' | cat - /etc/hosts > /tmp/tmp-hosts &&
-                  mv /tmp/tmp-hosts /etc/hosts
-              }
             EOH
+          end
+          network_with_hostname = machine.config.vm.networks.map {|_, c| c if c[:hostname] }.compact[0]
+          if network_with_hostname
+            replace_host(comm, name, network_with_hostname[:ip])
+          else
+            add_hostname_to_loopback_interface(comm, name)
           end
         end
       end
