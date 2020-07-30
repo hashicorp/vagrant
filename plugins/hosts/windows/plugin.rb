@@ -70,6 +70,11 @@ module VagrantPlugins
         require_relative "cap/ssh"
         Cap::SSH
       end
+
+      host_capability("windows", "smb_validate_password") do
+        require_relative "cap/smb"
+        Cap::SMB
+      end
     end
   end
 end
