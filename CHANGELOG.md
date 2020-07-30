@@ -37,6 +37,7 @@ BUG FIXES:
 - providers/docker: Ensure new containers don't grab existing bound ports [GH-11602]
 - providers/virtualbox: Fix inability to create disk with same name across multiple guests [GH-11767]
 - provisioners/shell: Ensure Windows shell provisioner gets the correct file extension [GH-11644]
+- util/powershell: Use correct powershell executable for privileged commands [GH-11787]
 
 ## 2.2.9 (May 07, 2020)
 
