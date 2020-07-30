@@ -24,6 +24,7 @@ BUG FIXES:
 - core: Ensure network addresses have a valid netmask [GH-11679]
 - core: Recover local machine metadata in global index [GH-11656]
 - core: Print CLI help message is ambiguous option provided [GH-11746]
+- core: Update how `/etc/hosts` gets updated for darwin, freebsd and openbsd [GH-11719]
 - commands/destroy: Add gracefull option to switch beween gracefully or forcefully shutting down a vm [GH-11628]
 - config/vm: Add option `allow_hosts_modification` to allow/disable Vagrant editing the guests `/etc/hosts` file [GH-11565]
 - config/vm: Add config option `hostname` to `config.vm.network` [GH-11566]
