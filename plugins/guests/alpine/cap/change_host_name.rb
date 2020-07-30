@@ -1,7 +1,11 @@
+require 'vagrant/util/guest_hosts'
+
 module VagrantPlugins
   module GuestAlpine
     module Cap
       class ChangeHostName
+        include Vagrant::Util::GuestHosts::Linux
+
         def self.change_host_name(machine, name)
           new(machine, name).change!
         end
@@ -14,10 +18,10 @@ module VagrantPlugins
         end
 
         def change!
+          update_etc_hosts
           return unless should_change?
 
           update_etc_hostname
-          update_etc_hosts
           refresh_hostname_service
           update_mailname
           renew_dhcp
@@ -48,17 +52,12 @@ module VagrantPlugins
         # 127.0.0.1   localhost
         # 127.0.1.1   host.fqdn.com host.fqdn host
         def update_etc_hosts
-          if machine.communicate.test("grep '#{current_hostname}' /etc/hosts")
-            # Current hostname entry is in /etc/hosts
-            ip_address = '([0-9]{1,3}\.){3}[0-9]{1,3}'
-            search     = "^(#{ip_address})\\s+#{Regexp.escape(current_hostname)}(\\s.*)?$"
-            replace    = "\\1 #{new_hostname} #{short_hostname}"
-            expression = ['s', search, replace, 'g'].join('@')
-
-            machine.communicate.sudo("sed -ri '#{expression}' /etc/hosts")
+          comm = machine.communicate
+          network_with_hostname = machine.config.vm.networks.map {|_, c| c if c[:hostname] }.compact[0]
+          if network_with_hostname
+            replace_host(comm, new_hostname, network_with_hostname[:ip])
           else
-            # Current hostname entry isn't in /etc/hosts, just append it
-            machine.communicate.sudo("echo '127.0.1.1 #{new_hostname} #{short_hostname}' >>/etc/hosts")
+            add_hostname_to_loopback_interface(comm, new_hostname)
           end
         end
 
