@@ -10,7 +10,7 @@ export default [
     type: 'inbound',
   },
   {
-    text: 'VMWare',
+    text: 'VMware',
     url: '/vmware',
     type: 'inbound',
   },

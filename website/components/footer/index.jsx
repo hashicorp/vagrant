@@ -15,7 +15,7 @@ export default function Footer({ openConsentManager }) {
           Book
         </a>
         <Link href="/vmware">
-          <a>VMWare</a>
+          <a>VMware</a>
         </Link>
         <a href="https://hashicorp.com/privacy">Privacy</a>
         <Link href="/security">

@@ -27,7 +27,7 @@ This setting is disabled by default. The Vagrantfile settings below will
 enable auto-upgrading:
 
 ```ruby
-# Ensure that VMWare Tools recompiles kernel modules
+# Ensure that VMware Tools recompiles kernel modules
 # when we update the linux images
 $fix_vmware_tools_script = <<SCRIPT
 sed -i.bak 's/answer AUTO_KMODS_ENABLED_ANSWER no/answer AUTO_KMODS_ENABLED_ANSWER yes/g' /etc/vmware-tools/locations
