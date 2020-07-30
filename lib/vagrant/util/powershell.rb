@@ -231,7 +231,7 @@ module Vagrant
             "-PassThru -WindowStyle Hidden -Wait -Verb RunAs; if($p){ exit $p.ExitCode; }else{ exit 1 }"
 
           cmd = [
-            "powershell",
+            executable,
             "-NoLogo",
             "-NoProfile",
             "-NonInteractive",
