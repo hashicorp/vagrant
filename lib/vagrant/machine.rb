@@ -11,7 +11,7 @@ module Vagrant
   # API for querying the state and making state changes to the machine, which
   # is backed by any sort of provider (VirtualBox, VMware, etc.).
   class Machine
-    include Vagrant::Action::Builtin::MixinSyncedFolders
+    extend Vagrant::Action::Builtin::MixinSyncedFolders
 
     # The box that is backing this machine.
     #
@@ -617,6 +617,29 @@ module Vagrant
           @ui = old_ui
         end
       end
+    end
+
+    # This returns the set of shared folders that should be done for
+    # this machine. It returns the folders in a hash keyed by the
+    # implementation class for the synced folders.
+    #
+    # @return [Hash<Symbol, Hash<String, Hash>>]
+    def synced_folders
+      self.class.synced_folders(self)
+    end
+
+    # Returns the SyncedFolder object associated with this machine.
+    #
+    # @return [List<Class>]
+    def synced_folder_types
+      return @synced_folder_types if defined?(@synced_folder_types)
+      plugins = Vagrant.plugin("2").manager.synced_folders
+      @synced_folder_types = synced_folders.map { |type, folders|
+        impl = plugins[type][0].new()
+        impl._initialize(self, type)
+        [type, impl]
+      }.to_h
+      @synced_folder_types
     end
 
     protected

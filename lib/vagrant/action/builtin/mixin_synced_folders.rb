@@ -36,7 +36,11 @@ module Vagrant
 
           # Find the proper implementation
           ordered.each do |_, key, impl|
-            return key if impl.new.usable?(machine)
+            begin
+              return key if impl.new.usable?(machine)
+            rescue
+              # Don't do anything. If an error is raised, the impl is not usable
+            end
           end
 
           return nil

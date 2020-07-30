@@ -22,7 +22,7 @@ module VagrantPlugins
           end
           export_folders = fstab_folders.map do |name, data|
             guest_path = Shellwords.escape(data[:guestpath])
-            mount_options, mount_uid, mount_gid  =  mount_options(machine, name, guest_path, data)
+            mount_options, mount_uid, mount_gid = machine.synced_folder_types[:virtualbox].capability(:mount_options, name, guest_path, data)
             mount_options = "#{mount_options},nofail"
             {
               name: name,
