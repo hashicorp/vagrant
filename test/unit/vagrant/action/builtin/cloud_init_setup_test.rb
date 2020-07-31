@@ -86,6 +86,11 @@ describe Vagrant::Action::Builtin::CloudInitSetup do
       message = subject.generate_cfg_msg(machine, text_cfgs)
       expect(message).to be_a(MIME::Multipart::Mixed)
     end
+
+    it "sets a MIME-Version header" do
+      message = subject.generate_cfg_msg(machine, text_cfgs)
+      expect(message.headers.get("MIME-Version")).to eq("1.0")
+    end
   end
 
   describe "#write_cfg_iso" do

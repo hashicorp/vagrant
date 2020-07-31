@@ -73,6 +73,7 @@ module Vagrant
         # @return [MIME::Multipart::Mixed] msg
         def generate_cfg_msg(machine, text_cfgs)
           msg = MIME::Multipart::Mixed.new
+          msg.headers.set("MIME-Version", "1.0")
 
           text_cfgs.each do |c|
             msg.add(c)
