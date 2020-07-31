@@ -733,7 +733,7 @@ module VagrantPlugins
         end
 
         if box && box.empty?
-          errors << I18n.t("vagrant.config.vm.box_empty")
+          errors << I18n.t("vagrant.config.vm.box_empty", machine_name: machine.name)
         end
 
         errors << I18n.t("vagrant.config.vm.hostname_invalid_characters", name: machine.name) if \

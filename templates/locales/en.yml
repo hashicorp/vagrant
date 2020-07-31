@@ -1980,7 +1980,7 @@ en:
           Checksum type specified but "box_download_checksum" is blank
         box_download_checksum_notblank: |-
           Checksum specified but must also specify "box_download_checksum_type"
-        box_empty: "Box value is an empty string."
+        box_empty: "Box value for guest '%{machine_name}' is an empty string."
         box_missing: "A box must be specified."
         box_download_options_type: |-
           Found "box_download_options" specified as type '%{type}', should be a Hash
