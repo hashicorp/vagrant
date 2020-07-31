@@ -37,7 +37,7 @@ describe VagrantPlugins::Kernel_V2::VMConfig do
     allow(machine).to receive(:env).and_return(env)
     allow(machine).to receive(:provider_config).and_return(nil)
     allow(machine).to receive(:provider_options).and_return({})
-
+    allow(machine).to receive(:synced_folder_types).and_return([])
     allow(provider).to receive(:capability?).with(:validate_disk_ext).and_return(true)
     allow(provider).to receive(:capability).with(:validate_disk_ext, "vdi").and_return(true)
     allow(provider).to receive(:capability?).with(:set_default_disk_ext).and_return(true)
@@ -51,7 +51,7 @@ describe VagrantPlugins::Kernel_V2::VMConfig do
     assert_valid
   end
 
-  it  "validates disables_host_modification option" do
+  it "validates disables_host_modification option" do
     subject.allow_hosts_modification = true
     subject.finalize!
     assert_valid
@@ -63,6 +63,13 @@ describe VagrantPlugins::Kernel_V2::VMConfig do
     subject.allow_hosts_modification = "truthy"
     subject.finalize!
     assert_invalid
+  end
+
+  it "does not check for fstab caps if already set" do
+    expect(machine).to_not receive(:synced_folder_types)
+    subject.allow_fstab_modification = true
+    subject.finalize!
+    assert_valid
   end
 
   describe "#base_mac" do

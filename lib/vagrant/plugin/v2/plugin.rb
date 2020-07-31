@@ -252,7 +252,7 @@ module Vagrant
         # to be executed. This means that if it is an instance method,
         # the block should return an instance of the class.
         #
-        # @param [String] host The name of the synced folder
+        # @param [String] synced_folder The name of the synced folder
         # @param [String] cap The name of the capability
         def self.synced_folder_capability(synced_folder, cap, &block)
           components.synced_folder_capabilities[synced_folder.to_sym].register(cap.to_sym, &block)

@@ -113,6 +113,7 @@ module VagrantPlugins
         merged.map do |key, value|
           [key, value].compact.join("=")
         end
+      end
     end
   end
 end

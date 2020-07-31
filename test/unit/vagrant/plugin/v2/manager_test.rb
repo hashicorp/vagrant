@@ -357,4 +357,22 @@ describe Vagrant::Plugin::V2::Manager do
     expect(instance.synced_folders[:foo]).to eq(["bar", 10])
     expect(instance.synced_folders[:bar]).to eq(["baz", 50])
   end
+
+  it "should enumerate registered synced_folder_capabilities classes" do
+    pA = plugin do |p|
+      p.synced_folder_capability("foo", "foo") { "bar" }
+    end
+
+    pB = plugin do |p|
+      p.synced_folder_capability("bar", "bar") { "baz" }
+    end
+
+    instance.register(pA)
+    instance.register(pB)
+
+    expect(instance.synced_folder_capabilities.to_hash.length).to eq(2)
+    expect(instance.synced_folder_capabilities[:foo][:foo]).to eq("bar")
+    expect(instance.synced_folder_capabilities[:bar][:bar]).to eq("baz")
+  end
+
 end
