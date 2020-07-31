@@ -20,7 +20,7 @@ module Vagrant
 
           if !user_data_configs.empty?
             user_data = setup_user_data(machine, env, user_data_configs)
-            meta_data = { "instance-id": "i-#{machine.id.split('-').join}" }
+            meta_data = { "instance-id" => "i-#{machine.id.split('-').join}" }
 
             write_cfg_iso(machine, env, user_data, meta_data)
           end
@@ -97,7 +97,7 @@ module Vagrant
               source_dir = Pathname.new(Dir.mktmpdir(TEMP_PREFIX))
               File.open("#{source_dir}/user-data", 'w') { |file| file.write(user_data.to_s) }
 
-              File.open("#{source_dir}/meta-data", 'w') { |file| file.write(meta_data.to_s) }
+              File.open("#{source_dir}/meta-data", 'w') { |file| file.write(meta_data.to_yaml) }
 
               iso_path = env[:env].host.capability(:create_iso,
                                                    source_dir, volume_id: "cidata")
