@@ -37,6 +37,15 @@ describe Vagrant::Action::Builtin::HandleBox do
     subject.call(env)
   end
 
+  it "works if box is empty string" do
+    machine.config.vm.box = ""
+    machine.config.vm.box_url = nil
+
+    expect(app).to receive(:call).with(env)
+
+    subject.call(env)
+  end
+
   it "doesn't do anything if a box exists" do
     allow(machine).to receive(:box).and_return(box)
 
