@@ -6,11 +6,16 @@ describe Vagrant::Action::Builtin::CloudInitWait do
   let(:config) { double("config", :vm => vm) }
   let(:comm) { double("comm") }
   let(:machine) { double("machie", :config => config, :communicate => comm, :name => "test") }
-  let(:env) { { machine: machine} }
+  let(:ui) { double("ui") }
+  let(:env) { { machine: machine, ui: ui} }
 
   let(:subject) { described_class.new(app, env) }
 
   describe "#call" do
+
+    before do
+      allow(ui).to receive(:output)
+    end
 
     context "cloud init configuration exists" do
       
@@ -21,7 +26,7 @@ describe Vagrant::Action::Builtin::CloudInitWait do
       end
       
       it "waits for cloud init to be executed" do
-        expect(comm).to receive(:sudo).with("cloud-init status --wait", any_args)
+        expect(comm).to receive(:sudo).with("cloud-init status --wait", any_args).and_return(0)
         subject.call(env)
       end
 
@@ -29,6 +34,12 @@ describe Vagrant::Action::Builtin::CloudInitWait do
         allow(comm).to receive(:test).with("command -v cloud-init").and_return(false)
         expect { subject.call(env) }.
           to raise_error(Vagrant::Errors::CloudInitNotFound)
+      end
+
+      it "raises an error when cloud init command fails" do
+        expect(comm).to receive(:sudo).with("cloud-init status --wait", any_args).and_return(1)
+        expect { subject.call(env) }.
+          to raise_error(Vagrant::Errors::CloudInitCommandFailed)
       end
     end
 

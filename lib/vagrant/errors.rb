@@ -308,6 +308,10 @@ module Vagrant
       error_key(:cloud_init_not_found)
     end
 
+    class CloudInitCommandFailed < VagrantError
+      error_key(:cloud_init_command_failed)
+    end
+
     class CommandDeprecated < VagrantError
       error_key(:command_deprecated)
     end
