@@ -12,7 +12,7 @@ module Vagrant
           machine = env[:machine]
           if !machine.config.vm.cloud_init_configs.empty?
             if machine.communicate.test("command -v cloud-init")
-              @logger.info("Waiting for cloud init")
+              env[:ui].output(I18n.t("vagrant.cloud_init_waiting"))
               machine.communicate.sudo("cloud-init status --wait")
             else
               raise Vagrant::Errors::CloudInitNotFound, guest_name: machine.name

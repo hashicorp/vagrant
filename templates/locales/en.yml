@@ -127,6 +127,7 @@ en:
       Warning: Chef run list is empty. This may not be what you want.
     cli_interrupt: |-
       Exiting due to interrupt.
+    cloud_init_waiting: Waiting for cloud init to finish running
     container_pulling_single: |-
       -- Image: %{name}
     container_building_single: |-
@@ -2383,7 +2384,7 @@ en:
             failure: |-
               Failed to create lock-file for master VM creation for box %{box}.
         cloud_init_user_data_setup: |-
-          Preparing cloud_init iso based on :user_data configuration...
+          Preparing user data for cloud-init...
         customize:
           failure: |-
             A customization command failed:
