@@ -565,6 +565,16 @@ describe VagrantPlugins::CommunicatorSSH::Communicator do
       end
     end
 
+    it "creates remote directory given an empty directory" do
+      file = Dir.mktmpdir
+      begin
+        expect(communicator).to receive(:create_remote_directory).with("/destination/dir/#{ File.basename(file)}/")
+        communicator.upload(file, "/destination/dir")
+      ensure
+        FileUtils.rm_rf(file)
+      end
+    end
+
     it "raises custom error on permission errors" do
       file = Tempfile.new('vagrant-test')
       begin
