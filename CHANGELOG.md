@@ -9,6 +9,7 @@ IMPROVEMENTS:
 - core: Allow provisioners to be run when a communicator is not available [GH-11579]
 - core: Add `autocomplete` command that allows for install of bash or zsh autocomplete scripts [GH-11523]
 - core: Update to childprocess gem to 4.0.0
+- core: Add action to wait for cloud-init to finish running [GH-11773]
 - guest/arch: Use systemd-networkd to configure networking for guests [GH-11400]
 - guest/haiku: Rsync install for rsync synced folders [GH-11614]
 - guest/solaris11: Add guest capability shell_expand_guest_path [GH-11759]
