@@ -127,6 +127,7 @@ en:
       Warning: Chef run list is empty. This may not be what you want.
     cli_interrupt: |-
       Exiting due to interrupt.
+    cloud_init_waiting: Waiting for cloud init to finish running
     container_pulling_single: |-
       -- Image: %{name}
     container_building_single: |-
@@ -788,6 +789,11 @@ en:
         Additionally, the created environment must be started with a provider
         matching this provider. For example, if you're using VirtualBox,
         the clone environment must also be using VirtualBox.
+      cloud_init_not_found: |-
+        cloud-init is not found. Please ensure that cloud-init is installed and 
+        available on path for guest '%{guest_name}'.
+      cloud_init_command_failed: |- 
+        cloud init command '%{cmd}' failed on guest '%{guest_name}'.
       command_deprecated: |-
         The command 'vagrant %{name}' has been deprecated and is no longer functional
         within Vagrant.
@@ -2380,7 +2386,7 @@ en:
             failure: |-
               Failed to create lock-file for master VM creation for box %{box}.
         cloud_init_user_data_setup: |-
-          Preparing cloud_init iso based on :user_data configuration...
+          Preparing user data for cloud-init...
         customize:
           failure: |-
             A customization command failed:

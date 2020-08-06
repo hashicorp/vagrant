@@ -304,6 +304,14 @@ module Vagrant
       error_key(:clone_machine_not_found)
     end
 
+    class CloudInitNotFound < VagrantError
+      error_key(:cloud_init_not_found)
+    end
+
+    class CloudInitCommandFailed < VagrantError
+      error_key(:cloud_init_command_failed)
+    end
+
     class CommandDeprecated < VagrantError
       error_key(:command_deprecated)
     end

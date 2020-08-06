@@ -25,7 +25,7 @@ describe Vagrant::Action::Builtin::CloudInitSetup do
   let(:text_cfgs) { [MIME::Text.new("data: true", "cloud-config"),
                      MIME::Text.new("data: false", "cloud-config") ] }
 
-  let(:meta_data) { { "instance-id": "i-123456789" } }
+  let(:meta_data) { { "instance-id" => "i-123456789" } }
 
 
   let(:subject) { described_class.new(app, env) }
@@ -86,11 +86,21 @@ describe Vagrant::Action::Builtin::CloudInitSetup do
       message = subject.generate_cfg_msg(machine, text_cfgs)
       expect(message).to be_a(MIME::Multipart::Mixed)
     end
+
+    it "sets a MIME-Version header" do
+      message = subject.generate_cfg_msg(machine, text_cfgs)
+      expect(message.headers.get("MIME-Version")).to eq("1.0")
+    end
   end
 
   describe "#write_cfg_iso" do
     let(:iso_path) { Pathname.new("fake/iso/path") }
     let(:source_dir) { Pathname.new("fake/source/path") }
+    let(:meta_data_file) { double("meta_data_file") }
+
+    before do
+      allow(meta_data_file).to receive(:write).and_return(true)
+    end
 
     it "raises an error if the host capability is not supported" do
       message = subject.generate_cfg_msg(machine, text_cfgs)
@@ -104,12 +114,13 @@ describe Vagrant::Action::Builtin::CloudInitSetup do
       allow(host).to receive(:capability?).with(:create_iso).and_return(true)
       allow(Dir).to receive(:mktmpdir).and_return(source_dir)
       expect(File).to receive(:open).with("#{source_dir}/user-data", 'w').and_return(true)
-      expect(File).to receive(:open).with("#{source_dir}/meta-data", 'w').and_return(true)
+      expect(File).to receive(:open).with("#{source_dir}/meta-data", 'w').and_yield(meta_data_file)
       expect(FileUtils).to receive(:remove_entry).with(source_dir).and_return(true)
-      allow(host).to receive(:capability).with(:create_iso, machine_env, source_dir, volume_id: "cidata").and_return(iso_path)
+      allow(host).to receive(:capability).with(:create_iso, source_dir, volume_id: "cidata").and_return(iso_path)
       expect(vm.disks).to receive(:each)
+      expect(meta_data).to receive(:to_yaml)
 
-      subject.write_cfg_iso(machine, env, message, {})
+      subject.write_cfg_iso(machine, env, message, meta_data)
     end
   end
 
