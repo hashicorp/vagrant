@@ -36,6 +36,7 @@ BUG FIXES:
 - guest/suse: Allow setting of hostname according to `hostname` option [GH-11567]
 - providers/docker: Ensure new containers don't grab existing bound ports [GH-11602]
 - providers/virtualbox: Fix inability to create disk with same name across multiple guests [GH-11767]
+- provisioners/file: Allow creating empty folders [GH-11805]
 - provisioners/shell: Ensure Windows shell provisioner gets the correct file extension [GH-11644]
 - util/powershell: Use correct powershell executable for privileged commands [GH-11787]
 
