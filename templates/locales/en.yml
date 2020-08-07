@@ -1460,6 +1460,11 @@ en:
         usually indicates that SSH within the guest machine was unable to
         properly start up. Please boot the VM in GUI mode to check whether
         it is booting properly.
+      ssh_no_exit_status: |-
+        The SSH command completed, but Vagrant did not receive an exit status.
+        This indicates that the command was terminated unexpectedly. Please
+        check that the VM has sufficient memory to run the command and that no
+        processes were killed by the guest operating system.
       ssh_no_route: |-
         While attempting to connect with SSH, a "no route to host" (EHOSTUNREACH)
         error was received. Please verify your network settings are correct
