@@ -38,6 +38,7 @@ BUG FIXES:
 - config/vm: Don't ignore NFS synced folders on Windows hosts [GH-11631]
 - host: Use regular port check for loopback addresses [GH-11654]
 - host: Allow windows and linux hosts to detach from rdp process [GH-11732]
+- host/windows: Properly register SMB password validation capability [GH-11795]
 - guests: Allow setting of hostname according to `hostname` option for multiple guests [GH-11704]
 - guest/alpine: Allow setting of hostname according to `hostname` option [GH-11718]
 - guest/esxi: Be more permissive with permissions of ssh directory [GH-11587]
