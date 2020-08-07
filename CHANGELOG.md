@@ -18,6 +18,7 @@ IMPROVEMENTS:
 - hosts/linux: Add ability to build ISO [GH-11750]
 - hosts/windows: Add ability to build ISO [GH-11750]
 - providers/hyperv: Add support for SecureBootTemplate setting on import [GH-11756]
+- providers/hyperv: Add support for EnhancedSessionTransportType [GH-11014]
 - virtualbox/disks: Add ability to manage virtual dvds for guests [GH-11613]
 
 BUG FIXES:
