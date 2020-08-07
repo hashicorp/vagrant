@@ -198,10 +198,10 @@ describe Vagrant::Action::Builtin::HandleForwardedPortCollisions do
       let(:host_ip) { "192.168.99.100" }
       let(:name) { "default" }
 
-      it "should raise an error including the machine name" do
+      it "should not raise an error" do
         allow(machine).to receive(:name).and_return(name)
         expect{ instance.send(:port_check, host_ip, host_port) }.
-          to raise_error(Vagrant::Errors::ForwardPortHostIPNotFound, /#{name}/)
+          not_to raise_error
       end
     end
 
