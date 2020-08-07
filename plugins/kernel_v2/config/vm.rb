@@ -734,6 +734,10 @@ module VagrantPlugins
           errors << I18n.t("vagrant.config.vm.clone_and_box")
         end
 
+        if box && box.empty?
+          errors << I18n.t("vagrant.config.vm.box_empty", machine_name: machine.name)
+        end
+
         errors << I18n.t("vagrant.config.vm.hostname_invalid_characters", name: machine.name) if \
           @hostname && @hostname !~ /^[a-z0-9][-.a-z0-9]*$/i
 

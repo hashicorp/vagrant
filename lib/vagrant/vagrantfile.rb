@@ -197,7 +197,7 @@ module Vagrant
         local_keys = keys.dup
 
         # Load the box Vagrantfile, if there is one
-        if config.vm.box && boxes
+        if !config.vm.box.to_s.empty? && boxes
           box = boxes.find(config.vm.box, box_formats, config.vm.box_version)
           if box
             box_vagrantfile = find_vagrantfile(box.directory)
