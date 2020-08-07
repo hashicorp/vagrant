@@ -28,10 +28,12 @@ describe VagrantPlugins::HyperV::Action::Configure do
       enable_checkpoints: false,
       enable_automatic_checkpoints: true,
       enable_virtualization_extensions: false,
-      vm_integration_services: vm_integration_services
+      vm_integration_services: vm_integration_services,
+      enable_enhanced_session_mode: enable_enhanced_session_mode
     )
   }
   let(:vm_integration_services){ {} }
+  let(:enable_enhanced_session_mode){ false }
 
   let(:subject){ described_class.new(app, env) }
 
@@ -45,6 +47,7 @@ describe VagrantPlugins::HyperV::Action::Configure do
     allow(data_dir).to receive(:join).and_return(sentinel)
     allow(sentinel).to receive(:file?).and_return(false)
     allow(sentinel).to receive(:open)
+    allow(driver).to receive(:set_enhanced_session_transport_type).with("VMBus")
   end
 
   it "should call the app on success" do
@@ -112,6 +115,22 @@ describe VagrantPlugins::HyperV::Action::Configure do
 
     it "should call the driver to set the services" do
       expect(driver).to receive(:set_vm_integration_services)
+      subject.call(env)
+    end
+  end
+
+  context "without enhanced session transport type" do
+    it "should call the driver to set enhanced session transport type back to default" do
+      expect(driver).to receive(:set_enhanced_session_transport_type).with("VMBus")
+      subject.call(env)
+    end
+  end
+
+  context "with enhanced session transport type" do    
+    let(:enable_enhanced_session_mode) { true }
+
+    it "should call the driver to set enhanced session transport type" do
+      expect(driver).to receive(:set_enhanced_session_transport_type).with("HvSocket")
       subject.call(env)
     end
   end
