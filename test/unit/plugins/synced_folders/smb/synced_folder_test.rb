@@ -126,18 +126,18 @@ describe VagrantPlugins::SyncedFolderSMB::SyncedFolder do
         let(:host_caps){ [:smb_start, :smb_prepare, :smb_validate_password] }
 
         it "should validate the password" do
-          expect(host).to receive(:capability).with(:smb_validate_password, 'username', 'password').and_return(true)
+          expect(host).to receive(:capability).with(:smb_validate_password, machine, 'username', 'password').and_return(true)
           subject.prepare(machine, folders, options)
         end
 
         it "should retry when validation fails" do
-          expect(host).to receive(:capability).with(:smb_validate_password, 'username', 'password').and_return(false)
-          expect(host).to receive(:capability).with(:smb_validate_password, 'username', 'password').and_return(true)
+          expect(host).to receive(:capability).with(:smb_validate_password, machine, 'username', 'password').and_return(false)
+          expect(host).to receive(:capability).with(:smb_validate_password, machine, 'username', 'password').and_return(true)
           subject.prepare(machine, folders, options)
         end
 
         it "should raise an error if it exceeds the maximum number of retries" do
-          expect(host).to receive(:capability).with(:smb_validate_password, 'username', 'password').and_return(false).
+          expect(host).to receive(:capability).with(:smb_validate_password, machine, 'username', 'password').and_return(false).
             exactly(VagrantPlugins::SyncedFolderSMB::SyncedFolder::CREDENTIAL_RETRY_MAX).times
           expect{ subject.prepare(machine, folders, options) }.to raise_error(VagrantPlugins::SyncedFolderSMB::Errors::CredentialsRequestError)
         end
