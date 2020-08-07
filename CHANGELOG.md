@@ -36,6 +36,7 @@ BUG FIXES:
 - config/vm: Add config option `hostname` to `config.vm.network` [GH-11566]
 - config/vm: Don't ignore NFS synced folders on Windows hosts [GH-11631]
 - host: Use regular port check for loopback addresses [GH-11654]
+- guests: Allow setting of hostname according to `hostname` option for multiple guests [GH-11704]
 - guest/alpine: Allow setting of hostname according to `hostname` option [GH-11718]
 - guest/esxi: Be more permissive with permissions of ssh directory [GH-11587]
 - guest/linux: Add virtual box shared folders to guest fstab [GH-11570]
