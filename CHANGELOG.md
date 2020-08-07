@@ -45,6 +45,7 @@ BUG FIXES:
 - guest/linux: Add virtual box shared folders to guest fstab [GH-11570]
 - guest/suse: Allow setting of hostname according to `hostname` option [GH-11567]
 - providers/docker: Ensure new containers don't grab existing bound ports [GH-11602]
+- providers/hyperv: Fix check for secure boot [GH-11809]
 - providers/virtualbox: Fix inability to create disk with same name across multiple guests [GH-11767]
 - provisioners/docker: Allow to specify docker image version using the `run` option [GH-11806]
 - provisioners/file: Allow creating empty folders [GH-11805]
