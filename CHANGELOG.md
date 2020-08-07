@@ -31,6 +31,7 @@ BUG FIXES:
 - core: Update how `/etc/hosts` gets updated for darwin, freebsd and openbsd [GH-11719]
 - core: Capture `[3J` escape sequence [GH-11807]
 - commands/destroy: Add gracefull option to switch beween gracefully or forcefully shutting down a vm [GH-11628]
+- communicator/ssh: Raise an error for a nil exit status [GH-11721]
 - config/vm: Add option `allow_hosts_modification` to allow/disable Vagrant editing the guests `/etc/hosts` file [GH-11565]
 - config/vm: Add config option `hostname` to `config.vm.network` [GH-11566]
 - config/vm: Don't ignore NFS synced folders on Windows hosts [GH-11631]
