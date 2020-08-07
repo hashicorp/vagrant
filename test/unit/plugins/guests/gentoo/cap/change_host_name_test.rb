@@ -1,10 +1,10 @@
 require_relative "../../../../base"
 
-describe "VagrantPlugins::GuestALT::Cap::ChangeHostName" do
+describe "VagrantPlugins::GuestGentoo::Cap::ChangeHostName" do
   let(:described_class) do
-    VagrantPlugins::GuestALT::Plugin
+    VagrantPlugins::GuestGentoo::Plugin
       .components
-      .guest_capabilities[:alt]
+      .guest_capabilities[:gentoo]
       .get(:change_host_name)
   end
 
@@ -35,14 +35,14 @@ describe "VagrantPlugins::GuestALT::Cap::ChangeHostName" do
         comm.stub_command("hostname -f | grep '^#{name}$'", exit_code: 1)
 
         described_class.change_host_name(machine, name)
-        expect(comm.received_commands[2]).to match(/hostnamectl set-hostname --static '#{name}'/)
+        expect(comm.received_commands[2]).to match(/systemctl set-hostname '#{name}'/)
       end
 
       it "does not change the hostname if already set" do
         comm.stub_command("hostname -f | grep '^#{name}$'", exit_code: 0)
 
         described_class.change_host_name(machine, name)
-        expect(comm).to_not receive(:sudo).with(/hostnamectl set-hostname --static '#{name}'/)
+        expect(comm).to_not receive(:sudo).with(/systemctl set-hostname '#{name}'/)
       end
     end
   end

@@ -1,4 +1,5 @@
 require "log4r"
+require 'vagrant/util/guest_hosts'
 require_relative "../../linux/cap/network_interfaces"
 
 module VagrantPlugins
@@ -7,6 +8,7 @@ module VagrantPlugins
       class ChangeHostName
 
         extend Vagrant::Util::GuestInspection::Linux
+        extend Vagrant::Util::GuestHosts::Linux
 
         def self.change_host_name(machine, name)
           @logger = Log4r::Logger.new("vagrant::guest::debian::changehostname")
@@ -17,15 +19,6 @@ module VagrantPlugins
             comm.sudo <<-EOH.gsub(/^ {14}/, '')
               # Set the hostname
               echo '#{basename}' > /etc/hostname
-
-              # Prepend ourselves to /etc/hosts
-              grep -w '#{name}' /etc/hosts || {
-                if grep -w '^127\\.0\\.1\\.1' /etc/hosts ; then
-                  sed -i'' 's/^127\\.0\\.1\\.1\\s.*$/127.0.1.1\\t#{name}\\t#{basename}/' /etc/hosts
-                else
-                  sed -i'' '1i 127.0.1.1\\t#{name}\\t#{basename}' /etc/hosts
-                fi
-              }
 
               # Update mailname
               echo '#{name}' > /etc/mailname
@@ -64,6 +57,13 @@ module VagrantPlugins
             else
               restart_each_interface(machine, @logger)
             end
+          end
+
+          network_with_hostname = machine.config.vm.networks.map {|_, c| c if c[:hostname] }.compact[0]
+          if network_with_hostname
+            replace_host(comm, name, network_with_hostname[:ip])
+          else
+            add_hostname_to_loopback_interface(comm, name)
           end
         end
 
