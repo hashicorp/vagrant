@@ -53,7 +53,7 @@ describe Vagrant::Plugin::Manager do
     before do
       allow(Vagrant::Plugin::StateFile).to receive(:new).and_return(state_file)
       allow(bundler).to receive(:environment_path=)
-      allow(local_data_path).to receive(:join).and_return(local_data_path)
+      allow(local_data_path).to receive(:join).and_return(local_data_path) if local_data_path
       allow(subject).to receive(:bundler_init)
     end
 
@@ -118,7 +118,7 @@ describe Vagrant::Plugin::Manager do
     end
 
     it "should init the bundler instance with plugins" do
-      expect(bundler).to receive(:init!).with(plugins, anything)
+      expect(bundler).to receive(:init!).with(plugins, any_args)
       subject.bundler_init(plugins)
     end
 

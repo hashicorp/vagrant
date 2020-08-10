@@ -57,12 +57,13 @@ module Vagrant
     # @param [Symbol] provider The provider that this box implements.
     # @param [Pathname] directory The directory where this box exists on
     #   disk.
-    def initialize(name, provider, version, directory, **opts)
+    # @param [String] metadata_url Metadata URL for box
+    def initialize(name, provider, version, directory, metadata_url: nil)
       @name      = name
       @version   = version
       @provider  = provider
       @directory = directory
-      @metadata_url = opts[:metadata_url]
+      @metadata_url = metadata_url
 
       metadata_file = directory.join("metadata.json")
       raise Errors::BoxMetadataFileNotFound, name: @name if !metadata_file.file?
@@ -120,7 +121,7 @@ module Vagrant
     #
     # @param [Hash] download_options Options to pass to the downloader.
     # @return [BoxMetadata]
-    def load_metadata(**download_options)
+    def load_metadata(download_options={})
       tf = Tempfile.new("vagrant-load-metadata")
       tf.close
 
@@ -132,7 +133,7 @@ module Vagrant
       end
 
       opts = { headers: ["Accept: application/json"] }.merge(download_options)
-      Util::Downloader.new(url, tf.path, **opts).download!
+      Util::Downloader.new(url, tf.path, opts).download!
       BoxMetadata.new(File.open(tf.path, "r"))
     rescue Errors::DownloaderError => e
       raise Errors::BoxMetadataDownloadError,

@@ -244,7 +244,7 @@ module Vagrant
           unlocked_reload
           # Don't recover if entry already exists in the global
           return entry if find_by_prefix(entry.id)
-          
+
           lock_file = lock_machine(entry.id)
           if !lock_file
             raise Errors::MachineLocked,
@@ -478,7 +478,7 @@ module Vagrant
       # Creates a {Vagrant::Environment} for this entry.
       #
       # @return [Vagrant::Environment]
-      def vagrant_env(home_path, **opts)
+      def vagrant_env(home_path, opts={})
         Vagrant::Util::SilenceWarnings.silence! do
           Environment.new({
             cwd: @vagrantfile_path,

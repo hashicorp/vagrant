@@ -44,7 +44,7 @@ describe VagrantPlugins::ProviderVirtualBox::Action::Network do
 
   it "creates a host-only interface with an IPv6 address <prefix>:1" do
     guest = double("guest")
-    machine.config.vm.network 'private_network', { type: :static, ip: 'dead:beef::100' }
+    machine.config.vm.network 'private_network', type: :static, ip: 'dead:beef::100'
     #allow(driver).to receive(:read_bridged_interfaces) { [] }
     allow(driver).to receive(:read_host_only_interfaces) { [] }
     #allow(driver).to receive(:read_dhcp_servers) { [] }
@@ -71,17 +71,9 @@ describe VagrantPlugins::ProviderVirtualBox::Action::Network do
   end
 
   it "raises the appropriate error when provided with an invalid IP address" do
-    guest = double("guest")
-    machine.config.vm.network 'private_network', { ip: '192.168.33.06' }
+    machine.config.vm.network 'private_network', ip: '192.168.33.06'
 
     expect{ subject.call(env) }.to raise_error(Vagrant::Errors::NetworkAddressInvalid)
-  end
-
-  it "raises no invalid network error when provided with a valid IP address" do
-    guest = double("guest")
-    machine.config.vm.network 'private_network', { ip: '192.168.33.6' }
-
-    expect{ subject.call(env) }.not_to raise_error(Vagrant::Errors::NetworkAddressInvalid)
   end
 
   context "with a dhcp private network" do
@@ -92,7 +84,7 @@ describe VagrantPlugins::ProviderVirtualBox::Action::Network do
     let(:network_args) {{ type: :dhcp }}
 
     before do
-      machine.config.vm.network 'private_network', network_args
+      machine.config.vm.network 'private_network', **network_args
       allow(driver).to receive(:read_bridged_interfaces) { bridgedifs }
       allow(driver).to receive(:read_host_only_interfaces) { hostonlyifs }
       allow(driver).to receive(:read_dhcp_servers) { dhcpservers }

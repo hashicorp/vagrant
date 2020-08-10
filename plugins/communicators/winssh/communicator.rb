@@ -217,7 +217,7 @@ module VagrantPlugins
       # The WinSSH communicator connection provides isolated modification
       # to the generated connection instances. This modification forces
       # all provided commands to run within powershell
-      def connect(*args)
+      def connect(**opts)
         connection = nil
         super { |c| connection = c }
 
