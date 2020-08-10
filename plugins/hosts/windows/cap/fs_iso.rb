@@ -29,7 +29,7 @@ module VagrantPlugins
         # @return [Pathname] ISO location
         # @note If file_destination exists, source_directory will be checked
         #       for recent modifications and a new ISO will be generated if requried.
-        def self.create_iso(env, source_directory, **extra_opts)
+        def self.create_iso(env, source_directory, extra_opts={})
           source_directory = Pathname.new(source_directory)
           file_destination = self.ensure_output_iso(extra_opts[:file_destination])
 
