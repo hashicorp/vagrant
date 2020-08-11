@@ -27,7 +27,7 @@ describe "VagrantPlugins::GuestLinux::Cap::MountVirtualBoxSharedFolder" do
 
   before do
     allow(machine).to receive(:communicate).and_return(comm)
-    allow(machine).to receive(:synced_folder_types).and_return( { :virtualbox => mount_options_cap } )
+    allow(machine).to receive_message_chain(:synced_folders, :types).and_return( { :virtualbox => mount_options_cap } )
   end
 
   after do

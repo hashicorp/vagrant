@@ -37,7 +37,7 @@ describe VagrantPlugins::Kernel_V2::VMConfig do
     allow(machine).to receive(:env).and_return(env)
     allow(machine).to receive(:provider_config).and_return(nil)
     allow(machine).to receive(:provider_options).and_return({})
-    allow(machine).to receive(:synced_folder_types).and_return([])
+    allow(machine).to receive_message_chain(:synced_folders, :types).and_return( {} )
     allow(provider).to receive(:capability?).with(:validate_disk_ext).and_return(true)
     allow(provider).to receive(:capability).with(:validate_disk_ext, "vdi").and_return(true)
     allow(provider).to receive(:capability?).with(:set_default_disk_ext).and_return(true)
@@ -736,7 +736,7 @@ describe VagrantPlugins::Kernel_V2::VMConfig do
     context "WSL host paths" do
       let(:valid_path){ "/mnt/c/path" }
       let(:invalid_path){ "/home/vagrant/path" }
-      let(:synced_folder_impl){ double("synced_folder_impl", new: double("synced_folder_inst", usable?: true)) }
+      let(:synced_folder_impl){ double("synced_folder_impl", new: double("synced_folder_inst", usable?: true, _initialize: true)) }
       let(:fs_config){ double("fs_config", vm: double("fs_vm", allowed_synced_folder_types: nil)) }
       let(:plugin){ double("plugin", manager: manager) }
       let(:manager){ double("manager", synced_folders: {sf_impl: [synced_folder_impl, 1]}) }

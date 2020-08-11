@@ -29,6 +29,7 @@ describe VagrantPlugins::ProviderVirtualBox::Action::PrepareNFSSettings do
   before do
     env[:test] = true
     allow(machine.env).to receive(:host) { host }
+    allow(host).to receive(:capability?).with(:nfs_installed) { true }
     allow(host).to receive(:capability).with(:nfs_installed) { true }
     # We don't care about smb support so return not installed
     allow(host).to receive(:capability?).with(:smb_installed).and_return(false)

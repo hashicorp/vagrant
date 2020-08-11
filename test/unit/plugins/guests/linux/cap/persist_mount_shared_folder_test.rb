@@ -16,7 +16,7 @@ describe "VagrantPlugins::GuestLinux::Cap::PersistMountSharedFolder" do
 
   before do
     allow(machine).to receive(:communicate).and_return(comm)
-    allow(machine).to receive(:synced_folder_types).and_return( { :virtualbox => mount_options_cap } )
+    allow(machine).to receive_message_chain(:synced_folders, :types).and_return( { :virtualbox => mount_options_cap } )
     allow(mount_options_cap).to receive(:capability).with(:mount_options, any_args).and_return(["uid=#{options_uid},gid=#{options_gid}", options_uid, options_gid])
   end
 

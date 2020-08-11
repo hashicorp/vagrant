@@ -37,7 +37,7 @@ module Vagrant
 
           # Find the proper implementation
           ordered.each do |_, key, impl|
-            return key if impl.new.usable?(machine)
+            return key if impl.new.usable?(machine, raise_error=false)
           end
 
           return nil
@@ -191,12 +191,11 @@ module Vagrant
             folders[impl_name] = new_fs
           end
 
-
           folders.types = folders.map { |type, folders|
             impl = plugins[type][0].new()
             impl._initialize(machine, type)
             [type, impl]
-          }.to_h
+          }.to_h 
           return folders
         end
 
@@ -246,7 +245,7 @@ module Vagrant
         protected
 
         def cached_synced_folders(machine)
-          JSON.parse(machine.data_dir.join("synced_folders").read).tap do |r|
+          folders = JSON.parse(machine.data_dir.join("synced_folders").read, object_class: Vagrant::Util::TypedHash).tap do |r|
             # We have to do all sorts of things to make the proper things
             # symbols and
             r.keys.each do |k|
@@ -261,11 +260,19 @@ module Vagrant
               r.delete(k)
             end
           end
+          folders.types = folders.map { |type, folders|
+            impl = plugins[type][0].new()
+            impl._initialize(machine, type)
+            [type, impl]
+          }.to_h || {}
+          folders
         rescue Errno::ENOENT
           # If the file doesn't exist, we probably just have a machine created
           # by a version of Vagrant that didn't cache shared folders. Report no
           # shared folders to be safe.
-          return {}
+          folders = Vagrant::Util::TypedHash.new()
+          folders.types = {}
+          folders
         end
       end
     end

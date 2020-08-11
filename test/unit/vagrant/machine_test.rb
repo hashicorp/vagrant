@@ -1006,16 +1006,5 @@ describe Vagrant::Machine do
         end
       end
     end
-
-    describe "#synced_folder_types" do
-      it "returns a map of initialized synced folders" do
-        allow(instance).to receive(:synced_folders).and_return( {:smb => {}, :virtualbox => {}} )
-        folders = instance.synced_folder_types
-        folders.each do |k, v|
-          expect([:smb, :virtualbox]).to include(k)
-          expect(v.respond_to?(:capability)).to eq(true)
-        end
-      end
-    end
   end
 end
