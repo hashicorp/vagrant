@@ -2,6 +2,7 @@ require "json"
 require "set"
 
 require 'vagrant/util/scoped_hash_override'
+require 'vagrant/util/typed_hash'
 
 module Vagrant
   module Action
@@ -36,11 +37,7 @@ module Vagrant
 
           # Find the proper implementation
           ordered.each do |_, key, impl|
-            begin
-              return key if impl.new.usable?(machine)
-            rescue
-              # Don't do anything. If an error is raised, the impl is not usable
-            end
+            return key if impl.new.usable?(machine)
           end
 
           return nil
@@ -128,7 +125,7 @@ module Vagrant
           end
 
           config_folders = config.synced_folders
-          folders = {}
+          folders = Vagrant::Util::TypedHash.new()
 
           # Determine all the synced folders as well as the implementation
           # they're going to use.
@@ -194,6 +191,12 @@ module Vagrant
             folders[impl_name] = new_fs
           end
 
+
+          folders.types = folders.map { |type, folders|
+            impl = plugins[type][0].new()
+            impl._initialize(machine, type)
+            [type, impl]
+          }.to_h
           return folders
         end
 
