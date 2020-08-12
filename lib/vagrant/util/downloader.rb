@@ -1,3 +1,4 @@
+require "cgi"
 require "uri"
 
 require "log4r"
@@ -41,8 +42,8 @@ module Vagrant
         begin
           url = URI.parse(@source)
           if url.scheme && url.scheme.start_with?("http") && url.user
-            auth = "#{URI.unescape(url.user)}"
-            auth += ":#{URI.unescape(url.password)}" if url.password
+            auth = "#{CGI.unescape(url.user)}"
+            auth += ":#{CGI.unescape(url.password)}" if url.password
             url.user = nil
             url.password = nil
             options[:auth] ||= auth

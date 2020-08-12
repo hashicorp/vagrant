@@ -92,14 +92,34 @@ module Vagrant
       # A somewhat confusing function which simply initializes each
       # middleware properly to call the next middleware in the sequence.
       def finalize_action(action, env)
-        klass, args, block = action
+        if action.is_a?(Builder::StackItem)
+          klass = action.middleware
+          args = action.arguments.parameters
+          keywords = action.arguments.keywords
+          block = action.arguments.block
+        else
+          klass = action
+          args = []
+          keywords = {}
+        end
 
-        # Default the arguments to an empty array. Otherwise in Ruby 1.8
-        # a `nil` args will actually pass `nil` into the class.
-        args ||= []
+        args = nil if args.empty?
+        keywords = nil if keywords.empty?
 
         if klass.is_a?(Class)
-          klass.new(self, env, *args, &block)
+          # NOTE: We need to detect if we are passing args and/or
+          #       keywords and do it explicitly. Earlier versions
+          #       are not as lax about splatting keywords when the
+          #       target method is not expecting them.
+          if args && keywords
+            klass.new(self, env, *args, **keywords, &block)
+          elsif args
+            klass.new(self, env, *args, &block)
+          elsif keywords
+            klass.new(self, env, **keywords, &block)
+          else
+            klass.new(self, env, &block)
+          end
         elsif klass.respond_to?(:call)
           # Make it a lambda which calls the item then forwards
           # up the chain

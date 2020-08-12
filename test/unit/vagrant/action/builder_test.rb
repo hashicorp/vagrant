@@ -549,12 +549,12 @@ describe Vagrant::Action::Builder do
 
             it "should add trigger action to start of stack" do
               subject.apply_dynamic_updates(env)
-              expect(subject.stack[0].first).to eq(Vagrant::Action::Builtin::Trigger)
+              expect(subject.stack[0].middleware).to eq(Vagrant::Action::Builtin::Trigger)
             end
 
             it "should have timing and type arguments" do
               subject.apply_dynamic_updates(env)
-              args = subject.stack[0][1]
+              args = subject.stack[0].arguments.parameters
               expect(args).to include(type)
               expect(args).to include(timing)
               expect(args).to include(action.to_s)
@@ -566,12 +566,12 @@ describe Vagrant::Action::Builder do
 
             it "should add trigger action to middle of stack" do
               subject.apply_dynamic_updates(env)
-              expect(subject.stack[1].first).to eq(Vagrant::Action::Builtin::Trigger)
+              expect(subject.stack[1].middleware).to eq(Vagrant::Action::Builtin::Trigger)
             end
 
             it "should have timing and type arguments" do
               subject.apply_dynamic_updates(env)
-              args = subject.stack[1][1]
+              args = subject.stack[1].arguments.parameters
               expect(args).to include(type)
               expect(args).to include(timing)
               expect(args).to include(action.to_s)
@@ -587,12 +587,12 @@ describe Vagrant::Action::Builder do
 
             it "should add trigger action to start of stack" do
               subject.apply_dynamic_updates(env)
-              expect(subject.stack[0].first).to eq(Vagrant::Action::Builtin::Trigger)
+              expect(subject.stack[0].middleware).to eq(Vagrant::Action::Builtin::Trigger)
             end
 
             it "should have timing and type arguments" do
               subject.apply_dynamic_updates(env)
-              args = subject.stack[0][1]
+              args = subject.stack[0].arguments.parameters
               expect(args).to include(type)
               expect(args).to include(timing)
               expect(args).to include(action.to_s)
@@ -609,7 +609,7 @@ describe Vagrant::Action::Builder do
 
             it "should have timing and type arguments" do
               subject.apply_dynamic_updates(env)
-              args = subject.stack[1][1]
+              args = subject.stack[1].arguments.parameters
               expect(args).to include(type)
               expect(args).to include(timing)
               expect(args).to include(action.to_s)
@@ -688,7 +688,7 @@ describe Vagrant::Action::Builder do
 
         it "should include arguments to the trigger action" do
           subject.apply_action_name(env)
-          args = subject.stack[0][1]
+          args = subject.stack[0].arguments.parameters
           expect(args).to include(raw_action_name)
           expect(args).to include(timing)
           expect(args).to include(:action)
@@ -705,9 +705,9 @@ describe Vagrant::Action::Builder do
 
         it "should include arguments to the trigger action" do
           subject.apply_action_name(env)
-          builder = subject.stack.first[1]&.first
+          builder = subject.stack.first.arguments.parameters.first
           expect(builder).not_to be_nil
-          args = builder.stack.first[1]
+          args = builder.stack.first.arguments.parameters
           expect(args).to include(raw_action_name)
           expect(args).to include(timing)
           expect(args).to include(:action)
@@ -728,12 +728,12 @@ describe Vagrant::Action::Builder do
 
         it "should add a trigger action to the start of the stack" do
           subject.apply_action_name(env)
-          expect(subject.stack[0].first).to eq(Vagrant::Action::Builtin::Trigger)
+          expect(subject.stack[0].middleware).to eq(Vagrant::Action::Builtin::Trigger)
         end
 
         it "should include arguments to the trigger action" do
           subject.apply_action_name(env)
-          args = subject.stack[0][1]
+          args = subject.stack[0].arguments.parameters
           expect(args).to include(action_name)
           expect(args).to include(timing)
           expect(args).to include(:hook)
@@ -750,7 +750,7 @@ describe Vagrant::Action::Builder do
 
         it "should include arguments to the trigger action" do
           subject.apply_action_name(env)
-          args = subject.stack.last[1]
+          args = subject.stack.last.arguments.parameters
           expect(args).to include(action_name)
           expect(args).to include(timing)
           expect(args).to include(:hook)

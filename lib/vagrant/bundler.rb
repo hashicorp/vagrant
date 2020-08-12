@@ -632,7 +632,12 @@ module Vagrant
       self_spec.runtime_dependencies.each { |d| gem d.name, *d.requirement.as_list }
       # discover all the gems we have available
       list = {}
-      directories = [Gem::Specification.default_specifications_dir]
+      if Gem.respond_to?(:default_specifications_dir)
+        spec_dir = Gem.default_specifications_dir
+      else
+        spec_dir = Gem::Specification.default_specifications_dir
+      end
+      directories = [spec_dir]
       Gem::Specification.find_all{true}.each do |spec|
         list[spec.full_name] = spec
       end

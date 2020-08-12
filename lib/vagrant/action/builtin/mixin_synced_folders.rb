@@ -72,7 +72,7 @@ module Vagrant
         #
         # @param [Machine] machine The machine that the folders belong to
         # @param [Hash] folders The result from a {#synced_folders} call.
-        def save_synced_folders(machine, folders, **opts)
+        def save_synced_folders(machine, folders, opts={})
           if opts[:merge]
             existing = cached_synced_folders(machine)
             if existing

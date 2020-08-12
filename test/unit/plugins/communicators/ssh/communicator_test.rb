@@ -120,7 +120,7 @@ describe VagrantPlugins::CommunicatorSSH::Communicator do
       context "when printing message to the user" do
         before do
           allow(machine).to receive(:ssh_info).
-            and_return(host: '10.1.2.3', port: 22).ordered
+            and_return(host: '10.1.2.3', port: 22)
           allow(communicator).to receive(:connect)
           allow(communicator).to receive(:ready?).and_return(true)
         end

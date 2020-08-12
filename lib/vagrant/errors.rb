@@ -100,7 +100,7 @@ module Vagrant
 
       def translate_error(opts)
         return nil if !opts[:_key]
-        I18n.t("#{opts[:_namespace]}.#{opts[:_key]}", opts)
+        I18n.t("#{opts[:_namespace]}.#{opts[:_key]}", **opts)
       end
     end
 
