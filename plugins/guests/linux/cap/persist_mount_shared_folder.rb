@@ -28,11 +28,12 @@ module VagrantPlugins
               guest_path = Shellwords.escape(data[:guestpath])
               mount_options, _, _ = machine.synced_folders.types[type].capability(
                 :mount_options, name, guest_path, data)
+              mount_type = machine.synced_folders.types[type].capability(:mount_type)
               mount_options = "#{mount_options},nofail"
               {
                 name: name,
                 mount_point: guest_path,
-                mount_type: type,
+                mount_type: mount_type,
                 mount_options: mount_options,
               }
             }
