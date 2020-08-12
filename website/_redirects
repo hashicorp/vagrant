@@ -32,12 +32,12 @@
 
 # Redirect get started guides to Learn
 
-/docs/getting-started                   https://learn.hashicorp.com/vagrant/getting-started/               301!
-/intro/getting-started                  https://learn.hashicorp.com/vagrant/getting-started/               301!
-/docs/getting-started/project_setup     https://learn.hashicorp.com/vagrant/getting-started/project-setup  301!
-/intro/getting-started/project_setup    https://learn.hashicorp.com/vagrant/getting-started/project-setup  301!
-/docs/getting-started/synced_folders    https://learn.hashicorp.com/vagrant/getting-started/synced-folders 301!
-/intro/getting-started/synced_folders   https://learn.hashicorp.com/vagrant/getting-started/synced-folders 301!
-/docs/getting-started/*                 https://learn.hashicorp.com/vagrant/getting-started/:splat         301!
-/intro/getting-started/*                https://learn.hashicorp.com/vagrant/getting-started/:splat         301!
+/docs/getting-started                   https://learn.hashicorp.com/collections/vagrant/getting-started               301!
+/intro/getting-started                  https://learn.hashicorp.com/collections/vagrant/getting-started               301!
+/docs/getting-started/project_setup     https://learn.hashicorp.com/tutorials/vagrant/getting-started-project-setup?in=vagrant/getting-started  301!
+/intro/getting-started/project_setup    https://learn.hashicorp.com/tutorials/vagrant/getting-started-project-setup?in=vagrant/getting-started  301!
+/docs/getting-started/synced_folders    https://learn.hashicorp.com/tutorials/vagrant/getting-started-synced-folders?in=vagrant/getting-started 301!
+/intro/getting-started/synced_folders   https://learn.hashicorp.com/tutorials/vagrant/getting-started-synced-folders?in=vagrant/getting-started 301!
+/docs/getting-started/*                 https://learn.hashicorp.com/tutorials/vagrant/getting-started-:splat         301!
+/intro/getting-started/*                https://learn.hashicorp.com/tutorials/vagrant/getting-started-:splat         301!
 
