@@ -37,7 +37,7 @@ module Vagrant
 
           # Find the proper implementation
           ordered.each do |_, key, impl|
-            return key if impl.new.usable?(machine, raise_error=false)
+            return key if impl.new.usable?(machine)
           end
 
           return nil
