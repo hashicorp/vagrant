@@ -12,6 +12,7 @@ IMPROVEMENTS:
 - core: Add action to wait for cloud-init to finish running [GH-11773]
 - core: Update to net-ssh to 6.0 and net-sftp to 3.0 [GH-11621]
 - core: Optimize port in use check for faster validation [GH-11810]
+- core: Support for Ruby 2.7 [GH-11814]
 - guest/arch: Use systemd-networkd to configure networking for guests [GH-11400]
 - guest/haiku: Rsync install for rsync synced folders [GH-11614]
 - guest/solaris11: Add guest capability shell_expand_guest_path [GH-11759]
