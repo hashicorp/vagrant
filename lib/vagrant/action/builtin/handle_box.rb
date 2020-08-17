@@ -20,7 +20,7 @@ module Vagrant
         def call(env)
           machine = env[:machine]
 
-          if !machine.config.vm.box
+          if !machine.config.vm.box || machine.config.vm.box.to_s.empty?
             @logger.info("Skipping HandleBox because no box is set")
             return @app.call(env)
           end

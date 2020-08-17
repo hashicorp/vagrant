@@ -241,4 +241,18 @@ describe VagrantPlugins::HyperV::Config do
       expect(result["Hyper-V"]).not_to be_empty
     end
   end
+  
+
+  describe "#enable_enhanced_session_mode" do
+    it "is false by default" do
+      subject.finalize!
+      expect(subject.enable_enhanced_session_mode).to eq(false)
+    end
+
+    it "can be set" do
+      subject.enable_enhanced_session_mode = true
+      subject.finalize!
+      expect(subject.enable_enhanced_session_mode).to eq(true)
+    end
+  end
 end

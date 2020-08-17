@@ -25,6 +25,7 @@ module Vagrant
         def initialize(app, env)
           @app    = app
           @logger = Log4r::Logger.new("vagrant::action::builtin::box_add")
+          @parser = URI::RFC2396_Parser.new
         end
 
         def call(env)
@@ -44,7 +45,7 @@ module Vagrant
             u = u.gsub("\\", "/")
             if Util::Platform.windows? && u =~ /^[a-z]:/i
               # On Windows, we need to be careful about drive letters
-              u = "file:///#{URI.escape(u)}"
+              u = "file:///#{@parser.escape(u)}"
             end
 
             if u =~ /^[a-z0-9]+:.*$/i && !u.start_with?("file://")
@@ -53,9 +54,9 @@ module Vagrant
             end
 
             # Expand the path and try to use that, if possible
-            p = File.expand_path(URI.unescape(u.gsub(/^file:\/\//, "")))
+            p = File.expand_path(@parser.unescape(u.gsub(/^file:\/\//, "")))
             p = Util::Platform.cygwin_windows_path(p)
-            next "file://#{URI.escape(p.gsub("\\", "/"))}" if File.file?(p)
+            next "file://#{@parser.escape(p.gsub("\\", "/"))}" if File.file?(p)
 
             u
           end
@@ -434,7 +435,7 @@ module Vagrant
           downloader_options[:ui] = env[:ui] if opts[:ui]
           downloader_options[:location_trusted] = env[:box_download_location_trusted]
           downloader_options[:box_extra_download_options] = env[:box_extra_download_options]
-          
+
           Util::Downloader.new(url, temp_path, downloader_options)
         end
 
@@ -495,7 +496,7 @@ module Vagrant
             url ||= uri.opaque
             #7570 Strip leading slash left in front of drive letter by uri.path
             Util::Platform.windows? && url.gsub!(/^\/([a-zA-Z]:)/, '\1')
-            url = URI.unescape(url)
+            url = @parser.unescape(url)
 
             begin
               File.open(url, "r") do |f|

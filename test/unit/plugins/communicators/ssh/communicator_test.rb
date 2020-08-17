@@ -120,7 +120,7 @@ describe VagrantPlugins::CommunicatorSSH::Communicator do
       context "when printing message to the user" do
         before do
           allow(machine).to receive(:ssh_info).
-            and_return(host: '10.1.2.3', port: 22).ordered
+            and_return(host: '10.1.2.3', port: 22)
           allow(communicator).to receive(:connect)
           allow(communicator).to receive(:ready?).and_return(true)
         end
@@ -314,6 +314,15 @@ describe VagrantPlugins::CommunicatorSSH::Communicator do
       it "returns exit-code when exit-code is non-zero and error check is disabled" do
         expect(command_channel).to receive(:send_data).with(/ls \/\n/)
         expect(communicator.execute("ls /", error_check: false)).to eq(1)
+      end
+    end
+
+    context "with no exit code received" do
+      let(:exit_data) { double("exit_data", read_long: nil) }
+
+      it "raises error when exit code is nil" do
+        expect(command_channel).to receive(:send_data).with(/make\n/)
+        expect{ communicator.execute("make") }.to raise_error(Vagrant::Errors::SSHNoExitStatus)
       end
     end
 
@@ -562,6 +571,16 @@ describe VagrantPlugins::CommunicatorSSH::Communicator do
         communicator.upload(file.path, "/destination/dir/file.txt")
       ensure
         file.delete
+      end
+    end
+
+    it "creates remote directory given an empty directory" do
+      file = Dir.mktmpdir
+      begin
+        expect(communicator).to receive(:create_remote_directory).with("/destination/dir/#{ File.basename(file)}/")
+        communicator.upload(file, "/destination/dir")
+      ensure
+        FileUtils.rm_rf(file)
       end
     end
 

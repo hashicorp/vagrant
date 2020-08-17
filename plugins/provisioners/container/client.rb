@@ -160,7 +160,7 @@ module VagrantPlugins
         # If the name is the automatically assigned name, then
         # replace the "/" with "-" because "/" is not a valid
         # character for a container name.
-        name = name.gsub("/", "-") if name == config[:original_name]
+        name = name.gsub("/", "-").gsub(":", "-") if name == config[:original_name]
         name
       end
 

@@ -66,7 +66,7 @@ module VagrantPlugins
             if machine.env.host.capability?(:smb_validate_password)
               Vagrant::Util::CredentialScrubber.sensitive(smb_password)
               auth_success = machine.env.host.capability(:smb_validate_password,
-                smb_username, smb_password)
+                machine, smb_username, smb_password)
             end
 
             break if auth_success

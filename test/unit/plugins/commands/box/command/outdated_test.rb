@@ -24,7 +24,7 @@ describe VagrantPlugins::CommandBox::Command::Outdated do
     let(:argv) { ["--force"] }
 
     it "passes along the force update option" do
-      expect(action_runner).to receive(:run).with(any_args) { |action, **opts|
+      expect(action_runner).to receive(:run).with(any_args) { |action, opts|
         expect(opts[:box_outdated_force]).to be_truthy
         true
       }

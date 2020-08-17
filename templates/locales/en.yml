@@ -127,6 +127,7 @@ en:
       Warning: Chef run list is empty. This may not be what you want.
     cli_interrupt: |-
       Exiting due to interrupt.
+    cloud_init_waiting: Waiting for cloud init to finish running
     container_pulling_single: |-
       -- Image: %{name}
     container_building_single: |-
@@ -164,6 +165,10 @@ en:
       -- Detected newer image for container '%{name}', restarting...
     docker_starting_containers: |-
       Starting Docker containers...
+    hyperv_enable_enhanced_session: |-
+      Setting VM Enhanced session transport type to HvSocket
+    hyperv_disable_enhanced_session: |-
+      Setting VM Enhanced session transport type to disabled/default (VMBus)
     inserted_key: |-
       Key inserted! Disconnecting and reconnecting using new SSH key...
     inserting_insecure_detected: |-
@@ -788,6 +793,11 @@ en:
         Additionally, the created environment must be started with a provider
         matching this provider. For example, if you're using VirtualBox,
         the clone environment must also be using VirtualBox.
+      cloud_init_not_found: |-
+        cloud-init is not found. Please ensure that cloud-init is installed and 
+        available on path for guest '%{guest_name}'.
+      cloud_init_command_failed: |- 
+        cloud init command '%{cmd}' failed on guest '%{guest_name}'.
       command_deprecated: |-
         The command 'vagrant %{name}' has been deprecated and is no longer functional
         within Vagrant.
@@ -1450,6 +1460,11 @@ en:
         usually indicates that SSH within the guest machine was unable to
         properly start up. Please boot the VM in GUI mode to check whether
         it is booting properly.
+      ssh_no_exit_status: |-
+        The SSH command completed, but Vagrant did not receive an exit status.
+        This indicates that the command was terminated unexpectedly. Please
+        check that the VM has sufficient memory to run the command and that no
+        processes were killed by the guest operating system.
       ssh_no_route: |-
         While attempting to connect with SSH, a "no route to host" (EHOSTUNREACH)
         error was received. Please verify your network settings are correct
@@ -1980,6 +1995,7 @@ en:
           Checksum type specified but "box_download_checksum" is blank
         box_download_checksum_notblank: |-
           Checksum specified but must also specify "box_download_checksum_type"
+        box_empty: "Box value for guest '%{machine_name}' is an empty string."
         box_missing: "A box must be specified."
         box_download_options_type: |-
           Found "box_download_options" specified as type '%{type}', should be a Hash
@@ -2380,7 +2396,7 @@ en:
             failure: |-
               Failed to create lock-file for master VM creation for box %{box}.
         cloud_init_user_data_setup: |-
-          Preparing cloud_init iso based on :user_data configuration...
+          Preparing user data for cloud-init...
         customize:
           failure: |-
             A customization command failed:

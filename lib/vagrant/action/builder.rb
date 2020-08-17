@@ -17,6 +17,11 @@ module Vagrant
     #     Vagrant::Action.run(app)
     #
     class Builder
+      # Container for Action arguments
+      MiddlewareArguments = Struct.new(:parameters, :block, :keywords, keyword_init: true)
+      # Item within the stack
+      StackItem = Struct.new(:middleware, :arguments, keyword_init: true)
+
       # This is the stack of middlewares added. This should NOT be used
       # directly.
       #
@@ -28,8 +33,8 @@ module Vagrant
       # see {#use} instead.
       #
       # @return [Builder]
-      def self.build(middleware, *args, &block)
-        new.use(middleware, *args, &block)
+      def self.build(middleware, *args, **keywords, &block)
+        new.use(middleware, *args, **keywords, &block)
       end
 
       def initialize
@@ -58,12 +63,21 @@ module Vagrant
       # of the middleware.
       #
       # @param [Class] middleware The middleware class
-      def use(middleware, *args, &block)
+      def use(middleware, *args, **keywords, &block)
+        item = StackItem.new(
+          middleware: middleware,
+          arguments: MiddlewareArguments.new(
+            parameters: args,
+            keywords: keywords,
+            block: block
+          )
+        )
+
         if middleware.kind_of?(Builder)
           # Merge in the other builder's stack into our own
           self.stack.concat(middleware.stack)
         else
-          self.stack << [middleware, args, block]
+          self.stack << item
         end
 
         self
@@ -71,8 +85,22 @@ module Vagrant
 
       # Inserts a middleware at the given index or directly before the
       # given middleware object.
-      def insert(index, middleware, *args, &block)
-        index = self.index(index) unless index.is_a?(Integer)
+      def insert(idx_or_item, middleware, *args, **keywords, &block)
+        item = StackItem.new(
+          middleware: middleware,
+          arguments: MiddlewareArguments.new(
+            parameters: args,
+            keywords: keywords,
+            block: block
+          )
+        )
+
+        if idx_or_item.is_a?(Integer)
+          index = idx_or_item
+        else
+          index = self.index(idx_or_item)
+        end
+
         raise "no such middleware to insert before: #{index.inspect}" unless index
 
         if middleware.kind_of?(Builder)
@@ -80,27 +108,32 @@ module Vagrant
             stack.insert(index, stack_item)
           end
         else
-          stack.insert(index, [middleware, args, block])
+          stack.insert(index, item)
         end
       end
 
       alias_method :insert_before, :insert
 
       # Inserts a middleware after the given index or middleware object.
-      def insert_after(index, middleware, *args, &block)
-        index = self.index(index) unless index.is_a?(Integer)
+      def insert_after(idx_or_item, middleware, *args, **keywords, &block)
+        if idx_or_item.is_a?(Integer)
+          index = idx_or_item
+        else
+          index = self.index(idx_or_item)
+        end
+
         raise "no such middleware to insert after: #{index.inspect}" unless index
         insert(index + 1, middleware, *args, &block)
       end
 
       # Replaces the given middlware object or index with the new
       # middleware.
-      def replace(index, middleware, *args, &block)
+      def replace(index, middleware, *args, **keywords, &block)
         if index.is_a?(Integer)
           delete(index)
-          insert(index, middleware, *args, &block)
+          insert(index, middleware, *args, **keywords, &block)
         else
-          insert_before(index, middleware, *args, &block)
+          insert_before(index, middleware, *args, **keywords, &block)
           delete(index)
         end
       end
@@ -123,8 +156,9 @@ module Vagrant
       def index(object)
         stack.each_with_index do |item, i|
           return i if item == object
-          return i if item[0] == object
-          return i if item[0].respond_to?(:name) && item[0].name == object
+          return i if item.middleware == object
+          return i if item.middleware.respond_to?(:name) &&
+            item.middleware.name == object
         end
 
         nil

@@ -1,9 +1,12 @@
+require 'vagrant/util/guest_hosts'
+
 module VagrantPlugins
   module GuestRedHat
     module Cap
       class ChangeHostName
 
         extend Vagrant::Util::GuestInspection::Linux
+        extend Vagrant::Util::GuestHosts::Linux
 
         def self.change_host_name(machine, name)
           comm = machine.communicate
@@ -15,11 +18,6 @@ module VagrantPlugins
               sed -i 's/\\(HOSTNAME=\\).*/\\1#{name}/' /etc/sysconfig/network
               # Update DNS
               sed -i 's/\\(DHCP_HOSTNAME=\\).*/\\1\"#{basename}\"/' /etc/sysconfig/network-scripts/ifcfg-*
-              # Set the hostname - use hostnamectl if available
-              echo '#{name}' > /etc/hostname
-              grep -w '#{name}' /etc/hosts || {
-                sed -i'' '1i 127.0.0.1\\t#{name}\\t#{basename}' /etc/hosts
-              }
             EOH
 
             if hostnamectl?(comm)
@@ -39,6 +37,13 @@ module VagrantPlugins
               end
             end
             comm.sudo(restart_command)
+          end
+          
+          network_with_hostname = machine.config.vm.networks.map {|_, c| c if c[:hostname] }.compact[0]
+          if network_with_hostname
+            replace_host(comm, name, network_with_hostname[:ip])
+          else
+            add_hostname_to_loopback_interface(comm, name)
           end
         end
       end

@@ -85,6 +85,8 @@ Vagrant.configure(2) do |global_config|
         end
         guest_boxes.each_with_index do |box_info, idx|
           guest_box, box_version = box_info
+          guest_platform = guest_box.split('/').last.sub(/[^a-z]+$/, '')
+          guest_platform = PLATFORM_SCRIPT_MAPPING[guest_platform]
           spec_cmd_args = ENV["VAGRANT_SPEC_ARGS"]
           if idx != 0
             spec_cmd_args = "#{spec_cmd_args} --without-component cli/*".strip
@@ -96,7 +98,8 @@ Vagrant.configure(2) do |global_config|
               keep_color: true,
               env: {
                 "VAGRANT_SPEC_ARGS" => "--no-builtin #{spec_cmd_args}".strip,
-                "VAGRANT_SPEC_BOX" => "c:/vagrant/#{guest_box.sub('/', '_')}.#{provider_name}.#{box_version}.box"
+                "VAGRANT_SPEC_BOX" => "c:/vagrant/#{guest_box.sub('/', '_')}.#{provider_name}.#{box_version}.box",
+                "VAGRANT_SPEC_GUEST_PLATFORM" => guest_platform
               }
             )
           else
@@ -106,7 +109,8 @@ Vagrant.configure(2) do |global_config|
               keep_color: true,
               env: {
                 "VAGRANT_SPEC_ARGS" => "--no-builtin #{spec_cmd_args}".strip,
-                "VAGRANT_SPEC_BOX" => "/vagrant/test/vagrant-spec/boxes/#{guest_box.sub('/', '_')}.#{provider_name}.#{box_version}.box"
+                "VAGRANT_SPEC_BOX" => "/vagrant/test/vagrant-spec/boxes/#{guest_box.sub('/', '_')}.#{provider_name}.#{box_version}.box",
+                "VAGRANT_SPEC_GUEST_PLATFORM" => guest_platform
               }
             )
           end

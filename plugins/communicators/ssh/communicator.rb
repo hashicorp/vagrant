@@ -307,10 +307,11 @@ module VagrantPlugins
         scp_connect do |scp|
           uploader = lambda do |path, remote_dest=nil|
             if File.directory?(path)
+              dest = File.join(to, path.sub(/^#{Regexp.escape(from)}/, ""))
+              create_remote_directory(dest)
               Dir.new(path).each do |entry|
                 next if entry == "." || entry == ".."
                 full_path = File.join(path, entry)
-                dest = File.join(to, path.sub(/^#{Regexp.escape(from)}/, ""))
                 create_remote_directory(dest)
                 uploader.call(full_path, dest)
               end
@@ -727,6 +728,11 @@ module VagrantPlugins
           data ||= ""
           @logger.debug("PTY stdout parsed: #{data}")
           yield :stdout, data if block_given?
+        end
+
+        if !exit_status
+          @logger.debug("Exit status: #{exit_status.inspect}")
+          raise Vagrant::Errors::SSHNoExitStatus
         end
 
         # Return the final exit status

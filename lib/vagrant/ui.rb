@@ -227,7 +227,7 @@ module Vagrant
 
       # This method handles actually outputting a message of a given type
       # to the console.
-      def say(type, message, **opts)
+      def say(type, message, opts={})
         defaults = { new_line: true, prefix: true }
         opts     = defaults.merge(@opts).merge(opts)
 

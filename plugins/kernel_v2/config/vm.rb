@@ -400,7 +400,7 @@ module VagrantPlugins
 
           if Vagrant::Util::Experimental.feature_enabled?("dependency_provisioners")
             opts = {before: before, after: after}
-            prov = VagrantConfigProvisioner.new(name, type.to_sym, opts)
+            prov = VagrantConfigProvisioner.new(name, type.to_sym, **opts)
           else
             prov = VagrantConfigProvisioner.new(name, type.to_sym)
           end
@@ -412,7 +412,7 @@ module VagrantPlugins
         prov.run = options.delete(:run) if options.key?(:run)
         prov.communicator_required = options.delete(:communicator_required) if options.key?(:communicator_required)
 
-        prov.add_config(options, &block)
+        prov.add_config(**options, &block)
         nil
       end
 
@@ -467,7 +467,7 @@ module VagrantPlugins
         disk_config.set_options(options)
 
         # Add provider config
-        disk_config.add_provider_config(provider_options, &block)
+        disk_config.add_provider_config(**provider_options, &block)
 
         if !Vagrant::Util::Experimental.feature_enabled?("disks")
           @logger.warn("Disk config defined, but experimental feature is not enabled. To use this feature, enable it with the experimental flag `disks`. Disk will not be added to internal config, and will be ignored.")
@@ -732,6 +732,10 @@ module VagrantPlugins
 
         if box && clone
           errors << I18n.t("vagrant.config.vm.clone_and_box")
+        end
+
+        if box && box.empty?
+          errors << I18n.t("vagrant.config.vm.box_empty", machine_name: machine.name)
         end
 
         errors << I18n.t("vagrant.config.vm.hostname_invalid_characters", name: machine.name) if \
@@ -1015,7 +1019,7 @@ module VagrantPlugins
             option: "allow_fstab_modification", given: @allow_fstab_modification.class, required: "Boolean"
           )
         end
-        
+
         if ![TrueClass, FalseClass].include?(@allow_hosts_modification.class)
           errors["vm"] << I18n.t("vagrant.config.vm.config_type",
             option: "allow_hosts_modification", given: @allow_hosts_modification.class, required: "Boolean"

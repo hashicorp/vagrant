@@ -32,7 +32,7 @@ describe VagrantPlugins::DockerProvider::Driver::Compose do
   end
   let(:data_directory){ double("data-directory", join: composition_path) }
   let(:local_data_path){ double("local-data-path") }
-  let(:compose_execute_up){ ["docker-compose", "-f", "docker-compose.yml", "-p", "cwd", "up", "--remove-orphans", "-d", {}] }
+  let(:compose_execute_up){ ["docker-compose", "-f", "docker-compose.yml", "-p", "cwd", "up", "--remove-orphans", "-d", any_args] }
 
 
   subject{ described_class.new(machine) }
@@ -277,7 +277,7 @@ describe VagrantPlugins::DockerProvider::Driver::Compose do
       before { allow(subject).to receive(:created?).and_return(true) }
 
       it 'removes the container' do
-        expect(subject).to receive(:execute).with("docker-compose", "-f", "docker-compose.yml", "-p", "cwd", "rm", "-f", "docker_1", {})
+        expect(subject).to receive(:execute).with("docker-compose", "-f", "docker-compose.yml", "-p", "cwd", "rm", "-f", "docker_1", any_args)
         subject.rm(cid)
       end
     end

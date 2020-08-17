@@ -48,7 +48,7 @@ module VagrantPlugins
             # bridged networking don't require port-forwarding and establishing
             # forwarded ports on these attachment types has uncertain behaviour.
             @env[:ui].detail(I18n.t("vagrant.actions.vm.forward_ports.forwarding_entry",
-                                    message_attributes))
+                                    **message_attributes))
 
             # Verify we have the network interface to attach to
             if !interfaces[fp.adapter]
@@ -62,7 +62,7 @@ module VagrantPlugins
             # so verify that that is the case.
             if interfaces[fp.adapter][:type] != :nat
               @env[:ui].detail(I18n.t("vagrant.actions.vm.forward_ports.non_nat",
-                                    message_attributes))
+                                    **message_attributes))
               next
             end
 

@@ -100,7 +100,7 @@ module Vagrant
 
       def translate_error(opts)
         return nil if !opts[:_key]
-        I18n.t("#{opts[:_namespace]}.#{opts[:_key]}", opts)
+        I18n.t("#{opts[:_namespace]}.#{opts[:_key]}", **opts)
       end
     end
 
@@ -302,6 +302,14 @@ module Vagrant
 
     class CloneMachineNotFound < VagrantError
       error_key(:clone_machine_not_found)
+    end
+
+    class CloudInitNotFound < VagrantError
+      error_key(:cloud_init_not_found)
+    end
+
+    class CloudInitCommandFailed < VagrantError
+      error_key(:cloud_init_command_failed)
     end
 
     class CommandDeprecated < VagrantError
@@ -802,6 +810,10 @@ module Vagrant
 
     class SSHKeyTypeNotSupported < VagrantError
       error_key(:ssh_key_type_not_supported)
+    end
+
+    class SSHNoExitStatus < VagrantError
+      error_key(:ssh_no_exit_status)
     end
 
     class SSHNoRoute < VagrantError

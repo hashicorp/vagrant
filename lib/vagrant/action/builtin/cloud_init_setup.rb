@@ -20,7 +20,7 @@ module Vagrant
 
           if !user_data_configs.empty?
             user_data = setup_user_data(machine, env, user_data_configs)
-            meta_data = { "instance-id": "i-#{machine.id.split('-').join}" }
+            meta_data = { "instance-id" => "i-#{machine.id.split('-').join}" }
 
             write_cfg_iso(machine, env, user_data, meta_data)
           end
@@ -73,6 +73,7 @@ module Vagrant
         # @return [MIME::Multipart::Mixed] msg
         def generate_cfg_msg(machine, text_cfgs)
           msg = MIME::Multipart::Mixed.new
+          msg.headers.set("MIME-Version", "1.0")
 
           text_cfgs.each do |c|
             msg.add(c)
@@ -96,12 +97,11 @@ module Vagrant
               source_dir = Pathname.new(Dir.mktmpdir(TEMP_PREFIX))
               File.open("#{source_dir}/user-data", 'w') { |file| file.write(user_data.to_s) }
 
-              File.open("#{source_dir}/meta-data", 'w') { |file| file.write(meta_data.to_s) }
+              File.open("#{source_dir}/meta-data", 'w') { |file| file.write(meta_data.to_yaml) }
 
-              iso_path = env[:env].host.capability(:create_iso, env[:env],
+              iso_path = env[:env].host.capability(:create_iso,
                                                    source_dir, volume_id: "cidata")
-
-              attach_disk_config(machine, env, iso_path)
+              attach_disk_config(machine, env, iso_path.to_path)
             ensure
               FileUtils.remove_entry(source_dir)
             end

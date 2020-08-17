@@ -36,11 +36,20 @@ describe Vagrant::Action::Hook do
       subject.before(existing, 2)
       subject.before(existing, 3, :arg, &block)
 
-      expect(subject.before_hooks[existing]).to eq([
-        [1, [], nil],
-        [2, [], nil],
-        [3, [:arg], block]
-      ])
+      hooks = subject.before_hooks[existing]
+      expect(hooks.size).to eq(3)
+      expect(hooks[0].middleware).to eq(1)
+      expect(hooks[0].arguments.parameters).to eq([])
+      expect(hooks[0].arguments.keywords).to eq({})
+      expect(hooks[0].arguments.block).to be_nil
+      expect(hooks[1].middleware).to eq(2)
+      expect(hooks[1].arguments.parameters).to eq([])
+      expect(hooks[1].arguments.keywords).to eq({})
+      expect(hooks[1].arguments.block).to be_nil
+      expect(hooks[2].middleware).to eq(3)
+      expect(hooks[2].arguments.parameters).to eq([:arg])
+      expect(hooks[2].arguments.keywords).to eq({})
+      expect(hooks[2].arguments.block).to eq(block)
     end
   end
 
@@ -54,11 +63,20 @@ describe Vagrant::Action::Hook do
       subject.after(existing, 2)
       subject.after(existing, 3, :arg, &block)
 
-      expect(subject.after_hooks[existing]).to eq([
-        [1, [], nil],
-        [2, [], nil],
-        [3, [:arg], block]
-      ])
+      hooks = subject.after_hooks[existing]
+      expect(hooks.size).to eq(3)
+      expect(hooks[0].middleware).to eq(1)
+      expect(hooks[0].arguments.parameters).to eq([])
+      expect(hooks[0].arguments.keywords).to eq({})
+      expect(hooks[0].arguments.block).to be_nil
+      expect(hooks[1].middleware).to eq(2)
+      expect(hooks[1].arguments.parameters).to eq([])
+      expect(hooks[1].arguments.keywords).to eq({})
+      expect(hooks[1].arguments.block).to be_nil
+      expect(hooks[2].middleware).to eq(3)
+      expect(hooks[2].arguments.parameters).to eq([:arg])
+      expect(hooks[2].arguments.keywords).to eq({})
+      expect(hooks[2].arguments.block).to eq(block)
     end
   end
 
@@ -70,11 +88,20 @@ describe Vagrant::Action::Hook do
       subject.append(2)
       subject.append(3, :arg, &block)
 
-      expect(subject.append_hooks).to eq([
-        [1, [], nil],
-        [2, [], nil],
-        [3, [:arg], block]
-      ])
+      hooks = subject.append_hooks
+      expect(hooks.size).to eq(3)
+      expect(hooks[0].middleware).to eq(1)
+      expect(hooks[0].arguments.parameters).to eq([])
+      expect(hooks[0].arguments.keywords).to eq({})
+      expect(hooks[0].arguments.block).to be_nil
+      expect(hooks[1].middleware).to eq(2)
+      expect(hooks[1].arguments.parameters).to eq([])
+      expect(hooks[1].arguments.keywords).to eq({})
+      expect(hooks[1].arguments.block).to be_nil
+      expect(hooks[2].middleware).to eq(3)
+      expect(hooks[2].arguments.parameters).to eq([:arg])
+      expect(hooks[2].arguments.keywords).to eq({})
+      expect(hooks[2].arguments.block).to eq(block)
     end
   end
 
@@ -86,11 +113,20 @@ describe Vagrant::Action::Hook do
       subject.prepend(2)
       subject.prepend(3, :arg, &block)
 
-      expect(subject.prepend_hooks).to eq([
-        [1, [], nil],
-        [2, [], nil],
-        [3, [:arg], block]
-      ])
+      hooks = subject.prepend_hooks
+      expect(hooks.size).to eq(3)
+      expect(hooks[0].middleware).to eq(1)
+      expect(hooks[0].arguments.parameters).to eq([])
+      expect(hooks[0].arguments.keywords).to eq({})
+      expect(hooks[0].arguments.block).to be_nil
+      expect(hooks[1].middleware).to eq(2)
+      expect(hooks[1].arguments.parameters).to eq([])
+      expect(hooks[1].arguments.keywords).to eq({})
+      expect(hooks[1].arguments.block).to be_nil
+      expect(hooks[2].middleware).to eq(3)
+      expect(hooks[2].arguments.parameters).to eq([:arg])
+      expect(hooks[2].arguments.keywords).to eq({})
+      expect(hooks[2].arguments.block).to eq(block)
     end
   end
 
@@ -105,12 +141,15 @@ describe Vagrant::Action::Hook do
 
       subject.apply(builder)
 
-      expect(builder.stack).to eq([
-        ["1", [2], nil],
-        ["2", [], nil],
-        ["8", [], nil],
-        ["9", [], nil]
-      ])
+      stack = builder.stack
+      expect(stack[0].middleware).to eq("1")
+      expect(stack[0].arguments.parameters).to eq([2])
+      expect(stack[1].middleware).to eq("2")
+      expect(stack[1].arguments.parameters).to eq([])
+      expect(stack[2].middleware).to eq("8")
+      expect(stack[2].arguments.parameters).to eq([])
+      expect(stack[3].middleware).to eq("9")
+      expect(stack[3].arguments.parameters).to eq([])
     end
 
     it "should not prepend or append if disabled" do
@@ -124,12 +163,11 @@ describe Vagrant::Action::Hook do
 
       subject.apply(builder, no_prepend_or_append: true)
 
-      expect(builder.stack).to eq([
-        ["3", [], nil],
-        ["4", [], nil],
-        ["7", [], nil],
-        ["8", [], nil]
-      ])
+      stack = builder.stack
+      expect(stack[0].middleware).to eq("3")
+      expect(stack[1].middleware).to eq("4")
+      expect(stack[2].middleware).to eq("7")
+      expect(stack[3].middleware).to eq("8")
     end
   end
 end

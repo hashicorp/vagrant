@@ -243,9 +243,13 @@ function New-VagrantVMXML {
     if($Gen -gt 1) {
         if($SecureBoot -eq "True") {
             Hyper-V\Set-VMFirmware -VM $VM -EnableSecureBoot On
-            if(![System.String]::IsNullOrEmpty($SecureBootTemplate) && (Get-Command Hyper-V\Set-VMFirmware).Parameters.Keys.Contains("secureboottemplate")) {
-                Hyper-V\Set-VMFirmware -VM $VM -SecureBootTemplate $SecureBootTemplate
-            }
+            if ( 
+                    ( ![System.String]::IsNullOrEmpty($SecureBootTemplate) )`
+                     -and`
+                    ( (Get-Command Hyper-V\Set-VMFirmware).Parameters.Keys.Contains("secureboottemplate") ) 
+                ) {
+                    Hyper-V\Set-VMFirmware -VM $VM -SecureBootTemplate $SecureBootTemplate
+                }
         } else {
             Hyper-V\Set-VMFirmware -VM $VM -EnableSecureBoot Off
         }
