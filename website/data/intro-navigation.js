@@ -16,6 +16,6 @@ export default [
   },
   {
     category: 'getting-started',
-    name: `Geting Started`,
+    name: `Getting Started`,
   },
 ]
