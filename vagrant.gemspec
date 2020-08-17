@@ -18,7 +18,7 @@ Gem::Specification.new do |s|
   s.add_dependency "bcrypt_pbkdf", "~> 1.0.0"
   s.add_dependency "childprocess", "~> 4.0.0"
   s.add_dependency "ed25519", "~> 1.2.4"
-  s.add_dependency "erubis", "~> 2.7.0"
+  s.add_dependency "erubi"
   s.add_dependency "hashicorp-checkpoint", "~> 0.1.5"
   s.add_dependency "i18n", "~> 1.8"
   s.add_dependency "listen", "~> 3.1"
