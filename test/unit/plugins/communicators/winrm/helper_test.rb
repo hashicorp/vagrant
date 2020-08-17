@@ -147,6 +147,15 @@ describe VagrantPlugins::CommunicatorWinRM::Helper do
 
       expect(subject.winrm_port(machine)).to eq(2456)
     end
+
+    it "does not error when the provider capability returns nil result" do
+      machine.config.winrm.port = 22
+      machine.config.winrm.guest_port = 2222
+      machine.config.vm.network "forwarded_port", host: 1234, guest: 2222
+      allow(machine.provider).to receive(:capability).with(:forwarded_ports).and_return(nil)
+
+      expect(subject.winrm_port(machine)).to eq(1234)
+    end
   end
 
   describe ".winrm_info_invalid?" do
