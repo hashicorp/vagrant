@@ -76,18 +76,8 @@ module Vagrant
             end
           end
 
-          # Call the hook to transform URLs into authenticated URLs.
-          # In the case we don't have a plugin that does this, then it
-          # will just return the same URLs.
-          hook_env    = env[:hook].call(
-            :authenticate_box_url, box_urls: url.dup)
-          authed_urls = hook_env[:box_urls]
-          if !authed_urls || authed_urls.length != url.length
-            raise "Bad box authentication hook, did not generate proper results."
-          end
-
           # Test if any of our URLs point to metadata
-          is_metadata_results = authed_urls.map do |u|
+          is_metadata_results = url.map do |u|
             begin
               metadata_url?(u, env)
             rescue Errors::DownloaderError => e
@@ -115,8 +105,7 @@ module Vagrant
           end
 
           if is_metadata
-            url = [url.first, authed_urls.first]
-            add_from_metadata(url, env, expanded)
+            add_from_metadata(url.first, env, expanded)
           else
             add_direct(url, env)
           end
@@ -158,10 +147,7 @@ module Vagrant
 
         # Adds a box given that the URL is a metadata document.
         #
-        # @param [String | Array<String>] url The URL of the metadata for
-        #   the box to add. If this is an array, then it must be a two-element
-        #   array where the first element is the original URL and the second
-        #   element is an authenticated URL.
+        # @param [String] url The URL of the metadata for the box to add.
         # @param [Hash] env
         # @param [Bool] expanded True if the metadata URL was expanded with
         #   a Atlas server URL.
@@ -170,15 +156,6 @@ module Vagrant
           provider = env[:box_provider]
           provider = Array(provider) if provider
           version = env[:box_version]
-
-          authenticated_url = url
-          if url.is_a?(Array)
-            # We have both a normal URL and "authenticated" URL. Split
-            # them up.
-            authenticated_url = url[1]
-            url               = url[0]
-          end
-
           display_original_url = Util::CredentialScrubber.scrub(Array(original_url).first)
           display_url = Util::CredentialScrubber.scrub(url)
 
@@ -193,7 +170,7 @@ module Vagrant
           metadata = nil
           begin
             metadata_path = download(
-              authenticated_url, env, json: true, ui: false)
+              url, env, json: true, ui: false)
             return if @download_interrupted
 
             File.open(metadata_path) do |f|
@@ -271,16 +248,6 @@ module Vagrant
           end
 
           provider_url = metadata_provider.url
-          if provider_url != authenticated_url
-            # Authenticate the provider URL since we're using auth
-            hook_env    = env[:hook].call(:authenticate_box_url, box_urls: [provider_url])
-            authed_urls = hook_env[:box_urls]
-            if !authed_urls || authed_urls.length != 1
-              raise "Bad box authentication hook, did not generate proper results."
-            end
-            provider_url = authed_urls[0]
-          end
-
           box_add(
             [[provider_url, metadata_provider.url]],
             metadata.name,
@@ -436,13 +403,16 @@ module Vagrant
           downloader_options[:location_trusted] = env[:box_download_location_trusted]
           downloader_options[:box_extra_download_options] = env[:box_extra_download_options]
 
-          Util::Downloader.new(url, temp_path, downloader_options)
+          d = Util::Downloader.new(url, temp_path, downloader_options)
+          env[:hook].call(:authenticate_box_url, downloader: d)
+          d
         end
 
         def download(url, env, **opts)
           opts[:ui] = true if !opts.key?(:ui)
 
           d = downloader(url, env, **opts)
+          env[:hook].call(:authenticate_box_url, downloader: d)
 
           # Download the box to a temporary path. We store the temporary
           # path as an instance variable so that the `#recover` method can
@@ -486,6 +456,7 @@ module Vagrant
         # @return [Boolean] true if metadata
         def metadata_url?(url, env)
           d = downloader(url, env, json: true, ui: false)
+          env[:hook].call(:authenticate_box_url, downloader: d)
 
           # If we're downloading a file, cURL just returns no
           # content-type (makes sense), so we just test if it is JSON

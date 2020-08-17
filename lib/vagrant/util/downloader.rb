@@ -31,6 +31,7 @@ module Vagrant
 
       attr_reader :source
       attr_reader :destination
+      attr_accessor :headers
 
       def initialize(source, destination, options=nil)
         options     ||= {}
