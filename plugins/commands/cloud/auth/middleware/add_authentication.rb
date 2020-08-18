@@ -1,6 +1,8 @@
 require "cgi"
 require "uri"
 
+require "vagrant/util/credential_scrubber"
+
 require Vagrant.source_root.join("plugins/commands/cloud/client/client")
 
 module VagrantPlugins
@@ -34,6 +36,7 @@ module VagrantPlugins
         client = Client.new(env[:env])
         token  = client.token
         target_url = URI.parse(env[:downloader].source)
+        Vagrant::Util::CredentialScrubber.sensitive(token)
 
         if target_url.host != TARGET_HOST && REPLACEMENT_HOSTS.include?(target_url.host)
           begin
