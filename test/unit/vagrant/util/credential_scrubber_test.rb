@@ -94,5 +94,18 @@ describe Vagrant::Util::CredentialScrubber do
         end
       end
     end
+
+    context "with sensitive words that are part of non-sensitive words" do
+      let(:to_scrub){ ["a"] }
+     
+      it "should not remove parts of words" do
+        result = subject.desensitize(string)
+        to_scrub.each do |registered_value|
+          expect(result).not_to match(/(\W|^)#{registered_value}(\W|$)/)
+        end
+        expect(result).to include("my-birthday")
+        expect(result).to include("my-cats-birthday")
+      end
+    end
   end
 end

@@ -32,7 +32,7 @@ module Vagrant
       def self.desensitize(string)
         string = string.to_s.dup
         sensitive_strings.each do |remove|
-          string.gsub!(remove, REPLACEMENT_TEXT)
+          string.gsub!(/(\W|^)#{remove}(\W|$)/, " #{REPLACEMENT_TEXT} ")
         end
         string
       end
