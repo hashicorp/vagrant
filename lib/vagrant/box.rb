@@ -136,7 +136,7 @@ module Vagrant
       opts = { headers: ["Accept: application/json"] }.merge(download_options)
       d = Util::Downloader.new(url, tf.path, opts)
       if @hook
-        @hook.call(:authenticate_box_url, downloader: d)
+        @hook.call(:authenticate_box_downloader, downloader: d)
       end
       d.download!
       BoxMetadata.new(File.open(tf.path, "r"))

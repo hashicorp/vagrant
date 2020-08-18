@@ -1,8 +1,6 @@
 require "cgi"
 require "uri"
 
-require "vagrant/util/credential_scrubber"
-
 require Vagrant.source_root.join("plugins/commands/cloud/client/client")
 
 module VagrantPlugins
@@ -35,34 +33,47 @@ module VagrantPlugins
       def call(env)
         client = Client.new(env[:env])
         token  = client.token
-        target_url = URI.parse(env[:downloader].source)
-        Vagrant::Util::CredentialScrubber.sensitive(token)
 
-        if target_url.host != TARGET_HOST && REPLACEMENT_HOSTS.include?(target_url.host)
+        env[:box_urls].map! do |url|
           begin
-            target_url.host = TARGET_HOST
-            target_url = target_url.to_s
+            u = URI.parse(url)
+            if u.host != TARGET_HOST && REPLACEMENT_HOSTS.include?(u.host)
+              u.host = TARGET_HOST
+              u.to_s
+            else
+              url
+            end
           rescue URI::Error
-            # if there is an error, use current target_url
+            url
           end
         end
 
         server_uri = URI.parse(Vagrant.server_url.to_s)
+
         if token && !server_uri.host.to_s.empty?
-          if target_url.host == server_uri.host
-            if server_uri.host != TARGET_HOST && !self.class.custom_host_notified?
-              env[:ui].warn(I18n.t("cloud_command.middleware.authentication.different_target",
-                custom_host: server_uri.host, known_host: TARGET_HOST) + "\n")
-              sleep CUSTOM_HOST_NOTIFY_WAIT
-              self.class.custom_host_notified!
+          env[:box_urls].map! do |url|
+            u = URI.parse(url)
+
+            if u.host == server_uri.host
+              if server_uri.host != TARGET_HOST && !self.class.custom_host_notified?
+                env[:ui].warn(I18n.t("cloud_command.middleware.authentication.different_target",
+                  custom_host: server_uri.host, known_host: TARGET_HOST) + "\n")
+                sleep CUSTOM_HOST_NOTIFY_WAIT
+                self.class.custom_host_notified!
+              end
+
+              q = CGI.parse(u.query || "")
+
+              current = q["access_token"]
+              if current && current.empty?
+                q["access_token"] = token
+              end
+
+              u.query = URI.encode_www_form(q)
             end
 
-            if env[:downloader].headers && !env[:downloader].headers.any? { |h| h.include?("Authorization") }
-              env[:downloader].headers << "Authorization: Bearer #{token}"
-            end
+            u.to_s
           end
-
-          env[:downloader]
         end
 
         @app.call(env)

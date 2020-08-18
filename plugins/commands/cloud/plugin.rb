@@ -22,6 +22,11 @@ module VagrantPlugins
         hook.prepend(AddAuthentication)
       end
 
+      action_hook(:cloud_authenticated_boxes, :authenticate_box_downloader) do |hook|
+        require_relative "auth/middleware/add_downloader_authentication"
+        hook.prepend(AddDownloaderAuthentication)
+      end
+
       protected
 
       def self.init!
