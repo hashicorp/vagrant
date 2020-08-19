@@ -245,7 +245,7 @@ module Vagrant
         def cached_synced_folders(machine)
           import = JSON.parse(machine.data_dir.join("synced_folders").read)
           import.each do |type, folders|
-            impl = plugins[type.to_sym].first.new._initialize(machine, type)
+            impl = plugins[type.to_sym].first.new._initialize(machine, type.to_sym)
             folders.each { |_, v| v[:plugin] = impl }
           end
           # Symbolize the keys we want as symbols

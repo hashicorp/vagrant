@@ -23,12 +23,18 @@ module VagrantPlugins
           ssh_info = machine.ssh_info
           export_folders = folders.map { |type, folder|
             folder.map { |name, data|
+              guest_path = Shellwords.escape(data[:guestpath])
               data[:owner] ||= ssh_info[:username]
               data[:group] ||= ssh_info[:username]
-              guest_path = Shellwords.escape(data[:guestpath])
-              mount_options, _, _ = data[:plugin].capability(
-                :mount_options, name, guest_path, data)
-              mount_type = data[:plugin].capability(:mount_type)
+
+              if data[:plugin].capability?(:mount_type)
+                mount_type = data[:plugin].capability(:mount_type)
+                mount_options, _, _ = data[:plugin].capability(
+                  :mount_options, name, guest_path, data)
+              else
+                next
+              end
+
               mount_options = "#{mount_options},nofail"
               {
                 name: name,
