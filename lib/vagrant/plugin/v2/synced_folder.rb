@@ -29,14 +29,16 @@ module Vagrant
             c = lambda do |h|
               h.keys.each do |k|
                 if h[k].is_a?(Hash)
-                  h[k] = c.call(h[k].to_h)
+                  h[k] = c.call(h[k].to_h.clone)
                 end
               end
               h
             end
             h = c.call(super)
             h.values.each do |f|
-              f.delete(:plugin)
+              f.values.each do |g|
+                g.delete(:plugin)
+              end
             end
             h
           end
