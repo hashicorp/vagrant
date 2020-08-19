@@ -8,14 +8,14 @@ module VagrantPlugins
 
         def self.mount_virtualbox_shared_folder(machine, name, guestpath, options)
           guest_path = Shellwords.escape(guestpath)
-          mount_type = machine.synced_folders.types[:virtualbox].capability(:mount_type)
+          mount_type = options[:plugin].capability(:mount_type)
 
           @@logger.debug("Mounting #{name} (#{options[:hostpath]} to #{guestpath})")
 
           builtin_mount_type = "-cit #{mount_type}"
           addon_mount_type = "-t #{mount_type}"
 
-          mount_options, mount_uid, mount_gid = machine.synced_folders.types[:virtualbox].capability(:mount_options, name, guest_path, options)
+          mount_options, mount_uid, mount_gid = options[:plugin].capability(:mount_options, name, guest_path, options)
           mount_command = "mount #{addon_mount_type} -o #{mount_options} #{name} #{guest_path}"
 
           # Create the guest path if it doesn't exist

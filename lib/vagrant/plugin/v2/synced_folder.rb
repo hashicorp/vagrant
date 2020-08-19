@@ -3,6 +3,45 @@ module Vagrant
     module V2
       # This is the base class for a synced folder implementation.
       class SyncedFolder
+        class Collection < Hash
+
+          # @return [Array<Symbol>] names of synced folder types
+          def types
+            keys
+          end
+
+          # Fetch the synced plugin folder of the given type
+          #
+          # @param [Symbol] t Synced folder type
+          # @return [Vagrant::Plugin::V2::SyncedFolder]
+          def type(t)
+            f = detect { |k, _| k.to_sym == t.to_sym }.last
+            raise KeyError, "Unknown synced folder type" if !f
+            f.values.first[:plugin]
+          end
+
+          # Converts to a regular Hash and removes
+          # plugin instances so the result is ready
+          # for serialization
+          #
+          # @return [Hash]
+          def to_h
+            c = lambda do |h|
+              h.keys.each do |k|
+                if h[k].is_a?(Hash)
+                  h[k] = c.call(h[k].to_h)
+                end
+              end
+              h
+            end
+            h = c.call(super)
+            h.values.each do |f|
+              f.delete(:plugin)
+            end
+            h
+          end
+        end
+
         include CapabilityHost
 
         # This is called early when the synced folder is set to determine
@@ -61,6 +100,7 @@ module Vagrant
           plugins = Vagrant.plugin("2").manager.synced_folders
           capabilities = Vagrant.plugin("2").manager.synced_folder_capabilities
           initialize_capabilities!(synced_folder_type, plugins, capabilities, machine)
+          self
         end
       end
     end

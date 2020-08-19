@@ -16,18 +16,20 @@ describe "VagrantPlugins::GuestLinux::Cap::MountVirtualBoxSharedFolder" do
   let(:mount_name){ "vagrant" }
   let(:mount_guest_path){ "/vagrant" }
   let(:folder_options) do
-    {
-      owner: mount_owner,
-      group: mount_group,
-      hostpath: "/host/directory/path"
-    }
+    Vagrant::Plugin::V2::SyncedFolder::Collection[
+      {
+        owner: mount_owner,
+        group: mount_group,
+        hostpath: "/host/directory/path",
+        plugin: folder_plugin
+      }
+    ]
   end
   let(:cap){ caps.get(:mount_virtualbox_shared_folder) }
-  let(:mount_options_cap){ double("opts") }
+  let(:folder_plugin) { double("folder_plugin") }
 
   before do
     allow(machine).to receive(:communicate).and_return(comm)
-    allow(machine).to receive_message_chain(:synced_folders, :types).and_return( { :virtualbox => mount_options_cap } )
   end
 
   after do
@@ -42,17 +44,21 @@ describe "VagrantPlugins::GuestLinux::Cap::MountVirtualBoxSharedFolder" do
     end
 
     it "generates the expected default mount command" do
-      expect(mount_options_cap).to receive(:capability).with(:mount_options, mount_name, mount_guest_path, folder_options).and_return(["uid=#{mount_uid},gid=#{mount_gid}", mount_uid, mount_gid])
-      expect(mount_options_cap).to receive(:capability).with(:mount_type).and_return("vboxsf")
+      expect(folder_plugin).to receive(:capability).with(:mount_options, mount_name, mount_guest_path, folder_options).
+        and_return(["uid=#{mount_uid},gid=#{mount_gid}", mount_uid, mount_gid])
+      expect(folder_plugin).to receive(:capability).with(:mount_type).and_return("vboxsf")
       expect(comm).to receive(:sudo).with("mount -t vboxsf -o uid=#{mount_uid},gid=#{mount_gid} #{mount_name} #{mount_guest_path}", anything)
+
       cap.mount_virtualbox_shared_folder(machine, mount_name, mount_guest_path, folder_options)
     end
 
     it "automatically chown's the mounted directory on guest" do
-      expect(mount_options_cap).to receive(:capability).with(:mount_options, mount_name, mount_guest_path, folder_options).and_return(["uid=#{mount_uid},gid=#{mount_gid}", mount_uid, mount_gid])
-      expect(mount_options_cap).to receive(:capability).with(:mount_type).and_return("vboxsf")
+      expect(folder_plugin).to receive(:capability).with(:mount_options, mount_name, mount_guest_path, folder_options).
+        and_return(["uid=#{mount_uid},gid=#{mount_gid}", mount_uid, mount_gid])
+      expect(folder_plugin).to receive(:capability).with(:mount_type).and_return("vboxsf")
       expect(comm).to receive(:sudo).with("mount -t vboxsf -o uid=#{mount_uid},gid=#{mount_gid} #{mount_name} #{mount_guest_path}", anything)
       expect(comm).to receive(:sudo).with("chown #{mount_uid}:#{mount_gid} #{mount_guest_path}")
+
       cap.mount_virtualbox_shared_folder(machine, mount_name, mount_guest_path, folder_options)
     end
 
@@ -60,8 +66,10 @@ describe "VagrantPlugins::GuestLinux::Cap::MountVirtualBoxSharedFolder" do
 
       it "emits mount event" do
         expect(comm).to receive(:sudo).with(/initctl emit/)
-        expect(mount_options_cap).to receive(:capability).with(:mount_type).and_return("vboxsf")
-        expect(mount_options_cap).to receive(:capability).with(:mount_options, mount_name, mount_guest_path, folder_options).and_return(["uid=#{mount_uid},gid=#{mount_gid}", mount_uid, mount_gid])
+        expect(folder_plugin).to receive(:capability).with(:mount_type).and_return("vboxsf")
+        expect(folder_plugin).to receive(:capability).with(:mount_options, mount_name, mount_guest_path, folder_options).
+          and_return(["uid=#{mount_uid},gid=#{mount_gid}", mount_uid, mount_gid])
+
         cap.mount_virtualbox_shared_folder(machine, mount_name, mount_guest_path, folder_options)
       end
     end
@@ -74,10 +82,12 @@ mount.vboxsf cannot be used with mainline vboxsf; instead use:
 EOF
       }
       it "should perform guest mount using builtin module" do
-        expect(mount_options_cap).to receive(:capability).with(:mount_options, mount_name, mount_guest_path, folder_options).and_return(["uid=#{mount_uid},gid=#{mount_gid}", mount_uid, mount_gid])
-        expect(mount_options_cap).to receive(:capability).with(:mount_type).and_return("vboxsf")
+        expect(folder_plugin).to receive(:capability).with(:mount_options, mount_name, mount_guest_path, folder_options).
+          and_return(["uid=#{mount_uid},gid=#{mount_gid}", mount_uid, mount_gid])
+        expect(folder_plugin).to receive(:capability).with(:mount_type).and_return("vboxsf")
         expect(comm).to receive(:sudo).with(/mount -t vboxsf/, any_args).and_yield(:stderr, vbox_stderr).and_return(1)
         expect(comm).to receive(:sudo).with(/mount -cit/, any_args)
+
         cap.mount_virtualbox_shared_folder(machine, mount_name, mount_guest_path, folder_options)
       end
     end

@@ -727,7 +727,8 @@ module VagrantPlugins
 
         if @allow_fstab_modification == UNSET_VALUE
           plugins = Vagrant.plugin("2").manager.synced_folders
-          machine.synced_folders.types.each do |_, inst|
+          machine.synced_folders.types.each do |impl_name|
+            inst = machine.synced_folders.type(impl_name)
             if inst.capability?(:default_fstab_modification)
               if inst.capability(:default_fstab_modification) == false
                 @allow_fstab_modification = false

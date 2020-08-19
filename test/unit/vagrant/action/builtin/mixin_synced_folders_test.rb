@@ -14,6 +14,7 @@ describe Vagrant::Action::Builtin::MixinSyncedFolders do
   end
 
   let(:data_dir) { Pathname.new(Dir.mktmpdir("vagrant-test-mixin-synced-folders")) }
+  let(:folders_class) { Vagrant::Plugin::V2::SyncedFolder::Collection }
 
   let(:machine) do
     double("machine").tap do |machine|
@@ -91,7 +92,7 @@ describe Vagrant::Action::Builtin::MixinSyncedFolders do
   end
 
   describe "synced_folders" do
-    let(:folders) { {} }
+    let(:folders) { folders_class.new }
     let(:plugins) { {} }
 
     before do
@@ -118,14 +119,14 @@ describe Vagrant::Action::Builtin::MixinSyncedFolders do
       result = subject.synced_folders(machine)
       expect(result.length).to eq(2)
       expect(result[:default]).to eq({
-        "another" => folders["another"].merge(__vagrantfile: true),
-        "foo" => folders["foo"].merge(__vagrantfile: true),
-        "root" => folders["root"].merge(__vagrantfile: true),
+        "another" => folders["another"].merge(__vagrantfile: true, plugin: true),
+        "foo" => folders["foo"].merge(__vagrantfile: true, plugin: true),
+        "root" => folders["root"].merge(__vagrantfile: true, plugin: true),
       })
       expect(result[:nfs]).to eq({
-        "nfs" => folders["nfs"].merge(__vagrantfile: true),
+        "nfs" => folders["nfs"].merge(__vagrantfile: true, plugin: true),
       })
-      expect(result.types.keys).to eq([:default, :nfs]) 
+      expect(result.types).to eq([:default, :nfs])
     end
 
     it "should return the proper set of folders of a custom config" do
@@ -139,9 +140,9 @@ describe Vagrant::Action::Builtin::MixinSyncedFolders do
       result = subject.synced_folders(machine, config: other)
       expect(result.length).to eq(1)
       expect(result[:default]).to eq({
-        "bar" => other_folders["bar"],
+        "bar" => other_folders["bar"].merge(plugin: true),
       })
-      expect(result.types.keys).to eq([:default]) 
+      expect(result.types).to eq([:default])
     end
 
     it "should error if an explicit type is unusable" do
@@ -159,7 +160,7 @@ describe Vagrant::Action::Builtin::MixinSyncedFolders do
       result = subject.synced_folders(machine)
       expect(result.length).to eq(1)
       expect(result[:default].length).to eq(1)
-      expect(result.types.keys).to eq([:default]) 
+      expect(result.types).to eq([:default])
     end
 
     it "should scope hash override the settings" do
@@ -171,13 +172,13 @@ describe Vagrant::Action::Builtin::MixinSyncedFolders do
 
       result = subject.synced_folders(machine)
       expect(result[:nfs]["root"][:foo]).to eql("bar")
-      expect(result.types.keys).to eq([:nfs]) 
+      expect(result.types).to eq([:nfs])
     end
 
     it "returns {} if cached read with no cache" do
       result = subject.synced_folders(machine, cached: true)
       expect(result).to eql({})
-      expect(result.types).to eq({}) 
+      expect(result.types).to eq([])
     end
 
     it "should be able to save and retrieve cached versions" do
@@ -196,12 +197,12 @@ describe Vagrant::Action::Builtin::MixinSyncedFolders do
       result = subject.synced_folders(machine, cached: true)
       expect(result.length).to eq(2)
       expect(result[:default]).to eq({
-        "another" => old_folders["another"].merge(__vagrantfile: true),
-        "foo" => old_folders["foo"].merge(__vagrantfile: true),
-        "root" => old_folders["root"].merge(__vagrantfile: true),
+        "another" => old_folders["another"].merge(__vagrantfile: true, plugin: true),
+        "foo" => old_folders["foo"].merge(__vagrantfile: true, plugin: true),
+        "root" => old_folders["root"].merge(__vagrantfile: true, plugin: true),
       })
-      expect(result[:nfs]).to eq({ "nfs" => old_folders["nfs"].merge(__vagrantfile: true) })
-      expect(result.types.keys).to eq([:default, :nfs]) 
+      expect(result[:nfs]).to eq({ "nfs" => old_folders["nfs"].merge(__vagrantfile: true, plugin: true) })
+      expect(result.types).to eq([:default, :nfs])
     end
 
     it "should be able to save and retrieve cached versions" do
@@ -227,13 +228,13 @@ describe Vagrant::Action::Builtin::MixinSyncedFolders do
       result = subject.synced_folders(machine, cached: true)
       expect(result.length).to eq(2)
       expect(result[:default]).to eq({
-        "foo" => { type: "default" },
-        "bar" => { type: "default", __vagrantfile: true},
+        "foo" => { type: "default", plugin: true },
+        "bar" => { type: "default", __vagrantfile: true, plugin: true },
       })
       expect(result[:nfs]).to eq({
-        "baz" => { type: "nfs", __vagrantfile: true }
+        "baz" => { type: "nfs", __vagrantfile: true, plugin: true }
       })
-      expect(result.types.keys).to eq([:default, :nfs]) 
+      expect(result.types).to eq([:default, :nfs])
     end
 
     it "should remove items from the vagrantfile that were removed" do
@@ -255,17 +256,17 @@ describe Vagrant::Action::Builtin::MixinSyncedFolders do
       result = subject.synced_folders(machine, cached: true)
       expect(result.length).to eq(2)
       expect(result[:default]).to eq({
-        "bar" => { type: "default", __vagrantfile: true},
+        "bar" => { type: "default", __vagrantfile: true, plugin: true},
       })
       expect(result[:nfs]).to eq({
-        "baz" => { type: "nfs", __vagrantfile: true }
+        "baz" => { type: "nfs", __vagrantfile: true, plugin: true }
       })
-      expect(result.types.keys).to eq([:default, :nfs]) 
+      expect(result.types).to eq([:default, :nfs])
     end
   end
 
   describe "#save_synced_folders" do
-    let(:folders) { {} }
+    let(:folders) { folders_class.new }
     let(:options) { {} }
     let(:output_file) { double("output_file") }
 
