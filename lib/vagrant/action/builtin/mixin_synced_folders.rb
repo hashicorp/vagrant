@@ -99,10 +99,6 @@ module Vagrant
 
           folder_data = JSON.dump(folders)
 
-          # Scrub any register credentials from the synced folders
-          # configuration data to prevent accidental leakage
-          folder_data = Util::CredentialScrubber.desensitize(folder_data)
-
           machine.data_dir.join("synced_folders").open("w") do |f|
             f.write(folder_data)
           end
