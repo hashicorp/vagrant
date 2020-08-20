@@ -122,7 +122,7 @@ export default function VmwareIndex() {
           </p>
           <div className={s.purchaseForm}>
             <p className="g-type-body">
-              <strong>VMware Fusion 11 / VMware Workstation 15 or lower</strong>
+              <strong>VMware Fusion 12 / VMware Workstation 16 or lower</strong>
             </p>
             <VMWarePurchaseForm productId="7255390650419" />
           </div>
