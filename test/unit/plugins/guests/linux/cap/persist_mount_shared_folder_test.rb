@@ -33,6 +33,7 @@ describe "VagrantPlugins::GuestLinux::Cap::PersistMountSharedFolder" do
   before do
     allow(machine).to receive(:communicate).and_return(comm)
     allow(machine).to receive(:ssh_info).and_return(ssh_info)
+    allow(folder_plugin).to receive(:capability?).with(:mount_type).and_return(true)
     allow(folder_plugin).to receive(:capability).with(:mount_options, any_args).
       and_return(["uid=#{options_uid},gid=#{options_gid}", options_uid, options_gid])
     allow(folder_plugin).to receive(:capability).with(:mount_type).and_return("vboxsf")
@@ -64,6 +65,18 @@ describe "VagrantPlugins::GuestLinux::Cap::PersistMountSharedFolder" do
     it "does not insert an empty set of folders" do
       expect(cap).to receive(:remove_vagrant_managed_fstab)
       cap.persist_mount_shared_folder(machine, nil)
+    end
+
+    context "folders do not support mount_type capability" do
+      before do
+        allow(folder_plugin).to receive(:capability?).with(:mount_type).and_return(false)
+      end
+
+      it "does not inserts folders into /etc/fstab" do
+        expect(cap).to receive(:remove_vagrant_managed_fstab)
+        expect(comm).not_to receive(:sudo).with(/echo '' >> \/etc\/fstab/)
+        cap.persist_mount_shared_folder(machine, folders)
+      end
     end
   end
 end

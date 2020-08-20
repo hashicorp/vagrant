@@ -2,7 +2,6 @@ require "json"
 require "set"
 
 require 'vagrant/util/scoped_hash_override'
-require 'vagrant/util/typed_hash'
 
 module Vagrant
   module Action
