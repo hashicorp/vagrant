@@ -6,6 +6,9 @@ require_relative "./add_authentication"
 
 require Vagrant.source_root.join("plugins/commands/cloud/client/client")
 
+# Similar to AddAuthentication this middleware will add authentication for interacting
+# with Vagrant cloud. It does this by adding Authentication headers to a 
+# Vagrant::Util::Downloader object. 
 module VagrantPlugins
   module CloudCommand
     class AddDownloaderAuthentication <  AddAuthentication
@@ -13,16 +16,16 @@ module VagrantPlugins
       def call(env)
         client = Client.new(env[:env])
         token  = client.token
-        target_url = URI.parse(env[:downloader].source)
         Vagrant::Util::CredentialScrubber.sensitive(token)
 
-        if target_url.host != TARGET_HOST && REPLACEMENT_HOSTS.include?(target_url.host)
-          begin
-            target_url.host = TARGET_HOST
-            target_url = target_url.to_s
-          rescue URI::Error
-            # if there is an error, use current target_url
+        begin
+          target_url = URI.parse(env[:downloader].source)
+          if target_url.host != TARGET_HOST && REPLACEMENT_HOSTS.include?(target_url.host)
+              target_url.host = TARGET_HOST
+              env[:downloader].source = target_url.to_s
           end
+        rescue URI::Error
+          # if there is an error, use current target_url
         end
 
         server_uri = URI.parse(Vagrant.server_url.to_s)
@@ -35,7 +38,8 @@ module VagrantPlugins
               self.class.custom_host_notified!
             end
 
-            if env[:downloader].headers && !env[:downloader].headers.any? { |h| h.include?("Authorization") }
+            if !Array(env[:downloader].headers).any? { |h| h.include?("Authorization") }
+              env[:downloader].headers ||= []
               env[:downloader].headers << "Authorization: Bearer #{token}"
             end
           end

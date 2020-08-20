@@ -29,7 +29,7 @@ module Vagrant
         "vagrantup.com".freeze
       ].freeze
 
-      attr_reader :source
+      attr_accessor :source
       attr_reader :destination
       attr_accessor :headers
 
