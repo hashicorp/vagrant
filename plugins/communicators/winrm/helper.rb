@@ -58,7 +58,7 @@ module VagrantPlugins
           # ports.
           port = nil
           if machine.provider.capability?(:forwarded_ports)
-            machine.provider.capability(:forwarded_ports).each do |host, guest|
+            Array(machine.provider.capability(:forwarded_ports)).each do |host, guest|
               if guest == machine.config.winrm.guest_port
                 port = host
                 break
