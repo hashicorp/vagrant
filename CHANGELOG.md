@@ -34,6 +34,7 @@ BUG FIXES:
 - core: Capture `[3J` escape sequence [GH-11807]
 - core: Treat empty box value as invalid [GH-11618]
 - core: Allow forwarding ports to unknown addresses [GH-11810]
+- core: Scrub credentials as whole words [GH-11837]
 - commands/destroy: Add gracefull option to switch beween gracefully or forcefully shutting down a vm [GH-11628]
 - communicator/ssh: Raise an error for a nil exit status [GH-11721]
 - communicator/winrm: Check for nil return from querying for forwarded ports [GH-11831]
