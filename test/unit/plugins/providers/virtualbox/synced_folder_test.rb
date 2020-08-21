@@ -78,30 +78,6 @@ describe VagrantPlugins::ProviderVirtualBox::SyncedFolder do
       allow(machine).to receive(:ssh_info).and_return({:username => "test"})
       allow(machine).to receive(:guest).and_return(guest)
     end
-
-    it "should mount and persist all folders with a guest path" do
-      expect(guest).to receive(:capability).with(:mount_virtualbox_shared_folder, "folder", any_args)
-      expect(guest).not_to receive(:capability).with(:mount_virtualbox_shared_folder, "no_guestpath_folder", any_args)
-      expect(guest).to receive(:capability?).with(:persist_mount_shared_folder).and_return(true)
-      expect(guest).to receive(:capability).with(:persist_mount_shared_folder, any_args)
-      test_folders = folders.merge(no_guestpath_folder)
-      subject.enable(machine, test_folders, nil)
-    end
-
-    context "fstab modification disabled" do
-      before do
-       allow(vm_config).to receive(:allow_fstab_modification).and_return(false)
-      end
-
-      it "should not persist folders" do
-        expect(guest).to receive(:capability).with(:mount_virtualbox_shared_folder, "folder", any_args)
-        expect(guest).not_to receive(:capability).with(:mount_virtualbox_shared_folder, "no_guestpath_folder", any_args)
-        expect(guest).to receive(:capability?).with(:persist_mount_shared_folder).and_return(true)
-        expect(guest).to receive(:capability).with(:persist_mount_shared_folder, [], "vboxsf")
-        test_folders = folders.merge(no_guestpath_folder)
-        subject.enable(machine, test_folders, nil)
-      end
-    end
   end
 
   describe "#prepare" do

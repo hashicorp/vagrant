@@ -1,4 +1,5 @@
 require_relative "util/ssh"
+require_relative "action/builtin/mixin_synced_folders"
 
 require "digest/md5"
 require "thread"
@@ -10,6 +11,8 @@ module Vagrant
   # API for querying the state and making state changes to the machine, which
   # is backed by any sort of provider (VirtualBox, VMware, etc.).
   class Machine
+    extend Vagrant::Action::Builtin::MixinSyncedFolders
+
     # The box that is backing this machine.
     #
     # @return [Box]
@@ -614,6 +617,15 @@ module Vagrant
           @ui = old_ui
         end
       end
+    end
+
+    # This returns the set of shared folders that should be done for
+    # this machine. It returns the folders in a hash keyed by the
+    # implementation class for the synced folders.
+    #
+    # @return [Hash<Symbol, Hash<String, Hash>>]
+    def synced_folders
+      self.class.synced_folders(self)
     end
 
     protected

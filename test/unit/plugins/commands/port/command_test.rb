@@ -29,6 +29,7 @@ describe VagrantPlugins::CommandPort::Command do
 
   before do
     allow(machine).to receive(:state).and_return(state)
+    allow(machine).to receive_message_chain(:synced_folders).and_return( double(:types => []) )
     allow(subject).to receive(:with_target_vms) { |&block| block.call(machine) }
   end
 
