@@ -151,10 +151,10 @@ module VagrantPlugins
 
                 b3.use CleanupDisks
                 b3.use Disk
+                b3.use SyncedFolderCleanup
                 b3.use StartInstance
                 b3.use WaitForIPAddress
                 b3.use WaitForCommunicator, [:running]
-                b3.use SyncedFolderCleanup
                 b3.use SyncedFolders
                 b3.use SetHostname
               end

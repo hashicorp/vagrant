@@ -26,12 +26,19 @@ module VagrantPlugins
           ssh_info = machine.ssh_info
           export_folders = folders.map { |type, folder|
             folder.map { |name, data|
-              guest_path = Shellwords.escape(data[:guestpath])
-              data[:owner] ||= ssh_info[:username]
-              data[:group] ||= ssh_info[:username]
-
               if data[:plugin].capability?(:mount_type)
+                guest_path = Shellwords.escape(data[:guestpath])
+                data[:owner] ||= ssh_info[:username]
+                data[:group] ||= ssh_info[:username]
                 mount_type = data[:plugin].capability(:mount_type)
+
+                if type == :smb
+                  data[:smb_host] ||= machine.guest.capability(
+                    :choose_addressable_ip_addr, candidate_ips)
+                  name = "//#{data[:smb_host]}/#{data[:smb_id]}"
+                  mount_options = "#{mount_options},_netdev"
+                end
+
                 mount_options, _, _ = data[:plugin].capability(
                   :mount_options, name, guest_path, data)
               else

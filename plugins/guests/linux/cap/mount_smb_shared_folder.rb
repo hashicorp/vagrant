@@ -15,6 +15,7 @@ module VagrantPlugins
 
           mount_device   = "//#{options[:smb_host]}/#{name}"
 
+          options[:smb_id] ||= name
           mount_options, _, _ = options[:plugin].capability(
             :mount_options, name, expanded_guest_path, options)
           mount_type = options[:plugin].capability(:mount_type)
