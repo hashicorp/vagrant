@@ -1,11 +1,17 @@
-# last-modified: Fri May  1 23:10:29 UTC 2020
+# last-modified: Thu Aug  6 16:45:05 UTC 2020
 #!/usr/bin/env bash
 
 # Path to file used for output redirect
 # and extracting messages for warning and
 # failure information sent to slack
 function output_file() {
-    printf "/tmp/.ci-output"
+    if [ "${1}" = "clean" ] && [ -f "${ci_output_file_path}" ]; then
+        rm -f "${ci_output_file_path}"
+    fi
+    if [ -z "${ci_output_file_path}" ] || [ ! -f "${ci_output_file_path}" ]; then
+        ci_output_file_path="$(mktemp)"
+    fi
+    printf "${ci_output_file_path}"
 }
 
 # Write failure message, send error to configured
@@ -57,7 +63,7 @@ function wrap() {
 # Execute command while redirecting all output to
 # a file. Exit status is returned.
 function wrap_raw() {
-    rm -f "$(output_file)"
+    output_file "clean"
     "${@}" > "$(output_file)" 2>&1
     return $?
 }
@@ -83,7 +89,7 @@ function wrap_stream() {
 # to a file. Command output will be streamed
 # during execution. Exit status is returned
 function wrap_stream_raw() {
-    rm -f "$(output_file)"
+    output_file "clean"
     "${@}" > "$(output_file)" 2>&1 &
     pid=$!
     until [ -f "$(output_file)" ]; do
@@ -254,10 +260,15 @@ function release_validate() {
 # $2: Asset file or directory of assets
 function release() {
     release_validate "${@}"
-    wrap_raw ghr -u "${repo_owner}" -r "${repo_name}" -c "${full_sha}" -n "${1}" -delete
+    tag_name="${1}"
+    assets="${2}"
+    body="$(release_details)"
+    body="${body:-New ${repo_name} release - ${tag_name}}"
+    wrap_raw ghr -u "${repo_owner}" -r "${repo_name}" -c "${full_sha}" -n "${tag_name}" \
+             -b "${body}" -delete "${assets}"
     if [ $? -ne 0 ]; then
-        wrap ghr -u "${repo_owner}" -r "${repo_name}" -c "${full_sha}" -n "${1}" \
-             "${1}" "${2}" "Failed to create release for version ${1}"
+        wrap ghr -u "${repo_owner}" -r "${repo_name}" -c "${full_sha}" -n "${tag_name}" \
+             -b "${body}" "${tag_name}" "${assets}" "Failed to create release for version ${tag_name}"
     fi
 }
 
@@ -272,15 +283,32 @@ function prerelease() {
     else
         ptag="${1}"
     fi
+    assets="${2}"
 
     wrap_raw ghr -u "${repo_owner}" -r "${repo_name}" -c "${full_sha}" -n "${ptag}" \
-             -delete -prerelease "${ptag}" "${2}"
+             -delete -prerelease "${ptag}" "${assets}"
     if [ $? -ne 0 ]; then
         wrap ghr -u "${repo_owner}" -r "${repo_name}" -c "${full_sha}" -n "${ptag}" \
-             -prerelease "${ptag}" "${2}" \
+             -prerelease "${ptag}" "${assets}" \
              "Failed to create prerelease for version ${1}"
     fi
     echo -n "${ptag}"
+}
+
+# Generate details of the release. This will consist
+# of a link to the changelog if we can properly detect
+# it based on current location.
+#
+# $1: Tag name
+#
+# Returns: details content
+function release_details() {
+    tag_name="${1}"
+    proj_root="$(git rev-parse --show-toplevel)"
+    if [ $? -ne 0 ] || [ -z "$(git tag -l "${tag_name}")"] || [ ! -f "${proj_root}/CHANGELOG.md" ]; then
+        return
+    fi
+    echo -en "CHANGELOG:\n\nhttps://github.com/${repository}/blob/${tag_name}/CHANGELOG.md"
 }
 
 # Check if version string is valid for release
@@ -345,8 +373,14 @@ function hashicorp_release_verify() {
 # Generate a HashiCorp release
 #
 # $1: Asset directory
+# $2: Product name (e.g. "vagrant") defaults to $repo_name
 function hashicorp_release() {
     directory="${1}"
+    product="${2}"
+
+    if [ -z "${product}" ]; then
+        product="${repo_name}"
+    fi
 
     hashicorp_release_validate "${directory}"
     hashicorp_release_verify "${directory}"
@@ -358,7 +392,7 @@ function hashicorp_release() {
 
     wrap_stream hc-releases upload "${directory}" \
                 "Failed to upload HashiCorp release assets"
-    wrap_stream hc-releases publish \
+    wrap_stream hc-releases publish -product="${product}" \
                 "Failed to publish HashiCorp release"
 
     export AWS_ACCESS_KEY_ID="${oid}"
