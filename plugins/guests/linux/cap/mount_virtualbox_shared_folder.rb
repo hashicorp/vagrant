@@ -6,6 +6,12 @@ module VagrantPlugins
       class MountVirtualBoxSharedFolder
         extend SyncedFolder::UnixMountHelpers
 
+        # Mounts and virtualbox folder on linux guest
+        #
+        # @param [Machine] machine
+        # @param [String] name of mount
+        # @param [String] path of mount on guest
+        # @param [Hash] hash of mount options 
         def self.mount_virtualbox_shared_folder(machine, name, guestpath, options)
           guest_path = Shellwords.escape(guestpath)
           mount_type = options[:plugin].capability(:mount_type)

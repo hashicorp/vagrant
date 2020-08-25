@@ -36,7 +36,6 @@ module VagrantPlugins
                   data[:smb_host] ||= machine.guest.capability(
                     :choose_addressable_ip_addr, candidate_ips)
                   name = "//#{data[:smb_host]}/#{data[:smb_id]}"
-                  mount_options = "#{mount_options},_netdev"
                 end
 
                 mount_options, _, _ = data[:plugin].capability(

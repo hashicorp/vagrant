@@ -27,8 +27,9 @@ describe "VagrantPlugins::GuestLinux::Cap::PersistMountSharedFolder" do
     ]
   }
   let (:folders) { {
-    :virtualbox => fstab_folders
+    :folder_type => fstab_folders
   } }
+  let(:expected_mount_options) { "uid=#{options_uid},gid=#{options_gid},nofail" }
 
   before do
     allow(machine).to receive(:communicate).and_return(comm)
@@ -55,8 +56,8 @@ describe "VagrantPlugins::GuestLinux::Cap::PersistMountSharedFolder" do
     end
 
     it "inserts folders into /etc/fstab" do
-      expected_entry_vagrant = "vagrant /vagrant vboxsf uid=#{options_uid},gid=#{options_gid},nofail 0 0"
-      expected_entry_test = "test1 /test1 vboxsf uid=#{options_uid},gid=#{options_gid},nofail 0 0"
+      expected_entry_vagrant = "vagrant /vagrant vboxsf #{expected_mount_options} 0 0"
+      expected_entry_test = "test1 /test1 vboxsf #{expected_mount_options} 0 0"
       expect(cap).to receive(:remove_vagrant_managed_fstab)
       expect(comm).to receive(:sudo).with(/#{expected_entry_test}\n#{expected_entry_vagrant}/)
 
@@ -97,6 +98,35 @@ describe "VagrantPlugins::GuestLinux::Cap::PersistMountSharedFolder" do
         expect(cap).to receive(:remove_vagrant_managed_fstab)
         expect(comm).not_to receive(:sudo).with(/echo '' >> \/etc\/fstab/)
         cap.persist_mount_shared_folder(machine, nil)
+      end
+    end
+   
+    context "smb folder" do
+      let (:fstab_folders) {
+        Vagrant::Plugin::V2::SyncedFolder::Collection[
+          {
+            "test1" => {guestpath: "/test1", hostpath: "/my/host/path", disabled: false, plugin: folder_plugin,
+              __vagrantfile: true, owner: "vagrant", group: "vagrant", smb_host: "192.168.42.42", smb_id: "vtg-id1" },
+            "vagrant" => {guestpath: "/vagrant", hostpath: "/my/host/vagrant", disabled: false, plugin: folder_plugin,
+               __vagrantfile: true, owner: "vagrant", group: "vagrant", smb_host: "192.168.42.42", smb_id: "vtg-id2"}
+          }
+        ]
+      }
+      let (:folders) { {
+        :smb => fstab_folders
+      } }
+
+      before do
+        allow(folder_plugin).to receive(:capability).with(:mount_type).and_return("cifs")
+      end
+     
+      it "inserts folders into /etc/fstab" do
+        expected_entry_vagrant = "//192.168.42.42/vtg-id2 /vagrant cifs #{expected_mount_options} 0 0"
+        expected_entry_test = "//192.168.42.42/vtg-id1 /test1 cifs #{expected_mount_options} 0 0"
+        expect(cap).to receive(:remove_vagrant_managed_fstab)
+        expect(comm).to receive(:sudo).with(/#{expected_entry_test}\n#{expected_entry_vagrant}/)
+  
+        cap.persist_mount_shared_folder(machine, folders)
       end
     end
   end

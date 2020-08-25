@@ -16,6 +16,7 @@ module VagrantPlugins
         # @param [Hash] hash of mount options 
         def self.mount_options(machine, name, guest_path, options)
           mount_options = options.fetch(:mount_options, [])
+          options[:smb_id] ||= name
           detected_ids = detect_owner_group_ids(machine, guest_path, mount_options, options)
           mount_uid = detected_ids[:uid]
           mount_gid = detected_ids[:gid]
@@ -33,6 +34,7 @@ module VagrantPlugins
           if !ENV['VAGRANT_DISABLE_SMBMFSYMLINKS']
             mnt_opts << "mfsymlinks"
           end
+          mnt_opts << "_netdev"
           mnt_opts = merge_mount_options(mnt_opts, options[:mount_options] || [])
 
           mount_options = mnt_opts.join(",")
