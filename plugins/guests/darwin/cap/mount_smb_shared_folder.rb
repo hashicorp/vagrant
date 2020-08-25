@@ -26,7 +26,7 @@ module VagrantPlugins
           mount_options = options[:mount_options];
           mount_command = "mount -t smbfs " +
             (mount_options ? "-o '#{mount_options.join(",")}' " : "") +
-            "'//#{options[:smb_username]}:#{smb_password}@#{options[:smb_host]}/#{name}' " +
+            "//#{options[:smb_username]}:#{smb_password}@#{options[:smb_host]}/#{name} " +
             "#{expanded_guest_path}"
           retryable(on: Vagrant::Errors::DarwinMountFailed, tries: 10, sleep: 2) do
             machine.communicate.execute(
