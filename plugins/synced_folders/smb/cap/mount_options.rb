@@ -44,6 +44,12 @@ module VagrantPlugins
         def self.mount_type(machine)
           return  MOUNT_TYPE
         end
+
+        def self.mount_name(machine, data)
+          data[:smb_host] ||= machine.guest.capability(
+            :choose_addressable_ip_addr, candidate_ips)
+          "//#{data[:smb_host]}/#{data[:smb_id]}"
+        end
       end
     end
   end

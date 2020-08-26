@@ -18,10 +18,9 @@ module VagrantPlugins
         def self.mount_smb_shared_folder(machine, name, guestpath, options)
           expanded_guest_path = machine.guest.capability(
             :shell_expand_guest_path, guestpath)
-
-          mount_device   = "//#{options[:smb_host]}/#{name}"
-
           options[:smb_id] ||= name
+
+          mount_device = options[:plugin].capability(:mount_name, options)
           mount_options, _, _ = options[:plugin].capability(
             :mount_options, name, expanded_guest_path, options)
           mount_type = options[:plugin].capability(:mount_type)
@@ -30,7 +29,6 @@ module VagrantPlugins
           smb_password = options[:smb_password]
           # Ensure password is scrubbed
           Vagrant::Util::CredentialScrubber.sensitive(smb_password)
-
         
           if mount_options.include?("mfsymlinks")
             display_mfsymlinks_warning(machine.env)

@@ -33,6 +33,11 @@ module VagrantPlugins
         Cap::MountOptions
       end
 
+      synced_folder_capability("smb", "mount_name") do
+        require_relative "cap/mount_options"
+        Cap::MountOptions
+      end
+
       synced_folder_capability("smb", "mount_type") do
         require_relative "cap/mount_options"
         Cap::MountOptions

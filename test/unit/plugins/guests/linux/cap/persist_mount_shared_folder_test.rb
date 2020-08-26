@@ -34,6 +34,7 @@ describe "VagrantPlugins::GuestLinux::Cap::PersistMountSharedFolder" do
   before do
     allow(machine).to receive(:communicate).and_return(comm)
     allow(machine).to receive(:ssh_info).and_return(ssh_info)
+    allow(folder_plugin).to receive(:capability?).with(:mount_name).and_return(false)
     allow(folder_plugin).to receive(:capability?).with(:mount_type).and_return(true)
     allow(folder_plugin).to receive(:capability).with(:mount_options, any_args).
       and_return(["uid=#{options_uid},gid=#{options_gid}", options_uid, options_gid])
@@ -116,17 +117,21 @@ describe "VagrantPlugins::GuestLinux::Cap::PersistMountSharedFolder" do
         :smb => fstab_folders
       } }
 
-      before do
-        allow(folder_plugin).to receive(:capability).with(:mount_type).and_return("cifs")
-      end
-     
-      it "inserts folders into /etc/fstab" do
-        expected_entry_vagrant = "//192.168.42.42/vtg-id2 /vagrant cifs #{expected_mount_options} 0 0"
-        expected_entry_test = "//192.168.42.42/vtg-id1 /test1 cifs #{expected_mount_options} 0 0"
-        expect(cap).to receive(:remove_vagrant_managed_fstab)
-        expect(comm).to receive(:sudo).with(/#{expected_entry_test}\n#{expected_entry_vagrant}/)
-  
-        cap.persist_mount_shared_folder(machine, folders)
+      context "folder with mount_name cap" do
+        before do
+          allow(folder_plugin).to receive(:capability).with(:mount_type).and_return("cifs")
+          allow(folder_plugin).to receive(:capability?).with(:mount_name).and_return(true)
+          allow(folder_plugin).to receive(:capability).with(:mount_name, any_args).and_return("//192.168.42.42/dummyname")
+        end
+      
+        it "inserts folders into /etc/fstab" do
+          expected_entry_vagrant = "//192.168.42.42/dummyname /vagrant cifs #{expected_mount_options} 0 0"
+          expected_entry_test = "//192.168.42.42/dummyname /test1 cifs #{expected_mount_options} 0 0"
+          expect(cap).to receive(:remove_vagrant_managed_fstab)
+          expect(comm).to receive(:sudo).with(/#{expected_entry_test}\n#{expected_entry_vagrant}/)
+    
+          cap.persist_mount_shared_folder(machine, folders)
+        end
       end
     end
   end

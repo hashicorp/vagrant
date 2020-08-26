@@ -31,15 +31,11 @@ module VagrantPlugins
                 data[:owner] ||= ssh_info[:username]
                 data[:group] ||= ssh_info[:username]
                 mount_type = data[:plugin].capability(:mount_type)
-
-                if type == :smb
-                  data[:smb_host] ||= machine.guest.capability(
-                    :choose_addressable_ip_addr, candidate_ips)
-                  name = "//#{data[:smb_host]}/#{data[:smb_id]}"
-                end
-
                 mount_options, _, _ = data[:plugin].capability(
                   :mount_options, name, guest_path, data)
+                if data[:plugin].capability?(:mount_name)
+                  name = data[:plugin].capability(:mount_name, data)
+                end
               else
                 next
               end
