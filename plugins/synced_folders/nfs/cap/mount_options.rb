@@ -30,7 +30,15 @@ module VagrantPlugins
         end
 
         def self.mount_type(machine)
-          return  MOUNT_TYPE
+           MOUNT_TYPE
+        end
+
+        # Mounts options for NFS synced folder
+        #
+        # @param [Machine] machine
+        # @param [Hash] hash of mount options 
+        def self.mount_name(machine, options)
+          "#{options[:nfs_host_ip]}:#{options[:hostpath]}"
         end
       end
     end

@@ -45,6 +45,11 @@ module VagrantPlugins
         Cap::MountOptions
       end
 
+      synced_folder_capability("nfs", "mount_name") do
+        require_relative "cap/mount_options"
+        Cap::MountOptions
+      end
+
       action_hook("nfs_cleanup") do |hook|
         require_relative "action_cleanup"
         hook.before(
