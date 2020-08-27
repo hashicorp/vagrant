@@ -68,7 +68,7 @@ describe "VagrantPlugins::GuestLinux::Cap::Reboot" do
         it "reboots the vm" do
           allow(communicator).to receive(:execute)
 
-          expect(communicator).to receive(:execute).with(/systemctl reboot/, nil).and_return(0)
+          expect(communicator).to receive(:execute).with(/systemctl.*?reboot/, nil).and_return(0)
           expect(described_class).to receive(:wait_for_reboot)
 
           described_class.reboot(machine)

@@ -10,13 +10,13 @@ module VagrantPlugins
 
         def self.reboot(machine)
           @logger = Log4r::Logger.new("vagrant::linux::reboot")
-          if systemd?(machine.communicate)
-            reboot_script = "systemctl reboot"
+          comm = machine.communicate
+
+          if systemd?(comm)
+            reboot_script = "systemctl isolate reboot"
           else
             reboot_script = "reboot"
           end
-
-          comm = machine.communicate
 
           @logger.debug("Issuing reboot command for guest")
           comm.sudo(reboot_script)
