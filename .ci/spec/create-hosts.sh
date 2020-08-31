@@ -25,13 +25,13 @@ wrap aws s3 cp "${ASSETS_PRIVATE_BUCKET}/hashicorp/vagrant-spec/vagrant-spec.gem
   "Could not download vagrant-spec.gem from s3 asset bucket"
 ###
 
-# Grab vagrant installer place inside root dir of Vagrant repo
-# TODO: Have this variable set
-VAGRANT_INSTALLER_VERSION="2.2.11"
-# TODO: Get release by reference
-INSTALLER_URL=`curl -s https://api.github.com/repos/hashicorp/vagrant-installers/releases | jq -r --arg installer_name "vagrant_${VAGRANT_INSTALLER_VERSION}_x86_64.deb" '.[0].assets[] | select(.name == $installer_name) | .url'`
-
-wrap curl -Lso ./vagrant_${VAGRANT_INSTALLER_VERSION}_x86_64.deb ${INSTALLER_URL} \
+# Grab vagrant installer and place inside root dir of Vagrant repo
+if [ -z "${VAGRANT_PRERELEASE_VERSION}" ]; then
+  INSTALLER_URL=`curl -s https://api.github.com/repos/hashicorp/vagrant-installers/releases | jq -r '.[0].assets[] | select(.name | contains("_x86_64.deb")) | .browser_download_url'`
+else
+  INSTALLER_URL=`curl -s https://api.github.com/repos/hashicorp/vagrant-installers/releases/tags/${VAGRANT_PRERELEASE_VERSION} | jq -r '.assets[] | select(.name | contains("_x86_64.deb")) | .browser_download_url'`
+fi
+wrap wget ${INSTALLER_URL} \
   "Could not download vagrant installers"
 ###
 

@@ -41,6 +41,7 @@ jobs:
         env:
           VAGRANT_HOST_BOXES: ${{matrix.host_os}}
           VAGRANT_GUEST_BOXES: ${{matrix.guest_os}}
+          VAGRANT_PRERELEASE_VERSION: ${{ github.event.client_payload.prerelease_version }}
 
   spec-tests:
     if: github.repository == 'hashicorp/vagrant-blackbox'
