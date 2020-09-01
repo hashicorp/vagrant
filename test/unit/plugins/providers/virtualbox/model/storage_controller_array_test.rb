@@ -91,7 +91,7 @@ describe VagrantPlugins::ProviderVirtualBox::Model::StorageControllerArray do
 
   describe "#get_dvd_controller" do
     context "with one controller" do
-      let(:controller) { double("controller", supported?: true) }
+      let(:controller) { double("controller", supported?: true, boot_priority: 1) }
 
       before do
         subject.replace([controller])
@@ -111,9 +111,10 @@ describe VagrantPlugins::ProviderVirtualBox::Model::StorageControllerArray do
     context "with multiple controllers" do
       let(:controller1) { double("controller", supported?: true, boot_priority: 2) }
       let(:controller2) { double("controller", supported?: true, boot_priority: 1) }
+      let(:controller3) { double("controller", supported?: false, boot_priority: nil) }
 
       before do
-        subject.replace([controller1, controller2])
+        subject.replace([controller1, controller2, controller3])
       end
 
       it "returns the first supported controller" do

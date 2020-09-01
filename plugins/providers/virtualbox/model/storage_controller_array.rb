@@ -27,10 +27,8 @@ module VagrantPlugins
         #
         # @return [VagrantPlugins::ProviderVirtualBox::Model::StorageController]
         def get_primary_controller
-          ordered = sort { |a, b| a.boot_priority <=> b.boot_priority }
-          controller = ordered.detect do |c|
-            c.supported? && c.attachments.any? { |a| hdd?(a) }
-          end
+          ordered = find_all(&:supported?).sort_by(&:boot_priority)
+          controller = ordered.detect { |c| c.attachments.any? { |a| hdd?(a) } }
 
           if !controller
             raise Vagrant::Errors::VirtualBoxDisksNoSupportedControllers,
@@ -62,8 +60,8 @@ module VagrantPlugins
         #
         # @return [VagrantPlugins::ProviderVirtualBox::Model::StorageController]
         def get_dvd_controller
-          ordered = sort { |a, b| a.boot_priority <=> b.boot_priority }
-          controller = ordered.detect { |c| c.supported? }
+          ordered = find_all(&:supported?).sort_by(&:boot_priority)
+          controller = ordered.first
           if !controller
             raise Vagrant::Errors::VirtualBoxDisksNoSupportedControllers,
               supported_types: supported_types.join(" ,")
