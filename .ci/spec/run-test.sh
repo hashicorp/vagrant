@@ -18,7 +18,7 @@ export PACKET_EXEC_REMOTE_DIRECTORY="${job_id}"
 export PKT_VAGRANT_HOST_BOXES="${VAGRANT_HOST_BOXES}"
 export PKT_VAGRANT_GUEST_BOXES="${VAGRANT_GUEST_BOXES}"
 # other vagrant-spec options
-export PKT_VAGRANT_HOST_MEMORY=10000
+export PKT_VAGRANT_HOST_MEMORY="${VAGRANT_HOST_MEMORY:-10000}"
 export PKT_VAGRANT_CWD="test/vagrant-spec/"
 export PKT_VAGRANT_VAGRANTFILE=Vagrantfile.spec
 ###
@@ -27,8 +27,7 @@ export PKT_VAGRANT_VAGRANTFILE=Vagrantfile.spec
 
 echo "Running vagrant spec tests..."
 # Need to make memory customizable for windows hosts
-pkt_wrap_stream "vagrant provision" \
+pkt_wrap_stream "vagrant reload --provision" \
                 "Vagrant Blackbox testing command failed"
-
 
 echo "Finished vagrant spec tests"
