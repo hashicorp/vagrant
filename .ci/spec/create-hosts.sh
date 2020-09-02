@@ -9,8 +9,6 @@ root="$( cd -P "$( dirname "$csource" )/../../" && pwd )"
 
 pushd "${root}" > "${output}"
 
-echo "job id ${job_id}"
-
 # Assumes packet is already set up
 
 # job_id is provided by common.sh

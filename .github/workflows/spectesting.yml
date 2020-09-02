@@ -1,13 +1,7 @@
 on:
-  push:
-    branches:
-      - 'spec-test-*'
-    paths-ignore:
-      - 'CHANGELOG.md'
-      - 'website/**'
   workflow_dispatch:
     branches:
-          - 'spec-test-*'
+      - 'master'
   repository_dispatch:
     types: [prerelease]
 
