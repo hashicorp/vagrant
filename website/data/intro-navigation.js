@@ -11,6 +11,9 @@ export default [
   {
     category: 'vs',
     content: [
+      'cli-tools',
+      'docker',
+      'terraform',
       { title: 'Getting Started', href: 'https://learn.hashicorp.com/vagrant' },
     ],
   },
