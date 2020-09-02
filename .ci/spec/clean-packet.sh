@@ -12,11 +12,21 @@ pushd "${root}" > "${output}"
 echo "Cleaning up packet device..."
 
 unset PACKET_EXEC_PERSIST
+unset PACKET_EXEC_PRE_BUILTINS
+
+export PACKET_EXEC_REMOTE_DIRECTORY="run-${GITHUB_RUN_ID}"
+echo "PACKET_EXEC_REMOTE_DIRE ${PACKET_EXEC_REMOTE_DIRECTORY}"
+
+# spec test configuration, defined by action runners, used by Vagrant on packet
 export PKT_VAGRANT_HOST_BOXES="${VAGRANT_HOST_BOXES}"
 export PKT_VAGRANT_GUEST_BOXES="${VAGRANT_GUEST_BOXES}"
+# other vagrant-spec options
+export PKT_VAGRANT_HOST_MEMORY="${VAGRANT_HOST_MEMORY:-10000}"
 export PKT_VAGRANT_CWD="test/vagrant-spec/"
 export PKT_VAGRANT_VAGRANTFILE=Vagrantfile.spec
-pkt_wrap_stream "vagrant destroy -f" \
+###
+
+wrap_stream packet-exec run -- "vagrant destroy -f" \
                 "Vagrant failed to destroy remaining vagrant-spec guests during clean up"
 
 
