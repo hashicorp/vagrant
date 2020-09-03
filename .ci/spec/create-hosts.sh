@@ -34,7 +34,8 @@ if [ -z "${VAGRANT_PRERELEASE_VERSION}" ]; then
 else
   INSTALLER_URL=`curl -s https://api.github.com/repos/hashicorp/vagrant-installers/releases/tags/${VAGRANT_PRERELEASE_VERSION} | jq -r '.assets[] | select(.name | contains("_x86_64.deb")) | .browser_download_url'`
 fi
-wrap wget -P ${root}/pkg/dist ${INSTALLER_URL} \
+
+wrap curl -LO ${INSTALLER_URL} \
   "Could not download vagrant installers"
 ###
 
