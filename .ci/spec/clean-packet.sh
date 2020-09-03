@@ -13,9 +13,6 @@ echo "Cleaning up packet device..."
 
 unset PACKET_EXEC_PERSIST
 unset PACKET_EXEC_PRE_BUILTINS
-
-export PACKET_EXEC_REMOTE_DIRECTORY="run-${GITHUB_RUN_ID}"
-
 # spec test configuration, defined by action runners, used by Vagrant on packet
 export PKT_VAGRANT_HOST_BOXES="${VAGRANT_HOST_BOXES}"
 export PKT_VAGRANT_GUEST_BOXES="${VAGRANT_GUEST_BOXES}"

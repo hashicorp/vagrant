@@ -11,9 +11,6 @@ pushd "${root}" > "${output}"
 
 # Assumes packet is already set up
 
-# job_id is provided by common.sh
-export PACKET_EXEC_REMOTE_DIRECTORY="${job_id}"
-
 # spec test configuration, defined by action runners, used by Vagrant on packet
 export PKT_VAGRANT_HOST_BOXES="${VAGRANT_HOST_BOXES}"
 export PKT_VAGRANT_GUEST_BOXES="${VAGRANT_GUEST_BOXES}"
@@ -35,7 +32,7 @@ else
   INSTALLER_URL=`curl -s https://api.github.com/repos/hashicorp/vagrant-installers/releases/tags/${VAGRANT_PRERELEASE_VERSION} | jq -r '.assets[] | select(.name | contains("_x86_64.deb")) | .browser_download_url'`
 fi
 
-wrap curl -LO ${INSTALLER_URL} \
+wrap curl -fLO ${INSTALLER_URL} \
   "Could not download vagrant installers"
 ###
 
