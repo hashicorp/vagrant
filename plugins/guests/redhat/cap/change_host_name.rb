@@ -15,9 +15,13 @@ module VagrantPlugins
             basename = name.split('.', 2)[0]
             comm.sudo <<-EOH.gsub(/^ {14}/, '')
               # Update sysconfig
-              sed -i 's/\\(HOSTNAME=\\).*/\\1#{name}/' /etc/sysconfig/network
+              if [ -f /etc/sysconfig/network ]; then
+                sed -i 's/\\(HOSTNAME=\\).*/\\1#{name}/' /etc/sysconfig/network
+              fi
               # Update DNS
-              sed -i 's/\\(DHCP_HOSTNAME=\\).*/\\1\"#{basename}\"/' /etc/sysconfig/network-scripts/ifcfg-*
+              find /etc/sysconfig/network-scripts -maxdepth 1 -type f -name 'ifcfg-*' | xargs sed -i 's/\\(DHCP_HOSTNAME=\\).*/\\1\"#{basename}\"/'
+              # Set the hostname - use hostnamectl if available
+              echo '#{name}' > /etc/hostname
             EOH
 
             if hostnamectl?(comm)
