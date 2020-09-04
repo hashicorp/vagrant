@@ -1,10 +1,9 @@
 on:
-  push:
+  workflow_dispatch:
     branches:
-      - 'spec-test-*'
-    paths-ignore:
-      - 'CHANGELOG.md'
-      - 'website/**'
+      - 'master'
+  repository_dispatch:
+    types: [prerelease]
 
 jobs:
   setup-packet:
@@ -12,8 +11,10 @@ jobs:
     runs-on: self-hosted
     name: Build Packet Instance
     steps:
+      - name: Code Checkout
+        uses: actions/checkout@v1
       - name: Create packet instance
-        run: .ci/spec/create-packet.sh
+        run: ./.ci/spec/create-packet.sh
         working-directory: ${{github.workspace}}
 
   setup-hosts:
@@ -29,11 +30,12 @@ jobs:
       - name: Code Checkout
         uses: actions/checkout@v1
       - name: Create packet host for tests
-        run: .ci/spec/create-hosts.sh
+        run: ./.ci/spec/create-hosts.sh
         working-directory: ${{github.workspace}}
         env:
           VAGRANT_HOST_BOXES: ${{matrix.host_os}}
           VAGRANT_GUEST_BOXES: ${{matrix.guest_os}}
+          VAGRANT_PRERELEASE_VERSION: ${{ github.event.client_payload.prerelease_version }}
 
   spec-tests:
     if: github.repository == 'hashicorp/vagrant-blackbox'
@@ -46,7 +48,7 @@ jobs:
         guest_os: ['hashicorp-vagrant/ubuntu-16.04']
     steps:
       - name: Run Tests with host ${{ matrix.host_os }} using guest ${{ matrix.guest_os }}
-        run: .ci/spec/run-test.sh
+        run: ./.ci/spec/run-test.sh
         working-directory: ${{github.workspace}}
         env:
           VAGRANT_HOST_BOXES: ${{matrix.host_os}}
@@ -60,7 +62,7 @@ jobs:
     steps:
       - name: Clean Packet
         if: always()
-        run: .ci/spec/clean-packet.sh
+        run: ./.ci/spec/clean-packet.sh
       - name: Clean Workspace
         if: always()
         run: rm -rf ${{ github.workspace }}

@@ -4,15 +4,10 @@ csource="${BASH_SOURCE[0]}"
 while [ -h "$csource" ] ; do csource="$(readlink "$csource")"; done
 root="$( cd -P "$( dirname "$csource" )/../../" && pwd )"
 
-. "${root}/.ci/spec/env.sh"
 . "${root}/.ci/common.sh"
+. "${root}/.ci/spec/env.sh"
 
 pushd "${root}" > "${output}"
-
-# Assumes packet is already set up
-
-# job_id is provided by common.sh
-export PACKET_EXEC_REMOTE_DIRECTORY="${job_id}"
 
 # spec test configuration, defined by action runners, used by Vagrant on packet
 export PKT_VAGRANT_HOST_BOXES="${VAGRANT_HOST_BOXES}"
@@ -24,7 +19,19 @@ export PKT_VAGRANT_VAGRANTFILE=Vagrantfile.spec
 ###
 
 # Grab vagrant-spec gem and place inside root dir of Vagrant repo
-download_assets "${ASSETS_PRIVATE_BUCKET}/vagrant-spec/vagrant-spec.gem" "."
+wrap aws s3 cp "${ASSETS_PRIVATE_BUCKET}/hashicorp/vagrant-spec/vagrant-spec.gem" "vagrant-spec.gem" \
+  "Could not download vagrant-spec.gem from s3 asset bucket"
+###
+
+# Grab vagrant installer and place inside root dir of Vagrant repo
+if [ -z "${VAGRANT_PRERELEASE_VERSION}" ]; then
+  INSTALLER_URL=`curl -s https://api.github.com/repos/hashicorp/vagrant-installers/releases | jq -r '.[0].assets[] | select(.name | contains("_x86_64.deb")) | .browser_download_url'`
+else
+  INSTALLER_URL=`curl -s https://api.github.com/repos/hashicorp/vagrant-installers/releases/tags/${VAGRANT_PRERELEASE_VERSION} | jq -r '.assets[] | select(.name | contains("_x86_64.deb")) | .browser_download_url'`
+fi
+
+wrap curl -fLO ${INSTALLER_URL} \
+  "Could not download vagrant installers"
 ###
 
 # Run the job

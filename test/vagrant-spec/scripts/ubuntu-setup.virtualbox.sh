@@ -8,7 +8,7 @@ apt-get install -qy nfs-kernel-server
 
 pushd /vagrant
 
-dpkg -i ./pkg/dist/vagrant_*_x86_64.deb
+dpkg -i vagrant_*_x86_64.deb
 vagrant plugin install ./vagrant-spec.gem
 
 popd

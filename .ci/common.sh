@@ -1,4 +1,4 @@
-# last-modified: Thu Aug  6 16:45:05 UTC 2020
+# last-modified: Thu Sep  3 20:54:51 UTC 2020
 #!/usr/bin/env bash
 
 # Path to file used for output redirect
@@ -546,5 +546,6 @@ repository="${GITHUB_REPOSITORY}"
 repo_owner="${repository%/*}"
 repo_name="${repository#*/}"
 asset_cache="${ASSETS_PRIVATE_SHORTTERM}/${repository}/${GITHUB_ACTION}"
-job_id="${GITHUB_ACTION}-${GITHUB_RUN_ID}"
 run_number="${GITHUB_RUN_NUMBER}"
+run_id="${GITHUB_RUN_ID}"
+job_id="${run_id}-${run_number}"
