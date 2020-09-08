@@ -7,17 +7,15 @@ module VagrantPlugins
         IDE_CONTROLLER_TYPES = ["PIIX4", "PIIX3", "ICH6"].map(&:freeze).freeze
         SATA_CONTROLLER_TYPES = ["IntelAhci"].map(&:freeze).freeze
         SCSI_CONTROLLER_TYPES = ["LsiLogic", "BusLogic"].map(&:freeze).freeze
-        FLOPPY_CONTROLLER_TYPES = ["I82078"].map(&:freeze).freeze
 
         IDE_DEVICES_PER_PORT = 2.freeze
         SATA_DEVICES_PER_PORT = 1.freeze
         SCSI_DEVICES_PER_PORT = 1.freeze
-        FLOPPY_DEVICES_PER_PORT = 1.freeze
 
         IDE_BOOT_PRIORITY = 1.freeze
         SATA_BOOT_PRIORITY = 2.freeze
         SCSI_BOOT_PRIORITY = 3.freeze
-        FLOPPY_BOOT_PRIORITY = 4.freeze
+        DEFAULT_BOOT_PRIORITY = 4.freeze
 
         # The name of the storage controller.
         #
@@ -80,13 +78,10 @@ module VagrantPlugins
             @storage_bus = :scsi
             @devices_per_port = SCSI_DEVICES_PER_PORT
             @boot_priority = SCSI_BOOT_PRIORITY
-          elsif FLOPPY_CONTROLLER_TYPES.include?(@type)
-            @storage_bus = :floppy
-            @devices_per_port = FLOPPY_DEVICES_PER_PORT
-            @boot_priority = FLOPPY_BOOT_PRIORITY
           else
             @storage_bus = :unknown
             @devices_per_port = 1
+            @boot_priority = DEFAULT_BOOT_PRIORITY
           end
 
           @limit = @maxportcount * @devices_per_port
@@ -113,7 +108,7 @@ module VagrantPlugins
         #
         # @return [Boolean]
         def supported?
-          [:ide, :sata, :scsi, :floppy].include?(@storage_bus)
+          [:ide, :sata, :scsi].include?(@storage_bus)
         end
 
         # Returns true if the storage controller is a IDE type controller.
@@ -135,13 +130,6 @@ module VagrantPlugins
         # @return [Boolean]
         def scsi?
           @storage_bus == :scsi
-        end
-
-        # Returns true if the storage controller is a Floppy type controller.
-        #
-        # @return [Boolean]
-        def floppy?
-          @storage_bus == :floppy
         end
       end
     end

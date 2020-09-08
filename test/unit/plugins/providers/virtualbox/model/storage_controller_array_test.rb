@@ -3,13 +3,14 @@ require File.expand_path("../../base", __FILE__)
 describe VagrantPlugins::ProviderVirtualBox::Model::StorageControllerArray do
   include_context "unit"
 
-  let(:controller1) { double("controller1", name: "IDE Controller", supported?: true, boot_priority: 1) }
-  let(:controller2) { double("controller2", name: "SATA Controller", supported?: true, boot_priority: 2) }
+  let(:controller1) { VagrantPlugins::ProviderVirtualBox::Model::StorageController.new("IDE Controller", "PIIX4", 1, 1) }
+  let(:controller2) { VagrantPlugins::ProviderVirtualBox::Model::StorageController.new("SATA Controller", "IntelAhci", 1, 1) }
+  let(:controller3) { VagrantPlugins::ProviderVirtualBox::Model::StorageController.new("RANDO Controller", "unknown", 1, 0) }
 
   let(:primary_disk) { {location: "/tmp/primary.vdi"} }
 
   before do
-    subject.replace([controller1, controller2])
+    subject.replace([controller1, controller2, controller3])
   end
 
   describe "#get_controller" do
