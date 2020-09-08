@@ -36,6 +36,8 @@ describe "VagrantPlugins::GuestDebian::Cap::ChangeHostName" do
       allow(cap).to receive(:systemd_networkd?).and_return(networkd)
       allow(cap).to receive(:systemd_controlled?).with(anything, /NetworkManager/).and_return(network_manager)
       allow(machine).to receive_message_chain(:config, :vm, :networks).and_return(networks)
+      allow(cap).to receive(:add_hostname_to_loopback_interface)
+      allow(cap).to receive(:replace_host)
     end
 
     context "minimal network config" do
@@ -153,8 +155,9 @@ describe "VagrantPlugins::GuestDebian::Cap::ChangeHostName" do
 
     it "does not set the hostname if unset" do
       comm.stub_command("hostname -f | grep '^#{name}$'", exit_code: 0)
+      expect(cap).to_not receive(:add_hostname_to_loopback_interface)
+      expect(cap).to_not receive(:replace_host)
       cap.change_host_name(machine, name)
-      expect(comm.received_commands.size).to eq(2)
     end
   end
 
