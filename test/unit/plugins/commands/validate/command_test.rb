@@ -30,6 +30,7 @@ describe VagrantPlugins::CommandValidate::Command do
           <<-VF
           Vagrant.configure("2") do |config|
             config.vm.box = "hashicorp/precise64"
+            config.vm.synced_folder ".", "/vagrant", disabled: true
           end
           VF
       end
@@ -52,6 +53,7 @@ describe VagrantPlugins::CommandValidate::Command do
         <<-VF
         Vagrant.configure("2") do |config|
           config.vm.bix = "hashicorp/precise64"
+          config.vm.synced_folder ".", "/vagrant", disabled: true
         end
         VF
       end
@@ -67,6 +69,7 @@ describe VagrantPlugins::CommandValidate::Command do
         <<-VF
         Vagrant.configure("2") do |config|
           config.vm.box = "hashicorp/precise64"
+          config.vm.synced_folder ".", "/vagrant", disabled: true
 
           config.vm.define "test" do |vm|
             vm.vm.provider :virtualbox
@@ -97,6 +100,7 @@ describe VagrantPlugins::CommandValidate::Command do
         <<-VF
         Vagrant.configure("2") do |config|
           config.vm.box = "hashicorp/precise64"
+          config.vm.synced_folder ".", "/vagrant", disabled: true
 
           config.vm.define "test" do |vm|
             vm.vm.provider :virtualbox
@@ -127,6 +131,7 @@ describe VagrantPlugins::CommandValidate::Command do
         <<-VF
         Vagrant.configure("2") do |config|
           config.vm.box = "hashicorp/precise64"
+          config.vm.synced_folder ".", "/vagrant", disabled: true
 
           config.vm.define "test" do |vm|
             vm.vm.hostname = "test"
