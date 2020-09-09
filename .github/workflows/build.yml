@@ -2,6 +2,7 @@ on:
   push:
     branches:
       - master
+      - build-*
     paths-ignore:
       - 'CHANGELOG.md'
       - 'website/**'
@@ -36,3 +37,10 @@ jobs:
           HASHIBOT_TOKEN: ${{ secrets.HASHIBOT_TOKEN }}
           HASHIBOT_USERNAME: ${{ secrets.HASHIBOT_USERNAME }}
           SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+      - name: Dispatch installer build
+        run: ./.ci/dispatch_gh_event.sh
+        env:
+          TARGET_URL: https://api.github.com/repos/hashicorp/vagrant-installers/dispatches
+          EVENT_TYPE: build
+          HASHIBOT_TOKEN: ${{ secrets.HASHIBOT_TOKEN }}
+          HASHIBOT_USERNAME: ${{ secrets.HASHIBOT_USERNAME }}
