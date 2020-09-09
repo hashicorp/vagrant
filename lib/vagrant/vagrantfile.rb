@@ -144,24 +144,6 @@ module Vagrant
           raise Errors::ProviderNotFound,
             machine: name, provider: provider, providers: providers_str
         end
-
-        if validate_provider
-          provider_cls     = provider_plugin[0]
-          provider_options = provider_plugin[1]
-          box_formats      = provider_options[:box_format] || provider
-
-          # Test if the provider is usable or not
-          begin
-            provider_cls.usable?(true) if provider_options[:check_usable] or provider_options[:check_usable].nil?
-          rescue Errors::VagrantError => e
-            raise Errors::ProviderNotUsable,
-              machine: name.to_s,
-              provider: provider.to_s,
-              message: e.to_s
-          end
-        else
-          box_formats = provider
-        end
       end
 
       # Add the sub-machine configuration to the loader and keys
@@ -171,6 +153,24 @@ module Vagrant
 
       # Load once so that we can get the proper box value
       config, config_warnings, config_errors = @loader.load(keys)
+
+      if validate_provider && provider != nil
+        provider_cls     = provider_plugin[0]
+        provider_options = provider_plugin[1]
+        box_formats      = provider_options[:box_format] || provider
+
+        # Test if the provider is usable or not
+        begin
+          provider_cls.usable?(true) if !!config.vm.get_provider_config(provider).check_usable
+        rescue Errors::VagrantError => e
+          raise Errors::ProviderNotUsable,
+            machine: name.to_s,
+            provider: provider.to_s,
+            message: e.to_s
+        end
+      else
+        box_formats = provider
+      end
 
       # Track the original box so we know if we changed
       box = nil

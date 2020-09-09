@@ -33,6 +33,12 @@ module VagrantPlugins
       # @return [Boolean]
       attr_accessor :compose
 
+      # Boolean to enable/disable checking if docker is usable on the host
+      # system.
+      #
+      # @return [Boolean]
+      attr_accessor :check_usable
+
       # Configuration Hash used for build the docker-compose composition
       # file. This can be used for adding networks or volumes.
       #
@@ -162,6 +168,7 @@ module VagrantPlugins
         @compose    = UNSET_VALUE
         @compose_configuration = {}
         @create_args = UNSET_VALUE
+        @check_usable = UNSET_VALUE
         @dockerfile = UNSET_VALUE
         @env        = {}
         @expose     = []
@@ -272,6 +279,14 @@ module VagrantPlugins
 
         if @host_vm_build_dir_options == UNSET_VALUE
           @host_vm_build_dir_options = nil
+        end
+
+        if @check_usable == UNSET_VALUE
+          if @vagrant_vagrantfile.nil?
+            @check_usable = true
+          else
+            @check_usable = false
+          end
         end
 
         # On non-linux platforms (where there is no native docker), force the
