@@ -16,7 +16,7 @@ module VagrantPlugins
       Docker containers.
       EOF
 
-      provider(:docker, box_optional: true, parallel: true, defaultable: false) do
+      provider(:docker, box_optional: true, parallel: true, defaultable: false, check_usable: false) do
         require_relative 'provider'
         init!
         Provider

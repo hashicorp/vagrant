@@ -152,7 +152,7 @@ module Vagrant
 
           # Test if the provider is usable or not
           begin
-            provider_cls.usable?(true)
+            provider_cls.usable?(true) if provider_options[:check_usable] or provider_options[:check_usable].nil?
           rescue Errors::VagrantError => e
             raise Errors::ProviderNotUsable,
               machine: name.to_s,
