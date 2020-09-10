@@ -54,7 +54,9 @@ module VagrantPlugins
         private
 
         def self.remove_vagrant_managed_fstab(machine)
-          machine.communicate.sudo("sed -i '/\#VAGRANT-BEGIN/,/\#VAGRANT-END/d' /etc/fstab")
+          # machines don't *need* an /etc/fstab and if this function gets called
+          # on such a machine, then it will fail
+          machine.communicate.sudo("[ -e /etc/fstab ] && sed -i '/\#VAGRANT-BEGIN/,/\#VAGRANT-END/d' /etc/fstab || :")
         end
       end
     end
