@@ -1,7 +1,7 @@
 require 'ostruct'
 require "pathname"
 
-require 'erubis'
+require 'erubi'
 
 module Vagrant
   module Util
@@ -73,7 +73,7 @@ module Vagrant
       #
       # @return [String]
       def render_string
-        Erubis::Eruby.new(template, trim: true).result(binding)
+        binding.eval(Erubi::Engine.new(template, trim: true).src)
       end
 
       # Returns the full path to the template, taking into account the gem directory
