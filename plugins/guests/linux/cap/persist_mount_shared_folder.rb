@@ -8,6 +8,8 @@ module VagrantPlugins
       class PersistMountSharedFolder
         extend SyncedFolder::UnixMountHelpers
 
+        @@logger = Log4r::Logger.new("vagrant::guest::linux::persist_mount_shared_folders")
+
         # Inserts fstab entry for a set of synced folders. Will fully replace
         # the currently managed group of Vagrant managed entries. Note, passing
         # empty list of folders will just remove entries
@@ -15,7 +17,13 @@ module VagrantPlugins
         # @param [Machine] machine The machine to run the action on
         # @param [Map<String, Map>] A map of folders to add to fstab
         def self.persist_mount_shared_folder(machine, folders)
+          if !fstab_exists?(machine)
+            @@logger.info("no fstab file found, not modifying /etc/fstab")
+            return
+          end
+
           if folders.nil?
+            @@logger.info("clearing /etc/fstab")
             self.remove_vagrant_managed_fstab(machine)
             return
           end
@@ -52,6 +60,10 @@ module VagrantPlugins
         end
 
         private
+
+        def self.fstab_exists?(machine)
+          machine.communicate.test("test -f /etc/fstab")
+        end
 
         def self.remove_vagrant_managed_fstab(machine)
           machine.communicate.sudo("sed -i '/\#VAGRANT-BEGIN/,/\#VAGRANT-END/d' /etc/fstab")
