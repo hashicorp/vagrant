@@ -8,6 +8,7 @@ GUEST_BOXES = {
   # 'hashicorp-vagrant/centos-7.4' => '1.0.2',
   # 'hashicorp-vagrant/windows-10' => '1.0.0',
   # 'spox/osx-10.12' => '0.0.1'
+  'nginx' => 'latest'   # docker image
 }
 
 # Host boxes to run vagrant-spec
@@ -102,7 +103,8 @@ Vagrant.configure(2) do |global_config|
               env: {
                 "VAGRANT_SPEC_ARGS" => "--no-builtin #{spec_cmd_args}".strip,
                 "VAGRANT_SPEC_BOX" => "c:/vagrant/#{guest_box.sub('/', '_')}.#{provider_name}.#{box_version}.box",
-                "VAGRANT_SPEC_GUEST_PLATFORM" => guest_platform
+                "VAGRANT_SPEC_GUEST_PLATFORM" => guest_platform,
+                "VAGRANT_SPEC_DOCKER_IMAGE" => guest_box
               }
             )
           else
@@ -113,7 +115,8 @@ Vagrant.configure(2) do |global_config|
               env: {
                 "VAGRANT_SPEC_ARGS" => "--no-builtin #{spec_cmd_args}".strip,
                 "VAGRANT_SPEC_BOX" => "/vagrant/test/vagrant-spec/boxes/#{guest_box.sub('/', '_')}.#{provider_name}.#{box_version}.box",
-                "VAGRANT_SPEC_GUEST_PLATFORM" => guest_platform
+                "VAGRANT_SPEC_GUEST_PLATFORM" => guest_platform,
+                "VAGRANT_SPEC_DOCKER_IMAGE" => guest_box
               }
             )
           end
