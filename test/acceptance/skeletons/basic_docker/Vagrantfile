@@ -1,0 +1,8 @@
+Vagrant.configure("2") do |config|
+  config.vm.define "dockertest" do |c|
+    c.vm.provider "docker" do |d|
+      d.image = ENV["VAGRANT_SPEC_DOCKER_IMAGE"]
+      d.remains_running = true
+    end
+  end
+end
