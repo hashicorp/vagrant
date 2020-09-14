@@ -4,19 +4,19 @@
 # Guest boxes to use for vagrant-spec
 GUEST_BOXES = {
   'hashicorp/bionic64' => '1.0.282',
-  'hashicorp-vagrant/ubuntu-16.04' => '1.0.1',
-  'hashicorp-vagrant/centos-7.4' => '1.0.2',
-  'hashicorp-vagrant/windows-10' => '1.0.0',
-  'spox/osx-10.12' => '0.0.1'
+  # 'hashicorp-vagrant/ubuntu-16.04' => '1.0.1',
+  # 'hashicorp-vagrant/centos-7.4' => '1.0.2',
+  # 'hashicorp-vagrant/windows-10' => '1.0.0',
+  # 'spox/osx-10.12' => '0.0.1'
 }
 
 # Host boxes to run vagrant-spec
 HOST_BOXES = {
   'hashicorp/bionic64' => '1.0.282',
-  'hashicorp-vagrant/ubuntu-16.04' => '1.0.1',
-  'hashicorp-vagrant/centos-7.4' => '1.0.2',
-  'hashicorp-vagrant/windows-10' => '1.0.0',
-  'spox/osx-10.12' => '0.0.1'
+  # 'hashicorp-vagrant/ubuntu-16.04' => '1.0.1',
+  # 'hashicorp-vagrant/centos-7.4' => '1.0.2',
+  # 'hashicorp-vagrant/windows-10' => '1.0.0',
+  # 'spox/osx-10.12' => '0.0.1'
 }
 
 # Not all boxes are named by their specific "platform"
@@ -24,8 +24,8 @@ HOST_BOXES = {
 PLATFORM_SCRIPT_MAPPING = {
   "ubuntu" => "ubuntu",
   "bionic" => "ubuntu",
-  "centos" => "centos",
-  "windows" => "windows"
+  # "centos" => "centos",
+  # "windows" => "windows"
 }
 
 # Determine what providers to test
@@ -42,6 +42,9 @@ vagrantcloud_token = ENV["VAGRANT_CLOUD_TOKEN"]
 
 # Download copies of the guest boxes for testing if missing
 enabled_providers.each do |provider_name|
+
+  next if provider_name == "docker"
+
   guest_boxes.each do |guest_box, box_version|
     box_owner, box_name = guest_box.split('/')
     box_path = File.join(File.dirname(__FILE__), "./boxes/#{guest_box.sub('/', '_')}.#{provider_name}.#{box_version}.box")
