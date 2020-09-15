@@ -255,5 +255,13 @@ describe Vagrant::Action::Builtin::SyncedFolders do
         subject.call(env)
       end
     end
+
+    context "when guest is not available" do
+      it "does not persist folders if guest is not available" do
+      allow(machine).to receive_message_chain(:guest, :capability?).and_raise(Vagrant::Errors::MachineGuestNotReady)
+      expect(vm_config).to_not receive(:allow_fstab_modification)
+      subject.call(env)
+      end
+    end
   end
 end
