@@ -6,6 +6,8 @@ IMPROVEMENTS:
 
 BUG FIXES:
 
+- core/synced_folders: Don't persist synced folders to fstab is guest is not reachable [GH-11900]
+
 ## 2.2.10 (August 24, 2020)
 
 FEATURES:
