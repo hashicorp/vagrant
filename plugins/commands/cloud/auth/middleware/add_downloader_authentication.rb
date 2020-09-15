@@ -13,6 +13,8 @@ module VagrantPlugins
   module CloudCommand
     class AddDownloaderAuthentication <  AddAuthentication
 
+      @@logger = Log4r::Logger.new("vagrant::clout::add_download_authentication")
+
       def call(env)
         client = Client.new(env[:env])
         token  = client.token
@@ -38,8 +40,9 @@ module VagrantPlugins
               self.class.custom_host_notified!
             end
 
-            if !Array(env[:downloader].headers).any? { |h| h.include?("Authorization") }
-              env[:downloader].headers ||= []
+            if Array(env[:downloader].headers).any? { |h| h.include?("Authorization") }
+              @@logger.info("Not adding an authentication header, one already found")
+            else
               env[:downloader].headers << "Authorization: Bearer #{token}"
             end
           end

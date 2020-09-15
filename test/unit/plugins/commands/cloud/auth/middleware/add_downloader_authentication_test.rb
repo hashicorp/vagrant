@@ -36,13 +36,13 @@ describe VagrantPlugins::CloudCommand::AddDownloaderAuthentication do
 
         env[:downloader] = dwnloader
         subject.call(env)
-        expect(env[:downloader].headers.nil?).to eq(true)
+        expect(env[:downloader].headers.empty?).to eq(true)
       end
 
       it "does nothing if we aren't logged in" do
         env[:downloader] = dwnloader
         subject.call(env)
-        expect(env[:downloader].headers.nil?).to eq(true)
+        expect(env[:downloader].headers.empty?).to eq(true)
       end
     end
 
@@ -117,7 +117,7 @@ describe VagrantPlugins::CloudCommand::AddDownloaderAuthentication do
           subject.call(env)
           
           expect(env[:downloader].source).to eq(file_path)
-          expect(env[:downloader].headers).to eq(nil)
+          expect(env[:downloader].headers.empty?).to eq(true)
         end
       end
 
@@ -149,7 +149,7 @@ describe VagrantPlugins::CloudCommand::AddDownloaderAuthentication do
       VagrantPlugins::CloudCommand::Client.new(iso_env).store_token(token)
       env[:downloader] = dwnloader
       subject.call(env)
-      expect(env[:downloader].headers).to eq(nil)
+      expect(env[:downloader].headers.empty?).to eq(true)
     end
   end
 end

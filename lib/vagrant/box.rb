@@ -58,6 +58,7 @@ module Vagrant
     # @param [Pathname] directory The directory where this box exists on
     #   disk.
     # @param [String] metadata_url Metadata URL for box
+    # @param [Hook] hook A hook to apply to the box downloader, for example, for authentication
     def initialize(name, provider, version, directory, metadata_url: nil, hook: nil)
       @name      = name
       @version   = version
