@@ -37,6 +37,7 @@ describe "VagrantPlugins::GuestLinux::Cap::PersistMountSharedFolder" do
     allow(folder_plugin).to receive(:capability).with(:mount_options, any_args).
       and_return(["uid=#{options_uid},gid=#{options_gid}", options_uid, options_gid])
     allow(folder_plugin).to receive(:capability).with(:mount_type).and_return("vboxsf")
+    allow(cap).to receive(:fstab_exists?).and_return(true)
   end
 
   after do
@@ -74,6 +75,18 @@ describe "VagrantPlugins::GuestLinux::Cap::PersistMountSharedFolder" do
 
       it "does not inserts folders into /etc/fstab" do
         expect(cap).to receive(:remove_vagrant_managed_fstab)
+        expect(comm).not_to receive(:sudo).with(/echo '' >> \/etc\/fstab/)
+        cap.persist_mount_shared_folder(machine, folders)
+      end
+    end
+
+    context "fstab does not exist" do
+      before do
+        allow(cap).to receive(:fstab_exists?).and_return(false)
+      end
+
+      it "does not modify /etc/fstab" do
+        expect(cap).not_to receive(:remove_vagrant_managed_fstab)
         expect(comm).not_to receive(:sudo).with(/echo '' >> \/etc\/fstab/)
         cap.persist_mount_shared_folder(machine, folders)
       end
