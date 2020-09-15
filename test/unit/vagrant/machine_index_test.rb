@@ -105,6 +105,7 @@ describe Vagrant::MachineIndex do
 
     it "returns nil if the machine doesn't exist" do
       expect(subject.get("foo")).to be_nil
+      expect(subject.get(nil)).to be_nil
     end
 
     it "returns a valid entry if the machine exists" do
@@ -138,6 +139,11 @@ describe Vagrant::MachineIndex do
     it "should include? by prefix" do
       expect(subject.include?("b")).to be(true)
     end
+
+    it "should return false if given nil input" do
+      expect(subject.include?(nil)).to be(false)
+    end
+
 
     it "locks the entry so subsequent gets fail" do
       result = subject.get("bar")
