@@ -4,6 +4,8 @@ FEATURES:
 
 IMPROVEMENTS:
 
+- core:  Switch from unmaintained gem erubis to erubi [GH-11893]
+
 BUG FIXES:
 
 - core/synced_folders: Don't persist synced folders to fstab is guest is not reachable [GH-11900]
