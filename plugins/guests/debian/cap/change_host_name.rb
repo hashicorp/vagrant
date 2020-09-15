@@ -1,5 +1,6 @@
 require "log4r"
 require 'vagrant/util/guest_hosts'
+require 'vagrant/util/guest_inspection'
 require_relative "../../linux/cap/network_interfaces"
 
 module VagrantPlugins
@@ -15,6 +16,13 @@ module VagrantPlugins
           comm = machine.communicate
 
           if !comm.test("hostname -f | grep '^#{name}$'", sudo: false)
+            network_with_hostname = machine.config.vm.networks.map {|_, c| c if c[:hostname] }.compact[0]
+            if network_with_hostname
+              replace_host(comm, name, network_with_hostname[:ip])
+            else
+              add_hostname_to_loopback_interface(comm, name)
+            end
+
             basename = name.split(".", 2)[0]
             comm.sudo <<-EOH.gsub(/^ {14}/, '')
               # Set the hostname
@@ -57,13 +65,6 @@ module VagrantPlugins
             else
               restart_each_interface(machine, @logger)
             end
-          end
-
-          network_with_hostname = machine.config.vm.networks.map {|_, c| c if c[:hostname] }.compact[0]
-          if network_with_hostname
-            replace_host(comm, name, network_with_hostname[:ip])
-          else
-            add_hostname_to_loopback_interface(comm, name)
           end
         end
 
