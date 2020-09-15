@@ -83,12 +83,20 @@ describe "VagrantPlugins::GuestLinux::Cap::PersistMountSharedFolder" do
     context "fstab does not exist" do
       before do
         allow(cap).to receive(:fstab_exists?).and_return(false)
+        # Ensure /etc/fstab is not being modified
+        expect(comm).not_to receive(:sudo).with(/sed -i .? \/etc\/fstab/)
       end
 
-      it "does not modify /etc/fstab" do
-        expect(cap).not_to receive(:remove_vagrant_managed_fstab)
+      it "creates /etc/fstab" do
+        expect(cap).to receive(:remove_vagrant_managed_fstab)
+        expect(comm).to receive(:sudo).with(/>> \/etc\/fstab/)
+        cap.persist_mount_shared_folder(machine, [])
+      end
+
+      it "does not remove contents of /etc/fstab" do
+        expect(cap).to receive(:remove_vagrant_managed_fstab)
         expect(comm).not_to receive(:sudo).with(/echo '' >> \/etc\/fstab/)
-        cap.persist_mount_shared_folder(machine, folders)
+        cap.persist_mount_shared_folder(machine, nil)
       end
     end
   end

@@ -17,11 +17,6 @@ module VagrantPlugins
         # @param [Machine] machine The machine to run the action on
         # @param [Map<String, Map>] A map of folders to add to fstab
         def self.persist_mount_shared_folder(machine, folders)
-          if !fstab_exists?(machine)
-            @@logger.info("no fstab file found, not modifying /etc/fstab")
-            return
-          end
-
           if folders.nil?
             @@logger.info("clearing /etc/fstab")
             self.remove_vagrant_managed_fstab(machine)
@@ -66,7 +61,11 @@ module VagrantPlugins
         end
 
         def self.remove_vagrant_managed_fstab(machine)
-          machine.communicate.sudo("sed -i '/\#VAGRANT-BEGIN/,/\#VAGRANT-END/d' /etc/fstab")
+          if fstab_exists?(machine)
+            machine.communicate.sudo("sed -i '/\#VAGRANT-BEGIN/,/\#VAGRANT-END/d' /etc/fstab")
+          else
+            @@logger.info("no fstab file found, carrying on")
+          end
         end
       end
     end
