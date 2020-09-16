@@ -384,6 +384,9 @@ describe Vagrant::Vagrantfile do
       before do
         @check_usable_config = Class.new(Vagrant.plugin("2", "config")) do
           attr_accessor :check_usable
+          def initialize
+            @check_usable = true
+          end
         end
         @provider_cls = register_provider("foo", @check_usable_config, unusable: true)
       end

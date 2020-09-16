@@ -161,7 +161,11 @@ module Vagrant
 
         # Test if the provider is usable or not
         begin
-          check_usable = (!!config.vm.get_provider_config(provider).check_usable || config.vm.get_provider_config(provider).check_usable.nil? )
+          if config.vm.get_provider_config(provider)
+            check_usable = config.vm.get_provider_config(provider).check_usable
+          else
+            check_usable = true
+          end
           provider_cls.usable?(true) if check_usable
         rescue Errors::VagrantError => e
           raise Errors::ProviderNotUsable,
