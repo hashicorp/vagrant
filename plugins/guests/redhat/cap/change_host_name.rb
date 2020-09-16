@@ -19,7 +19,7 @@ module VagrantPlugins
                 sed -i 's/\\(HOSTNAME=\\).*/\\1#{name}/' /etc/sysconfig/network
               fi
               # Update DNS
-              find /etc/sysconfig/network-scripts -maxdepth 1 -type f -name 'ifcfg-*' | xargs sed -i 's/\\(DHCP_HOSTNAME=\\).*/\\1\"#{basename}\"/'
+              find /etc/sysconfig/network-scripts -maxdepth 1 -type f -name 'ifcfg-*' | xargs -r sed -i 's/\\(DHCP_HOSTNAME=\\).*/\\1\"#{basename}\"/'
               # Set the hostname - use hostnamectl if available
               echo '#{name}' > /etc/hostname
             EOH
