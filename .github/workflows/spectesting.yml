@@ -25,7 +25,7 @@ jobs:
     strategy:
       matrix:
         host_os: ['hashicorp/bionic64']
-        guest_os: ['hashicorp-vagrant/ubuntu-16.04']
+        guest_os: ['']
         docker_images: ['nginx']
     steps:
       - name: Code Checkout
@@ -37,7 +37,7 @@ jobs:
           VAGRANT_HOST_BOXES: ${{matrix.host_os}}
           VAGRANT_GUEST_BOXES: ${{matrix.guest_os}}
           VAGRANT_PRERELEASE_VERSION: ${{ github.event.client_payload.prerelease_version }}
-          VAGRANT_SPEC_PROVIDERS: 'virtualbox,docker'
+          VAGRANT_SPEC_PROVIDERS: 'docker'
           VAGRANT_DOCKER_IMAGES: ${{matrix.docker_images}}
   
   spec-tests:
@@ -48,7 +48,7 @@ jobs:
     strategy:
       matrix:
         host_os: ['hashicorp/bionic64']
-        guest_os: ['hashicorp-vagrant/ubuntu-16.04']
+        guest_os: ['']
         docker_images: ['nginx']
     steps:
       - name: Run Tests with host ${{ matrix.host_os }} using guest ${{ matrix.guest_os }}
@@ -57,7 +57,7 @@ jobs:
         env:
           VAGRANT_HOST_BOXES: ${{matrix.host_os}}
           VAGRANT_GUEST_BOXES: ${{matrix.guest_os}}
-          VAGRANT_SPEC_PROVIDERS: 'virtualbox,docker'
+          VAGRANT_SPEC_PROVIDERS: 'docker'
           VAGRANT_DOCKER_IMAGES: ${{matrix.docker_images}}
 
   cleanup:

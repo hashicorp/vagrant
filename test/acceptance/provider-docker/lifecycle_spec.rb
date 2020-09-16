@@ -1,6 +1,11 @@
 # This tests the basic functionality of a provider: that it can run
 # a machine, provide SSH access, and destroy that machine.
-shared_examples "provider/lifecycle" do |provider, options|
+shared_examples "provider/docker/lifecycle" do |provider, options|
+  if provider != "docker"
+    raise ArgumentError, 
+      "provider must be docker to run tests" 
+  end
+
   if !options[:image]
     raise ArgumentError,
       "box option must be specified for provider: #{provider}"

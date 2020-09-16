@@ -115,7 +115,7 @@ Vagrant.configure(2) do |global_config|
                 path: "./scripts/#{PLATFORM_SCRIPT_MAPPING[platform]}-run.#{provider_name}.sh",
                 keep_color: true,
                 env: {
-                  "VAGRANT_SPEC_ARGS" => "--no-builtin #{spec_cmd_args}".strip,
+                  "VAGRANT_SPEC_ARGS" => "--no-builtin --component provider/docker/docker/* #{spec_cmd_args}".strip,
                   "VAGRANT_SPEC_DOCKER_IMAGE" => docker_image
                 }
               )
