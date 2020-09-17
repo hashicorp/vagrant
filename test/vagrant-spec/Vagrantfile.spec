@@ -4,10 +4,10 @@
 # Guest boxes to use for vagrant-spec
 GUEST_BOXES = {
   'hashicorp/bionic64' => '1.0.282',
-  # 'hashicorp-vagrant/ubuntu-16.04' => '1.0.1',
-  # 'hashicorp-vagrant/centos-7.4' => '1.0.2',
-  # 'hashicorp-vagrant/windows-10' => '1.0.0',
-  # 'spox/osx-10.12' => '0.0.1'
+  'hashicorp-vagrant/ubuntu-16.04' => '1.0.1',
+  'hashicorp-vagrant/centos-7.4' => '1.0.2',
+  'hashicorp-vagrant/windows-10' => '1.0.0',
+  'spox/osx-10.12' => '0.0.1'
 }
 
 DOCKER_IMAGES = {
@@ -17,10 +17,10 @@ DOCKER_IMAGES = {
 # Host boxes to run vagrant-spec
 HOST_BOXES = {
   'hashicorp/bionic64' => '1.0.282',
-  # 'hashicorp-vagrant/ubuntu-16.04' => '1.0.1',
-  # 'hashicorp-vagrant/centos-7.4' => '1.0.2',
-  # 'hashicorp-vagrant/windows-10' => '1.0.0',
-  # 'spox/osx-10.12' => '0.0.1'
+  'hashicorp-vagrant/ubuntu-16.04' => '1.0.1',
+  'hashicorp-vagrant/centos-7.4' => '1.0.2',
+  'hashicorp-vagrant/windows-10' => '1.0.0',
+  'spox/osx-10.12' => '0.0.1'
 }
 
 # Not all boxes are named by their specific "platform"
@@ -28,8 +28,8 @@ HOST_BOXES = {
 PLATFORM_SCRIPT_MAPPING = {
   "ubuntu" => "ubuntu",
   "bionic" => "ubuntu",
-  # "centos" => "centos",
-  # "windows" => "windows"
+  "centos" => "centos",
+  "windows" => "windows"
 }
 
 # Determine what providers to test
@@ -73,7 +73,6 @@ end
 Vagrant.configure(2) do |global_config|
   host_boxes.each do |box_name, box_version|
     platform = box_name.split('/').last.sub(/[^a-z]+$/, '')
-
     enabled_providers.each do |provider_name|
       global_config.vm.define("#{box_name.split('/').last}-#{provider_name}") do |config|
         config.vm.box = box_name
@@ -105,7 +104,7 @@ Vagrant.configure(2) do |global_config|
                 path: "./scripts/#{platform}-run.#{provider_name}.ps1",
                 keep_color: true,
                 env: {
-                  "VAGRANT_SPEC_ARGS" => "--no-builtin #{spec_cmd_args}".strip,
+                  "VAGRANT_SPEC_ARGS" => "--no-builtin --component provider/docker/docker/* #{spec_cmd_args}".strip,
                   "VAGRANT_SPEC_DOCKER_IMAGE" => docker_image
                 }
               )

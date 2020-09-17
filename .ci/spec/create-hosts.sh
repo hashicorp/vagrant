@@ -17,7 +17,6 @@ export PKT_VAGRANT_HOST_MEMORY="${VAGRANT_HOST_MEMORY:-10000}"
 export PKT_VAGRANT_CWD="test/vagrant-spec/"
 export PKT_VAGRANT_VAGRANTFILE=Vagrantfile.spec
 export PKT_VAGRANT_SPEC_PROVIDERS="${VAGRANT_SPEC_PROVIDERS}"
-export PKT_VAGRANT_DOCKER_IMAGES="${VAGRANT_DOCKER_IMAGES}"
 ###
 
 # Grab vagrant-spec gem and place inside root dir of Vagrant repo
