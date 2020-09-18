@@ -12,17 +12,15 @@ describe VagrantPlugins::CloudCommand::AuthCommand::Command::Logout do
     env.vagrantfile("")
     env.create_vagrant_env
   end
+  let(:client) { double("client") }
 
   subject { described_class.new(argv, iso_env) }
 
   let(:action_runner) { double("action_runner") }
 
-  let(:client) { double("client", token: "1234token1234") }
-
   before do
+    allow(VagrantPlugins::CloudCommand::Client).to receive(:new).and_return(client)
     allow(iso_env).to receive(:action_runner).and_return(action_runner)
-    allow(VagrantPlugins::CloudCommand::Util).to receive(:client_login).
-      and_return(client)
   end
 
   context "with any arguments" do

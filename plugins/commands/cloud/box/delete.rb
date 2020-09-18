@@ -5,6 +5,8 @@ module VagrantPlugins
     module BoxCommand
       module Command
         class Delete < Vagrant.plugin("2", :command)
+          include Util
+
           def execute
             options = {}
 
@@ -16,8 +18,8 @@ module VagrantPlugins
               o.separator "Options:"
               o.separator ""
 
-              o.on("-u", "--username USERNAME_OR_EMAIL", String, "Vagrant Cloud username or email address") do |u|
-                options[:username] = u
+              o.on("-f", "--[no-]force", "Do not prompt for deletion confirmation") do |f|
+                options[:force] = f
               end
             end
 
@@ -29,34 +31,38 @@ module VagrantPlugins
                 help: opts.help.chomp
             end
 
-            @env.ui.warn(I18n.t("cloud_command.box.delete_warn", box: argv.first))
-            cont = @env.ui.ask(I18n.t("cloud_command.continue"))
-            return 1 if cont.strip.downcase != "y"
-
-            @client = VagrantPlugins::CloudCommand::Util.client_login(@env, options[:username])
-
-            box = argv.first.split('/', 2)
-            org = box[0]
-            box_name = box[1]
-            delete_box(org, box_name, options[:username], @client.token)
-          end
-
-          def delete_box(org, box_name, username, access_token)
-            server_url = VagrantPlugins::CloudCommand::Util.api_server_url
-            account = VagrantPlugins::CloudCommand::Util.account(username, access_token, server_url)
-            box = VagrantCloud::Box.new(account, box_name, nil, nil, nil, access_token)
-
-            begin
-              success = box.delete(org, box_name)
-              @env.ui.success(I18n.t("cloud_command.box.delete_success", org: org, box_name: box_name))
-              return 0
-            rescue VagrantCloud::ClientError => e
-              @env.ui.error(I18n.t("cloud_command.errors.box.delete_fail", org: org, box_name: box_name))
-              @env.ui.error(e)
-              return 1
+            if !options[:force]
+              @env.ui.warn(I18n.t("cloud_command.box.delete_warn", box: argv.first))
+              cont = @env.ui.ask(I18n.t("cloud_command.continue"))
+              return 1 if cont.strip.downcase != "y"
             end
 
-            return 1
+            @client = client_login(@env)
+
+            org, box_name = argv.first.split('/', 2)
+            delete_box(org, box_name, @client.token)
+          end
+
+          # Delete the requested box
+          #
+          # @param [String] org Organization name of box
+          # @param [String] box_name Name of box
+          # @param [String] access_token User access token
+          # @return [Integer]
+          def delete_box(org, box_name, access_token)
+            account = VagrantCloud::Account.new(
+              custom_server: api_server_url,
+              access_token: access_token
+            )
+            with_box(account: account, org: org, box: box_name) do |box|
+              box.delete
+              @env.ui.success(I18n.t("cloud_command.box.delete_success", org: org, box_name: box_name))
+              0
+            end
+          rescue VagrantCloud::Error => e
+            @env.ui.error(I18n.t("cloud_command.errors.box.delete_fail", org: org, box_name: box_name))
+            @env.ui.error(e.message)
+            1
           end
         end
       end

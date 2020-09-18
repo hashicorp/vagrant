@@ -13,14 +13,8 @@ en:
 
           Press ctrl-c to cancel...
     publish:
-      update_continue: |-
-        %{obj} already exists, updating instead...
-      box_create:
-        Creating a box entry...
-      version_create:
-        Creating a version entry...
-      provider_create:
-        Creating a provider entry...
+      box_save:
+        Saving box information...
       upload_provider:
         Uploading provider with file %{file}
       release:
@@ -45,7 +39,7 @@ en:
         version_desc: |-
             Version Description:   %{version_description}
     continue: |-
-      Do you wish to continue? [y/N] 
+      Do you wish to continue? [y/N]
     box:
       show_filter_empty: |-
         No version matched %{version} for %{org}/%{box_name}
@@ -57,6 +51,8 @@ en:
         This will completely remove %{box} from Vagrant Cloud. This cannot be undone.
       update_success: |-
         Updated box %{org}/%{box_name}
+      not_found: |-
+        Failed to locate requested box: %{org}/%{box_name}
     search:
       no_results: |-
         No results found for `%{query}`
@@ -77,6 +73,8 @@ en:
         Deleted provider %{provider} on %{org}/%{box_name} for version %{version}
       update_success: |-
         Updated provider %{provider} on %{org}/%{box_name} for version %{version}
+      not_found: |-
+        Failed to locate %{provider_name} provider for %{org}/%{box_name} on version %{version}
     version:
       create_success: |-
         Created version %{version} on %{org}/%{box_name} for version %{version}
@@ -94,6 +92,8 @@ en:
         This will release version %{version} from %{box} to Vagrant Cloud and be available to download.
       delete_warn: |-
         This will completely remove version %{version} from %{box} from Vagrant Cloud. This cannot be undone.
+      not_found: |-
+        Failed to locate version %{version} for %{org}/%{box_name}
     errors:
       search:
         fail: |-

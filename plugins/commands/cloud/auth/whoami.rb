@@ -5,19 +5,15 @@ module VagrantPlugins
     module AuthCommand
       module Command
         class Whoami < Vagrant.plugin("2", :command)
+          include Util
+
           def execute
             options = {}
 
             opts = OptionParser.new do |o|
-              o.banner = "Usage: vagrant cloud auth whoami [options] [token]"
+              o.banner = "Usage: vagrant cloud auth whoami [token]"
               o.separator ""
               o.separator "Display currently logged in user"
-              o.separator ""
-              o.separator "Options:"
-              o.separator ""
-              o.on("-u", "--username USERNAME_OR_EMAIL", String, "Vagrant Cloud username or email address") do |l|
-                options[:login] = l
-              end
             end
 
             # Parse the options
@@ -28,28 +24,30 @@ module VagrantPlugins
                 help: opts.help.chomp
             end
 
-            @client = VagrantPlugins::CloudCommand::Util.client_login(@env, options[:login])
-
             if argv.first
               token = argv.first
             else
-              token = @client.token
+              client = Client.new(@env)
+              token = client.token
             end
 
-            whoami(token, options[:username])
+            whoami(token)
           end
 
-          def whoami(access_token, username)
-            server_url = VagrantPlugins::CloudCommand::Util.api_server_url
-            account = VagrantPlugins::CloudCommand::Util.account(username, access_token, server_url)
-
+          def whoami(access_token)
+            if access_token.to_s.empty?
+              @env.ui.error(I18n.t("cloud_command.check_not_logged_in"))
+              return 1
+            end
             begin
-              success = account.validate_token
-              user = success["user"]["username"]
-              @env.ui.success("Currently logged in as #{user}")
+              account = VagrantCloud::Account.new(
+                custom_server: api_server_url,
+                access_token: access_token
+              )
+              @env.ui.success("Currently logged in as #{account.username}")
               return 0
-            rescue VagrantCloud::ClientError => e
-              @env.ui.error(I18n.t("cloud_command.errors.whoami.read_error", org: username))
+            rescue VagrantCloud::Error::ClientError => e
+              @env.ui.error(I18n.t("cloud_command.errors.whoami.read_error"))
               @env.ui.error(e)
               return 1
             end

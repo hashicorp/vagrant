@@ -5,7 +5,7 @@ require "vagrant/util/uploader"
 describe Vagrant::Util::Uploader do
   let(:destination) { "fake" }
   let(:file) { "my/file.box" }
-  let(:curl_options) { [destination, "--request", "PUT", "--upload-file", file, {notify: :stderr}] }
+  let(:curl_options) { [destination, "--request", "PUT", "--upload-file", file, "--fail", {notify: :stderr}] }
 
   let(:subprocess_result) do
     double("subprocess_result").tap do |result|

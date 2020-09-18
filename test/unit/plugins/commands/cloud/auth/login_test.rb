@@ -7,95 +7,169 @@ describe VagrantPlugins::CloudCommand::AuthCommand::Command::Login do
 
   let(:argv) { [] }
   let(:env)  { isolated_environment.create_vagrant_env }
+  let(:action_runner) { double("action_runner") }
+  let(:client) { double("client", logged_in?: logged_in) }
+  let(:logged_in) { true }
 
-  let(:token_path) { env.data_dir.join("vagrant_login_token") }
-
-  let(:stdout) { StringIO.new }
-  let(:stderr) { StringIO.new }
+  before do
+    allow(env).to receive(:action_runner).
+      and_return(action_runner)
+    allow(VagrantPlugins::CloudCommand::Client).
+      to receive(:new).and_return(client)
+  end
 
   subject { described_class.new(argv, env) }
 
-  before do
-    stub_env("ATLAS_TOKEN" => "")
+  describe "#execute_check" do
+    context "when user is logged in" do
+      let(:logged_in) { true }
+
+      it "should output a success message" do
+        expect(env.ui).to receive(:success)
+        subject.execute_check(client)
+      end
+
+      it "should return zero value" do
+        expect(subject.execute_check(client)).to eq(0)
+      end
+    end
+
+    context "when user is not logged in" do
+      let(:logged_in) { false }
+
+      it "should output an error message" do
+        expect(env.ui).to receive(:error)
+        subject.execute_check(client)
+      end
+
+      it "should return a non-zero value" do
+        r = subject.execute_check(client)
+        expect(r).not_to eq(0)
+        expect(r).to be_a(Integer)
+      end
+    end
   end
 
-  let(:action_runner) { double("action_runner") }
+  describe "#execute_token" do
+    let(:token) { double("token") }
 
-  before do
-    allow(env).to receive(:action_runner).and_return(action_runner)
+    before { allow(client).to receive(:store_token) }
+
+    it "should store the token" do
+      expect(client).to receive(:store_token).with(token)
+      subject.execute_token(client, token)
+    end
+
+    context "when token is valid" do
+      let(:logged_in) { true }
+
+      it "should output a success message" do
+        expect(env.ui).to receive(:success).twice
+        subject.execute_token(client, token)
+      end
+
+      it "should return a zero value" do
+        expect(subject.execute_token(client, token)).to eq(0)
+      end
+    end
+
+    context "when token is invalid" do
+      let(:logged_in) { false }
+
+      it "should output an error message" do
+        expect(env.ui).to receive(:error)
+        subject.execute_token(client, token)
+      end
+
+      it "should return a non-zero value" do
+        r = subject.execute_token(client, token)
+        expect(r).not_to eq(0)
+        expect(r).to be_a(Integer)
+      end
+    end
   end
 
   describe "#execute" do
-    context "with no args" do
-      let(:argv) { [] }
+    before do
+      allow(client).to receive(:username_or_email=)
+      allow(client).to receive(:store_token)
     end
 
-    context "with --check" do
-      let(:argv) { ["--check"] }
+    context "when arguments are passed" do
+      before { argv << "argument" }
 
-      context "when there is a token" do
-        before do
-          stub_request(:get, %r{^#{Vagrant.server_url}/api/v1/authenticate})
-            .to_return(status: 200)
-        end
-
-        before do
-          File.open(token_path, "w+") { |f| f.write("abcd1234") }
-        end
-
-        it "returns 0" do
-          expect(subject.execute).to eq(0)
-        end
-      end
-
-      context "when there is no token" do
-        it "returns 1" do
-          expect(subject.execute).to eq(1)
-        end
+      it "should print help" do
+        expect { subject.execute }.to raise_error(Vagrant::Errors::CLIInvalidUsage)
       end
     end
 
-    context "with --logout" do
-      let(:argv) { ["--logout"] }
+    context "when --check flag is used" do
+      before { argv << "--check" }
 
-      it "returns 0" do
+      it "should run login check" do
+        expect(subject).to receive(:execute_check).with(client)
+        subject.execute
+      end
+
+      it "should return the value of the check execution" do
+        result = double("result")
+        expect(subject).to receive(:execute_check).with(client).and_return(result)
+        expect(subject.execute).to eq(result)
+      end
+    end
+
+    context "when --token flag is used" do
+      let(:new_token) { "NEW-TOKEN" }
+
+      before { argv.push("--token").push(new_token) }
+
+      it "should execute the token action" do
+        expect(subject).to receive(:execute_token).with(client, new_token)
+        subject.execute
+      end
+
+      it "should return value of token action" do
+        result = double("result")
+        expect(subject).to receive(:execute_token).with(client, new_token).and_return(result)
+        expect(subject.execute).to eq(result)
+      end
+
+      it "should store the new token" do
+        expect(client).to receive(:store_token).with(new_token)
+        subject.execute
+      end
+    end
+
+    context "when user is logged in" do
+      let(:logged_in) { true }
+
+      it "should output success message" do
+        expect(env.ui).to receive(:success)
+        subject.execute
+      end
+
+      it "should return a zero value" do
         expect(subject.execute).to eq(0)
       end
-
-      it "clears the token" do
-        subject.execute
-        expect(File.exist?(token_path)).to be(false)
-      end
     end
 
-    context "with --token" do
-      let(:argv) { ["--token", "efgh5678"] }
+    context "when user is not logged in" do
+      let(:logged_in) { false }
 
-      context "when the token is valid" do
-        before do
-          stub_request(:get, %r{^#{Vagrant.server_url}/api/v1/authenticate})
-            .to_return(status: 200)
-        end
-
-        it "sets the token" do
-          subject.execute
-          token = File.read(token_path).strip
-          expect(token).to eq("efgh5678")
-        end
-
-        it "returns 0" do
-          expect(subject.execute).to eq(0)
-        end
+      it "should run the client login" do
+        expect(subject).to receive(:client_login)
+        subject.execute
       end
 
-      context "when the token is invalid" do
-        before do
-          stub_request(:get, %r{^#{Vagrant.server_url}/api/v1/authenticate})
-            .to_return(status: 401)
-        end
+      context "when username and description flags are supplied" do
+        let(:username) { "my-username" }
+        let(:description) { "my-description" }
 
-        it "returns 1" do
-          expect(subject.execute).to eq(1)
+        before { argv.push("--username").push(username).push("--description").push(description) }
+
+        it "should include login and description to login" do
+          expect(subject).to receive(:client_login).with(env, hash_including(login: username, description: description))
+          subject.execute
         end
       end
     end

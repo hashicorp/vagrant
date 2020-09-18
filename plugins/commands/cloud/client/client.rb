@@ -14,6 +14,7 @@ module VagrantPlugins
 
       include Vagrant::Util::Presence
 
+      attr_accessor :client
       attr_accessor :username_or_email
       attr_accessor :password
       attr_reader :two_factor_default_delivery_method
@@ -25,6 +26,7 @@ module VagrantPlugins
       def initialize(env)
         @logger = Log4r::Logger.new("vagrant::cloud::client")
         @env    = env
+        @client = VagrantCloud::Client.new(access_token: token)
       end
 
       # Removes the token, effectively logging the user out.
@@ -38,14 +40,11 @@ module VagrantPlugins
       #
       # @return [Boolean]
       def logged_in?
-        token = self.token
-        return false if !token
-        Vagrant::Util::CredentialScrubber.sensitive(token)
+        return false if !client.access_token
+        Vagrant::Util::CredentialScrubber.sensitive(client.access_token)
 
         with_error_handling do
-          url = "#{Vagrant.server_url}/api/v1/authenticate" +
-            "?access_token=#{token}"
-          RestClient.get(url, content_type: :json)
+          client.authentication_token_validate
           true
         end
       rescue Errors::Unauthorized
@@ -62,23 +61,14 @@ module VagrantPlugins
         @logger.info("Logging in '#{username_or_email}'")
 
         Vagrant::Util::CredentialScrubber.sensitive(password)
-        response = post(
-          "/api/v1/authenticate", {
-            user: {
-              login: username_or_email,
-              password: password
-            },
-            token: {
-              description: description
-            },
-            two_factor: {
-              code: code
-            }
-          }
-        )
+        with_error_handling do
+          r = client.authentication_token_create(username: username_or_email,
+            password: password, description: description, code: code)
 
-        Vagrant::Util::CredentialScrubber.sensitive(response["token"])
-        response["token"]
+          Vagrant::Util::CredentialScrubber.sensitive(r[:token])
+          @client = VagrantCloud::Client.new(access_token: r[:token])
+          r[:token]
+        end
       end
 
       # Requests a 2FA code
@@ -87,50 +77,14 @@ module VagrantPlugins
         @env.ui.warn("Requesting 2FA code via #{delivery_method.upcase}...")
 
         Vagrant::Util::CredentialScrubber.sensitive(password)
-        response = post(
-          "/api/v1/two-factor/request-code", {
-            user: {
-              login: username_or_email,
-              password: password
-            },
-            two_factor: {
-              delivery_method: delivery_method.downcase
-            }
-          }
-        )
-
-        two_factor = response['two_factor']
-        obfuscated_destination = two_factor['obfuscated_destination']
-
-        @env.ui.success("2FA code sent to #{obfuscated_destination}.")
-      end
-
-      # Issues a post to a Vagrant Cloud path with the given payload.
-      # @param [String] path
-      # @param [Hash] payload
-      # @return [Hash] response data
-      def post(path, payload)
         with_error_handling do
-          url = File.join(Vagrant.server_url, path)
+          r = client.authentication_request_2fa_code(
+            username: username_or_email, password: password, delivery_method: delivery_method)
 
-          proxy   = nil
-          proxy ||= ENV["HTTPS_PROXY"] || ENV["https_proxy"]
-          proxy ||= ENV["HTTP_PROXY"]  || ENV["http_proxy"]
-          RestClient.proxy = proxy
+          two_factor = r[:two_factor]
+          obfuscated_destination = two_factor[:obfuscated_destination]
 
-          response = RestClient::Request.execute(
-            method: :post,
-            url: url,
-            payload: JSON.dump(payload),
-            proxy: proxy,
-            headers: {
-              accept: :json,
-              content_type: :json,
-              user_agent: Vagrant::Util::Downloader::USER_AGENT,
-            },
-          )
-
-          JSON.load(response.to_s)
+          @env.ui.success("2FA code sent to #{obfuscated_destination}.")
         end
       end
 
@@ -138,11 +92,15 @@ module VagrantPlugins
       #
       # @param [String] token
       def store_token(token)
+        Vagrant::Util::CredentialScrubber.sensitive(token)
         @logger.info("Storing token in #{token_path}")
 
         token_path.open("w") do |f|
           f.write(token)
         end
+
+        # Reset after we store the token since this is now _our_ token
+        @client = VagrantCloud::Client.new(access_token: token)
 
         nil
       end
@@ -167,17 +125,18 @@ EOH
 
         if present?(ENV["VAGRANT_CLOUD_TOKEN"])
           @logger.debug("Using authentication token from environment variable")
-          return ENV["VAGRANT_CLOUD_TOKEN"]
-        end
-
-        if token_path.exist?
+          t = ENV["VAGRANT_CLOUD_TOKEN"]
+        elsif token_path.exist?
           @logger.debug("Using authentication token from disk at #{token_path}")
-          return token_path.read.strip
+          t = token_path.read.strip
+        elsif present?(ENV["ATLAS_TOKEN"])
+          @logger.warn("ATLAS_TOKEN detected within environment. Using ATLAS_TOKEN in place of VAGRANT_CLOUD_TOKEN.")
+          t = ENV["ATLAS_TOKEN"]
         end
 
-        if present?(ENV["ATLAS_TOKEN"])
-          @logger.warn("ATLAS_TOKEN detected within environment. Using ATLAS_TOKEN in place of VAGRANT_CLOUD_TOKEN.")
-          return ENV["ATLAS_TOKEN"]
+        if !t.nil?
+          Vagrant::Util::CredentialScrubber.sensitive(t)
+          return t
         end
 
         @logger.debug("No authentication token in environment or #{token_path}")
@@ -189,22 +148,22 @@ EOH
 
       def with_error_handling(&block)
         yield
-      rescue RestClient::Unauthorized
+      rescue Excon::Error::Unauthorized
         @logger.debug("Unauthorized!")
         raise Errors::Unauthorized
-      rescue RestClient::BadRequest => e
+      rescue Excon::Error::BadRequest => e
         @logger.debug("Bad request:")
         @logger.debug(e.message)
         @logger.debug(e.backtrace.join("\n"))
-        parsed_response = JSON.parse(e.response)
+        parsed_response = JSON.parse(e.response.body)
         errors = parsed_response["errors"].join("\n")
         raise Errors::ServerError, errors: errors
-      rescue RestClient::NotAcceptable => e
+      rescue Excon::Error::NotAcceptable => e
         @logger.debug("Got unacceptable response:")
         @logger.debug(e.message)
         @logger.debug(e.backtrace.join("\n"))
 
-        parsed_response = JSON.parse(e.response)
+        parsed_response = JSON.parse(e.response.body)
 
         if two_factor = parsed_response['two_factor']
           store_two_factor_information two_factor

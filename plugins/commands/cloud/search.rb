@@ -4,8 +4,10 @@ module VagrantPlugins
   module CloudCommand
     module Command
       class Search < Vagrant.plugin("2", :command)
+        include Util
+
         def execute
-          options = {}
+          options = {quiet: true}
 
           opts = OptionParser.new do |o|
             o.banner = "Usage: vagrant cloud search [options] query"
@@ -37,45 +39,56 @@ module VagrantPlugins
             o.on("--sort-by SORT", "Field to sort results on (created, downloads, updated) Default: downloads") do |s|
               options[:sort] = s
             end
-            o.on("-u", "--username USERNAME_OR_EMAIL", String, "Vagrant Cloud username or email address to login with") do |u|
-              options[:username] = u
+            o.on("--[no-]auth", "Authenticate with Vagrant Cloud if required before searching") do |l|
+              options[:quiet] = !l
             end
           end
 
           # Parse the options
           argv = parse_options(opts)
           return if !argv
-          if argv.length > 1
+          if argv.length != 1
             raise Vagrant::Errors::CLIInvalidUsage,
               help: opts.help.chomp
           end
 
-          @client = VagrantPlugins::CloudCommand::Util.client_login(@env, options[:username])
+          @client = client_login(@env, options.slice(:quiet))
           query = argv.first
 
           options[:limit] = 25 if !(options[:limit].to_i < 1) && !options[:limit]
 
-          search(query, options, @client.token)
+          search(query, @client&.token, options)
         end
 
-        def search(query, options, access_token)
-          server_url = VagrantPlugins::CloudCommand::Util.api_server_url
-          search = VagrantCloud::Search.new(access_token, server_url)
+        # Perform requested search and display results to user
+        #
+        # @param [String] query Search query string
+        # @param [Hash] options
+        # @option options [String] :provider Filter by provider
+        # @option options [String] :sort Field to sort results
+        # @option options [Integer] :limit Number of results to display
+        # @option options [Integer] :page Page of results to display
+        # @param [String] access_token User access token
+        # @return [Integer]
+        def search(query, access_token, options={})
+          account = VagrantCloud::Account.new(
+            custom_server: api_server_url,
+            access_token: access_token
+          )
+          params = {query: query}.merge(options.slice(:provider, :sort, :order, :limit, :page))
+          result = account.searcher.search(**params)
 
-          begin
-            search_results = search.search(query, options[:provider], options[:sort], options[:order], options[:limit], options[:page])
-            if !search_results["boxes"].empty?
-              VagrantPlugins::CloudCommand::Util.format_search_results(search_results["boxes"], options[:short], options[:json], @env)
-            else
-              @env.ui.warn(I18n.t("cloud_command.search.no_results", query: query))
-            end
+          if result.boxes.empty?
+            @env.ui.warn(I18n.t("cloud_command.search.no_results", query: query))
             return 0
-          rescue VagrantCloud::ClientError => e
-            @env.ui.error(I18n.t("cloud_command.errors.search.fail"))
-            @env.ui.error(e)
-            return 1
           end
-          return 1
+
+          format_search_results(result.boxes, options[:short], options[:json], @env)
+          0
+        rescue VagrantCloud::Error => e
+          @env.ui.error(I18n.t("cloud_command.errors.search.fail"))
+          @env.ui.error(e.message)
+          1
         end
       end
     end

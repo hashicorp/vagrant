@@ -6,6 +6,8 @@ describe VagrantPlugins::CloudCommand::Client do
   include_context "unit"
 
   let(:env) { isolated_environment.create_vagrant_env }
+  let(:token) { nil }
+  let(:vc_client) { double("vagrantcloud-client", access_token: token) }
 
   subject(:client) { described_class.new(env) }
 
@@ -16,246 +18,246 @@ describe VagrantPlugins::CloudCommand::Client do
 
   before do
     stub_env("ATLAS_TOKEN" => nil)
-    subject.clear_token
+    stub_env("VAGRANT_CLOUD_TOKEN" => nil)
+    allow(VagrantCloud::Client).to receive(:new).and_return(vc_client)
+    allow(Vagrant::Util::CredentialScrubber).to receive(:sensitive)
+  end
+
+  after do
+    Vagrant::Util::CredentialScrubber.reset!
   end
 
   describe "#logged_in?" do
-    let(:url) { "#{Vagrant.server_url}/api/v1/authenticate?access_token=#{token}" }
-    let(:headers) { { "Content-Type" => "application/json" } }
-
     before { allow(subject).to receive(:token).and_return(token) }
 
-    context "when there is no token" do
-      let(:token) { nil }
-
-      it "returns false" do
-        expect(subject.logged_in?).to be(false)
+    context "when token is not set" do
+      it "should return false" do
+        expect(subject.logged_in?).to be_falsey
       end
     end
 
-    context "when there is a token" do
-      let(:token) { "ABCD1234" }
+    context "when token is set" do
+      let(:token) { double("token") }
 
-      it "returns true if the endpoint returns a 200" do
-        stub_request(:get, url)
-          .with(headers: headers)
-          .to_return(body: JSON.pretty_generate("token" => token))
-        expect(subject.logged_in?).to be(true)
+      before do
+        allow(vc_client).to receive(:authentication_token_validate)
       end
 
-      it "raises an error if the endpoint returns a non-200" do
-        stub_request(:get, url)
-          .with(headers: headers)
-          .to_return(body: JSON.pretty_generate("bad" => true), status: 401)
-        expect(subject.logged_in?).to be(false)
+      it "should return true when token is valid" do
+        expect(subject.logged_in?).to be_truthy
       end
 
-      it "raises an exception if the server cannot be found" do
-        stub_request(:get, url)
-          .to_raise(SocketError)
-        expect { subject.logged_in? }
-          .to raise_error(VagrantPlugins::CloudCommand::Errors::ServerUnreachable)
+      it "should validate the set token" do
+        expect(vc_client).to receive(:authentication_token_validate)
+        subject.logged_in?
+      end
+
+      it "should return false when token does not validate" do
+        expect(vc_client).to receive(:authentication_token_validate).
+          and_raise(Excon::Error::Unauthorized.new(StandardError.new))
+        expect(subject.logged_in?).to be_falsey
+      end
+
+      it "should add token to scrubber" do
+        expect(Vagrant::Util::CredentialScrubber).to receive(:sensitive).with(token)
+        subject.logged_in?
       end
     end
   end
 
   describe "#login" do
-    let(:request) {
-      {
-        user: {
-          login: login,
-          password: password,
-        },
-        token: {
-          description: description,
-        },
-        two_factor: {
-          code: nil
-        }
-      }
-    }
+    let(:new_token) { double("new-token") }
+    let(:result) { {token: new_token} }
+    let(:password) { double("password") }
+    let(:username) { double("username") }
 
-    let(:login) { "foo" }
-    let(:password) { "supersecretpassword" }
-    let(:description) { "Token description" }
-
-    let(:headers) {
-      {
-        "Accept" => "application/json",
-        "Content-Type" => "application/json",
-      }
-    }
-    let(:response) {
-      {
-        token: "mysecrettoken"
-      }
-    }
-
-    it "returns the access token after successful login" do
-      stub_request(:post, "#{Vagrant.server_url}/api/v1/authenticate").
-        with(body: JSON.dump(request), headers: headers).
-        to_return(status: 200, body: JSON.dump(response))
-
-      client.username_or_email = login
-      client.password = password
-
-      expect(client.login(description: "Token description")).to eq("mysecrettoken")
+    before do
+      subject.username_or_email = username
+      subject.password = password
+      allow(vc_client).to receive(:authentication_token_create).
+        and_return(result)
     end
 
-    context "when 2fa is required" do
-      let(:response) {
-        {
-          two_factor: {
-            default_delivery_method: default_delivery_method,
-            delivery_methods: delivery_methods
-          }
-        }
-      }
-      let(:default_delivery_method) { "app" }
-      let(:delivery_methods) { ["app"] }
-
-      before do
-        stub_request(:post, "#{Vagrant.server_url}/api/v1/authenticate").
-          to_return(status: 406, body: JSON.dump(response))
-      end
-
-      it "raises a two-factor required error" do
-        expect {
-          client.login
-        }.to raise_error(VagrantPlugins::CloudCommand::Errors::TwoFactorRequired)
-      end
-
-      context "when the default delivery method is not app" do
-        let(:default_delivery_method) { "sms" }
-        let(:delivery_methods) { ["app", "sms"] }
-
-        it "requests a code and then raises a two-factor required error" do
-          expect(client)
-            .to receive(:request_code)
-            .with(default_delivery_method)
-
-          expect {
-            client.login
-          }.to raise_error(VagrantPlugins::CloudCommand::Errors::TwoFactorRequired)
-        end
-      end
+    it "should add password to scrubber" do
+      expect(Vagrant::Util::CredentialScrubber).to receive(:sensitive).with(password)
+      subject.login
     end
 
-    context "on bad login" do
-      before do
-        stub_request(:post, "#{Vagrant.server_url}/api/v1/authenticate").
-          to_return(status: 401, body: "")
-      end
-
-      it "raises an error" do
-        expect {
-          client.login
-        }.to raise_error(VagrantPlugins::CloudCommand::Errors::Unauthorized)
-      end
+    it "should create an authentication token" do
+      expect(vc_client).to receive(:authentication_token_create).
+        and_return(result)
+      subject.login
     end
 
-    context "if it can't reach the server" do
-      before do
-        stub_request(:post, "#{Vagrant.server_url}/api/v1/authenticate").
-          to_raise(SocketError)
-      end
+    it "should wrap remote request to handle errors" do
+      expect(subject).to receive(:with_error_handling)
+      subject.login
+    end
 
-      it "raises an exception" do
-        expect {
-          subject.login
-        }.to raise_error(VagrantPlugins::CloudCommand::Errors::ServerUnreachable)
+    it "should add new token to scrubber" do
+      expect(Vagrant::Util::CredentialScrubber).to receive(:sensitive).with(new_token)
+      subject.login
+    end
+
+    it "should create a new internal client" do
+      expect(VagrantCloud::Client).to receive(:new).with(access_token: new_token)
+      subject.login
+    end
+
+    it "should create authentication token using username and password" do
+      expect(vc_client).to receive(:authentication_token_create).
+        with(hash_including(username: username, password: password)).and_return(result)
+      subject.login
+    end
+
+    it "should return the new token" do
+      expect(subject.login).to eq(new_token)
+    end
+
+    context "with description and code" do
+      let(:description) { double("description") }
+      let(:code) { double("code") }
+
+      it "should create authentication token using description and code" do
+        expect(vc_client).to receive(:authentication_token_create).with(
+          hash_including(username: username, password: password,
+            description: description, code: code))
+        subject.login(description: description, code: code)
       end
     end
   end
 
   describe "#request_code" do
-    let(:request) {
-      {
-        user: {
-          login: login,
-          password: password,
-        },
-        two_factor: {
-          delivery_method: delivery_method
-        }
-      }
-    }
+    let(:password) { double("password") }
+    let(:username) { double("username") }
+    let(:delivery_method) { double("delivery-method", upcase: nil) }
+    let(:result) { {two_factor: two_factor} }
+    let(:two_factor) { {obfuscated_destination: obfuscated_destination} }
+    let(:obfuscated_destination) { double("obfuscated-destination", to_s: "2FA_DESTINATION") }
 
-    let(:login) { "foo" }
-    let(:password) { "supersecretpassword" }
-    let(:delivery_method) { "sms" }
+    before do
+      subject.password = password
+      subject.username_or_email = username
+      allow(vc_client).to receive(:authentication_request_2fa_code).and_return(result)
+    end
 
-    let(:headers) {
-      {
-        "Accept" => "application/json",
-        "Content-Type" => "application/json"
-      }
-    }
+    it "should add password to scrubber" do
+      expect(Vagrant::Util::CredentialScrubber).to receive(:sensitive).with(password)
+      subject.request_code(delivery_method)
+    end
 
-    let(:response) {
-      {
-        two_factor: {
-          obfuscated_destination: "SMS number ending in 1234"
-        }
-      }
-    }
+    it "should request the code" do
+      expect(vc_client).to receive(:authentication_request_2fa_code).with(
+        hash_including(username: username, password: password, delivery_method: delivery_method))
+      subject.request_code(delivery_method)
+    end
 
-    it "displays that the code was sent" do
-      expect(env.ui)
-        .to receive(:success)
-        .with("2FA code sent to SMS number ending in 1234.")
+    it "should print the destination" do
+      expect(env.ui).to receive(:success).with(/2FA_DESTINATION/)
+      subject.request_code(delivery_method)
+    end
+  end
 
-      stub_request(:post, "#{Vagrant.server_url}/api/v1/two-factor/request-code").
-        with(body: JSON.dump(request), headers: headers).
-        to_return(status: 201, body: JSON.dump(response))
+  describe "#store_token" do
+    let(:token_path) { double("token-path") }
+    let(:new_token) { double("new-token") }
 
-      client.username_or_email = login
-      client.password = password
+    before do
+      allow(subject).to receive(:token_path).and_return(token_path)
+      allow(token_path).to receive(:open)
+    end
 
-      client.request_code delivery_method
+    it "should add token to scrubber" do
+      expect(Vagrant::Util::CredentialScrubber).to receive(:sensitive).with(new_token)
+      subject.store_token(new_token)
+    end
+
+    it "should create a new internal client with token" do
+      expect(VagrantCloud::Client).to receive(:new).with(access_token: new_token)
+      subject.store_token(new_token)
+    end
+
+    it "should open the token path and write the new token" do
+      f = double("file")
+      expect(token_path).to receive(:open).with("w").and_yield(f)
+      expect(f).to receive(:write).with(new_token)
+      subject.store_token(new_token)
     end
   end
 
   describe "#token" do
-    it "reads ATLAS_TOKEN" do
-      stub_env("ATLAS_TOKEN" => "ABCD1234")
-      expect(subject.token).to eq("ABCD1234")
+    let(:env_token) { "ENV_TOKEN" }
+    let(:file_token) { "FILE_TOKEN" }
+    let(:token_path) { double("token-path", read: file_token) }
+    let(:path_exists) { false }
+
+    before do
+      expect(subject).to receive(:token).and_call_original
+      allow(subject).to receive(:token_path).and_return(token_path)
+      allow(token_path).to receive(:exist?).and_return(path_exists)
     end
 
-    it "reads the stored file" do
-      subject.store_token("EFGH5678")
-      expect(subject.token).to eq("EFGH5678")
+    context "when VAGRANT_CLOUD_TOKEN env var is set" do
+      before { stub_env("VAGRANT_CLOUD_TOKEN" => env_token) }
+
+      it "should return the env token" do
+        expect(subject.token).to eq(env_token)
+      end
+
+      context "when token path exists" do
+        let(:path_exists) { true }
+
+        it "should return the env token" do
+          expect(subject.token).to eq(env_token)
+        end
+
+        it "should print warning of two tokens" do
+          expect(env.ui).to receive(:warn)
+          subject.token
+        end
+      end
     end
 
-    it "prefers the environment variable" do
-      stub_env("VAGRANT_CLOUD_TOKEN" => "ABCD1234")
-      subject.store_token("EFGH5678")
-      expect(subject.token).to eq("ABCD1234")
+    context "when token path exists" do
+      let(:path_exists) { true }
+
+      it "should return the stored token" do
+        expect(subject.token).to eq(file_token)
+      end
+
+      context "when VAGRANT_CLOUD_TOKEN env var is set" do
+        before { stub_env("VAGRANT_CLOUD_TOKEN" => env_token) }
+
+        it "should return the env token" do
+          expect(subject.token).to eq(env_token)
+        end
+      end
     end
 
-    it "prints a warning if the envvar and stored file are both present" do
-      stub_env("VAGRANT_CLOUD_TOKEN" => "ABCD1234")
-      subject.store_token("EFGH5678")
-      expect(env.ui).to receive(:warn).with(/detected both/)
-      subject.token
-    end
+    context "when ATLAS_TOKEN env var is set" do
+      before { stub_env("ATLAS_TOKEN" => env_token) }
 
-    it "returns nil if there's no token set" do
-      expect(subject.token).to be(nil)
-    end
-  end
+      it "should return the env token" do
+        expect(subject.token).to eq(env_token)
+      end
 
-  describe "#store_token, #clear_token" do
-    it "stores the token and can re-access it" do
-      subject.store_token("foo")
-      expect(subject.token).to eq("foo")
-      expect(described_class.new(env).token).to eq("foo")
-    end
+      context "when VAGRANT_CLOUD_TOKEN is set" do
+        let(:vc_token) { "VC_TOKEN" }
 
-    it "deletes the token" do
-      subject.store_token("foo")
-      subject.clear_token
-      expect(subject.token).to be_nil
+        before { stub_env("VAGRANT_CLOUD_TOKEN" => vc_token) }
+
+        it "should return the VAGRANT_CLOUD_TOKEN value" do
+          expect(subject.token).to eq(vc_token)
+        end
+      end
+
+      context "when file exists" do
+        let(:path_exists) { true }
+
+        it "should return the file token" do
+          expect(subject.token).to eq(file_token)
+        end
+      end
     end
   end
 end
