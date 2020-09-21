@@ -6,6 +6,8 @@ However, for those individuals who want a bit more guidance on the best way to c
 
 Before opening a new issue or pull request, we do appreciate if you take some time to search for [possible duplicates](https://github.com/hashicorp/vagrant/issues?q=sort%3Aupdated-desc), or similar discussions on [HashiCorp Discuss](https://discuss.hashicorp.com/c/vagrant/24). On GitHub, you can scope searches by labels to narrow things down.
 
+To ensure that the Vagrant community remains an open and safe space for everyone we also follow the [HashiCorp community guidelines](https://www.hashicorp.com/community-guidelines). When contributing to Vagrant, please respect these guidelines.
+
 ## Issues
 
 ### Reporting an Issue
@@ -30,7 +32,40 @@ No pull request template is provided on GitHub. The expected changes are often a
 
 **Tip:** Make it small! A focused PR gives you the best chance of having it accepted. Then, repeat if you have more to propose!
 
-### How to prepare
+### Setup a development installation of Vagrant
+
+There are a few prerequisites for setting up a development environment with Vagrant. Ensure you have the following installed on your machine:
+
+* git
+* bsdtar
+* curl
+
+#### Install Ruby
+
+It's nice to have a way to control what version of ruby is installed, so you may want to install [rvm](https://rvm.io/rvm/install), [chruby](https://github.com/postmodern/chruby#install) or [rbenv](https://github.com/rbenv/rbenv#installation). For Windows [ruby installer](https://rubyinstaller.org/) is recommended.
+
+#### Setup Vagrant
+Clone Vagrant's repository from GitHub into the directory where you keep code on your machine:
+
+```
+  $ git clone https://github.com/hashicorp/vagrant.git
+```
+
+Next, move into the newly created `./vagrant` directory.
+
+```
+  $ cd ./vagrant
+```
+
+All commands will be run from this path. Now, run the `bundle` command to install the Ruby dependencies:
+
+```
+  $ bundle install
+```
+
+You can now run Vagrant by running `bundle exec vagrant` from inside that directory.    
+
+### How to prepare your pull request
 
 Once you're confident that your upcoming changes will be accepted:
 
@@ -39,10 +74,53 @@ Once you're confident that your upcoming changes will be accepted:
   * Checkout a new branch based on master; `git checkout -b my-contrib master`
     Please avoid working directly on the `master` branch.
 * Make focused commits of logical units and describe them properly.
-* Avoid re-formatting of the existing code
+* Avoid re-formatting of the existing code.
 * Check for unnecessary whitespace with `git diff --check` before committing.
-* If possible, submit tests along with your topic branch. It will help a lot to get your your patch / new feature accepted, and should prevent unwanted breaking changes to silently happen in future developments.
+* Tests are required in each pull request. There are some exceptions like docs changes and dependency constraint updates.
 * Assure nothing is broken by running manual tests, and all the automated tests.
+
+### Running tests
+
+Vagrant uses rspec to run tests. Once your Vagrant bundle is installed from Git repository, you can run the test suite with:
+
+    bundle exec rake
+
+This will run the unit test suite, which should come back all green!
+
+If you are developing Vagrant on a machine that already has a Vagrant package installation present, both will attempt to use the same folder for their configuration (location of this folder depends on system). This can cause errors when Vagrant attempts to load plugins. In this case, override the `VAGRANT_HOME` environment variable for your development version of Vagrant before running any commands to be some new folder within the project or elsewhere on your machine. For example, in Bash:
+
+    export VAGRANT_HOME=~/.vagrant-dev
+
+You can now run Vagrant commands against the development version:
+
+    bundle exec vagrant
+
+### Acceptance Tests
+
+Vagrant also comes with an acceptance test suite that does black-box
+tests of various Vagrant components. Note that these tests are **extremely
+slow** because actual VMs are spun up and down. The full test suite can
+take hours. Instead, try to run focused component tests.
+
+To run the acceptance test suite, first copy `vagrant-spec.config.example.rb`
+to `vagrant-spec.config.rb` and modify it to valid values. The places you
+should fill in are clearly marked.
+
+Next, see the components that can be tested:
+
+```
+$ rake acceptance:components
+cli
+provider/virtualbox/basic
+...
+```
+
+Then, run one of those components:
+
+```
+$ rake acceptance:run COMPONENTS="cli"
+...
+```
 
 ### Submit Changes
 
