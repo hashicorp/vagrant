@@ -595,8 +595,10 @@ describe Vagrant::Action::Builtin::BoxAdd, :skip_windows, :bsdtar do
         env[:box_url] = "foo"
 
         env[:hook] = double("hook")
-        allow(env[:hook]).to receive(:call) do |name, opts|
-          expect(name).to eq(:authenticate_box_url)
+
+        expect(env[:hook]).to receive(:call).with(:authenticate_box_downloader, any_args).at_least(:once)
+
+        allow(env[:hook]).to receive(:call).with(:authenticate_box_url, any_args).at_least(:once) do |name, opts|
           if opts[:box_urls] == ["foo"]
             next { box_urls: [real_url] }
           elsif opts[:box_urls] == ["bar"]

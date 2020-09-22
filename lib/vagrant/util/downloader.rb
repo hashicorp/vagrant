@@ -29,8 +29,9 @@ module Vagrant
         "vagrantup.com".freeze
       ].freeze
 
-      attr_reader :source
+      attr_accessor :source
       attr_reader :destination
+      attr_accessor :headers
 
       def initialize(source, destination, options=nil)
         options     ||= {}
@@ -58,7 +59,7 @@ module Vagrant
         @ca_cert     = options[:ca_cert]
         @ca_path     = options[:ca_path]
         @continue    = options[:continue]
-        @headers     = options[:headers]
+        @headers     = Array(options[:headers])
         @insecure    = options[:insecure]
         @ui          = options[:ui]
         @client_cert = options[:client_cert]

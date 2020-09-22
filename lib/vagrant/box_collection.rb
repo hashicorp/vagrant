@@ -325,7 +325,7 @@ module Vagrant
 
             return Box.new(
               name, provider, version_dir_map[v.to_s], provider_dir,
-              metadata_url: metadata_url,
+              metadata_url: metadata_url, hook: @hook
             )
           end
         end

@@ -436,13 +436,16 @@ module Vagrant
           downloader_options[:location_trusted] = env[:box_download_location_trusted]
           downloader_options[:box_extra_download_options] = env[:box_extra_download_options]
 
-          Util::Downloader.new(url, temp_path, downloader_options)
+          d = Util::Downloader.new(url, temp_path, downloader_options)
+          env[:hook].call(:authenticate_box_downloader, downloader: d)
+          d
         end
 
         def download(url, env, **opts)
           opts[:ui] = true if !opts.key?(:ui)
 
           d = downloader(url, env, **opts)
+          env[:hook].call(:authenticate_box_downloader, downloader: d)
 
           # Download the box to a temporary path. We store the temporary
           # path as an instance variable so that the `#recover` method can
@@ -486,6 +489,7 @@ module Vagrant
         # @return [Boolean] true if metadata
         def metadata_url?(url, env)
           d = downloader(url, env, json: true, ui: false)
+          env[:hook].call(:authenticate_box_downloader, downloader: d)
 
           # If we're downloading a file, cURL just returns no
           # content-type (makes sense), so we just test if it is JSON
