@@ -11,6 +11,7 @@ describe VagrantPlugins::CommandPort::Command do
     iso_env.vagrantfile(<<-VF)
       Vagrant.configure("2") do |config|
         config.vm.box = "hashicorp/precise64"
+        config.vm.synced_folder ".", "/vagrant", disabled: true
       end
     VF
     iso_env.create_vagrant_env
@@ -29,7 +30,6 @@ describe VagrantPlugins::CommandPort::Command do
 
   before do
     allow(machine).to receive(:state).and_return(state)
-    allow(machine).to receive_message_chain(:synced_folders).and_return( double(:types => []) )
     allow(subject).to receive(:with_target_vms) { |&block| block.call(machine) }
   end
 
@@ -38,7 +38,7 @@ describe VagrantPlugins::CommandPort::Command do
       iso_env.vagrantfile <<-EOH
         Vagrant.configure("2") do |config|
           config.vm.box = "hashicorp/precise64"
-
+          config.vm.synced_folder ".", "/vagrant", disabled: true
           config.push.define "noop" do |push|
             push.bad = "ham"
           end
