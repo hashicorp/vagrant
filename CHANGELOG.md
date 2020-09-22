@@ -6,6 +6,7 @@ IMPROVEMENTS:
 
 - command/cloud: Add --force flag to `version release` command [GH-11912]
 - core:  Switch from unmaintained gem erubis to erubi [GH-11893]
+- core: Download Vagrant boxes using auth headers [GH-11835]
 - tests: Add integration tests for Docker provider [GH-11907]
 
 BUG FIXES:
