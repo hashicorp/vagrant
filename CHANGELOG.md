@@ -13,6 +13,7 @@ BUG FIXES:
 - guest/linux: Check for /etc/fstab before trying to modify [GH-11897] 
 - guest/debian: Set hostname in /etc/hosts as first step to changing hostname [GH-11885]
 - guest/rhel: Check for existence of network files before trying to update them [GH-11877]
+- tests: Remove rsync dependency from tests [GH-11889]
 
 ## 2.2.10 (August 24, 2020)
 
