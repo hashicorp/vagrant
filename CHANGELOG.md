@@ -4,6 +4,7 @@ FEATURES:
 
 IMPROVEMENTS:
 
+- command/cloud: Add --force flag to `version release` command [GH-11912]
 - core:  Switch from unmaintained gem erubis to erubi [GH-11893]
 - tests: Add integration tests for Docker provider [GH-11907]
 
@@ -11,7 +12,7 @@ BUG FIXES:
 
 - core/synced_folders: Don't persist synced folders to fstab is guest is not reachable [GH-11900]
 - core: Don't try to recover machine without a uuid [GH-11863]
-- guest/linux: Check for /etc/fstab before trying to modify [GH-11897] 
+- guest/linux: Check for /etc/fstab before trying to modify [GH-11897]
 - guest/debian: Set hostname in /etc/hosts as first step to changing hostname [GH-11885]
 - guest/rhel: Check for existence of network files before trying to update them [GH-11877]
 - tests: Remove rsync dependency from tests [GH-11889]
