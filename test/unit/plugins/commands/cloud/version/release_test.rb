@@ -67,7 +67,7 @@ describe VagrantPlugins::CloudCommand::VersionCommand::Command::Release do
   end
 
   context "non-interactive mode with arguments" do
-    let (:argv) { ["--yes", "vagrant/box-name", "1.0.0"] }
+    let (:argv) { ["--force", "vagrant/box-name", "1.0.0"] }
 
     it "releases a version" do
       allow(VagrantCloud::Version).to receive(:new).

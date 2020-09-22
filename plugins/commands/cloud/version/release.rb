@@ -18,9 +18,9 @@ module VagrantPlugins
               o.on("-u", "--username USERNAME_OR_EMAIL", String, "Vagrant Cloud username or email address") do |u|
                 options[:username] = u
               end
-              options[:assume_yes] = false
-              o.on("-y", "--yes", "Automatic yes to prompts") do |y|
-                options[:assume_yes] = y
+              options[:force] = false
+              o.on("-f", "--force", "Release without confirmation") do |f|
+                options[:force] = f
               end
             end
 
@@ -32,7 +32,7 @@ module VagrantPlugins
                 help: opts.help.chomp
             end
 
-            if not options[:assume_yes]
+            if not options[:force]
                 @env.ui.warn(I18n.t("cloud_command.version.release_warn", version: argv[1], box: argv.first))
                 cont = @env.ui.ask(I18n.t("cloud_command.continue"))
                 return 1 if cont.strip.downcase != "y"
