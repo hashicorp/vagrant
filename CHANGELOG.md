@@ -5,6 +5,7 @@ FEATURES:
 IMPROVEMENTS:
 
 - core:  Switch from unmaintained gem erubis to erubi [GH-11893]
+- tests: Add integration tests for Docker provider [GH-11907]
 
 BUG FIXES:
 
