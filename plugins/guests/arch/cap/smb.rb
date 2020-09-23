@@ -7,7 +7,7 @@ module VagrantPlugins
           if !comm.test("test -f /usr/bin/mount.cifs")
             comm.sudo <<-EOH.gsub(/^ {14}/, '')
               pacman -Sy --noconfirm
-              pacman -S --noconfirm cifs-utils
+              pacman -S --noconfirm smbclient cifs-utils
             EOH
           end
         end
