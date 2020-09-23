@@ -8,7 +8,7 @@ module VagrantPlugins
 
         VB_MOUNT_TYPE = "vboxsf".freeze
 
-        # Returns mount options for a virual box synced folder
+        # Returns mount options for a virtual box synced folder
         #
         # @param [Machine] machine
         # @param [String] name of mount

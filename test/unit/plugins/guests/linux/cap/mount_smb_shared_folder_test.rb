@@ -7,11 +7,13 @@ describe "VagrantPlugins::GuestLinux::Cap::MountSMBSharedFolder" do
       .guest_capabilities[:linux]
   end
 
-  let(:machine) { double("machine", env: env) }
+  let(:machine) { double("machine", env: env, config: config) }
   let(:env) { double("env", host: host, ui: double("ui"), data_dir: double("data_dir")) }
   let(:host) { double("host") }
   let(:guest) { double("guest") }
   let(:comm) { VagrantTests::DummyCommunicator::Communicator.new(machine) }
+  let(:config) { double("config", vm: vm) }
+  let(:vm) { double("vm" ) }
   let(:mount_owner){ "vagrant" }
   let(:mount_group){ "vagrant" }
   let(:mount_uid){ "1000" }
@@ -19,19 +21,29 @@ describe "VagrantPlugins::GuestLinux::Cap::MountSMBSharedFolder" do
   let(:mount_name){ "vagrant" }
   let(:mount_guest_path){ "/vagrant" }
   let(:folder_options) do
-    {
-      owner: mount_owner,
-      group: mount_group,
-      smb_host: "localhost",
-      smb_username: "user",
-      smb_password: "pass"
-    }
+    Vagrant::Plugin::V2::SyncedFolder::Collection[
+      {
+        owner: mount_owner,
+        group: mount_group,
+        smb_host: "localhost",
+        smb_username: "user",
+        smb_password: "pass",
+        plugin: folder_plugin
+      }
+    ]
   end
+  let(:folder_plugin) { double("folder_plugin") }
   let(:cap){ caps.get(:mount_smb_shared_folder) }
 
   before do
     allow(machine).to receive(:communicate).and_return(comm)
     allow(host).to receive(:capability?).and_return(false)
+    allow(vm).to receive(:allow_fstab_modification).and_return(true)
+
+    allow(folder_plugin).to receive(:capability).with(:mount_options, mount_name, mount_guest_path, folder_options).
+    and_return(["uid=#{mount_uid},gid=#{mount_gid},sec=ntlmssp,credentials=/etc/smb_creds_id", mount_uid, mount_gid])
+    allow(folder_plugin).to receive(:capability).with(:mount_type).and_return("cifs")
+    allow(folder_plugin).to receive(:capability).with(:mount_name, any_args).and_return("//localhost/#{mount_name}")
   end
 
   after do
@@ -70,6 +82,7 @@ describe "VagrantPlugins::GuestLinux::Cap::MountSMBSharedFolder" do
     end
 
     it "removes the credentials file before completion" do
+      allow(vm).to receive(:allow_fstab_modification).and_return(false)
       expect(comm).to receive(:sudo).with(/rm.+smb_creds_.+/)
       cap.mount_smb_shared_folder(machine, mount_name, mount_guest_path, folder_options)
     end
@@ -77,69 +90,6 @@ describe "VagrantPlugins::GuestLinux::Cap::MountSMBSharedFolder" do
     it "sends upstart notification after mount" do
       expect(comm).to receive(:sudo).with(/emit/)
       cap.mount_smb_shared_folder(machine, mount_name, mount_guest_path, folder_options)
-    end
-
-    it "adds mfsymlinks option by default" do
-      expect(comm).to receive(:sudo).with(/mfsymlinks/, any_args)
-      cap.mount_smb_shared_folder(machine, mount_name, mount_guest_path, folder_options)
-    end
-
-    it "does not add mfsymlinks option if env var VAGRANT_DISABLE_SMBMFSYMLINKS exists" do
-      expect(ENV).to receive(:[]).with("VAGRANT_DISABLE_SMBMFSYMLINKS").and_return(true)
-      expect(comm).not_to receive(:sudo).with(/mfsymlinks/, any_args)
-      cap.mount_smb_shared_folder(machine, mount_name, mount_guest_path, folder_options)
-    end
-
-    context "with custom mount options" do
-      let(:folder_options) do
-        {
-          owner: mount_owner,
-          group: mount_group,
-          smb_host: "localhost",
-          smb_username: "user",
-          smb_password: "pass",
-          mount_options: ["ro", "sec=custom"]
-        }
-      end
-
-      it "adds given mount options to command" do
-        expect(comm).to receive(:sudo).with(/ro/, any_args)
-        cap.mount_smb_shared_folder(machine, mount_name, mount_guest_path, folder_options)
-      end
-
-      it "replaces defined options" do
-        expect(comm).to receive(:sudo).with(/sec=custom/, any_args)
-        cap.mount_smb_shared_folder(machine, mount_name, mount_guest_path, folder_options)
-      end
-
-      it "does not include replaced options" do
-        expect(comm).not_to receive(:sudo).with(/sec=ntlm/, any_args)
-        cap.mount_smb_shared_folder(machine, mount_name, mount_guest_path, folder_options)
-      end
-    end
-  end
-
-  describe ".merge_mount_options" do
-    let(:base){ ["opt1", "opt2=on", "opt3", "opt4,opt5=off"] }
-    let(:override){ ["opt8", "opt4=on,opt6,opt7=true"] }
-
-    context "with no override" do
-      it "should split options into individual options" do
-        result = cap.merge_mount_options(base, [])
-        expect(result.size).to eq(5)
-      end
-    end
-
-    context "with overrides" do
-      it "should merge all options" do
-        result = cap.merge_mount_options(base, override)
-        expect(result.size).to eq(8)
-      end
-
-      it "should override options defined in base" do
-        result = cap.merge_mount_options(base, override)
-        expect(result).to include("opt4=on")
-      end
     end
   end
 
