@@ -21,4 +21,5 @@ export default [
     category: 'getting-started',
     name: `Getting Started`,
   },
+  'contributing-guide',
 ]

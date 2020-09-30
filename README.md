@@ -50,47 +50,6 @@ and you're welcome to give it a shot. Please review the installation page [here]
 
 ## Contributing to Vagrant
 
-Once your Vagrant bundle is installed from Git repository, you can run the test suite with:
-
-    bundle exec rake
-
-This will run the unit test suite, which should come back all green!
-
-If you are developing Vagrant on a machine that already has a Vagrant package installation present, both will attempt to use the same folder for their configuration (location of this folder depends on system). This can cause errors when Vagrant attempts to load plugins. In this case, override the `VAGRANT_HOME` environment variable for your development version of Vagrant before running any commands, to be some new folder within the project or elsewhere on your machine. For example, in Bash:
-
-    export VAGRANT_HOME=~/.vagrant-dev
-
-You can now run Vagrant commands against the development version:
-
-    bundle exec vagrant
-
 Please take time to read the [HashiCorp Community Guidelines](https://www.hashicorp.com/community-guidelines) and the [Vagrant Contributing Guide](https://github.com/hashicorp/vagrant/blob/master/.github/CONTRIBUTING.md).
 
 Then you're good to go!
-
-### Acceptance Tests
-
-Vagrant also comes with an acceptance test suite that does black-box
-tests of various Vagrant components. Note that these tests are **extremely
-slow** because actual VMs are spun up and down. The full test suite can
-take hours. Instead, try to run focused component tests.
-
-To run the acceptance test suite, first copy `vagrant-spec.config.example.rb`
-to `vagrant-spec.config.rb` and modify it to valid values. The places you
-should fill in are clearly marked.
-
-Next, see the components that can be tested:
-
-```
-$ rake acceptance:components
-cli
-provider/virtualbox/basic
-...
-```
-
-Then, run one of those components:
-
-```
-$ rake acceptance:run COMPONENTS="cli"
-...
-```
