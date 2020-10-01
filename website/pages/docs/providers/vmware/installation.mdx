@@ -3,8 +3,8 @@ layout: docs
 page_title: Installation - VMware Provider
 sidebar_title: Installation
 description: |-
-  The Vagrant VMware provider can be installed using the standard plugin
-  installation procedure.
+  The Vagrant VMware provider requires a two step installation
+  process which includes a system package and a Vagrant plugin.
 ---
 
 # Installation
@@ -29,7 +29,7 @@ For more information on plugin installation, please see the
 [Vagrant plugin usage documentation](/docs/plugins/usage).
 
 The Vagrant VMware plugin is a commercial product provided by
-[HashiCorp](https://www.hashicorp.com) and **require the purchase of a license**
+[HashiCorp](https://www.hashicorp.com) and **requires the purchase of a license**
 to operate. To purchase a license, please visit the
 [Vagrant VMware provider](/vmware#buy-now) page. Upon
 purchasing a license, you will receive a license file in your inbox. Download
@@ -95,62 +95,6 @@ Desktop plugin:
 $ vagrant plugin update vagrant-vmware-desktop
 ```
 
-## Frequently Asked Questions
-
-**Q: Can Vagrant VMware Plugin work without internet?**
-
-No, Vagrant VMware plugin requires a new license every 6 weeks. Vagrant will try to renew the
-license automatically. If you are on an environment without internet, after 4 weeks Vagrant will emit a warning,
-and after 6 weeks, the VMware plugin will stop working. You can install a new license to reactive vagrant.
-
-**Q: I purchased a Vagrant VMware plugin license, but I did not receive an email?**
-
-First, please check your JUNK or SPAM folders. Since the license comes from an
-automated system, it might have been flagged as spam by your email provider. If
-you do not see the email there, please [contact support](mailto:support@hashicorp.com?subject=License Not Received)
-and include the original order number.
-
-**Q: Do I need to keep the Vagrant VMware plugin license file on disk?**
-
-After you have installed the Vagrant VMware plugin license, it is safe to remove
-your copy from disk. Vagrant copies the license into its structure for reference
-on boot.
-
-**Q: I lost my original email, where can I download my Vagrant VMware plugin license again?**
-
-Please [contact support](mailto:support@hashicorp.com?subject=Lost My License&body=Hello support! I seem to have misplaced my Vagrant VMware license. Could you please send it to me? Thanks!). **Note:**
-please contact support using the email address with which you made the
-original purchase. If you use an alternate email, you will be asked to verify
-that you are the owner of the requested license.
-
-**Q: I upgraded my VMware product and now my license is invalid?**
-
-The Vagrant VMware plugin licenses are valid for specific VMware product
-versions at the time of purchase. When new versions of VMware products are
-released, significant changes to the plugin code are often required to support
-this new version. For this reason, you may need to upgrade your current license
-to work with the new version of the VMware product. Customers can check their
-license upgrade eligibility by visiting the [License Upgrade Center](https://license.hashicorp.com/upgrade/vmware)
-and entering the email address with which they made the original purchase.
-
-Your existing license will continue to work with all previous versions of the
-VMware products. If you do not wish to update at this time, you can rollback
-your VMware installation to an older version.
-
-**Q: Why is the Vagrant VMware plugin not working with my trial version of VMware Fusion/Workstation?**
-
-The Vagrant VMware Fusion and Vagrant VMware Workstation plugins are not
-compatible with trial versions of the VMware products. We apologize for the
-inconvenience.
-
-**Q: How do I upgrade my currently installed Vagrant VMware plugin?**
-
-You can update the Vagrant VMware plugin to the latest version by re-running the
-install command:
-
-```shell-session
-$ vagrant plugin install vagrant-vmware-desktop
-```
 
 ## Support
 
