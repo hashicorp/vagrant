@@ -146,7 +146,7 @@ export default [
           'boxes',
           'configuration',
           'known-issues',
-          'kernel-upgrade',
+          'faq',
         ],
       },
       {

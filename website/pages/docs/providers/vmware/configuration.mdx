@@ -1,6 +1,6 @@
 ---
 layout: docs
-page_title: Configuration- VMware Provider
+page_title: Configuration - VMware Provider
 sidebar_title: Configuration
 description: |-
   While Vagrant VMware providers are a drop-in replacement for VirtualBox, there
@@ -27,6 +27,12 @@ end
 
 ## Provider settings
 
+- `allowlist_verified` (bool, symbol) - Flag that VMware box has been properly configured
+  for allow list VMX settings. `true` if verified, `false` if unverified, `:disable_warning`
+  to silence allowlist warnings.
+- `base_address` (string) - Address to be reserved from the DHCP server. This option
+  requires the `base_mac` option to be set as well.
+- `base_mac` (string) - Custom MAC address to be used for the default NAT interface device
 - `clone_directory` (string) - Path for storing VMware clones. This value can
   also be set using the `VAGRANT_VMWARE_CLONE_DIRECTORY` environment variable.
   This defaults to `./.vagrant`
@@ -34,30 +40,29 @@ end
   This defaults to `true`
 - `functional_hgfs` (bool) - HGFS is functional within the guest.
   This defaults to detected capability of the guest
-- `unmount_default_hgfs` (bool) - Unmount the default HGFS mount point within the guest.
-  This defaults to `false`
 - `gui` (bool) - Launch guest with a GUI.
   This defaults to `false`
-- `ssh_info_public` (bool) - Use the public IP address for SSH connections to guest.
-  This defaults to `false`
-- `verify_vmnet` (bool) - Verify vmnet devices health before usage.
-  This defaults to `true`
 - `linked_clone` (bool) - Use linked clones instead of full copy clones.
-  This defaults to `true`
-- `vmx` (hash) - VMX key/value pairs to set or unset. If the value is `nil`, the key will
-  be deleted.
-- `whitelist_verified` (bool, symbol) - Flag that VMware box has been properly configured
-  for whitelisted VMX settings. `true` if verified, `false` if unverified, `:disable_warning`
-  to silence whitelist warnings.
+  This defaults to `true` if linked clones are functional based on VMware installation.
+- `nat_device` (string) - The host vmnet device to use for the default NAT interface. By
+  default this will be automatically detected with a fallback to `vmnet8`.
 - `port_forward_network_pause` - Number of seconds to pause after applying port forwarding
   configuration. This allows guest time to acquire DHCP address if previous address is
   dropped when VMware network services are restarted.
   This defaults to `0`
+- `ssh_info_public` (bool) - Use the public IP address for SSH connections to guest.
+  This defaults to `false`
+- `unmount_default_hgfs` (bool) - Unmount the default HGFS mount point within the guest.
+  This defaults to `false`
 - `utility_port` (integer) - Listen port of the Vagrant VMware Utility service.
   This defaults to `9922`
 - `utility_certificate_path` (string) - Path to the Vagrant VMware Utility service
   certificates directory.
   The default value is dependent on the host
+- `verify_vmnet` (bool) - Verify vmnet devices health before usage.
+  This defaults to `true`
+- `vmx` (hash) - VMX key/value pairs to set or unset. If the value is `nil`, the key will
+  be deleted.
 
 ### VM Clone Directory
 
@@ -122,3 +127,5 @@ config.vm.provider "vmware_desktop" do |v|
   v.vmx["numvcpus"] = "2"
 end
 ```
+
+### VMware License Edition

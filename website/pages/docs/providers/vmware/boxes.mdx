@@ -63,7 +63,7 @@ in the box into a privately managed "vmwarevm" folder, and uses the first
 of Vagrant do not support linked clones. For more information on
 linked clones, please see the documentation.
 
-## VMX Whitelisting
+## VMX Allowlisting
 
 Settings in the VMX file control the behavior of the VMware virtual machine
 when it is booted. In the past Vagrant has removed the configured network
@@ -74,14 +74,14 @@ While some boxes that use the predictable network interface names are configured
 to handle the VMX modifications Vagrant makes, it is better if Vagrant does
 not make the modification at all.
 
-Vagrant will now warn if a whitelisted setting is detected within a Vagrant
+Vagrant will now warn if a allowlisted setting is detected within a Vagrant
 box VMX file. If it is detected, a warning will be shown alerting the user
 and providing a configuration snippet. The configuration snippet can be
 used in the Vagrantfile if Vagrant fails to start the virtual machine.
 
 ### Making compatible boxes
 
-These are the VMX settings the whitelisting applies to:
+These are the VMX settings the allowlisting applies to:
 
 - `ethernet*.pcislotnumber`
 
@@ -92,7 +92,7 @@ by adding a Vagrantfile to the box with the following content:
 ```ruby
 Vagrant.configure("2") do |config|
   config.vm.provider "vmware_desktop" do |vmware|
-    vmware.whitelist_verified = true
+    vmware.allowlist_verified = true
   end
 end
 ```
