@@ -160,6 +160,47 @@ api {
 - `driver` (string) - Internal driver to use (utility will auto-detect correct driver)
 - `license_override` (string) - Override the detected VMware license (standard or professional)
 
+#### Restarting the service
+
+After updating the the configuration file, the service must be restarted. The method
+for restarting the service will depend on your host platform.
+
+For Windows:
+
+On Windows platforms a service is created called `vagrant-vmware-utility`. The
+service can be manually stopped and started using the services GUI (`services.msc`) or by
+running the following command from a `cmd.exe` in administrator mode:
+
+```shell-session
+$ net.exe stop vagrant-vmware-utility
+$ net.exe start vagrant-vmware-utility
+```
+
+For macOS:
+
+```shell-session
+$ sudo launchctl unload -w /Library/LaunchDaemons/com.vagrant.vagrant-vmware-utility.plist
+$ sudo launchctl load -w /Library/LaunchDaemons/com.vagrant.vagrant-vmware-utility.plist
+```
+
+For Linux systemd:
+
+```shell-session
+$ sudo systemctl restart vagrant-vmware-utility
+```
+
+For Linux SysVinit:
+
+```shell-session
+$ sudo /etc/init.d/vagrant-vmware-utility restart
+```
+
+For Linux runit:
+
+```shell-session
+$ sudo sv restart vagrant-vmware-utility
+```
+
 ### macOS service configuration
 
 The Vagrant VMware utility service configuration on macOS is slightly different
