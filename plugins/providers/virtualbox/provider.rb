@@ -23,7 +23,8 @@ module VagrantPlugins
       rescue Vagrant::Errors::VirtualBoxInvalidVersion,
              Vagrant::Errors::VirtualBoxNotDetected,
              Vagrant::Errors::VirtualBoxKernelModuleNotLoaded,
-             Vagrant::Errors::VirtualBoxInstallIncomplete
+             Vagrant::Errors::VirtualBoxInstallIncomplete,
+             Vagrant::Errors::VBoxManageNotFoundError
         raise if raise_error
         return false
       end
