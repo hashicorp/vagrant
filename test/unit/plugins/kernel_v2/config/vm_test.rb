@@ -669,6 +669,16 @@ describe VagrantPlugins::Kernel_V2::VMConfig do
       expect(merged_disks[0].name).to eq("foo")
       expect(merged_disks[1].name).to eq("bar")
     end
+
+    it "adds provider config with `__` config form" do
+      subject.disk(:disk, size: 1000, primary: false, name: "storage",  provider__something: "special")
+      expect(subject.disks[0].provider_config).to eq({:provider=>{:something=>"special"}})
+    end
+
+    it "adds provider config with Hash config form" do
+      subject.disk(:disk, size: 1000, primary: false, name: "storage",  provider: {something: "special"})
+      expect(subject.disks[0].provider_config).to eq({:provider=>{:something=>"special"}})
+    end
   end
 
   describe "#synced_folder(s)" do
