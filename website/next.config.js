@@ -4,8 +4,15 @@ console.log(`Environment: ${process.env.HASHI_ENV}`)
 
 module.exports = withHashicorp({
   defaultLayout: true,
-  transpileModules: ['is-absolute-url', '@hashicorp/react-mega-nav'],
+  transpileModules: ['is-absolute-url', '@hashicorp/react-.*'],
 })({
+  svgo: {
+    plugins: [
+      {
+        removeViewBox: false,
+      },
+    ],
+  },
   experimental: { modern: true },
   env: {
     HASHI_ENV: process.env.HASHI_ENV || 'development',
