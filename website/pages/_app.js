@@ -8,7 +8,7 @@ import Router from 'next/router'
 import HashiHead from '@hashicorp/react-head'
 import Head from 'next/head'
 import { ErrorBoundary } from '@hashicorp/nextjs-scripts/lib/bugsnag'
-import MegaNav from '@hashicorp/react-mega-nav'
+import HashiStackMenu from '@hashicorp/react-hashi-stack-menu'
 import ProductSubnav from '../components/subnav'
 import Footer from '../components/footer'
 import Error from './_error'
@@ -44,7 +44,7 @@ function App({ Component, pageProps }) {
           { href: '/fonts/dejavu/mono.woff2', as: 'font' },
         ]}
       />
-      <MegaNav product="Vagrant" />
+      <HashiStackMenu />
       <ProductSubnav />
       <div className="content">
         <Component {...pageProps} />
