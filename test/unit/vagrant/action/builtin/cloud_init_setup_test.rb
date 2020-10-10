@@ -17,9 +17,15 @@ describe Vagrant::Action::Builtin::CloudInitSetup do
   let(:ui)  { double("ui", info: true, warn: true) }
 
   let(:cfg) { double("cfg", type: :user_data, content_type: "text/cloud-config",
-                     path: "my/path", inline: nil) }
+                     content_disposition_filename: nil, path: "my/path",
+                     inline: nil) }
   let(:cfg_inline) { double("cfg", type: :user_data, content_type: "text/cloud-config",
-                     inline: "data: true", path: nil) }
+                            content_disposition_filename: nil, inline: "data: true",
+                            path: nil) }
+  let(:cfg_with_content_disposition_filename_inline) {
+    double("cfg", type: :user_data, content_type: "text/x-shellscript",
+           content_disposition_filename: "test.ps1",
+           inline: "#ps1_sysnative\n", path: nil) }
   let(:cloud_init_configs) { [cfg, cfg_inline] }
 
   let(:text_cfgs) { [MIME::Text.new("data: true", "cloud-config"),
@@ -69,15 +75,25 @@ describe Vagrant::Action::Builtin::CloudInitSetup do
     let(:cfg_text) { "config: true" }
 
     it "takes a text cfg path and saves it as a MIME text message" do
+      mime_text_part = double("mime_text_part")
+      expect(mime_text_part).not_to receive(:disposition=)
       allow(File).to receive(:read).and_return(cfg_text)
-
-      expect(MIME::Text).to receive(:new).with(cfg_text, "cloud-config")
+      expect(MIME::Text).to receive(:new).with(cfg_text, "cloud-config").and_return(mime_text_part)
       subject.read_text_cfg(machine, cfg)
     end
 
     it "takes a text cfg inline string and saves it as a MIME text message" do
-      expect(MIME::Text).to receive(:new).with("data: true", "cloud-config")
+      mime_text_part = double("mime_text_part")
+      expect(mime_text_part).not_to receive(:disposition=)
+      expect(MIME::Text).to receive(:new).with("data: true", "cloud-config").and_return(mime_text_part)
       subject.read_text_cfg(machine, cfg_inline)
+    end
+
+    it "takes a text cfg inline string with content_disposition_filename and saves it as a MIME text message" do
+      mime_text_part = double("mime_text_part")
+      expect(mime_text_part).to receive(:disposition=).with("attachment; filename=\"test.ps1\"")
+      expect(MIME::Text).to receive(:new).with("#ps1_sysnative\n", "x-shellscript").and_return(mime_text_part)
+      subject.read_text_cfg(machine, cfg_with_content_disposition_filename_inline)
     end
   end
 

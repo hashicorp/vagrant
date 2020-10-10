@@ -30,6 +30,11 @@ module VagrantPlugins
       # @return [String]
       attr_accessor :content_type
 
+      # The optional mime-part content-disposition filename.
+      #
+      # @return [String]
+      attr_accessor :content_disposition_filename
+
       # @return [String]
       attr_accessor :path
 
@@ -42,6 +47,7 @@ module VagrantPlugins
         @type = type if type
 
         @content_type = UNSET_VALUE
+        @content_disposition_filename = UNSET_VALUE
         @path = UNSET_VALUE
         @inline = UNSET_VALUE
 
@@ -57,6 +63,7 @@ module VagrantPlugins
         end
 
         @content_type = nil if @content_type == UNSET_VALUE
+        @content_disposition_filename = nil if @content_disposition_filename == UNSET_VALUE
         @path = nil if @path == UNSET_VALUE
         @inline = nil if @inline == UNSET_VALUE
       end
