@@ -61,6 +61,7 @@ module Vagrant
           # in VagrantConfigCloudInit.
           content_type = cfg.content_type.split('/', 2).last
           text_msg = MIME::Text.new(text, content_type)
+          text_msg.disposition = "attachment; filename=\"#{File.basename(cfg.content_disposition_filename).gsub('"', '\"')}\"" if cfg.content_disposition_filename
 
           text_msg
         end
