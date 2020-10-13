@@ -1,4 +1,4 @@
-require 'mime'
+require 'mime/types'
 require 'tmpdir'
 
 module Vagrant
