@@ -101,7 +101,7 @@ module VagrantPlugins
 
         current = @provider_config.merge(current) if !@provider_config.empty?
         if current
-          @provider_config = current[:provider_config]
+          @provider_config = current
         else
           @provider_config = {}
         end
