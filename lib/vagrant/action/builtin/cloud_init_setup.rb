@@ -1,4 +1,4 @@
-require 'mime/types'
+require 'vagrant/util/mime'
 require 'tmpdir'
 
 module Vagrant
@@ -32,7 +32,7 @@ module Vagrant
         # @param [Vagrant::Machine] machine
         # @param [Vagrant::Environment] env
         # @param [Array<#VagrantPlugins::Kernel_V2::VagrantConfigCloudInit>] user_data_cfgs
-        # @return [MIME::Text] user_data
+        # @return [Vagrant::Util::Mime::MultiPart] user_data
         def setup_user_data(machine, env, user_data_cfgs)
           machine.ui.info(I18n.t("vagrant.actions.vm.cloud_init_user_data_setup"))
 
@@ -47,7 +47,7 @@ module Vagrant
         #
         # @param [Vagrant::Machine] machine
         # @param [VagrantPlugins::Kernel_V2::VagrantConfigCloudInit] cfg
-        # @return [MIME::Text] text_msg
+        # @return [Vagrant::Util::Mime::Entity] text_msg
         def read_text_cfg(machine, cfg)
           if cfg.path
             text = File.read(Pathname.new(cfg.path).expand_path(machine.env.root_path))
@@ -55,14 +55,8 @@ module Vagrant
             text = cfg.inline
           end
 
-          # Note: content_type must remove the leading `text/` because
-          # the MIME::Text initializer hardcodes `text/` already to the type.
-          # We assume content_type is correct due to the validation step
-          # in VagrantConfigCloudInit.
-          content_type = cfg.content_type.split('/', 2).last
-          text_msg = MIME::Text.new(text, content_type)
+          text_msg = Vagrant::Util::Mime::Entity.new(text, cfg.content_type)
           text_msg.disposition = "attachment; filename=\"#{File.basename(cfg.content_disposition_filename).gsub('"', '\"')}\"" if cfg.content_disposition_filename
-
           text_msg
         end
 
@@ -70,11 +64,11 @@ module Vagrant
         # message
         #
         # @param [Vagrant::Machine] machine
-        # @param [Array<MIME::Text>] text_msg - One or more text configs
-        # @return [MIME::Multipart::Mixed] msg
+        # @param [Array<Vagrant::Util::Mime::Entity>] text_msg - One or more text configs
+        # @return [Vagrant::Util::Mime::Multipart] msg
         def generate_cfg_msg(machine, text_cfgs)
-          msg = MIME::Multipart::Mixed.new
-          msg.headers.set("MIME-Version", "1.0")
+          msg = Vagrant::Util::Mime::Multipart.new
+          msg.headers["MIME-Version"] = "1.0"
 
           text_cfgs.each do |c|
             msg.add(c)
@@ -88,7 +82,7 @@ module Vagrant
         # written to an iso
         #
         # @param [Vagrant::Machine] machine
-        # @param [MIME::Multipart::Mixed] user_data
+        # @param [Vagrant::Util::Mime::Multipart] user_data
         # @param [Hash] meta_data
         def write_cfg_iso(machine, env, user_data, meta_data)
           iso_path = nil

@@ -1,4 +1,5 @@
 require File.expand_path("../../../../base", __FILE__)
+require "vagrant/util/mime"
 
 describe Vagrant::Action::Builtin::CloudInitSetup do
   let(:app) { lambda { |env| } }
@@ -28,8 +29,8 @@ describe Vagrant::Action::Builtin::CloudInitSetup do
            inline: "#ps1_sysnative\n", path: nil) }
   let(:cloud_init_configs) { [cfg, cfg_inline] }
 
-  let(:text_cfgs) { [MIME::Text.new("data: true", "cloud-config"),
-                     MIME::Text.new("data: false", "cloud-config") ] }
+  let(:text_cfgs) { [Vagrant::Util::Mime::Entity.new("data: true", "text/cloud-config"),
+                     Vagrant::Util::Mime::Entity.new("data: false", "text/cloud-config") ] }
 
   let(:meta_data) { { "instance-id" => "i-123456789" } }
 
@@ -78,14 +79,14 @@ describe Vagrant::Action::Builtin::CloudInitSetup do
       mime_text_part = double("mime_text_part")
       expect(mime_text_part).not_to receive(:disposition=)
       allow(File).to receive(:read).and_return(cfg_text)
-      expect(MIME::Text).to receive(:new).with(cfg_text, "cloud-config").and_return(mime_text_part)
+      expect(Vagrant::Util::Mime::Entity).to receive(:new).with(cfg_text, "text/cloud-config").and_return(mime_text_part)
       subject.read_text_cfg(machine, cfg)
     end
 
     it "takes a text cfg inline string and saves it as a MIME text message" do
       mime_text_part = double("mime_text_part")
       expect(mime_text_part).not_to receive(:disposition=)
-      expect(MIME::Text).to receive(:new).with("data: true", "cloud-config").and_return(mime_text_part)
+      expect(Vagrant::Util::Mime::Entity).to receive(:new).with("data: true", "text/cloud-config").and_return(mime_text_part)
       subject.read_text_cfg(machine, cfg_inline)
     end
 
@@ -100,12 +101,12 @@ describe Vagrant::Action::Builtin::CloudInitSetup do
   describe "#generate_cfg_msg" do
     it "creates a miltipart mixed message of combined configs" do
       message = subject.generate_cfg_msg(machine, text_cfgs)
-      expect(message).to be_a(MIME::Multipart::Mixed)
+      expect(message).to be_a(Vagrant::Util::Mime::Multipart)
     end
 
     it "sets a MIME-Version header" do
       message = subject.generate_cfg_msg(machine, text_cfgs)
-      expect(message.headers.get("MIME-Version")).to eq("1.0")
+      expect(message.headers["MIME-Version"]).to eq("1.0")
     end
   end
 
