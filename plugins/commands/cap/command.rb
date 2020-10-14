@@ -27,6 +27,10 @@ module VagrantPlugins
           o.on("--check", "Only checks for a capability, does not execute") do |f|
             options[:check] = f
           end
+
+          o.on("-t", "--target=TARGET", "Target guest to run against (if applicable)") do |t|
+            options[:target] = t
+          end
         end
 
         # Parse the options
@@ -45,7 +49,7 @@ module VagrantPlugins
         if type == :host
           cap_host = @env.host
         else
-          with_target_vms([]) do |vm|
+          with_target_vms(options[:target] || []) do |vm|
             cap_host = case type
                        when :provider
                          vm.provider
