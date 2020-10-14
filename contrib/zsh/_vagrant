@@ -1,4 +1,3 @@
-
 #compdef _vagrant vagrant
 
 # ZSH completion for Vagrant
@@ -26,6 +25,7 @@ __plugin_list ()
 function _vagrant () {
 
   local -a sub_commands && sub_commands=(
+    'autocomplete:manages autocomplete installation on host'
     'box:manages boxes: installation, removal, etc.'
     'cloud:manages everything related to Vagrant Cloud'
     'destroy:stops and deletes all traces of the vagrant machine'
@@ -316,6 +316,8 @@ case $state in
 
   (options)
     case $line[1] in
+  autocomplete)
+    __vagrant-autocomplete ;;
   box)
     __vagrant-box ;;
   cloud)
