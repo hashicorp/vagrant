@@ -63,6 +63,14 @@ describe VagrantPlugins::ProviderVirtualBox::Provider do
       expect { subject.usable?(true) }.
         to raise_error(Vagrant::Errors::VirtualBoxInstallIncomplete)
     end
+
+    it "raises an exception if VBoxManage is not found" do
+      allow(VagrantPlugins::ProviderVirtualBox::Driver::Meta).to receive(:new).
+        and_raise(Vagrant::Errors::VBoxManageNotFoundError)
+
+      expect { subject.usable?(true) }.
+        to raise_error(Vagrant::Errors::VBoxManageNotFoundError)
+    end
   end
 
   describe "#driver" do
