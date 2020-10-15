@@ -7,7 +7,7 @@ on:
 
 jobs:
   setup-packet:
-    if: github.repository == 'hashicorp/vagrant-blackbox'
+    if: github.repository == 'hashicorp/vagrant-acceptance'
     runs-on: self-hosted
     name: Build Packet Instance
     steps:
@@ -18,7 +18,7 @@ jobs:
         working-directory: ${{github.workspace}}
 
   setup-hosts:
-    if: github.repository == 'hashicorp/vagrant-blackbox'
+    if: github.repository == 'hashicorp/vagrant-acceptance'
     runs-on: self-hosted
     name: Vagrant-Spec Start Hosts
     needs: setup-packet
@@ -40,7 +40,7 @@ jobs:
           VAGRANT_SPEC_PROVIDERS: ${{matrix.providers}}
 
   spec-tests:
-    if: github.repository == 'hashicorp/vagrant-blackbox'
+    if: github.repository == 'hashicorp/vagrant-acceptance'
     runs-on: self-hosted
     name: Vagrant-Spec Tests
     needs: setup-hosts
@@ -61,7 +61,7 @@ jobs:
           VAGRANT_DOCKER_IMAGES: ${{matrix.docker_images}}
 
   cleanup:
-    if: github.repository == 'hashicorp/vagrant-blackbox'
+    if: github.repository == 'hashicorp/vagrant-acceptance'
     runs-on: self-hosted
     name: Cleanup Post Vagrant-Spec Tests
     needs: spec-tests
