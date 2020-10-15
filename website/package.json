@@ -11,7 +11,7 @@
     "@hashicorp/react-docs-page": "4.0.0",
     "@hashicorp/react-docs-sidenav": "3.2.5",
     "@hashicorp/react-global-styles": "4.4.0",
-    "@hashicorp/react-hashi-stack-menu": "^1.0.6",
+    "@hashicorp/react-hashi-stack-menu": "^1.0.7",
     "@hashicorp/react-head": "1.1.1",
     "@hashicorp/react-image": "2.0.1",
     "@hashicorp/react-product-downloader": "4.0.2",
