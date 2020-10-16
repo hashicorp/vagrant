@@ -267,10 +267,12 @@ module Vagrant
           if !env[:triggers].find(env[:action_name], :before, machine_name, :hook).empty?
             hook.prepend(Vagrant::Action::Builtin::Trigger,
               env[:action_name], env[:triggers], :before, :hook)
+            env[:action_hooks_already_ran] = false
           end
           if !env[:triggers].find(env[:action_name], :after, machine_name, :hook).empty?
             hook.append(Vagrant::Action::Builtin::Trigger,
               env[:action_name], env[:triggers], :after, :hook)
+            env[:action_hooks_already_ran] = false
           end
         end
 
