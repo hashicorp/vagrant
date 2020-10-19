@@ -31,7 +31,7 @@ function CloudLayoutWrapper(pageMeta) {
             disableFilter: true,
             order,
           }}
-          resourceURL={`https://github.com/hashicorp/vagrant/blob/master/website/pages/${pageMeta.__resourcePath}`}
+          resourceURL={`https://github.com/hashicorp/vagrant/blob/main/website/pages/${pageMeta.__resourcePath}`}
         >
           <SearchProvider>
             <SearchBar />
