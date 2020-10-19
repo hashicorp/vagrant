@@ -27,7 +27,7 @@ function VMWareLayoutWrapper(pageMeta) {
             data,
             order,
           }}
-          resourceURL={`https://github.com/hashicorp/vagrant/blob/master/website/pages/${pageMeta.__resourcePath}`}
+          resourceURL={`https://github.com/hashicorp/vagrant/blob/main/website/pages/${pageMeta.__resourcePath}`}
         />
       </MDXProvider>
     )

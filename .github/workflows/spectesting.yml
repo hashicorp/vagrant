@@ -1,7 +1,7 @@
 on:
   workflow_dispatch:
     branches:
-      - 'master'
+      - 'main'
   repository_dispatch:
     types: [prerelease]
 

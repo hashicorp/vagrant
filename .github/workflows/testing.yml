@@ -1,7 +1,7 @@
 on:
   push:
     branches:
-      - master
+      - main
       - 'test-*'
     paths:
       - 'bin/**'
@@ -10,7 +10,7 @@ on:
       - 'test/**'
   pull_request:
     branches:
-      - master
+      - main
     paths:
       - 'bin/**'
       - 'lib/**'

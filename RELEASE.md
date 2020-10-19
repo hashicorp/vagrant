@@ -22,7 +22,7 @@ targeted at Vagrant core members who have the ability to cut a release.
   to the latest version, commit, and push.
 
 1. Publish the webiste by deleting the `stable-website` branch, recreate the branch,
-  and force push. From the `master` branch, run:
+  and force push. From the `main` branch, run:
 
    ```
    $ git branch -D stable-website

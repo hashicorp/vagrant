@@ -12,7 +12,7 @@ To ensure that the Vagrant community remains an open and safe space for everyone
 
 ### Reporting an Issue
 
-**Tip:** We have provided a [GitHub issue template](https://github.com/hashicorp/vagrant/blob/master/.github/ISSUE_TEMPLATE/bug-report.md). By respecting the proposed format and filling all the relevant sections, you'll strongly help the Vagrant collaborators to handle your request the best possible way.
+**Tip:** We have provided a [GitHub issue template](https://github.com/hashicorp/vagrant/blob/main/.github/ISSUE_TEMPLATE/bug-report.md). By respecting the proposed format and filling all the relevant sections, you'll strongly help the Vagrant collaborators to handle your request the best possible way.
 
 ### Issue Lifecycle
 
@@ -70,9 +70,9 @@ You can now run Vagrant by running `bundle exec vagrant` from inside that direct
 Once you're confident that your upcoming changes will be accepted:
 
 * In your forked repository, create a topic branch for your upcoming patch.
-  * Usually this is based on the master branch.
-  * Checkout a new branch based on master; `git checkout -b my-contrib master`
-    Please avoid working directly on the `master` branch.
+  * Usually this is based on the main branch.
+  * Checkout a new branch based on main; `git checkout -b my-contrib main`
+    Please avoid working directly on the `main` branch.
 * Make focused commits of logical units and describe them properly.
 * Avoid re-formatting of the existing code.
 * Check for unnecessary whitespace with `git diff --check` before committing.
@@ -125,7 +125,7 @@ $ rake acceptance:run COMPONENTS="cli"
 ### Submit Changes
 
 * Push your changes to a topic branch in your fork of the repository.
-* Open a PR to the original repository and choose the right original branch you want to patch (master for most cases).
+* Open a PR to the original repository and choose the right original branch you want to patch (main for most cases).
 * If not done in commit messages (which you really should do) please reference and update your issue with the code changes.
 * Even if you have write access to the repository, do not directly push or merge your own pull requests. Let another team member review your PR and approve.
 

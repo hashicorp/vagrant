@@ -16,5 +16,5 @@ wrap gem build *.gemspec \
 g=(vagrant*.gem)
 gem=$(printf "%s" "${g}")
 
-wrap aws s3 cp "${gem}" "${ASSETS_PRIVATE_BUCKET}/${repository}/vagrant-master.gem" \
-     "Failed to store Vagrant RubyGem master build"
+wrap aws s3 cp "${gem}" "${ASSETS_PRIVATE_BUCKET}/${repository}/vagrant-main.gem" \
+     "Failed to store Vagrant RubyGem main build"
