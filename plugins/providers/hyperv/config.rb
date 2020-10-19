@@ -50,6 +50,8 @@ module VagrantPlugins
       attr_accessor :vm_integration_services
       # @return [Boolean] Enable Enhanced session mode
       attr_accessor :enable_enhanced_session_mode
+      # @return [Boolean] Enable Trusted Platform Module
+      attr_accessor :enable_trusted_platform_module
 
       def initialize
         @ip_address_timeout = UNSET_VALUE
@@ -68,6 +70,7 @@ module VagrantPlugins
         @enable_checkpoints = UNSET_VALUE
         @vm_integration_services = {}
         @enable_enhanced_session_mode = UNSET_VALUE
+        @enable_trusted_platform_module = UNSET_VALUE
       end
 
       def finalize!
@@ -107,6 +110,8 @@ module VagrantPlugins
         @enable_checkpoints ||= @enable_automatic_checkpoints
 
         @enable_enhanced_session_mode = false if @enable_enhanced_session_mode == UNSET_VALUE
+
+        @enable_trusted_platform_module = false if @enable_trusted_platform_module == UNSET_VALUE
       end
 
       def validate(machine)

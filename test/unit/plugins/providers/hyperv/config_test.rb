@@ -255,4 +255,17 @@ describe VagrantPlugins::HyperV::Config do
       expect(subject.enable_enhanced_session_mode).to eq(true)
     end
   end
+
+  describe "#enable_trusted_platform_module" do
+    it "is false by default" do
+      subject.finalize!
+      expect(subject.enable_trusted_platform_module).to eq(false)
+    end
+
+    it "can be set" do
+      subject.enable_trusted_platform_module = true
+      subject.finalize!
+      expect(subject.enable_trusted_platform_module).to eq(true)
+    end
+  end
 end

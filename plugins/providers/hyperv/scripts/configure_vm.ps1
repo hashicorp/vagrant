@@ -20,7 +20,9 @@ param(
     [parameter (Mandatory=$false)]
     [switch] $EnableCheckpoints,
     [parameter (Mandatory=$false)]
-    [switch] $EnableAutomaticCheckpoints
+    [switch] $EnableAutomaticCheckpoints,
+    [parameter (Mandatory=$false)]
+    [switch] $EnableTrustedPlatformModule
 )
 
 $ErrorActionPreference = "Stop"
@@ -124,4 +126,18 @@ try {
 } catch {
     Write-ErrorMessage "Failed to ${AutoAction} automatic checkpoints on VM: ${PSItem}"
     exit 1
+}
+
+if($VM.Generation -gt 1) {
+    try {
+        if($EnableTrustedPlatformModule) {
+            Hyper-V\Enable-VMTPM -VM $VM
+            $tpmAction = "enable"
+        } else {
+            Hyper-V\Disable-VMTPM -VM $VM
+            $tpmAction = "disable"
+        }
+    } catch {
+        Write-ErrorMessage "Failed to ${tpmAction} Trusted Platform Module on VM: ${PSItem}"
+    }
 }
