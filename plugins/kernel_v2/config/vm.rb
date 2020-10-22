@@ -277,6 +277,11 @@ module VagrantPlugins
 
         options ||= {}
 
+        if options[:nfs]
+          options[:type] = :nfs
+          options.delete(:nfs)
+        end
+
         if options.has_key?(:name)
           synced_folder_name = options.delete(:name)
         else
@@ -654,10 +659,6 @@ module VagrantPlugins
 
         current_dir_shared = false
         @__synced_folders.each do |id, options|
-          if options[:nfs]
-            options[:type] = :nfs
-          end
-
           if options[:hostpath]  == '.'
             current_dir_shared = true
           end
