@@ -54,7 +54,7 @@ module Vagrant
       protected
 
       def build_options
-        options = [@destination, "--request", @request_method, "--upload-file", @file]
+        options = [@destination, "--request", @request_method, "--upload-file", @file, "--fail"]
         return options
       end
 
