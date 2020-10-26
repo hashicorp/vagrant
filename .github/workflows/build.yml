@@ -36,3 +36,4 @@ jobs:
           HASHIBOT_TOKEN: ${{ secrets.HASHIBOT_TOKEN }}
           HASHIBOT_USERNAME: ${{ secrets.HASHIBOT_USERNAME }}
           SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+          VAGRANT_CI_LOADER_BUCKET: ${{ secrets.VAGRANT_CI_LOADER_BUCKET }}
