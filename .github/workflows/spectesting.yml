@@ -38,6 +38,7 @@ jobs:
           VAGRANT_GUEST_BOXES: ${{matrix.guest_os}}
           VAGRANT_PRERELEASE_VERSION: ${{ github.event.client_payload.prerelease_version }}
           VAGRANT_SPEC_PROVIDERS: ${{matrix.providers}}
+          VAGRANT_CI_LOADER_BUCKET: ${{ secrets.VAGRANT_CI_LOADER_BUCKET }}
 
   spec-tests:
     if: github.repository == 'hashicorp/vagrant-acceptance'
@@ -59,6 +60,7 @@ jobs:
           VAGRANT_GUEST_BOXES: ${{matrix.guest_os}}
           VAGRANT_SPEC_PROVIDERS: ${{matrix.providers}}
           VAGRANT_DOCKER_IMAGES: ${{matrix.docker_images}}
+          VAGRANT_CI_LOADER_BUCKET: ${{ secrets.VAGRANT_CI_LOADER_BUCKET }}
 
   cleanup:
     if: github.repository == 'hashicorp/vagrant-acceptance'
