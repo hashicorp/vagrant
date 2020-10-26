@@ -22,6 +22,8 @@ jobs:
         run: ./.ci/sync.sh
         working-directory: ${{github.workspace}}
         env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           HASHIBOT_TOKEN: ${{ secrets.HASHIBOT_TOKEN }}
           HASHIBOT_USERNAME: ${{ secrets.HASHIBOT_USERNAME }}
           SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
