@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-. "${root}/.ci/common.sh"
+. "${root}/.ci/load-ci.sh"
 
 export DEBIAN_FRONTEND="noninteractive"
 export PATH="${PATH}:${root}/.ci"
