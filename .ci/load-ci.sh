@@ -37,12 +37,12 @@ if [ ! -e "${ldir}/.complete" ]; then
 
     # Mark that we have pulled files
     touch .complete || echo "WARNING: Failed to mark CI files as fetched"
-fi
 
-# Time to load and configure
-if ! popd; then
-    echo "⁉ ERROR: Unexpected error, failed to relocate to expected directory ⁉"
-    exit 1
+    # Time to load and configure
+    if ! popd; then
+        echo "⁉ ERROR: Unexpected error, failed to relocate to expected directory ⁉"
+        exit 1
+    fi
 fi
 
 source "${ldir}/common.sh"
