@@ -1,4 +1,3 @@
-require "rest_client"
 require "vagrant_cloud"
 require "vagrant/util/downloader"
 require "vagrant/util/presence"
