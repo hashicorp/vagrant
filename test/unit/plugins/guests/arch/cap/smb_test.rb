@@ -25,7 +25,7 @@ describe "VagrantPlugins::GuestArch::Cap::SMB" do
       described_class.smb_install(machine)
 
       expect(comm.received_commands[1]).to match(/pacman -Sy --noconfirm/)
-      expect(comm.received_commands[1]).to match(/pacman -S --noconfirm cifs-utils/)
+      expect(comm.received_commands[1]).to match(/pacman -S --noconfirm smbclient cifs-utils/)
     end
 
     it "does not install smb when /usr/bin/mount.cifs exists" do
