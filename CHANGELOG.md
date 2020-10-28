@@ -22,6 +22,7 @@ BUG FIXES:
 - guest/linux: Persist SMB mounts [GH-11846]
 - guest/debian: Set hostname in /etc/hosts as first step to changing hostname [GH-11885]
 - guest/rhel: Check for existence of network files before trying to update them [GH-11877]
+- guest/suse: Don't use hostnamectl to set hostname if not available on system [GH-11996]
 - tests: Remove rsync dependency from tests [GH-11889]
 
 ## 2.2.10 (August 24, 2020)
