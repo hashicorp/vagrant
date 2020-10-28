@@ -54,7 +54,7 @@ module VagrantPlugins
               access_token: access_token
             )
             with_box(account: account, org: org, box: box_name) do |box|
-              if box && options[:versions]
+              if box && !Array(options[:versions]).empty?
                 box = box.versions.find_all{ |v| options[:versions].include?(v.version) }
               else
                 box = [box]
@@ -63,6 +63,7 @@ module VagrantPlugins
               if !box.empty?
                 box.each do |b|
                   format_box_results(b, @env)
+                  @env.ui.output("")
                 end
                 0
               else
