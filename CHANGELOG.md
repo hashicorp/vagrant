@@ -17,6 +17,7 @@ BUG FIXES:
 - config/disks: Transform provider specific config to common form [GH-11939] 
 - config/vm: Override synced-folder `:nfs` option [GH-11988]
 - contrib/zsh: Remove newline from beginning of completion script [GH-11963]
+- guests/arch: Install smbclient when setting up arch smb [GH-11923] 
 - guest/linux: Check for /etc/fstab before trying to modify [GH-11897]
 - guest/linux: Create an /etc/fstab if does not exist [GH-11909]
 - guest/linux: Persist SMB mounts [GH-11846]
