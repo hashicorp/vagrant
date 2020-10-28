@@ -1,7 +1,6 @@
 require 'open3'
 
-HEAD = """
-#compdef _vagrant vagrant
+HEAD = """#compdef _vagrant vagrant
 
 # ZSH completion for Vagrant
 #
