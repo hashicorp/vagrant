@@ -93,7 +93,7 @@ describe Vagrant::Action::Builtin::CloudInitSetup do
     it "takes a text cfg inline string with content_disposition_filename and saves it as a MIME text message" do
       mime_text_part = double("mime_text_part")
       expect(mime_text_part).to receive(:disposition=).with("attachment; filename=\"test.ps1\"")
-      expect(MIME::Text).to receive(:new).with("#ps1_sysnative\n", "x-shellscript").and_return(mime_text_part)
+      expect(Vagrant::Util::Mime::Entity).to receive(:new).with("#ps1_sysnative\n", "text/x-shellscript").and_return(mime_text_part)
       subject.read_text_cfg(machine, cfg_with_content_disposition_filename_inline)
     end
   end

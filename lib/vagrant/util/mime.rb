@@ -60,6 +60,9 @@ module Vagrant
         # @return [String] type of the entity content
         attr_reader :content_type
 
+        # @return [String] content disposition
+        attr_accessor :disposition
+
         # @param [String] entity content
         # @param [String] type of the entity content
         def initialize(content, content_type)
@@ -76,8 +79,11 @@ module Vagrant
         # @return [String] mime data
         def to_s
           output_string = "Content-ID: <#{@content_id}>\n"
-          output_string += "Content-Type: #{@content_type}\n\n"
-          output_string += content
+          output_string += "Content-Type: #{@content_type}\n"
+          if disposition
+            output_string += "Content-Disposition: #{@disposition}\n"
+          end
+          output_string += "\n#{content}"
           output_string
         end
       end
