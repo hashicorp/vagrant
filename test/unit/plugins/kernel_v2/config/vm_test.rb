@@ -710,6 +710,19 @@ describe VagrantPlugins::Kernel_V2::VMConfig do
       expect(sf["/vagrant"][:foo]).to eq(:bar)
     end
 
+    # This is a little bit of a special case since nfs can be specified
+    # as `type: "nfs"` or `nfs: true`
+    it "properly overrides nfs" do
+      subject.synced_folder(".", "/vagrant", nfs: true)
+      subject.synced_folder(".", "/vagrant", type: "rsync")
+      subject.finalize!
+      sf = subject.synced_folders
+      expect(sf.length).to eq(1)
+      expect(sf).to have_key("/vagrant")
+      expect(sf["/vagrant"][:type]).to be(:rsync)
+      expect(sf["/vagrant"][:nfs]).to eq(nil)
+    end
+
     it "is not an error if guest path is empty but name is not" do
       subject.synced_folder(".", "", name: "my-vagrant-folder")
       subject.finalize!
