@@ -29,13 +29,13 @@ module VagrantPlugins
               comm.sudo(cmd)
             end
           else
-           if !comm.test("hostname -f | grep '^#{name}$'", sudo: false)
-            cmd = <<-EOH.gsub(/^ {14}/, "")
-            echo #{name} > /etc/HOSTNAME
-            hostname '#{basename}'
-            EOH
-            comm.sudo(cmd)
-           end
+            if !comm.test("hostname -f | grep '^#{name}$'", sudo: false)
+              cmd = <<-EOH.gsub(/^ {14}/, "")
+              echo #{name} > /etc/HOSTNAME
+              hostname '#{basename}'
+              EOH
+              comm.sudo(cmd)
+            end
           end
 
         end
