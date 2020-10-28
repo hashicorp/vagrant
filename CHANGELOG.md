@@ -8,6 +8,7 @@ IMPROVEMENTS:
 - command/cap: Add ability to specify target [GH-11965]
 - core:  Switch from unmaintained gem erubis to erubi [GH-11893]
 - core: Download Vagrant boxes using auth headers [GH-11835]
+- core: Remove dependency on mime gem [GH-11857]
 - tests: Add integration tests for Docker provider [GH-11907]
 
 BUG FIXES:
