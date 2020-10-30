@@ -5,20 +5,19 @@ module VagrantPlugins
     module ProviderCommand
       module Command
         class Update < Vagrant.plugin("2", :command)
+          include Util
+
           def execute
             options = {}
 
             opts = OptionParser.new do |o|
-              o.banner = "Usage: vagrant cloud provider update [options] organization/box-name provider-name version url"
+              o.banner = "Usage: vagrant cloud provider update [options] organization/box-name provider-name version [url]"
               o.separator ""
               o.separator "Updates a provider entry on Vagrant Cloud"
               o.separator ""
               o.separator "Options:"
               o.separator ""
 
-              o.on("-u", "--username USERNAME_OR_EMAIL", String, "Vagrant Cloud username or email address") do |u|
-                options[:username] = u
-              end
               o.on("-c", "--checksum CHECKSUM_VALUE", String, "Checksum of the box for this provider. --checksum-type option is required.") do |c|
                 options[:checksum] = c
               end
@@ -30,48 +29,58 @@ module VagrantPlugins
             # Parse the options
             argv = parse_options(opts)
             return if !argv
-            if argv.empty? || argv.length > 4
+            if argv.count < 3 || argv.count > 4
               raise Vagrant::Errors::CLIInvalidUsage,
                 help: opts.help.chomp
             end
 
-            @client = VagrantPlugins::CloudCommand::Util.client_login(@env, options[:username])
+            @client = client_login(@env)
 
-            box = argv.first.split('/', 2)
-            org = box[0]
-            box_name = box[1]
+            org, box_name = argv.first.split('/', 2)
             provider_name = argv[1]
             version = argv[2]
             url = argv[3]
 
-            update_provider(org, box_name, provider_name, version, url, @client.token, options)
+            update_provider(org, box_name, version, provider_name, url, @client.token, options)
           end
 
-          def update_provider(org, box_name, provider_name, version, url, access_token, options)
+          # Update a provider for the box version
+          #
+          # @param [String] org Organization name
+          # @param [String] box Box name
+          # @param [String] version Box version
+          # @param [String] provider Provider name
+          # @param [String] access_token User Vagrant Cloud access token
+          # @param [Hash] options
+          # @option options [String] :checksum Checksum of the box asset
+          # @option options [String] :checksum_type Type of the checksum
+          # @return [Integer]
+          def update_provider(org, box, version, provider, url, access_token, options)
             if !url
               @env.ui.warn(I18n.t("cloud_command.upload.no_url"))
             end
+            account = VagrantCloud::Account.new(
+              custom_server: api_server_url,
+              access_token: access_token
+            )
 
-            org = options[:username] if options[:username]
+            with_provider(account: account, org: org, box: box, version: version, provider: provider) do |p|
+              p.checksum = options[:checksum] if options.key?(:checksum)
+              p.checksum_type = options[:checksum_type] if options.key?(:checksum_type)
+              p.url = url if !url.nil?
+              p.save
 
-            server_url = VagrantPlugins::CloudCommand::Util.api_server_url
-            account = VagrantPlugins::CloudCommand::Util.account(org, access_token, server_url)
-            box = VagrantCloud::Box.new(account, box_name, nil, nil, nil, access_token)
-            cloud_version = VagrantCloud::Version.new(box, version, nil, nil, access_token)
-            provider = VagrantCloud::Provider.new(cloud_version, provider_name, nil, url, org, box_name,
-              access_token, nil, options[:checksum], options[:checksum_type])
+              @env.ui.success(I18n.t("cloud_command.provider.update_success",
+                provider: provider, org: org, box_name: box, version: version))
 
-            begin
-              success = provider.update
-              @env.ui.success(I18n.t("cloud_command.provider.update_success", provider:provider_name, org: org, box_name: box_name, version: version))
-              success = success.delete_if{|_, v|v.nil?}
-              VagrantPlugins::CloudCommand::Util.format_box_results(success, @env)
-              return 0
-            rescue VagrantCloud::ClientError => e
-              @env.ui.error(I18n.t("cloud_command.errors.provider.update_fail", provider:provider_name, org: org, box_name: box_name, version: version))
-              @env.ui.error(e)
-              return 1
+              format_box_results(p, @env)
+              0
             end
+          rescue VagrantCloud::Error => e
+            @env.ui.error(I18n.t("cloud_command.errors.provider.update_fail",
+              provider: provider, org: org, box_name: box, version: version))
+            @env.ui.error(e.message)
+            1
           end
         end
       end

@@ -12,6 +12,11 @@ module VagrantPlugins
       DESC
 
       command(:cloud) do
+        # Set this to match Vagant logging level so we get
+        # desired request/response information within the
+        # logger output
+        ENV["VAGRANT_CLOUD_LOG"] = Vagrant.log_level
+
         require_relative "root"
         init!
         Command::Root

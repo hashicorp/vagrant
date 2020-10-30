@@ -4,6 +4,8 @@ module VagrantPlugins
   module CloudCommand
     module Command
       class List < Vagrant.plugin("2", :command)
+        include Util
+
         def execute
           options = {}
 
@@ -27,9 +29,6 @@ module VagrantPlugins
             o.on("-s", "--sort-by", "Column to sort list (created, downloads, updated)") do |s|
               options[:check] = s
             end
-            o.on("-u", "--username USERNAME_OR_EMAIL", String, "Vagrant Cloud username or email address") do |t|
-              options[:username] = u
-            end
           end
 
           # Parse the options
@@ -40,7 +39,7 @@ module VagrantPlugins
               help: opts.help.chomp
           end
 
-          @client = VagrantPlugins::CloudCommand::Util.client_login(@env, options[:username])
+          @client = client_login(@env)
 
           # TODO: This endpoint is not implemented yet
 

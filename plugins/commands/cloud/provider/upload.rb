@@ -6,8 +6,10 @@ module VagrantPlugins
     module ProviderCommand
       module Command
         class Upload < Vagrant.plugin("2", :command)
+          include Util
+
           def execute
-            options = {}
+            options = {direct: true}
 
             opts = OptionParser.new do |o|
               o.banner = "Usage: vagrant cloud provider upload [options] organization/box-name provider-name version box-file"
@@ -16,57 +18,65 @@ module VagrantPlugins
               o.separator ""
               o.separator "Options:"
               o.separator ""
-
-              o.on("-u", "--username USERNAME_OR_EMAIL", String, "Vagrant Cloud username or email address") do |u|
-                options[:username] = u
+              o.on("-D", "--[no-]direct", "Upload asset directly to backend storage") do |d|
+                options[:direct] = d
               end
             end
 
             # Parse the options
             argv = parse_options(opts)
             return if !argv
-            if argv.empty? || argv.length > 4
+            if argv.count != 4
               raise Vagrant::Errors::CLIInvalidUsage,
                 help: opts.help.chomp
             end
 
-            @client = VagrantPlugins::CloudCommand::Util.client_login(@env, options[:username])
+            @client = client_login(@env)
 
-            box = argv.first.split('/', 2)
-            org = box[0]
-            box_name = box[1]
+            org, box_name = argv.first.split('/', 2)
             provider_name = argv[1]
             version = argv[2]
-            file = argv[3] # path expand
+            file = File.expand_path(argv[3])
 
-            upload_provider(org, box_name, provider_name, version, file, @client.token, options)
+            upload_provider(org, box_name, version, provider_name, file, @client.token, options)
           end
 
-          def upload_provider(org, box_name, provider_name, version, file, access_token, options)
-            org = options[:username] if options[:username]
+          # Upload an asset for a box version provider
+          #
+          # @param [String] org Organization name
+          # @param [String] box Box name
+          # @param [String] version Box version
+          # @param [String] provider Provider name
+          # @param [String] file Path to asset
+          # @param [String] access_token User Vagrant Cloud access token
+          # @param [Hash] options
+          # @option options [Boolean] :direct Upload directly to backend storage
+          # @return [Integer]
+          def upload_provider(org, box, version, provider, file, access_token, options)
+            account = VagrantCloud::Account.new(
+              custom_server: api_server_url,
+              access_token: access_token
+            )
 
-            server_url = VagrantPlugins::CloudCommand::Util.api_server_url
-            account = VagrantPlugins::CloudCommand::Util.account(org, access_token, server_url)
-            box = VagrantCloud::Box.new(account, box_name, nil, nil, nil, access_token)
-            cloud_version = VagrantCloud::Version.new(box, version, nil, nil, access_token)
-            provider = VagrantCloud::Provider.new(cloud_version, provider_name, nil, nil, org, box_name, access_token)
-
-            ul = Vagrant::Util::Uploader.new(provider.upload_url, file, ui: @env.ui)
-            ui = Vagrant::UI::Prefixed.new(@env.ui, "cloud")
-
-            begin
-              ui.output(I18n.t("cloud_command.provider.upload", org: org, box_name: box_name, version: version, provider: provider_name))
-              ui.info("Upload File: #{file}")
-
-              ul.upload!
-
-              ui.success("Successfully uploaded box '#{org}/#{box_name}' (v#{version}) for '#{provider_name}'")
-              return 0
-            rescue Vagrant::Errors::UploaderError, VagrantCloud::ClientError => e
-              @env.ui.error(I18n.t("cloud_command.errors.provider.upload_fail", provider: provider_name, org: org, box_name: box_name, version: version))
-              @env.ui.error(e)
-              return 1
+            with_provider(account: account, org: org, box: box, version: version, provider: provider) do |p|
+              p.upload(direct: options[:direct]) do |upload_url|
+                m = options[:direct] ? :put : :put
+                uploader = Vagrant::Util::Uploader.new(upload_url, file, ui: @env.ui, method: m)
+                ui = Vagrant::UI::Prefixed.new(@env.ui, "cloud")
+                ui.output(I18n.t("cloud_command.provider.upload",
+                  org: org, box_name: box, version: version, provider: provider))
+                ui.info("Upload File: #{file}")
+                uploader.upload!
+                ui.success(I18n.t("cloud_command.provider.upload_success",
+                  org: org, box_name: box, version: version, provider: provider))
+              end
+              0
             end
+          rescue Vagrant::Errors::UploaderError, VagrantCloud::Error => e
+            @env.ui.error(I18n.t("cloud_command.errors.provider.upload_fail",
+              provider: provider, org: org, box_name: box, version: version))
+            @env.ui.error(e.message)
+            1
           end
         end
       end

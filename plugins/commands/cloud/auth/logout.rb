@@ -9,15 +9,9 @@ module VagrantPlugins
             options = {}
 
             opts = OptionParser.new do |o|
-              o.banner = "Usage: vagrant cloud auth logout [options]"
+              o.banner = "Usage: vagrant cloud auth logout"
               o.separator ""
               o.separator "Log out of Vagrant Cloud"
-              o.separator ""
-              o.separator "Options:"
-              o.separator ""
-              o.on("-u", "--username USERNAME_OR_EMAIL", String, "Vagrant Cloud username or email address") do |l|
-                options[:login] = l
-              end
             end
 
             # Parse the options
@@ -28,9 +22,7 @@ module VagrantPlugins
                 help: opts.help.chomp
             end
 
-            # Initializes client and deletes token on disk
-            @client = VagrantPlugins::CloudCommand::Util.client_login(@env, options[:username])
-
+            @client = Client.new(@env)
             @client.clear_token
             @env.ui.success(I18n.t("cloud_command.logged_out"))
             return 0

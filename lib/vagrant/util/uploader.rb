@@ -13,9 +13,11 @@ module Vagrant
     # a hand-rolled Ruby library, so we defer to its expertise.
     class Uploader
 
-      # @param [String] destination - valid URL to upload file to
-      # @param [String] file - location of file to upload on disk
-      # @param [Hash]   options
+      # @param [String] destination Valid URL to upload file to
+      # @param [String] file Location of file to upload on disk
+      # @param [Hash] options
+      # @option options [Vagrant::UI] :ui UI interface for output
+      # @option options [String, Symbol] :method Request method for upload
       def initialize(destination, file, options=nil)
         options ||= {}
         @logger         = Log4r::Logger.new("vagrant::util::uploader")
@@ -27,6 +29,7 @@ module Vagrant
         if !@request_method
           @request_method = "PUT"
         end
+        @request_method = @request_method.to_s.upcase
       end
 
       def upload!
@@ -51,7 +54,7 @@ module Vagrant
       protected
 
       def build_options
-        options = [@destination, "--request", @request_method, "--upload-file", @file]
+        options = [@destination, "--request", @request_method, "--upload-file", @file, "--fail"]
         return options
       end
 
