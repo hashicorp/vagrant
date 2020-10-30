@@ -3,7 +3,7 @@ version: 2
 jobs:
   build-website-docker-image:
     docker:
-      - image: circleci/buildpack-deps
+      - image: docker.mirror.hashicorp.services/circleci/buildpack-deps
     shell: /usr/bin/env bash -euo pipefail -c
     steps:
       - checkout
