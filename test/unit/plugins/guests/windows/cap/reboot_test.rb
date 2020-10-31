@@ -112,4 +112,22 @@ describe "VagrantPlugins::GuestWindows::Cap::Reboot" do
       end
     end
   end
+
+  context "reboot configuration" do
+    before do
+      allow(communicator).to receive(:execute)
+      expect(communicator).to receive(:test).with(/# Function/, { error_check: false, shell: :powershell }).and_return(0)
+      expect(communicator).to receive(:execute).with(/shutdown/, { shell: :powershell }).and_return(0)
+      allow(described_class).to receive(:sleep)
+      allow(described_class).to receive(:wait_for_reboot).and_raise(StandardError)
+    end
+
+    describe ".reboot default" do
+      it "allows setting a custom max reboot retry duration" do
+        max_retries = 26 # initial call + 25 retries since multiple of 5
+        expect(described_class).to receive(:wait_for_reboot).exactly(max_retries).times
+        expect { described_class.reboot(machine) }.to raise_error(Exception)
+      end
+    end
+  end
 end

@@ -75,5 +75,22 @@ describe "VagrantPlugins::GuestLinux::Cap::Reboot" do
         end
       end
     end
+
+    context "reboot configuration" do
+      before do
+        allow(communicator).to receive(:execute)
+        expect(communicator).to receive(:execute).with(/reboot/, nil).and_return(0)
+        allow(described_class).to receive(:sleep)
+        allow(described_class).to receive(:wait_for_reboot).and_raise(Vagrant::Errors::MachineGuestNotReady)
+      end
+
+      describe ".reboot default" do
+        it "allows setting a custom max reboot retry duration" do
+          max_retries = 26 # initial call + 25 retries since multiple of 5
+          expect(described_class).to receive(:wait_for_reboot).exactly(max_retries).times
+          expect { described_class.reboot(machine) }.to raise_error(Vagrant::Errors::MachineGuestNotReady)
+        end
+      end
+    end
   end
 end

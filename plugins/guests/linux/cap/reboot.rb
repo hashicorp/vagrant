@@ -6,7 +6,7 @@ module VagrantPlugins
     module Cap
       class Reboot
         extend Vagrant::Util::GuestInspection::Linux
-        MAX_REBOOT_RETRY_DURATION = 120
+        MAX_REBOOT_RETRY_DURATION = ENV.fetch('VAGRANT_MAX_REBOOT_RETRY_TIMEOUT', 120).to_i
 
         def self.reboot(machine)
           @logger = Log4r::Logger.new("vagrant::linux::reboot")
