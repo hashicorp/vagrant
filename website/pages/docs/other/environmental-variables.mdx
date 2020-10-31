@@ -225,6 +225,13 @@ and can help identify certain issues.
 some knowledge of Vagrant internals. It is the best output to attach to
 a support request or bug report, however.
 
+## `VAGRANT_MAX_REBOOT_RETRY_TIMEOUT`
+
+By default, Vagrant will wait up to 120 seconds for a machine to reboot.
+However, if you're finding your OS is taking longer than 120 seconds to
+reboot successfully, you can configure this environment variable and Vagrant
+will wait for the configured number of seconds.
+
 ## `VAGRANT_NO_COLOR`
 
 If this is set to any value, then Vagrant will not use any colorized
