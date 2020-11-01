@@ -194,9 +194,9 @@ begin
     ui = Vagrant::UI::Prefixed.new(env.ui, "vagrant")
     logger.debug("Experimental flag is enabled")
     if Vagrant::Util::Experimental.global_enabled?
-      ui.warn(I18n.t("vagrant.general.experimental.all"), bold: true, prefix: true, channel: :error)
+      ui.warn(I18n.t("vagrant.general.experimental.all"), bold: true, prefix: true)
     else
-      ui.warn(I18n.t("vagrant.general.experimental.features", features: experimental.join(", ")), bold: true, prefix: true, channel: :error)
+      ui.warn(I18n.t("vagrant.general.experimental.features", features: experimental.join(", ")), bold: true, prefix: true)
     end
   end
 
