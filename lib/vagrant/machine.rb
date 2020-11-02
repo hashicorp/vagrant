@@ -231,15 +231,18 @@ module Vagrant
     # @param [Proc] callable
     # @param [Hash] extra_env Extra env for the action env.
     # @return [Hash] The resulting env
-    def action_raw(name, callable, extra_env=nil)
+    def action_raw(name, callable, extra_env={})
+      if !extra_env.is_a?(Hash)
+        extra_env = {}
+      end
+
       # Run the action with the action runner on the environment
-      env = {
+      env = {ui: @ui}.merge(extra_env).merge(
         raw_action_name: name,
         action_name: "machine_action_#{name}".to_sym,
         machine: self,
-        machine_action: name,
-        ui: @ui,
-      }.merge(extra_env || {})
+        machine_action: name
+      )
       @env.action_runner.run(callable, env)
     end
 
