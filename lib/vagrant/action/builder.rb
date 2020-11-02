@@ -173,16 +173,23 @@ module Vagrant
         # be modified
         builder = self.dup
 
+        if env[:builder_applied] != env[:action_name]
+          apply_action_name = true
+          env[:builder_applied] = env[:action_name]
+        end
+
         # Apply all dynamic modifications of the stack. This
         # will generate dynamic hooks for all actions within
         # the stack, load any triggers for action classes, and
         # apply them to the builder's stack
         builder.apply_dynamic_updates(env)
 
-        # Now that the stack is fully expanded, apply any
-        # action hooks that may be defined so they are on
-        # the outermost locations of the stack
-        builder.apply_action_name(env)
+        if apply_action_name
+          # Now that the stack is fully expanded, apply any
+          # action hooks that may be defined so they are on
+          # the outermost locations of the stack
+          builder.apply_action_name(env)
+        end
 
         # Wrap the middleware stack with the Warden to provide a consistent
         # and predictable behavior upon exceptions.
@@ -259,6 +266,7 @@ module Vagrant
       # @return [Builder]
       def apply_action_name(env)
         return self if !env[:action_name]
+
         hook = Hook.new
         machine_name = env[:machine].name if env[:machine]
 
@@ -306,21 +314,8 @@ module Vagrant
         # we can just send ourself back
         return self if hook.empty?
 
-        # These are the options to pass into hook application.
-        options = {}
-
-        # If we already ran through once and did append/prepends,
-        # then don't do it again.
-        if env[:action_hooks_already_ran]
-          options[:no_prepend_or_append] = true
-        end
-
-        # Specify that we already ran, so in the future we don't repeat
-        # the prepend/append hooks.
-        env[:action_hooks_already_ran] = true
-
         # Apply all the hooks to the new builder instance
-        hook.apply(self, options)
+        hook.apply(self)
 
         self
       end
