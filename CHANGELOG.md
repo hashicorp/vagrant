@@ -10,6 +10,7 @@ IMPROVEMENTS:
 - core:  Switch from unmaintained gem erubis to erubi [GH-11893]
 - core: Download Vagrant boxes using auth headers [GH-11835]
 - core: Remove dependency on mime gem [GH-11857]
+- core: Handle Errno::EALREADY exceptions on port check [GH-12008]
 - providers/virtualbox: Fix availability check of provider [GH-11936]
 - tests: Add integration tests for Docker provider [GH-11907]
 
