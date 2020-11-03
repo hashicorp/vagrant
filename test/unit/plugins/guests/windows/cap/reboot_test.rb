@@ -112,4 +112,37 @@ describe "VagrantPlugins::GuestWindows::Cap::Reboot" do
       end
     end
   end
+
+  context "reboot configuration" do
+    before do
+      allow(communicator).to receive(:execute)
+      expect(communicator).to receive(:test).with(/# Function/, { error_check: false, shell: :powershell }).and_return(0)
+      expect(communicator).to receive(:execute).with(/shutdown/, { shell: :powershell }).and_return(0)
+      allow(described_class).to receive(:sleep)
+      allow(described_class).to receive(:wait_for_reboot).and_raise(StandardError)
+    end
+
+    context "default retry duration value" do
+      let(:max_retries) { (described_class::DEFAULT_MAX_REBOOT_RETRY_DURATION / described_class::WAIT_SLEEP_TIME) + 2 }
+
+      it "should receive expected number of wait_for_reboot calls" do
+        expect(described_class).to receive(:wait_for_reboot).exactly(max_retries).times
+        expect { described_class.reboot(machine) }.to raise_error(StandardError)
+      end
+    end
+
+    context "with custom retry duration value" do
+      let(:duration) { 10 }
+      let(:max_retries) { (duration / described_class::WAIT_SLEEP_TIME) + 2 }
+
+      before do
+        expect(ENV).to receive(:fetch).with("VAGRANT_MAX_REBOOT_RETRY_DURATION", anything).and_return(duration)
+      end
+
+      it "should receive expected number of wait_for_reboot calls" do
+        expect(described_class).to receive(:wait_for_reboot).exactly(max_retries).times
+        expect { described_class.reboot(machine) }.to raise_error(StandardError)
+      end
+    end
+  end
 end
