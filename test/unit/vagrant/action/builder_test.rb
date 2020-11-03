@@ -255,10 +255,10 @@ describe Vagrant::Action::Builder do
       subject.call(data)
 
       expect(data[:data]).to eq([1, 2])
-      expect(data[:action_hooks_already_ran]).to eq(true)
+      expect(data[:builder_applied]).to eq(:test_action)
     end
 
-    it "applies without prepend/append if it has already" do
+    it "applies without adding action hooks/triggers if it has already" do
       hook_proc = proc{ |h| h.append(appender_proc(2)) }
       expect(manager).to receive(:action_hooks).with(:test_action).
         and_return([hook_proc])
@@ -266,7 +266,7 @@ describe Vagrant::Action::Builder do
       data[:action_name] = :test_action
 
       subject.use appender_proc(1)
-      subject.call(data.merge(action_hooks_already_ran: true))
+      subject.call(data.merge(builder_applied: :test_action))
 
       expect(data[:data]).to eq([1])
       subject.call(data)
@@ -637,11 +637,6 @@ describe Vagrant::Action::Builder do
     before { allow(triggers).to receive(:find).and_return([]) }
     after { @subject = nil }
 
-    it "should mark action hooks applied within env" do
-      subject.apply_action_name(env)
-      expect(env[:action_hooks_already_ran]).to be_truthy
-    end
-
     context "when a plugin has added an action hook" do
       let(:plugin) do
         @plugin ||= Class.new(Vagrant.plugin("2")) do
@@ -662,13 +657,6 @@ describe Vagrant::Action::Builder do
       it "should add new action to the call stack" do
         subject.apply_action_name(env)
         expect(subject.stack[0].first).to eq(Vagrant::Action::Builtin::Call)
-      end
-
-      it "should only add new action to the call stack once" do
-        subject.apply_action_name(env)
-        subject.apply_action_name(env)
-        expect(subject.stack[0].first).to eq(Vagrant::Action::Builtin::Call)
-        expect(subject.stack[1].first).not_to eq(Vagrant::Action::Builtin::Call)
       end
     end
 
