@@ -12,6 +12,8 @@ IMPROVEMENTS:
 - core: Remove dependency on mime gem [GH-11857]
 - core: Handle Errno::EALREADY exceptions on port check [GH-12008]
 - core: Fix missing hook/trigger insertion into action stack [GH-12014]
+- guest/linux: Make max reboot wait duration configurable [GH-12011]
+- guest/windows: Make max reboot wait duration configurable [GH-12011]
 - providers/virtualbox: Fix availability check of provider [GH-11936]
 - tests: Add integration tests for Docker provider [GH-11907]
 
