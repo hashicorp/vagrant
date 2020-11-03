@@ -7,10 +7,11 @@ IMPROVEMENTS:
 - command/cap: Add ability to specify target [GH-11965]
 - command/cloud: Add --force flag to `version release` command [GH-11912]
 - command/cloud: Updates to utilize the 3.0 version of vagrant_cloud [GH-11916]
-- core:  Switch from unmaintained gem erubis to erubi [GH-11893]
+- core: Switch from unmaintained gem erubis to erubi [GH-11893]
 - core: Download Vagrant boxes using auth headers [GH-11835]
 - core: Remove dependency on mime gem [GH-11857]
 - core: Handle Errno::EALREADY exceptions on port check [GH-12008]
+- core: Fix missing hook/trigger insertion into action stack [GH-12014]
 - providers/virtualbox: Fix availability check of provider [GH-11936]
 - tests: Add integration tests for Docker provider [GH-11907]
 
