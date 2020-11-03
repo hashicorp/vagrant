@@ -93,10 +93,6 @@ if ENV["VAGRANT_LOG"] && ENV["VAGRANT_LOG"] != ""
         date_pattern: "%F %T"
       )
     end
-    # Vagrant Cloud gem uses RestClient to make HTTP requests, so
-    # log them if debug is enabled and use Vagrants logger
-    require 'rest_client'
-    RestClient.log = logger
 
     Log4r::Outputter.stderr.formatter = Vagrant::Util::LoggingFormatter.new(base_formatter)
     logger = nil
