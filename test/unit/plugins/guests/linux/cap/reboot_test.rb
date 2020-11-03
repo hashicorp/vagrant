@@ -64,15 +64,13 @@ describe "VagrantPlugins::GuestLinux::Cap::Reboot" do
         communicator.verify_expectations!
       end
 
-      describe ".reboot" do
-        it "reboots the vm" do
-          allow(communicator).to receive(:execute)
+      it "reboots the vm" do
+        allow(communicator).to receive(:execute)
 
-          expect(communicator).to receive(:execute).with(/systemctl reboot/, nil).and_return(0)
-          expect(described_class).to receive(:wait_for_reboot)
+        expect(communicator).to receive(:execute).with(/systemctl reboot/, nil).and_return(0)
+        expect(described_class).to receive(:wait_for_reboot)
 
-          described_class.reboot(machine)
-        end
+        described_class.reboot(machine)
       end
     end
 
@@ -80,13 +78,28 @@ describe "VagrantPlugins::GuestLinux::Cap::Reboot" do
       before do
         allow(communicator).to receive(:execute)
         expect(communicator).to receive(:execute).with(/reboot/, nil).and_return(0)
-        allow(described_class).to receive(:sleep)
+        allow(described_class).to receive(:sleep).and_return(described_class::WAIT_SLEEP_TIME)
         allow(described_class).to receive(:wait_for_reboot).and_raise(Vagrant::Errors::MachineGuestNotReady)
       end
 
-      describe ".reboot default" do
-        it "allows setting a custom max reboot retry duration" do
-          max_retries = 26 # initial call + 25 retries since multiple of 5
+      context "default retry duration value" do
+        let(:max_retries) { (described_class::DEFAULT_MAX_REBOOT_RETRY_DURATION / described_class::WAIT_SLEEP_TIME) + 2 }
+
+        it "should receive expected number of wait_for_reboot calls" do
+          expect(described_class).to receive(:wait_for_reboot).exactly(max_retries).times
+          expect { described_class.reboot(machine) }.to raise_error(Vagrant::Errors::MachineGuestNotReady)
+        end
+      end
+
+      context "with custom retry duration value" do
+        let(:duration) { 10 }
+        let(:max_retries) { (duration / described_class::WAIT_SLEEP_TIME) + 2 }
+
+        before do
+          expect(ENV).to receive(:fetch).with("VAGRANT_MAX_REBOOT_RETRY_DURATION", anything).and_return(duration)
+        end
+
+        it "should receive expected number of wait_for_reboot calls" do
           expect(described_class).to receive(:wait_for_reboot).exactly(max_retries).times
           expect { described_class.reboot(machine) }.to raise_error(Vagrant::Errors::MachineGuestNotReady)
         end

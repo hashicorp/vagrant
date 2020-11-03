@@ -4,7 +4,8 @@ module VagrantPlugins
   module GuestWindows
     module Cap
       class Reboot
-        MAX_REBOOT_RETRY_DURATION = ENV.fetch('VAGRANT_MAX_REBOOT_RETRY_TIMEOUT', 120).to_i
+        DEFAULT_MAX_REBOOT_RETRY_DURATION = 120
+        WAIT_SLEEP_TIME = 5
 
         def self.reboot(machine)
           @logger = Log4r::Logger.new("vagrant::windows::reboot")
@@ -25,15 +26,18 @@ module VagrantPlugins
 
           @logger.debug("Waiting for machine to finish rebooting")
 
-          wait_remaining = MAX_REBOOT_RETRY_DURATION
+          wait_remaining = ENV.fetch("VAGRANT_MAX_REBOOT_RETRY_DURATION",
+            DEFAULT_MAX_REBOOT_RETRY_DURATION).to_i
+          wait_remaining = DEFAULT_MAX_REBOOT_RETRY_DURATION if wait_remaining < 1
+
           begin
             wait_for_reboot(machine)
           rescue => err
             raise if wait_remaining < 0
             @logger.debug("Exception caught while waiting for reboot: #{err}")
             @logger.warn("Machine not ready, cannot start reboot yet. Trying again")
-            sleep(5)
-            wait_remaining -= 5
+            sleep(WAIT_SLEEP_TIME)
+            wait_remaining -= WAIT_SLEEP_TIME
             retry
           end
         end
