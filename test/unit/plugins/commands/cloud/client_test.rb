@@ -24,6 +24,7 @@ describe VagrantPlugins::CloudCommand::Client do
   end
 
   after do
+    described_class.reset!
     Vagrant::Util::CredentialScrubber.reset!
   end
 
@@ -192,7 +193,7 @@ describe VagrantPlugins::CloudCommand::Client do
     let(:path_exists) { false }
 
     before do
-      expect(subject).to receive(:token).and_call_original
+      allow(subject).to receive(:token).and_call_original
       allow(subject).to receive(:token_path).and_return(token_path)
       allow(token_path).to receive(:exist?).and_return(path_exists)
     end
@@ -214,6 +215,11 @@ describe VagrantPlugins::CloudCommand::Client do
         it "should print warning of two tokens" do
           expect(env.ui).to receive(:warn)
           subject.token
+        end
+
+        it "should only print warning of two tokens once" do
+          expect(env.ui).to receive(:warn).with(/detected/).once
+          3.times { subject.token }
         end
       end
     end

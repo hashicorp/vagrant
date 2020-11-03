@@ -6,6 +6,13 @@ require Vagrant.source_root.join("plugins/commands/cloud/errors")
 module VagrantPlugins
   module CloudCommand
     class Client
+      # @private
+      # Reset the cached values for scrubber. This is not considered a public
+      # API and should only be used for testing.
+      def self.reset!
+        class_variables.each(&method(:remove_class_variable))
+      end
+
       ######################################################################
       # Class that deals with managing users 'local' token for Vagrant Cloud
       ######################################################################
@@ -111,7 +118,9 @@ module VagrantPlugins
       # @return [String]
       def token
         if present?(ENV["VAGRANT_CLOUD_TOKEN"]) && token_path.exist?
-          @env.ui.warn <<-EOH.strip
+          # Only show warning if it has not been previously shown
+          if !defined?(@@double_token_warning)
+            @env.ui.warn <<-EOH.strip
 Vagrant detected both the VAGRANT_CLOUD_TOKEN environment variable and a Vagrant login
 token are present on this system. The VAGRANT_CLOUD_TOKEN environment variable takes
 precedence over the locally stored token. To remove this error, either unset
@@ -120,6 +129,8 @@ the VAGRANT_CLOUD_TOKEN environment variable or remove the login token stored on
     ~/.vagrant.d/data/vagrant_login_token
 
 EOH
+            @@double_token_warning = true
+          end
         end
 
         if present?(ENV["VAGRANT_CLOUD_TOKEN"])
