@@ -17,7 +17,7 @@ module Vagrant
           Socket.tcp(host, port, connect_timeout: 0.1).close
           true
         rescue Errno::ETIMEDOUT, Errno::ECONNREFUSED, Errno::EHOSTUNREACH, \
-            Errno::ENETUNREACH, Errno::EACCES, Errno::ENOTCONN
+            Errno::ENETUNREACH, Errno::EACCES, Errno::ENOTCONN, Errno::EALREADY
           false
         end
       end

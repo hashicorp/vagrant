@@ -55,4 +55,9 @@ describe Vagrant::Util::IsPortOpen do
     expect(Socket).to receive(:tcp).with("0.0.0.0", open_port, any_args).and_raise(Errno::EADDRNOTAVAIL)
     expect { subject.is_port_open?("0.0.0.0", open_port) }.to raise_error(Errno::EADDRNOTAVAIL)
   end
+
+  it "should treat operation already in progress as unavailable" do
+    expect(Socket).to receive(:tcp).with("0.0.0.0", closed_port, any_args).and_raise(Errno::EALREADY)
+    expect(subject.is_port_open?("0.0.0.0", closed_port)).to be(false)
+  end
 end
