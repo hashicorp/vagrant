@@ -1510,4 +1510,87 @@ end
 }
 ```
 
+### Upload a provider directly to backend storage
+
+`GET /api/v1/box/:username/:name/version/:version/provider/:provider/upload/direct`
+
+Prepares the provider for upload. This version of the upload API allows uploading the box asset directly to the backend storage. It requires
+a two step process for uploading the box assets. First uploading the asset to storage and then finalizing the upload within Vagrant Cloud
+via a provided callback.
+
+The request returns a JSON blob containing two fields:
+
+- `upload_path` - URL to `PUT` the box asset
+- `callback` - Vagrant Cloud callback URL to finalize upload
+
+The box asset is uploaded directly to the URL provided by the `upload_path` via a `PUT` request. Once complete, a `PUT` request to the URL
+provided in the `callback` field (complete with authentication header) finalizes the upload.
+
+~> The upload must begin shortly after the response is returned, otherwise the URL will expire. If the URL expires, you can request this same API method again for a new upload URL.
+
+#### Example Request
+
+<Tabs>
+<Tab heading="cURL">
+
+```shell
+response=$(curl \
+  --header "Authorization: Bearer $VAGRANT_CLOUD_TOKEN" \
+  https://app.vagrantup.com/api/v1/box/myuser/test/version/1.2.3/provider/virtualbox/upload/direct)
+
+# Requires the jq command
+upload_path=$(echo "$response" | jq .upload_path)
+callback=$(echo "$response" | jq .callback)
+
+curl \
+  "$upload_path" \
+  --request PUT \
+  --upload-file virtualbox-1.2.3.box
+
+curl
+  $callback \
+  --header "Authorization: Bearer $VAGRANT_CLOUD_TOKEN" \
+  --request PUT
+```
+
+</Tab>
+<Tab heading="Ruby">
+
+```ruby
+# gem install http, or add `gem "http"` to your Gemfile
+require "http"
+require "uri"
+
+api = HTTP.persistent("https://app.vagrantup.com").headers(
+  "Authorization" => "Bearer #{ENV['VAGRANT_CLOUD_TOKEN']}"
+)
+
+response = api.get("/api/v1/box/myuser/test/version/1.2.3/provider/virtualbox/upload")
+
+if response.status.success?
+  # Success, you can now upload the box image to the returned URL
+  upload_path = response.parse['upload_path']
+  callback = response.parse['callback']
+  # Upload the box asset
+  HTTP.post upload_path, body: File.open("virtualbox-1.2.3.box")
+  # Finalize the upload
+  api.put(URI.parse(callback).path)
+else
+  # Error, inspect the `errors` key for more information.
+  p response.code, response.body
+end
+```
+
+</Tab>
+</Tabs>
+
+#### Example Response
+
+```json
+{
+  "upload_path": "https://remote-storage.example.com/bucket/630e42d9-2364-2412-4121-18266770468e?auth=9023wqfda",
+  "callback": "https://app.vagrantup.com/api/v1/box/myuser/test/version/1.2.3/provider/virtualbox/upload/direct/630e42d9-2364-2412-4121-18266770468e"
+}
+```
+
 [markdown]: https://daringfireball.net/projects/markdown/syntax
