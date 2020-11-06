@@ -1,6 +1,4 @@
-## Next version (Unreleased)
-
-FEATURES:
+## 2.2.11 (November 05, 2020)
 
 IMPROVEMENTS:
 
