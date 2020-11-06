@@ -1,10 +1,8 @@
-## Next version (Unreleased)
-
-FEATURES:
-
-IMPROVEMENTS:
+## 2.2.13 (November 06, 2020)
 
 BUG FIXES:
+
+- core/bundler: Adjust request sets properly with non-development prerelease [GH-12025]
 
 ## 2.2.12 (November 06, 2020)
 
