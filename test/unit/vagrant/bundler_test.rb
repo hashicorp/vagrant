@@ -618,6 +618,117 @@ describe Vagrant::Bundler do
         end
       end
     end
+
+    describe "#enable_prerelease!" do
+      before do
+        @_ev = ENV.delete("VAGRANT_ALLOW_PRERELEASE")
+      end
+
+      after do
+        ENV["VAGRANT_ALLOW_PRERELEASE"] = @_ev
+      end
+
+      context "with specification list" do
+        let(:specifications) { [] }
+
+        it "should not modify prerelease by default" do
+          subject.send(:enable_prerelease!, specs: specifications)
+          expect(ENV["VAGRANT_ALLOW_PRERELEASE"]).to be_falsey
+        end
+
+        it "should not have enabled allow prerelease dependencies" do
+          subject.send(:enable_prerelease!, specs: specifications)
+          expect(Vagrant.allow_prerelease_dependencies?).to be_falsey
+        end
+
+        context "when specifications do not contain prerelease versions" do
+          let(:specifications) { [
+            double("spec1", full_name: "spec1", version: double("version1", prerelease?: false)),
+            double("spec2", full_name: "spec2", version: double("version2", prerelease?: false)),
+            double("spec3", full_name: "spec3", version: double("version3", prerelease?: false))
+          ] }
+
+          it "should not modify prerelease" do
+            subject.send(:enable_prerelease!, specs: specifications)
+            expect(ENV["VAGRANT_ALLOW_PRERELEASE"]).to be_falsey
+          end
+
+          it "should not have enabled allow prerelease dependencies" do
+            subject.send(:enable_prerelease!, specs: specifications)
+            expect(Vagrant.allow_prerelease_dependencies?).to be_falsey
+          end
+        end
+
+        context "when specifications contain prerelease versions" do
+          let(:specifications) { [
+            double("spec1", full_name: "spec1", version: double("version1", prerelease?: false)),
+            double("spec2", full_name: "spec2", version: double("version2", prerelease?: true)),
+            double("spec3", full_name: "spec3", version: double("version3", prerelease?: false))
+          ] }
+
+          it "should enable prerelease" do
+            subject.send(:enable_prerelease!, specs: specifications)
+            expect(ENV["VAGRANT_ALLOW_PRERELEASE"]).to be_truthy
+          end
+
+          it "should have enabled allow prerelease dependencies" do
+            subject.send(:enable_prerelease!, specs: specifications)
+            expect(Vagrant.allow_prerelease_dependencies?).to be_truthy
+          end
+        end
+      end
+
+      context "with request set" do
+        let(:request_set) { double("request_set", dependencies: dependencies) }
+        let(:dependencies) { [] }
+
+        it "should not modify prerelease by default" do
+          subject.send(:enable_prerelease!, request_set: request_set)
+          expect(ENV["VAGRANT_ALLOW_PRERELEASE"]).to be_falsey
+        end
+
+        it "should not have enabled allow prerelease dependencies" do
+          subject.send(:enable_prerelease!, request_set: request_set)
+          expect(Vagrant.allow_prerelease_dependencies?).to be_falsey
+        end
+
+        context "when specifications do not contain prerelease versions" do
+          let(:dependencies) { [
+            double("dep1", prerelease?: false, to_s: nil),
+            double("dep2", prerelease?: false, to_s: nil),
+            double("dep3", prerelease?: false, to_s: nil)
+          ] }
+
+          it "should not modify prerelease" do
+            subject.send(:enable_prerelease!, request_set: request_set)
+            expect(ENV["VAGRANT_ALLOW_PRERELEASE"]).to be_falsey
+          end
+
+          it "should not have enabled allow prerelease dependencies" do
+            subject.send(:enable_prerelease!, request_set: request_set)
+            expect(Vagrant.allow_prerelease_dependencies?).to be_falsey
+          end
+        end
+
+        context "when specifications contain prerelease versions" do
+          let(:dependencies) { [
+            double("dep1", prerelease?: false, to_s: nil),
+            double("dep2", prerelease?: true, to_s: nil),
+            double("dep3", prerelease?: false, to_s: nil)
+          ] }
+
+          it "should enable prerelease" do
+            subject.send(:enable_prerelease!, request_set: request_set)
+            expect(ENV["VAGRANT_ALLOW_PRERELEASE"]).to be_truthy
+          end
+
+          it "should have enabled allow prerelease dependencies" do
+            subject.send(:enable_prerelease!, request_set: request_set)
+            expect(Vagrant.allow_prerelease_dependencies?).to be_truthy
+          end
+        end
+      end
+    end
   end
 
   describe Vagrant::Bundler::PluginSet do

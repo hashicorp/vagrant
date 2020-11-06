@@ -144,6 +144,24 @@ describe Vagrant do
     end
   end
 
+  describe ".allow_prerelease_dependencies?" do
+    context "with environment variable set" do
+      before { allow(ENV).to receive(:[]).with("VAGRANT_ALLOW_PRERELEASE").and_return("1") }
+
+      it "should return true" do
+        expect(subject.allow_prerelease_dependencies?).to be(true)
+      end
+    end
+
+    context "with environment variable unset" do
+      before { allow(ENV).to receive(:[]).with("VAGRANT_ALLOW_PRERELEASE").and_return(nil) }
+
+      it "should return false" do
+        expect(subject.allow_prerelease_dependencies?).to be(false)
+      end
+    end
+  end
+
   describe ".enable_resolv_replace" do
     it "should not attempt to require resolv-replace by default" do
       expect(subject).not_to receive(:require).with("resolv-replace")
