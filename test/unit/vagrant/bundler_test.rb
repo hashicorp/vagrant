@@ -618,6 +618,49 @@ describe Vagrant::Bundler do
         end
       end
     end
+
+    describe "#enable_prerelease!" do
+      let(:specifications) { [] }
+
+      before do
+        @_ev = ENV.delete("VAGRANT_ALLOW_PRERELEASE")
+      end
+
+      after do
+        ENV["VAGRANT_ALLOW_PRERELEASE"] = @_ev
+      end
+
+      it "should not modify prerelease by default" do
+        subject.send(:enable_prerelease!, specifications)
+        expect(ENV["VAGRANT_ALLOW_PRERELEASE"]).to be_falsey
+      end
+
+      context "when specifications do not contain prerelease versions" do
+        let(:specifications) { [
+          double("spec1", full_name: "spec1", version: double("version1", prerelease?: false)),
+          double("spec2", full_name: "spec2", version: double("version2", prerelease?: false)),
+          double("spec3", full_name: "spec3", version: double("version3", prerelease?: false))
+        ] }
+
+        it "should not modify prerelease" do
+          subject.send(:enable_prerelease!, specifications)
+          expect(ENV["VAGRANT_ALLOW_PRERELEASE"]).to be_falsey
+        end
+      end
+
+      context "when specifications contain prerelease versions" do
+        let(:specifications) { [
+          double("spec1", full_name: "spec1", version: double("version1", prerelease?: false)),
+          double("spec2", full_name: "spec2", version: double("version2", prerelease?: true)),
+          double("spec3", full_name: "spec3", version: double("version3", prerelease?: false))
+        ] }
+
+        it "should enable prerelease" do
+          subject.send(:enable_prerelease!, specifications)
+          expect(ENV["VAGRANT_ALLOW_PRERELEASE"]).to be_truthy
+        end
+      end
+    end
   end
 
   describe Vagrant::Bundler::PluginSet do

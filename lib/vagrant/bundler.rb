@@ -234,6 +234,8 @@ module Vagrant
         Gem::Specification.reset
       end
 
+      enable_prerelease!(@initial_specifications)
+
       solution_file = load_solution_file(opts)
       @logger.debug("solution file in use for init: #{solution_file}")
 
@@ -463,6 +465,19 @@ module Vagrant
     end
 
     protected
+
+    # This will enable prerelease if any of the root dependency constraints
+    # include prerelease versions
+    #
+    # @param [Array<Gem::Specification>] spec_list List of specifications
+    def enable_prerelease!(spec_list)
+      pre = spec_list.detect do |spec|
+        spec.version.prerelease?
+      end
+      return if pre.nil?
+      @logger.debug("Enabling prerelease plugin resolution for due to dependency: #{pre.full_name}")
+      ENV["VAGRANT_ALLOW_PRERELEASE"] = "1"
+    end
 
     def internal_install(plugins, update, **extra)
       update = {} if !update.is_a?(Hash)
@@ -861,7 +876,7 @@ module Vagrant
       ##
       # Loads a spec with the given +name+. +version+, +platform+ and +source+ are
       # ignored.
-      def load_spec (name, version, platform, source)
+      def load_spec(name, version, platform, source)
         version = Gem::Version.new(version) if !version.is_a?(Gem::Version)
         @specs.fetch(name, []).detect{|s| s.name == name && s.version == version}
       end
