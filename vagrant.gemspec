@@ -24,7 +24,7 @@ Gem::Specification.new do |s|
   s.add_dependency "listen", "~> 3.1"
   s.add_dependency "log4r", "~> 1.1.9", "< 1.1.11"
   s.add_dependency "mime-types", "~> 3.3"
-  s.add_dependency "net-ssh", "~> 6.0"
+  s.add_dependency "net-ssh", ">= 6.2.0.rc1", "< 7"
   s.add_dependency "net-sftp", "~> 3.0"
   s.add_dependency "net-scp", "~> 1.2.0"
   s.add_dependency "rb-kqueue", "~> 0.2.0"
