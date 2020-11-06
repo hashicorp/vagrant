@@ -577,7 +577,8 @@ module Vagrant
       # Create the request set for the new plugins
       request_set = Gem::RequestSet.new(*plugin_deps)
       enable_prerelease!(request_set: request_set)
-      request_set.prerelease = Vagrant.prerelease?
+      request_set.prerelease = Vagrant.prerelease? ||
+        Vagrant.allow_prerelease_dependencies?
 
       installer_set = Gem::Resolver.compose_sets(
         installer_set,
@@ -609,7 +610,7 @@ module Vagrant
       install_path = extra[:env_local] ? env_plugin_gem_path : plugin_gem_path
       result = request_set.install_into(install_path.to_s, true,
         ignore_dependencies: true,
-        prerelease: Vagrant.prerelease?,
+        prerelease: Vagrant.prerelease? || Vagrant.allow_prerelease_dependencies?,
         wrappers: true,
         document: []
       )
@@ -840,7 +841,7 @@ module Vagrant
       def find_all(req)
         @specs.select do |spec|
           allow_prerelease = Vagrant.allow_prerelease_dependencies? ||
-            spec.name == "vagrant" && Vagrant.prerelease?
+            (spec.name == "vagrant" && Vagrant.prerelease?)
           req.match?(spec, allow_prerelease)
         end.map do |spec|
           Gem::Resolver::InstalledSpecification.new(self, spec)
