@@ -122,8 +122,15 @@ module Vagrant
   #
   # @return [Boolean]
   def self.prerelease?
-    !!ENV["VAGRANT_ALLOW_PRERELEASE"] ||
-      Gem::Version.new(Vagrant::VERSION).prerelease?
+    Gem::Version.new(Vagrant::VERSION).prerelease?
+  end
+
+  # This returns true/false if the Vagrant should allow prerelease
+  # versions when resolving plugin dependency constraints
+  #
+  # @return [Boolean]
+  def self.allow_prerelease_dependencies?
+    !!ENV["VAGRANT_ALLOW_PRERELEASE"]
   end
 
   # This allows control over dependency resolution when installing
