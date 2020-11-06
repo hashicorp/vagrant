@@ -103,9 +103,10 @@ shared_context "unit" do
     allow(ENV).to receive(:[]).and_call_original
 
     hash.each do |key, value|
+      v = value.nil? ? nil : value.to_s
       allow(ENV).to receive(:[])
         .with(key.to_s)
-        .and_return(value.to_s)
+        .and_return(v)
     end
   end
 
