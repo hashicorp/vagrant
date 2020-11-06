@@ -1,10 +1,11 @@
-## Next version (Unreleased)
-
-FEATURES:
-
-IMPROVEMENTS:
+## 2.2.12 (November 06, 2020)
 
 BUG FIXES:
+
+- core/bundler: Automatically enable prerelease dependency resolution [GH-12023]
+
+NOTE: This is a fix release to resolve an immediate issue with Vagrant
+      plugin functionality
 
 ## 2.2.11 (November 05, 2020)
 
