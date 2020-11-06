@@ -234,6 +234,8 @@ module Vagrant
         Gem::Specification.reset
       end
 
+      enable_prerelease!(specs: @initial_specifications)
+
       solution_file = load_solution_file(opts)
       @logger.debug("solution file in use for init: #{solution_file}")
 
@@ -464,6 +466,30 @@ module Vagrant
 
     protected
 
+    # This will enable prerelease if any of the root dependency constraints
+    # include prerelease versions
+    #
+    # @param [Array<Gem::Specification>] spec_list List of specifications
+    # @param [Gem::RequestSet] rs Request set of dependencies
+    def enable_prerelease!(specs: nil, request_set: nil)
+      pre = specs.detect do |spec|
+        spec.version.prerelease?
+      end if specs
+      if pre
+        @logger.debug("Enabling prerelease plugin resolution due to dependency: #{pre.full_name}")
+        ENV["VAGRANT_ALLOW_PRERELEASE"] = "1"
+        return
+      end
+      dep = request_set.dependencies.detect do |d|
+        d.prerelease?
+      end if request_set
+      if dep
+        @logger.debug("Enabling prerelease plugin resolution due to dependency: #{dep}")
+        ENV["VAGRANT_ALLOW_PRERELEASE"] = "1"
+        return
+      end
+    end
+
     def internal_install(plugins, update, **extra)
       update = {} if !update.is_a?(Hash)
       skips = []
@@ -550,6 +576,7 @@ module Vagrant
 
       # Create the request set for the new plugins
       request_set = Gem::RequestSet.new(*plugin_deps)
+      enable_prerelease!(request_set: request_set)
       request_set.prerelease = Vagrant.prerelease?
 
       installer_set = Gem::Resolver.compose_sets(
@@ -740,7 +767,6 @@ module Vagrant
               request.name == matcher["gem_name"]
             end
             if desired_activation_request && !desired_activation_request.full_spec.activated?
-              activation_request = desired_activation_request
               @logger.warn("Found misordered activation request for #{desired_activation_request.full_name}. Moving to solution HEAD.")
               solution.delete(desired_activation_request)
               solution.unshift(desired_activation_request)
@@ -813,7 +839,8 @@ module Vagrant
 
       def find_all(req)
         @specs.select do |spec|
-          allow_prerelease = spec.name == "vagrant" && Vagrant.prerelease?
+          allow_prerelease = Vagrant.allow_prerelease_dependencies? ||
+            spec.name == "vagrant" && Vagrant.prerelease?
           req.match?(spec, allow_prerelease)
         end.map do |spec|
           Gem::Resolver::InstalledSpecification.new(self, spec)
@@ -861,7 +888,7 @@ module Vagrant
       ##
       # Loads a spec with the given +name+. +version+, +platform+ and +source+ are
       # ignored.
-      def load_spec (name, version, platform, source)
+      def load_spec(name, version, platform, source)
         version = Gem::Version.new(version) if !version.is_a?(Gem::Version)
         @specs.fetch(name, []).detect{|s| s.name == name && s.version == version}
       end
