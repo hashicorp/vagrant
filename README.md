@@ -17,7 +17,8 @@ between Windows, Mac OS X, and Linux.
 
 ## Quick Start
 
-Package dependencies: Vagrant requires `bsdtar` to be available on your system PATH to run successfully.
+Package dependencies: Vagrant requires `bsdtar` and `curl` to be available on
+your system PATH to run successfully.
 
 For the quick-start, we'll bring up a development machine on
 [VirtualBox](https://www.virtualbox.org/) because it is free and works
