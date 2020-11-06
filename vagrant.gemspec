@@ -35,6 +35,8 @@ Gem::Specification.new do |s|
   s.add_dependency "winrm-elevated", ">= 1.2.1", "< 2.0"
   s.add_dependency "winrm-fs", ">= 1.3.4", "< 2.0"
 
+  s.add_dependency "rest-client", "~> 2.1"
+
   # NOTE: The ruby_dep gem is an implicit dependency from the listen gem. Later versions
   # of the ruby_dep gem impose an aggressive constraint on the required ruby version (>= 2.2.5).
   # Explicit constraint is defined to provide required dependency to listen without imposing
