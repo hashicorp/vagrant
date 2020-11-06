@@ -142,6 +142,26 @@ describe Vagrant do
       stub_const("Vagrant::VERSION", "1.0.0")
       expect(subject.prerelease?).to be(false)
     end
+
+    context "with environment variable set" do
+      before { allow(ENV).to receive(:[]).with("VAGRANT_ALLOW_PRERELEASE").and_return("1") }
+
+      context "when version is development version" do
+        before { stub_const("Vagrant::VERSION", "1.0.0.dev") }
+
+        it "should return true" do
+          expect(subject.prerelease?).to be(true)
+        end
+      end
+
+      context "when version is non-development version" do
+        before { stub_const("Vagrant::VERSION", "1.0.0") }
+
+        it "should return true" do
+          expect(subject.prerelease?).to be(true)
+        end
+      end
+    end
   end
 
   describe ".enable_resolv_replace" do
