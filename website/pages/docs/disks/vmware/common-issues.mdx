@@ -1,0 +1,42 @@
+---
+layout: docs
+page_title: Common Issues - Disks VMWare Provider
+sidebar_title: Common Issues
+description: |-
+  HashiCorp develops an official VMware Fusion and VMware Workstation provider
+  for Vagrant. This provider allows Vagrant to power VMware based machines and
+  take advantage of the improved stability and performance that VMware software
+  offers.
+---
+
+# Common Issues and Troubleshooting
+
+This page lists some common issues people run into with Vagrant and VMWare
+as well as solutions for those issues.
+
+## Are my disks attached?
+
+A handy way to figure out what disks are attached (or not attached) to your guest
+is to open up the VMWare GUI and open up the guest settings and selecting the
+disks options.
+
+## How many disks can I attach?
+
+Vagrant will attempt to attach all disks specified in the Vagrantfile. If more than
+four `ide` type disks are specified, only the first four will be attached. 
+
+## Applying Vagrant disk configuration changes to guests
+
+Due to how VMware works, you must reload your guest for any disk config changes
+to be applied. So if you update your Vagrantfile to update or even remove disks, make
+sure to `vagrant reload` your guests for these changes to be applied. Also note, that 
+Vagrant will not decrease the size of a disk.
+
+## Disk functionality with snapshots
+
+If snapshots exist for a VM, disk functionality will be limited. Vagrant will return
+an error for any actions that are limited due to the existence of snapshots. In order
+to restore functionality the snapshots must be removed. This can be done using the
+[`vagrant snapshot delete`](/docs/cli/snapshot) command. To delete all snapshots 
+for a VMWare backed VM try `vagrant cap provider delete_all_snapshots --target <target vm name>`.
+Note once a snapshot is deleted, it can not be restored.
