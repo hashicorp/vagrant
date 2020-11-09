@@ -40,7 +40,7 @@ IMPROVEMENTS:
 
 BUG FIXES:
 
-- core/synced_folders: Don't persist synced folders to fstab is guest is not reachable [GH-11900]
+- core/synced_folders: Don't persist synced folders to fstab if guest is not reachable [GH-11900]
 - core: Don't try to recover machine without a uuid [GH-11863]
 - config/disks: Transform provider specific config to common form [GH-11939]
 - config/vm: Override synced-folder `:nfs` option [GH-11988]
