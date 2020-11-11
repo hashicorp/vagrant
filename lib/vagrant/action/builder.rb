@@ -265,6 +265,7 @@ module Vagrant
       # @param [Hash] env Call environment
       # @return [Builder]
       def apply_action_name(env)
+        env[:builder_raw_applied] ||= []
         return self if !env[:action_name]
 
         hook = Hook.new
@@ -293,7 +294,9 @@ module Vagrant
         # are the originally implemented trigger style. They run before
         # and after specific provider actions (like :up, :halt, etc) and
         # are different from true action triggers
-        if env[:triggers]
+        if env[:triggers] && !env[:builder_raw_applied].include?(env[:raw_action_name])
+          env[:builder_raw_applied] << env[:raw_action_name]
+
           if !env[:triggers].find(env[:raw_action_name], :before, machine_name, :action, all: true).empty?
             hook.prepend(Vagrant::Action::Builtin::Trigger,
               env[:raw_action_name], env[:triggers], :before, :action, all: true)
