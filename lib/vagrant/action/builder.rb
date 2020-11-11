@@ -173,23 +173,16 @@ module Vagrant
         # be modified
         builder = self.dup
 
-        if env[:builder_applied] != env[:action_name]
-          apply_action_name = true
-          env[:builder_applied] = env[:action_name]
-        end
-
         # Apply all dynamic modifications of the stack. This
         # will generate dynamic hooks for all actions within
         # the stack, load any triggers for action classes, and
         # apply them to the builder's stack
         builder.apply_dynamic_updates(env)
 
-        if apply_action_name
-          # Now that the stack is fully expanded, apply any
-          # action hooks that may be defined so they are on
-          # the outermost locations of the stack
-          builder.apply_action_name(env)
-        end
+        # Now that the stack is fully expanded, apply any
+        # action hooks that may be defined so they are on
+        # the outermost locations of the stack
+        builder.apply_action_name(env)
 
         # Wrap the middleware stack with the Warden to provide a consistent
         # and predictable behavior upon exceptions.
