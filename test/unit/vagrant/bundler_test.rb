@@ -67,12 +67,27 @@ describe Vagrant::Bundler::SolutionFile do
   describe "#dependency_list=" do
     it "should accept a list of Gem::Dependency instances" do
       list = ["dep1", "dep2"].map{ |x| Gem::Dependency.new(x) }
-      expect(subject.dependency_list = list).to eq(list)
+      subject.dependency_list = list
+      expect(subject.dependency_list.map(&:dependency)).to eq(list)
     end
 
     it "should error if list includes instance not Gem::Dependency" do
       list = ["dep1", "dep2"].map{ |x| Gem::Dependency.new(x) } << :invalid
       expect{ subject.dependency_list = list }.to raise_error(TypeError)
+    end
+
+    it "should convert list into resolver dependency request" do
+      list = ["dep1", "dep2"].map{ |x| Gem::Dependency.new(x) }
+      subject.dependency_list = list
+      subject.dependency_list.each do |dep|
+        expect(dep).to be_a(Gem::Resolver::DependencyRequest)
+      end
+    end
+
+    it "should freeze the new dependency list" do
+      list = ["dep1", "dep2"].map{ |x| Gem::Dependency.new(x) }
+      subject.dependency_list = list
+      expect(subject.dependency_list).to be_frozen
     end
   end
 
@@ -118,7 +133,6 @@ describe Vagrant::Bundler::SolutionFile do
         expect(subject.solution_file.exist?).to be_falsey
       end
     end
-
 
     context "when plugin file does exist" do
       before { subject.plugin_file.write("x") }
@@ -235,6 +249,191 @@ describe Vagrant::Bundler::SolutionFile do
             end
           end
         end
+      end
+    end
+  end
+
+  describe "#load" do
+    let(:plugin_file_exists) { false }
+    let(:solution_file_exists) { false }
+    let(:plugin_file_path) { "PLUGIN_FILE_PATH" }
+    let(:solution_file_path) { "SOLUTION_FILE_PATH" }
+    let(:plugin_file) { double("plugin-file") }
+    let(:solution_file) { double("solution-file") }
+
+    subject do
+      described_class.new(plugin_file: plugin_file_path, solution_file: solution_file_path)
+    end
+
+    before do
+      allow(Pathname).to receive(:new).with(plugin_file_path).and_return(plugin_file)
+      allow(Pathname).to receive(:new).with(solution_file_path).and_return(solution_file)
+      allow(plugin_file).to receive(:exist?).and_return(plugin_file_exists)
+      allow(solution_file).to receive(:exist?).and_return(solution_file_exists)
+    end
+
+    context "when plugin file and solution file do not exist" do
+      it "should not attempt to read the solution" do
+        expect_any_instance_of(described_class).not_to receive(:read_solution)
+        subject
+      end
+    end
+
+    context "when plugin file exists and solution file does not" do
+      let(:plugin_file_exists) { true }
+
+      it "should not attempt to read the solution" do
+        expect_any_instance_of(described_class).not_to receive(:read_solution)
+        subject
+      end
+    end
+
+    context "when solution file exists and plugin file does not" do
+      let(:solution_file_exists) { true }
+
+      it "should not attempt to read the solution" do
+        expect_any_instance_of(described_class).not_to receive(:read_solution)
+        subject
+      end
+    end
+
+    context "when solution file and plugin file exist" do
+      let(:plugin_file_exists) { true }
+      let(:solution_file_exists) { true }
+
+      let(:solution_file_contents) { "" }
+
+      before do
+        allow(solution_file).to receive(:read).and_return(solution_file_contents)
+        allow_any_instance_of(described_class).to receive(:plugin_file_checksum).and_return("VALID")
+      end
+
+      context "when solution file is empty" do
+        it "should return false" do
+          expect(subject.send(:load)).to be_falsey
+        end
+      end
+
+      context "when solution file contains invalid checksum" do
+        let(:solution_file_contents) { {checksum: "INVALID", vagrant_version: Vagrant::VERSION}.to_json }
+
+        it "should return false" do
+          expect(subject.send(:load)).to be_falsey
+        end
+      end
+
+      context "when solution file contains different Vagrant version" do
+        let(:solution_file_contents) { {checksum: "VALID", vagrant_version: "0.1"}.to_json }
+
+        it "should return false" do
+          expect(subject.send(:load)).to be_falsey
+        end
+      end
+
+      context "when solution file contains valid Vagrant version and valid checksum" do
+        let(:solution_file_contents) {
+          {checksum: "VALID", vagrant_version: Vagrant::VERSION, dependencies: file_dependencies}.to_json
+        }
+        let(:file_dependencies) { dependency_list.map{|d| [d.name, d.requirements_list]} }
+        let(:dependency_list) { [] }
+
+        it "should return true" do
+          expect(subject.send(:load)).to be_truthy
+        end
+
+        it "should be valid" do
+          expect(subject).to be_valid
+        end
+
+        context "when solution file contains dependency list" do
+          let(:dependency_list) { [
+            Gem::Dependency.new("dep1", "> 0"),
+            Gem::Dependency.new("dep2", "< 3")
+          ] }
+
+          it "should be valid" do
+            expect(subject).to be_valid
+          end
+
+          it "should convert list into dependency requests" do
+            subject.dependency_list.each do |d|
+              expect(d).to be_a(Gem::Resolver::DependencyRequest)
+            end
+          end
+
+          it "should include defined dependencies" do
+            expect(subject.dependency_list.first).to eq(dependency_list.first)
+            expect(subject.dependency_list.last).to eq(dependency_list.last)
+          end
+
+          it "should freeze the dependency list" do
+            expect(subject.dependency_list).to be_frozen
+          end
+        end
+      end
+    end
+  end
+
+  describe "#read_solution" do
+    let(:solution_file_contents) { "" }
+    let(:plugin_file_path) { "PLUGIN_FILE_PATH" }
+    let(:solution_file_path) { "SOLUTION_FILE_PATH" }
+    let(:plugin_file) { double("plugin-file") }
+    let(:solution_file) { double("solution-file") }
+
+    subject do
+      described_class.new(plugin_file: plugin_file_path, solution_file: solution_file_path)
+    end
+
+    before do
+      allow(Pathname).to receive(:new).with(plugin_file_path).and_return(plugin_file)
+      allow(Pathname).to receive(:new).with(solution_file_path).and_return(solution_file)
+      allow(plugin_file).to receive(:exist?).and_return(false)
+      allow(solution_file).to receive(:exist?).and_return(false)
+      allow(solution_file).to receive(:read).and_return(solution_file_contents)
+    end
+
+    it "should return nil when file contents are empty" do
+      expect(subject.send(:read_solution)).to be_nil
+    end
+
+    context "when file contents are hash" do
+      let(:solution_file_contents) { {checksum: "VALID"}.to_json }
+
+      it "should return a hash" do
+        expect(subject.send(:read_solution)).to be_a(Hash)
+      end
+
+      it "should return a hash with indifferent access" do
+        expect(subject.send(:read_solution)).to be_a(Vagrant::Util::HashWithIndifferentAccess)
+      end
+    end
+
+    context "when file contents are array" do
+      let(:solution_file_contents) { ["test"].to_json }
+
+      it "should return a hash" do
+        expect(subject.send(:read_solution)).to be_a(Hash)
+      end
+
+      it "should return a hash with indifferent access" do
+        expect(subject.send(:read_solution)).to be_a(Vagrant::Util::HashWithIndifferentAccess)
+      end
+    end
+
+    context "when file contents are null" do
+      let(:solution_file_contents) { "null" }
+
+      it "should return nil" do
+        expect(subject.send(:read_solution)).to be_nil
+      end
+    end
+
+    context "when file contents are invalid" do
+      let(:solution_file_contents) { "{2dfwef" }
+
+      it "should return nil" do
+        expect(subject.send(:read_solution)).to be_nil
       end
     end
   end
@@ -614,117 +813,6 @@ describe Vagrant::Bundler do
           it "should use path when loading specs" do
             expect(Gem::Specification).to receive(:each_spec) { |arg| expect(arg).to include(spec_dirs.first) }
             subject.send(:vagrant_internal_specs)
-          end
-        end
-      end
-    end
-
-    describe "#enable_prerelease!" do
-      before do
-        @_ev = ENV.delete("VAGRANT_ALLOW_PRERELEASE")
-      end
-
-      after do
-        ENV["VAGRANT_ALLOW_PRERELEASE"] = @_ev
-      end
-
-      context "with specification list" do
-        let(:specifications) { [] }
-
-        it "should not modify prerelease by default" do
-          subject.send(:enable_prerelease!, specs: specifications)
-          expect(ENV["VAGRANT_ALLOW_PRERELEASE"]).to be_falsey
-        end
-
-        it "should not have enabled allow prerelease dependencies" do
-          subject.send(:enable_prerelease!, specs: specifications)
-          expect(Vagrant.allow_prerelease_dependencies?).to be_falsey
-        end
-
-        context "when specifications do not contain prerelease versions" do
-          let(:specifications) { [
-            double("spec1", full_name: "spec1", version: double("version1", prerelease?: false)),
-            double("spec2", full_name: "spec2", version: double("version2", prerelease?: false)),
-            double("spec3", full_name: "spec3", version: double("version3", prerelease?: false))
-          ] }
-
-          it "should not modify prerelease" do
-            subject.send(:enable_prerelease!, specs: specifications)
-            expect(ENV["VAGRANT_ALLOW_PRERELEASE"]).to be_falsey
-          end
-
-          it "should not have enabled allow prerelease dependencies" do
-            subject.send(:enable_prerelease!, specs: specifications)
-            expect(Vagrant.allow_prerelease_dependencies?).to be_falsey
-          end
-        end
-
-        context "when specifications contain prerelease versions" do
-          let(:specifications) { [
-            double("spec1", full_name: "spec1", version: double("version1", prerelease?: false)),
-            double("spec2", full_name: "spec2", version: double("version2", prerelease?: true)),
-            double("spec3", full_name: "spec3", version: double("version3", prerelease?: false))
-          ] }
-
-          it "should enable prerelease" do
-            subject.send(:enable_prerelease!, specs: specifications)
-            expect(ENV["VAGRANT_ALLOW_PRERELEASE"]).to be_truthy
-          end
-
-          it "should have enabled allow prerelease dependencies" do
-            subject.send(:enable_prerelease!, specs: specifications)
-            expect(Vagrant.allow_prerelease_dependencies?).to be_truthy
-          end
-        end
-      end
-
-      context "with request set" do
-        let(:request_set) { double("request_set", dependencies: dependencies) }
-        let(:dependencies) { [] }
-
-        it "should not modify prerelease by default" do
-          subject.send(:enable_prerelease!, request_set: request_set)
-          expect(ENV["VAGRANT_ALLOW_PRERELEASE"]).to be_falsey
-        end
-
-        it "should not have enabled allow prerelease dependencies" do
-          subject.send(:enable_prerelease!, request_set: request_set)
-          expect(Vagrant.allow_prerelease_dependencies?).to be_falsey
-        end
-
-        context "when specifications do not contain prerelease versions" do
-          let(:dependencies) { [
-            double("dep1", prerelease?: false, to_s: nil),
-            double("dep2", prerelease?: false, to_s: nil),
-            double("dep3", prerelease?: false, to_s: nil)
-          ] }
-
-          it "should not modify prerelease" do
-            subject.send(:enable_prerelease!, request_set: request_set)
-            expect(ENV["VAGRANT_ALLOW_PRERELEASE"]).to be_falsey
-          end
-
-          it "should not have enabled allow prerelease dependencies" do
-            subject.send(:enable_prerelease!, request_set: request_set)
-            expect(Vagrant.allow_prerelease_dependencies?).to be_falsey
-          end
-        end
-
-        context "when specifications contain prerelease versions" do
-          let(:dependencies) { [
-            double("dep1", prerelease?: false, to_s: nil),
-            double("dep2", prerelease?: true, to_s: nil),
-            double("dep3", prerelease?: false, to_s: nil)
-          ] }
-
-          it "should enable prerelease" do
-            subject.send(:enable_prerelease!, request_set: request_set)
-            expect(ENV["VAGRANT_ALLOW_PRERELEASE"]).to be_truthy
-          end
-
-          it "should have enabled allow prerelease dependencies" do
-            subject.send(:enable_prerelease!, request_set: request_set)
-            expect(Vagrant.allow_prerelease_dependencies?).to be_truthy
           end
         end
       end
