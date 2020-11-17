@@ -6,6 +6,8 @@ IMPROVEMENTS:
 
 BUG FIXES:
 
+- core: Track raw actions as they are applied to prevent multiple insertions [GH-12037]
+
 ## 2.2.13 (November 06, 2020)
 
 BUG FIXES:
