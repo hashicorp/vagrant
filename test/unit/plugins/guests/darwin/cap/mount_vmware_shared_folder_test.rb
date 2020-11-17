@@ -8,7 +8,8 @@ describe "VagrantPlugins::GuestDarwin::Cap::MountVmwareSharedFolder" do
       .get(:mount_vmware_shared_folder)
   end
 
-  let(:machine) { double("machine", communicate: communicator, id: "MACHINE_ID") }
+  let(:machine) { double("machine", communicate: communicator, id: "MACHINE_ID", guest: guest) }
+  let(:guest) {double("guest")}
   let(:communicator) { double("communicator") }
 
   before do
@@ -27,8 +28,9 @@ describe "VagrantPlugins::GuestDarwin::Cap::MountVmwareSharedFolder" do
       described_class.reset!
     end
 
-    after { described_class.
-        mount_vmware_shared_folder(machine, name, guestpath, options) }
+    after { 
+      described_class.mount_vmware_shared_folder(machine, name, guestpath, options) 
+    }
 
     context "with APFS root container" do
       before do
@@ -71,6 +73,21 @@ describe "VagrantPlugins::GuestDarwin::Cap::MountVmwareSharedFolder" do
 
         it "should create the symlink within the writable APFS container" do
           expect(communicator).to receive(:sudo).with(%r{ln -s .+/System/Volumes/Data.+})
+        end
+
+        {
+          19 => "-B",
+          20 => "-t",
+          21 => "-t",
+          nil => "-B"
+        }.each do |version, expected_flag|
+          it "should re-bootstrap root dir for darwin version #{version}" do
+            expect(communicator).to receive(:sudo).with(/apfs.util #{expected_flag}/, any_args)
+            expect(guest).to receive(:capability).with("darwin_major_version").and_return(version)
+
+            described_class.mount_vmware_shared_folder(machine, name, guestpath, options) 
+            described_class.apfs_firmlinks_delayed[machine.id].call
+          end
         end
 
         context "when firmlink is provided by the system" do
