@@ -255,21 +255,6 @@ describe Vagrant::Action::Builder do
       subject.call(data)
 
       expect(data[:data]).to eq([1, 2])
-      expect(data[:builder_applied]).to eq(:test_action)
-    end
-
-    it "applies without adding action hooks/triggers if it has already" do
-      hook_proc = proc{ |h| h.append(appender_proc(2)) }
-      expect(manager).to receive(:action_hooks).with(:test_action).
-        and_return([hook_proc])
-
-      data[:action_name] = :test_action
-
-      subject.use appender_proc(1)
-      subject.call(data.merge(builder_applied: :test_action))
-
-      expect(data[:data]).to eq([1])
-      subject.call(data)
     end
   end
 
@@ -363,6 +348,65 @@ describe Vagrant::Action::Builder do
       instance.call(data)
       expect(data[:data].first).to eq(:first)
       expect(data[:data].last).to eq(2)
+    end
+
+    context "when hook matches action in subsequent builder" do
+      let(:hook_action_name) { ActionOne }
+
+      before do
+        data[:action_name] = :test_action_name
+        data[:raw_action_name] = :machine_test_action_name
+      end
+
+      it "should execute the hook" do
+        described_class.build(ActionTwo).call(data)
+        described_class.build(ActionOne).call(data)
+        expect(data[:data]).to include(:first)
+      end
+    end
+
+    context "when hook matches action name in subsequent builder" do
+      let(:hook_action_name) { :test_action_name }
+
+      before do
+        data[:action_name] = :test_action_name
+        data[:raw_action_name] = :machine_test_action_name
+      end
+
+      it "should execute the hook" do
+        described_class.build(ActionTwo).call(data)
+        described_class.build(ActionOne).call(data)
+        expect(data[:data]).to include(:first)
+      end
+
+      it "should execute the hook multiple times" do
+        described_class.build(ActionTwo).call(data)
+        described_class.build(ActionOne).call(data)
+        expect(data[:data].count{|d| d == :first}).to eq(2)
+      end
+    end
+
+    context "when applying triggers" do
+      let(:triggers) { double("triggers") }
+
+      before do
+        data[:action_name] = :test_action_name
+        data[:raw_action_name] = :machine_test_action_name
+        data[:triggers] = triggers
+        allow(triggers).to receive(:find).and_return([])
+      end
+
+      it "should attempt to find triggers based on raw action" do
+        expect(triggers).to receive(:find).with(data[:raw_action_name], any_args).and_return([])
+        described_class.build(ActionOne).call(data)
+      end
+
+      it "should only attempt to find triggers based on raw action once" do
+        expect(triggers).to receive(:find).with(data[:raw_action_name], :before, any_args).once.and_return([])
+        expect(triggers).to receive(:find).with(data[:raw_action_name], :after, any_args).once.and_return([])
+        described_class.build(ActionOne).call(data)
+        described_class.build(ActionOne).call(data)
+      end
     end
 
     context "when hook is appending to action" do

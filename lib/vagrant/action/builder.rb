@@ -173,23 +173,16 @@ module Vagrant
         # be modified
         builder = self.dup
 
-        if env[:builder_applied] != env[:action_name]
-          apply_action_name = true
-          env[:builder_applied] = env[:action_name]
-        end
-
         # Apply all dynamic modifications of the stack. This
         # will generate dynamic hooks for all actions within
         # the stack, load any triggers for action classes, and
         # apply them to the builder's stack
         builder.apply_dynamic_updates(env)
 
-        if apply_action_name
-          # Now that the stack is fully expanded, apply any
-          # action hooks that may be defined so they are on
-          # the outermost locations of the stack
-          builder.apply_action_name(env)
-        end
+        # Now that the stack is fully expanded, apply any
+        # action hooks that may be defined so they are on
+        # the outermost locations of the stack
+        builder.apply_action_name(env)
 
         # Wrap the middleware stack with the Warden to provide a consistent
         # and predictable behavior upon exceptions.
@@ -265,6 +258,7 @@ module Vagrant
       # @param [Hash] env Call environment
       # @return [Builder]
       def apply_action_name(env)
+        env[:builder_raw_applied] ||= []
         return self if !env[:action_name]
 
         hook = Hook.new
@@ -293,7 +287,9 @@ module Vagrant
         # are the originally implemented trigger style. They run before
         # and after specific provider actions (like :up, :halt, etc) and
         # are different from true action triggers
-        if env[:triggers]
+        if env[:triggers] && !env[:builder_raw_applied].include?(env[:raw_action_name])
+          env[:builder_raw_applied] << env[:raw_action_name]
+
           if !env[:triggers].find(env[:raw_action_name], :before, machine_name, :action, all: true).empty?
             hook.prepend(Vagrant::Action::Builtin::Trigger,
               env[:raw_action_name], env[:triggers], :before, :action, all: true)
