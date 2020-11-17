@@ -81,9 +81,15 @@ module VagrantPlugins
                   content = @apply_firmlinks[machine.id][:content].join("\n")
                   # Write out the synthetic file
                   comm.sudo("echo -e #{content.inspect} > /etc/synthetic.conf")
-                  if @apply_firmlinks[:bootstrap]
+                  if @apply_firmlinks[machine.id][:bootstrap]
+                    case machine.guest.capability("flavor")
+                    when :big_sur
+                      apfs_bootstrap_flag = "-t"
+                    else
+                      apfs_bootstrap_flag = "-B"
+                    end
                     # Re-bootstrap the root container to pick up firmlink updates
-                    comm.sudo("/System/Library/Filesystems/apfs.fs/Contents/Resources/apfs.util -B")
+                    comm.sudo("/System/Library/Filesystems/apfs.fs/Contents/Resources/apfs.util #{apfs_bootstrap_flag}", good_exit: [0, 253])
                   end
                 end
               end

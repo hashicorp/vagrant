@@ -31,6 +31,11 @@ module VagrantPlugins
         Cap::ConfigureNetworks
       end
 
+      guest_capability(:darwin, :flavor) do
+        require_relative "cap/flavor"
+        Cap::Flavor
+      end
+
       guest_capability(:darwin, :halt) do
         require_relative "cap/halt"
         Cap::Halt
