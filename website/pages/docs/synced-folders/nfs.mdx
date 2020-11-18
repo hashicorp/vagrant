@@ -244,6 +244,11 @@ describes how to possibly identify the root of the issue.
   the command `ps aux | grep nfsd`. If the nfs service is not running, 
   then it may require a manual restart.
 
+* Check status of nfs-kernel-server `systemctl status nfs-kernel-server` for
+  errors like `exportfs: Failed to stat /path : No such file or directory`. 
+  Then create the missing directory or remove the line from `/etc/exports` 
+  and restart the nfs-kerne-server `sysctemctl start nfs-kernel-server`
+
 * If using Mac, ensure that `/sbin/nfsd` has been given Full Disk Access.
 
 * Ensure the synced folder is present in the hosts `/etc/exports` file.
