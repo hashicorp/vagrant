@@ -8,6 +8,7 @@ BUG FIXES:
 
 - core: Track raw actions as they are applied to prevent multiple insertions [GH-12037]
 - core/bundler: Update solution file resolution to support prerelease matching [GH-12054]
+- guest/darwin: Mount vmware synced folders for big sur guests [GH-12053]
 
 ## 2.2.13 (November 06, 2020)
 
