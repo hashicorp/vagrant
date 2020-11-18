@@ -4,6 +4,9 @@ module VagrantPlugins
   module GuestDarwin
     module Cap
       class MountVmwareSharedFolder
+
+        MACOS_BIGSUR_DARWIN_VERSION = 20.freeze
+
         # Entry point for hook to called delayed actions
         # which finalizing the synced folders setup on
         # the guest
@@ -81,9 +84,16 @@ module VagrantPlugins
                   content = @apply_firmlinks[machine.id][:content].join("\n")
                   # Write out the synthetic file
                   comm.sudo("echo -e #{content.inspect} > /etc/synthetic.conf")
-                  if @apply_firmlinks[:bootstrap]
+                  if @apply_firmlinks[machine.id][:bootstrap]
+                    if machine.guest.capability("darwin_major_version").to_i < MACOS_BIGSUR_DARWIN_VERSION
+                      apfs_bootstrap_flag = "-B"
+                      expected_rc = 0
+                    else
+                      apfs_bootstrap_flag = "-t"
+                      expected_rc = 253
+                    end
                     # Re-bootstrap the root container to pick up firmlink updates
-                    comm.sudo("/System/Library/Filesystems/apfs.fs/Contents/Resources/apfs.util -B")
+                    comm.sudo("/System/Library/Filesystems/apfs.fs/Contents/Resources/apfs.util #{apfs_bootstrap_flag}", good_exit: [expected_rc])
                   end
                 end
               end

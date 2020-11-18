@@ -31,6 +31,16 @@ module VagrantPlugins
         Cap::ConfigureNetworks
       end
 
+      guest_capability(:darwin, :darwin_version) do
+        require_relative "cap/darwin_version"
+        Cap::DarwinVersion
+      end
+
+      guest_capability(:darwin, :darwin_major_version) do
+        require_relative "cap/darwin_version"
+        Cap::DarwinVersion
+      end
+
       guest_capability(:darwin, :halt) do
         require_relative "cap/halt"
         Cap::Halt
