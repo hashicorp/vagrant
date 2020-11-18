@@ -4,6 +4,8 @@ FEATURES:
 
 IMPROVEMENTS:
 
+- host/windows: Update filesystem type matching on WSL2 [GH-12056]
+
 BUG FIXES:
 
 - core: Track raw actions as they are applied to prevent multiple insertions [GH-12037]
