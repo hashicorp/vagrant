@@ -29,7 +29,8 @@ describe VagrantPlugins::HyperV::Action::Configure do
       enable_automatic_checkpoints: true,
       enable_virtualization_extensions: false,
       vm_integration_services: vm_integration_services,
-      enable_enhanced_session_mode: enable_enhanced_session_mode
+      enable_enhanced_session_mode: enable_enhanced_session_mode,
+      enable_trusted_platform_module: false
     )
   }
   let(:vm_integration_services){ {} }
