@@ -102,6 +102,23 @@ describe VagrantPlugins::DockerProvider::Config do
     end
   end
 
+  describe "#check_usable" do
+    it "should be set to false be default" do
+      subject.image = "foo"
+      subject.finalize!
+      assert_valid
+      expect(subject.check_usable).to eq(true)
+    end
+
+    it "should be set to true if vagrantfile is provided" do
+      subject.image = "foo"
+      subject.vagrant_vagrantfile = __FILE__
+      subject.finalize!
+      assert_valid
+      expect(subject.check_usable).to eq(false)
+    end
+  end
+
   describe "#build_dir" do
     it "should be valid if not set with image or git repo" do
       subject.build_dir = nil

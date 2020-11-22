@@ -13,6 +13,11 @@ describe Vagrant::Vagrantfile do
     Vagrant::Config::Loader.new(
       Vagrant::Config::VERSIONS, Vagrant::Config::VERSIONS_ORDER)
   }
+  let(:custom_config) {
+    Class.new(Vagrant.plugin("2", "config")) do
+      attr_accessor :value
+    end
+  }
 
   subject { described_class.new(loader, keys) }
 
@@ -66,11 +71,7 @@ describe Vagrant::Vagrantfile do
     subject { vagrantfile.machine(:default, :foo, boxes, data_path, env) }
 
     before do
-      @foo_config_cls = Class.new(Vagrant.plugin("2", "config")) do
-        attr_accessor :value
-      end
-
-      @provider_cls = register_provider("foo", @foo_config_cls)
+      @provider_cls = register_provider("foo", custom_config)
 
       configure do |config|
         config.vm.box = "foo"
@@ -129,7 +130,7 @@ describe Vagrant::Vagrantfile do
     end
 
     it "loads the provider-specific configuration" do
-      expect(subject.provider_config).to be_kind_of(@foo_config_cls)
+      expect(subject.provider_config).to be_kind_of(custom_config)
       expect(subject.provider_config.value).to eq("rawr")
     end
   end
@@ -139,7 +140,7 @@ describe Vagrant::Vagrantfile do
     let(:boxes) { Vagrant::BoxCollection.new(iso_env.boxes_dir) }
 
     it "should return a basic configured machine" do
-      provider_cls = register_provider("foo")
+      provider_cls = register_provider("foo", custom_config)
 
       configure do |config|
         config.vm.box = "foo"
@@ -154,7 +155,7 @@ describe Vagrant::Vagrantfile do
     end
 
     it "configures without a provider or boxes" do
-      register_provider("foo")
+      register_provider("foo", custom_config)
 
       configure do |config|
         config.vm.box = "foo"
@@ -169,7 +170,7 @@ describe Vagrant::Vagrantfile do
     end
 
     it "configures with sub-machine config" do
-      register_provider("foo")
+      register_provider("foo", custom_config)
 
       configure do |config|
         config.ssh.port = "1"
@@ -187,7 +188,7 @@ describe Vagrant::Vagrantfile do
     end
 
     it "configures with box configuration if it exists" do
-      register_provider("foo")
+      register_provider("foo", custom_config)
 
       configure do |config|
         config.vm.box = "base"
@@ -209,7 +210,7 @@ describe Vagrant::Vagrantfile do
     end
 
     it "does not configure box configuration if set to ignore" do
-      register_provider("foo")
+      register_provider("foo", custom_config)
 
       configure do |config|
         config.vm.box = "base"
@@ -234,7 +235,7 @@ describe Vagrant::Vagrantfile do
     end
 
     it "configures with the proper box version" do
-      register_provider("foo")
+      register_provider("foo", custom_config)
 
       configure do |config|
         config.vm.box = "base"
@@ -264,7 +265,7 @@ describe Vagrant::Vagrantfile do
     end
 
     it "configures with box config of other supported formats" do
-      register_provider("foo", nil, box_format: "bar")
+      register_provider("foo", custom_config, box_format: "bar")
 
       configure do |config|
         config.vm.box = "base"
@@ -283,8 +284,8 @@ describe Vagrant::Vagrantfile do
     end
 
     it "loads provider overrides if set" do
-      register_provider("foo")
-      register_provider("bar")
+      register_provider("foo", custom_config)
+      register_provider("bar", custom_config)
 
       configure do |config|
         config.ssh.port = 1
@@ -309,7 +310,7 @@ describe Vagrant::Vagrantfile do
     end
 
     it "loads the proper box if in a provider override" do
-      register_provider("foo")
+      register_provider("foo", custom_config)
 
       configure do |config|
         config.vm.box = "base"
@@ -355,21 +356,21 @@ describe Vagrant::Vagrantfile do
     end
 
     it "raises an error if the provider is not found but gives suggestion" do
-      register_provider("foo")
+      register_provider("foo", custom_config)
 
       expect { subject.machine_config(:default, :Foo, boxes) }.
         to raise_error(Vagrant::Errors::ProviderNotFoundSuggestion)
     end
 
     it "raises an error if the provider is not usable" do
-      register_provider("foo", nil, unusable: true)
+      register_provider("foo", custom_config, unusable: true)
 
       expect { subject.machine_config(:default, :foo, boxes) }.
         to raise_error(Vagrant::Errors::ProviderNotUsable)
     end
 
     it "does not try to load the box if the box is empty" do
-      provider_cls = register_provider("foo")
+      register_provider("foo", custom_config)
 
       configure do |config|
         config.vm.box = ""
@@ -377,6 +378,47 @@ describe Vagrant::Vagrantfile do
 
       expect(boxes).not_to receive(:find)
       results = subject.machine_config(:default, :foo, boxes)
+    end
+
+    context "when provider usability check is disabled" do
+      before do
+        @check_usable_config = Class.new(Vagrant.plugin("2", "config")) do
+          attr_accessor :check_usable
+          def initialize
+            @check_usable = true
+          end
+        end
+        @provider_cls = register_provider("foo", @check_usable_config, unusable: true)
+      end
+
+      it "raises an error by default" do
+        configure do |config|
+          config.vm.box = "foo"
+        end
+        expect { subject.machine_config(:default, :foo, boxes) }.
+        to raise_error(Vagrant::Errors::ProviderNotUsable)
+      end
+
+      it "raises an error by if check_usable is true" do
+        configure do |config|
+          config.vm.box = "foo"
+          config.vm.provider "foo" do |p|
+            p.check_usable = true
+          end
+        end
+        expect { subject.machine_config(:default, :foo, boxes) }.
+        to raise_error(Vagrant::Errors::ProviderNotUsable)
+      end
+
+      it "does not raise an error by if check_usable is false" do
+        configure do |config|
+          config.vm.box = "foo"
+          config.vm.provider "foo" do |p|
+            p.check_usable = false
+          end
+        end
+        subject.machine_config(:default, :foo, boxes)
+      end
     end
 
     context "when provider validation is ignored" do
@@ -417,7 +459,7 @@ describe Vagrant::Vagrantfile do
       let(:box_version) { "2.0" }
 
       before do
-        register_provider("foo")
+        register_provider("foo", custom_config)
         iso_env.box3("base", "1.0", :foo)
         allow(data_path).to receive(:join).with("box_meta").
           and_return(meta_file)
