@@ -4,8 +4,6 @@ require_relative '../proto/gen/plugin_services_pb'
 require 'grpc'
 require 'grpc/health/checker'
 require 'grpc/health/v1/health_services_pb'
-require 'openssl'
-require 'optparse'
 
 class ProviderService < Hashicorp::Vagrant::Sdk::Provider::Service
   def documentation(req, _unused_call)
