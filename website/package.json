@@ -20,6 +20,7 @@
     "@hashicorp/react-vertical-text-block-list": "3.0.1",
     "next": "9.5.5",
     "next-mdx-remote": "^1.0.0",
+    "next-remote-watch": "^0.2.0",
     "react": "16.13.1",
     "react-dom": "16.13.1"
   },
@@ -40,7 +41,7 @@
     "generate:component": "next-hashicorp generate component",
     "generate:readme": "next-hashicorp markdown-blocks README.md",
     "lint": "next-hashicorp lint",
-    "start": "rm -rf .next/cache/next-babel-loader/ && next dev",
+    "start": "next-remote-watch ./content/**/*.mdx",
     "static": "npm run build && npm run export && cp _redirects out/.",
     "linkcheck": "linkcheck https://vagrantup.com"
   }
