@@ -1,0 +1,56 @@
+---
+layout: docs
+page_title: Disks for VirtualBox Provider
+sidebar_title: VirtualBox
+description: |-
+  Vagrant comes with support out of the box for VirtualBox, a free,
+  cross-platform consumer virtualization product.
+---
+
+# VirtualBox
+
+~> **Warning!** This feature is experimental and may break or
+change in between releases. Use at your own risk. It currently is not officially
+supported.
+
+This feature currently reqiures the experimental flag to be used. To explicitly enable this feature, you can set the experimental flag to:
+
+```
+VAGRANT_EXPERIMENTAL="disks"
+```
+
+Please note that `VAGRANT_EXPERIMENTAL` is an environment variable. For more
+information about this flag visit the [Experimental docs page](/docs/experimental/)
+for more info. Without this flag enabled, any disks defined will not be configured.
+
+**Vagrant currently only supports VirtualBox version 5.x and newer for configuring and
+attaching disks.**
+
+Because of how VirtualBox handles disk management, a Vagrant guest _must_ be powered
+off for any changes to be applied to a guest. If you make a configuration change
+with a guests disk, you will need to `vagrant reload` the guest for any changes
+to be applied.
+
+When new disks are defined to be attached to a guest, Vagrant will attach
+disks to a particular storage controller based on the type of disk configured:
+
+- For the `:disk` type, Vagrant will use the storage controller containing the
+  boot disk. It will also create the disk if necessary.
+- For the `:dvd` type, Vagrant will attach the disk to the storage controller
+  that comes earliest in the machine's boot order. For example, if a VM has a
+  SATA controller and an IDE controller, the disk will be attached to the IDE
+  controller.
+
+Vagrant will not be able to configure disks of a given type if the associated
+storage controller does not exist. In this case, you may use
+[provider-specific customizations](/docs/providers/virtualbox/configuration#vboxmanage-customizations)
+to add a required storage controller.
+
+It should also be noted that storage controllers have different limits for the
+number of disks that can be attached. Attempting to configure more than the
+maximum number of disks for a storage controller type will result in a Vagrant
+error.
+
+For more information on how to use VirtualBox to configure disks for a guest, refer
+to the [general usage](/docs/disks/usage) and [configuration](/docs/disks/configuration)
+guide for more information.
