@@ -34,26 +34,9 @@ def main
     Grpc::Health::V1::HealthCheckResponse::ServingStatus::SERVING)
   s.handle(health_checker)
 
-  t = Thread.new {
-    s.run_till_terminated_or_interrupted([1, 'int', 'SIGQUIT', 'SIGINT'])
-  }
-
-  threads = [
-    t,
-    Thread.new {
-      STDOUT.puts "1|1|tcp|127.0.0.1:10001|grpc"
-      STDOUT.flush
-    }
-  ]
-
-  threads.each { |tr| tr.join }
-
-  catch :ctrl_c do
-    t.exit
-    abort("goodbye")
-  end
+  STDOUT.puts "1|1|tcp|127.0.0.1:10001|grpc"
+  STDOUT.flush
+  s.run_till_terminated_or_interrupted([1, 'int', 'SIGQUIT', 'SIGINT'])
 end
-
-trap("SIGINT") { throw :ctrl_c }
 
 main()
