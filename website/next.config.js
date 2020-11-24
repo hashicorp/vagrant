@@ -13,7 +13,6 @@ module.exports = withHashicorp({
       },
     ],
   },
-  experimental: { modern: true },
   env: {
     HASHI_ENV: process.env.HASHI_ENV || 'development',
     SEGMENT_WRITE_KEY: 'wFMyBE4PJCZttWfu0pNhYdWr7ygW0io4',

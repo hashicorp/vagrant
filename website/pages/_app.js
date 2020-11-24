@@ -18,7 +18,7 @@ const { ConsentManager, openConsentManager } = createConsentManager({
   preset: 'oss',
 })
 
-function App({ Component, pageProps }) {
+export default function App({ Component, pageProps }) {
   useAnchorLinkAnalytics()
 
   return (
@@ -31,18 +31,6 @@ function App({ Component, pageProps }) {
           portable development environments."
         image="https://www.vagrantup.com/img/og-image.png"
         icon={[{ href: '/favicon.ico' }]}
-        preload={[
-          { href: '/fonts/klavika/medium.woff2', as: 'font' },
-          { href: '/fonts/gilmer/light.woff2', as: 'font' },
-          { href: '/fonts/gilmer/regular.woff2', as: 'font' },
-          { href: '/fonts/gilmer/medium.woff2', as: 'font' },
-          { href: '/fonts/gilmer/bold.woff2', as: 'font' },
-          { href: '/fonts/metro-sans/book.woff2', as: 'font' },
-          { href: '/fonts/metro-sans/regular.woff2', as: 'font' },
-          { href: '/fonts/metro-sans/semi-bold.woff2', as: 'font' },
-          { href: '/fonts/metro-sans/bold.woff2', as: 'font' },
-          { href: '/fonts/dejavu/mono.woff2', as: 'font' },
-        ]}
       />
       <HashiStackMenu />
       <ProductSubnav />
@@ -54,21 +42,3 @@ function App({ Component, pageProps }) {
     </ErrorBoundary>
   )
 }
-
-App.getInitialProps = async ({ Component, ctx }) => {
-  let pageProps = {}
-
-  if (Component.getInitialProps) {
-    pageProps = await Component.getInitialProps(ctx)
-  } else if (Component.isMDXComponent) {
-    // fix for https://github.com/mdx-js/mdx/issues/382
-    const mdxLayoutComponent = Component({}).props.originalType
-    if (mdxLayoutComponent.getInitialProps) {
-      pageProps = await mdxLayoutComponent.getInitialProps(ctx)
-    }
-  }
-
-  return { pageProps }
-}
-
-export default App

@@ -1,0 +1,214 @@
+---
+layout: docs
+page_title: Installation - VMware Provider
+sidebar_title: VMware Utility
+description: |-
+  The Vagrant VMware Utility works with the Vagrant VMware Provider to
+  interact with the system VMware installation.
+---
+
+# Vagrant VMware Utility Installation
+
+## System Packages
+
+The Vagrant VMware Utility is provided as a system package. To install the
+utility, download and install the correct system package from the downloads
+page.
+
+<Button title={`Download ${VMWARE_UTILITY_VERSION}`} url="/vmware/downloads" />
+
+## Manual Installation
+
+If there is no officially supported system package of the utility available,
+it may be possible to manually install utility. This applies to Linux platforms
+only. First, download the latest zip package from the releases page.
+
+Next create a directory for the executable and unpack the executable as
+root.
+
+```shell-session
+$ sudo mkdir -p /opt/vagrant-vmware-desktop/bin
+$ sudo unzip -d /opt/vagrant-vmware-desktop/bin vagrant-vmware-utility_1.0.0_linux_amd64.zip
+```
+
+After the executable has been installed, the utility setup tasks must be run. First,
+generate the required certificates:
+
+```shell-session
+$ sudo /opt/vagrant-vmware-desktop/bin/vagrant-vmware-utility certificate generate
+```
+
+The path provided from this command can be used to set the [`utility_certificate_path`](/docs/vmware/configuration#utility_certificate_path) in the Vagrantfile
+configuration if installing to a non-standard path.
+
+Finally, install the service. This will also enable the service.
+
+```shell-session
+$ sudo /opt/vagrant-vmware-desktop/bin/vagrant-vmware-utility service install
+```
+
+# Usage
+
+The Vagrant VMware Utility provides the Vagrant VMware provider plugin access
+to various VMware functionalities. The Vagrant VMware Utility is required by
+the Vagrant VMware Desktop provider plugin.
+
+## Vagrant VMware Utility Access
+
+The Vagrant VMware Utility provides support for all users on the system using
+the Vagrant VMware Desktop plugin. If access restrictions to the Utility need
+to be applied to users on the system, this can be accomplished by restricting
+user access to the certificates used for connecting to the service.
+
+On Windows platforms these certificates can be found at:
+
+```text
+C:\ProgramData\HashiCorp\vagrant-vmware-desktop\certificates
+```
+
+On POSIX-style platforms these certificates can be found at:
+
+```text
+/opt/vagrant-vmware-desktop/certificates
+```
+
+## Vagrant VMware Utility Service
+
+The Vagrant VMware Utility consists of a small service which runs on the
+host platform. When the utility installer package is installed, the service
+is configured to automatically start. If the plugin reports errors communicating
+with the service, it may have stopped for some reason. The most common cause of
+the service not being in a running state is the VMware application not being
+installed. The service can be started again by using the proper command below:
+
+### Windows
+
+On Windows platforms a service is created called `vagrant-vmware-utility`. The
+service can be manually started using the services GUI (`services.msc`) or by
+running the following command from a `cmd.exe` in administrator mode:
+
+```shell-session
+$ net.exe start vagrant-vmware-utility
+```
+
+### macOS
+
+```shell-session
+$ sudo launchctl load -w /Library/LaunchDaemons/com.vagrant.vagrant-vmware-utility.plist
+```
+
+### Linux systemd
+
+```shell-session
+$ sudo systemctl start vagrant-vmware-utility
+```
+
+### Linux SysVinit
+
+```shell-session
+$ sudo /etc/init.d/vagrant-vmware-utility start
+```
+
+### Linux runit
+
+```shell-session
+$ sudo sv start vagrant-vmware-utility
+```
+
+## Utility Service Configuration
+
+When installing the Vagrant VMware utility service, a configuration file is generated
+that is used when the process is started. On windows, this can be found at:
+
+```text
+C:\ProgramData\HashiCorp\vagrant-vmware-desktop\config\service.hcl
+```
+
+On POSIX-style systems, it can be found at:
+
+```text
+/opt/vagrant-vmware-desktop/config/service.hcl
+```
+
+The configuration file uses the [HCL](https://github.com/hashicorp/hcl) configuration
+language. It supports a subset of the options provided by the CLI. An example configuration
+file looks like:
+
+```hcl
+core {
+  level = "info"
+}
+
+api {
+  port = 9922
+  driver = "advanced"
+  license_override = "standard"
+}
+```
+
+### Core options
+
+- `level` (string) - Output level of the logger
+- `log_file` (string) - Store logs to file at given path
+- `log_append` (bool) - Append log output to existing file
+
+### API options
+
+- `port` (int) - Port to bind the API (changes require changes to [Vagrant configuration](/docs/providers/vmware/configuration#utility_port))
+- `driver` (string) - Internal driver to use (utility will auto-detect correct driver)
+- `license_override` (string) - Override the detected VMware license (standard or professional)
+
+#### Restarting the service
+
+After updating the the configuration file, the service must be restarted. The method
+for restarting the service will depend on your host platform.
+
+For Windows:
+
+On Windows platforms a service is created called `vagrant-vmware-utility`. The
+service can be manually stopped and started using the services GUI (`services.msc`) or by
+running the following command from a `cmd.exe` in administrator mode:
+
+```shell-session
+$ net.exe stop vagrant-vmware-utility
+$ net.exe start vagrant-vmware-utility
+```
+
+For macOS:
+
+```shell-session
+$ sudo launchctl unload -w /Library/LaunchDaemons/com.vagrant.vagrant-vmware-utility.plist
+$ sudo launchctl load -w /Library/LaunchDaemons/com.vagrant.vagrant-vmware-utility.plist
+```
+
+For Linux systemd:
+
+```shell-session
+$ sudo systemctl restart vagrant-vmware-utility
+```
+
+For Linux SysVinit:
+
+```shell-session
+$ sudo /etc/init.d/vagrant-vmware-utility restart
+```
+
+For Linux runit:
+
+```shell-session
+$ sudo sv restart vagrant-vmware-utility
+```
+
+### macOS service configuration
+
+The Vagrant VMware utility service configuration on macOS is slightly different
+than other platforms. If the `port` option is updated in the configuration file,
+it will not be applied after restarting the service. This is due to the port
+being defined directly within the service file so it properly matches the service
+socket information. To update the port on macOS, it is easier to uninstall the
+service and then install it again:
+
+```shell-session
+$ /opt/vagrant-vmware-desktop/bin/vagrant-vmware-utility service uninstall
+$ /opt/vagrant-vmware-desktop/bin/vagrant-vmware-utility service install -port=9999
+```
