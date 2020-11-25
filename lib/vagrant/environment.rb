@@ -1054,7 +1054,7 @@ module Vagrant
       if !Util::Platform.windows?
         # On Windows, permissions don't matter as much, so don't worry
         # about doing chmod.
-        if Util::FileMode.from_octal(@default_private_key_path.stat.mode) != "600"
+        if Util::FileMode.from_octal(@default_private_key_path.stat.mode) < "600"
           @logger.info("Changing permissions on private key to 0600")
           @default_private_key_path.chmod(0600)
         end
