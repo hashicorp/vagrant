@@ -9,12 +9,12 @@ require 'grpc/health/v1/health_services_pb'
 
 class PluginService < Hashicorp::Vagrant::RubyVagrant::Service
   def get_plugins(req, _unused_call)
+    
     plugins = [Hashicorp::Vagrant::Plugin.new(name: "test")]
     Hashicorp::Vagrant::GetPluginsResponse.new(
       plugins: plugins
     )
   end
-
 end
 
 def main
