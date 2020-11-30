@@ -8,10 +8,10 @@ module VagrantPlugins
     module Serve
       class PluginService < Hashicorp::Vagrant::RubyVagrant::Service
         def get_plugins(req, _unused_call)
-          ruby_plugins = Vagrant::Plugin::Manager.instance.installed_plugins
-          ruby_plugins.map { |k, v| Hashicorp::Vagrant::Plugin.new(name: k) }
+          installed_plugins = Vagrant::Plugin::Manager.instance.installed_plugins
+          ruby_plugins = installed_plugins.map { |k, v| Hashicorp::Vagrant::Plugin.new(name: k) }
           Hashicorp::Vagrant::GetPluginsResponse.new(
-            plugins: plugins
+            plugins: ruby_plugins
           )
         end
       end
