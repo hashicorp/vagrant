@@ -2,7 +2,7 @@
 # Source: internal/server/proto/ruby-server.proto for package 'hashicorp.vagrant'
 
 require 'grpc'
-require_relative 'ruby-server_pb'
+require_relative './ruby-server_pb'
 
 module Hashicorp
   module Vagrant

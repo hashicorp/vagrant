@@ -6,29 +6,29 @@ require 'google/protobuf'
 require 'google/protobuf/empty_pb'
 Google::Protobuf::DescriptorPool.generated_pool.build do
   add_file("internal/server/proto/ruby-server.proto", :syntax => :proto3) do
-    add_message "hashicorp.vagrant.RubyRef" do
-    end
-    add_message "hashicorp.vagrant.RubyRef.Plugin" do
-      optional :plugin, :string, 1
-    end
-    add_message "hashicorp.vagrant.GetPluginsRequest" do
-      optional :plugin, :message, 1, "hashicorp.vagrant.RubyRef.Plugin"
-    end
     add_message "hashicorp.vagrant.GetPluginsResponse" do
       repeated :plugins, :message, 1, "hashicorp.vagrant.Plugin"
     end
     add_message "hashicorp.vagrant.Plugin" do
       optional :name, :string, 1
+      optional :type, :enum, 2, "hashicorp.vagrant.Plugin.Type"
+    end
+    add_enum "hashicorp.vagrant.Plugin.Type" do
+      value :COMMAND, 0
+      value :COMMUNICATOR, 1
+      value :GUEST, 2
+      value :HOST, 3
+      value :PROVIDER, 4
+      value :PROVISIONER, 5
+      value :SYNCED_FOLDER, 6
     end
   end
 end
 
 module Hashicorp
   module Vagrant
-    RubyRef = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.RubyRef").msgclass
-    RubyRef::Plugin = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.RubyRef.Plugin").msgclass
-    GetPluginsRequest = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.GetPluginsRequest").msgclass
     GetPluginsResponse = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.GetPluginsResponse").msgclass
     Plugin = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.Plugin").msgclass
+    Plugin::Type = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.Plugin.Type").enummodule
   end
 end
