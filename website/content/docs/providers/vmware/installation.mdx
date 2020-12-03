@@ -1,0 +1,104 @@
+---
+layout: docs
+page_title: Installation - VMware Provider
+sidebar_title: Installation
+description: |-
+  The Vagrant VMware provider requires a two step installation
+  process which includes a system package and a Vagrant plugin.
+---
+
+# Installation
+
+If you are upgrading from the Vagrant VMware Workstation or Vagrant
+VMware Fusion plugins, please halt or destroy all VMware VMs currently
+being managed by Vagrant. Then continue with the instructions below.
+
+Installation of the Vagrant VMware provider requires two steps. First the
+Vagrant VMware Utility must be installed. This can be done by downloading
+and installing the correct system package from the [Vagrant VMware Utility
+downloads page](/vmware/downloads).
+
+Next, install the Vagrant VMware provider plugin using the standard plugin
+installation procedure:
+
+```shell-session
+$ vagrant plugin install vagrant-vmware-desktop
+```
+
+For more information on plugin installation, please see the
+[Vagrant plugin usage documentation](/docs/plugins/usage).
+
+The Vagrant VMware plugin is a commercial product provided by
+[HashiCorp](https://www.hashicorp.com) and **requires the purchase of a license**
+to operate. To purchase a license, please visit the
+[Vagrant VMware provider](/vmware#buy-now) page. Upon
+purchasing a license, you will receive a license file in your inbox. Download
+this file and save it to a temporary location on your computer.
+
+~> **Warning!** You cannot use your VMware product license as a
+Vagrant VMware plugin license. They are separate commercial products, each
+requiring their own license.
+
+After installing the Vagrant VMware Desktop plugin for your system, you
+will need to install the license:
+
+```shell-session
+$ vagrant plugin license vagrant-vmware-desktop ~/license.lic
+```
+
+The first parameter is the name of the plugin, and the second parameter is the
+path to the license file on disk. Please be sure to replace `~/license.lic`
+with the path where you temporarily saved the downloaded license file to disk.
+After you have installed the plugin license, you may remove the temporary file.
+
+To verify the license installation, run:
+
+```shell-session
+$ vagrant
+```
+
+If the license is not installed correctly, you will see an error message.
+
+## Upgrading to v1.x
+
+It is **extremely important** that the VMware plugin is upgraded to 1.0.0 or
+above. This release resolved critical security vulnerabilities. To learn more,
+please [read our release announcement](https://www.hashicorp.com/blog/introducing-the-vagrant-vmware-desktop-plugin).
+
+After upgrading, please verify that the following paths are empty. The upgrade
+process should remove these for you, but for security reasons it is important
+to double check. If you're a new user or installing the VMware provider on a
+new machine, you may skip this step. If you're a Windows user, you may skip this
+step as well.
+
+The path `~/.vagrant.d/gems/*/vagrant-vmware-{fusion,workstation}`
+should no longer exist. The gem `vagrant-vmware-desktop` may exist since this
+is the name of the new plugin. If the old directories exist, remove them. An
+example for a Unix-like shell is shown below:
+
+```shell-session
+# Check if they exist and verify that they're the correct paths as shown below.
+$ ls ~/.vagrant.d/gems/*/vagrant-vmware-{fusion,workstation}
+...
+
+# Remove them
+$ rm -rf ~/.vagrant.d/gems/*/vagrant-vmware-{fusion,workstation}
+```
+
+## Updating the Vagrant VMware Desktop plugin
+
+The Vagrant VMware Desktop plugin can be updated directly from Vagrant. Run the
+following command to update Vagrant to the latest version of the Vagrant VMware
+Desktop plugin:
+
+```shell-session
+$ vagrant plugin update vagrant-vmware-desktop
+```
+
+## Support
+
+If you have any issues purchasing, installing, or using the Vagrant VMware
+plugins, please [contact support](mailto:support@hashicorp.com). To
+expedite the support process, please include the
+[Vagrant debug output](/docs/other/debugging) as a Gist if
+applicable. This will help us more quickly diagnose your issue.
