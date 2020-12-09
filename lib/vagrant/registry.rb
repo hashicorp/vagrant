@@ -50,6 +50,15 @@ module Vagrant
       end
     end
 
+    # Iterate over the keyspace and return result
+    #
+    # @return [Array]
+    def map(&block)
+      @items.map do |key, _|
+        yield key, get(key)
+      end
+    end
+
     # Return the number of elements in this registry.
     #
     # @return [Integer]
