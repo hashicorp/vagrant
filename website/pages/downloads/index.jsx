@@ -62,15 +62,11 @@ export default function DownloadsPage({ releases }) {
         productName={productName}
         productId={productSlug}
         latestVersion={VERSION}
-        getStartedDescription="Follow step-by-step tutorials on AWS, Azure, GCP, and localhost."
+        getStartedDescription="Follow step-by-step tutorials to get hands on with Vagrant."
         getStartedLinks={[
           {
-            label: 'Placeholder',
-            href: '#',
-          },
-          {
-            label: 'Placeholder',
-            href: '#',
+            label: 'Get Started',
+            href: 'https://learn.hashicorp.com/vagrant',
           },
         ]}
         logo={<img className={styles.logo} alt={productName} src={logo} />}
