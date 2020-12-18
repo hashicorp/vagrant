@@ -16,64 +16,15 @@ export default function DownloadsPage({ releases }) {
 
       <ProductDownloader
         releases={releases}
-        packageManagers={[
-          {
-            label: 'Homebrew',
-            commands: [
-              'brew tap hashicorp/tap',
-              'brew install hashicorp/tap/vagrant',
-            ],
-            os: 'darwin',
-          },
-          {
-            label: 'Ubuntu/Debian',
-            commands: [
-              'curl -fsSL https://apt.releases.hashicorp.com/gpg | sudo apt-key add -',
-              'sudo apt-add-repository "deb [arch=amd64] https://apt.releases.hashicorp.com $(lsb_release -cs) main"',
-              'sudo apt-get update && sudo apt-get install vagrant',
-            ],
-            os: 'linux',
-          },
-          {
-            label: 'CentOS/RHEL',
-            commands: [
-              'sudo yum install -y yum-utils',
-              'sudo yum-config-manager --add-repo https://rpm.releases.hashicorp.com/RHEL/hashicorp.repo',
-              'sudo yum -y install vagrant',
-            ],
-            os: 'linux',
-          },
-          {
-            label: 'Fedora',
-            commands: [
-              'sudo dnf install -y dnf-plugins-core',
-              'sudo dnf config-manager --add-repo https://rpm.releases.hashicorp.com/fedora/hashicorp.repo',
-              'sudo dnf -y install vagrant',
-            ],
-            os: 'linux',
-          },
-          {
-            label: 'Amazon Linux',
-            commands: [
-              'sudo yum install -y yum-utils',
-              'sudo yum-config-manager --add-repo https://rpm.releases.hashicorp.com/AmazonLinux/hashicorp.repo',
-              'sudo yum -y install vagrant',
-            ],
-            os: 'linux',
-          },
-        ]}
+        packageManagers={[]}
         productName="Vagrant VMware Utility"
         productId={productSlug}
         latestVersion={VERSION}
-        getStartedDescription="Follow step-by-step tutorials on AWS, Azure, GCP, and localhost."
+        getStartedDescription="Follow step-by-step tutorials to get hands on with Vagrant."
         getStartedLinks={[
           {
-            label: 'Placeholder',
-            href: '#',
-          },
-          {
-            label: 'Placeholder',
-            href: '#',
+            label: 'Get Started',
+            href: 'https://learn.hashicorp.com/vagrant',
           },
         ]}
         logo={<img className={styles.logo} alt={productName} src={logo} />}
