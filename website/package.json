@@ -7,7 +7,7 @@
     "@hashicorp/mktg-global-styles": "2.1.0",
     "@hashicorp/nextjs-scripts": "14.0.1-canary.2",
     "@hashicorp/react-button": "4.0.0",
-    "@hashicorp/react-code-block": "2.0.4",
+    "@hashicorp/react-code-block": "3.0.3",
     "@hashicorp/react-docs-page": "^10.3.2",
     "@hashicorp/react-hashi-stack-menu": "^1.0.11",
     "@hashicorp/react-head": "1.1.6",
