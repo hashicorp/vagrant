@@ -4,6 +4,8 @@ FEATURES:
 
 IMPROVEMENTS:
 
+- guest/openwrt: Add support for OpenWrt guests [GH-11791]
+
 BUG FIXES:
 
 ## 2.2.14 (November 20, 2020)
