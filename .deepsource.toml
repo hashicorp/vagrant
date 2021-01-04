@@ -1,0 +1,7 @@
+version = 1
+
+test_patterns = ["/test/unit/**"]
+
+[[analyzers]]
+name = "ruby"
+enabled = true
