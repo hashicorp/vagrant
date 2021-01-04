@@ -16,7 +16,7 @@ module VagrantPlugins
               # dhcpcd generally runs on all interfaces by default
               # in the future we can change this, dhcpcd has lots of features
               # it would be nice to expose more of its capabilities...
-              if not /dhcp/i.match(network[:type])
+              if not /dhcp/i.match(network[:type])()
                 line = "denyinterfaces eth#{network[:interface]}"
                 cmd = "grep '#{line}' /etc/dhcpcd.conf; if [ $? -ne 0 ]; then echo '#{line}' >> /etc/dhcpcd.conf ;  fi"
                 comm.sudo(cmd)
