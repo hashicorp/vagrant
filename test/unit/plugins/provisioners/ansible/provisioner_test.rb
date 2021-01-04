@@ -71,7 +71,7 @@ VF
   # Class methods for code reuse across examples
   #
 
-  def self.it_should_check_ansible_version()
+  def self.it_should_check_ansible_version
     it "execute 'ansible --version' before executing 'ansible-playbook'" do
       expect(Vagrant::Util::Subprocess).to receive(:execute).
         once.with('ansible', '--version', { :notify => [:stdout, :stderr] })
