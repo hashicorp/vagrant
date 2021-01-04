@@ -226,7 +226,7 @@ module VagrantPlugins
           elsif vars.is_a?(String)
             s = vars
           end
-          if s and !s.empty? then s else nil end
+          if s and !s.empty? then s end
         end
 
         def generate_inventory
