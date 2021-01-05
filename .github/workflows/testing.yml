@@ -8,6 +8,9 @@ on:
       - 'lib/**'
       - 'plugins/**'
       - 'test/**'
+      - 'Gemfile'
+      - 'vagrant.gemspec'
+      - 'Rakefile'
   pull_request:
     branches:
       - main
@@ -16,6 +19,9 @@ on:
       - 'lib/**'
       - 'plugins/**'
       - 'test/**'
+      - 'Gemfile'
+      - 'vagrant.gemspec'
+      - 'Rakefile'
 
 jobs:
   unit-tests:

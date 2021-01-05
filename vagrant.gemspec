@@ -43,7 +43,7 @@ Gem::Specification.new do |s|
 
   # Constraint rake to properly handle deprecated method usage
   # from within rspec
-  s.add_development_dependency "rake", "~> 12.3.3"
+  s.add_development_dependency "rake", "~> 13.0"
   s.add_development_dependency "rspec", "~> 3.5.0"
   s.add_development_dependency "rspec-its", "~> 1.3.0"
   s.add_development_dependency "webmock", "~> 2.3.1"
