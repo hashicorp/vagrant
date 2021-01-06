@@ -6,8 +6,8 @@ require 'google/protobuf'
 require 'google/protobuf/any_pb'
 require 'google/protobuf/empty_pb'
 require 'google/rpc/status_pb'
-require 'protostructure_pb'
-require 'core_pb'
+require_relative './protostructure_pb'
+require_relative './core_pb'
 Google::Protobuf::DescriptorPool.generated_pool.build do
   add_file("plugin.proto", :syntax => :proto3) do
     add_message "hashicorp.vagrant.sdk.Args" do

@@ -1,4 +1,6 @@
 require_relative "./service/plugin_service"
+require_relative "./service/provider_service"
+
 require "optparse"
 require 'grpc'
 require 'grpc/health/checker'
@@ -43,7 +45,9 @@ module VagrantPlugins
         s.add_http2_port("[::]:#{port}", :this_port_is_insecure)
       
         s.handle(VagrantPlugins::CommandServe::Serve::PluginService.new)
-      
+        s.handle(VagrantPlugins::CommandServe::Serve::ProviderService.new)
+
+        
         health_checker = Grpc::Health::Checker.new
         health_checker.add_status(
           "Service::PluginService",

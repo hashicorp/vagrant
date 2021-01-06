@@ -2,7 +2,7 @@
 # Source: plugin.proto for package 'hashicorp.vagrant.sdk'
 
 require 'grpc'
-require 'plugin_pb'
+require_relative './plugin_pb'
 
 module Hashicorp
   module Vagrant

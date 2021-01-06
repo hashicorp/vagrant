@@ -2,7 +2,7 @@
 # Source: core.proto for package 'hashicorp.vagrant.sdk'
 
 require 'grpc'
-require 'core_pb'
+require_relative './core_pb'
 
 module Hashicorp
   module Vagrant
