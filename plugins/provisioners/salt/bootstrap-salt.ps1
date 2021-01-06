@@ -5,7 +5,7 @@
 $ScriptRoot = Split-Path $script:MyInvocation.MyCommand.Path
 
 # Download the upstream bootstrap script
-(New-Object System.Net.WebClient).DownloadFile('https://winbootstrap.saltstack.com', "${ScriptRoot}\bootstrap_salt_upstream.ps1")
+(New-Object System.Net.WebClient).DownloadFile('https://winbootstrap.saltproject.io', "${ScriptRoot}\bootstrap_salt_upstream.ps1")
 
 # Run the upstream bootstrap script with passthrough arguments
 & "${ScriptRoot}\bootstrap_salt_upstream.ps1" @args
