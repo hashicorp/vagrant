@@ -41,14 +41,18 @@ module VagrantPlugins
 
         def action_up_spec(req, _unused_call)
           LOG.debug("action up spec")
-          # resultSpec = Hashicorp::Vagrant::FuncSpec.Value.new(
-          #   name: "",
-          #   type: ""
-          # )
+          args = [
+            Hashicorp::Vagrant::Sdk::FuncSpec::Value.new(
+              type: "hashicorp.vagrant.sdk.Args.Machine",
+              name: ""
+            ),
+          ]
+          result = [
+            nil,
+          ]
           Hashicorp::Vagrant::Sdk::FuncSpec.new(
-            name: "test",
-            args: [],
-            result: []
+            args: args,
+            result: result
           )
         end
       end
