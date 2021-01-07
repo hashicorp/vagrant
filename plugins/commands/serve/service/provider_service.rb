@@ -1,6 +1,6 @@
 
-require_relative 'proto/gen/plugin/plugin_pb'
-require_relative 'proto/gen/plugin/plugin_services_pb'
+require 'proto/gen/plugin/plugin_pb'
+require 'proto/gen/plugin/plugin_services_pb'
 require 'logger'
 
 module VagrantPlugins
@@ -42,7 +42,7 @@ module VagrantPlugins
         end
 
         def machine_arg_to_machine(req)
-          
+
         end
 
         def action_up_spec(req, _unused_call)

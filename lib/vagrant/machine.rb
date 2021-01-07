@@ -1,6 +1,8 @@
 require_relative "util/ssh"
 require_relative "action/builtin/mixin_synced_folders"
 
+require 'proto/gen/plugin/core_pb'
+
 require "digest/md5"
 require "thread"
 
