@@ -17,7 +17,7 @@ module Vagrant
     
     # @params [String] endpoint for the core service 
     def initialize(server_endpoint)
-      @client = Hashicorp::Vagrant::Sdk::MachineService::Stub.new(client_address)
+      @client = Hashicorp::Vagrant::Sdk::MachineService::Stub.new(server_endpoint, :this_channel_is_insecure)
     end
 
     # Get a machine by id
@@ -25,10 +25,18 @@ module Vagrant
     # @param [String] machine id
     # @return [Machine]
     def get_machine(id)
+      machine_ref = Hashicorp::Vagrant::Sdk::Ref::Machine.new(:id => id)
       req = Hashicorp::Vagrant::Sdk::GetMachineRequest.new(
-        ref = Hashicorp::Vagrant::Sdk::Ref::Machine.new(id=id)
+        :ref => machine_ref
       )
-      @client.get_machine(req)
+      resp_machine = @client.get_machine(req)
+      m = resp_machine.machine
+      Machine.new(
+        m.name, m.provider_name, m.provider, 
+        m.provider_config, m.provider_options, m.config,
+        m.data_dir, m.box, m.env, m.vagrantfile, 
+        base=false, client=@client
+      )
     end
 
     # Update/insert a machine
@@ -129,13 +137,14 @@ module Vagrant
     # @param [Box] box The box that is backing this virtual machine.
     # @param [Environment] env The environment that this machine is a
     #   part of.
-    def initialize(name, provider_name, provider_cls, provider_config, provider_options, config, data_dir, box, env, vagrantfile, base=false)
+    def initialize(name, provider_name, provider_cls, provider_config, provider_options, config, data_dir, box, env, vagrantfile, base=false, client=nil)
       @logger = Log4r::Logger.new("vagrant::machine")
       @logger.info("Initializing machine: #{name}")
       @logger.info("  - Provider: #{provider_cls}")
       @logger.info("  - Box: #{box}")
       @logger.info("  - Data dir: #{data_dir}")
 
+      @client = client
       @box             = box
       @config          = config
       @data_dir        = data_dir
@@ -149,49 +158,56 @@ module Vagrant
       @provider_config = provider_config
       @provider_name   = provider_name
       @provider_options = provider_options
-      @ui              = Vagrant::UI::Prefixed.new(@env.ui, @name)
+      # TODO: Need to stream this back to core service
+      # @ui              = Vagrant::UI::Prefixed.new(@env.ui, @name)
       @ui_mutex        = Mutex.new
       @state_mutex     = Mutex.new
-      @triggers        = Vagrant::Plugin::V2::Trigger.new(@env, @config.trigger, self, @ui)
+      # TODO: reenable this once env stuff has been sorted
+      # @triggers        = Vagrant::Plugin::V2::Trigger.new(@env, @config.trigger, self, @ui)
 
       # Read the ID, which is usually in local storage
-      @id = nil
+      # @id = nil
 
       # XXX: This is temporary. This will be removed very soon.
-      if base
-        @id = name
+      # if base
+      #   @id = name
 
-        # For base setups, we don't want to insert the key
-        @config.ssh.insert_key = false
-      else
-        reload
-      end
+      #   # For base setups, we don't want to insert the key
+      #   @config.ssh.insert_key = false
+      # else
+      #   reload
+      # end
 
       # Keep track of where our UUID should be placed
       @index_uuid_file = nil
-      @index_uuid_file = @data_dir.join("index_uuid") if @data_dir
+      # TODO: this data dir stuff can all go
+      # @index_uuid_file = @data_dir.join("index_uuid") if @data_dir
 
       # Initializes the provider last so that it has access to all the
       # state we setup on this machine.
-      @provider = provider_cls.new(self)
-      @provider._initialize(@provider_name, self)
+      # TODO: renable provider
+      # @provider = provider_cls.new(self)
+      # @provider._initialize(@provider_name, self)
 
       # If we're using WinRM, we eager load the plugin because of
       # GH-3390
-      if @config.vm.communicator == :winrm
-        @logger.debug("Eager loading WinRM communicator to avoid GH-3390")
-        communicate
-      end
+      # TODO: uncomment
+      # if @config.vm.communicator == :winrm
+      #   @logger.debug("Eager loading WinRM communicator to avoid GH-3390")
+      #   communicate
+      # end
 
       # If the ID is the special not created ID, then set our ID to
       # nil so that we destroy all our data.
-      if state.id == MachineState::NOT_CREATED_ID
-        self.id = nil
-      end
+      # TODO: maybe add this back
+      # if state.id == MachineState::NOT_CREATED_ID
+      #   self.id = nil
+      # end
 
+      # TODO: probably just want to log this now??
       # Output a bunch of information about this machine in
       # machine-readable format in case someone is listening.
-      @ui.machine("metadata", "provider", provider_name)
+      # @ui.machine("metadata", "provider", provider_name)
     end
 
     # This calls an action on the provider. The provider may or may not

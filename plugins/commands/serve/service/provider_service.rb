@@ -1,6 +1,7 @@
 
 require 'proto/gen/plugin/plugin_pb'
 require 'proto/gen/plugin/plugin_services_pb'
+require 'vagrant/machine'
 require 'logger'
 
 module VagrantPlugins
@@ -35,17 +36,21 @@ module VagrantPlugins
 
         def action_up(req, _unused_call)
           LOG.debug("action up")
+          machine = machine_arg_to_machine(req)
+          LOG.debug(machine)
+        end
 
+        def machine_arg_to_machine(req)
           raw_machine_arg = req.args[0].value.value
           LOG.debug("decoding")
           machine_arg = Hashicorp::Vagrant::Sdk::Args::Machine.decode(raw_machine_arg)
           LOG.debug("machine id: " + machine_arg.machineId)
           LOG.debug("server addr: " + machine_arg.serverAddr)
-          nil
-        end
-
-        def machine_arg_to_machine(req)
-
+          
+          mclient = Vagrant::MachineClient.new(machine_arg.serverAddr)
+          machine = mclient.get_machine(machine_arg.machineId)
+          LOG.debug("got machine: " + machine.name)
+          machine
         end
 
         def action_up_spec(req, _unused_call)
