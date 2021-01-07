@@ -35,9 +35,12 @@ module VagrantPlugins
 
         def action_up(req, _unused_call)
           LOG.debug("action up")
-          # TODO: deserialize request
-          # [<Hashicorp::Vagrant::Sdk::FuncSpec::Value: name: "", type: "hashicorp.vagrant.sdk.Args.Machine", value: <Google::Protobuf::Any: type_url: "type.googleapis.com/hashicorp.vagrant.sdk.Args.Machine", value: "\n\rmytestmachine\x12\x0F127.0.0.1:49505">>]
-          LOG.debug(req)
+
+          raw_machine_arg = req.args[0].value.value
+          LOG.debug("decoding")
+          machine_arg = Hashicorp::Vagrant::Sdk::Args::Machine.decode(raw_machine_arg)
+          LOG.debug("machine id: " + machine_arg.machineId)
+          LOG.debug("server addr: " + machine_arg.serverAddr)
           nil
         end
 

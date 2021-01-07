@@ -1,8 +1,10 @@
 require_relative "util/ssh"
 require_relative "action/builtin/mixin_synced_folders"
 
+require 'proto/gen/plugin/core_services_pb'
 require 'proto/gen/plugin/core_pb'
 
+require 'grpc'
 require "digest/md5"
 require "thread"
 
@@ -13,12 +15,9 @@ module Vagrant
   # the core Vagrant service
   class MachineClient
     
-    attr_accessor :broker
-
-    def initialize(client_connection, broker)
-      # TODO instantiate a new machine client
-      @client = nil # todo
-      @broker = broker
+    # @params [String] endpoint for the core service 
+    def initialize(server_endpoint)
+      @client = Hashicorp::Vagrant::Sdk::MachineService::Stub.new(client_address)
     end
 
     # Get a machine by id
@@ -26,7 +25,10 @@ module Vagrant
     # @param [String] machine id
     # @return [Machine]
     def get_machine(id)
-
+      req = Hashicorp::Vagrant::Sdk::GetMachineRequest.new(
+        ref = Hashicorp::Vagrant::Sdk::Ref::Machine.new(id=id)
+      )
+      @client.get_machine(req)
     end
 
     # Update/insert a machine
