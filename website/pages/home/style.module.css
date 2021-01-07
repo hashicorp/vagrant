@@ -31,16 +31,6 @@
   composes: block;
   background: var(--vagrant);
   color: white;
-
-  & :global(.g-code-block) {
-    width: 100%;
-    margin-left: 50px;
-    overflow: scroll;
-
-    @media (max-width: 1000px) {
-      margin-left: 0;
-    }
-  }
 }
 
 /* enforce consistency section */
