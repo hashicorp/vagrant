@@ -31,9 +31,14 @@ module Vagrant
       )
       resp_machine = @client.get_machine(req)
       m = resp_machine.machine
+
+      provider_plugin  = Vagrant.plugin("2").manager.providers[m.provider_name.to_sym]
+      provider_cls     = provider_plugin[0]
+      provider_options = provider_plugin[1]
+
       Machine.new(
-        m.name, m.provider_name, m.provider, 
-        m.provider_config, m.provider_options, m.config,
+        m.name, m.provider_name, provider_cls, 
+        m.provider_config, provider_options, m.config,
         m.data_dir, m.box, m.env, m.vagrantfile, 
         base=false, client=@client
       )
@@ -186,8 +191,8 @@ module Vagrant
       # Initializes the provider last so that it has access to all the
       # state we setup on this machine.
       # TODO: renable provider
-      # @provider = provider_cls.new(self)
-      # @provider._initialize(@provider_name, self)
+      @provider = provider_cls.new(self)
+      @provider._initialize(@provider_name, self)
 
       # If we're using WinRM, we eager load the plugin because of
       # GH-3390

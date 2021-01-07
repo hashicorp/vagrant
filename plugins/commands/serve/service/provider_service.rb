@@ -35,14 +35,12 @@ module VagrantPlugins
         end
 
         def action_up(req, _unused_call)
-          LOG.debug("action up")
           machine = machine_arg_to_machine(req)
           LOG.debug(machine)
         end
 
         def machine_arg_to_machine(req)
           raw_machine_arg = req.args[0].value.value
-          LOG.debug("decoding")
           machine_arg = Hashicorp::Vagrant::Sdk::Args::Machine.decode(raw_machine_arg)
           LOG.debug("machine id: " + machine_arg.machineId)
           LOG.debug("server addr: " + machine_arg.serverAddr)
@@ -50,11 +48,11 @@ module VagrantPlugins
           mclient = Vagrant::MachineClient.new(machine_arg.serverAddr)
           machine = mclient.get_machine(machine_arg.machineId)
           LOG.debug("got machine: " + machine.name)
+          LOG.debug("using provider: " + machine.provider_name)
           machine
         end
 
         def action_up_spec(req, _unused_call)
-          LOG.debug("action up spec")
           args = [
             Hashicorp::Vagrant::Sdk::FuncSpec::Value.new(
               type: "hashicorp.vagrant.sdk.Args.Machine",
