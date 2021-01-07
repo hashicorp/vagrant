@@ -7,6 +7,36 @@ require "thread"
 require "log4r"
 
 module Vagrant
+  # This is the client that does CRUD operations against
+  # the core Vagrant service
+  class MachineClient
+    
+    attr_accessor :broker
+
+    def initialize(client_connection, broker)
+      # TODO instantiate a new machine client
+      @client = nil # todo
+      @broker = broker
+    end
+
+    # Get a machine by id
+    #
+    # @param [String] machine id
+    # @return [Machine]
+    def get_machine(id)
+
+    end
+
+    # Update/insert a machine
+    #
+    # @param [Machine] machine to upsert
+    # @return [Machine] the final state of the machine
+    def upsert_machine(machine)
+      
+    end
+
+  end
+
   # This represents a machine that Vagrant manages. This provides a singular
   # API for querying the state and making state changes to the machine, which
   # is backed by any sort of provider (VirtualBox, VMware, etc.).
