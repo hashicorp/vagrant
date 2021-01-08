@@ -1,7 +1,6 @@
 
 require 'proto/gen/plugin/plugin_pb'
 require 'proto/gen/plugin/plugin_services_pb'
-require 'proto/gen/plugin/plugin_server_pb'
 require 'vagrant/machine'
 require 'logger'
 
@@ -38,7 +37,7 @@ module VagrantPlugins
         def action_up(req, _unused_call)
           machine = machine_arg_to_machine(req)
           LOG.debug(machine)
-          Hashicorp::Vagrant::UpResult.new(success: true)
+          Hashicorp::Vagrant::Sdk::Provider::ActionResp.new(success: true)
         end
 
         def machine_arg_to_machine(req)
@@ -63,11 +62,10 @@ module VagrantPlugins
           ]
           result = [
             Hashicorp::Vagrant::Sdk::FuncSpec::Value.new(
-              type: "hashicorp.vagrant.UpResult",
+              type: "hashicorp.vagrant.sdk.Provider.ActionResp",
               name: ""
             ),
           ]
-          
           Hashicorp::Vagrant::Sdk::FuncSpec.new(
             args: args,
             result: result

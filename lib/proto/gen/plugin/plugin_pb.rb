@@ -193,6 +193,9 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
     end
     add_message "hashicorp.vagrant.sdk.Provider.ActionResp" do
       optional :result, :message, 1, "google.protobuf.Any"
+      map :labels, :string, :string, 2
+      optional :template_data, :bytes, 3
+      optional :success, :bool, 4
     end
     add_message "hashicorp.vagrant.sdk.Communicator" do
     end

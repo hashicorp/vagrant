@@ -1,8 +1,0 @@
-syntax = "proto3";
-
-package hashicorp.vagrant;
-
-message UpResult {
-  bool success = 1;
-}
-
