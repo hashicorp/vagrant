@@ -325,6 +325,28 @@ export default function VmwareIndex() {
           </ul>
         </div>
       </section>
+
+      <section id="faq" className={s.faq}>
+        <div className="g-grid-container">
+          <div className={s.tag}>Issues</div>
+          <h2 className={s.h2}>Known Issues</h2>
+          <ul>
+            <li>
+              <h4>Big Sur</h4>
+              <p className="g-type-body">
+                There are some notable issues for the VMWare provider on Mac OS Big
+                Sur. For more information please refer to the known issues section
+                in the documentation for Big Sur:
+                <ul>
+                  <li><a href="/docs/providers/vmware/known-issues#big-sur-related-issues">Big Sur Known Issues</a></li>
+                </ul>
+                Please also see the "Known Issues" section of the
+                <a href="https://docs.vmware.com/en/VMware-Fusion/12/rn/VMware-Fusion-12-Release-Notes.html"> VMWare 12 relese notes</a>.
+              </p>
+            </li>
+            </ul>
+        </div>
+      </section>
     </>
   )
 }
