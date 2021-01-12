@@ -6,7 +6,7 @@ module VagrantPlugins
   module CommandServe
     module Service
       class ProviderService < Hashicorp::Vagrant::Sdk::ProviderService::Service
-        LOG = Logger.new('/tmp/vagrant-ruby.txt')
+        LOG = Logger.new('/tmp/vagrant-ruby-provider.txt')
 
         def usable(req, _unused_call)
           nil
