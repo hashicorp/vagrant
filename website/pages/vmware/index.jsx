@@ -335,11 +335,10 @@ export default function VmwareIndex() {
               <h4>Big Sur</h4>
               <p className="g-type-body">
                 There are some notable issues for the VMWare provider on Mac OS Big
-                Sur.
+                Sur. For more information please refer to the known issues section
+                in the documentation for Big Sur:
                 <ul>
-                  <li><a href="https://github.com/hashicorp/vagrant/issues/12045">Port forwarding</a></li>
-                  <li><a href="https://github.com/hashicorp/vagrant/issues/11682">Restoring snapshots</a></li>
-                  <li><a href="https://github.com/hashicorp/vagrant/issues/12052">Creating networking devices</a></li>
+                  <li><a href="/docs/providers/vmware/known-issues#big-sur-related-issues">Big Sur Known Issues</a></li>
                 </ul>
                 Please also see the "Known Issues" section of the
                 <a href="https://docs.vmware.com/en/VMware-Fusion/12/rn/VMware-Fusion-12-Release-Notes.html"> VMWare 12 relese notes</a>.
