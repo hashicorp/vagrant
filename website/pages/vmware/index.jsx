@@ -325,6 +325,29 @@ export default function VmwareIndex() {
           </ul>
         </div>
       </section>
+
+      <section id="faq" className={s.faq}>
+        <div className="g-grid-container">
+          <div className={s.tag}>Issues</div>
+          <h2 className={s.h2}>Known Issues</h2>
+          <ul>
+            <li>
+              <h4>Big Sur</h4>
+              <p className="g-type-body">
+                There are some notable issues for the VMWare provider on Big
+                Sur.
+                <ul>
+                  <li><a href="https://github.com/hashicorp/vagrant/issues/12045">Port forwarding</a></li>
+                  <li><a href="https://github.com/hashicorp/vagrant/issues/11682">Restoring snapshots</a></li>
+                  <li><a href="https://github.com/hashicorp/vagrant/issues/12052">Creating networking devices</a></li>
+                </ul>
+                Please also see the "Known Issues" section of the
+                <a href="https://docs.vmware.com/en/VMware-Fusion/12/rn/VMware-Fusion-12-Release-Notes.html"> VMWare 12 relese notes</a>.
+              </p>
+            </li>
+            </ul>
+        </div>
+      </section>
     </>
   )
 }
