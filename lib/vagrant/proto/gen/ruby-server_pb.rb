@@ -22,6 +22,15 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
       value :PROVISIONER, 5
       value :SYNCED_FOLDER, 6
     end
+    add_message "hashicorp.vagrant.ParseVagrantfileRequest" do
+      optional :path, :string, 1
+    end
+    add_message "hashicorp.vagrant.ParseVagrantfileResponse" do
+      optional :vagrantfile, :message, 1, "hashicorp.vagrant.Vagrantfile"
+    end
+    add_message "hashicorp.vagrant.Vagrantfile" do
+      optional :raw, :string, 1
+    end
   end
 end
 
@@ -30,5 +39,8 @@ module Hashicorp
     GetPluginsResponse = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.GetPluginsResponse").msgclass
     Plugin = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.Plugin").msgclass
     Plugin::Type = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.Plugin.Type").enummodule
+    ParseVagrantfileRequest = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.ParseVagrantfileRequest").msgclass
+    ParseVagrantfileResponse = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.ParseVagrantfileResponse").msgclass
+    Vagrantfile = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.Vagrantfile").msgclass
   end
 end
