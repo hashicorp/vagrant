@@ -334,7 +334,7 @@ export default function VmwareIndex() {
             <li>
               <h4>Big Sur</h4>
               <p className="g-type-body">
-                There are some notable issues for the VMWare provider on Big
+                There are some notable issues for the VMWare provider on Mac OS Big
                 Sur.
                 <ul>
                   <li><a href="https://github.com/hashicorp/vagrant/issues/12045">Port forwarding</a></li>
