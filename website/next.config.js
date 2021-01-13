@@ -1,4 +1,5 @@
 const withHashicorp = require('@hashicorp/nextjs-scripts')
+const redirects = require('./redirects.next')
 
 console.log(`Environment: ${process.env.HASHI_ENV}`)
 
@@ -6,13 +7,8 @@ module.exports = withHashicorp({
   defaultLayout: true,
   transpileModules: ['is-absolute-url'],
 })({
-  svgo: {
-    plugins: [
-      {
-        removeViewBox: false,
-      },
-    ],
-  },
+  svgo: { plugins: [{ removeViewBox: false }] },
+  redirects: () => redirects,
   env: {
     HASHI_ENV: process.env.HASHI_ENV || 'development',
     SEGMENT_WRITE_KEY: 'wFMyBE4PJCZttWfu0pNhYdWr7ygW0io4',
