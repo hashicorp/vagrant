@@ -4,6 +4,7 @@
 require 'google/protobuf'
 
 require 'google/protobuf/empty_pb'
+require 'google/protobuf/any_pb'
 Google::Protobuf::DescriptorPool.generated_pool.build do
   add_file("internal/server/proto/ruby-server.proto", :syntax => :proto3) do
     add_message "hashicorp.vagrant.GetPluginsResponse" do
@@ -28,8 +29,19 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
     add_message "hashicorp.vagrant.ParseVagrantfileResponse" do
       optional :vagrantfile, :message, 1, "hashicorp.vagrant.Vagrantfile"
     end
+    add_message "hashicorp.vagrant.Provisioner" do
+      optional :name, :string, 1
+      optional :config, :message, 2, "google.protobuf.Any"
+    end
+    add_message "hashicorp.vagrant.MachineConfig" do
+      optional :name, :string, 1
+      optional :box, :string, 2
+      repeated :provisioner, :message, 3, "hashicorp.vagrant.Provisioner"
+    end
     add_message "hashicorp.vagrant.Vagrantfile" do
       optional :raw, :string, 1
+      optional :current_version, :string, 2
+      repeated :machine_config, :message, 3, "hashicorp.vagrant.MachineConfig"
     end
   end
 end
@@ -41,6 +53,8 @@ module Hashicorp
     Plugin::Type = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.Plugin.Type").enummodule
     ParseVagrantfileRequest = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.ParseVagrantfileRequest").msgclass
     ParseVagrantfileResponse = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.ParseVagrantfileResponse").msgclass
+    Provisioner = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.Provisioner").msgclass
+    MachineConfig = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.MachineConfig").msgclass
     Vagrantfile = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.Vagrantfile").msgclass
   end
 end

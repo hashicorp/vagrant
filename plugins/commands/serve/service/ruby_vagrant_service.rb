@@ -46,22 +46,31 @@ module VagrantPlugins
         def parse_vagrantfile(req, _unused_call)
           vagrantfile_path = req.path
           raw = File.read(vagrantfile_path)
-          
-          LOG.debug("got vagrantfile at " + vagrantfile_path)
+
+          # Load up/parse the vagrantfile
           config_loader = Vagrant::Config::Loader.new(
             Vagrant::Config::VERSIONS, Vagrant::Config::VERSIONS_ORDER)
           config_loader.set(:root, vagrantfile_path) 
           v = Vagrant::Vagrantfile.new(config_loader, [:root])
 
-          LOG.debug("machines: ")
+          machine_configs = []
+          # Get the config for each machine
           v.machine_names.each do |mach|
-            LOG.debug(mach)
             machine_info = v.machine_config(mach, nil, nil)
             root_config = machine_info[:config]
             config = root_config.vm
-            LOG.debug(config.box)
+            machine_configs << Hashicorp::Vagrant::MachineConfig.new(
+              name: mach.to_s,
+              box: config.box,
+              provisioner: []
+            )
           end
-          vagrantfile = Hashicorp::Vagrant::Vagrantfile.new(raw: raw)
+          
+          vagrantfile = Hashicorp::Vagrant::Vagrantfile.new(
+            raw: raw,
+            current_version: Vagrant::Config::CURRENT_VERSION,
+            machine_config: machine_configs
+          )
           Hashicorp::Vagrant::ParseVagrantfileResponse.new(
             vagrantfile: vagrantfile
           )
