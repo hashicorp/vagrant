@@ -1,4 +1,9 @@
 require "vagrant/plugin/v2/plugin"
+require "vagrant/vagrantfile"
+require "vagrant/box_collection"
+require "vagrant/config"
+require 'pp'
+require "pathname"
 
 require 'vagrant/proto/gen/ruby-server_pb'
 require 'vagrant/proto/gen/ruby-server_services_pb'
@@ -41,6 +46,21 @@ module VagrantPlugins
         def parse_vagrantfile(req, _unused_call)
           vagrantfile_path = req.path
           raw = File.read(vagrantfile_path)
+          
+          LOG.debug("got vagrantfile at " + vagrantfile_path)
+          config_loader = Vagrant::Config::Loader.new(
+            Vagrant::Config::VERSIONS, Vagrant::Config::VERSIONS_ORDER)
+          config_loader.set(:root, vagrantfile_path) 
+          v = Vagrant::Vagrantfile.new(config_loader, [:root])
+
+          LOG.debug("machines: ")
+          v.machine_names.each do |mach|
+            LOG.debug(mach)
+            machine_info = v.machine_config(mach, nil, nil)
+            root_config = machine_info[:config]
+            config = root_config.vm
+            LOG.debug(config.box)
+          end
           vagrantfile = Hashicorp::Vagrant::Vagrantfile.new(raw: raw)
           Hashicorp::Vagrant::ParseVagrantfileResponse.new(
             vagrantfile: vagrantfile
