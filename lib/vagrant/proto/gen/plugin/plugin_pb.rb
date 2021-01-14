@@ -12,6 +12,69 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
   add_file("plugin.proto", :syntax => :proto3) do
     add_message "hashicorp.vagrant.sdk.Args" do
     end
+    add_message "hashicorp.vagrant.sdk.Args.DataDir" do
+    end
+    add_message "hashicorp.vagrant.sdk.Args.DataDir.Basis" do
+      optional :cache_dir, :string, 1
+      optional :data_dir, :string, 2
+      optional :root_dir, :string, 3
+      optional :temp_dir, :string, 4
+    end
+    add_message "hashicorp.vagrant.sdk.Args.DataDir.Project" do
+      optional :cache_dir, :string, 1
+      optional :data_dir, :string, 2
+      optional :root_dir, :string, 3
+      optional :temp_dir, :string, 4
+    end
+    add_message "hashicorp.vagrant.sdk.Args.DataDir.Machine" do
+      optional :cache_dir, :string, 1
+      optional :data_dir, :string, 2
+      optional :root_dir, :string, 3
+      optional :temp_dir, :string, 4
+    end
+    add_message "hashicorp.vagrant.sdk.Args.DataDir.Component" do
+      optional :cache_dir, :string, 1
+      optional :data_dir, :string, 2
+      optional :root_dir, :string, 3
+      optional :temp_dir, :string, 4
+    end
+    add_message "hashicorp.vagrant.sdk.Args.MachineIndex" do
+    end
+    add_message "hashicorp.vagrant.sdk.Args.MachineIndex.Entry" do
+      optional :id, :string, 1
+      optional :local_data_path, :string, 2
+      optional :name, :string, 3
+      optional :provider, :string, 4
+      optional :state, :string, 5
+      optional :vagrantfile_name, :string, 6
+      optional :vagrantfile_path, :string, 7
+      optional :updated_at, :string, 8
+      optional :extra_data, :message, 9, "hashicorp.vagrant.sdk.Args.Options"
+    end
+    add_message "hashicorp.vagrant.sdk.Args.BoxCollection" do
+      optional :directory, :string, 1
+    end
+    add_message "hashicorp.vagrant.sdk.Args.Box" do
+      optional :name, :string, 1
+      optional :provider, :string, 2
+      optional :version, :string, 3
+      optional :directory, :string, 4
+      optional :metadata, :message, 5, "hashicorp.vagrant.sdk.Args.Options"
+      optional :metadata_url, :string, 6
+    end
+    add_message "hashicorp.vagrant.sdk.Args.Environment" do
+      optional :cwd, :string, 1
+      optional :data_dir, :string, 2
+      optional :vagrantfile_name, :string, 3
+      optional :ui, :message, 4, "hashicorp.vagrant.sdk.Args.TerminalUI"
+      optional :home_path, :string, 5
+      optional :local_data_path, :string, 6
+      optional :tmp_path, :string, 7
+      optional :aliases_path, :string, 8
+      optional :boxes_path, :string, 9
+      optional :gems_path, :string, 10
+      optional :default_private_key_path, :string, 11
+    end
     add_message "hashicorp.vagrant.sdk.Args.Machine" do
       optional :machineId, :string, 1
       optional :serverAddr, :string, 2
@@ -30,9 +93,7 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
     add_message "hashicorp.vagrant.sdk.Args.Options" do
       optional :opt, :message, 1, "hashicorp.vagrant.sdk.Args.LabelSet"
     end
-    add_message "hashicorp.vagrant.sdk.Args.Source" do
-      optional :app, :string, 1
-      optional :path, :string, 2
+    add_message "hashicorp.vagrant.sdk.Args.Vagrantfile" do
     end
     add_message "hashicorp.vagrant.sdk.Args.JobInfo" do
       optional :local, :bool, 1
@@ -259,6 +320,16 @@ module Hashicorp
   module Vagrant
     module Sdk
       Args = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Args").msgclass
+      Args::DataDir = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Args.DataDir").msgclass
+      Args::DataDir::Basis = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Args.DataDir.Basis").msgclass
+      Args::DataDir::Project = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Args.DataDir.Project").msgclass
+      Args::DataDir::Machine = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Args.DataDir.Machine").msgclass
+      Args::DataDir::Component = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Args.DataDir.Component").msgclass
+      Args::MachineIndex = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Args.MachineIndex").msgclass
+      Args::MachineIndex::Entry = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Args.MachineIndex.Entry").msgclass
+      Args::BoxCollection = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Args.BoxCollection").msgclass
+      Args::Box = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Args.Box").msgclass
+      Args::Environment = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Args.Environment").msgclass
       Args::Machine = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Args.Machine").msgclass
       Args::Configuration = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Args.Configuration").msgclass
       Args::Configuration::Vagrant = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Args.Configuration.Vagrant").msgclass
@@ -266,7 +337,7 @@ module Hashicorp
       Args::Configuration::Provider = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Args.Configuration.Provider").msgclass
       Args::LabelSet = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Args.LabelSet").msgclass
       Args::Options = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Args.Options").msgclass
-      Args::Source = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Args.Source").msgclass
+      Args::Vagrantfile = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Args.Vagrantfile").msgclass
       Args::JobInfo = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Args.JobInfo").msgclass
       Args::Logger = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Args.Logger").msgclass
       Args::TerminalUI = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Args.TerminalUI").msgclass
