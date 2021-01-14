@@ -36,12 +36,37 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
     add_message "hashicorp.vagrant.MachineConfig" do
       optional :name, :string, 1
       optional :box, :string, 2
-      repeated :provisioner, :message, 3, "hashicorp.vagrant.Provisioner"
+      repeated :provisioners, :message, 3, "hashicorp.vagrant.Provisioner"
+    end
+    add_message "hashicorp.vagrant.CommunicatorSSH" do
+      optional :guest_port, :string, 1
+      optional :shell, :string, 2
+    end
+    add_message "hashicorp.vagrant.CommunicatorWinrm" do
+      optional :username, :string, 1
+      optional :password, :string, 2
+      optional :host, :string, 3
+      optional :port, :string, 4
+      optional :guest_port, :string, 5
+    end
+    add_message "hashicorp.vagrant.CommunicatorWinssh" do
+      optional :guest_port, :string, 1
+      optional :shell, :string, 2
+      optional :upload_directory, :string, 3
+    end
+    add_message "hashicorp.vagrant.Communicator" do
+      oneof :type do
+        optional :ssh, :message, 1, "hashicorp.vagrant.CommunicatorSSH"
+        optional :winrm, :message, 2, "hashicorp.vagrant.CommunicatorWinrm"
+        optional :winssh, :message, 3, "hashicorp.vagrant.CommunicatorWinssh"
+      end
     end
     add_message "hashicorp.vagrant.Vagrantfile" do
-      optional :raw, :string, 1
-      optional :current_version, :string, 2
-      repeated :machine_config, :message, 3, "hashicorp.vagrant.MachineConfig"
+      optional :path, :string, 1
+      optional :raw, :string, 2
+      optional :current_version, :string, 3
+      repeated :machine_configs, :message, 4, "hashicorp.vagrant.MachineConfig"
+      repeated :communicators, :message, 5, "hashicorp.vagrant.Communicator"
     end
   end
 end
@@ -55,6 +80,10 @@ module Hashicorp
     ParseVagrantfileResponse = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.ParseVagrantfileResponse").msgclass
     Provisioner = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.Provisioner").msgclass
     MachineConfig = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.MachineConfig").msgclass
+    CommunicatorSSH = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.CommunicatorSSH").msgclass
+    CommunicatorWinrm = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.CommunicatorWinrm").msgclass
+    CommunicatorWinssh = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.CommunicatorWinssh").msgclass
+    Communicator = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.Communicator").msgclass
     Vagrantfile = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.Vagrantfile").msgclass
   end
 end
