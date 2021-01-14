@@ -1,6 +1,6 @@
 
-require 'proto/gen/plugin/plugin_pb'
-require 'proto/gen/plugin/plugin_services_pb'
+require 'vagrant/proto/gen/plugin/plugin_pb'
+require 'vagrant/proto/gen/plugin/plugin_services_pb'
 require 'vagrant/machine'
 require 'logger'
 

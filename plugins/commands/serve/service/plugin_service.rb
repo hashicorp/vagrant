@@ -1,7 +1,7 @@
 require "vagrant/plugin/v2/plugin"
 
-require 'proto/gen/ruby-server_pb'
-require 'proto/gen/ruby-server_services_pb'
+require 'vagrant/proto/gen/ruby-server_pb'
+require 'vagrant/proto/gen/ruby-server_services_pb'
 
 module VagrantPlugins
   module CommandServe
