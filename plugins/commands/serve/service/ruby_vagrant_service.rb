@@ -7,6 +7,7 @@ require "pathname"
 
 require 'vagrant/proto/gen/ruby-server_pb'
 require 'vagrant/proto/gen/ruby-server_services_pb'
+require 'google/protobuf/well_known_types'
 
 module VagrantPlugins
   module CommandServe
@@ -53,20 +54,21 @@ module VagrantPlugins
           config_loader.set(:root, vagrantfile_path) 
           v = Vagrant::Vagrantfile.new(config_loader, [:root])
 
-          ssh_config = v.config.ssh
-          winrm_config = v.config.winrm
+          sc = v.config.ssh
+          ssh_config = Hashicorp::Vagrant::Sdk::SSHInfo.new(
+            port: sc.guest_port.to_s, ssh_command: sc.shell
+          )
+          wc = v.config.winrm
+          winrm_config = Hashicorp::Vagrant::Sdk::WinrmInfo.new(
+            username: wc.username, password: wc.password, host: wc.host,
+            port: wc.port, guest_port: wc.guest_port)
+
           communicators = [
             Hashicorp::Vagrant::Communicator.new(
-              ssh: Hashicorp::Vagrant::CommunicatorSSH.new(
-                guest_port: ssh_config.guest_port.to_s, shell: ssh_config.shell
-              ),
+              name: "ssh", config: Google::Protobuf::Any.pack(ssh_config)
             ),
             Hashicorp::Vagrant::Communicator.new(
-              winrm: Hashicorp::Vagrant::CommunicatorWinrm.new(
-                username: winrm_config.username, password: winrm_config.password,
-                host: winrm_config.host, port: winrm_config.port.to_s,
-                guest_port: winrm_config.guest_port.to_s
-              )
+              name: "winrm", config:  Google::Protobuf::Any.pack(winrm_config)
             ),
           ]
          
