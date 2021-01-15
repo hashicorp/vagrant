@@ -1,7 +1,5 @@
 # Vagrant Website
 
-[![Netlify Status](https://img.shields.io/netlify/f7fa8963-0022-4a0e-9ccf-f5385355906b?style=flat-square)](https://app.netlify.com/sites/vagrant-docs/deploys)
-
 This subdirectory contains the entire source for the [Vagrant Website](https://vagrantup.com/). This is a [NextJS](https://nextjs.org/) project, which builds a static site from these source files.
 
 <!--
