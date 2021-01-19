@@ -2,6 +2,7 @@
 require 'vagrant/proto/gen/plugin/plugin_pb'
 require 'vagrant/proto/gen/plugin/plugin_services_pb'
 require 'vagrant/machine'
+require 'vagrant/batch_action'
 require 'logger'
 
 module VagrantPlugins
@@ -37,6 +38,12 @@ module VagrantPlugins
         def action_up(req, _unused_call)
           LOG.debug("Coming up")
           machine = machine_arg_to_machine(req)
+          ba = Vagrant::BatchAction.new
+          LOG.debug("registering action")
+          ba.action(machine, :up)
+          LOG.debug("running action")
+          ba.run
+          LOG.debug("up?!")
           Hashicorp::Vagrant::Sdk::Provider::ActionResp.new(success: true)
         end
 
