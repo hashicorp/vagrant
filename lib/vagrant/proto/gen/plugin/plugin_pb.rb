@@ -7,7 +7,6 @@ require 'google/protobuf/any_pb'
 require 'google/protobuf/empty_pb'
 require 'google/rpc/status_pb'
 require_relative './protostructure_pb'
-require_relative './core_pb'
 Google::Protobuf::DescriptorPool.generated_pool.build do
   add_file("plugin.proto", :syntax => :proto3) do
     add_message "hashicorp.vagrant.sdk.Args" do
@@ -54,14 +53,6 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
     add_message "hashicorp.vagrant.sdk.Args.BoxCollection" do
       optional :directory, :string, 1
     end
-    add_message "hashicorp.vagrant.sdk.Args.Box" do
-      optional :name, :string, 1
-      optional :provider, :string, 2
-      optional :version, :string, 3
-      optional :directory, :string, 4
-      optional :metadata, :message, 5, "hashicorp.vagrant.sdk.Args.Options"
-      optional :metadata_url, :string, 6
-    end
     add_message "hashicorp.vagrant.sdk.Args.Environment" do
       optional :cwd, :string, 1
       optional :data_dir, :string, 2
@@ -76,7 +67,7 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
       optional :default_private_key_path, :string, 11
     end
     add_message "hashicorp.vagrant.sdk.Args.Machine" do
-      optional :machineId, :string, 1
+      optional :resource_id, :string, 1
       optional :serverAddr, :string, 2
     end
     add_message "hashicorp.vagrant.sdk.Args.Configuration" do
@@ -271,9 +262,9 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
     add_message "hashicorp.vagrant.sdk.Communicator.FileTransferResp" do
     end
     add_message "hashicorp.vagrant.sdk.Communicator.ExecutionRequest" do
-      optional :machine, :message, 1, "hashicorp.vagrant.sdk.Machine"
+      optional :machine, :message, 1, "hashicorp.vagrant.sdk.Args.Machine"
       optional :command, :string, 2
-      optional :options, :message, 3, "hashicorp.vagrant.sdk.LabelSet"
+      optional :options, :message, 3, "hashicorp.vagrant.sdk.Args.LabelSet"
     end
     add_message "hashicorp.vagrant.sdk.Communicator.ExecuteResp" do
       optional :exit_code, :int32, 1
@@ -328,7 +319,6 @@ module Hashicorp
       Args::MachineIndex = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Args.MachineIndex").msgclass
       Args::MachineIndex::Entry = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Args.MachineIndex.Entry").msgclass
       Args::BoxCollection = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Args.BoxCollection").msgclass
-      Args::Box = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Args.Box").msgclass
       Args::Environment = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Args.Environment").msgclass
       Args::Machine = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Args.Machine").msgclass
       Args::Configuration = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Args.Configuration").msgclass

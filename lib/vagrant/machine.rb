@@ -25,33 +25,24 @@ module Vagrant
     # @param [String] machine id
     # @return [Machine]
     def get_machine(id)
-      machine_ref = Hashicorp::Vagrant::Sdk::Ref::Machine.new(:id => id)
-      req = Hashicorp::Vagrant::Sdk::GetMachineRequest.new(
-        :ref => machine_ref
+      machine_ref = Hashicorp::Vagrant::Sdk::Ref::Machine.new(resource_id: id)
+      req = Hashicorp::Vagrant::Sdk::Machine::GetNameRequest.new(
+        machine: machine_ref
       )
-      resp_machine = @client.get_machine(req)
-      m = resp_machine.machine
+      resp_machine = @client.get_name(req)
+      m = resp_machine.name
 
-      provider_plugin  = Vagrant.plugin("2").manager.providers[m.provider_name.to_sym]
+      provider_plugin  = Vagrant.plugin("2").manager.providers[:virtualbox]
       provider_cls     = provider_plugin[0]
       provider_options = provider_plugin[1]
 
       Machine.new(
-        m.name, m.provider_name, provider_cls, 
-        m.provider_config, provider_options, m.config,
-        m.data_dir, m.box, m.env, m.vagrantfile, 
+        m, "virtualbox", provider_cls, 
+        {}, provider_options, {},
+        "", "", {}, nil, 
         base=false, client=@client
       )
     end
-
-    # Update/insert a machine
-    #
-    # @param [Machine] machine to upsert
-    # @return [Machine] the final state of the machine
-    def upsert_machine(machine)
-      
-    end
-
   end
 
   # This represents a machine that Vagrant manages. This provides a singular

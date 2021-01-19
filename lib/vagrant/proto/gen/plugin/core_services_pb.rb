@@ -9,7 +9,7 @@ module Hashicorp
     module Sdk
       module MachineService
         # *******************************************************************
-        # Core services
+        # Machine services
         # ******************************************************************
         class Service
 
@@ -19,12 +19,18 @@ module Hashicorp
           self.unmarshal_class_method = :decode
           self.service_name = 'hashicorp.vagrant.sdk.MachineService'
 
-          # GetMachine returns the achine.
-          rpc :GetMachine, ::Hashicorp::Vagrant::Sdk::GetMachineRequest, ::Hashicorp::Vagrant::Sdk::GetMachineResponse
-          # ListMachines returns a list of all the machine.
-          rpc :ListMachines, ::Hashicorp::Vagrant::Sdk::ListMachineRequest, ::Hashicorp::Vagrant::Sdk::ListMachineResponse
-          # UpsertMachine updates or inserts a machine.
-          rpc :UpsertMachine, ::Hashicorp::Vagrant::Sdk::UpsertMachineRequest, ::Hashicorp::Vagrant::Sdk::UpsertMachineResponse
+          rpc :SetName, ::Hashicorp::Vagrant::Sdk::Machine::SetNameRequest, ::Hashicorp::Vagrant::Sdk::Machine::SetNameResponse
+          rpc :GetName, ::Hashicorp::Vagrant::Sdk::Machine::GetNameRequest, ::Hashicorp::Vagrant::Sdk::Machine::GetNameResponse
+          rpc :SetID, ::Hashicorp::Vagrant::Sdk::Machine::SetIDRequest, ::Hashicorp::Vagrant::Sdk::Machine::SetIDResponse
+          rpc :GetID, ::Hashicorp::Vagrant::Sdk::Machine::GetIDRequest, ::Hashicorp::Vagrant::Sdk::Machine::GetIDResponse
+          rpc :Box, ::Hashicorp::Vagrant::Sdk::Machine::BoxRequest, ::Hashicorp::Vagrant::Sdk::Machine::BoxResponse
+          rpc :Datadir, ::Hashicorp::Vagrant::Sdk::Machine::DatadirRequest, ::Hashicorp::Vagrant::Sdk::Machine::DatadirResponse
+          rpc :LocalDataPath, ::Hashicorp::Vagrant::Sdk::Machine::LocalDataPathRequest, ::Hashicorp::Vagrant::Sdk::Machine::LocalDataPathResponse
+          rpc :Provider, ::Hashicorp::Vagrant::Sdk::Machine::ProviderRequest, ::Hashicorp::Vagrant::Sdk::Machine::ProviderResponse
+          rpc :VagrantfileName, ::Hashicorp::Vagrant::Sdk::Machine::VagrantfileNameRequest, ::Hashicorp::Vagrant::Sdk::Machine::VagrantfileNameResponse
+          rpc :VagrantfilePath, ::Hashicorp::Vagrant::Sdk::Machine::VagrantfilePathRequest, ::Hashicorp::Vagrant::Sdk::Machine::VagrantfilePathResponse
+          rpc :UpdatedAt, ::Hashicorp::Vagrant::Sdk::Machine::UpdatedAtRequest, ::Hashicorp::Vagrant::Sdk::Machine::UpdatedAtResponse
+          rpc :UI, ::Hashicorp::Vagrant::Sdk::Machine::UIRequest, ::Hashicorp::Vagrant::Sdk::Machine::UIResponse
         end
 
         Stub = Service.rpc_stub_class
