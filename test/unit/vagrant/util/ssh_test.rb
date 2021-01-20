@@ -270,7 +270,7 @@ describe Vagrant::Util::SSH do
         # mock out ChildProcess
         process = double()
         allow(ChildProcess).to receive(:build).and_return(process)
-        allow(process).to receive(:io).and_return(true)
+        allow(process).to receive(:io).and_return(double())
         allow(process.io).to receive(:inherit!).and_return(true)
         allow(process).to receive(:start).and_return(true)
         allow(process).to receive(:wait).and_return(true)

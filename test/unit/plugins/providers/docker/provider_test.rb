@@ -78,7 +78,7 @@ describe VagrantPlugins::DockerProvider::Provider do
     it "returns the host machine object" do
       allow(machine.provider_config).to receive(:vagrant_vagrantfile).and_return("/path/to/Vagrantfile")
       allow(machine.provider_config).to receive(:vagrant_machine).and_return(:default)
-      allow(machine).to receive(:env).and_return(true)
+      allow(machine).to receive(:env).and_return(double())
       allow(machine.env).to receive(:root_path).and_return("/.vagrant.d")
       allow(machine.env).to receive(:home_path).and_return("/path/to")
       allow(machine.env).to receive(:ui_class).and_return(true)
