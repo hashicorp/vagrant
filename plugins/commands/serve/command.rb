@@ -1,10 +1,7 @@
-# NOTE: Update the load path so the proto files can properly require dependencies
-$LOAD_PATH << File.expand_path("../service/proto/gen", __FILE__)
-
-require_relative './service/proto/gen/ruby-server_pb'
-require_relative './service/proto/gen/ruby-server_services_pb'
-require_relative './service/proto/gen/plugin_pb'
-require_relative './service/proto/gen/plugin_services_pb'
+require 'vagrant/proto/gen/ruby-server_pb'
+require 'vagrant/proto/gen/ruby-server_services_pb'
+require 'vagrant/proto/gen/plugin/plugin_pb'
+require 'vagrant/proto/gen/plugin/plugin_services_pb'
 
 require_relative "./service/plugin_service"
 require_relative "./service/provider_service"
@@ -53,23 +50,15 @@ module VagrantPlugins
         s = GRPC::RpcServer.new
         # Listen on port 10001 on all interfaces. Update for production use.
         s.add_http2_port("[::]:#{port}", :this_port_is_insecure)
-
-        s.handle(VagrantPlugins::CommandServe::Serve::PluginService.new)
-        s.handle(VagrantPlugins::CommandServe::Serve::ProviderService.new)
-        s.handle(Service::InternalService.new)
-        s.handle(Service::HostService.new)
-        s.handle(Service::CommandService.new)
-
         health_checker = Grpc::Health::Checker.new
-        health_checker.add_status(
-          Service::InternalService,
-          Grpc::Health::V1::HealthCheckResponse::ServingStatus::SERVING)
-        health_checker.add_status(
-          Service::HostService,
-          Grpc::Health::V1::HealthCheckResponse::ServingStatus::SERVING)
-        health_checker.add_status(
-          Service::CommandService,
-          Grpc::Health::V1::HealthCheckResponse::ServingStatus::SERVING)
+
+        [Service::PluginService, Service::ProviderService, Service::InternalService,
+          Service::HostService, Service::CommandService].each do |service_klass|
+          s.handle(service_klass.new)
+          health_checker.add_status(service_klass,
+            Grpc::Health::V1::HealthCheckResponse::ServingStatus::SERVING)
+        end
+
         s.handle(health_checker)
 
         STDOUT.puts "1|1|tcp|127.0.0.1:#{port}|grpc"

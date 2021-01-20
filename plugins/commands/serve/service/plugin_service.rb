@@ -1,12 +1,8 @@
 require "vagrant/plugin/v2/plugin"
 
-
-require 'vagrant/proto/gen/ruby-server_pb'
-require 'vagrant/proto/gen/ruby-server_services_pb'
-
 module VagrantPlugins
   module CommandServe
-    module Serve
+    module Service
       class PluginService < Hashicorp::Vagrant::RubyVagrant::Service
         def get_plugins(req, _unused_call)
           plugins = []

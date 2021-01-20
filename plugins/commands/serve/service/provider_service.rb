@@ -1,13 +1,10 @@
-
-require 'vagrant/proto/gen/plugin/plugin_pb'
-require 'vagrant/proto/gen/plugin/plugin_services_pb'
 require 'vagrant/machine'
 require 'vagrant/batch_action'
 require 'logger'
 
 module VagrantPlugins
   module CommandServe
-    module Serve
+    module Service
       class ProviderService < Hashicorp::Vagrant::Sdk::ProviderService::Service
         LOG = Logger.new('/tmp/vagrant-ruby.txt')
 
@@ -52,7 +49,7 @@ module VagrantPlugins
           machine_arg = Hashicorp::Vagrant::Sdk::Args::Machine.decode(raw_machine_arg)
           LOG.debug("machine id: " + machine_arg.resource_id)
           LOG.debug("server addr: " + machine_arg.serverAddr)
-          
+
           mclient = Vagrant::MachineClient.new(machine_arg.serverAddr)
           machine = mclient.get_machine(machine_arg.resource_id)
           LOG.debug("got machine: " + machine.name)
