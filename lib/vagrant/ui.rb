@@ -259,7 +259,6 @@ module Vagrant
       end
     end
 
-
     class NonInteractive < Basic
       def initialize
         super
@@ -281,6 +280,24 @@ module Vagrant
       def ask(*args, **opts)
         # Non interactive can't ask for input
         raise Errors::UIExpectsTTY
+      end
+    end
+
+    class RemoteUI < NonInteractive 
+      def initialize(client)
+        super()
+        @client = client
+      end
+
+      # TODO
+      def ask(*args)
+        raise Errors::UIExpectsTTY
+      end
+
+      [:detail, :warn, :error, :info, :output, :success].each do |method|
+        define_method(method) do |message, *args, **opts|
+          @client.output([message])
+        end
       end
     end
 

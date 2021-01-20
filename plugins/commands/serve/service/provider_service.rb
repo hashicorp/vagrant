@@ -1,5 +1,6 @@
 require 'vagrant/machine'
 require 'vagrant/batch_action'
+require 'vagrant/ui'
 require 'logger'
 require_relative '../client/terminal_client'
 
@@ -37,8 +38,9 @@ module VagrantPlugins
           LOG.debug("Coming up")
           machine = machine_arg_to_machine(req)
           raw_terminal_arg  = req.args[1].value.value
-          ui = VagrantPlugins::CommandServe::Client::TerminalClient.terminal_arg_to_terminal_ui(raw_terminal_arg)
-          ui.output(["hello from ruby"])
+          ui_client = VagrantPlugins::CommandServe::Client::TerminalClient.terminal_arg_to_terminal_ui(raw_terminal_arg)
+          ui = Vagrant::UI::RemoteUI.new(ui_client)
+          ui.warn("hello from vagrant")
 
           # ba = Vagrant::BatchAction.new
           # LOG.debug("registering action")
