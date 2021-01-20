@@ -96,6 +96,7 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
     end
     add_message "hashicorp.vagrant.sdk.Args.TerminalUI" do
       optional :stream_id, :uint32, 1
+      optional :addr, :string, 2
     end
     add_message "hashicorp.vagrant.sdk.FuncSpec" do
       optional :name, :string, 1
