@@ -19,6 +19,7 @@ module VagrantPlugins
         end
 
         def synopsis_spec(*args)
+          return Hashicorp::Vagrant::Sdk::FuncSpec.new
           Hashicorp::Vagrant::Sdk::FuncSpec.new(
             name: "synopsis",
             result: [

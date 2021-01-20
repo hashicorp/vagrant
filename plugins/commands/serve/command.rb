@@ -58,6 +58,7 @@ module VagrantPlugins
         s.handle(VagrantPlugins::CommandServe::Serve::ProviderService.new)
         s.handle(Service::InternalService.new)
         s.handle(Service::HostService.new)
+        s.handle(Service::CommandService.new)
 
         health_checker = Grpc::Health::Checker.new
         health_checker.add_status(
