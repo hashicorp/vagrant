@@ -1,6 +1,7 @@
 require 'vagrant/machine'
 require 'vagrant/batch_action'
 require 'logger'
+require_relative '../client/terminal_client'
 
 module VagrantPlugins
   module CommandServe
@@ -35,12 +36,16 @@ module VagrantPlugins
         def action_up(req, _unused_call)
           LOG.debug("Coming up")
           machine = machine_arg_to_machine(req)
-          ba = Vagrant::BatchAction.new
-          LOG.debug("registering action")
-          ba.action(machine, :up)
-          LOG.debug("running action")
-          ba.run
-          LOG.debug("up?!")
+          raw_terminal_arg  = req.args[1].value.value
+          ui = VagrantPlugins::CommandServe::Client::TerminalClient.terminal_arg_to_terminal_ui(raw_terminal_arg)
+          ui.output(["hello from ruby"])
+
+          # ba = Vagrant::BatchAction.new
+          # LOG.debug("registering action")
+          # ba.action(machine, :up)
+          # LOG.debug("running action")
+          # ba.run
+          # LOG.debug("up?!")
           Hashicorp::Vagrant::Sdk::Provider::ActionResp.new(success: true)
         end
 
@@ -59,6 +64,10 @@ module VagrantPlugins
 
         def action_up_spec(req, _unused_call)
           args = [
+            Hashicorp::Vagrant::Sdk::FuncSpec::Value.new(
+              type: "hashicorp.vagrant.sdk.Args.TerminalUI",
+              name: ""
+            ),
             Hashicorp::Vagrant::Sdk::FuncSpec::Value.new(
               type: "hashicorp.vagrant.sdk.Args.Machine",
               name: ""
