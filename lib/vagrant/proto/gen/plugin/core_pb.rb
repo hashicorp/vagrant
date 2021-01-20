@@ -3,7 +3,7 @@
 
 require 'google/protobuf'
 
-require_relative './plugin_pb'
+require 'plugin_pb'
 require 'google/protobuf/any_pb'
 require 'google/protobuf/timestamp_pb'
 Google::Protobuf::DescriptorPool.generated_pool.build do

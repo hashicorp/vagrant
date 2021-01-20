@@ -6,7 +6,7 @@ require 'google/protobuf'
 require 'google/protobuf/any_pb'
 require 'google/protobuf/empty_pb'
 require 'google/rpc/status_pb'
-require_relative './protostructure_pb'
+require 'protostructure_pb'
 Google::Protobuf::DescriptorPool.generated_pool.build do
   add_file("plugin.proto", :syntax => :proto3) do
     add_message "hashicorp.vagrant.sdk.Args" do
@@ -249,6 +249,17 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
       optional :template_data, :bytes, 3
       optional :success, :bool, 4
     end
+    add_message "hashicorp.vagrant.sdk.Command" do
+    end
+    add_message "hashicorp.vagrant.sdk.Command.HelpResp" do
+      optional :help, :string, 1
+    end
+    add_message "hashicorp.vagrant.sdk.Command.SynopsisResp" do
+      optional :synopsis, :string, 1
+    end
+    add_message "hashicorp.vagrant.sdk.Command.FlagsResp" do
+      optional :flags, :string, 1
+    end
     add_message "hashicorp.vagrant.sdk.Communicator" do
     end
     add_message "hashicorp.vagrant.sdk.Communicator.MatchResp" do
@@ -368,6 +379,10 @@ module Hashicorp
       Provider::UsableResp = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Provider.UsableResp").msgclass
       Provider::InstalledResp = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Provider.InstalledResp").msgclass
       Provider::ActionResp = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Provider.ActionResp").msgclass
+      Command = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Command").msgclass
+      Command::HelpResp = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Command.HelpResp").msgclass
+      Command::SynopsisResp = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Command.SynopsisResp").msgclass
+      Command::FlagsResp = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Command.FlagsResp").msgclass
       Communicator = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Communicator").msgclass
       Communicator::MatchResp = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Communicator.MatchResp").msgclass
       Communicator::InitResp = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Communicator.InitResp").msgclass
