@@ -1,3 +1,5 @@
+$LOAD_PATH << Vagrant.source_root.join("lib/vagrant/proto/gen/plugin").to_s
+
 require 'vagrant/proto/gen/ruby-server_pb'
 require 'vagrant/proto/gen/ruby-server_services_pb'
 require 'vagrant/proto/gen/plugin/plugin_pb'
@@ -52,7 +54,7 @@ module VagrantPlugins
         s.add_http2_port("[::]:#{port}", :this_port_is_insecure)
         health_checker = Grpc::Health::Checker.new
 
-        [Service::PluginService, Service::ProviderService, Service::InternalService,
+        [Service::PluginService, Service::ProviderService,
           Service::HostService, Service::CommandService].each do |service_klass|
           s.handle(service_klass.new)
           health_checker.add_status(service_klass,
