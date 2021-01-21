@@ -76,12 +76,16 @@ module Vagrant
         machine: machine_ref
       )
       resp = @client.datadir(req)
-      Pathname.new(resp.datadir.data_dir)
+      resp.datadir
     end
 
-    # TODO
     def get_local_data_path(id)
-      nil
+      machine_ref = Hashicorp::Vagrant::Sdk::Ref::Machine.new(resource_id: id)
+      req = Hashicorp::Vagrant::Sdk::Machine::LocalDataPathRequest.new(
+        machine: machine_ref
+      )
+      resp = @client.localdatapath(req)
+      resp.path
     end
 
     def get_provider(id)
@@ -92,7 +96,6 @@ module Vagrant
       resp = @client.provider(req)
       resp
     end
-
 
     def get_vagrantfile_name(id)
       machine_ref = Hashicorp::Vagrant::Sdk::Ref::Machine.new(resource_id: id)
@@ -130,13 +133,16 @@ module Vagrant
       provider_plugin  = Vagrant.plugin("2").manager.providers[:virtualbox]
       provider_cls     = provider_plugin[0]
       provider_options = provider_plugin[1]
-
+      
+      datadir = get_data_dir(id)
+      vagrantfile_name = get_vagrantfile_name(id)
+      vagrantfile_path = get_vagrantfile_path(id)
       env = Vagrant::Environment.new(
-        cwd: "/Users/sophia/project/vagrant-agogo",
-        home_path: "/Users/sophia/.vagrant.d",
+        cwd: vagrantfile_path, # TODO: this is probably not ideal
+        home_path: datadir.root_dir,
         ui_class: Vagrant::UI::RemoteUI,
         ui_opts: [ui_client],
-        vagrantfile_name: "Vagrantfile",
+        vagrantfile_name: vagrantfile_name,
       )
 
       Machine.new(
@@ -276,17 +282,15 @@ module Vagrant
     #
     # @return [Pathname]
     def data_dir
-      @client.get_data_dir(@machine_id)
+      dd = @client.get_data_dir(@machine_id)
+      Pathname.new(dd.data_dir)
     end
 
     # The Vagrantfile that this machine is attached to.
     #
     # @return [Vagrantfile]
     def vagrantfile
-      path = @client.get_vagrantfile_path(@machine_id)
-      filename = @client.get_vagrantfile_name(@machine_id)
-      vagrantfile_path = path.join(filename)
-      # TODO: get vagrantfile parsed and return Vagrantfile
+      # TODO
     end
 
     # This calls an action on the provider. The provider may or may not

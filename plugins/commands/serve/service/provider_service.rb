@@ -38,13 +38,6 @@ module VagrantPlugins
           LOG.debug("Coming up")
           machine = machine_arg_to_machine(req)
           machine.ui.warn("hello from vagrant")
-
-          # ba = Vagrant::BatchAction.new
-          # LOG.debug("registering action")
-          # ba.action(machine, :up)
-          # LOG.debug("running action")
-          # ba.run
-          # LOG.debug("up?!")
           Hashicorp::Vagrant::Sdk::Provider::ActionResp.new(success: true)
         end
 
@@ -61,7 +54,6 @@ module VagrantPlugins
           machine = mclient.get_machine(machine_arg.resource_id, ui_client)
           LOG.debug("got machine: ")
           LOG.debug(machine.name)
-          LOG.debug("using provider: " + machine.provider_name)
           machine
         end
 
