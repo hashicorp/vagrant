@@ -37,10 +37,10 @@ module VagrantPlugins
         def action_up(req, _unused_call)
           LOG.debug("Coming up")
           machine = machine_arg_to_machine(req)
-          raw_terminal_arg  = req.args[1].value.value
-          ui_client = VagrantPlugins::CommandServe::Client::TerminalClient.terminal_arg_to_terminal_ui(raw_terminal_arg)
-          ui = Vagrant::UI::RemoteUI.new(ui_client)
-          ui.warn("hello from vagrant")
+          # raw_terminal_arg  = req.args[1].value.value
+          # ui_client = VagrantPlugins::CommandServe::Client::TerminalClient.terminal_arg_to_terminal_ui(raw_terminal_arg)
+          # ui = Vagrant::UI::RemoteUI.new(ui_client)
+          machine.ui.warn("hello from vagrant")
 
           # ba = Vagrant::BatchAction.new
           # LOG.debug("registering action")
@@ -53,6 +53,9 @@ module VagrantPlugins
 
         def machine_arg_to_machine(req)
           raw_machine_arg = req.args[0].value.value
+          # raw_terminal_arg  = req.args[1].value.value
+          # ui_client = VagrantPlugins::CommandServe::Client::TerminalClient.terminal_arg_to_terminal_ui(raw_terminal_arg)
+          
           machine_arg = Hashicorp::Vagrant::Sdk::Args::Machine.decode(raw_machine_arg)
           LOG.debug("machine id: " + machine_arg.resource_id)
           LOG.debug("server addr: " + machine_arg.serverAddr)

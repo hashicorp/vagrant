@@ -259,23 +259,6 @@ module Vagrant
       end
     end
 
-    class RemoteUI < Interface 
-      def initialize(client)
-        @client = client
-      end
-
-      def ask(message, opts=nil)
-      end
-
-      [:detail, :warn, :error, :info, :output, :success].each do |method|
-        define_method(method) do |message, *args, **opts|
-          # machine("ui", method.to_s, message, *args, **opts)
-          @client.output([message])
-        end
-      end
-    end
-
-
     class NonInteractive < Basic
       def initialize
         super

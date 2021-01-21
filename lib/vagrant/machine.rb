@@ -24,7 +24,27 @@ module Vagrant
     #
     # @param [String] machine id
     # @return [Machine]
-    def get_machine(id)
+    # def get_machine(id)
+    #   machine_ref = Hashicorp::Vagrant::Sdk::Ref::Machine.new(resource_id: id)
+    #   req = Hashicorp::Vagrant::Sdk::Machine::GetNameRequest.new(
+    #     machine: machine_ref
+    #   )
+    #   resp_machine = @client.get_name(req)
+    #   m = resp_machine.name
+
+    #   provider_plugin  = Vagrant.plugin("2").manager.providers[:virtualbox]
+    #   provider_cls     = provider_plugin[0]
+    #   provider_options = provider_plugin[1]
+
+    #   Machine.new(
+    #     m, "virtualbox", provider_cls, 
+    #     {}, provider_options, {},
+    #     "", "", {}, nil, 
+    #     base=false, client=@client
+    #   )
+    # end
+
+    def get_machine(id, ui_client=nil)
       machine_ref = Hashicorp::Vagrant::Sdk::Ref::Machine.new(resource_id: id)
       req = Hashicorp::Vagrant::Sdk::Machine::GetNameRequest.new(
         machine: machine_ref
@@ -36,10 +56,34 @@ module Vagrant
       provider_cls     = provider_plugin[0]
       provider_options = provider_plugin[1]
 
+      box_req = Hashicorp::Vagrant::Sdk::Machine::BoxRequest.new(
+        machine: machine_ref
+      )
+      resp_box = @client.box(box_req)
+      box = Vagrant::Box.new(
+        resp_box.box.name, resp_box.box.provider.to_sym,
+        resp_box.box.version, Pathname.new(resp_box.box.directory),
+      )
+
+      if ui_client.nil?
+        ui_opts = nil
+      else
+        ui_opts = [ui_client]
+      end
+
+      env = Vagrant::Environment.new(
+        cwd: "/Users/sophia/project/vagrant-agogo",
+        home_path: "/Users/sophia/.vagrant.d",
+        ui_class: Vagrant::UI::RemoteUI,
+        ui_opts: ui_opts,
+        vagrantfile_name: "Vagrantfile",
+      )
+
       Machine.new(
         m, "virtualbox", provider_cls, 
         {}, provider_options, {},
-        "", "", {}, nil, 
+        Pathname.new("/Users/sophia/.vagrant.d/data"), 
+        box, env, nil, 
         base=false, client=@client
       )
     end
