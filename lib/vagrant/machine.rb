@@ -20,6 +20,15 @@ module Vagrant
       @client = Hashicorp::Vagrant::Sdk::MachineService::Stub.new(server_endpoint, :this_channel_is_insecure)
     end
 
+    def get_name(id)
+      machine_ref = Hashicorp::Vagrant::Sdk::Ref::Machine.new(resource_id: id)
+      req = Hashicorp::Vagrant::Sdk::Machine::GetNameRequest.new(
+        machine: machine_ref
+      )
+      resp_machine = @client.get_name(req)
+      resp_machine.name
+    end
+
     # Get a machine by id
     #
     # @param [String] machine id
@@ -55,11 +64,11 @@ module Vagrant
       )
 
       Machine.new(
-        m, "virtualbox", provider_cls, 
+        "virtualbox", provider_cls, 
         {}, provider_options, {},
         Pathname.new("/Users/sophia/.vagrant.d/data"), 
         box, env, nil, 
-        base=false, client=@client, machine_id=id
+        base=false, client=self, machine_id=id
       )
     end
   end
@@ -100,7 +109,7 @@ module Vagrant
     # Name of the machine. This is assigned by the Vagrantfile.
     #
     # @return [Symbol]
-    attr_reader :name
+    # attr_reader :name
 
     # The provider backing this machine.
     #
@@ -152,14 +161,14 @@ module Vagrant
     # @param [Box] box The box that is backing this virtual machine.
     # @param [Environment] env The environment that this machine is a
     #   part of.
-    def initialize(name, provider_name, provider_cls, provider_config, provider_options, config, data_dir, box, env, vagrantfile, base=false, client=nil, machine_id=nil)
+    def initialize(provider_name, provider_cls, provider_config, provider_options, config, data_dir, box, env, vagrantfile, base=false, client=nil, machine_id=nil)
       @logger = Log4r::Logger.new("vagrant::machine")
-      @logger.info("Initializing machine: #{name}")
       @logger.info("  - Provider: #{provider_cls}")
       @logger.info("  - Box: #{box}")
       @logger.info("  - Data dir: #{data_dir}")
 
       @client = client
+      @machine_id = machine_id
       @box             = box
       @config          = config
       @data_dir        = data_dir
@@ -169,7 +178,6 @@ module Vagrant
         self,
         Vagrant.plugin("2").manager.guests,
         Vagrant.plugin("2").manager.guest_capabilities)
-      @name            = name
       @provider_config = provider_config
       @provider_name   = provider_name
       @provider_options = provider_options
@@ -222,6 +230,10 @@ module Vagrant
       # Output a bunch of information about this machine in
       # machine-readable format in case someone is listening.
       @ui.machine("metadata", "provider", provider_name)
+    end
+
+    def name
+      @client.get_name(@machine_id)
     end
 
     # This calls an action on the provider. The provider may or may not

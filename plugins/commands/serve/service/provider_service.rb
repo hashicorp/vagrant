@@ -59,7 +59,8 @@ module VagrantPlugins
 
           mclient = Vagrant::MachineClient.new(machine_arg.serverAddr)
           machine = mclient.get_machine(machine_arg.resource_id, ui_client)
-          LOG.debug("got machine: " + machine.name)
+          LOG.debug("got machine: ")
+          LOG.debug(machine.name)
           LOG.debug("using provider: " + machine.provider_name)
           machine
         end
