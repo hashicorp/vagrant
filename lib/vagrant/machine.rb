@@ -57,6 +57,7 @@ module Vagrant
     end
 
     def get_box(id)
+      machine_ref = Hashicorp::Vagrant::Sdk::Ref::Machine.new(resource_id: id)
       req = Hashicorp::Vagrant::Sdk::Machine::BoxRequest.new(
         machine: machine_ref
       )
@@ -70,6 +71,7 @@ module Vagrant
     end
 
     def get_data_dir(id)
+      machine_ref = Hashicorp::Vagrant::Sdk::Ref::Machine.new(resource_id: id)
       req = Hashicorp::Vagrant::Sdk::Machine::DatadirRequest.new(
         machine: machine_ref
       )
@@ -83,6 +85,7 @@ module Vagrant
     end
 
     def get_provider(id)
+      machine_ref = Hashicorp::Vagrant::Sdk::Ref::Machine.new(resource_id: id)
       req = Hashicorp::Vagrant::Sdk::Machine::ProviderRequest.new(
         machine: machine_ref
       )
@@ -92,6 +95,7 @@ module Vagrant
 
 
     def get_vagrantfile_name(id)
+      machine_ref = Hashicorp::Vagrant::Sdk::Ref::Machine.new(resource_id: id)
       req = Hashicorp::Vagrant::Sdk::Machine::VagrantfileNameRequest.new(
         machine: machine_ref
       )
@@ -100,6 +104,7 @@ module Vagrant
     end
 
     def get_vagrantfile_path(id)
+      machine_ref = Hashicorp::Vagrant::Sdk::Ref::Machine.new(resource_id: id)
       req = Hashicorp::Vagrant::Sdk::Machine::VagrantfilePathRequest.new(
         machine: machine_ref
       )
@@ -108,6 +113,7 @@ module Vagrant
     end
 
     def updated_at(id)
+      machine_ref = Hashicorp::Vagrant::Sdk::Ref::Machine.new(resource_id: id)
       req = Hashicorp::Vagrant::Sdk::Machine::UpdatedAtRequest.new(
         machine: machine_ref
       )
@@ -134,7 +140,8 @@ module Vagrant
       )
 
       Machine.new(
-        nil, env, client=self, machine_id=id
+        "virtualbox", provider_cls, {}, provider_options,
+        nil, env, self, id
       )
     end
   end
@@ -196,12 +203,14 @@ module Vagrant
     #   part of.
     # @param [MachineClient] client
     # @param [String] machine_id
-    def initialize(config, env, client=nil, machine_id=nil)
+    def initialize(
+      provider_name, provider_cls, provider_config, provider_options, config, 
+      env, client, machine_id
+    )
       @logger = Log4r::Logger.new("vagrant::machine")
       
       @client = client
       @machine_id = machine_id
-
       @config = config
       @env = env
       @guest = Guest.new(
@@ -217,29 +226,14 @@ module Vagrant
       # TODO: reenable this once env stuff has been sorted
       # @triggers        = Vagrant::Plugin::V2::Trigger.new(@env, @config.trigger, self, @ui)
 
-      # Read the ID, which is usually in local storage
-      # @id = nil
-
-      # XXX: This is temporary. This will be removed very soon.
-      # if base
-      #   @id = name
-
-      #   # For base setups, we don't want to insert the key
-      #   @config.ssh.insert_key = false
-      # else
-      #   reload
-      # end
-
-      # Keep track of where our UUID should be placed
-      @index_uuid_file = nil
-      # TODO: this data dir stuff can all go
-      # @index_uuid_file = @data_dir.join("index_uuid") if @data_dir
-
       # Initializes the provider last so that it has access to all the
       # state we setup on this machine.
       # TODO: renable provider
       @provider = provider_cls.new(self)
-      @provider._initialize(@provider_name, self)
+      @provider._initialize(provider_name, self)
+      @provider_config = provider_config
+      @provider_name   = provider_name
+      @provider_options = provider_options
 
       # If we're using WinRM, we eager load the plugin because of
       # GH-3390
@@ -247,13 +241,6 @@ module Vagrant
       # if @config.vm.communicator == :winrm
       #   @logger.debug("Eager loading WinRM communicator to avoid GH-3390")
       #   communicate
-      # end
-
-      # If the ID is the special not created ID, then set our ID to
-      # nil so that we destroy all our data.
-      # TODO: maybe add this back
-      # if state.id == MachineState::NOT_CREATED_ID
-      #   self.id = nil
       # end
 
       # Output a bunch of information about this machine in
