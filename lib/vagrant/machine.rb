@@ -23,28 +23,9 @@ module Vagrant
     # Get a machine by id
     #
     # @param [String] machine id
+    # @param [TerminalClient]
     # @return [Machine]
-    # def get_machine(id)
-    #   machine_ref = Hashicorp::Vagrant::Sdk::Ref::Machine.new(resource_id: id)
-    #   req = Hashicorp::Vagrant::Sdk::Machine::GetNameRequest.new(
-    #     machine: machine_ref
-    #   )
-    #   resp_machine = @client.get_name(req)
-    #   m = resp_machine.name
-
-    #   provider_plugin  = Vagrant.plugin("2").manager.providers[:virtualbox]
-    #   provider_cls     = provider_plugin[0]
-    #   provider_options = provider_plugin[1]
-
-    #   Machine.new(
-    #     m, "virtualbox", provider_cls, 
-    #     {}, provider_options, {},
-    #     "", "", {}, nil, 
-    #     base=false, client=@client
-    #   )
-    # end
-
-    def get_machine(id, ui_client=nil)
+    def get_machine(id, ui_client)
       machine_ref = Hashicorp::Vagrant::Sdk::Ref::Machine.new(resource_id: id)
       req = Hashicorp::Vagrant::Sdk::Machine::GetNameRequest.new(
         machine: machine_ref
@@ -65,17 +46,11 @@ module Vagrant
         resp_box.box.version, Pathname.new(resp_box.box.directory),
       )
 
-      if ui_client.nil?
-        ui_opts = nil
-      else
-        ui_opts = [ui_client]
-      end
-
       env = Vagrant::Environment.new(
         cwd: "/Users/sophia/project/vagrant-agogo",
         home_path: "/Users/sophia/.vagrant.d",
         ui_class: Vagrant::UI::RemoteUI,
-        ui_opts: ui_opts,
+        ui_opts: [ui_client],
         vagrantfile_name: "Vagrantfile",
       )
 
@@ -84,7 +59,7 @@ module Vagrant
         {}, provider_options, {},
         Pathname.new("/Users/sophia/.vagrant.d/data"), 
         box, env, nil, 
-        base=false, client=@client
+        base=false, client=@client, machine_id=id
       )
     end
   end
@@ -177,7 +152,7 @@ module Vagrant
     # @param [Box] box The box that is backing this virtual machine.
     # @param [Environment] env The environment that this machine is a
     #   part of.
-    def initialize(name, provider_name, provider_cls, provider_config, provider_options, config, data_dir, box, env, vagrantfile, base=false, client=nil)
+    def initialize(name, provider_name, provider_cls, provider_config, provider_options, config, data_dir, box, env, vagrantfile, base=false, client=nil, machine_id=nil)
       @logger = Log4r::Logger.new("vagrant::machine")
       @logger.info("Initializing machine: #{name}")
       @logger.info("  - Provider: #{provider_cls}")
@@ -199,7 +174,7 @@ module Vagrant
       @provider_name   = provider_name
       @provider_options = provider_options
       # TODO: Need to stream this back to core service
-      # @ui              = Vagrant::UI::Prefixed.new(@env.ui, @name)
+      @ui              = @env.ui
       @ui_mutex        = Mutex.new
       @state_mutex     = Mutex.new
       # TODO: reenable this once env stuff has been sorted
@@ -244,10 +219,9 @@ module Vagrant
       #   self.id = nil
       # end
 
-      # TODO: probably just want to log this now??
       # Output a bunch of information about this machine in
       # machine-readable format in case someone is listening.
-      # @ui.machine("metadata", "provider", provider_name)
+      @ui.machine("metadata", "provider", provider_name)
     end
 
     # This calls an action on the provider. The provider may or may not
