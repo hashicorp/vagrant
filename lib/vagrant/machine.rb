@@ -14,8 +14,8 @@ module Vagrant
   # This is the client that does CRUD operations against
   # the core Vagrant service
   class MachineClient
-    
-    # @params [String] endpoint for the core service 
+
+    # @params [String] endpoint for the core service
     def initialize(server_endpoint)
       @client = Hashicorp::Vagrant::Sdk::MachineService::Stub.new(server_endpoint, :this_channel_is_insecure)
     end
@@ -63,9 +63,9 @@ module Vagrant
       )
       resp = @client.box(req)
       Vagrant::Box.new(
-        resp.box.name, 
+        resp.box.name,
         resp.box.provider.to_sym,
-        resp.box.version, 
+        resp.box.version,
         Pathname.new(resp.box.directory),
       )
     end
@@ -133,7 +133,7 @@ module Vagrant
       provider_plugin  = Vagrant.plugin("2").manager.providers[:virtualbox]
       provider_cls     = provider_plugin[0]
       provider_options = provider_plugin[1]
-      
+
       datadir = get_data_dir(id)
       vagrantfile_name = get_vagrantfile_name(id)
       vagrantfile_path = get_vagrantfile_path(id)
@@ -169,7 +169,7 @@ module Vagrant
     attr_reader :env
 
     # TODO: not sure what to do about the provider bits yet
-    
+
     # The provider backing this machine.
     #
     # @return [Object]
@@ -210,11 +210,11 @@ module Vagrant
     # @param [MachineClient] client
     # @param [String] machine_id
     def initialize(
-      provider_name, provider_cls, provider_config, provider_options, config, 
+      provider_name, provider_cls, provider_config, provider_options, config,
       env, client, machine_id
     )
       @logger = Log4r::Logger.new("vagrant::machine")
-      
+
       @client = client
       @machine_id = machine_id
       @config = config
@@ -226,7 +226,7 @@ module Vagrant
       )
 
       # TODO: Need to stream this back to core service
-      @ui              = @env.ui
+      @ui              = Vagrant::UI::Prefixed.new(@env.ui, @name)
       @ui_mutex        = Mutex.new
       @state_mutex     = Mutex.new
       # TODO: reenable this once env stuff has been sorted

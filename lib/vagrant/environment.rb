@@ -107,6 +107,8 @@ module Vagrant
       @cwd              = opts[:cwd]
       @home_path        = opts[:home_path]
       @vagrantfile_name = opts[:vagrantfile_name]
+      @ui               = opts.fetch(:ui, opts[:ui_class].new)
+
       @ui_class         = opts[:ui_class]
       if opts[:ui_opts].nil?
         @ui = opts[:ui_class].new

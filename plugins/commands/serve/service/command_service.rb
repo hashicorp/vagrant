@@ -86,6 +86,49 @@ module VagrantPlugins
           # Send the options back
           options
         end
+
+        def execute_spec(req, ctx)
+          Hashicorp::Vagrant::Sdk::FuncSpec.new(
+            args: [
+              Hashicorp::Vagrant::Sdk::FuncSpec::Value.new(
+                type: "hashicorp.vagrant.sdk.Args.TerminalUI",
+                name: "",
+              ),
+            ],
+            result: [
+              Hashicorp::Vagrant::Sdk::FuncSpec::Value.new(
+                type: "hashicorp.vagrant.sdk.Command.ExecuteResp",
+                name: "",
+              ),
+            ],
+          )
+        end
+
+        def execute(req, ctx)
+          plugin_name = ctx.metadata["plugin_name"]
+          if plugin_name.nil?
+            raise "missing plugin name in context: #{ctx.metadata.inspect}"
+          end
+          raw_terminal = req.args.first.value.value
+          ui_client = Client::TerminalClient.terminal_arg_to_terminal_ui(raw_terminal)
+          ui = Vagrant::UI::RemoteUI.new(ui_client)
+          env = Vagrant::Environment.new(ui: ui, ui_class: Vagrant::UI::Silent)
+
+          plugin = Vagrant::Plugin::V2::Plugin.manager.commands[plugin_name.to_sym].to_a.first
+          if !plugin
+            raise "Failed to locate command plugin for: #{plugin_name}"
+          end
+          cmd_klass = plugin.call
+          cmd = cmd_klass.new([], env)
+          begin
+            result = cmd.execute
+          rescue => e
+            raise e.to_s + "\n" + e.backtrace.join("\n")
+          end
+          Hashicorp::Vagrant::Sdk::Command::ExecuteResp.new(
+            exit_code: result
+          )
+        end
       end
     end
   end
