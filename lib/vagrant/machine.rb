@@ -29,31 +29,101 @@ module Vagrant
       resp_machine.name
     end
 
+    def set_name(id, name)
+      machine_ref = Hashicorp::Vagrant::Sdk::Ref::Machine.new(resource_id: id)
+      req = Hashicorp::Vagrant::Sdk::Machine::SetNameRequest.new(
+        machine: machine_ref,
+        name: name
+      )
+      @client.set_name(req)
+    end
+
+    def get_id(id)
+      machine_ref = Hashicorp::Vagrant::Sdk::Ref::Machine.new(resource_id: id)
+      req = Hashicorp::Vagrant::Sdk::Machine::GetIDRequest.new(
+        machine: machine_ref
+      )
+      resp_machine = @client.get_id(req)
+      resp_machine.id
+    end
+
+    def set_id(id, new_id)
+      machine_ref = Hashicorp::Vagrant::Sdk::Ref::Machine.new(resource_id: id)
+      req = Hashicorp::Vagrant::Sdk::Machine::SetNameRequest.new(
+        machine: machine_ref,
+        id: new_id
+      )
+      @client.set_id(req)
+    end
+
+    def box(id)
+      req = Hashicorp::Vagrant::Sdk::Machine::BoxRequest.new(
+        machine: machine_ref
+      )
+      resp = @client.box(req)
+      Vagrant::Box.new(
+        resp.box.name, 
+        resp.box.provider.to_sym,
+        resp.box.version, 
+        Pathname.new(resp.box.directory),
+      )
+    end
+
+    def data_dir(id)
+      req = Hashicorp::Vagrant::Sdk::Machine::DatadirRequest.new(
+        machine: machine_ref
+      )
+      resp = @client.datadir(req)
+      Pathname.new(resp.datadir.data_dir)
+    end
+
+    # TODO
+    def local_data_path(id)
+      nil
+    end
+
+    def provider(id)
+      req = Hashicorp::Vagrant::Sdk::Machine::ProviderRequest.new(
+        machine: machine_ref
+      )
+      resp = @client.provider(req)
+      resp.machine
+    end
+
+
+    def vagrantfile_name(id)
+      req = Hashicorp::Vagrant::Sdk::Machine::VagrantfileNameRequest.new(
+        machine: machine_ref
+      )
+      resp = @client.vagrantfile_name(req)
+      resp.name
+    end
+
+    def vagrantfile_path(id)
+      req = Hashicorp::Vagrant::Sdk::Machine::VagrantfilePathRequest.new(
+        machine: machine_ref
+      )
+      resp = @client.vagrantfile_path(req)
+      resp.path
+    end
+
+    def updated_at(id)
+      req = Hashicorp::Vagrant::Sdk::Machine::UpdatedAtRequest.new(
+        machine: machine_ref
+      )
+      resp = @client.updated_at(req)
+      resp.updated_at
+    end
+
     # Get a machine by id
     #
     # @param [String] machine id
     # @param [TerminalClient]
     # @return [Machine]
     def get_machine(id, ui_client)
-      machine_ref = Hashicorp::Vagrant::Sdk::Ref::Machine.new(resource_id: id)
-      req = Hashicorp::Vagrant::Sdk::Machine::GetNameRequest.new(
-        machine: machine_ref
-      )
-      resp_machine = @client.get_name(req)
-      m = resp_machine.name
-
       provider_plugin  = Vagrant.plugin("2").manager.providers[:virtualbox]
       provider_cls     = provider_plugin[0]
       provider_options = provider_plugin[1]
-
-      box_req = Hashicorp::Vagrant::Sdk::Machine::BoxRequest.new(
-        machine: machine_ref
-      )
-      resp_box = @client.box(box_req)
-      box = Vagrant::Box.new(
-        resp_box.box.name, resp_box.box.provider.to_sym,
-        resp_box.box.version, Pathname.new(resp_box.box.directory),
-      )
 
       env = Vagrant::Environment.new(
         cwd: "/Users/sophia/project/vagrant-agogo",
@@ -67,7 +137,7 @@ module Vagrant
         "virtualbox", provider_cls, 
         {}, provider_options, {},
         Pathname.new("/Users/sophia/.vagrant.d/data"), 
-        box, env, nil, 
+        nil, env, nil, 
         base=false, client=self, machine_id=id
       )
     end
@@ -232,8 +302,11 @@ module Vagrant
       @ui.machine("metadata", "provider", provider_name)
     end
 
+    # Name of the machine. This is assigned by the Vagrantfile.
+    #
+    # @return [Symbol]
     def name
-      @client.get_name(@machine_id)
+      @client.get_name(@machine_id).to_sym
     end
 
     # This calls an action on the provider. The provider may or may not
