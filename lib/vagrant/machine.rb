@@ -56,7 +56,7 @@ module Vagrant
       @client.set_id(req)
     end
 
-    def box(id)
+    def get_box(id)
       req = Hashicorp::Vagrant::Sdk::Machine::BoxRequest.new(
         machine: machine_ref
       )
@@ -69,7 +69,7 @@ module Vagrant
       )
     end
 
-    def data_dir(id)
+    def get_data_dir(id)
       req = Hashicorp::Vagrant::Sdk::Machine::DatadirRequest.new(
         machine: machine_ref
       )
@@ -78,20 +78,20 @@ module Vagrant
     end
 
     # TODO
-    def local_data_path(id)
+    def get_local_data_path(id)
       nil
     end
 
-    def provider(id)
+    def get_provider(id)
       req = Hashicorp::Vagrant::Sdk::Machine::ProviderRequest.new(
         machine: machine_ref
       )
       resp = @client.provider(req)
-      resp.machine
+      resp
     end
 
 
-    def vagrantfile_name(id)
+    def get_vagrantfile_name(id)
       req = Hashicorp::Vagrant::Sdk::Machine::VagrantfileNameRequest.new(
         machine: machine_ref
       )
@@ -99,12 +99,12 @@ module Vagrant
       resp.name
     end
 
-    def vagrantfile_path(id)
+    def get_vagrantfile_path(id)
       req = Hashicorp::Vagrant::Sdk::Machine::VagrantfilePathRequest.new(
         machine: machine_ref
       )
       resp = @client.vagrantfile_path(req)
-      resp.path
+      Pathname.new(resp.path)
     end
 
     def updated_at(id)
@@ -134,11 +134,7 @@ module Vagrant
       )
 
       Machine.new(
-        "virtualbox", provider_cls, 
-        {}, provider_options, {},
-        Pathname.new("/Users/sophia/.vagrant.d/data"), 
-        nil, env, nil, 
-        base=false, client=self, machine_id=id
+        nil, env, client=self, machine_id=id
       )
     end
   end
@@ -149,38 +145,18 @@ module Vagrant
   class Machine
     extend Vagrant::Action::Builtin::MixinSyncedFolders
 
-    # The box that is backing this machine.
-    #
-    # @return [Box]
-    attr_accessor :box
-
     # Configuration for the machine.
     #
     # @return [Object]
     attr_accessor :config
-
-    # Directory where machine-specific data can be stored.
-    #
-    # @return [Pathname]
-    attr_reader :data_dir
 
     # The environment that this machine is a part of.
     #
     # @return [Environment]
     attr_reader :env
 
-    # ID of the machine. This ID comes from the provider and is not
-    # guaranteed to be of any particular format except that it is
-    # a string.
-    #
-    # @return [String]
-    attr_reader :id
-
-    # Name of the machine. This is assigned by the Vagrantfile.
-    #
-    # @return [Symbol]
-    # attr_reader :name
-
+    # TODO: not sure what to do about the provider bits yet
+    
     # The provider backing this machine.
     #
     # @return [Object]
@@ -201,6 +177,7 @@ module Vagrant
     # @return [Hash]
     attr_reader :provider_options
 
+    # TODO: not sure what to do about the triggers bits yet
     # The triggers with machine specific configuration applied
     #
     # @return [Vagrant::Plugin::V2::Trigger]
@@ -211,46 +188,28 @@ module Vagrant
     # @return [UI]
     attr_reader :ui
 
-    # The Vagrantfile that this machine is attached to.
-    #
-    # @return [Vagrantfile]
-    attr_reader :vagrantfile
 
     # Initialize a new machine.
     #
-    # @param [String] name Name of the virtual machine.
-    # @param [Class] provider The provider backing this machine. This is
-    #   currently expected to be a V1 `provider` plugin.
-    # @param [Object] provider_config The provider-specific configuration for
-    #   this machine.
-    # @param [Hash] provider_options The provider-specific options from the
-    #   plugin definition.
     # @param [Object] config The configuration for this machine.
-    # @param [Pathname] data_dir The directory where machine-specific data
-    #   can be stored. This directory is ensured to exist.
-    # @param [Box] box The box that is backing this virtual machine.
     # @param [Environment] env The environment that this machine is a
     #   part of.
-    def initialize(provider_name, provider_cls, provider_config, provider_options, config, data_dir, box, env, vagrantfile, base=false, client=nil, machine_id=nil)
+    # @param [MachineClient] client
+    # @param [String] machine_id
+    def initialize(config, env, client=nil, machine_id=nil)
       @logger = Log4r::Logger.new("vagrant::machine")
-      @logger.info("  - Provider: #{provider_cls}")
-      @logger.info("  - Box: #{box}")
-      @logger.info("  - Data dir: #{data_dir}")
-
+      
       @client = client
       @machine_id = machine_id
-      @box             = box
-      @config          = config
-      @data_dir        = data_dir
-      @env             = env
-      @vagrantfile     = vagrantfile
-      @guest           = Guest.new(
+
+      @config = config
+      @env = env
+      @guest = Guest.new(
         self,
         Vagrant.plugin("2").manager.guests,
-        Vagrant.plugin("2").manager.guest_capabilities)
-      @provider_config = provider_config
-      @provider_name   = provider_name
-      @provider_options = provider_options
+        Vagrant.plugin("2").manager.guest_capabilities
+      )
+
       # TODO: Need to stream this back to core service
       @ui              = @env.ui
       @ui_mutex        = Mutex.new
@@ -307,6 +266,40 @@ module Vagrant
     # @return [Symbol]
     def name
       @client.get_name(@machine_id).to_sym
+    end
+
+    # TODO: does this also need a set box?
+    # The box that is backing this machine.
+    #
+    # @return [Box]
+    def box
+      @client.get_box(@machine_id)
+    end
+
+    # ID of the machine. This ID comes from the provider and is not
+    # guaranteed to be of any particular format except that it is
+    # a string.
+    #
+    # @return [String]
+    def id
+      @client.get_id(@machine_id)
+    end
+
+    # Directory where machine-specific data can be stored.
+    #
+    # @return [Pathname]
+    def data_dir
+      @client.get_data_dir(@machine_id)
+    end
+
+    # The Vagrantfile that this machine is attached to.
+    #
+    # @return [Vagrantfile]
+    def vagrantfile
+      path = @client.get_vagrantfile_path(@machine_id)
+      filename = @client.get_vagrantfile_name(@machine_id)
+      vagrantfile_path = path.join(filename)
+      # TODO: get vagrantfile parsed and return Vagrantfile
     end
 
     # This calls an action on the provider. The provider may or may not
