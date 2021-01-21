@@ -17,8 +17,9 @@ export default function CommunityPage() {
       <VerticalTextBlockList
         data={[
           {
-            header: 'IRC',
-            body: '`#vagrant` on freenode',
+            header: 'Community Forum',
+            body:
+            '[Vagrant Community Forum](https://discuss.hashicorp.com/c/vagrant/24)',
           },
           {
             header: 'Announcement List',
@@ -29,11 +30,6 @@ export default function CommunityPage() {
             header: 'Discussion List',
             body:
               '[Vagrant Google Group](https://groups.google.com/forum/#!forum/vagrant-up)',
-          },
-          {
-            header: 'Community Forum',
-            body:
-              '[Vagrant Community Forum](https://discuss.hashicorp.com/c/vagrant/24)',
           },
           {
             header: 'Bug Tracker',
