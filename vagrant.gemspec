@@ -21,7 +21,7 @@ Gem::Specification.new do |s|
   s.add_dependency "erubi"
   s.add_dependency "hashicorp-checkpoint", "~> 0.1.5"
   s.add_dependency "i18n", "~> 1.8"
-  s.add_dependency "listen", "~> 3.1"
+  s.add_dependency "listen", "~> 3.4"
   s.add_dependency "log4r", "~> 1.1.9", "< 1.1.11"
   s.add_dependency "mime-types", "~> 3.3"
   s.add_dependency "net-ssh", ">= 6.2.0.rc1", "< 7"
@@ -34,12 +34,6 @@ Gem::Specification.new do |s|
   s.add_dependency "winrm", ">= 2.3.4", "< 3.0"
   s.add_dependency "winrm-elevated", ">= 1.2.1", "< 2.0"
   s.add_dependency "winrm-fs", ">= 1.3.4", "< 2.0"
-
-  # NOTE: The ruby_dep gem is an implicit dependency from the listen gem. Later versions
-  # of the ruby_dep gem impose an aggressive constraint on the required ruby version (>= 2.2.5).
-  # Explicit constraint is defined to provide required dependency to listen without imposing
-  # tighter restrictions on valid ruby versions
-  s.add_dependency "ruby_dep", "<= 1.3.1"
 
   # Constraint rake to properly handle deprecated method usage
   # from within rspec
