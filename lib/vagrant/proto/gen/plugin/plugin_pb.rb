@@ -252,6 +252,18 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
     end
     add_message "hashicorp.vagrant.sdk.Command" do
     end
+    add_message "hashicorp.vagrant.sdk.Command.Flag" do
+      optional :long_name, :string, 1
+      optional :short_name, :string, 2
+      optional :description, :string, 3
+      optional :default_value, :string, 4
+      optional :type, :enum, 5, "hashicorp.vagrant.sdk.Command.Flag.Type"
+    end
+    add_enum "hashicorp.vagrant.sdk.Command.Flag.Type" do
+      value :STRING, 0
+      value :BOOL, 2
+      value :INT, 3
+    end
     add_message "hashicorp.vagrant.sdk.Command.HelpResp" do
       optional :help, :string, 1
     end
@@ -259,7 +271,7 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
       optional :synopsis, :string, 1
     end
     add_message "hashicorp.vagrant.sdk.Command.FlagsResp" do
-      optional :flags, :string, 1
+      repeated :flags, :message, 1, "hashicorp.vagrant.sdk.Command.Flag"
     end
     add_message "hashicorp.vagrant.sdk.Communicator" do
     end
@@ -381,6 +393,8 @@ module Hashicorp
       Provider::InstalledResp = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Provider.InstalledResp").msgclass
       Provider::ActionResp = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Provider.ActionResp").msgclass
       Command = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Command").msgclass
+      Command::Flag = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Command.Flag").msgclass
+      Command::Flag::Type = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Command.Flag.Type").enummodule
       Command::HelpResp = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Command.HelpResp").msgclass
       Command::SynopsisResp = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Command.SynopsisResp").msgclass
       Command::FlagsResp = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Command.FlagsResp").msgclass

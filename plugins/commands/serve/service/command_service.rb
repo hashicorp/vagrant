@@ -12,9 +12,12 @@ module VagrantPlugins
           if !plugin
             raise "Failed to locate command plugin for: #{plugin_name}"
           end
-          # klass = plugin.call
+          $stashed_opts = nil
+          klass = Class.new(plugin.call)
+          klass.class_eval { def parse_options(opts); $stashed_opts = opts; nil; end };
+          klass.new(['-h'], {}).execute
           Hashicorp::Vagrant::Sdk::Command::HelpResp.new(
-            help: "No help information configured"
+            help: $stashed_opts.help()
           )
         end
 
@@ -44,9 +47,17 @@ module VagrantPlugins
           if !plugin
             raise "Failed to locate command plugin for: #{plugin_name}"
           end
-          # klass = plugin.call
+          # klass = Class.new(plugin.call)
+          # klass.class_eval { 
+          # }
           Hashicorp::Vagrant::Sdk::Command::FlagsResp.new(
-            flags: "not implemented"
+            flags: [
+              Hashicorp::Vagrant::Sdk::Command::Flag.new(
+                long_name: "test", short_name: "t", 
+                description: "does this even work?", default_value: "true",
+                type: Hashicorp::Vagrant::Sdk::Command::Flag::Type::BOOL
+              )
+            ]
           )
         end
       end
