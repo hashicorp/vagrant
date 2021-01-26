@@ -80,6 +80,31 @@ module.exports = [
       'https://learn.hashicorp.com/tutorials/vagrant/getting-started-:path*',
     permanent: true,
   },
+  {
+    source: '/docs/why-vagrant',
+    destination: '/intro#why-vagrant',
+    permanent: true,
+  },
+  {
+    source: '/boxes',
+    destination: 'https://app.vagrantup.com/boxes',
+    permanent: true,
+  },
+  {
+    source: '/boxes/search',
+    destination: 'https://app.vagrantup.com/boxes/search',
+    permanent: true,
+  },
+  {
+    source: '/downloads\\.(html?)?',
+    destination: '/downloads',
+    permanent: true,
+  },
+  {
+    source: '/download',
+    destination: '/downloads',
+    permanent: true,
+  },
   // disallow '.html' or '/index.html' in favor of cleaner, simpler paths
   { source: '/:path*/index', destination: '/:path*', permanent: true },
   { source: '/:path*.html', destination: '/:path*', permanent: true },
