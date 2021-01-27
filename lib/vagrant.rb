@@ -24,28 +24,10 @@ module Vagrant
     attr_reader :flags
 
     def initialize(*_)
-      @flags = []
       super
       Vagrant.default_cli_options.each do |opt_proc|
         opt_proc.call(self)
       end
-    end
-
-    def on(*opts, &block)
-      super
-      # TODO: make this not a disaster
-      if opts[0][0,2] == "--"
-        ln = opts[0].split(" ")[0][2..-1]
-      else
-        ln = opts[1].split(" ")[0][2..-1]
-      end
-      @flags.append(
-        {
-          long_name: ln,
-          description: opts[-1],
-          type: String
-        }
-      )
     end
   end
 end
