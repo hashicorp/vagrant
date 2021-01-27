@@ -20,9 +20,6 @@ module Vagrant
   # outside of command implementations to the local option
   # parser instances in use
   class OptionParser < ::OptionParser
-
-    attr_reader :flags
-
     def initialize(*_)
       super
       Vagrant.default_cli_options.each do |opt_proc|

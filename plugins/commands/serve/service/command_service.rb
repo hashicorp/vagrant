@@ -42,16 +42,13 @@ module VagrantPlugins
           }.map { |o|
             Hashicorp::Vagrant::Sdk::Command::Flag.new(
               description: o.desc.join(" "),
-              long_name: o.long.first,
+              long_name: o.switch_name,
               short_name: o.short.first,
               type: o.is_a?(OptionParser::Switch::NoArgument) ?
                 Hashicorp::Vagrant::Sdk::Command::Flag::Type::BOOL :
                 Hashicorp::Vagrant::Sdk::Command::Flag::Type::STRING
             )
           }
-
-          # Clean our option data out of the thread
-          Thread.current.thread_variable_set(:command_options, nil)
 
           Hashicorp::Vagrant::Sdk::Command::FlagsResp.new(
             flags: flags
