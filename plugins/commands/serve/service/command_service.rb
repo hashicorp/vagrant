@@ -7,17 +7,9 @@ module VagrantPlugins
         end
 
         def help(*args)
-          plugin_name = args.last.metadata["plugin_name"]
-          plugin = Vagrant::Plugin::V2::Plugin.manager.commands[plugin_name.to_sym].to_a.first
-          if !plugin
-            raise "Failed to locate command plugin for: #{plugin_name}"
-          end
-          $stashed_opts = nil
-          klass = Class.new(plugin.call)
-          klass.class_eval { def parse_options(opts); $stashed_opts = opts; nil; end };
-          klass.new(['-h'], {}).execute
+          options = command_options_for(args.last.metadata["plugin_name"])
           Hashicorp::Vagrant::Sdk::Command::HelpResp.new(
-            help: $stashed_opts.help()
+            help: options.help
           )
         end
 
@@ -42,10 +34,34 @@ module VagrantPlugins
         end
 
         def flags(*args)
-          plugin_name = args.last.metadata["plugin_name"]
-          plugin = Vagrant::Plugin::V2::Plugin.manager.commands[plugin_name.to_sym].to_a.first
+          options = command_options_for(args.last.metadata["plugin_name"])
+
+          # Now we can build our list of flags
+          flags = options.top.list.find_all { |o|
+            o.is_a?(OptionParser::Switch)
+          }.map { |o|
+            Hashicorp::Vagrant::Sdk::Command::Flag.new(
+              description: o.desc.join(" "),
+              long_name: o.long.first,
+              short_name: o.short.first,
+              type: o.is_a?(OptionParser::Switch::NoArgument) ?
+                Hashicorp::Vagrant::Sdk::Command::Flag::Type::BOOL :
+                Hashicorp::Vagrant::Sdk::Command::Flag::Type::STRING
+            )
+          }
+
+          # Clean our option data out of the thread
+          Thread.current.thread_variable_set(:command_options, nil)
+
+          Hashicorp::Vagrant::Sdk::Command::FlagsResp.new(
+            flags: flags
+          )
+        end
+
+        def command_options_for(name)
+          plugin = Vagrant::Plugin::V2::Plugin.manager.commands[name.to_sym].to_a.first
           if !plugin
-            raise "Failed to locate command plugin for: #{plugin_name}"
+            raise "Failed to locate command plugin for: #{name}"
           end
 
           # Create a new anonymous class based on the command class
@@ -65,26 +81,13 @@ module VagrantPlugins
           # Execute the command to populate our options
           klass.new([], {}).execute
 
-          # Now we can build our list of flags
-          flags = Thread.current.thread_variable_get(:command_options).top.list.find_all { |o|
-            o.is_a?(OptionParser::Switch)
-          }.map { |o|
-            Hashicorp::Vagrant::Sdk::Command::Flag.new(
-              description: o.desc.join(" "),
-              long_name: o.long.first,
-              short_name: o.short.first,
-              type: o.is_a?(OptionParser::Switch::NoArgument) ?
-                Hashicorp::Vagrant::Sdk::Command::Flag::Type::BOOL :
-                Hashicorp::Vagrant::Sdk::Command::Flag::Type::STRING
-            )
-          }
+          options = Thread.current.thread_variable_get(:command_options)
 
           # Clean our option data out of the thread
           Thread.current.thread_variable_set(:command_options, nil)
 
-          Hashicorp::Vagrant::Sdk::Command::FlagsResp.new(
-            flags: flags
-          )
+          # Send the options back
+          options
         end
       end
     end
