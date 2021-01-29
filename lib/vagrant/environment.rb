@@ -108,12 +108,14 @@ module Vagrant
       @home_path        = opts[:home_path]
       @vagrantfile_name = opts[:vagrantfile_name]
       @ui               = opts.fetch(:ui, opts[:ui_class].new)
-
       @ui_class         = opts[:ui_class]
-      if opts[:ui_opts].nil?
-        @ui = opts[:ui_class].new
-      else
-        @ui = opts[:ui_class].new(*opts[:ui_opts])
+
+      if @ui.nil?
+        if opts[:ui_opts].nil?
+          @ui = opts[:ui_class].new
+        else
+          @ui = opts[:ui_class].new(*opts[:ui_opts])
+        end
       end
 
       # This is the batch lock, that enforces that only one {BatchAction}
