@@ -6,7 +6,6 @@ module Vagrant
   # API for querying the state and making state changes to the machine, which
   # is backed by any sort of provider (VirtualBox, VMware, etc.).
   class Machine
-    autoload :Client, "vagrant/machine/client"
     autoload :Thick, "vagrant/machine/thick"
     autoload :Thin, "vagrant/machine/thin"
 
