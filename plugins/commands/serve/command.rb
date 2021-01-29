@@ -1,14 +1,14 @@
+$LOAD_PATH << Vagrant.source_root.join("lib/vagrant/proto/gen").to_s
 $LOAD_PATH << Vagrant.source_root.join("lib/vagrant/proto/gen/plugin").to_s
 
+require 'vagrant/proto/gen/internal/server/proto/server_pb'
+require 'vagrant/proto/gen/internal/server/proto/server_services_pb'
 require 'vagrant/proto/gen/ruby-server_pb'
 require 'vagrant/proto/gen/ruby-server_services_pb'
 require 'vagrant/proto/gen/plugin/plugin_pb'
 require 'vagrant/proto/gen/plugin/plugin_services_pb'
-
-require_relative "./service/provider_service"
-require_relative "./service/command_service"
-require_relative "./service/host_service"
-require_relative "./service/internal_service"
+require 'vagrant/proto/gen/plugin/core_pb'
+require 'vagrant/proto/gen/plugin/core_services_pb'
 
 require "optparse"
 require 'grpc'
@@ -17,6 +17,10 @@ require 'grpc/health/v1/health_services_pb'
 
 module VagrantPlugins
   module CommandServe
+
+    autoload :Client, Vagrant.source_root.join("plugins/commands/serve/client").to_s
+    autoload :Service, Vagrant.source_root.join("plugins/commands/serve/service").to_s
+
     class Command < Vagrant.plugin("2", :command)
 
       DEFAULT_PORT = 10001
@@ -47,7 +51,10 @@ module VagrantPlugins
 
       private
 
-      def serve(port=10001)
+      def serve(port=DEFAULT_PORT)
+        # Set vagrant in server mode
+        Vagrant.enable_server_mode!
+
         s = GRPC::RpcServer.new
         # Listen on port 10001 on all interfaces. Update for production use.
         s.add_http2_port("[::]:#{port}", :this_port_is_insecure)
