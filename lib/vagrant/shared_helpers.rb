@@ -222,4 +222,18 @@ module Vagrant
     @_default_cli_options = [] if !@_default_cli_options
     @_default_cli_options.dup
   end
+
+  # Check if Vagrant is running in server mode
+  #
+  # @return [Boolean]
+  def self.server_mode?
+    !!@_server_mode
+  end
+
+  # Flag Vagrant as running in server mode
+  #
+  # @return [true]
+  def self.enable_server_mode!
+    @_server_mode = true
+  end
 end
