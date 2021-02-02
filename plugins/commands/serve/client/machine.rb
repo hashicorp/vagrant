@@ -25,6 +25,11 @@ module VagrantPlugins
             name: name,
             project: SRV::Ref::Project.new(
               resource_id: ServiceInfo.info.project
+            ),
+            state: SDK::MachineState.new(
+              id: :not_created,
+              short_description: "not created",
+              long_description: "Machine not currently created"
             )
           )
 
@@ -59,14 +64,14 @@ module VagrantPlugins
             machine: ref,
             name: name
           )
-          @client.set_name(req)
+          client.set_name(req)
         end
 
         def get_id
           req = SDK::Machine::GetIDRequest.new(
             machine: ref
           )
-          @client.get_id(req).id
+          client.get_id(req).id
         end
 
         def set_id(new_id)
@@ -74,14 +79,14 @@ module VagrantPlugins
             machine: ref,
             id: new_id
           )
-          @client.set_id(req)
+          client.set_id(req)
         end
 
         def get_box
           req = SDK::Machine::BoxRequest.new(
             machine: ref
           )
-          resp = @client.box(req)
+          resp = client.box(req)
           Vagrant::Box.new(
             resp.box.name,
             resp.box.provider.to_sym,
@@ -94,28 +99,28 @@ module VagrantPlugins
           req = SDK::Machine::DatadirRequest.new(
             machine: ref
           )
-          @client.datadir(req).datadir
+          client.datadir(req).data_dir
         end
 
         def get_local_data_path
           req = SDK::Machine::LocalDataPathRequest.new(
             machine: ref
           )
-          @client.localdatapath(req).path
+          client.localdatapath(req).path
         end
 
         def get_provider
           req = SDK::Machine::ProviderRequest.new(
             machine: ref
           )
-          @client.provider(req)
+          client.provider(req)
         end
 
         def get_vagrantfile_name
           req = SDK::Machine::VagrantfileNameRequest.new(
             machine: ref
           )
-          resp = @client.vagrantfile_name(req)
+          resp = client.vagrantfile_name(req)
           resp.name
         end
 
@@ -123,7 +128,7 @@ module VagrantPlugins
           req = SDK::Machine::VagrantfilePathRequest.new(
             machine: ref
           )
-          resp = @client.vagrantfile_path(req)
+          resp = client.vagrantfile_path(req)
           Pathname.new(resp.path)
         end
 
@@ -131,36 +136,29 @@ module VagrantPlugins
           req = SDK::Machine::UpdatedAtRequest.new(
             machine: ref
           )
-          resp = @client.updated_at(req)
+          resp = client.updated_at(req)
           resp.updated_at
         end
 
-        # Get a machine by id
-        #
-        # @param [String] machine id
-        # @param [TerminalClient]
-        # @return [Machine]
-        def get_machine(id, ui_client)
-          provider_plugin  = Vagrant.plugin("2").manager.providers[:virtualbox]
-          provider_cls     = provider_plugin[0]
-          provider_options = provider_plugin[1]
-
-          datadir = get_data_dir(id)
-          vagrantfile_name = get_vagrantfile_name(id)
-          vagrantfile_path = get_vagrantfile_path(id)
-          env = Vagrant::Environment.new(
-            cwd: vagrantfile_path, # TODO: this is probably not ideal
-            home_path: datadir.root_dir,
-            ui_class: Vagrant::UI::RemoteUI,
-            ui_opts: [ui_client],
-            vagrantfile_name: vagrantfile_name,
+        def get_state
+          req = SDK::Machine::GetStateRequest.new(
+            machine: ref
           )
-
-          Machine.new(
-            "virtualbox", provider_cls, {}, provider_options,
-            nil, env, self, id
+          resp = client.get_state(req)
+          Vagrant::MachineState.new(
+            resp.state.id,
+            resp.state.short_description,
+            resp.state.long_description
           )
         end
+
+        def get_uuid
+          req = SDK::Machine::GetUUIDRequest.new(
+            machine: ref
+          )
+          client.get_uuid(req).uuid
+        end
+
       end
     end
 
