@@ -1,14 +1,13 @@
-$LOAD_PATH << Vagrant.source_root.join("lib/vagrant/proto/gen").to_s
-$LOAD_PATH << Vagrant.source_root.join("lib/vagrant/proto/gen/plugin").to_s
+$LOAD_PATH << Vagrant.source_root.join("lib/vagrant/protobufs").to_s
+$LOAD_PATH << Vagrant.source_root.join("lib/vagrant/protobufs/proto").to_s
+$LOAD_PATH << Vagrant.source_root.join("lib/vagrant/protobufs/proto/vagrant_plugin_sdk").to_s
 
-require 'vagrant/proto/gen/internal/server/proto/server_pb'
-require 'vagrant/proto/gen/internal/server/proto/server_services_pb'
-require 'vagrant/proto/gen/ruby-server_pb'
-require 'vagrant/proto/gen/ruby-server_services_pb'
-require 'vagrant/proto/gen/plugin/plugin_pb'
-require 'vagrant/proto/gen/plugin/plugin_services_pb'
-require 'vagrant/proto/gen/plugin/core_pb'
-require 'vagrant/proto/gen/plugin/core_services_pb'
+require 'vagrant/protobufs/proto/vagrant_server/server_pb'
+require 'vagrant/protobufs/proto/vagrant_server/server_services_pb'
+require 'vagrant/protobufs/proto/ruby_vagrant/ruby-server_pb'
+require 'vagrant/protobufs/proto/ruby_vagrant/ruby-server_services_pb'
+require 'vagrant/protobufs/proto/vagrant_plugin_sdk/plugin_pb'
+require 'vagrant/protobufs/proto/vagrant_plugin_sdk/plugin_services_pb'
 
 require "optparse"
 require 'grpc'

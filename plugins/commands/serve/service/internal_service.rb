@@ -5,8 +5,6 @@ require "vagrant/box_collection"
 require "vagrant/config"
 require "pathname"
 
-require 'vagrant/proto/gen/ruby-server_pb'
-require 'vagrant/proto/gen/ruby-server_services_pb'
 require 'google/protobuf/well_known_types'
 
 module VagrantPlugins
