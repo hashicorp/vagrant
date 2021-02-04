@@ -543,10 +543,8 @@ module Vagrant
           @logger.info("Expected checksum: #{checksum}")
 
           actual = FileChecksum.new(path, checksum_type).checksum
-          actual.gsub!(/\s+/, '')
-          checksum.gsub!(/\s+/, '')
           @logger.info("Actual checksum: #{actual}")
-          if actual.casecmp(checksum) != 0
+          if actual.strip().casecmp(checksum.strip()) != 0
             raise Errors::BoxChecksumMismatch,
               actual: actual,
               expected: checksum
