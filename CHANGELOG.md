@@ -13,6 +13,7 @@ BUG FIXES:
 IMPROVEMENTS:
 
 - host/windows: Update filesystem type matching on WSL2 [GH-12056]
+- provisioner/salt: Modernize Salt bootstrap script [GH-12135]
 
 BUG FIXES:
 
