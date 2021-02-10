@@ -34,13 +34,12 @@ module VagrantPlugins
                 mount_options, _, _ = data[:plugin].capability(
                   :mount_options, name, guest_path, data)
                 if data[:plugin].capability?(:mount_name)
-                  name = data[:plugin].capability(:mount_name, data)
+                  name = data[:plugin].capability(:mount_name, name, data)
                 end
               else
                 next
               end
 
-              mount_options = "#{mount_options},nofail"
               {
                 name: name,
                 mount_point: guest_path,

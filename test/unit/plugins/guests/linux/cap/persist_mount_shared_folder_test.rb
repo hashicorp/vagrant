@@ -29,7 +29,7 @@ describe "VagrantPlugins::GuestLinux::Cap::PersistMountSharedFolder" do
   let (:folders) { {
     :folder_type => fstab_folders
   } }
-  let(:expected_mount_options) { "uid=#{options_uid},gid=#{options_gid},nofail" }
+  let(:expected_mount_options) { "uid=#{options_uid},gid=#{options_gid}" }
 
   before do
     allow(machine).to receive(:communicate).and_return(comm)
