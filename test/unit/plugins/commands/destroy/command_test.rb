@@ -164,8 +164,15 @@ describe VagrantPlugins::CommandDestroy::Command do
       subject.execute
     end
 
-    context "with an invalid argument" do
+    context "with machine that does not exist" do
       let(:argv){ ["notweb"] }
+      it "raises an exception" do
+        expect { subject.execute }.to raise_error(Vagrant::Errors::MachineNotFound)
+      end
+    end
+
+    context "with an invalid argument" do
+      let(:argv){ [""] }
       it "raises an exception" do
         expect { subject.execute }.to raise_error(Vagrant::Errors::MachineNotFound)
       end
