@@ -317,12 +317,6 @@ module Vagrant
             metadata_url_file = box_directory.join("metadata_url")
             metadata_url = metadata_url_file.read if metadata_url_file.file?
 
-            if metadata_url && @hook
-              hook_env     = @hook.call(
-                :authenticate_box_url, box_urls: [metadata_url])
-              metadata_url = hook_env[:box_urls].first
-            end
-
             return Box.new(
               name, provider, version_dir_map[v.to_s], provider_dir,
               metadata_url: metadata_url, hook: @hook
