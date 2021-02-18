@@ -577,7 +577,7 @@ describe Vagrant::Action::Builtin::BoxAdd, :skip_windows, :bsdtar do
               "providers": [
                 {
                   "name": "virtualbox",
-                  "url":  "bar"
+                  "url":  "#{box_path.to_s}"
                 }
               ]
             }
@@ -590,29 +590,16 @@ describe Vagrant::Action::Builtin::BoxAdd, :skip_windows, :bsdtar do
       md_path = Pathname.new(tf.path)
       with_web_server(md_path) do |port|
         real_url = "http://127.0.0.1:#{port}/#{md_path.basename}"
-
-        # Set the box URL to something fake so we can modify it in place
-        env[:box_url] = "foo"
-
+        env[:box_url] = real_url
         env[:hook] = double("hook")
 
         expect(env[:hook]).to receive(:call).with(:authenticate_box_downloader, any_args).at_least(:once)
-
-        allow(env[:hook]).to receive(:call).with(:authenticate_box_url, any_args).at_least(:once) do |name, opts|
-          if opts[:box_urls] == ["foo"]
-            next { box_urls: [real_url] }
-          elsif opts[:box_urls] == ["bar"]
-            next { box_urls: [box_path.to_s] }
-          else
-            raise "UNKNOWN: #{opts[:box_urls].inspect}"
-          end
-        end
 
         expect(box_collection).to receive(:add).with(any_args) { |path, name, version, opts|
           expect(name).to eq("foo/bar")
           expect(version).to eq("0.7")
           expect(checksum(path)).to eq(checksum(box_path))
-          expect(opts[:metadata_url]).to eq("foo")
+          expect(opts[:metadata_url]).to eq(real_url)
           true
         }.and_return(box)
 

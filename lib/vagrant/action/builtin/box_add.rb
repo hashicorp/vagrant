@@ -76,18 +76,8 @@ module Vagrant
             end
           end
 
-          # Call the hook to transform URLs into authenticated URLs.
-          # In the case we don't have a plugin that does this, then it
-          # will just return the same URLs.
-          hook_env    = env[:hook].call(
-            :authenticate_box_url, box_urls: url.dup)
-          authed_urls = hook_env[:box_urls]
-          if !authed_urls || authed_urls.length != url.length
-            raise "Bad box authentication hook, did not generate proper results."
-          end
-
           # Test if any of our URLs point to metadata
-          is_metadata_results = authed_urls.map do |u|
+          is_metadata_results = url.map do |u|
             begin
               metadata_url?(u, env)
             rescue Errors::DownloaderError => e
@@ -115,8 +105,7 @@ module Vagrant
           end
 
           if is_metadata
-            url = [url.first, authed_urls.first]
-            add_from_metadata(url, env, expanded)
+            add_from_metadata(url.first, env, expanded)
           else
             add_direct(url, env)
           end
@@ -270,19 +259,8 @@ module Vagrant
               providers[choice-1])
           end
 
-          provider_url = metadata_provider.url
-          if provider_url != authenticated_url
-            # Authenticate the provider URL since we're using auth
-            hook_env    = env[:hook].call(:authenticate_box_url, box_urls: [provider_url])
-            authed_urls = hook_env[:box_urls]
-            if !authed_urls || authed_urls.length != 1
-              raise "Bad box authentication hook, did not generate proper results."
-            end
-            provider_url = authed_urls[0]
-          end
-
           box_add(
-            [[provider_url, metadata_provider.url]],
+            [metadata_provider.url],
             metadata.name,
             metadata_version.version,
             metadata_provider.name,
