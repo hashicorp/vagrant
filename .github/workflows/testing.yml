@@ -8,6 +8,7 @@ on:
       - 'lib/**'
       - 'plugins/**'
       - 'test/**'
+      - 'templates/**'
       - 'Gemfile'
       - 'vagrant.gemspec'
       - 'Rakefile'
@@ -20,6 +21,7 @@ on:
       - 'plugins/**'
       - 'test/**'
       - 'Gemfile'
+      - 'templates/**'
       - 'vagrant.gemspec'
       - 'Rakefile'
 
