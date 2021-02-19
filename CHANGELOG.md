@@ -4,6 +4,7 @@ FEATURES:
 
 IMPROVEMENTS:
 
+- core: Bump vagrant_cloud dependency to 3.0.3 [GH-12200]
 - guest/openwrt: Add support for OpenWrt guests [GH-11791]
 
 BUG FIXES:
