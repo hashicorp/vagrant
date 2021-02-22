@@ -9,6 +9,8 @@ IMPROVEMENTS:
 
 BUG FIXES:
 
+- core: Make shell script for loop shell agnostic [GH-12205]
+
 ## 2.2.14 (November 20, 2020)
 
 IMPROVEMENTS:
