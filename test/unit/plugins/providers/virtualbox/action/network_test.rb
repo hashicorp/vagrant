@@ -91,10 +91,44 @@ describe VagrantPlugins::ProviderVirtualBox::Action::Network do
       allow(machine).to receive(:guest) { guest }
     end
 
+    it "tries to setup dhpc server using the ip for the specified network" do
+      allow(driver).to receive(:create_host_only_network) {{ name: 'vboxnet0' }}
+      allow(driver).to receive(:create_dhcp_server)
+      allow(guest).to receive(:capability)
+      allow(subject).to receive(:hostonly_find_matching_network).and_return({name: "vboxnet1", ip: "192.168.55.1"})
+
+      subject.call(env)
+
+      expect(driver).to have_received(:create_dhcp_server).with('vboxnet1', {
+        adapter_ip: "192.168.55.1",
+        auto_config: true,
+        ip: "192.168.55.1",
+        mac: nil,
+        name: nil,
+        netmask: "255.255.255.0",
+        nic_type: nil,
+        type: :dhcp,
+        dhcp_ip: "192.168.55.2",
+        dhcp_lower: "192.168.55.3",
+        dhcp_upper: "192.168.55.254",
+        adapter: 2
+      })
+
+      expect(guest).to have_received(:capability).with(:configure_networks, [{
+        type: :dhcp,
+        adapter_ip: "192.168.55.1",
+        ip: "192.168.55.1",
+        netmask: "255.255.255.0",
+        auto_config: true,
+        interface: nil
+      }])
+    end
+
     it "creates a host only interface and a dhcp server using default ips, then tells the guest to configure the network after boot" do
       allow(driver).to receive(:create_host_only_network) {{ name: 'vboxnet0' }}
       allow(driver).to receive(:create_dhcp_server)
       allow(guest).to receive(:capability)
+      allow(subject).to receive(:hostonly_find_matching_network).and_return(nil)
 
       subject.call(env)
 
