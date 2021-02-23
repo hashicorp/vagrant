@@ -11,7 +11,8 @@ BUG FIXES:
 
 - core: Make shell script for loop shell agnostic [GH-12205]
 - core: Raise error if downloading box metadata fails [GH-12189]
-- core/synced_folders:: Extract os friendly mount name for vbox shared folders [GH-12184]
+- core/synced_folders: Extract os friendly mount name for vbox shared folders [GH-12184]
+- guest/alpine: Check if interface exists before shutting it down [GH-12181]
 
 ## 2.2.14 (November 20, 2020)
 
