@@ -22,12 +22,17 @@ module VagrantPlugins
 
           mount_options << "uid=#{mount_uid}"
           mount_options << "gid=#{mount_gid}"
+          mount_options << "_netdev"
           mount_options = mount_options.join(',')
           return mount_options, mount_uid, mount_gid
         end
 
         def self.mount_type(machine)
           return VB_MOUNT_TYPE
+        end
+
+        def self.mount_name(machine, name, data)
+          name.gsub(/[\s\/\\]/,'_').sub(/^_/, '')
         end
       end
     end

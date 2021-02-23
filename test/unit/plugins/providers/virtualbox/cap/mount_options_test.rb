@@ -49,7 +49,7 @@ describe "VagrantPlugins::ProviderVirtualBox::Cap::MountOptions" do
         let(:mount_owner){ 2000 }
         it "generates the expected mount command using mount_owner directly" do
           out_mount_options, out_mount_uid, out_mount_gid = cap.mount_options(machine, mount_name, mount_guest_path, folder_options)
-          expect(out_mount_options).to eq("uid=#{mount_owner},gid=#{mount_gid}")
+          expect(out_mount_options).to eq("uid=#{mount_owner},gid=#{mount_gid},_netdev")
           expect(out_mount_uid).to eq(mount_owner)
           expect(out_mount_gid).to eq(mount_gid)
         end
@@ -59,7 +59,7 @@ describe "VagrantPlugins::ProviderVirtualBox::Cap::MountOptions" do
         let(:mount_owner){ "2000" }
         it "generates the expected mount command using mount_owner directly" do
           out_mount_options, out_mount_uid, out_mount_gid = cap.mount_options(machine, mount_name, mount_guest_path, folder_options)
-          expect(out_mount_options).to eq("uid=#{mount_owner},gid=#{mount_gid}")
+          expect(out_mount_options).to eq("uid=#{mount_owner},gid=#{mount_gid},_netdev")
           expect(out_mount_uid).to eq(mount_owner)
           expect(out_mount_gid).to eq(mount_gid)
         end
@@ -78,7 +78,7 @@ describe "VagrantPlugins::ProviderVirtualBox::Cap::MountOptions" do
 
         it "generates the expected mount command using mount_group directly" do
           out_mount_options, out_mount_uid, out_mount_gid = cap.mount_options(machine, mount_name, mount_guest_path, folder_options)
-          expect(out_mount_options).to eq("uid=#{mount_uid},gid=#{mount_group}")
+          expect(out_mount_options).to eq("uid=#{mount_uid},gid=#{mount_group},_netdev")
           expect(out_mount_uid).to eq(mount_uid)
           expect(out_mount_gid).to eq(mount_group)
         end
@@ -89,7 +89,7 @@ describe "VagrantPlugins::ProviderVirtualBox::Cap::MountOptions" do
 
         it "generates the expected mount command using mount_group directly" do
           out_mount_options, out_mount_uid, out_mount_gid = cap.mount_options(machine, mount_name, mount_guest_path, folder_options)
-          expect(out_mount_options).to eq("uid=#{mount_uid},gid=#{mount_group}")
+          expect(out_mount_options).to eq("uid=#{mount_uid},gid=#{mount_group},_netdev")
           expect(out_mount_uid).to eq(mount_uid)
           expect(out_mount_gid).to eq(mount_group)
         end
@@ -103,7 +103,7 @@ describe "VagrantPlugins::ProviderVirtualBox::Cap::MountOptions" do
         expect(comm).to receive(:execute).with("getent group #{mount_group}", anything).and_raise(Vagrant::Errors::VirtualBoxMountFailed, {command: '', output: ''})
         expect(comm).to receive(:execute).with("id -g #{mount_owner}", anything).and_yield(:stdout, "1").and_return(0)
         out_mount_options, out_mount_uid, out_mount_gid = cap.mount_options(machine, mount_name, mount_guest_path, folder_options)
-        expect(out_mount_options).to eq("uid=#{mount_uid},gid=1")
+        expect(out_mount_options).to eq("uid=#{mount_uid},gid=1,_netdev")
       end
     end
 
@@ -122,7 +122,7 @@ describe "VagrantPlugins::ProviderVirtualBox::Cap::MountOptions" do
         expect(comm).to receive(:execute).with("id -u #{mount_owner}", anything).and_yield(:stdout, mount_uid)
         expect(comm).to receive(:execute).with("getent group #{mount_group}", anything).and_yield(:stdout, "vagrant:x:#{mount_gid}:")
         out_mount_options, out_mount_uid, out_mount_gid = cap.mount_options(machine, mount_name, mount_guest_path, folder_options.merge(mount_options: ["ro"]))
-        expect(out_mount_options).to eq("ro,uid=#{mount_uid},gid=#{mount_gid}")
+        expect(out_mount_options).to eq("ro,uid=#{mount_uid},gid=#{mount_gid},_netdev")
         expect(out_mount_uid).to eq(mount_uid)
         expect(out_mount_gid).to eq(mount_gid)
       end
@@ -142,7 +142,7 @@ describe "VagrantPlugins::ProviderVirtualBox::Cap::MountOptions" do
           expect(comm).not_to receive(:execute).with("id -u #{mount_owner}", anything).and_yield(:stdout, mount_uid)
           expect(comm).to receive(:execute).with("getent group #{mount_group}", anything).and_yield(:stdout, "vagrant:x:#{mount_gid}:")
           out_mount_options, out_mount_uid, out_mount_gid = cap.mount_options(machine, mount_name, mount_guest_path, folder_options.merge(mount_options: ["uid=#{options_uid}"]) )
-          expect(out_mount_options).to eq("uid=#{options_uid},gid=#{mount_gid}")
+          expect(out_mount_options).to eq("uid=#{options_uid},gid=#{mount_gid},_netdev")
           expect(out_mount_uid).to eq(options_uid)
           expect(out_mount_gid).to eq(mount_gid)
         end
@@ -155,7 +155,7 @@ describe "VagrantPlugins::ProviderVirtualBox::Cap::MountOptions" do
           expect(comm).to receive(:execute).with("id -u #{mount_owner}", anything).and_yield(:stdout, mount_uid)
           expect(comm).not_to receive(:execute).with("getent group #{mount_group}", anything).and_yield(:stdout, "vagrant:x:#{mount_gid}:")
           out_mount_options, out_mount_uid, out_mount_gid = cap.mount_options(machine, mount_name, mount_guest_path, folder_options.merge(mount_options: ["gid=#{options_gid}"]) )
-          expect(out_mount_options).to eq("uid=#{mount_uid},gid=#{options_gid}")
+          expect(out_mount_options).to eq("uid=#{mount_uid},gid=#{options_gid},_netdev")
           expect(out_mount_uid).to eq(mount_uid)
           expect(out_mount_gid).to eq(options_gid)
         end
@@ -169,7 +169,7 @@ describe "VagrantPlugins::ProviderVirtualBox::Cap::MountOptions" do
           expect(comm).not_to receive(:execute).with("id -u #{mount_owner}", anything).and_yield(:stdout, mount_uid)
           expect(comm).not_to receive(:execute).with("getent group #{mount_group}", anything).and_yield(:stdout, "vagrant:x:#{options_gid}:")
           out_mount_options, out_mount_uid, out_mount_gid = cap.mount_options(machine, mount_name, mount_guest_path, folder_options.merge(mount_options: ["uid=#{options_uid}", "gid=#{options_gid}"]) )
-          expect(out_mount_options).to eq("uid=#{options_uid},gid=#{options_gid}")
+          expect(out_mount_options).to eq("uid=#{options_uid},gid=#{options_gid},_netdev")
           expect(out_mount_uid).to eq(options_uid)
           expect(out_mount_gid).to eq(options_gid)
         end
