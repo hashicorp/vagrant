@@ -735,6 +735,20 @@ describe Vagrant::Action::Builtin::BoxAdd, :skip_windows, :bsdtar do
       end
     end
 
+    it "raises an error if downloading metadata fails" do
+      path = Dir::Tmpname.create("vagrant-shorthand-invalid") {}
+
+      with_web_server(Pathname.new(path)) do |port|
+        env[:box_url] = "http://127.0.0.1:#{port}/bad"
+
+        expect(box_collection).to receive(:add).never
+        expect(app).to receive(:call).never
+
+        expect { subject.call(env) }.
+          to raise_error(Vagrant::Errors::BoxMetadataDownloadError)
+      end
+    end
+
     it "raises an error if multiple metadata URLs are given" do
       box_path = iso_env.box2_file(:virtualbox)
       tf = Tempfile.new(["vagrant-box-multi-metadata", ".json"]).tap do |f|
