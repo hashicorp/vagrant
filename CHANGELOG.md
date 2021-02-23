@@ -5,6 +5,7 @@ FEATURES:
 IMPROVEMENTS:
 
 - core: Bump vagrant_cloud dependency to 3.0.3 [GH-12200]
+- core: Bump listen gem version and remove ruby_dep [GH-12148]
 - guest/openwrt: Add support for OpenWrt guests [GH-11791]
 
 BUG FIXES:
