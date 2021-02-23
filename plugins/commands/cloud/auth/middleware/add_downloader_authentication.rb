@@ -2,18 +2,38 @@ require "cgi"
 require "uri"
 
 require "vagrant/util/credential_scrubber"
-require_relative "./add_authentication"
 
 require Vagrant.source_root.join("plugins/commands/cloud/client/client")
 
-# Similar to AddAuthentication this middleware will add authentication for interacting
-# with Vagrant cloud. It does this by adding Authentication headers to a 
-# Vagrant::Util::Downloader object. 
 module VagrantPlugins
   module CloudCommand
-    class AddDownloaderAuthentication <  AddAuthentication
+    class AddDownloaderAuthentication
+
+      REPLACEMENT_HOSTS = [
+        "app.vagrantup.com".freeze,
+        "atlas.hashicorp.com".freeze
+      ].freeze
+      TARGET_HOST = "vagrantcloud.com".freeze
+      CUSTOM_HOST_NOTIFY_WAIT = 5
 
       @@logger = Log4r::Logger.new("vagrant::clout::add_download_authentication")
+
+      def self.custom_host_notified!
+        @_host_notify = true
+      end
+
+      def self.custom_host_notified?
+        if defined?(@_host_notify)
+          @_host_notify
+        else
+          false
+        end
+      end
+
+      def initialize(app, env)
+        @app = app
+        CloudCommand::Plugin.init!
+      end
 
       def call(env)
         client = Client.new(env[:env])
