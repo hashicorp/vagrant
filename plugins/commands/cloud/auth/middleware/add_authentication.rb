@@ -31,6 +31,9 @@ module VagrantPlugins
       end
 
       def call(env)
+        env[:ui].warn(I18n.t("vagrant.hooks.deprecated",
+          name: "authenticate_box_url"))
+
         client = Client.new(env[:env])
         token  = client.token
 

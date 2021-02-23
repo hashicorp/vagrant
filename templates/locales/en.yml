@@ -2081,6 +2081,14 @@ en:
           Waiting for machine to reboot...
 
 #-------------------------------------------------------------------------------
+# Translations for hooks
+#-------------------------------------------------------------------------------
+    hooks:
+      deprecated: |-
+        [DEPRECATION WARNING]: The Vagrant hook '%{name}' is scheduled be
+        deprecated in an upcoming Vagrant release.
+
+#-------------------------------------------------------------------------------
 # Translations for commands. e.g. `vagrant x`
 #-------------------------------------------------------------------------------
     commands:

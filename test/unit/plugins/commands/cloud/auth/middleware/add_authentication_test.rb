@@ -106,7 +106,7 @@ describe VagrantPlugins::CloudCommand::AddAuthentication do
       expected[3] = expected[3] + "?access_token=#{token}"
 
       expect(subject).to receive(:sleep).once
-      expect(ui).to receive(:warn).once
+      expect(ui).to receive(:warn).twice
 
       env[:box_urls] = original.dup
       subject.call(env)
