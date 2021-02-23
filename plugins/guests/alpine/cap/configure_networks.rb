@@ -45,7 +45,7 @@ module VagrantPlugins
             # each specifically, we avoid reconfiguring eth0 (the NAT interface) so
             # SSH never dies.
             interfaces.each do |interface|
-              comm.sudo("/sbin/ifdown eth#{interface} 2> /dev/null")
+              comm.sudo("if [[ $(/sbin/ip a show eth#{interface} | grep UP) ]]; then /sbin/ifdown eth#{interface} 2> /dev/null; fi")
               comm.sudo("/sbin/ip addr flush dev eth#{interface} 2> /dev/null")
             end
 
