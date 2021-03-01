@@ -4,10 +4,18 @@
     <% networks.select {|n| n[:device]}.each do |network| %>
     "<%= network[:device] %>" = { 
       <% if network[:type] == :static %>
-      ipAddress    = "<%= network[:ip] %>";
-      <% end %>
-      <% if network[:prefix_length] %>
-      prefixLength = <%= network[:prefix_length] %>;
+      ipv4.addresses = [{
+        address = "<%= network[:ip] %>";
+        <% if network[:prefix_length] %>
+        prefixLength = <%= network[:prefix_length] %>;
+        <% end %>
+      }];
+      <% else %>
+        <% if network[:prefix_length] %>
+      ipv4.addresses = [{
+        prefixLength = <%= network[:prefix_length] %>;
+      }];
+        <% end %>
       <% end %>
     };
     <% end %>
