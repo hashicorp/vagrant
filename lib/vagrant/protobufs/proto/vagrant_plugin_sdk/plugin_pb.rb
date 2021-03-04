@@ -6,6 +6,7 @@ require 'google/protobuf'
 require 'google/protobuf/any_pb'
 require 'google/protobuf/timestamp_pb'
 require 'google/protobuf/empty_pb'
+require 'google/protobuf/struct_pb'
 require 'google/rpc/status_pb'
 require 'protostructure_pb'
 Google::Protobuf::DescriptorPool.generated_pool.build do
@@ -275,6 +276,22 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
     end
     add_message "hashicorp.vagrant.sdk.Command.ExecuteResp" do
       optional :exit_code, :int64, 1
+    end
+    add_message "hashicorp.vagrant.sdk.Command.Arguments" do
+      repeated :flags, :message, 1, "hashicorp.vagrant.sdk.Command.Arguments.Flag"
+      repeated :args, :string, 2
+    end
+    add_message "hashicorp.vagrant.sdk.Command.Arguments.Flag" do
+      optional :name, :string, 1
+      optional :type, :enum, 4, "hashicorp.vagrant.sdk.Command.Arguments.Flag.Type"
+      oneof :value do
+        optional :string, :string, 2
+        optional :bool, :bool, 3
+      end
+    end
+    add_enum "hashicorp.vagrant.sdk.Command.Arguments.Flag.Type" do
+      value :STRING, 0
+      value :BOOL, 1
     end
     add_message "hashicorp.vagrant.sdk.Communicator" do
     end
@@ -589,6 +606,9 @@ module Hashicorp
       Command::SynopsisResp = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Command.SynopsisResp").msgclass
       Command::FlagsResp = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Command.FlagsResp").msgclass
       Command::ExecuteResp = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Command.ExecuteResp").msgclass
+      Command::Arguments = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Command.Arguments").msgclass
+      Command::Arguments::Flag = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Command.Arguments.Flag").msgclass
+      Command::Arguments::Flag::Type = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Command.Arguments.Flag.Type").enummodule
       Communicator = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Communicator").msgclass
       Communicator::MatchResp = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Communicator.MatchResp").msgclass
       Communicator::InitResp = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Communicator.InitResp").msgclass
