@@ -34,11 +34,12 @@ module VagrantPlugins
           )
 
           begin
-            c.find_machine(SRV::FindMachineRequest.new(
+            resp = c.find_machine(SRV::FindMachineRequest.new(
               machine: machine))
             @resource_id = resp.machine.resource_id
             return
           rescue => err
+            raise err
             # validate this was really a 404
           end
 
@@ -71,11 +72,15 @@ module VagrantPlugins
           req = SDK::Machine::GetIDRequest.new(
             machine: ref
           )
-          client.get_id(req).id
+          result = client.get_id(req).id
+          if result.nil?
+            raise "Failed to get machine ID. REF: #{ref.inspect} - ID WAS NIL"
+          end
+          result
         end
 
         def set_id(new_id)
-          req = SDK::Machine::SetNameRequest.new(
+          req = SDK::Machine::SetIDRequest.new(
             machine: ref,
             id: new_id
           )
@@ -146,10 +151,22 @@ module VagrantPlugins
           )
           resp = client.get_state(req)
           Vagrant::MachineState.new(
-            resp.state.id,
+            resp.state.id.to_sym,
             resp.state.short_description,
             resp.state.long_description
           )
+        end
+
+        def set_state(state)
+          req = SDK::Machine::SetStateRequest.new(
+            machine: ref,
+            state: SDK::MachineState.new(
+              id: state.id.to_s,
+              short_description: state.short_description.to_s,
+              long_description: state.long_description.to_s
+            )
+          )
+          client.set_state(req)
         end
 
         def get_uuid
