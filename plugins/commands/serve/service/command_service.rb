@@ -95,11 +95,16 @@ module VagrantPlugins
 
         def execute_spec(req, ctx)
           SDK::FuncSpec.new(
+            name: "execute_spec",
             args: [
               SDK::FuncSpec::Value.new(
                 type: "hashicorp.vagrant.sdk.Args.TerminalUI",
                 name: "",
               ),
+              SDK::FuncSpec::Value.new(
+                type: "hashicorp.vagrant.sdk.Command.Arguments",
+                name: "",
+              )
             ],
             result: [
               SDK::FuncSpec::Value.new(
@@ -113,8 +118,16 @@ module VagrantPlugins
         def execute(req, ctx)
           ServiceInfo.with_info(ctx) do |info|
             plugin_name = info.plugin_name
-            raw_terminal = req.args.first.value.value
+            raw_terminal = req.args.detect { |a|
+              a.type == "hashicorp.vagrant.sdk.Args.TerminalUI"
+            }&.value&.value
+            raw_args = req.args.detect { |a|
+              a.type == "hashicorp.vagrant.sdk.Command.Arguments"
+            }&.value&.value
+
+            arguments = SDK::Command::Arguments.decode(raw_args)
             ui_client = Client::Terminal.terminal_arg_to_terminal_ui(raw_terminal)
+
             ui = Vagrant::UI::RemoteUI.new(ui_client)
             env = Vagrant::Environment.new(ui: ui)
 
@@ -123,11 +136,11 @@ module VagrantPlugins
               raise "Failed to locate command plugin for: #{plugin_name}"
             end
             cmd_klass = plugin.call
-            cmd = cmd_klass.new([], env)
+            cmd = cmd_klass.new(arguments.args.to_a, env)
             begin
               result = cmd.execute
             rescue => e
-              raise e.to_s + "\n" + e.backtrace.join("\n")
+              raise e.message.tr("\n", " ") # + "\n" + e.backtrace.join("\n")
             end
 
             SDK::Command::ExecuteResp.new(
