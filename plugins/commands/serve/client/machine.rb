@@ -38,9 +38,8 @@ module VagrantPlugins
               machine: machine))
             @resource_id = resp.machine.resource_id
             return
-          rescue => err
-            raise err
-            # validate this was really a 404
+          rescue GRPC::NotFound
+            # Let this fall through so we create the machine
           end
 
           resp = c.upsert_machine(SRV::UpsertMachineRequest.new(
