@@ -179,8 +179,26 @@ module Vagrant
         result
       rescue Gem::GemNotFoundException
         raise Errors::PluginGemNotFound, name: name
-      rescue Gem::Exception => e
-        raise Errors::BundlerError, message: e.to_s
+      rescue Gem::Exception => err
+        @logger.warn("Failed to install plugin: #{err}")
+        @logger.debug("#{err.class}: #{err}\n#{err.backtrace.join("\n")}")
+        # Try and determine a cause for the failure
+        case err.message
+        when /install development tools first/
+          raise Errors::PluginNeedsDeveloperTools
+        when /library not found in default locations/
+          lib = err.message.match(/(\w+) library not found in default locations/)
+          if lib.nil?
+            raise Errors::BundlerError, message: err.message
+          end
+          raise Errors::PluginMissingLibrary,
+            library: lib.captures.first,
+            name: name
+        when /find header files for ruby/
+          raise Errors::PluginMissingRubyDev
+        else
+          raise Errors::BundlerError, message: err.message
+        end
       end
 
       # Uninstalls the plugin with the given name.
