@@ -287,7 +287,6 @@ module Vagrant
         # Never allow dependencies to be remotely satisfied during init
         request_set.remote = false
 
-        repair_result = nil
         begin
           @logger.debug("resolving solution from available specification set")
           # Resolve the request set to ensure proper activation order
@@ -656,10 +655,16 @@ module Vagrant
         spec_dir = Gem::Specification.default_specifications_dir
       end
       directories = [spec_dir]
-      Gem::Specification.find_all{true}.each do |spec|
-        list[spec.full_name] = spec
+      if Vagrant.in_bundler?
+        Gem::Specification.find_all{true}.each do |spec|
+          list[spec.full_name] = spec
+        end
+      else
+        Gem::Specification.find_all(&:activated?).each do |spec|
+          list[spec.full_name] = spec
+        end
       end
-      if(!Object.const_defined?(:Bundler))
+      if Vagrant.in_installer?
         directories += Gem::Specification.dirs.find_all do |path|
           !path.start_with?(Gem.user_dir)
         end
