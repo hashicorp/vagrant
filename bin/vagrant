@@ -23,9 +23,9 @@ if idx = argv.index("--")
   argv = argv.slice(0, idx)
 end
 
+require_relative "../lib/vagrant/version"
 # Fast path the version of Vagrant
 if argv.include?("-v") || argv.include?("--version")
-  require_relative "../lib/vagrant/version"
   puts "Vagrant #{Vagrant::VERSION}"
   exit 0
 end
@@ -81,6 +81,23 @@ end
 # Stdout/stderr should not buffer output
 $stdout.sync = true
 $stderr.sync = true
+
+# Before we start activate all our dependencies
+# so we can provide correct resolutions later
+vagrant_spec = Gem::Specification.find_all_by_name("vagrant").detect do |spec|
+  spec.version == Gem::Version.new(Vagrant::VERSION)
+end
+
+dep_activator = proc do |spec|
+  spec.runtime_dependencies.each do |dep|
+    if gem(dep.name, *dep.requirement.as_list) || true
+      dep_spec = Gem::Specification.find_all_by_name(dep.name).detect(&:activated?)
+      dep_activator.call(dep_spec) if dep_spec
+    end
+  end
+end
+
+dep_activator.call(vagrant_spec) if vagrant_spec
 
 env = nil
 begin
