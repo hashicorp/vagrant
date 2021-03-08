@@ -14,6 +14,7 @@ BUG FIXES:
 - core: Raise error if downloading box metadata fails [GH-12189]
 - core: Apply download options to metadata requests [GH-12177]
 - core: Don't try to find "" by prefix in the machine index [GH-12188]
+- core: Don't count not created machines as declined when destroying [GH-12186]
 - core/synced_folders: Extract os friendly mount name for vbox shared folders [GH-12184]
 - guest/alpine: Check if interface exists before shutting it down [GH-12181]
 
