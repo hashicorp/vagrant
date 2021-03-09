@@ -778,42 +778,46 @@ describe Vagrant::Bundler do
       end
     end
 
-    context "when run time dependencies are defined" do
-      let(:vagrant_dep_specs) { [double("spec", name: "vagrant-dep", requirement: double("spec-req", as_list: []))] }
-
-      it "should call #gem to activate the dependencies" do
-        expect(subject).to receive(:gem).with("vagrant-dep", any_args)
-        subject.send(:vagrant_internal_specs)
-      end
-    end
-
     context "when bundler is not defined" do
-      before { expect(Object).to receive(:const_defined?).with(:Bundler).and_return(false) }
+      before { expect(Vagrant).to receive(:in_bundler?).and_return(false) }
 
-      it "should load gem specification directories" do
-        expect(Gem::Specification).to receive(:dirs).and_return(spec_dirs)
-        subject.send(:vagrant_internal_specs)
-      end
+      context "when running inside the installer" do
+        before { expect(Vagrant).to receive(:in_installer?).and_return(true) }
 
-      context "when checking paths" do
-        let(:spec_dirs) { [double("spec-dir", start_with?: in_user_dir)] }
-        let(:in_user_dir) { true }
-        let(:user_dir) { double("user-dir") }
-
-        before { allow(Gem).to receive(:user_dir).and_return(user_dir) }
-
-        it "should check if path is within local user directory" do
-          expect(spec_dirs.first).to receive(:start_with?).with(user_dir).and_return(false)
+        it "should load gem specification directories" do
+          expect(Gem::Specification).to receive(:dirs).and_return(spec_dirs)
           subject.send(:vagrant_internal_specs)
         end
 
-        context "when path is not within user directory" do
-          let(:in_user_dir) { false }
+        context "when checking paths" do
+          let(:spec_dirs) { [double("spec-dir", start_with?: in_user_dir)] }
+          let(:in_user_dir) { true }
+          let(:user_dir) { double("user-dir") }
 
-          it "should use path when loading specs" do
-            expect(Gem::Specification).to receive(:each_spec) { |arg| expect(arg).to include(spec_dirs.first) }
+          before { allow(Gem).to receive(:user_dir).and_return(user_dir) }
+
+          it "should check if path is within local user directory" do
+            expect(spec_dirs.first).to receive(:start_with?).with(user_dir).and_return(false)
             subject.send(:vagrant_internal_specs)
           end
+
+          context "when path is not within user directory" do
+            let(:in_user_dir) { false }
+
+            it "should use path when loading specs" do
+              expect(Gem::Specification).to receive(:each_spec) { |arg| expect(arg).to include(spec_dirs.first) }
+              subject.send(:vagrant_internal_specs)
+            end
+          end
+        end
+      end
+
+      context "when running outside the installer" do
+        before { expect(Vagrant).to receive(:in_installer?).and_return(false) }
+
+        it "should not load gem specification directories" do
+          expect(Gem::Specification).not_to receive(:dirs)
+          subject.send(:vagrant_internal_specs)
         end
       end
     end

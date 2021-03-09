@@ -636,6 +636,18 @@ module Vagrant
       error_key(:provisioner_winrm_unsupported)
     end
 
+    class PluginNeedsDeveloperTools < VagrantError
+      error_key(:plugin_needs_developer_tools)
+    end
+
+    class PluginMissingLibrary < VagrantError
+      error_key(:plugin_missing_library)
+    end
+
+    class PluginMissingRubyDev < VagrantError
+      error_key(:plugin_missing_ruby_dev)
+    end
+
     class PluginGemNotFound < VagrantError
       error_key(:plugin_gem_not_found)
     end

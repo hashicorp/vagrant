@@ -794,9 +794,9 @@ en:
         matching this provider. For example, if you're using VirtualBox,
         the clone environment must also be using VirtualBox.
       cloud_init_not_found: |-
-        cloud-init is not found. Please ensure that cloud-init is installed and 
+        cloud-init is not found. Please ensure that cloud-init is installed and
         available on path for guest '%{guest_name}'.
-      cloud_init_command_failed: |- 
+      cloud_init_command_failed: |-
         cloud init command '%{cmd}' failed on guest '%{guest_name}'.
       command_deprecated: |-
         The command 'vagrant %{name}' has been deprecated and is no longer functional
@@ -1238,6 +1238,23 @@ en:
         following command:
 
           vagrant plugin install --local
+      plugin_needs_developer_tools: |-
+        Vagrant failed to install the requested plugin because development tools
+        are required for installation but are not currently installed on this
+        machine. Please install development tools and then try this command
+        again.
+      plugin_missing_library: |-
+        Vagrant failed to install the requested plugin because it depends
+        on a library which is not currently installed on this system. The
+        following library is required by the '%{name}' plugin:
+
+          %{library}
+
+        Please install the library and then run the command again.
+      plugin_missing_ruby_dev: |-
+        Vagrant failed to install the requested plugin because the Ruby header
+        files could not be found. Install the ruby development package for your
+        system and then run this command again.
       powershell_not_found: |-
         Failed to locate the powershell executable on the available PATH. Please
         ensure powershell is installed and available on the local PATH, then
@@ -2998,7 +3015,7 @@ en:
     pushes:
       file:
         no_destination: "File destination must be specified."
-    
+
     autocomplete:
       installed: |-
         Autocomplete installed at paths:
