@@ -41,6 +41,8 @@ Gem::Specification.new do |s|
   s.add_development_dependency "rspec", "~> 3.5.0"
   s.add_development_dependency "rspec-its", "~> 1.3.0"
   s.add_development_dependency "webmock", "~> 2.3.1"
+  # Prevent dependency issues with rexml
+  s.add_development_dependency "crack", "~> 0.4.4"
   s.add_development_dependency "fake_ftp", "~> 0.1.1"
 
   # The following block of code determines the files that should be included
