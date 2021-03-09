@@ -189,6 +189,8 @@ module Vagrant
     attr_reader :env_plugin_gem_path
     # @return [Pathname] Vagrant environment data path
     attr_reader :environment_data_path
+    # @return [Array<Gem::Specification>, nil] List of builtin specs
+    attr_accessor :builtin_specs
 
     def initialize
       @plugin_gem_path = Vagrant.user_data_path.join("gems", RUBY_VERSION).freeze
@@ -646,7 +648,6 @@ module Vagrant
         self_spec.activate
         @logger.info("Activated vagrant specification version - #{self_spec.version}")
       end
-      self_spec.runtime_dependencies.each { |d| gem d.name, *d.requirement.as_list }
       # discover all the gems we have available
       list = {}
       if Gem.respond_to?(:default_specifications_dir)
@@ -660,7 +661,7 @@ module Vagrant
           list[spec.full_name] = spec
         end
       else
-        Gem::Specification.find_all(&:activated?).each do |spec|
+        builtin_specs.each do |spec|
           list[spec.full_name] = spec
         end
       end

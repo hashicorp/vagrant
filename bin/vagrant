@@ -84,20 +84,26 @@ $stderr.sync = true
 
 # Before we start activate all our dependencies
 # so we can provide correct resolutions later
+builtin_specs = []
+
 vagrant_spec = Gem::Specification.find_all_by_name("vagrant").detect do |spec|
   spec.version == Gem::Version.new(Vagrant::VERSION)
 end
 
 dep_activator = proc do |spec|
   spec.runtime_dependencies.each do |dep|
-    if gem(dep.name, *dep.requirement.as_list) || true
-      dep_spec = Gem::Specification.find_all_by_name(dep.name).detect(&:activated?)
-      dep_activator.call(dep_spec) if dep_spec
+    gem(dep.name, *dep.requirement.as_list)
+    dep_spec = Gem::Specification.find_all_by_name(dep.name).detect(&:activated?)
+    if dep_spec
+      builtin_specs << dep_spec
+      dep_activator.call(dep_spec)
     end
   end
 end
 
-dep_activator.call(vagrant_spec) if vagrant_spec
+if vagrant_spec
+  dep_activator.call(vagrant_spec)
+end
 
 env = nil
 begin
@@ -107,6 +113,9 @@ begin
   require 'vagrant/cli'
   require 'vagrant/util/platform'
   require 'vagrant/util/experimental'
+
+  # Set our list of builtin specs
+  Vagrant::Bundler.instance.builtin_specs = builtin_specs
 
   # Schedule the cleanup of things
   at_exit(&Vagrant::Bundler.instance.method(:deinit))
