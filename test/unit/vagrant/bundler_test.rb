@@ -781,7 +781,7 @@ describe Vagrant::Bundler do
     context "when bundler is not defined" do
       before { expect(Vagrant).to receive(:in_bundler?).and_return(false) }
 
-      context "when running within the installer" do
+      context "when running inside the installer" do
         before { expect(Vagrant).to receive(:in_installer?).and_return(true) }
 
         it "should load gem specification directories" do
@@ -809,6 +809,15 @@ describe Vagrant::Bundler do
               subject.send(:vagrant_internal_specs)
             end
           end
+        end
+      end
+
+      context "when running outside the installer" do
+        before { expect(Vagrant).to receive(:in_installer?).and_return(false) }
+
+        it "should not load gem specification directories" do
+          expect(Gem::Specification).not_to receive(:dirs)
+          subject.send(:vagrant_internal_specs)
         end
       end
     end
