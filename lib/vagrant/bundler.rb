@@ -193,6 +193,7 @@ module Vagrant
     attr_accessor :builtin_specs
 
     def initialize
+      @builtin_specs = []
       @plugin_gem_path = Vagrant.user_data_path.join("gems", RUBY_VERSION).freeze
       @logger = Log4r::Logger.new("vagrant::bundler")
     end
