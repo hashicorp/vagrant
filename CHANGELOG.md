@@ -4,15 +4,33 @@ FEATURES:
 
 IMPROVEMENTS:
 
+- core: Bump vagrant_cloud dependency to 3.0.3 [GH-12200]
+- core: Bump listen gem version and remove ruby_dep [GH-12148]
+- core/bundler: Update resolution handling when outside of installer and bundler [GH-12225]
+- core/plugin: Provide friendlier error messages on install fail when possible [GH-12225]
 - guest/openwrt: Add support for OpenWrt guests [GH-11791]
+- guest/freebsd: FreeBSD updated ansible to py37-ansible [GH-12201]
+- provider/virtualbox: Get default dhcp ip from a matching host ip [GH-12211]
 
 BUG FIXES:
+
+- core: Make shell script for loop shell agnostic [GH-12205]
+- core: Raise error if downloading box metadata fails [GH-12189]
+- core: Apply download options to metadata requests [GH-12177]
+- core: Don't try to find "" by prefix in the machine index [GH-12188]
+- core: Don't count not created machines as declined when destroying [GH-12186]
+- core: Bump bcrypt_pbkdf version [GH-12216]
+- core/synced_folders: Extract os friendly mount name for vbox shared folders [GH-12184]
+- guest/alpine: Check if interface exists before shutting it down [GH-12181]
+- guest/nixos: Fix network config for recent NixOS releases [GH-12152]
+- guest/fedora: Detect fedora using os-releases id [GH-12230]
 
 ## 2.2.14 (November 20, 2020)
 
 IMPROVEMENTS:
 
 - host/windows: Update filesystem type matching on WSL2 [GH-12056]
+- provisioner/salt: Modernize Salt bootstrap script [GH-12135]
 
 BUG FIXES:
 

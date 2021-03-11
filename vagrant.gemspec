@@ -15,31 +15,25 @@ Gem::Specification.new do |s|
   s.required_ruby_version     = "~> 2.5", "< 2.8"
   s.required_rubygems_version = ">= 1.3.6"
 
-  s.add_dependency "bcrypt_pbkdf", "~> 1.0.0"
+  s.add_dependency "bcrypt_pbkdf", "~> 1.1"
   s.add_dependency "childprocess", "~> 4.0.0"
   s.add_dependency "ed25519", "~> 1.2.4"
   s.add_dependency "erubi"
   s.add_dependency "hashicorp-checkpoint", "~> 0.1.5"
   s.add_dependency "i18n", "~> 1.8"
-  s.add_dependency "listen", "~> 3.1"
+  s.add_dependency "listen", "~> 3.4"
   s.add_dependency "log4r", "~> 1.1.9", "< 1.1.11"
   s.add_dependency "mime-types", "~> 3.3"
-  s.add_dependency "net-ssh", ">= 6.2.0.rc1", "< 7"
+  s.add_dependency "net-ssh", ">= 6.1.0", "< 7"
   s.add_dependency "net-sftp", "~> 3.0"
   s.add_dependency "net-scp", "~> 1.2.0"
   s.add_dependency "rb-kqueue", "~> 0.2.0"
   s.add_dependency "rubyzip", "~> 2.0"
-  s.add_dependency "vagrant_cloud", "~> 3.0.2"
+  s.add_dependency "vagrant_cloud", "~> 3.0.3"
   s.add_dependency "wdm", "~> 0.1.0"
   s.add_dependency "winrm", ">= 2.3.4", "< 3.0"
   s.add_dependency "winrm-elevated", ">= 1.2.1", "< 2.0"
   s.add_dependency "winrm-fs", ">= 1.3.4", "< 2.0"
-
-  # NOTE: The ruby_dep gem is an implicit dependency from the listen gem. Later versions
-  # of the ruby_dep gem impose an aggressive constraint on the required ruby version (>= 2.2.5).
-  # Explicit constraint is defined to provide required dependency to listen without imposing
-  # tighter restrictions on valid ruby versions
-  s.add_dependency "ruby_dep", "<= 1.3.1"
 
   # Constraint rake to properly handle deprecated method usage
   # from within rspec

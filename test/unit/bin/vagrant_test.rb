@@ -30,6 +30,7 @@ describe "vagrant bin" do
     allow(Kernel).to receive(:exit)
     allow(Vagrant::Environment).to receive(:new).and_return(env)
     allow(Vagrant).to receive(:in_installer?).and_return(true)
+    allow(self).to receive(:require_relative)
   end
 
   after { expect(run_vagrant).to eq(exit_code) }

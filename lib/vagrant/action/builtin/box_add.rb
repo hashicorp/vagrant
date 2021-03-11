@@ -108,6 +108,14 @@ module Vagrant
             end
           end
 
+          is_error = is_metadata_results.find do |b|
+            b.is_a?(Errors::DownloaderError)
+          end
+          if is_error
+            raise Errors::BoxMetadataDownloadError,  
+              message: is_error.extra_data[:message]
+          end
+
           is_metadata = is_metadata_results.any? { |b| b === true }
           if is_metadata && url.length > 1
             raise Errors::BoxAddMetadataMultiURL,

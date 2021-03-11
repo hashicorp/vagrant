@@ -30,6 +30,7 @@ A playbook that installs and starts (or restarts) the NTP daemon via YUM looks l
 ```
 ---
 - hosts: all
+  become: yes
   tasks:
     - name: ensure ntpd is at the latest version
       yum: pkg=ntp state=latest

@@ -36,7 +36,7 @@ module VagrantPlugins
           end
           mnt_opts << "_netdev"
           mnt_opts = merge_mount_options(mnt_opts, options[:mount_options] || [])
-
+          mnt_opts << "nofail"
           mount_options = mnt_opts.join(",")
           return mount_options, mount_uid, mount_gid
         end
@@ -45,7 +45,7 @@ module VagrantPlugins
           return  MOUNT_TYPE
         end
 
-        def self.mount_name(machine, data)
+        def self.mount_name(machine, name, data)
           data[:smb_host] ||= machine.guest.capability(
             :choose_addressable_ip_addr, candidate_ips)
           "//#{data[:smb_host]}/#{data[:smb_id]}"

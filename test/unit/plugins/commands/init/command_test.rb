@@ -33,7 +33,6 @@ describe VagrantPlugins::CommandInit::Command do
     it "creates a minimal Vagrantfile" do
       described_class.new(["-m"], env).execute
       contents = File.read(vagrantfile_path)
-      expect(contents).to_not match(/#/)
       expect(contents).to_not match(/provision/)
     end
 

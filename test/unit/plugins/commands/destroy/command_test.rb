@@ -7,7 +7,7 @@ describe VagrantPlugins::CommandDestroy::Command do
 
   let(:entry_klass) { Vagrant::MachineIndex::Entry }
   let(:argv)     { [] }
-  let(:vagrantfile_content){ "" }
+  let(:vagrantfile_content) { "" }
   let(:iso_env) do
     env = isolated_environment
     env.vagrantfile(vagrantfile_content)
@@ -36,6 +36,7 @@ describe VagrantPlugins::CommandDestroy::Command do
     let(:machine) do
       iso_env.machine(iso_env.machine_names[0], :dummy).tap do |m|
         allow(m).to receive(:state).and_return(state)
+        allow(m).to receive(:name).and_return("default")
       end
     end
 
@@ -65,6 +66,77 @@ describe VagrantPlugins::CommandDestroy::Command do
       expect(machine.state).to receive(:id).and_return(:running)
       expect(machine.state).to receive(:id).and_return(:running)
       expect(subject.execute).to eq(1)
+    end
+
+    context "with multiple machines" do
+      let(:vagrantfile_content) do 
+        <<-VF
+        Vagrant.configure("2") do |config|
+          config.vm.box = "base"
+          config.vm.define :machine1
+          config.vm.define :machine2
+        end
+        VF
+      end
+
+      let(:state2) { "" }
+
+      let(:machine2) do
+        iso_env.machine(iso_env.machine_names[1], :dummy).tap do |m|
+          allow(m).to receive(:state).and_return(state2)
+          allow(m).to receive(:name).and_return("not_default")
+        end
+      end
+
+      before do
+        allow(subject).to receive(:with_target_vms).and_yield(machine).and_yield(machine2)
+        allow_any_instance_of(Vagrant::BatchAction).to receive(:action) .with(machine2, :destroy, anything)
+        allow_any_instance_of(Vagrant::BatchAction).to receive(:action) .with(machine, :destroy, anything)
+      end
+      
+      context "second machine is not created" do
+        let(:state2) { double("state", id: :not_created) }
+        let(:state) { double("state", id: :not_created) }
+
+
+        it "exits 0 if vms are successfully destroyed" do
+          expect(machine.state).to receive(:id).and_return(:running)
+          expect(machine.state).to receive(:id).and_return(:dead)
+          expect(machine2.state).to receive(:id).and_return(:not_created)
+          expect(subject.execute).to eq(0)
+        end
+
+        it "exits 0 if vms are not created" do
+          expect(machine.state).to receive(:id).and_return(:not_created)
+          expect(machine2.state).to receive(:id).and_return(:not_created)
+          expect(subject.execute).to eq(0)
+        end
+      end
+      
+      context "second machine is running" do
+        let(:state2) { double("state", id: :running) }
+        
+        it "exits 0 if vms are not successfully destroyed" do
+          expect(machine.state).to receive(:id).and_return(:running)
+          expect(machine.state).to receive(:id).and_return(:dead)
+          expect(machine2.state).to receive(:id).and_return(:running)
+          expect(machine2.state).to receive(:id).and_return(:dead)
+          expect(subject.execute).to eq(0)
+        end
+
+        it "exits 1 if vms are not successfully destroyed" do
+          expect(machine.state).to receive(:id).and_return(:running)
+          expect(machine2.state).to receive(:id).and_return(:running)
+          expect(subject.execute).to eq(1)
+        end
+
+        it "exits 2 if some vms are not successfully destroyed" do
+          expect(machine.state).to receive(:id).and_return(:running)
+          expect(machine.state).to receive(:id).and_return(:dead)
+          expect(machine2.state).to receive(:id).and_return(:running)
+          expect(subject.execute).to eq(2)
+        end
+      end
     end
 
     context "with VAGRANT_DEFAULT_PROVIDER set" do
@@ -164,8 +236,15 @@ describe VagrantPlugins::CommandDestroy::Command do
       subject.execute
     end
 
-    context "with an invalid argument" do
+    context "with machine that does not exist" do
       let(:argv){ ["notweb"] }
+      it "raises an exception" do
+        expect { subject.execute }.to raise_error(Vagrant::Errors::MachineNotFound)
+      end
+    end
+
+    context "with an invalid argument" do
+      let(:argv){ [""] }
       it "raises an exception" do
         expect { subject.execute }.to raise_error(Vagrant::Errors::MachineNotFound)
       end

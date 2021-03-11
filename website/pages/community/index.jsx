@@ -19,27 +19,27 @@ export default function CommunityPage() {
           {
             header: 'Community Forum',
             body:
-            '[Vagrant Community Forum](https://discuss.hashicorp.com/c/vagrant/24)',
+              '<a href="https://discuss.hashicorp.com/c/vagrant/24">Vagrant Community Forum</a>',
           },
           {
             header: 'Announcement List',
             body:
-              '[HashiCorp Announcement Google Group](https://groups.google.com/group/hashicorp-announce)',
+              '<a href="https://groups.google.com/group/hashicorp-announce">HashiCorp Announcement Google Group</a>',
           },
           {
             header: 'Discussion List',
             body:
-              '[Vagrant Google Group](https://groups.google.com/forum/#!forum/vagrant-up)',
+              '<a href="https://groups.google.com/forum/#!forum/vagrant-up">Vagrant Google Group</a>',
           },
           {
             header: 'Bug Tracker',
             body:
-              '[Issue tracker on GitHub](https://github.com/hashicorp/vagrant/issues). Please only use this for reporting bugs. Do not ask for general help here. Use IRC or the mailing list for that.',
+              '<a href="https://github.com/hashicorp/vagrant/issues">Issue tracker on GitHub</a>. Please only use this for reporting bugs. Do not ask for general help here. Use IRC or the mailing list for that.',
           },
           {
             header: 'Training',
             body:
-              'Paid [HashiCorp training courses](https://www.hashicorp.com/training) are also available in a city near you. Private training courses are also available.',
+              'Paid <a href="https://www.hashicorp.com/training">HashiCorp training courses</a> are also available in a city near you. Private training courses are also available.',
           },
         ]}
       />

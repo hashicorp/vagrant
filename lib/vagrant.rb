@@ -9,6 +9,8 @@ class Log4r::BasicFormatter
   end
 end
 
+# Add our patches to net-ssh
+require "vagrant/patches/net-ssh"
 
 require "optparse"
 
@@ -79,7 +81,7 @@ if ENV["VAGRANT_LOG"] && ENV["VAGRANT_LOG"] != ""
     # See https://github.com/rest-client/rest-client/issues/34#issuecomment-290858
     # for more information
     class VagrantLogger < Log4r::Logger
-      def << (msg)
+      def << msg
         debug(msg.strip)
       end
     end

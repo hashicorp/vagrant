@@ -19,7 +19,6 @@ jobs:
         env:
           VAGRANT_CI_LOADER_BUCKET: ${{ secrets.VAGRANT_CI_LOADER_BUCKET }}
 
-
   setup-hosts:
     if: github.repository == 'hashicorp/vagrant-acceptance'
     runs-on: self-hosted
