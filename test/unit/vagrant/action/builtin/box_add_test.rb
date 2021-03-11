@@ -209,6 +209,25 @@ describe Vagrant::Action::Builtin::BoxAdd, :skip_windows, :bsdtar do
         to raise_error(Vagrant::Errors::BoxChecksumMismatch)
     end
 
+    it "strips space if checksum specified ends or begins with blank space" do
+      box_path = iso_env.box2_file(:virtualbox)
+
+      box = double(
+        name: "foo",
+        version: "1.2.3",
+        provider: "virtualbox",
+      )
+
+      env[:box_name] = "foo"
+      env[:box_url] = box_path.to_s
+      env[:box_checksum] = " #{checksum(box_path)} "
+      env[:box_checksum_type] = "sha1"
+
+      expect(box_collection).to receive(:add).and_return(box)
+
+      expect { subject.call(env) }.to_not raise_error
+    end
+
     it "ignores checksums if empty string" do
       box_path = iso_env.box2_file(:virtualbox)
       with_web_server(box_path) do |port|
