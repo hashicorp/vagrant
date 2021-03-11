@@ -23,6 +23,7 @@ BUG FIXES:
 - core/synced_folders: Extract os friendly mount name for vbox shared folders [GH-12184]
 - guest/alpine: Check if interface exists before shutting it down [GH-12181]
 - guest/nixos: Fix network config for recent NixOS releases [GH-12152]
+- guest/fedora: Detect fedora using os-releases id [GH-12230]
 
 ## 2.2.14 (November 20, 2020)
 
