@@ -20,6 +20,7 @@ BUG FIXES:
 - core: Don't try to find "" by prefix in the machine index [GH-12188]
 - core: Don't count not created machines as declined when destroying [GH-12186]
 - core: Bump bcrypt_pbkdf version [GH-12216]
+- core: Remove all space from checksums [GH-12168]
 - core/synced_folders: Extract os friendly mount name for vbox shared folders [GH-12184]
 - guest/alpine: Check if interface exists before shutting it down [GH-12181]
 - guest/nixos: Fix network config for recent NixOS releases [GH-12152]
