@@ -546,11 +546,13 @@ module Vagrant
           !!(match.last.chomp =~ /application\/json/)
         end
 
-        def validate_checksum(checksum_type, checksum, path)
+        def validate_checksum(checksum_type, _checksum, path)
+          checksum = _checksum.strip()
           @logger.info("Validating checksum with #{checksum_type}")
           @logger.info("Expected checksum: #{checksum}")
 
-          actual = FileChecksum.new(path, checksum_type).checksum
+          _actual = FileChecksum.new(path, checksum_type).checksum
+          actual = _actual.strip()
           @logger.info("Actual checksum: #{actual}")
           if actual.casecmp(checksum) != 0
             raise Errors::BoxChecksumMismatch,
