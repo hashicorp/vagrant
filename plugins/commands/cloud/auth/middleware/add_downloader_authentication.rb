@@ -7,13 +7,16 @@ require_relative "./add_authentication"
 require Vagrant.source_root.join("plugins/commands/cloud/client/client")
 
 # Similar to AddAuthentication this middleware will add authentication for interacting
-# with Vagrant cloud. It does this by adding Authentication headers to a 
-# Vagrant::Util::Downloader object. 
+# with Vagrant cloud. It does this by adding Authentication headers to a
+# Vagrant::Util::Downloader object.
 module VagrantPlugins
   module CloudCommand
     class AddDownloaderAuthentication <  AddAuthentication
 
-      @@logger = Log4r::Logger.new("vagrant::clout::add_download_authentication")
+      def initialize(app, env)
+        super
+        @logger = Log4r::Logger.new("vagrant::cloud::auth::add-download-authentication")
+      end
 
       def call(env)
         client = Client.new(env[:env])
@@ -41,7 +44,7 @@ module VagrantPlugins
             end
 
             if Array(env[:downloader].headers).any? { |h| h.include?("Authorization") }
-              @@logger.info("Not adding an authentication header, one already found")
+              @logger.info("Not adding an authentication header, one already found")
             else
               env[:downloader].headers << "Authorization: Bearer #{token}"
             end
