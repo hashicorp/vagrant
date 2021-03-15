@@ -84,6 +84,25 @@ module VagrantPlugins
             end
           end
         else
+          env[:box_urls].map! do |url|
+            begin
+              u = URI.parse(url)
+              q = CGI.parse(u.query || "")
+              if q["access_token"]
+                @logger.warn("Removing access token from URL parameter.")
+                q.delete("access_token")
+                if q.empty?
+                  u.query = nil
+                else
+                  u.query = URI.encode_www_form(q)
+                end
+              end
+
+              u.to_s
+            rescue URI::Error
+              url
+            end
+          end
           @logger.warn("Authentication token not added as GET parameter.")
         end
         @app.call(env)

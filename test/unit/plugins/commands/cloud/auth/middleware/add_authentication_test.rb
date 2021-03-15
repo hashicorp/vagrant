@@ -186,6 +186,23 @@ describe VagrantPlugins::CloudCommand::AddAuthentication do
 
         expect(env[:box_urls]).to eq([box1, box2])
       end
+
+      it "removes access_token parameters if set" do
+        box1 = "http://vagrantcloud.com/box.box"
+        box2 = "http://app.vagrantup.com/box.box"
+        box3 = "http://app.vagrantup.com/box.box?arg1=value1"
+
+        env = {
+          box_urls: [
+            "#{box1}?access_token=TEST_TOKEN",
+            box2.dup,
+            "#{box3}&access_token=TEST_TOKEN"
+          ]
+        }
+        subject.call(env)
+
+        expect(env[:box_urls]).to eq([box1, box2, box3])
+      end
     end
   end
 end
