@@ -18,6 +18,7 @@ module VagrantPlugins
       ######################################################################
       APP = "app".freeze
 
+      include Util
       include Vagrant::Util::Presence
 
       attr_accessor :client
@@ -32,7 +33,10 @@ module VagrantPlugins
       def initialize(env)
         @logger = Log4r::Logger.new("vagrant::cloud::client")
         @env    = env
-        @client = VagrantCloud::Client.new(access_token: token)
+        @client = VagrantCloud::Client.new(
+          access_token: token,
+          url_base: api_server_url
+        )
       end
 
       # Removes the token, effectively logging the user out.
@@ -72,7 +76,10 @@ module VagrantPlugins
             password: password, description: description, code: code)
 
           Vagrant::Util::CredentialScrubber.sensitive(r[:token])
-          @client = VagrantCloud::Client.new(access_token: r[:token])
+          @client = VagrantCloud::Client.new(
+            access_token: r[:token],
+            url_base: api_server_url
+          )
           r[:token]
         end
       end
@@ -106,7 +113,7 @@ module VagrantPlugins
         end
 
         # Reset after we store the token since this is now _our_ token
-        @client = VagrantCloud::Client.new(access_token: token)
+        @client = VagrantCloud::Client.new(access_token: token, url_base: api_server_url)
 
         nil
       end

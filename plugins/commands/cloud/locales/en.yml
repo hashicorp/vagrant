@@ -112,7 +112,7 @@ en:
           Failed to update box %{org}/%{box_name}
       whoami:
         read_error: |-
-          Failed to read organization %{org}
+          Failed to locate account information
       provider:
         create_fail: |-
           Failed to create provider %{provider} on box %{org}/%{box_name} for version %{version}
