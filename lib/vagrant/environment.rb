@@ -27,10 +27,6 @@ module Vagrant
 
     DEFAULT_LOCAL_DATA = ".vagrant"
 
-    # List of hooks which are deprecated and should log a warning
-    # when used
-    DEPRECATED_HOOKS = [:authenticate_box_url].freeze
-
     # The `cwd` that this environment represents
     attr_reader :cwd
 
@@ -521,11 +517,6 @@ module Vagrant
     # @param [Action::Runner] action_runner A custom action runner for running hooks.
     def hook(name, opts=nil)
       @logger.info("Running hook: #{name}")
-
-      if DEPRECATED_HOOKS.include?(name.to_sym)
-        @logger.warn("Deprecated hook: #{name}. This hook is deprecated and " \
-          "will be removed in a future version of Vagrant.")
-      end
 
       opts ||= {}
       opts[:callable] ||= Action::Builder.new
