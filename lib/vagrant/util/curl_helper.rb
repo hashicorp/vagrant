@@ -4,6 +4,7 @@ module Vagrant
 
       # Hosts that do not require notification on redirect
       SILENCED_HOSTS = [
+        "vagrantcloud-files-production.s3-accelerate.amazonaws.com".freeze,
         "vagrantcloud.com".freeze,
         "vagrantup.com".freeze
       ].freeze
@@ -21,6 +22,7 @@ module Vagrant
           # Accumulate progress_data
           progress_data << data
 
+          redirect_notify = false
           while true
             # If the download has been redirected and we are no longer downloading
             # from the original host, notify the user that the target host has
@@ -30,16 +32,15 @@ module Vagrant
               if !location.empty?
                 location_uri = URI.parse(location)
 
-                unless location_uri.host.nil?
-                  redirect_notify = false
+                if !location_uri.host.nil? && !redirect_notify
                   logger.info("download redirected to #{location}")
                   source_uri = URI.parse(source)
                   source_host = source_uri.host.to_s.split(".", 2).last
                   location_host = location_uri.host.to_s.split(".", 2).last
-                  if !redirect_notify && location_host != source_host && !SILENCED_HOSTS.include?(location_host)
-                    ui.rewriting do |ui|
-                      ui.clear_line
-                      ui.detail "Download redirected to host: #{location_uri.host}"
+                  if location_host != source_host && !SILENCED_HOSTS.include?(location_host) && !SILENCED_HOSTS.include?(location_uri.host.to_s)
+                    ui.rewriting do |_ui|
+                      _ui.clear_line
+                      _ui.detail "Download redirected to host: #{location_uri.host}"
                     end
                   end
                   redirect_notify = true
