@@ -5,8 +5,16 @@ module VagrantPlugins
       def api_server_url
         if Vagrant.server_url == Vagrant::DEFAULT_SERVER_URL
           return "#{Vagrant.server_url}/api/v1"
-        else
-          return Vagrant.server_url
+        end
+        begin
+          addr = URI.parse(Vagrant.server_url)
+          if addr.path.empty? || addr.path.to_s == "/"
+            addr.path = "/api/v1"
+          end
+
+          addr.to_s
+        rescue URI::Error
+          Vagrant.server_url
         end
       end
 
