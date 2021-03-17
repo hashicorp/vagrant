@@ -517,6 +517,7 @@ module Vagrant
     # @param [Action::Runner] action_runner A custom action runner for running hooks.
     def hook(name, opts=nil)
       @logger.info("Running hook: #{name}")
+
       opts ||= {}
       opts[:callable] ||= Action::Builder.new
       opts[:runner] ||= action_runner

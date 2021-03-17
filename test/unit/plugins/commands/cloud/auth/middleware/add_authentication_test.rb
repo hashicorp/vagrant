@@ -14,21 +14,24 @@ describe VagrantPlugins::CloudCommand::AddAuthentication do
 
   let(:iso_env) { isolated_environment.create_vagrant_env }
   let(:server_url) { "http://vagrantcloud.com" }
+  let(:client) { double("client", token: token) }
+  let(:token) { "TEST_TOKEN" }
 
   subject { described_class.new(app, env) }
 
   before do
     allow(Vagrant).to receive(:server_url).and_return(server_url)
     allow(ui).to receive(:warn)
+    allow(VagrantPlugins::CloudCommand::Client).to receive(:new).
+      with(iso_env).and_return(client)
     stub_env("ATLAS_TOKEN" => nil)
   end
 
   describe "#call" do
     it "does nothing if we have no server set" do
       allow(Vagrant).to receive(:server_url).and_return(nil)
-      VagrantPlugins::CloudCommand::Client.new(iso_env).store_token("foo")
 
-      original = ["foo", "#{server_url}/bar"]
+      original = [token, "#{server_url}/bar"]
       env[:box_urls] = original.dup
 
       subject.call(env)
@@ -45,125 +48,161 @@ describe VagrantPlugins::CloudCommand::AddAuthentication do
       expect(env[:box_urls]).to eq(original)
     end
 
-    it "appends the access token to the URL of server URLs" do
-      token = "foobarbaz"
-      VagrantPlugins::CloudCommand::Client.new(iso_env).store_token(token)
+    context "with VAGRANT_ALLOW_PARAM_AUTH_TOKEN set" do
 
-      original = [
-        "http://example.com/box.box",
-        "#{server_url}/foo.box",
-        "#{server_url}/bar.box?arg=true",
-      ]
+      before { stub_env("VAGRANT_ALLOW_PARAM_AUTH_TOKEN" => "1") }
 
-      expected = original.dup
-      expected[1] = "#{original[1]}?access_token=#{token}"
-      expected[2] = "#{original[2]}&access_token=#{token}"
+      it "appends the access token to the URL of server URLs" do
+        original = [
+          "http://example.com/box.box",
+          "#{server_url}/foo.box",
+          "#{server_url}/bar.box?arg=true",
+        ]
 
-      env[:box_urls] = original.dup
-      subject.call(env)
+        expected = original.dup
+        expected[1] = "#{original[1]}?access_token=#{token}"
+        expected[2] = "#{original[2]}&access_token=#{token}"
 
-      expect(env[:box_urls]).to eq(expected)
-    end
+        env[:box_urls] = original.dup
+        subject.call(env)
 
-    it "does not append the access token to vagrantcloud.com URLs if Atlas" do
-      server_url = "https://atlas.hashicorp.com"
-      allow(Vagrant).to receive(:server_url).and_return(server_url)
-      allow(subject).to receive(:sleep)
+        expect(env[:box_urls]).to eq(expected)
+      end
 
-      token = "foobarbaz"
-      VagrantPlugins::CloudCommand::Client.new(iso_env).store_token(token)
+      it "does not append the access token to vagrantcloud.com URLs if Atlas" do
+        server_url = "https://atlas.hashicorp.com"
+        allow(Vagrant).to receive(:server_url).and_return(server_url)
+        allow(subject).to receive(:sleep)
 
-      original = [
-        "http://example.com/box.box",
-        "http://vagrantcloud.com/foo.box",
-        "http://vagrantcloud.com/bar.box?arg=true",
-      ]
+        original = [
+          "http://example.com/box.box",
+          "http://vagrantcloud.com/foo.box",
+          "http://vagrantcloud.com/bar.box?arg=true",
+        ]
 
-      expected = original.dup
+        expected = original.dup
 
-      env[:box_urls] = original.dup
-      subject.call(env)
+        env[:box_urls] = original.dup
+        subject.call(env)
 
-      expect(env[:box_urls]).to eq(expected)
-    end
+        expect(env[:box_urls]).to eq(expected)
+      end
 
-    it "warns when adding token to custom server" do
-      server_url = "https://example.com"
-      allow(Vagrant).to receive(:server_url).and_return(server_url)
+      it "warns when adding token to custom server" do
+        server_url = "https://example.com"
+        allow(Vagrant).to receive(:server_url).and_return(server_url)
 
-      token = "foobarbaz"
-      VagrantPlugins::CloudCommand::Client.new(iso_env).store_token(token)
+        original = [
+          "http://example.org/box.box",
+          "http://vagrantcloud.com/foo.box",
+          "http://example.com/bar.box",
+          "http://example.com/foo.box"
+        ]
 
-      original = [
-        "http://example.org/box.box",
-        "http://vagrantcloud.com/foo.box",
-        "http://example.com/bar.box",
-        "http://example.com/foo.box"
-      ]
+        expected = original.dup
+        expected[2] = expected[2] + "?access_token=#{token}"
+        expected[3] = expected[3] + "?access_token=#{token}"
 
-      expected = original.dup
-      expected[2] = expected[2] + "?access_token=#{token}"
-      expected[3] = expected[3] + "?access_token=#{token}"
+        expect(subject).to receive(:sleep).once
+        expect(ui).to receive(:warn).once
 
-      expect(subject).to receive(:sleep).once
-      expect(ui).to receive(:warn).once
+        env[:box_urls] = original.dup
+        subject.call(env)
 
-      env[:box_urls] = original.dup
-      subject.call(env)
+        expect(env[:box_urls]).to eq(expected)
+      end
 
-      expect(env[:box_urls]).to eq(expected)
-    end
+      it "ignores urls that it cannot parse" do
+        bad_url = "this is not a valid url"
+        # Ensure the bad URL does cause an exception
+        expect{ URI.parse(bad_url) }.to raise_error URI::Error
+        env[:box_urls] = [bad_url]
+        subject.call(env)
+        expect(env[:box_urls].first).to eq(bad_url)
+      end
 
-    it "modifies host URL to target if authorized host" do
-      originals = VagrantPlugins::CloudCommand::AddAuthentication::
-        REPLACEMENT_HOSTS.map{ |h| "http://#{h}/box.box" }
-      expected = "http://#{VagrantPlugins::CloudCommand::AddAuthentication::TARGET_HOST}/box.box"
-      env[:box_urls] = originals
-      subject.call(env)
-      env[:box_urls].each do |url|
-        expect(url).to eq(expected)
+      it "does not append multiple access_tokens" do
+        original = [
+          "#{server_url}/foo.box?access_token=existing",
+          "#{server_url}/bar.box?arg=true",
+        ]
+
+        env[:box_urls] = original.dup
+        subject.call(env)
+
+        expect(env[:box_urls][0]).to eq("#{server_url}/foo.box?access_token=existing")
+        expect(env[:box_urls][1]).to eq("#{server_url}/bar.box?arg=true&access_token=#{token}")
+      end
+
+
+      context "when token is not set" do
+        let(:token) { nil }
+
+        it "modifies host URL to target if authorized host" do
+          originals = VagrantPlugins::CloudCommand::AddAuthentication::
+            REPLACEMENT_HOSTS.map{ |h| "http://#{h}/box.box" }
+          expected = "http://#{VagrantPlugins::CloudCommand::AddAuthentication::TARGET_HOST}/box.box"
+          env[:box_urls] = originals
+          subject.call(env)
+          env[:box_urls].each do |url|
+            expect(url).to eq(expected)
+          end
+        end
+
+        it "returns original urls when not modified" do
+          to_persist = "file:////path/to/box.box"
+          to_change = VagrantPlugins::CloudCommand::AddAuthentication::
+            REPLACEMENT_HOSTS.map{ |h| "http://#{h}/box.box" }.first
+          expected = "http://#{VagrantPlugins::CloudCommand::AddAuthentication::TARGET_HOST}/box.box"
+          env[:box_urls] = [to_persist, to_change]
+          subject.call(env)
+          check_persist, check_change = env[:box_urls]
+          expect(check_change).to eq(expected)
+          expect(check_persist).to eq(to_persist)
+          # NOTE: The behavior of URI.parse changes on Ruby 2.5 to produce
+          # the same string value. To make the test worthwhile in checking
+          # for the same value, check that the object IDs are still the same.
+          expect(check_persist.object_id).to eq(to_persist.object_id)
+        end
       end
     end
 
-    it "ignores urls that it cannot parse" do
-      bad_url = "this is not a valid url"
-      # Ensure the bad URL does cause an exception
-      expect{ URI.parse(bad_url) }.to raise_error URI::Error
-      env[:box_urls] = [bad_url]
-      subject.call(env)
-      expect(env[:box_urls].first).to eq(bad_url)
-    end
 
-    it "returns original urls when not modified" do
-      to_persist = "file:////path/to/box.box"
-      to_change = VagrantPlugins::CloudCommand::AddAuthentication::
-        REPLACEMENT_HOSTS.map{ |h| "http://#{h}/box.box" }.first
-      expected = "http://#{VagrantPlugins::CloudCommand::AddAuthentication::TARGET_HOST}/box.box"
-      env[:box_urls] = [to_persist, to_change]
-      subject.call(env)
-      check_persist, check_change = env[:box_urls]
-      expect(check_change).to eq(expected)
-      expect(check_persist).to eq(to_persist)
-      # NOTE: The behavior of URI.parse changes on Ruby 2.5 to produce
-      # the same string value. To make the test worthwhile in checking
-      # for the same value, check that the object IDs are still the same.
-      expect(check_persist.object_id).to eq(to_persist.object_id)
-    end
+    context "with VAGRANT_ALLOW_PARAM_AUTH_TOKEN unset" do
 
-    it "does not append multiple access_tokens" do
-      token = "foobarbaz"
-      VagrantPlugins::CloudCommand::Client.new(iso_env).store_token(token)
+      before { stub_env("VAGRANT_ALLOW_PARAM_AUTH_TOKEN" => nil) }
 
-      original = [
-        "#{server_url}/foo.box?access_token=existing",
-        "#{server_url}/bar.box?arg=true",
-      ]
+      it "returns the original urls" do
+        box1 = "http://vagrantcloud.com/box.box"
+        box2 = "http://app.vagrantup.com/box.box"
 
-      env[:box_urls] = original.dup
-      subject.call(env)
+        env = {
+          box_urls: [
+            box1.dup,
+            box2.dup
+          ]
+        }
+        subject.call(env)
 
-      expect(env[:box_urls][0]).to eq("#{server_url}/foo.box?access_token=existing")
-      expect(env[:box_urls][1]).to eq("#{server_url}/bar.box?arg=true&access_token=foobarbaz")
+        expect(env[:box_urls]).to eq([box1, box2])
+      end
+
+      it "removes access_token parameters if set" do
+        box1 = "http://vagrantcloud.com/box.box"
+        box2 = "http://app.vagrantup.com/box.box"
+        box3 = "http://app.vagrantup.com/box.box?arg1=value1"
+
+        env = {
+          box_urls: [
+            "#{box1}?access_token=TEST_TOKEN",
+            box2.dup,
+            "#{box3}&access_token=TEST_TOKEN"
+          ]
+        }
+        subject.call(env)
+
+        expect(env[:box_urls]).to eq([box1, box2, box3])
+      end
     end
   end
 end

@@ -46,6 +46,14 @@ the Vagrant installation.
 `VAGRANT_ALIAS_FILE` can be set to change the file where Vagrant aliases are
 defined. By default, this is set to `~/.vagrant.d/aliases`.
 
+## `VAGRANT_ALLOW_PARAM_AUTH_TOKEN`
+
+If this is set to any value Vagrant will append an access token to a Vagrant
+box URL as a GET parameter. By default Vagrant will set the access token
+with an authorization header of the request. Setting the access token as
+a parameter on the URL is deprecated behavior, however this environment
+variable allows it to be enabled for legacy implementations.
+
 ## `VAGRANT_ALLOW_PLUGIN_SOURCE_ERRORS`
 
 If this is set to any value, then Vagrant will not error when a configured
