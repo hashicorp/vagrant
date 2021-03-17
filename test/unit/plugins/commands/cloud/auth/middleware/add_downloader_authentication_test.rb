@@ -53,16 +53,16 @@ describe VagrantPlugins::CloudCommand::AddDownloaderAuthentication do
       it "warns when adding token to custom server" do
         server_url = "https://surprise.com"
         allow(Vagrant).to receive(:server_url).and_return(server_url)
-  
+
         token = "foobarbaz"
         VagrantPlugins::CloudCommand::Client.new(iso_env).store_token(token)
-  
+
         expect(subject).to receive(:sleep).once
         expect(ui).to receive(:warn).once
-  
+
         env[:downloader] = dwnloader
         subject.call(env)
-  
+
         expect(env[:downloader].headers).to eq(["Authorization: Bearer #{token}"])
       end
     end
@@ -97,11 +97,11 @@ describe VagrantPlugins::CloudCommand::AddDownloaderAuthentication do
       let(:auth_header) { "Authorization Bearer: token" }
       let(:other_header) {"some: thing"}
       let(:dwnloader) { Vagrant::Util::Downloader.new(server_url, "/some/path", {headers: [other_header]}) }
-    
+
       it "appends the auth header" do
         token = "foobarbaz"
         VagrantPlugins::CloudCommand::Client.new(iso_env).store_token(token)
-  
+
         env[:downloader] = dwnloader
         subject.call(env)
 
@@ -115,7 +115,7 @@ describe VagrantPlugins::CloudCommand::AddDownloaderAuthentication do
         it "returns original urls when not modified" do
           env[:downloader] = dwnloader
           subject.call(env)
-          
+
           expect(env[:downloader].source).to eq(file_path)
           expect(env[:downloader].headers.empty?).to eq(true)
         end
@@ -125,7 +125,7 @@ describe VagrantPlugins::CloudCommand::AddDownloaderAuthentication do
         dwnloader.headers << auth_header
         token = "foobarbaz"
         VagrantPlugins::CloudCommand::Client.new(iso_env).store_token(token)
-  
+
         env[:downloader] = dwnloader
         subject.call(env)
 
