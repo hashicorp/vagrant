@@ -7,7 +7,7 @@ module VagrantPlugins
           return "#{Vagrant.server_url}/api/v1"
         end
         begin
-          addr = URI.parse(Vagrant.server_url.to_s)
+          addr = URI.parse(Vagrant.server_url)
           if addr.path.empty? || addr.path.to_s == "/"
             addr.path = "/api/v1"
           end
