@@ -4,6 +4,7 @@ FEATURES:
 
 IMPROVEMENTS:
 
+- command/cloud: Remove access token URL parameter by default [GH-12234]
 - core: Bump vagrant_cloud dependency to 3.0.3 [GH-12200]
 - core: Bump listen gem version and remove ruby_dep [GH-12148]
 - core/bundler: Update resolution handling when outside of installer and bundler [GH-12225]
