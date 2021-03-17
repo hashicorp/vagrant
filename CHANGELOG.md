@@ -12,6 +12,7 @@ IMPROVEMENTS:
 - guest/openwrt: Add support for OpenWrt guests [GH-11791]
 - guest/freebsd: FreeBSD updated ansible to py37-ansible [GH-12201]
 - provider/virtualbox: Get default dhcp ip from a matching host ip [GH-12211]
+- util/downloader: Prevent redirect notification for default store [GH-12235]
 
 BUG FIXES:
 
