@@ -29,7 +29,7 @@ Gem::Specification.new do |s|
   s.add_dependency "net-scp", "~> 1.2.0"
   s.add_dependency "rb-kqueue", "~> 0.2.0"
   s.add_dependency "rubyzip", "~> 2.0"
-  s.add_dependency "vagrant_cloud", "~> 3.0.3"
+  s.add_dependency "vagrant_cloud", "~> 3.0.4"
   s.add_dependency "wdm", "~> 0.1.0"
   s.add_dependency "winrm", ">= 2.3.4", "< 3.0"
   s.add_dependency "winrm-elevated", ">= 1.2.1", "< 2.0"
