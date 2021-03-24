@@ -16,6 +16,7 @@ IMPROVEMENTS:
 
 BUG FIXES:
 
+- command/cloud: Automatically disable direct uploads when file is too large [GH-12250]
 - core: Make shell script for loop shell agnostic [GH-12205]
 - core: Raise error if downloading box metadata fails [GH-12189]
 - core: Apply download options to metadata requests [GH-12177]
