@@ -11,6 +11,7 @@ module Vagrant
     autoload :HashWithIndifferentAccess, 'vagrant/util/hash_with_indifferent_access'
     autoload :GuestInspection,           'vagrant/util/guest_inspection'
     autoload :LoggingFormatter,          'vagrant/util/logging_formatter'
+    autoload :Numeric,                   'vagrant/util/numeric'
     autoload :Platform,                  'vagrant/util/platform'
     autoload :Retryable,                 'vagrant/util/retryable'
     autoload :SafeExec,                  'vagrant/util/safe_exec'

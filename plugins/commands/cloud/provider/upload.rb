@@ -58,6 +58,16 @@ module VagrantPlugins
               access_token: access_token
             )
 
+            # Include size check on file and disable direct if over 5G
+            if options[:direct]
+              fsize = File.stat(file).size
+              if fsize > (5 * Vagrant::Util::Numeric::GIGABYTE)
+                box_size = Vagrant::Util::Numeric.bytes_to_string(fsize)
+                @env.ui.warn(I18n.t("cloud_command.provider.direct_disable", size: box_size))
+                options[:direct] = false
+              end
+            end
+
             with_provider(account: account, org: org, box: box, version: version, provider: provider) do |p|
               p.upload(direct: options[:direct]) do |upload_url|
                 m = options[:direct] ? :put : :put

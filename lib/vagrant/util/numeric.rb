@@ -49,6 +49,26 @@ module Vagrant
           bytes
         end
 
+        # Convert bytes to a user friendly string representation
+        #
+        # @param [Numeric] bytes Number of bytes to represent
+        # @return [String] user friendly output
+        def bytes_to_string(bytes)
+          # We want to locate the size that will return the
+          # smallest whole value number
+          BYTES_CONVERSION_MAP.sort { |a, b|
+            b.last <=> a.last
+          }.each do |suffix, size|
+            val = bytes.to_f / size
+            next if val < 1
+            val = sprintf("%.2f", val)
+            val.slice!(-1, 1) while val.end_with?("0")
+            val.slice!(-1, 1) if val.end_with?(".")
+            return "#{val}#{suffix}"
+          end
+          "#{bytes} byte#{"s" if bytes > 1}"
+        end
+
         # Rounds actual value to two decimal places
         #
         # @param [Integer] bytes

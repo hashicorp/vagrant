@@ -15,6 +15,7 @@ describe VagrantPlugins::CloudCommand::ProviderCommand::Command::Upload do
   let(:version) { double("version", version: box_version, provdiers: [provider]) }
   let(:provider) { double("provider", name: box_version_provider) }
   let(:provider_file) { double("provider-file") }
+  let(:provider_file_size) { 1 }
 
   describe "#upload_provider" do
     let(:argv) { [] }
@@ -42,6 +43,8 @@ describe VagrantPlugins::CloudCommand::ProviderCommand::Command::Upload do
       allow(uploader).to receive(:upload!)
       allow(Vagrant::UI::Prefixed).to receive(:new).with(ui, "cloud").and_return(ui)
       allow(Vagrant::Util::Uploader).to receive(:new).and_return(uploader)
+      allow(File).to receive(:stat).with(provider_file).
+        and_return(double("provider-stat", size: provider_file_size))
     end
 
     subject { described_class.new(argv, env) }
@@ -90,6 +93,28 @@ describe VagrantPlugins::CloudCommand::ProviderCommand::Command::Upload do
           expect(args[:direct]).to be_truthy
         end
         subject.upload_provider(org_name, box_name, box_version, box_version_provider, provider_file, access_token, options)
+      end
+
+      context "when file size is 5GB" do
+        let(:provider_file_size) { 5368709120 }
+
+        it "should use direct upload" do
+          expect(provider).to receive(:upload) do |**args|
+            expect(args[:direct]).to be_truthy
+          end
+          subject.upload_provider(org_name, box_name, box_version, box_version_provider, provider_file, access_token, options)
+        end
+      end
+
+      context "when file size is greater than 5GB" do
+        let(:provider_file_size) { 5368709121 }
+
+        it "should disable direct upload" do
+          expect(provider).to receive(:upload) do |**args|
+            expect(args[:direct]).to be_falsey
+          end
+          subject.upload_provider(org_name, box_name, box_version, box_version_provider, provider_file, access_token, options)
+        end
       end
     end
   end
