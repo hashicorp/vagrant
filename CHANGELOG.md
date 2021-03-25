@@ -5,6 +5,7 @@ FEATURES:
 IMPROVEMENTS:
 
 - command/cloud: Remove access token URL parameter by default [GH-12234]
+- command/cloud: Add VAGRANT_SERVER_ACCESS_TOKEN_BY_URL to revert access token behavior [GH-12252]
 - core: Bump vagrant_cloud dependency to 3.0.3 [GH-12200]
 - core: Bump listen gem version and remove ruby_dep [GH-12148]
 - core: Bump vagrant_cloud dependency to 3.0.4 [GH-12242]
@@ -25,6 +26,7 @@ BUG FIXES:
 - core: Don't count not created machines as declined when destroying [GH-12186]
 - core: Bump bcrypt_pbkdf version [GH-12216]
 - core: Remove all space from checksums [GH-12168]
+- core/bundler: Do not include default gems as pinned constraints [GH-12253]
 - core/synced_folders: Extract os friendly mount name for vbox shared folders [GH-12184]
 - guest/alpine: Check if interface exists before shutting it down [GH-12181]
 - guest/nixos: Fix network config for recent NixOS releases [GH-12152]
