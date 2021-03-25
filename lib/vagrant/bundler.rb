@@ -516,6 +516,9 @@ module Vagrant
         @logger.debug("Enabling strict dependency enforcement")
         plugin_deps += vagrant_internal_specs.map do |spec|
           next if system_plugins.include?(spec.name)
+          # If this spec is for a default plugin included in
+          # the ruby stdlib, ignore it
+          next if spec.default_gem?
           # If we are not running within the installer and
           # we are not within a bundler environment then we
           # only want activated specs
