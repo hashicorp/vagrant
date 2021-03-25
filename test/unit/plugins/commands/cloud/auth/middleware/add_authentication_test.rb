@@ -48,9 +48,9 @@ describe VagrantPlugins::CloudCommand::AddAuthentication do
       expect(env[:box_urls]).to eq(original)
     end
 
-    context "with VAGRANT_ALLOW_PARAM_AUTH_TOKEN set" do
+    context "with VAGRANT_SERVER_ACCESS_TOKEN_BY_URL set" do
 
-      before { stub_env("VAGRANT_ALLOW_PARAM_AUTH_TOKEN" => "1") }
+      before { stub_env("VAGRANT_SERVER_ACCESS_TOKEN_BY_URL" => "1") }
 
       it "appends the access token to the URL of server URLs" do
         original = [
@@ -168,9 +168,9 @@ describe VagrantPlugins::CloudCommand::AddAuthentication do
     end
 
 
-    context "with VAGRANT_ALLOW_PARAM_AUTH_TOKEN unset" do
+    context "with VAGRANT_SERVER_ACCESS_TOKEN_BY_URL unset" do
 
-      before { stub_env("VAGRANT_ALLOW_PARAM_AUTH_TOKEN" => nil) }
+      before { stub_env("VAGRANT_SERVER_ACCESS_TOKEN_BY_URL" => nil) }
 
       it "returns the original urls" do
         box1 = "http://vagrantcloud.com/box.box"

@@ -33,8 +33,8 @@ module VagrantPlugins
       end
 
       def call(env)
-        if ENV["VAGRANT_ALLOW_PARAM_AUTH_TOKEN"]
-          @logger.warn("Adding auth token as GET parameter by user request")
+        if ENV["VAGRANT_SERVER_ACCESS_TOKEN_BY_URL"]
+          @logger.warn("Adding access token as GET parameter by user request")
           client = Client.new(env[:env])
           token  = client.token
 

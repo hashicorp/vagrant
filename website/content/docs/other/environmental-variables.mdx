@@ -46,14 +46,6 @@ the Vagrant installation.
 `VAGRANT_ALIAS_FILE` can be set to change the file where Vagrant aliases are
 defined. By default, this is set to `~/.vagrant.d/aliases`.
 
-## `VAGRANT_ALLOW_PARAM_AUTH_TOKEN`
-
-If this is set to any value Vagrant will append an access token to a Vagrant
-box URL as a GET parameter. By default Vagrant will set the access token
-with an authorization header of the request. Setting the access token as
-a parameter on the URL is deprecated behavior, however this environment
-variable allows it to be enabled for legacy implementations.
-
 ## `VAGRANT_ALLOW_PLUGIN_SOURCE_ERRORS`
 
 If this is set to any value, then Vagrant will not error when a configured
@@ -297,6 +289,23 @@ from the local system instead of those vendored within the Vagrant installation.
 Vagrant will default to using a system provided `ssh` on Windows. This
 environment variable can also be used to disable that behavior to force Vagrant to
 use the embedded `ssh` executable by setting it to `0`.
+
+## `VAGRANT_SERVER_URL`
+
+This configures the remote server which Vagrant will connect to for fetching
+Vagrant boxes. By default this is configured for Vagrant Cloud (https://vagrantcloud.com)
+
+## `VAGRANT_SERVER_ACCESS_TOKEN_BY_URL`
+
+If this is set Vagrant will change the way it authenticates with the configured
+Vagrant server. When set, the authentication behavior will be reverted to the
+deprecated authentication behavior of:
+
+1. not adding an authentication header to the request
+2. setting the configured access token as a query parameter on URLs
+
+This behavior can be useful for third party servers which do not accept the
+authentication header currently used with Vagrant Cloud.
 
 ## `VAGRANT_SKIP_SUBPROCESS_JAILBREAK`
 

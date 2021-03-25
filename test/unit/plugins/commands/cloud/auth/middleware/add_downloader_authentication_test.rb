@@ -23,6 +23,7 @@ describe VagrantPlugins::CloudCommand::AddDownloaderAuthentication do
     allow(Vagrant).to receive(:server_url).and_return(server_url)
     allow(ui).to receive(:warn)
     stub_env("ATLAS_TOKEN" => nil)
+    stub_env("VAGRANT_SERVER_ACCESS_TOKEN_BY_URL" => nil)
   end
 
   describe "#call" do
@@ -150,6 +151,20 @@ describe VagrantPlugins::CloudCommand::AddDownloaderAuthentication do
       env[:downloader] = dwnloader
       subject.call(env)
       expect(env[:downloader].headers.empty?).to eq(true)
+    end
+
+    context "with VAGRANT_SERVER_ACCESS_TOKEN_BY_URL environment variable set" do
+      before do
+        stub_env("VAGRANT_SERVER_ACCESS_TOKEN_BY_URL" => "1")
+      end
+
+      it "does not add a token to the headers" do
+        token = "foobarbaz"
+        VagrantPlugins::CloudCommand::Client.new(iso_env).store_token(token)
+        env[:downloader] = dwnloader
+        subject.call(env)
+        expect(env[:downloader].headers).to eq([])
+      end
     end
   end
 end
