@@ -294,6 +294,23 @@ module Hashicorp
 
         Stub = Service.rpc_stub_class
       end
+      module EnvironmentService
+        # *******************************************************************
+        # Environment services
+        # ******************************************************************
+        class Service
+
+          include GRPC::GenericService
+
+          self.marshal_class_method = :encode
+          self.unmarshal_class_method = :decode
+          self.service_name = 'hashicorp.vagrant.sdk.EnvironmentService'
+
+          rpc :MachineNames, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::Environment::MachineNamesResponse
+        end
+
+        Stub = Service.rpc_stub_class
+      end
     end
   end
 end

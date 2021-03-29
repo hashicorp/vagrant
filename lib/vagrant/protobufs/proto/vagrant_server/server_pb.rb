@@ -5,8 +5,8 @@ require 'google/protobuf'
 
 require 'google/protobuf/empty_pb'
 require 'google/protobuf/timestamp_pb'
-require 'google/protobuf/any_pb'
 require 'google/rpc/status_pb'
+require 'google/protobuf/struct_pb'
 require 'plugin_pb'
 Google::Protobuf::DescriptorPool.generated_pool.build do
   add_file("proto/vagrant_server/server.proto", :syntax => :proto3) do
@@ -50,10 +50,10 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
       optional :name, :string, 4
       optional :project, :message, 5, "hashicorp.vagrant.Ref.Project"
       optional :status, :message, 6, "hashicorp.vagrant.Status"
-      optional :box, :message, 7, "hashicorp.vagrant.sdk.Box"
+      optional :box, :message, 7, "hashicorp.vagrant.sdk.Args.Box"
       optional :uuid, :string, 8
       optional :uid, :string, 9
-      optional :state, :message, 10, "hashicorp.vagrant.sdk.MachineState"
+      optional :state, :message, 10, "hashicorp.vagrant.sdk.Args.MachineState"
       optional :physical_state, :enum, 50, "hashicorp.vagrant.Operation.PhysicalState"
       optional :remote_enabled, :bool, 51
       optional :data_source, :message, 52, "hashicorp.vagrant.Job.DataSource"
@@ -829,6 +829,7 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
       optional :component, :message, 9, "hashicorp.vagrant.Component"
       map :labels, :string, :string, 10
       optional :job_id, :string, 11
+      optional :cli_args, :message, 12, "hashicorp.vagrant.sdk.Command.Arguments"
       oneof :scope do
         optional :machine, :message, 1, "hashicorp.vagrant.Ref.Machine"
         optional :project, :message, 2, "hashicorp.vagrant.Ref.Project"
