@@ -1,0 +1,145 @@
+---
+layout: docs
+page_title: Vagrant Cloud-Init Getting Started
+sidebar_title: Getting Started
+description: Walkthrough of a basic cloud-init configuration in Vagrant
+---
+
+## Prerequisites
+
+### Vagrant box with cloud-init installed
+
+Since cloud-init configures VMs the first time they are started, it will only
+work with Vagrant boxes that come with cloud-init preinstalled.
+Unfortunately, it's not sufficient to install cloud-init using a provisioner,
+because provisioners don't run until after SSH communication can be
+established -- much later in the boot process.  Therefore we recommend
+creating a base box with [Packer](https://www.packer.io/) as the starting
+point for working with cloud-init.
+
+### ISO creation tool
+
+When using a cloud provider such as AWS, Google Cloud, or Microsoft Azure,
+cloud-init reads user data from a network service in order to configure an
+instance. Since there's no centralized service that can provide user data to
+local Vagrant guests, Vagrant provides user data via an optical DVD drive that
+is attached directly to the VM. If a cloud-init configuration is present in
+the Vagrantfile, Vagrant will create an ISO and attach it to the guest machine
+before starting the machine for the first time.
+
+Vagrant requires a command-line tool to be installed on your host machine in
+order to create the user data ISO. The specific tool will vary depending on
+your host operating system.
+
+#### Linux: mkisofs
+
+`mkisofs` should be available via your package manager. For example, on
+Ubuntu, it's included in the `dvd+rw-tools` package:
+
+```shell-session
+$ apt install -y dvd+rw-tools
+```
+
+#### macOS: hdiutil
+
+`hdiutil` comes standard with macOS.
+
+#### Windows: oscdimg
+
+`oscdimg` is included with the [Windows Assessment and Deployment
+Kit](https://docs.microsoft.com/en-us/windows-hardware/get-started/adk-install).
+After installing the Windows ADK, add the directory containing `oscdimg.exe`
+for your architecture to the `PATH` environment variable. This will be
+something like `C:\Program Files (x86)\Windows Kits\10\Assessment and
+Deployment Kit\Deployment Tools\amd64\Oscdimg`.
+
+Be sure to close and reopen any active shell sessions in order to pick up the
+updated environment variable.
+
+## Configuring a virtual machine with cloud-init
+
+Now that we've got our Vagrant environment configured, let's write a
+cloud-init configuration. We're going to set up the web server from the
+[Getting Started
+guide](https://learn.hashicorp.com/vagrant/getting-started/provisioning), but
+this time we'll be use cloud-init to setup [Apache](http://httpd.apache.org/)
+instead of a shell provisioner.
+
+## Create an HTML directory
+
+Create a directory where Apache will look for your content.
+
+```shell-session
+$ mkdir html
+```
+
+Next create a file called `index.html` in the new directory, and populate it
+with the content for the index page.
+
+```shell-session
+<!DOCTYPE html>
+<html>
+  <body>
+    <h1>Getting started with cloud-init!</h1>
+  </body>
+</html>
+```
+
+## Write a cloud-init configuration
+
+Create a cloud-init configuration and save it as `cloud.yml` in the same
+directory as your Vagrantfile:
+
+```yaml
+#cloud-config
+packages:
+  - apache2
+runcmd:
+  - if ! [ -L /var/www ]; then rm -rf /var/www; ln -fs /vagrant /var/www; fi
+```
+
+## Configure Vagrant
+
+In your Vagrantfile, add a new `cloud_init` configuration pointing to the configuration file:
+
+```ruby
+config.vm.cloud_init content_type: "text/cloud-config", path: "cloud.yml"
+```
+
+If you're making changes to an existing Vagrant machine, you'll need to
+destroy your guest machine with `vagrant destroy` so that cloud-init can run
+on first boot.
+
+Create a port forward so that the web server is accessible from your host
+machine:
+
+```ruby
+config.vm.network :forwarded_port, guest: 80, host: 4567
+```
+
+## Apply the cloud-init configuration
+
+Now, run `vagrant up` and after a short time, you should see that Vagrant is
+waiting for cloud-init to finish:
+
+```shell-session
+==> default: Waiting for cloud-init...
+```
+
+After the machine has finished booting, your web server will be available at
+[http://localhost:4567](http://localhost:4567)!
+
+```shell-session
+$ curl http://localhost:4567
+<!DOCTYPE html>
+<html>
+  <body>
+    <h1>Getting started with cloud-init!</h1>
+  </body>
+</html>
+```
+
+This example barely scratches the surface of what cloud-init is capable of. It
+can also create users, add ssh keys, add software repositories, adjust disks,
+and much more.  For a comprehensive set of examples, check out the [cloud-init
+documentation](https://cloudinit.readthedocs.io/en/latest/topics/examples.html).
