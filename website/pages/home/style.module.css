@@ -47,7 +47,7 @@
 
 .crossPlatform {
   composes: block;
-  background: #0d44cc;
+  background: var(--brand, #2e71e5);
   color: white;
 
   & img {
