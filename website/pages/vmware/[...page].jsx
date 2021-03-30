@@ -20,12 +20,15 @@ export default function DocsLayout(props) {
 }
 
 export async function getStaticPaths() {
+  const paths = await generateStaticPaths({
+    navDataFile: NAV_DATA_FILE,
+    localContentDir: CONTENT_DIR,
+  })
+
   return {
     fallback: false,
-    paths: await generateStaticPaths({
-      navDataFile: NAV_DATA_FILE,
-      localContentDir: CONTENT_DIR,
-    }),
+    // This path has an index route explicitly declared as a page
+    paths: paths.filter(({ params }) => params.page.length > 0),
   }
 }
 
