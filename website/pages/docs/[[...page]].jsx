@@ -1,5 +1,4 @@
 import { productName, productSlug } from 'data/metadata'
-import order from 'data/docs-navigation.js'
 import DocsPage from '@hashicorp/react-docs-page'
 import {
   generateStaticPaths,
@@ -8,15 +7,16 @@ import {
 import { VMWARE_UTILITY_VERSION } from 'data/version.json'
 import Button from '@hashicorp/react-button'
 
-const subpath = 'docs'
+const NAV_DATA_FILE = 'data/docs-nav-data.json'
+const CONTENT_DIR = 'content/docs'
+const basePath = 'docs'
 const additionalComponents = { Button }
 
 export default function DocsLayout(props) {
   return (
     <DocsPage
       product={{ name: productName, slug: productSlug }}
-      subpath={subpath}
-      order={order}
+      baseRoute={basePath}
       staticProps={props}
       additionalComponents={additionalComponents}
     />
@@ -24,15 +24,24 @@ export default function DocsLayout(props) {
 }
 
 export async function getStaticPaths() {
-  return generateStaticPaths(subpath)
+  return {
+    fallback: false,
+    paths: await generateStaticPaths({
+      navDataFile: NAV_DATA_FILE,
+      localContentDir: CONTENT_DIR,
+    }),
+  }
 }
 
 export async function getStaticProps({ params }) {
-  return generateStaticProps({
-    subpath,
-    productName,
-    params,
-    additionalComponents,
-    scope: { VMWARE_UTILITY_VERSION },
-  })
+  return {
+    props: await generateStaticProps({
+      navDataFile: NAV_DATA_FILE,
+      localContentDir: CONTENT_DIR,
+      product: { name: productName, slug: productSlug },
+      params,
+      additionalComponents,
+      scope: { VMWARE_UTILITY_VERSION },
+    }),
+  }
 }
