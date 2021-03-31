@@ -1,15 +1,12 @@
 require 'vagrant/machine'
 require 'vagrant/batch_action'
 require 'vagrant/ui'
-require 'logger'
 require_relative '../client/terminal_client'
 
 module VagrantPlugins
   module CommandServe
     module Service
       class ProviderService < Hashicorp::Vagrant::Sdk::ProviderService::Service
-        LOG = Logger.new('/tmp/vagrant-ruby-provider.txt')
-
         def usable(req, _unused_call)
           nil
         end
@@ -35,7 +32,6 @@ module VagrantPlugins
         end
 
         def action_up(req, _unused_call)
-          LOG.debug("Coming up")
           machine = machine_arg_to_machine(req)
           machine.ui.warn("hello from vagrant")
           Hashicorp::Vagrant::Sdk::Provider::ActionResp.new(success: true)
@@ -47,13 +43,8 @@ module VagrantPlugins
           ui_client = VagrantPlugins::CommandServe::Client::TerminalClient.terminal_arg_to_terminal_ui(raw_terminal_arg)
           
           machine_arg = Hashicorp::Vagrant::Sdk::Args::Machine.decode(raw_machine_arg)
-          LOG.debug("machine id: " + machine_arg.resource_id)
-          LOG.debug("server addr: " + machine_arg.serverAddr)
-
           mclient = Vagrant::MachineClient.new(machine_arg.serverAddr)
           machine = mclient.get_machine(machine_arg.resource_id, ui_client)
-          LOG.debug("got machine: ")
-          LOG.debug(machine.name)
           machine
         end
 
