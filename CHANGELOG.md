@@ -4,6 +4,12 @@ FEATURES:
 
 IMPROVEMENTS:
 
+BUG FIXES:
+
+## 2.2.15 (March 30, 2021)
+
+IMPROVEMENTS:
+
 - command/cloud: Remove access token URL parameter by default [GH-12234]
 - command/cloud: Add VAGRANT_SERVER_ACCESS_TOKEN_BY_URL to revert access token behavior [GH-12252]
 - core: Bump vagrant_cloud dependency to 3.0.3 [GH-12200]
