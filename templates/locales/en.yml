@@ -1901,7 +1901,7 @@ en:
           Disks of type ':dvd' cannot be defined as a primary disks. Please
           remove the 'primary' argument for disk '%{name}' on guest '%{machine}'.
         invalid_ext: |-
-          Disk type '%{ext}' is not a valid disk extention for '%{name}'. Please pick one of the following supported disk types: %{exts}
+          Disk type '%{ext}' is not a valid disk extension for '%{name}'. Please pick one of the following supported disk types: %{exts}
         invalid_type: |-
           Disk type '%{type}' is not a valid type. Please pick one of the following supported disk types: %{types}
         invalid_size: |-
