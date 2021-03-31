@@ -1,7 +1,6 @@
 ---
 layout: docs
 page_title: Networking
-sidebar_title: Networking
 description: |-
   In order to access the Vagrant environment created, Vagrant exposes
   some high-level networking options for things such as forwarded ports,
@@ -39,14 +38,13 @@ with the Vagrant workflow and have things working at a basic level.
 Provider-specific network configuration can very quickly lock you out
 of your guest machine if improperly done.
 
-
 ## Networking Assumptions
 
 ### There is a NAT availble
 
 Vagrant assumes there is an available NAT device on eth0. This ensures
-that Vagrant always has a way of communicating with the guest machine. 
-It is possible to change this manually (outside of Vagrant), however, 
-this may lead to inconsistent behavior. 
+that Vagrant always has a way of communicating with the guest machine.
+It is possible to change this manually (outside of Vagrant), however,
+this may lead to inconsistent behavior.
 Providers might have additional assumptions. For example, in VirtualBox,
-this assumption means that network adapter 1 is a NAT device. 
+this assumption means that network adapter 1 is a NAT device.

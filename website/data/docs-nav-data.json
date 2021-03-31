@@ -1,0 +1,755 @@
+[
+  {
+    "title": "Overview",
+    "path": "index"
+  },
+  {
+    "title": "Installation",
+    "routes": [
+      {
+        "title": "Overview",
+        "path": "installation"
+      },
+      {
+        "title": "Backwards Compatibility",
+        "path": "installation/backwards-compatibility"
+      },
+      {
+        "title": "Upgrading",
+        "path": "installation/upgrading"
+      },
+      {
+        "title": "Upgrading from 1.0.x",
+        "path": "installation/upgrading-from-1-0"
+      },
+      {
+        "title": "From Source",
+        "path": "installation/source"
+      },
+      {
+        "title": "Uninstallation",
+        "path": "installation/uninstallation"
+      }
+    ]
+  },
+  {
+    "title": "Commands (CLI)",
+    "routes": [
+      {
+        "title": "Overview",
+        "path": "cli"
+      },
+      {
+        "title": "box",
+        "path": "cli/box"
+      },
+      {
+        "title": "cloud",
+        "path": "cli/cloud"
+      },
+      {
+        "title": "connect",
+        "path": "cli/connect"
+      },
+      {
+        "title": "destroy",
+        "path": "cli/destroy"
+      },
+      {
+        "title": "global-status",
+        "path": "cli/global-status"
+      },
+      {
+        "title": "halt",
+        "path": "cli/halt"
+      },
+      {
+        "title": "init",
+        "path": "cli/init"
+      },
+      {
+        "title": "login",
+        "path": "cli/login"
+      },
+      {
+        "title": "package",
+        "path": "cli/package"
+      },
+      {
+        "title": "plugin",
+        "path": "cli/plugin"
+      },
+      {
+        "title": "port",
+        "path": "cli/port"
+      },
+      {
+        "title": "powershell",
+        "path": "cli/powershell"
+      },
+      {
+        "title": "provision",
+        "path": "cli/provision"
+      },
+      {
+        "title": "rdp",
+        "path": "cli/rdp"
+      },
+      {
+        "title": "reload",
+        "path": "cli/reload"
+      },
+      {
+        "title": "resume",
+        "path": "cli/resume"
+      },
+      {
+        "title": "share",
+        "path": "cli/share"
+      },
+      {
+        "title": "snapshot",
+        "path": "cli/snapshot"
+      },
+      {
+        "title": "ssh",
+        "path": "cli/ssh"
+      },
+      {
+        "title": "ssh-config",
+        "path": "cli/ssh_config"
+      },
+      {
+        "title": "status",
+        "path": "cli/status"
+      },
+      {
+        "title": "suspend",
+        "path": "cli/suspend"
+      },
+      {
+        "title": "up",
+        "path": "cli/up"
+      },
+      {
+        "title": "upload",
+        "path": "cli/upload"
+      },
+      {
+        "title": "validate",
+        "path": "cli/validate"
+      },
+      {
+        "title": "version",
+        "path": "cli/version"
+      },
+      {
+        "title": "More Commands",
+        "path": "cli/non-primary"
+      },
+      {
+        "title": "Aliases",
+        "path": "cli/aliases"
+      },
+      {
+        "title": "Machine Readable Output",
+        "path": "cli/machine-readable"
+      }
+    ]
+  },
+  {
+    "title": "Vagrant Share",
+    "routes": [
+      {
+        "title": "Overview",
+        "path": "share"
+      },
+      {
+        "title": "HTTP Sharing",
+        "path": "share/http"
+      },
+      {
+        "title": "SSH Sharing",
+        "path": "share/ssh"
+      },
+      {
+        "title": "Connect",
+        "path": "share/connect"
+      },
+      {
+        "title": "Security",
+        "path": "share/security"
+      },
+      {
+        "title": "Custom Provider",
+        "path": "share/provider"
+      }
+    ]
+  },
+  {
+    "title": "Vagrantfile",
+    "routes": [
+      {
+        "title": "Overview",
+        "path": "vagrantfile"
+      },
+      {
+        "title": "Configuration Version",
+        "path": "vagrantfile/version"
+      },
+      {
+        "title": "Minimum Vagrant Version",
+        "path": "vagrantfile/vagrant_version"
+      },
+      {
+        "title": "Tips &amp; Tricks",
+        "path": "vagrantfile/tips"
+      },
+      {
+        "title": "<code>config.vm</code>",
+        "path": "vagrantfile/machine_settings"
+      },
+      {
+        "title": "<code>config.ssh</code>",
+        "path": "vagrantfile/ssh_settings"
+      },
+      {
+        "title": "<code>config.winrm</code>",
+        "path": "vagrantfile/winrm_settings"
+      },
+      {
+        "title": "<code>config.winssh</code>",
+        "path": "vagrantfile/winssh_settings"
+      },
+      {
+        "title": "<code>config.vagrant</code>",
+        "path": "vagrantfile/vagrant_settings"
+      }
+    ]
+  },
+  {
+    "title": "Boxes",
+    "routes": [
+      {
+        "title": "Overview",
+        "path": "boxes"
+      },
+      {
+        "title": "Box Versioning",
+        "path": "boxes/versioning"
+      },
+      {
+        "title": "Creating a Base Box",
+        "path": "boxes/base"
+      },
+      {
+        "title": "Box File Format",
+        "path": "boxes/format"
+      },
+      {
+        "title": "Box Info Format",
+        "path": "boxes/info"
+      }
+    ]
+  },
+  {
+    "title": "Provisioning",
+    "routes": [
+      {
+        "title": "Overview",
+        "path": "provisioning"
+      },
+      {
+        "title": "Basic Usage",
+        "path": "provisioning/basic_usage"
+      },
+      {
+        "title": "File",
+        "path": "provisioning/file"
+      },
+      {
+        "title": "Shell",
+        "path": "provisioning/shell"
+      },
+      {
+        "title": "Ansible Intro",
+        "path": "provisioning/ansible_intro"
+      },
+      {
+        "title": "Ansible",
+        "path": "provisioning/ansible"
+      },
+      {
+        "title": "Ansible Local",
+        "path": "provisioning/ansible_local"
+      },
+      {
+        "title": "Common Ansible Options",
+        "path": "provisioning/ansible_common"
+      },
+      {
+        "title": "CFEngine",
+        "path": "provisioning/cfengine"
+      },
+      {
+        "title": "Chef Common Configuration",
+        "path": "provisioning/chef_common"
+      },
+      {
+        "title": "Chef Solo",
+        "path": "provisioning/chef_solo"
+      },
+      {
+        "title": "Chef Zero",
+        "path": "provisioning/chef_zero"
+      },
+      {
+        "title": "Chef Client",
+        "path": "provisioning/chef_client"
+      },
+      {
+        "title": "Chef Apply",
+        "path": "provisioning/chef_apply"
+      },
+      {
+        "title": "Docker",
+        "path": "provisioning/docker"
+      },
+      {
+        "title": "Podman",
+        "path": "provisioning/podman"
+      },
+      {
+        "title": "Puppet Apply",
+        "path": "provisioning/puppet_apply"
+      },
+      {
+        "title": "Puppet Agent",
+        "path": "provisioning/puppet_agent"
+      },
+      {
+        "title": "Salt",
+        "path": "provisioning/salt"
+      }
+    ]
+  },
+  {
+    "title": "Networking",
+    "routes": [
+      {
+        "title": "Overview",
+        "path": "networking"
+      },
+      {
+        "title": "Basic Usage",
+        "path": "networking/basic_usage"
+      },
+      {
+        "title": "Forwarded Ports",
+        "path": "networking/forwarded_ports"
+      },
+      {
+        "title": "Private Network",
+        "path": "networking/private_network"
+      },
+      {
+        "title": "Public Network",
+        "path": "networking/public_network"
+      }
+    ]
+  },
+  {
+    "title": "Synced Folders",
+    "routes": [
+      {
+        "title": "Overview",
+        "path": "synced-folders"
+      },
+      {
+        "title": "Basic Usage",
+        "path": "synced-folders/basic_usage"
+      },
+      {
+        "title": "NFS",
+        "path": "synced-folders/nfs"
+      },
+      {
+        "title": "RSync",
+        "path": "synced-folders/rsync"
+      },
+      {
+        "title": "SMB",
+        "path": "synced-folders/smb"
+      },
+      {
+        "title": "VirtualBox",
+        "path": "synced-folders/virtualbox"
+      }
+    ]
+  },
+  {
+    "title": "Cloud-Init",
+    "routes": [
+      {
+        "title": "Overview",
+        "path": "cloud-init"
+      },
+      {
+        "title": "Configuration",
+        "path": "cloud-init/configuration"
+      },
+      {
+        "title": "Usage",
+        "path": "cloud-init/usage"
+      }
+    ]
+  },
+  {
+    "title": "Disks",
+    "routes": [
+      {
+        "title": "Overview",
+        "path": "disks"
+      },
+      {
+        "title": "Configuration",
+        "path": "disks/configuration"
+      },
+      {
+        "title": "Usage",
+        "path": "disks/usage"
+      },
+      {
+        "title": "VirtualBox",
+        "routes": [
+          {
+            "title": "Overview",
+            "path": "disks/virtualbox"
+          },
+          {
+            "title": "Usage",
+            "path": "disks/virtualbox/usage"
+          },
+          {
+            "title": "Common Issues",
+            "path": "disks/virtualbox/common-issues"
+          }
+        ]
+      },
+      {
+        "title": "Hyper-V",
+        "routes": [
+          {
+            "title": "Overview",
+            "path": "disks/hyperv"
+          },
+          {
+            "title": "Usage",
+            "path": "disks/hyperv/usage"
+          },
+          {
+            "title": "Common Issues",
+            "path": "disks/hyperv/common-issues"
+          }
+        ]
+      },
+      {
+        "title": "VMWare",
+        "routes": [
+          {
+            "title": "Overview",
+            "path": "disks/vmware"
+          },
+          {
+            "title": "Usage",
+            "path": "disks/vmware/usage"
+          },
+          {
+            "title": "Common Issues",
+            "path": "disks/vmware/common-issues"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "title": "Multi-Machine",
+    "path": "multi-machine"
+  },
+  {
+    "title": "Providers",
+    "routes": [
+      {
+        "title": "Overview",
+        "path": "providers"
+      },
+      {
+        "title": "Installation",
+        "path": "providers/installation"
+      },
+      {
+        "title": "Basic Usage",
+        "path": "providers/basic_usage"
+      },
+      {
+        "title": "Configuration",
+        "path": "providers/configuration"
+      },
+      {
+        "title": "Default Provider",
+        "path": "providers/default"
+      },
+      {
+        "title": "VirtualBox",
+        "routes": [
+          {
+            "title": "Overview",
+            "path": "providers/virtualbox"
+          },
+          {
+            "title": "Usage",
+            "path": "providers/virtualbox/usage"
+          },
+          {
+            "title": "Creating a Base Box",
+            "path": "providers/virtualbox/boxes"
+          },
+          {
+            "title": "Configuration",
+            "path": "providers/virtualbox/configuration"
+          },
+          {
+            "title": "Networking",
+            "path": "providers/virtualbox/networking"
+          },
+          {
+            "title": "Common Issues",
+            "path": "providers/virtualbox/common-issues"
+          }
+        ]
+      },
+      {
+        "title": "VMware",
+        "routes": [
+          {
+            "title": "Overview",
+            "path": "providers/vmware"
+          },
+          {
+            "title": "Installation",
+            "path": "providers/vmware/installation"
+          },
+          {
+            "title": "VMware Utility",
+            "path": "providers/vmware/vagrant-vmware-utility"
+          },
+          {
+            "title": "Usage",
+            "path": "providers/vmware/usage"
+          },
+          {
+            "title": "Boxes",
+            "path": "providers/vmware/boxes"
+          },
+          {
+            "title": "Configuration",
+            "path": "providers/vmware/configuration"
+          },
+          {
+            "title": "Known Issues",
+            "path": "providers/vmware/known-issues"
+          },
+          {
+            "title": "FAQ",
+            "path": "providers/vmware/faq"
+          }
+        ]
+      },
+      {
+        "title": "Docker",
+        "routes": [
+          {
+            "title": "Overview",
+            "path": "providers/docker"
+          },
+          {
+            "title": "Basic Usage",
+            "path": "providers/docker/basics"
+          },
+          {
+            "title": "Commands",
+            "path": "providers/docker/commands"
+          },
+          {
+            "title": "Boxes",
+            "path": "providers/docker/boxes"
+          },
+          {
+            "title": "Configuration",
+            "path": "providers/docker/configuration"
+          },
+          {
+            "title": "Networking",
+            "path": "providers/docker/networking"
+          }
+        ]
+      },
+      {
+        "title": "Hyper-V",
+        "routes": [
+          {
+            "title": "Overview",
+            "path": "providers/hyperv"
+          },
+          {
+            "title": "Usage",
+            "path": "providers/hyperv/usage"
+          },
+          {
+            "title": "Creating a Base Box",
+            "path": "providers/hyperv/boxes"
+          },
+          {
+            "title": "Configuration",
+            "path": "providers/hyperv/configuration"
+          },
+          {
+            "title": "Limitations",
+            "path": "providers/hyperv/limitations"
+          }
+        ]
+      },
+      {
+        "title": "Custom Provider",
+        "path": "providers/custom"
+      }
+    ]
+  },
+  {
+    "title": "Plugins",
+    "routes": [
+      {
+        "title": "Overview",
+        "path": "plugins"
+      },
+      {
+        "title": "Usage",
+        "path": "plugins/usage"
+      },
+      {
+        "title": "Plugin Development Basics",
+        "path": "plugins/development-basics"
+      },
+      {
+        "title": "Action Hooks",
+        "path": "plugins/action-hooks"
+      },
+      {
+        "title": "Commands",
+        "path": "plugins/commands"
+      },
+      {
+        "title": "Configuration",
+        "path": "plugins/configuration"
+      },
+      {
+        "title": "Guests",
+        "path": "plugins/guests"
+      },
+      {
+        "title": "Guest Capabilities",
+        "path": "plugins/guest-capabilities"
+      },
+      {
+        "title": "Hosts",
+        "path": "plugins/hosts"
+      },
+      {
+        "title": "Host Capabilities",
+        "path": "plugins/host-capabilities"
+      },
+      {
+        "title": "Providers",
+        "path": "plugins/providers"
+      },
+      {
+        "title": "Provisioners",
+        "path": "plugins/provisioners"
+      },
+      {
+        "title": "Packaging &amp; Distribution",
+        "path": "plugins/packaging"
+      }
+    ]
+  },
+  {
+    "title": "Push",
+    "routes": [
+      {
+        "title": "Overview",
+        "path": "push"
+      },
+      {
+        "title": "FTP / SFTP",
+        "path": "push/ftp"
+      },
+      {
+        "title": "Heroku",
+        "path": "push/heroku"
+      },
+      {
+        "title": "Local Exec",
+        "path": "push/local-exec"
+      }
+    ]
+  },
+  {
+    "title": "Triggers",
+    "routes": [
+      {
+        "title": "Overview",
+        "path": "triggers"
+      },
+      {
+        "title": "Configuration",
+        "path": "triggers/configuration"
+      },
+      {
+        "title": "Usage",
+        "path": "triggers/usage"
+      }
+    ]
+  },
+  {
+    "title": "Experimental",
+    "path": "experimental"
+  },
+  {
+    "title": "Other",
+    "routes": [
+      {
+        "title": "Overview",
+        "path": "other"
+      },
+      {
+        "title": "Debugging",
+        "path": "other/debugging"
+      },
+      {
+        "title": "Environmental Variables",
+        "path": "other/environmental-variables"
+      },
+      {
+        "title": "WSL",
+        "path": "other/wsl"
+      }
+    ]
+  },
+  {
+    "divider": true
+  },
+  {
+    "title": "Vagrant Cloud",
+    "href": "/vagrant-cloud"
+  }
+]
