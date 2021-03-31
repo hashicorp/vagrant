@@ -85,8 +85,13 @@ if ENV["VAGRANT_LOG"] && ENV["VAGRANT_LOG"] != ""
         debug(msg.strip)
       end
     end
+
     logger = VagrantLogger.new("vagrant")
-    logger.outputters = Log4r::Outputter.stderr
+    if ENV["VAGRANT_LOG_FILE"] && ENV["VAGRANT_LOG_FILE"] != ""
+      logger.outputters = Log4r::FileOutputter.new("vagrant", {:filename=>ENV["VAGRANT_LOG_FILE"]} )
+    else
+      logger.outputters = Log4r::Outputter.stderr
+    end
     logger.level = level
     base_formatter = Log4r::BasicFormatter.new
     if ENV["VAGRANT_LOG_TIMESTAMP"]
