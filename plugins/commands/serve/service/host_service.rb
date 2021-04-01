@@ -1,7 +1,15 @@
+require_relative "exception_logger"
+
 module VagrantPlugins
   module CommandServe
     module Service
       class HostService < Hashicorp::Vagrant::Sdk::HostService::Service
+        prepend VagrantPlugins::CommandServe::Service::ExceptionLogger
+
+        [:detect].each do |method|
+          VagrantPlugins::CommandServe::Service::ExceptionLogger.log_exception method
+        end
+
         def detect_spec(*args)
           Hashicorp::Vagrant::Sdk::FuncSpec.new
         end

@@ -1,7 +1,15 @@
+require_relative "exception_logger"
+
 module VagrantPlugins
   module CommandServe
     module Service
       class CommandService < SDK::CommandService::Service
+        prepend VagrantPlugins::CommandServe::Service::ExceptionLogger
+
+        [:help, :synopsis, :execute, :flags].each do |method|
+          VagrantPlugins::CommandServe::Service::ExceptionLogger.log_exception method
+        end
+
         def help_spec(*args)
           SDK::FuncSpec.new
         end

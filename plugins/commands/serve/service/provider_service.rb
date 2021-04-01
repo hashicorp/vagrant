@@ -2,11 +2,18 @@ require 'vagrant/machine'
 require 'vagrant/batch_action'
 require 'vagrant/ui'
 require_relative '../client/terminal_client'
+require_relative "exception_logger"
 
 module VagrantPlugins
   module CommandServe
     module Service
       class ProviderService < Hashicorp::Vagrant::Sdk::ProviderService::Service
+        prepend VagrantPlugins::CommandServe::Service::ExceptionLogger
+
+        [:usable, :installed, :init, :action_up].each do |method|
+          VagrantPlugins::CommandServe::Service::ExceptionLogger.log_exception method
+        end
+
         def usable(req, _unused_call)
           nil
         end
