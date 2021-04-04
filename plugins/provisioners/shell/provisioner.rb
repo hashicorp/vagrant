@@ -78,7 +78,7 @@ module VagrantPlugins
           options = {}
           options[:color] = color if !config.keep_color
 
-          @machine.ui.detail(data.chomp, options)
+          @machine.ui.detail(data.chomp, **options)
         end
       end
 
