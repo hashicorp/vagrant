@@ -126,7 +126,7 @@ module Vagrant
             url = [url.first, authed_urls.first]
             add_from_metadata(url, env, expanded)
           else
-            add_direct(url, env)
+            add_direct(authed_urls, env)
           end
 
           @app.call(env)
