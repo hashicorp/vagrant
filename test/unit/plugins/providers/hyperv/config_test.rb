@@ -268,4 +268,12 @@ describe VagrantPlugins::HyperV::Config do
       expect(subject.enable_trusted_platform_module).to eq(true)
     end
   end
+
+  describe "key_protector" do
+    it "can be set" do
+      subject.key_protector = "some_key"
+      subject.finalize!
+      expect(subject.key_protector).to eq("some_key")
+    end
+  end
 end

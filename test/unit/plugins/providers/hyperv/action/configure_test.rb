@@ -49,6 +49,7 @@ describe VagrantPlugins::HyperV::Action::Configure do
     allow(sentinel).to receive(:file?).and_return(false)
     allow(sentinel).to receive(:open)
     allow(driver).to receive(:set_enhanced_session_transport_type).with("VMBus")
+    allow(provider_config).to receive(:key_protector)
   end
 
   it "should call the app on success" do

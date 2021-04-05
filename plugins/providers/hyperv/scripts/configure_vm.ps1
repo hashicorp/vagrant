@@ -22,7 +22,9 @@ param(
     [parameter (Mandatory=$false)]
     [switch] $EnableAutomaticCheckpoints,
     [parameter (Mandatory=$false)]
-    [switch] $EnableTrustedPlatformModule
+    [switch] $EnableTrustedPlatformModule,
+    [parameter (Mandatory=$false)]
+    [string] $KeyProtector
 )
 
 $ErrorActionPreference = "Stop"
@@ -128,16 +130,48 @@ try {
     exit 1
 }
 
-if($VM.Generation -gt 1) {
-    try {
-        if($EnableTrustedPlatformModule) {
-            Hyper-V\Enable-VMTPM -VM $VM
-            $tpmAction = "enable"
-        } else {
-            Hyper-V\Disable-VMTPM -VM $VM
-            $tpmAction = "disable"
+if($EnableTrustedPlatformModule) {
+    $osInfo = Get-CimInstance -ClassName Win32_OperatingSystem
+
+    if($osInfo.BuildNumber -lt 14393) {
+        $lineOne = "Failed to enable Trusted Platform Module: the version of Windows your machine is running needs to be run in Isolated User Mode"
+        $lineTwo = "To activate Isolated User Mode, open Windows PowerShell as an administrator, and run the following commands:"
+        $lineThree = "Enable-WindowsOptionalFeature -Feature IsolatedUserMode -Online"
+        $lineFour = "New-Item -Path HKLM:\SYSTEM\CurrentControlSet\Control\DeviceGuard -Force"
+        $lineFive = "New-ItemProperty -Path HKLM:\SYSTEM\CurrentControlSet\Control\DeviceGuard -Name EnableVirtualizationBasedSecurity -Value 1 -PropertyType DWord -Force"
+        Write-ErrorMessage "$lineOne`n$lineTwo`n$lineThree`n$lineFour`n$lineFive"
+        exit 1
+    }
+
+    if($KeyProtector) {
+        try {
+            $encoder = [system.Text.Encoding]::UTF8
+            $rawKP = $encoder.getBytes($KeyProtector)
+            Set-VMKeyProtector -VM $VM -KeyProtector $rawKP
+        } catch {
+            Write-ErrorMessage "Failed to set key protector for VM: ${PSItem}"
+            exit 1
         }
+    } else {
+        try {
+            Set-VMKeyProtector -VM $VM -NewLocalKeyProtector
+        } catch {
+            Write-ErrorMessage "Failed to generate new key protector for VM: ${PSItem}"
+            exit 1
+        }
+    }
+
+    try {
+        Hyper-V\Enable-VMTPM -VM $VM
     } catch {
-        Write-ErrorMessage "Failed to ${tpmAction} Trusted Platform Module on VM: ${PSItem}"
+        Write-ErrorMessage "Failed to enable Trusted Platform Module on VM: ${PSItem}"
+        exit 1
+    }
+} else {
+    try {
+        Hyper-V\Disable-VMTPM -VM $VM
+    } catch {
+        Write-ErrorMessage "Failed to disable Trusted Platform Module on VM: ${PSItem}"
+        exit 1
     }
 }

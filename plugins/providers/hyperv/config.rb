@@ -52,6 +52,8 @@ module VagrantPlugins
       attr_accessor :enable_enhanced_session_mode
       # @return [Boolean] Enable Trusted Platform Module
       attr_accessor :enable_trusted_platform_module
+      # @return [String] VM Key Protector for TPM
+      attr_accessor :key_protector
 
       def initialize
         @ip_address_timeout = UNSET_VALUE
@@ -71,6 +73,7 @@ module VagrantPlugins
         @vm_integration_services = {}
         @enable_enhanced_session_mode = UNSET_VALUE
         @enable_trusted_platform_module = UNSET_VALUE
+        @key_protector = UNSET_VALUE
       end
 
       def finalize!
@@ -112,6 +115,8 @@ module VagrantPlugins
         @enable_enhanced_session_mode = false if @enable_enhanced_session_mode == UNSET_VALUE
 
         @enable_trusted_platform_module = false if @enable_trusted_platform_module == UNSET_VALUE
+
+        @key_protector = nil if @key_protector == UNSET_VALUE
       end
 
       def validate(machine)

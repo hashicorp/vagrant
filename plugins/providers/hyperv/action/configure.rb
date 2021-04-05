@@ -72,7 +72,8 @@ module VagrantPlugins
             "EnableCheckpoints" => env[:machine].provider_config.enable_checkpoints,
             "EnableAutomaticCheckpoints" => env[:machine].provider_config.enable_automatic_checkpoints,
             "VirtualizationExtensions" => !!env[:machine].provider_config.enable_virtualization_extensions,
-            "EnableTrustedPlatformModule" => env[:machine].provider_config.enable_trusted_platform_module
+            "EnableTrustedPlatformModule" => env[:machine].provider_config.enable_trusted_platform_module,
+            "KeyProtector" => env[:machine].provider_config.key_protector
           }
           options.delete_if{|_,v| v.nil? }
 
