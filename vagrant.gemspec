@@ -55,10 +55,16 @@ Gem::Specification.new do |s|
   all_files.reject! { |file| [".", ".."].include?(File.basename(file)) }
   all_files.reject! { |file| file.start_with?("website/") }
   all_files.reject! { |file| file.start_with?("test/") }
+  
   gitignore_path = File.join(root_path, ".gitignore")
   gitignore      = File.readlines(gitignore_path)
   gitignore.map!    { |line| line.chomp.strip }
   gitignore.reject! { |line| line.empty? || line =~ /^(#|!)/ }
+
+  gitmodules_path = File.join(root_path, ".gitmodules")
+  gitmodules      = File.readlines(gitmodules_path)
+  gitmodules.map!    { |line| line.chomp.strip }
+  gitmodules.reject! { |line| line.empty? || line =~ /^(#|!)/ }
 
   unignored_files = all_files.reject do |file|
     # Ignore any directories, the gemspec only cares about files
@@ -73,6 +79,11 @@ Gem::Specification.new do |s|
     #     as git).
     #
     gitignore.any? do |ignore|
+      File.fnmatch(ignore, file, File::FNM_PATHNAME) ||
+        File.fnmatch(ignore, File.basename(file), File::FNM_PATHNAME)
+    end
+
+    gitmodules.any? do |ignore|
       File.fnmatch(ignore, file, File::FNM_PATHNAME) ||
         File.fnmatch(ignore, File.basename(file), File::FNM_PATHNAME)
     end

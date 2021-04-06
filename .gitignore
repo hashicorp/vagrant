@@ -13,6 +13,11 @@ boxes/*
 /website/build
 /vagrant-spec.config.rb
 test/vagrant-spec/.vagrant/
+.vagrant/
+/vagrant
+/pkg
+data.db
+vagrant-restore.db.lock
 
 # Bundler/Rubygems
 *.gem
@@ -40,6 +45,7 @@ doc/
 .idea/*
 *.iml
 .project
+.vscode
 
 # Ruby Managers
 .rbenv

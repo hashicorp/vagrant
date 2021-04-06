@@ -26,7 +26,7 @@ module VagrantPlugins
             project: SRV::Ref::Project.new(
               resource_id: ServiceInfo.info.project
             ),
-            state: SDK::MachineState.new(
+            state: SDK::Args::MachineState.new(
               id: :not_created,
               short_description: "not created",
               long_description: "Machine not currently created"
@@ -159,7 +159,7 @@ module VagrantPlugins
         def set_state(state)
           req = SDK::Machine::SetStateRequest.new(
             machine: ref,
-            state: SDK::MachineState.new(
+            state: SDK::Args::MachineState.new(
               id: state.id.to_s,
               short_description: state.short_description.to_s,
               long_description: state.long_description.to_s

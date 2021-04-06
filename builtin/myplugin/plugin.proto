@@ -1,0 +1,8 @@
+syntax = "proto3";
+
+package myplugin;
+
+option go_package = "vagrant-agogo/builtin/myplugin";
+
+message UpResult {}
+

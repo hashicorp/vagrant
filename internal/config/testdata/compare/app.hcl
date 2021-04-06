@@ -1,0 +1,4 @@
+project = "foo"
+
+app "foo" {
+}

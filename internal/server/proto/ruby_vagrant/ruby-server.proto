@@ -1,0 +1,90 @@
+syntax = "proto3";
+
+package hashicorp.vagrant;
+
+option go_package = "github.com/hashicorp/vagrant/internal/server/proto/ruby_vagrant";
+
+import "google/protobuf/empty.proto";
+import "google/protobuf/any.proto";
+
+// The service that is implemented for the server backend.
+service RubyVagrant {
+  // Gets available ruby plugins
+  rpc GetPlugins(google.protobuf.Empty) returns (GetPluginsResponse);
+  rpc ParseVagrantfile(ParseVagrantfileRequest) returns (ParseVagrantfileResponse);
+}
+
+/********************************************************************
+* Plugins
+********************************************************************/
+
+message GetPluginsResponse {
+  repeated Plugin plugins = 1;
+}
+
+message Plugin {
+  // name of the plugin
+  string name = 1;
+
+  // type of the plugin
+  Type type = 2;
+
+  // Supported plugin types, the values here MUST match the enum values
+  // in the Go sdk/component package exactly. A test in internal/server
+  // validates this.
+  enum Type {
+    COMMAND = 0;
+    COMMUNICATOR = 1;
+    GUEST = 2;
+    HOST = 3;
+    PROVIDER = 4;
+    PROVISIONER = 5;
+    SYNCED_FOLDER = 6;
+  }
+}
+
+/********************************************************************
+* Vagrantfile
+********************************************************************/
+
+message ParseVagrantfileRequest {
+  // Path to the Vagrantfile
+  string path = 1;
+  // TODO: might be good to add an option for passing cmd line args
+}
+
+message ParseVagrantfileResponse {
+  // Vagrantfile representation
+  Vagrantfile vagrantfile = 1;
+}
+
+// TODO: Review what needs to be sent here
+message Provisioner {
+  string name = 1;
+  google.protobuf.Any config = 2;
+}
+
+// TODO: Review what needs to be sent here
+message MachineConfig {
+  string name = 1;
+  string box = 2;
+  repeated Provisioner provisioners = 3;
+}
+
+// TODO: Review what needs to be sent here
+message Communicator {
+  string name = 1;
+  // This is the config that belongs to the communicator.
+  // Should be a message type from the core plugin or defined
+  // by a plugin author
+  google.protobuf.Any config = 2;
+}
+
+// TODO: Review what needs to be sent here
+message Vagrantfile {
+  string path = 1;
+  string raw = 2;
+  string current_version = 3;
+  repeated MachineConfig machine_configs = 4;
+  repeated Communicator communicators = 5;
+}
