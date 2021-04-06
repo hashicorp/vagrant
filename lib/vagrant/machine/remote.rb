@@ -1,15 +1,15 @@
 module Vagrant
   class Machine
-    class Thin < Machine
-      extend Vagrant::Action::Builtin::MixinSyncedFolders
+    # This module enables the Machine for server mode
+    module Remote
 
-      attr_accessor :box, :config, :data_dir, :env, :name, :provider, :provider_config,
-        :provider_name, :provider_options, :triggers, :ui, :vagrantfile
-
-
-      attr_reader :client
-      # NOTE: The client is internal so don't make it publicly accessible
-#      protected :client
+      # Add an attribute reader for the client
+      # when applied to the Machine class
+      def self.included(klass)
+        klass.class_eval do
+          attr_reader :client
+        end
+      end
 
       def initialize(name, provider_name, provider_cls, provider_config, provider_options, config, data_dir, box, env, vagrantfile, base=false)
         @logger = Log4r::Logger.new("vagrant::machine")
