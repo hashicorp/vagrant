@@ -188,6 +188,11 @@ begin
     argv += argv_extra
   end
 
+  # Check if we are running the server
+  if Vagrant::CLI.new(argv.dup, nil).sub_command == "serve"
+    Vagrant.enable_server_mode!
+  end
+
   # Create the environment, which is the cwd of wherever the
   # `vagrant` command was invoked from
   logger.debug("Creating Vagrant environment")
