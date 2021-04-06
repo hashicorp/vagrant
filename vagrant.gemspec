@@ -55,7 +55,11 @@ Gem::Specification.new do |s|
   all_files.reject! { |file| [".", ".."].include?(File.basename(file)) }
   all_files.reject! { |file| file.start_with?("website/") }
   all_files.reject! { |file| file.start_with?("test/") }
-  
+  all_files.reject! { |file| file.start_with?("cmd/") }
+  all_files.reject! { |file| file.start_with?("builtin/") }
+  all_files.reject! { |file| file.start_with?("internal/") }
+  all_files.reject! { |file| file.start_with?("vendor/") }
+
   gitignore_path = File.join(root_path, ".gitignore")
   gitignore      = File.readlines(gitignore_path)
   gitignore.map!    { |line| line.chomp.strip }
