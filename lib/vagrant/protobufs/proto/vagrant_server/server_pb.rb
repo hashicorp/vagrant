@@ -57,6 +57,7 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
       optional :physical_state, :enum, 50, "hashicorp.vagrant.Operation.PhysicalState"
       optional :remote_enabled, :bool, 51
       optional :data_source, :message, 52, "hashicorp.vagrant.Job.DataSource"
+      optional :provider, :string, 53
     end
     add_message "hashicorp.vagrant.Ref" do
     end

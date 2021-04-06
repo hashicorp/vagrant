@@ -15,7 +15,7 @@ import (
 
 //go:generate sh -c "protoc -I`go list -m -f \"{{.Dir}}\" github.com/mitchellh/protostructure` -I`go list -m -f \"{{.Dir}}\" github.com/hashicorp/vagrant-plugin-sdk`/proto/vagrant_plugin_sdk -I../../vendor/proto/api-common-protos -I. --go-grpc_out=./proto/vagrant_server --go-grpc_opt=module=github.com/hashicorp/vagrant/internal/server/proto/vagrant_server --go_out=./proto/vagrant_server --go_opt=module=github.com/hashicorp/vagrant/internal/server/proto/vagrant_server proto/vagrant_server/*.proto"
 //go:generate sh -c "protoc -I../../vendor/proto/api-common-protos -I. --go-grpc_out=./proto/ruby_vagrant --go-grpc_opt=module=github.com/hashicorp/vagrant/internal/server/proto/ruby_vagrant --go_out=./proto/ruby_vagrant --go_opt=module=github.com/hashicorp/vagrant/internal/server/proto/ruby_vagrant proto/ruby_vagrant/*.proto"
-//go:generate sh -c "grpc_tools_ruby_protoc -I`go list -m -f \"{{.Dir}}\" github.com/mitchellh/protostructure` -I`go list -m -f \"{{.Dir}}\" github.com/hashicorp/vagrant-plugin-sdk`/proto/vagrant_plugin_sdk -I../../vendor/proto/api-common-protos -I. --grpc_out=./gen/ruby --ruby_out=./gen/ruby proto/vagrant_server/*.proto proto/ruby_vagrant/*.proto"
+//go:generate sh -c "grpc_tools_ruby_protoc -I`go list -m -f \"{{.Dir}}\" github.com/mitchellh/protostructure` -I`go list -m -f \"{{.Dir}}\" github.com/hashicorp/vagrant-plugin-sdk`/proto/vagrant_plugin_sdk -I../../vendor/proto/api-common-protos -I. --grpc_out=../../lib/vagrant/protobufs/ --ruby_out=../../lib/vagrant/protobufs/ proto/vagrant_server/*.proto proto/ruby_vagrant/*.proto"
 
 // mockery -all -case underscore -dir ./gen -output ./gen/mocks
 
