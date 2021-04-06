@@ -43,7 +43,7 @@ describe "VagrantPlugins::GuestLinux::Cap::MountSMBSharedFolder" do
     allow(folder_plugin).to receive(:capability).with(:mount_options, mount_name, mount_guest_path, folder_options).
     and_return(["uid=#{mount_uid},gid=#{mount_gid},sec=ntlmssp,credentials=/etc/smb_creds_id", mount_uid, mount_gid])
     allow(folder_plugin).to receive(:capability).with(:mount_type).and_return("cifs")
-    allow(folder_plugin).to receive(:capability).with(:mount_name, any_args).and_return("//localhost/#{mount_name}")
+    allow(folder_plugin).to receive(:capability).with(:mount_name, mount_name, folder_options).and_return("//localhost/#{mount_name}")
   end
 
   after do
