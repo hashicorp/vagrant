@@ -234,6 +234,13 @@ module Vagrant
   #
   # @return [true]
   def self.enable_server_mode!
+    if !server_mode?
+      SERVER_MODE_CALLBACKS.each(&:call)
+    end
     @_server_mode = true
   end
+
+  SERVER_MODE_CALLBACKS = [
+    ->{ Vagrant::Machine.prepend(Vagrant::Machine::Remote) },
+  ].freeze
 end
