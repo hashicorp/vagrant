@@ -7,6 +7,7 @@ IMPROVEMENTS:
 BUG FIXES:
 
 - core: Add box directly with authed urls [GH-12278]
+- guest/fedora: Import guest detection module [GH-12275]
 
 ## 2.2.15 (March 30, 2021)
 
