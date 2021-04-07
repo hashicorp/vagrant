@@ -6,6 +6,8 @@ IMPROVEMENTS:
 
 BUG FIXES:
 
+- core: Add box directly with authed urls [GH-12278]
+
 ## 2.2.15 (March 30, 2021)
 
 IMPROVEMENTS:
