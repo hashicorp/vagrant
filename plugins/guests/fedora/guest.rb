@@ -1,4 +1,5 @@
 require "vagrant"
+require_relative '../linux/guest'
 
 module VagrantPlugins
   module GuestFedora
