@@ -16,9 +16,9 @@ module VagrantPlugins
 
         def help(req, ctx)
           ServiceInfo.with_info(ctx) do |info|
-            options = command_options_for(info.plugin_name)
+            hlp = command_help_for(info.plugin_name)
             SDK::Command::HelpResp.new(
-              help: options.help
+              help: hlp
             )
           end
         end
@@ -49,19 +49,23 @@ module VagrantPlugins
           ServiceInfo.with_info(ctx) do |info|
             options = command_options_for(info.plugin_name)
 
-            # Now we can build our list of flags
-            flags = options.top.list.find_all { |o|
-              o.is_a?(OptionParser::Switch)
-            }.map { |o|
-              SDK::Command::Flag.new(
-                description: o.desc.join(" "),
-                long_name: o.switch_name,
-                short_name: o.short.first,
-                type: o.is_a?(OptionParser::Switch::NoArgument) ?
-                  SDK::Command::Flag::Type::BOOL :
-                  SDK::Command::Flag::Type::STRING
-              )
-            }
+            if !options.nil?
+              # Now we can build our list of flags
+              flags = options.top.list.find_all { |o|
+                o.is_a?(OptionParser::Switch)
+              }.map { |o|
+                SDK::Command::Flag.new(
+                  description: o.desc.join(" "),
+                  long_name: o.switch_name,
+                  short_name: o.short.first,
+                  type: o.is_a?(OptionParser::Switch::NoArgument) ?
+                    SDK::Command::Flag::Type::BOOL :
+                    SDK::Command::Flag::Type::STRING
+                )
+              }
+            else
+              flags = []
+            end
 
             SDK::Command::FlagsResp.new(
               flags: flags
@@ -89,8 +93,9 @@ module VagrantPlugins
             end
           end
 
+          env = Vagrant::Environment.new()
           # Execute the command to populate our options
-          klass.new([], {}).execute
+          klass.new([], env).execute
 
           options = Thread.current.thread_variable_get(:command_options)
 
@@ -99,6 +104,45 @@ module VagrantPlugins
 
           # Send the options back
           options
+        end
+
+        def command_help_for(name)
+          plugin = Vagrant::Plugin::V2::Plugin.manager.commands[name.to_sym].to_a.first
+          if !plugin
+            raise "Failed to locate command plugin for: #{name}"
+          end
+          # Create a new anonymous class based on the command class
+          # so we can modify the setup behavior
+          klass = Class.new(plugin.call)
+
+          # Update the option parsing to store the provided options, and then return
+          # a nil value. The nil return will force the command to call help and not
+          # actually execute anything.
+          klass.class_eval do
+            def parse_options(opts)
+              Thread.current.thread_variable_set(:command_options, opts)
+              nil
+            end
+          end
+
+          env = Vagrant::Environment.new()
+          # Execute the command to populate our options
+          cmd_plg = klass.new([], env)
+          begin
+            return cmd_plg.help
+          rescue
+            # The plugin does not have a help command.
+            # That's fine, will get it from parse args
+          end
+          cmd_plg.execute
+
+          options = Thread.current.thread_variable_get(:command_options)
+
+          # Clean our option data out of the thread
+          Thread.current.thread_variable_set(:command_options, nil)
+
+          # Send the options back
+          options.help
         end
 
         def execute_spec(req, ctx)

@@ -100,15 +100,15 @@ func (b *Basis) Init() (result *vagrant_server.Job_InitResult, err error) {
 		b.logger.Trace("started a new plugin for init", "name", name)
 		syn, err := cmd.Synopsis()
 		if err != nil {
-			b.logger.Error("failed to get synopsis", "error", err)
+			b.logger.Error("failed to get synopsis for command "+name, "error", err)
 		}
 		hlp, err := cmd.Help()
 		if err != nil {
-			b.logger.Error("failed to get help", "error", err)
+			b.logger.Error("failed to get help for command "+name, "error", err)
 		}
 		flgs, err := cmd.Flags()
 		if err != nil {
-			b.logger.Error("failed to get flags", "error", err)
+			b.logger.Error("failed to get flags for command "+name, "error", err)
 		}
 		result.Commands = append(
 			result.Commands,

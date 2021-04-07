@@ -73,6 +73,7 @@ module VagrantPlugins
             end
 
             @env.ui.info(opts.help, prefix: false)
+            opts.help
           end
         end
       end
