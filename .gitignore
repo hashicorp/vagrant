@@ -26,7 +26,6 @@ pkg/*
 tags
 /Gemfile.lock
 test/tmp/
-vendor/
 /exec
 .ruby-bundle
 
