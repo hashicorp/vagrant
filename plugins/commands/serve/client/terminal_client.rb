@@ -9,9 +9,8 @@ module VagrantPlugins
 
         def self.terminal_arg_to_terminal_ui(raw_terminal)
           terminal_arg = SDK::Args::TerminalUI.decode(raw_terminal)
-          # TODO (sophia): this should have an option to not be a unix socket
-          addr = "unix:" + terminal_arg.addr
-          self.new(addr)
+          conn = Broker.instance.dial(terminal_arg.stream_id)
+          self.new(conn.to_s)
         end
 
         # @params [Array] the content to print
