@@ -6,7 +6,7 @@ module VagrantPlugins
       class CommandService < SDK::CommandService::Service
         prepend VagrantPlugins::CommandServe::Service::ExceptionLogger
 
-        [:help, :synopsis, :execute, :flags].each do |method|
+        [:help, :synopsis, :execute, :flags, :subcommands].each do |method|
           VagrantPlugins::CommandServe::Service::ExceptionLogger.log_exception method
         end
 
@@ -73,11 +73,11 @@ module VagrantPlugins
 
         def subcommands(req, ctx)
           ServiceInfo.with_info(ctx) do |info|
-            
+            cmds = subcommands_for(info.plugin_name)
+            SDK::Command::SubcommandResp.new(
+              commands: cmds.nil? ? [] : cmds.keys,
+            )
           end
-          SDK::Command::SubcommandResp.new(
-            commands: ["test", "thing"],
-          )
         end
 
         def augment_cmd_class(cmd_cls)
