@@ -10,10 +10,6 @@ require 'google/protobuf/struct_pb'
 require 'plugin_pb'
 Google::Protobuf::DescriptorPool.generated_pool.build do
   add_file("proto/vagrant_server/server.proto", :syntax => :proto3) do
-    add_message "hashicorp.vagrant.RubyVagrantClientInfoResponse" do
-      optional :addr_network, :string, 1
-      optional :addr_string, :string, 2
-    end
     add_message "hashicorp.vagrant.GetVersionInfoResponse" do
       optional :info, :message, 1, "hashicorp.vagrant.VersionInfo"
     end
@@ -842,7 +838,6 @@ end
 
 module Hashicorp
   module Vagrant
-    RubyVagrantClientInfoResponse = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.RubyVagrantClientInfoResponse").msgclass
     GetVersionInfoResponse = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.GetVersionInfoResponse").msgclass
     VersionInfo = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.VersionInfo").msgclass
     VersionInfo::ProtocolVersion = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.VersionInfo.ProtocolVersion").msgclass

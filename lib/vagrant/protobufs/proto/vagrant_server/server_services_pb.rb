@@ -10,7 +10,7 @@ module Hashicorp
       # The service that is implemented for the server backend.
       class Service
 
-        include GRPC::GenericService
+        include ::GRPC::GenericService
 
         self.marshal_class_method = :encode
         self.unmarshal_class_method = :decode
@@ -118,7 +118,6 @@ module Hashicorp
         # RunnerJobStream is called by a runner to request a single job for
         # execution and update the status of that job.
         rpc :RunnerJobStream, stream(::Hashicorp::Vagrant::RunnerJobStreamRequest), stream(::Hashicorp::Vagrant::RunnerJobStreamResponse)
-        rpc :RubyVagrantClientInfo, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::RubyVagrantClientInfoResponse
       end
 
       Stub = Service.rpc_stub_class

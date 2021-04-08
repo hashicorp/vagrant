@@ -17,7 +17,7 @@ module Hashicorp
         # interact with it indirectly via a terminal.UI implementation.
         class Service
 
-          include GRPC::GenericService
+          include ::GRPC::GenericService
 
           self.marshal_class_method = :encode
           self.unmarshal_class_method = :decode
@@ -35,7 +35,7 @@ module Hashicorp
         # to convert to/from various types.
         class Service
 
-          include GRPC::GenericService
+          include ::GRPC::GenericService
 
           self.marshal_class_method = :encode
           self.unmarshal_class_method = :decode
@@ -62,7 +62,7 @@ module Hashicorp
         # the state of a machine
         class Service
 
-          include GRPC::GenericService
+          include ::GRPC::GenericService
 
           self.marshal_class_method = :encode
           self.unmarshal_class_method = :decode
@@ -116,7 +116,7 @@ module Hashicorp
         # A Provisioner runs actions against a VM
         class Service
 
-          include GRPC::GenericService
+          include ::GRPC::GenericService
 
           self.marshal_class_method = :encode
           self.unmarshal_class_method = :decode
@@ -132,7 +132,7 @@ module Hashicorp
       module CommandService
         class Service
 
-          include GRPC::GenericService
+          include ::GRPC::GenericService
 
           self.marshal_class_method = :encode
           self.unmarshal_class_method = :decode
@@ -156,7 +156,7 @@ module Hashicorp
       module CommunicatorService
         class Service
 
-          include GRPC::GenericService
+          include ::GRPC::GenericService
 
           self.marshal_class_method = :encode
           self.unmarshal_class_method = :decode
@@ -192,7 +192,7 @@ module Hashicorp
       module ConfigService
         class Service
 
-          include GRPC::GenericService
+          include ::GRPC::GenericService
 
           self.marshal_class_method = :encode
           self.unmarshal_class_method = :decode
@@ -208,7 +208,7 @@ module Hashicorp
       module GuestService
         class Service
 
-          include GRPC::GenericService
+          include ::GRPC::GenericService
 
           self.marshal_class_method = :encode
           self.unmarshal_class_method = :decode
@@ -230,7 +230,7 @@ module Hashicorp
       module HostService
         class Service
 
-          include GRPC::GenericService
+          include ::GRPC::GenericService
 
           self.marshal_class_method = :encode
           self.unmarshal_class_method = :decode
@@ -248,7 +248,7 @@ module Hashicorp
       module SyncedFolderService
         class Service
 
-          include GRPC::GenericService
+          include ::GRPC::GenericService
 
           self.marshal_class_method = :encode
           self.unmarshal_class_method = :decode
@@ -267,7 +267,7 @@ module Hashicorp
         # ******************************************************************
         class Service
 
-          include GRPC::GenericService
+          include ::GRPC::GenericService
 
           self.marshal_class_method = :encode
           self.unmarshal_class_method = :decode
@@ -294,19 +294,20 @@ module Hashicorp
 
         Stub = Service.rpc_stub_class
       end
-      module EnvironmentService
+      module ProjectService
         # *******************************************************************
-        # Environment services
+        # Project services
         # ******************************************************************
         class Service
 
-          include GRPC::GenericService
+          include ::GRPC::GenericService
 
           self.marshal_class_method = :encode
           self.unmarshal_class_method = :decode
-          self.service_name = 'hashicorp.vagrant.sdk.EnvironmentService'
+          self.service_name = 'hashicorp.vagrant.sdk.ProjectService'
 
-          rpc :MachineNames, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::Environment::MachineNamesResponse
+          rpc :MachineNames, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::Project::MachineNamesResponse
+          rpc :ActiveMachines, ::Hashicorp::Vagrant::Sdk::Project::ActiveMachinesRequest, ::Hashicorp::Vagrant::Sdk::Project::ActiveMachinesResponse
         end
 
         Stub = Service.rpc_stub_class

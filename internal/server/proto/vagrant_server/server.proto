@@ -151,13 +151,6 @@ service Vagrant {
   // RunnerJobStream is called by a runner to request a single job for
   // execution and update the status of that job.
   rpc RunnerJobStream(stream RunnerJobStreamRequest) returns (stream RunnerJobStreamResponse);
-
-  rpc RubyVagrantClientInfo(google.protobuf.Empty) returns (RubyVagrantClientInfoResponse);
-}
-
-message RubyVagrantClientInfoResponse {
-  string addr_network = 1;
-  string addr_string = 2;
 }
 
 /********************************************************************
