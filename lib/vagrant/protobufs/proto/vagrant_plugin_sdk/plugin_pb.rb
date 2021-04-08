@@ -339,6 +339,9 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
     add_message "hashicorp.vagrant.sdk.Command.ExecuteResp" do
       optional :exit_code, :int64, 1
     end
+    add_message "hashicorp.vagrant.sdk.Command.SubcommandResp" do
+      repeated :commands, :string, 1
+    end
     add_message "hashicorp.vagrant.sdk.Command.Arguments" do
       repeated :flags, :message, 1, "hashicorp.vagrant.sdk.Command.Arguments.Flag"
       repeated :args, :string, 2
@@ -611,6 +614,7 @@ module Hashicorp
       Command::CommandInfo = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Command.CommandInfo").msgclass
       Command::CommandInfoResp = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Command.CommandInfoResp").msgclass
       Command::ExecuteResp = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Command.ExecuteResp").msgclass
+      Command::SubcommandResp = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Command.SubcommandResp").msgclass
       Command::Arguments = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Command.Arguments").msgclass
       Command::Arguments::Flag = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Command.Arguments.Flag").msgclass
       Command::Arguments::Flag::Type = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Command.Arguments.Flag.Type").enummodule

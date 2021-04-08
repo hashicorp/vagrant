@@ -88,6 +88,19 @@ module VagrantPlugins
           return subcommands
         end
 
+        def subcommand_spec(*args)
+          return SDK::FuncSpec.new
+        end
+
+        def subcommands(req, ctx)
+          ServiceInfo.with_info(ctx) do |info|
+            
+          end
+          SDK::Command::SubcommandResp.new(
+            commands: ["test", "thing"],
+          )
+        end
+
         def augment_cmd_class(cmd_cls)
           # Create a new anonymous class based on the command class
           # so we can modify the setup behavior
