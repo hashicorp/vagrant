@@ -60,6 +60,11 @@ func (c *Command) ExecuteFunc() interface{} {
 	return c.Execute
 }
 
+// HelpFunc implements component.Command
+func (c *Command) SubcommandsFunc() interface{} {
+	return c.Subcommands
+}
+
 func (c *Command) Synopsis() string {
 	return "I don't really do anything"
 }
@@ -80,6 +85,10 @@ func (c *Command) Flags() []*option.Option {
 	stringflag.Aliases = append(stringflag.Aliases, "sf")
 
 	return []*option.Option{booltest, stringflag}
+}
+
+func (c *Command) Subcommands() []*plugincore.Command {
+	return nil
 }
 
 func (c *Command) Execute(trm terminal.UI, env plugincore.Project) int64 {

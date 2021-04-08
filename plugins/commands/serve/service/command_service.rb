@@ -89,7 +89,7 @@ module VagrantPlugins
             def subcommands
               @subcommands
             end
-        
+
             # Update the option parsing to store the provided options, and then return
             # a nil value. The nil return will force the command to call help and not
             # actually execute anything.
@@ -118,13 +118,13 @@ module VagrantPlugins
           # Create a new anonymous class based on the command class
           # so we can modify the setup behavior
           klass = augment_cmd_class(Class.new(plugin.call))
-        
+
           # If we don't have a backup reference to the original
           # lets start with making one of those
           if !VagrantPlugins.const_defined?(:VagrantOriginalOptionParser)
             VagrantPlugins.const_set(:VagrantOriginalOptionParser, VagrantPlugins.const_get(:OptionParser))
           end
-        
+
           # Now we need a customized class to get the new behavior
           # that we want
           optparse_klass = Class.new(VagrantPlugins.const_get(:VagrantOriginalOptionParser)) do
@@ -160,7 +160,6 @@ module VagrantPlugins
           end
 
           options = Thread.current.thread_variable_get(:command_options)
-          msg = Thread.current.thread_variable_get(:command_info)
 
           # Clean our option data out of the thread
           Thread.current.thread_variable_set(:command_options, nil)

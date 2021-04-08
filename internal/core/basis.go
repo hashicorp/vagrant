@@ -110,6 +110,15 @@ func (b *Basis) Init() (result *vagrant_server.Job_InitResult, err error) {
 		if err != nil {
 			b.logger.Error("failed to get flags for command "+name, "error", err)
 		}
+		subcmds, err := cmd.Subcommands()
+		if subcmds != nil {
+			for _, scmd := range subcmds {
+				b.logger.Info(scmd.Help())
+			}
+		}
+		if err != nil {
+			b.logger.Error("subcommand error", err)
+		}
 		result.Commands = append(
 			result.Commands,
 			&vagrant_server.Job_Command{
