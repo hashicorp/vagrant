@@ -147,7 +147,8 @@ module VagrantPlugins
           end
         
           options = Thread.current.thread_variable_get(:command_options)
-
+          msg = Thread.current.thread_variable_get(:command_info)
+        
           # Clean our option data out of the thread
           Thread.current.thread_variable_set(:command_options, nil)
         
