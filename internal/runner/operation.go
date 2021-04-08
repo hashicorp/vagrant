@@ -21,7 +21,7 @@ import (
 
 func (r *Runner) LoadPlugins(cfg *configpkg.Config) error {
 	// Start with loading plugins from the Ruby runtime
-	plugins, err := r.vagrantRubyRuntime.GetPlugins()
+	plugins, err := r.vagrantRubyClient.GetPlugins()
 	if err != nil {
 		return err
 	}

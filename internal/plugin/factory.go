@@ -13,7 +13,6 @@ import (
 
 	"github.com/hashicorp/vagrant-plugin-sdk/component"
 	"github.com/hashicorp/vagrant-plugin-sdk/internal-shared/pluginclient"
-	"github.com/hashicorp/vagrant/internal/serverclient"
 )
 
 // exePath contains the value of os.Executable. We cache the value because
@@ -101,9 +100,13 @@ type PluginMetadata interface {
 	SetRequestMetadata(k, v string)
 }
 
-func BuiltinRubyFactory(rubyClient *serverclient.RubyVagrantClient, name string, typ component.Type) interface{} {
+func BuiltinRubyFactory(rubyClient *plugin.Client, name string, typ component.Type) interface{} {
 	return func(log hclog.Logger) (interface{}, error) {
-		raw, err := rubyClient.Dispense(strings.ToLower(typ.String()))
+		c, err := rubyClient.Client()
+		if err != nil {
+			return nil, err
+		}
+		raw, err := c.Dispense(strings.ToLower(typ.String()))
 		if err != nil {
 			log.Error("error requesting the ruby plugin", "type", typ, "err", err)
 			return nil, err

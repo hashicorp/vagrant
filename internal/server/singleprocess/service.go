@@ -4,7 +4,6 @@ import (
 	"github.com/boltdb/bolt"
 
 	"github.com/hashicorp/go-hclog"
-	"github.com/hashicorp/go-plugin"
 
 	"github.com/hashicorp/vagrant-plugin-sdk/proto/vagrant_plugin_sdk"
 	"github.com/hashicorp/vagrant/internal/server"
@@ -18,9 +17,6 @@ type service struct {
 	// state is the state management interface that provides functions for
 	// safely mutating server state.
 	state *state.State
-
-	// client for the running instance of the Vagrant Ruby runtime
-	vagrantRubyRuntime *plugin.Client
 
 	// id is our unique server ID.
 	id string
@@ -129,13 +125,6 @@ func WithLogger(log hclog.Logger) Option {
 func WithAcceptURLTerms(accept bool) Option {
 	return func(s *service, cfg *config) error {
 		cfg.acceptUrlTerms = true
-		return nil
-	}
-}
-
-func WithVagrantRubyRuntime(vrr *plugin.Client) Option {
-	return func(s *service, cfg *config) error {
-		s.vagrantRubyRuntime = vrr
 		return nil
 	}
 }

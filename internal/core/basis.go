@@ -218,7 +218,6 @@ func NewBasis(ctx context.Context, opts ...BasisOption) (b *Basis, err error) {
 
 	b.env, err = NewEnvironment(ctx,
 		WithHomePath(b.dir.Dir.RootDir()),
-		WithServerAddr(b.client.ServerTarget()),
 	)
 	if err != nil {
 		return nil, err

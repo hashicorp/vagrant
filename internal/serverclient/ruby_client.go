@@ -2,7 +2,7 @@ package serverclient
 
 import (
 	"context"
-	"fmt"
+	"errors"
 
 	"github.com/golang/protobuf/ptypes/empty"
 	"github.com/hashicorp/go-hclog"
@@ -10,61 +10,46 @@ import (
 	"google.golang.org/grpc"
 
 	"github.com/hashicorp/vagrant-plugin-sdk/internal-shared/pluginclient"
-
-	"github.com/hashicorp/vagrant/internal/protocolversion"
 	"github.com/hashicorp/vagrant/internal/server/proto/ruby_vagrant"
 )
 
+type RubyVagrant interface {
+	GetPlugins() ([]*ruby_vagrant.Plugin, error)
+	ParseVagrantfile(string) (*ruby_vagrant.Vagrantfile, error)
+}
+
+// This is the implementation of plugin.GRPCPlugin so we can serve/consume this.
+type RubyVagrantPlugin struct {
+	plugin.NetRPCUnsupportedPlugin
+
+	Impl RubyVagrant
+}
+
 type RubyVagrantClient struct {
-	conn    *grpc.ClientConn
-	client  ruby_vagrant.RubyVagrantClient
-	plugins plugin.PluginSet
+	broker *plugin.GRPCBroker
+	client ruby_vagrant.RubyVagrantClient
+	ctx    context.Context
 }
 
-func NewRubyVagrantClient(ctx context.Context, log hclog.Logger, addr string) (*RubyVagrantClient, error) {
+func RubyVagrantPluginConfig(log hclog.Logger) *plugin.ClientConfig {
 	log = log.Named("vagrant-ruby-runtime")
-	conn, err := grpc.DialContext(ctx, addr,
-		grpc.WithBlock(),
-		grpc.WithInsecure(),
-		grpc.WithUnaryInterceptor(protocolversion.UnaryClientInterceptor(protocolversion.Current())),
-		grpc.WithStreamInterceptor(protocolversion.StreamClientInterceptor(protocolversion.Current())),
-		grpc.WithChainUnaryInterceptor(
-			logClientUnaryInterceptor(log, false),
-		),
-	)
-	if err != nil {
-		return nil, err
-	}
+	config := pluginclient.ClientConfig(log)
+	config.Logger = log
+	config.VersionedPlugins[1]["vagrantrubyruntime"] = &RubyVagrantPlugin{}
+	return config
+}
 
-	return &RubyVagrantClient{
-		conn:    conn,
-		client:  ruby_vagrant.NewRubyVagrantClient(conn),
-		plugins: pluginclient.ClientConfig(hclog.L()).VersionedPlugins[1],
+// No Go server implementation. Server is provided by the Vagrant Ruby runtime
+func (p *RubyVagrantPlugin) GRPCServer(broker *plugin.GRPCBroker, s *grpc.Server) error {
+	return errors.New("vagrant ruby runtime server not implemented")
+}
+
+func (p *RubyVagrantPlugin) GRPCClient(ctx context.Context, broker *plugin.GRPCBroker, c *grpc.ClientConn) (interface{}, error) {
+	return RubyVagrantClient{
+		broker: broker,
+		client: ruby_vagrant.NewRubyVagrantClient(c),
+		ctx:    ctx,
 	}, nil
-}
-
-func WrapRubyVagrantClient(conn *grpc.ClientConn) *RubyVagrantClient {
-	return &RubyVagrantClient{
-		conn:    conn,
-		client:  ruby_vagrant.NewRubyVagrantClient(conn),
-		plugins: pluginclient.ClientConfig(hclog.L()).VersionedPlugins[1],
-	}
-}
-
-func (r *RubyVagrantClient) Dispense(name string) (interface{}, error) {
-	raw, ok := r.plugins[name]
-	if !ok {
-		hclog.L().Warn("unknown ruby plugin type", "name", name, "plugins", r.plugins)
-		return nil, fmt.Errorf("unknown ruby runtime plugin type: %s", name)
-	}
-
-	p, ok := raw.(plugin.GRPCPlugin)
-	if !ok {
-		return nil, fmt.Errorf("plugin %s doesn't support ruby runtime grpc", name)
-	}
-
-	return p.GRPCClient(context.Background(), &plugin.GRPCBroker{}, r.conn)
-
 }
 
 func (r *RubyVagrantClient) GetPlugins() ([]*ruby_vagrant.Plugin, error) {
@@ -85,8 +70,4 @@ func (r *RubyVagrantClient) ParseVagrantfile(path string) (*ruby_vagrant.Vagrant
 		return nil, err
 	}
 	return vf.Vagrantfile, nil
-}
-
-func (r *RubyVagrantClient) ServerTarget() string {
-	return r.conn.Target()
 }

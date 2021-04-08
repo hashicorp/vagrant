@@ -2,7 +2,6 @@ package singleprocess
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/golang/protobuf/ptypes/empty"
 	"google.golang.org/grpc/codes"
@@ -41,19 +40,4 @@ func (s *service) GetServerConfig(
 	}
 
 	return &vagrant_server.GetServerConfigResponse{Config: cfg}, nil
-}
-
-func (s *service) RubyVagrantClientInfo(
-	ctx context.Context,
-	_ *empty.Empty,
-) (*vagrant_server.RubyVagrantClientInfoResponse, error) {
-	addr, err := s.vagrantRubyRuntime.Start()
-	if err != nil {
-		return nil, fmt.Errorf("failed to determine vagrant ruby runtime server information: " + err.Error())
-	}
-
-	return &vagrant_server.RubyVagrantClientInfoResponse{
-		AddrNetwork: addr.Network(),
-		AddrString:  addr.String(),
-	}, nil
 }

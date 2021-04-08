@@ -2,7 +2,6 @@ package client
 
 import (
 	"context"
-	"io"
 	"net"
 	"os/exec"
 	"path/filepath"
@@ -17,7 +16,6 @@ import (
 	"github.com/hashicorp/vagrant-plugin-sdk/proto/vagrant_plugin_sdk"
 	"github.com/hashicorp/vagrant/internal/protocolversion"
 	"github.com/hashicorp/vagrant/internal/server"
-	sr "github.com/hashicorp/vagrant/internal/server"
 	"github.com/hashicorp/vagrant/internal/server/proto/vagrant_server"
 	"github.com/hashicorp/vagrant/internal/server/singleprocess"
 	"github.com/hashicorp/vagrant/internal/serverclient"
@@ -75,21 +73,26 @@ func (b *Basis) initServerClient(ctx context.Context, cfg *config) (*grpc.Client
 //
 // If this returns an error, all resources associated with this operation
 // will be closed, but the project can retry.
-func (b *Basis) initLocalServer(ctx context.Context) (*grpc.ClientConn, error) {
+func (b *Basis) initLocalServer(ctx context.Context) (_ *grpc.ClientConn, err error) {
 	log := b.logger.Named("server")
 	b.localServer = true
 
 	// We use this pointer to accumulate things we need to clean up
 	// in the case of an error. On success we nil this variable which
 	// doesn't close anything.
-	var closers []io.Closer
+	var cleanups []func()
+
+	// If we encounter an error force all the
+	// local cleanups to run
 	defer func() {
-		for _, c := range closers {
-			c.Close()
+		if err != nil {
+			for _, c := range cleanups {
+				c()
+			}
 		}
 	}()
 
-	// TODO(mitchellh): path to this
+	// TODO(spox): path to this
 	path := filepath.Join("data.db")
 	log.Debug("opening local mode DB", "path", path)
 
@@ -98,40 +101,40 @@ func (b *Basis) initLocalServer(ctx context.Context) (*grpc.ClientConn, error) {
 		Timeout: 1 * time.Second,
 	})
 	if err != nil {
-		return nil, err
+		return
 	}
-	closers = append(closers, db)
-
-	vrr, err := b.initVagrantRubyRuntime()
-	if err != nil {
-		return nil, err
-	}
+	cleanups = append(cleanups, func() { db.Close() })
 
 	// Create our server
 	impl, err := singleprocess.New(
-		singleprocess.WithVagrantRubyRuntime(vrr),
 		singleprocess.WithDB(db),
 		singleprocess.WithLogger(log.Named("singleprocess")),
 	)
 	if err != nil {
 		log.Trace("failed singleprocess server setup", "error", err)
-		return nil, err
+		return
 	}
 
 	// We listen on a random locally bound port
 	// TODO: we should use Unix domain sockets if supported
 	ln, err := net.Listen("tcp", "127.0.0.1:")
 	if err != nil {
-		return nil, err
+		return
 	}
-	closers = append(closers, ln)
+	cleanups = append(cleanups, func() { ln.Close() })
 
 	// Create a new cancellation context so we can cancel in the case of an error
 	ctx, cancel := context.WithCancel(ctx)
+	defer func() {
+		if err != nil {
+			cancel()
+		}
+	}()
 
 	// Run the server
 	log.Info("starting built-in server for local operations", "addr", ln.Addr().String())
-	go server.Run(server.WithContext(ctx),
+	go server.Run(
+		server.WithContext(ctx),
 		server.WithLogger(log),
 		server.WithGRPC(ln),
 		server.WithImpl(impl),
@@ -141,8 +144,7 @@ func (b *Basis) initLocalServer(ctx context.Context) (*grpc.ClientConn, error) {
 
 	client, err := serverclient.NewVagrantClient(ctx, log, ln.Addr().String())
 	if err != nil {
-		cancel()
-		return nil, err
+		return
 	}
 
 	// Setup our server config. The configuration is specifically set so
@@ -158,28 +160,22 @@ func (b *Basis) initLocalServer(ctx context.Context) (*grpc.ClientConn, error) {
 		},
 	})
 	if err != nil {
-		cancel()
-		return nil, err
+		return
 	}
 
-	// Success, persist the closers
-	cleanupClosers := closers
-	closers = nil
+	// Have the defined cleanups run when the basis is closed
 	b.cleanup(func() {
-		for _, c := range cleanupClosers {
-			c.Close()
-		}
-		// Force the ruby runtime to shut down
-		if cl, err := vrr.Client(); err == nil {
-			cl.Close()
+		for _, c := range cleanups {
+			c()
 		}
 	})
+
 	_ = cancel // pacify vet lostcancel
 
 	return client.Conn(), nil
 }
 
-func (b *Basis) initVagrantRubyRuntime() (*plugin.Client, error) {
+func (b *Basis) initVagrantRubyRuntime() (rubyRuntime *plugin.Client, err error) {
 	// TODO: Update for actual release usage. This is dev only now.
 	// TODO: We should also locate a free port on startup and use that port
 	_, this_dir, _, _ := runtime.Caller(0)
@@ -193,15 +189,17 @@ func (b *Basis) initVagrantRubyRuntime() (*plugin.Client, error) {
 		"VAGRANT_LOG_FILE=/tmp/vagrant.log",
 	}
 
-	config := sr.RubyVagrantPluginConfig(b.logger)
+	config := serverclient.RubyVagrantPluginConfig(b.logger)
 	config.Cmd = cmd
-	rubyServerClient := plugin.NewClient(config)
-	_, err := rubyServerClient.Start()
-	if err != nil {
-		return nil, err
+	rubyRuntime = plugin.NewClient(config)
+	if _, err = rubyRuntime.Start(); err != nil {
+		return
 	}
 
-	return rubyServerClient, nil
+	// Ensure the plugin is halted when the basis is cleaned up
+	b.cleanup(func() { rubyRuntime.Kill() })
+
+	return
 }
 
 // negotiateApiVersion negotiates the API version to use and validates

@@ -10,6 +10,7 @@ func (b *Basis) startRunner() (*runner.Runner, error) {
 	// Initialize our runner
 	r, err := runner.New(
 		runner.WithClient(b.client),
+		runner.WithVagrantRubyRuntime(b.vagrantRubyRuntime),
 		runner.WithLogger(b.logger.Named("runner")),
 		runner.ByIdOnly(),        // We'll direct target this
 		runner.WithLocal(b.UI()), // Local mode

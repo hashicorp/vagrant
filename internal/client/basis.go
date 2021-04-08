@@ -6,6 +6,7 @@ import (
 	//	"fmt"
 
 	"github.com/hashicorp/go-hclog"
+	"github.com/hashicorp/go-plugin"
 
 	"github.com/hashicorp/vagrant-plugin-sdk/helper/paths"
 	"github.com/hashicorp/vagrant-plugin-sdk/terminal"
@@ -20,10 +21,11 @@ type Basis struct {
 	basis   *vagrant_server.Basis
 	Project *Project
 
-	client       *serverclient.VagrantClient
-	logger       hclog.Logger
-	runner       *vagrant_server.Ref_Runner
-	cleanupFuncs []func()
+	client             *serverclient.VagrantClient
+	vagrantRubyRuntime *plugin.Client
+	logger             hclog.Logger
+	runner             *vagrant_server.Ref_Runner
+	cleanupFuncs       []func()
 
 	config *configpkg.Config
 
@@ -34,8 +36,8 @@ type Basis struct {
 	localServer bool // True when a local server is created
 }
 
-func New(ctx context.Context, opts ...Option) (*Basis, error) {
-	basis := &Basis{
+func New(ctx context.Context, opts ...Option) (basis *Basis, err error) {
+	basis = &Basis{
 		logger: hclog.L().Named("basis"),
 		runner: &vagrant_server.Ref_Runner{
 			Target: &vagrant_server.Ref_Runner_Any{
@@ -80,6 +82,14 @@ func New(ctx context.Context, opts ...Option) (*Basis, error) {
 			return nil, err
 		}
 		basis.client = serverclient.WrapVagrantClient(conn)
+	}
+
+	// If the ruby runtime isn't provided, set it up
+	if basis.vagrantRubyRuntime == nil {
+		if basis.vagrantRubyRuntime, err = basis.initVagrantRubyRuntime(); err != nil {
+			return nil, err
+		}
+		basis.cleanup(func() { basis.vagrantRubyRuntime.Kill() })
 	}
 
 	// Negotiate the version
@@ -179,6 +189,10 @@ func (b *Basis) Close() error {
 // Client returns the raw Vagrant server API client.
 func (b *Basis) Client() *serverclient.VagrantClient {
 	return b.client
+}
+
+func (b *Basis) VagrantRubyRuntime() *plugin.Client {
+	return b.vagrantRubyRuntime
 }
 
 // Local is true if the server is an in-process just-in-time server.

@@ -6,8 +6,8 @@ import (
 	"sync"
 	"sync/atomic"
 
-	"github.com/golang/protobuf/ptypes/empty"
 	"github.com/hashicorp/go-hclog"
+	plg "github.com/hashicorp/go-plugin"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
@@ -48,7 +48,8 @@ type Runner struct {
 	id                 string
 	logger             hclog.Logger
 	client             *serverclient.VagrantClient
-	vagrantRubyRuntime *serverclient.RubyVagrantClient
+	vagrantRubyRuntime *plg.Client
+	vagrantRubyClient  *serverclient.RubyVagrantClient
 	builtinPlugins     *plugin.Builtin
 	ctx                context.Context
 	cleanupFunc        func()
@@ -183,26 +184,9 @@ func (r *Runner) Start() error {
 
 	log.Info("runner registered with server")
 
-	// Grab Vagrant Ruby runtime information and register plugins
-	r.logger.Trace("fetching ruby vagrant runtime information from server")
-
-	plugResp, err := r.client.RubyVagrantClientInfo(r.ctx, &empty.Empty{})
-	if err != nil {
-		r.logger.Error("failed to retrieve ruby vagrant runtime information", "error", err)
-		return err
-	}
-
 	if plugin.IN_PROCESS_PLUGINS {
 		r.builtinPlugins = plugin.NewBuiltins(context.Background(), log)
 	}
-
-	r.vagrantRubyRuntime, err = serverclient.NewRubyVagrantClient(r.ctx, r.logger, plugResp.AddrString)
-	if err != nil {
-		r.logger.Error("failed to connect to ruby vagrant runtime", "error", err)
-		return err
-	}
-
-	r.logger.Trace("loading all ruby based plugins from ruby vagrant runtime")
 
 	// track plugins
 	err = r.LoadPlugins(r.opConfig)
@@ -262,6 +246,33 @@ type Option func(*Runner, *config) error
 func WithClient(client *serverclient.VagrantClient) Option {
 	return func(r *Runner, cfg *config) error {
 		r.client = client
+		return nil
+	}
+}
+
+func WithVagrantRubyRuntime(vrr *plg.Client) Option {
+	return func(r *Runner, cfg *config) error {
+		r.vagrantRubyRuntime = vrr
+		c, err := vrr.Client()
+		if err != nil {
+			return err
+		}
+		raw, err := c.Dispense("vagrantrubyruntime")
+		if err != nil {
+			return err
+		}
+		rvc, ok := raw.(serverclient.RubyVagrantClient)
+		if !ok {
+			panic("failed to dispense RubyVagrantClient")
+		}
+		r.vagrantRubyClient = &rvc
+		// cln := r.cleanupFunc
+		// r.cleanupFunc = func() {
+		// 	if cln != nil {
+		// 		cln()
+		// 	}
+		// 	c.Close()
+		// }
 		return nil
 	}
 }
