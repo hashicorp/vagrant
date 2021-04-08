@@ -71,7 +71,7 @@ module VagrantPlugins
           # Create a new anonymous class based on the command class
           # so we can modify the setup behavior
           klass = Class.new(cmd_cls)
-        
+
           klass.class_eval do
             def subcommands
               @subcommands
@@ -84,7 +84,7 @@ module VagrantPlugins
               nil
             end
           end
-        
+
           klass
         end
 
@@ -139,16 +139,16 @@ module VagrantPlugins
             cmd_cls = cmd.subcommands[subcommand.to_sym]
             cmd = augment_cmd_class(cmd_cls).new([], happy_klass.new)
           end
-        
+
           begin
             cmd.execute
           rescue Vagrant::Errors::VagrantError
             # ignore
           end
-        
+
           options = Thread.current.thread_variable_get(:command_options)
           msg = Thread.current.thread_variable_get(:command_info)
-        
+
           # Clean our option data out of the thread
           Thread.current.thread_variable_set(:command_options, nil)
         
