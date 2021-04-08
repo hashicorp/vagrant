@@ -8,6 +8,8 @@ require 'vagrant/protobufs/proto/ruby_vagrant/ruby-server_pb'
 require 'vagrant/protobufs/proto/ruby_vagrant/ruby-server_services_pb'
 require 'vagrant/protobufs/proto/vagrant_plugin_sdk/plugin_pb'
 require 'vagrant/protobufs/proto/vagrant_plugin_sdk/plugin_services_pb'
+require 'vagrant/protobufs/proto/plugin/grpc_broker_pb'
+require 'vagrant/protobufs/proto/plugin/grpc_broker_services_pb'
 
 require "optparse"
 require 'grpc'
@@ -17,6 +19,7 @@ require 'grpc/health/v1/health_services_pb'
 module VagrantPlugins
   module CommandServe
 
+    autoload :Broker, Vagrant.source_root.join("plugins/commands/serve/broker").to_s
     autoload :Client, Vagrant.source_root.join("plugins/commands/serve/client").to_s
     autoload :Service, Vagrant.source_root.join("plugins/commands/serve/service").to_s
 
@@ -60,7 +63,7 @@ module VagrantPlugins
         health_checker = Grpc::Health::Checker.new
 
         [Service::InternalService, Service::ProviderService,
-          Service::HostService, Service::CommandService].each do |service_klass|
+          Service::HostService, Service::CommandService, Broker::Streamer].each do |service_klass|
           s.handle(service_klass.new)
           health_checker.add_status(service_klass,
             Grpc::Health::V1::HealthCheckResponse::ServingStatus::SERVING)
