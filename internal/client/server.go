@@ -175,7 +175,7 @@ func (b *Basis) initLocalServer(ctx context.Context) (_ *grpc.ClientConn, err er
 	return client.Conn(), nil
 }
 
-func (b *Basis) initVagrantRubyRuntime() (rubyRuntime *plugin.Client, err error) {
+func (b *Basis) initVagrantRubyRuntime() (rubyRuntime plugin.ClientProtocol, err error) {
 	// TODO: Update for actual release usage. This is dev only now.
 	// TODO: We should also locate a free port on startup and use that port
 	_, this_dir, _, _ := runtime.Caller(0)
@@ -191,13 +191,16 @@ func (b *Basis) initVagrantRubyRuntime() (rubyRuntime *plugin.Client, err error)
 
 	config := serverclient.RubyVagrantPluginConfig(b.logger)
 	config.Cmd = cmd
-	rubyRuntime = plugin.NewClient(config)
-	if _, err = rubyRuntime.Start(); err != nil {
+	c := plugin.NewClient(config)
+	if _, err = c.Start(); err != nil {
+		return
+	}
+	if rubyRuntime, err = c.Client(); err != nil {
 		return
 	}
 
 	// Ensure the plugin is halted when the basis is cleaned up
-	b.cleanup(func() { rubyRuntime.Kill() })
+	b.cleanup(func() { rubyRuntime.Close() })
 
 	return
 }

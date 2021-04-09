@@ -3,7 +3,6 @@ package client
 import (
 	"context"
 	"io"
-	//	"fmt"
 
 	"github.com/hashicorp/go-hclog"
 	"github.com/hashicorp/go-plugin"
@@ -22,7 +21,7 @@ type Basis struct {
 	Project *Project
 
 	client             *serverclient.VagrantClient
-	vagrantRubyRuntime *plugin.Client
+	vagrantRubyRuntime plugin.ClientProtocol
 	logger             hclog.Logger
 	runner             *vagrant_server.Ref_Runner
 	cleanupFuncs       []func()
@@ -89,7 +88,6 @@ func New(ctx context.Context, opts ...Option) (basis *Basis, err error) {
 		if basis.vagrantRubyRuntime, err = basis.initVagrantRubyRuntime(); err != nil {
 			return nil, err
 		}
-		basis.cleanup(func() { basis.vagrantRubyRuntime.Kill() })
 	}
 
 	// Negotiate the version
@@ -191,7 +189,7 @@ func (b *Basis) Client() *serverclient.VagrantClient {
 	return b.client
 }
 
-func (b *Basis) VagrantRubyRuntime() *plugin.Client {
+func (b *Basis) VagrantRubyRuntime() plugin.ClientProtocol {
 	return b.vagrantRubyRuntime
 }
 

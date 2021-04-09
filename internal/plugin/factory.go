@@ -100,13 +100,9 @@ type PluginMetadata interface {
 	SetRequestMetadata(k, v string)
 }
 
-func BuiltinRubyFactory(rubyClient *plugin.Client, name string, typ component.Type) interface{} {
+func BuiltinRubyFactory(rubyClient plugin.ClientProtocol, name string, typ component.Type) interface{} {
 	return func(log hclog.Logger) (interface{}, error) {
-		c, err := rubyClient.Client()
-		if err != nil {
-			return nil, err
-		}
-		raw, err := c.Dispense(strings.ToLower(typ.String()))
+		raw, err := rubyClient.Dispense(strings.ToLower(typ.String()))
 		if err != nil {
 			log.Error("error requesting the ruby plugin", "type", typ, "err", err)
 			return nil, err

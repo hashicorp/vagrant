@@ -48,7 +48,7 @@ type Runner struct {
 	id                 string
 	logger             hclog.Logger
 	client             *serverclient.VagrantClient
-	vagrantRubyRuntime *plg.Client
+	vagrantRubyRuntime plg.ClientProtocol
 	vagrantRubyClient  *serverclient.RubyVagrantClient
 	builtinPlugins     *plugin.Builtin
 	ctx                context.Context
@@ -250,14 +250,10 @@ func WithClient(client *serverclient.VagrantClient) Option {
 	}
 }
 
-func WithVagrantRubyRuntime(vrr *plg.Client) Option {
+func WithVagrantRubyRuntime(vrr plg.ClientProtocol) Option {
 	return func(r *Runner, cfg *config) error {
 		r.vagrantRubyRuntime = vrr
-		c, err := vrr.Client()
-		if err != nil {
-			return err
-		}
-		raw, err := c.Dispense("vagrantrubyruntime")
+		raw, err := vrr.Dispense("vagrantrubyruntime")
 		if err != nil {
 			return err
 		}
@@ -266,13 +262,6 @@ func WithVagrantRubyRuntime(vrr *plg.Client) Option {
 			panic("failed to dispense RubyVagrantClient")
 		}
 		r.vagrantRubyClient = &rvc
-		// cln := r.cleanupFunc
-		// r.cleanupFunc = func() {
-		// 	if cln != nil {
-		// 		cln()
-		// 	}
-		// 	c.Close()
-		// }
 		return nil
 	}
 }
