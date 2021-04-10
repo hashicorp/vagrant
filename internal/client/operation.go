@@ -88,6 +88,9 @@ func (m *Machine) Task(ctx context.Context, op *vagrant_server.Job_RunOp) (*vagr
 	}
 
 	result, err := m.doJob(ctx, job)
+	if err != nil {
+		return nil, err
+	}
 
 	return result.Run, err
 }
