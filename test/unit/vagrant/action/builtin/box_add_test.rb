@@ -641,6 +641,41 @@ describe Vagrant::Action::Builtin::BoxAdd, :skip_windows, :bsdtar do
       end
     end
 
+    it "authenticates HTTP URLs and adds them directly" do
+      box_path = iso_env.box2_file(:virtualbox)
+      tf = Tempfile.new(["vagrant-test-http", ".box"]).tap do |f|
+        f.write()
+        f.close
+      end
+
+      md_path = Pathname.new(tf.path)
+      with_web_server(md_path) do |port|
+        real_url = "http://127.0.0.1:#{port}/#{md_path.basename}"
+
+        # Set the box URL to something fake so we can modify it in place
+        env[:box_url] = "foo"
+        env[:hook] = double("hook")
+        env[:box_name] = "foo/bar"
+        env[:box_provider] = "virtualbox"
+        env[:box_checksum] = checksum(box_path)
+
+        expect(env[:hook]).to receive(:call).with(:authenticate_box_downloader, any_args).at_least(:once)
+
+        allow(env[:hook]).to receive(:call).with(:authenticate_box_url, any_args).at_least(:once) do |name, opts|
+          if opts[:box_urls] == ["foo"]
+            next { box_urls: [real_url] }
+          else
+            raise "UNKNOWN: #{opts[:box_urls].inspect}"
+          end
+        end
+
+        expect(subject).to receive(:add_direct).with([real_url], anything)
+        expect(app).to receive(:call).with(env)
+
+        subject.call(env)
+      end
+    end
+
     it "adds from HTTP URL with a checksum" do
       box_path = iso_env.box2_file(:virtualbox)
       tf = Tempfile.new(["vagrant-test-http-checksum", ".json"]).tap do |f|
