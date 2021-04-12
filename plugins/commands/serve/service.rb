@@ -1,6 +1,8 @@
 module VagrantPlugins
   module CommandServe
     module Service
+      LOGGER = Log4r::Logger.new("vagrant::plugin::command::service")
+
       # Simple aliases
       SDK = Hashicorp::Vagrant::Sdk
       SRV = Hashicorp::Vagrant
@@ -29,15 +31,18 @@ module VagrantPlugins
         attr_reader :vagrant_service_endpoint
         # @return [String] Name of requested plugin
         attr_reader :plugin_name
+        # @return [String[], nil] Name of subcommand for command plugins 
+        attr_reader :command
 
         CLIENT_LOCK = Mutex.new
 
-        def initialize(basis: nil, project: nil, machine: nil, vagrant_service_endpoint: nil, plugin_name: nil)
+        def initialize(basis: nil, project: nil, machine: nil, vagrant_service_endpoint: nil, plugin_name: nil, command: nil)
           @basis = basis
           @project = project
           @machine = machine
           @vagrant_service_endpoint = vagrant_service_endpoint
           @plugin_name = plugin_name
+          @command = command
         end
 
         def self.info
@@ -62,12 +67,19 @@ module VagrantPlugins
         end
 
         def self.with_info(context)
+          if context.metadata["command"].nil?
+            command = []
+          else
+            command = context.metadata["command"].split(" ")
+          end
+          LOGGER.info("command info: #{command}")
           info = new(
             basis: context.metadata["basis_resource_id"],
             project: context.metadata["project_resource_id"],
             machine: context.metadata["machine_resource_id"],
             vagrant_service_endpoint: context.metadata["vagrant_service_endpoint"],
             plugin_name: context.metadata["plugin_name"],
+            command: command,
           )
           Thread.current.thread_variable_set(:service_info, info)
           return if !block_given?

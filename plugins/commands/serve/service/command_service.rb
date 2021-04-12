@@ -6,6 +6,8 @@ module VagrantPlugins
       class CommandService < SDK::CommandService::Service
         prepend VagrantPlugins::CommandServe::Service::ExceptionLogger
 
+        LOGGER = Log4r::Logger.new("vagrant::plugin::command::service::command")
+
         [:help, :synopsis, :execute, :flags, :subcommands].each do |method|
           VagrantPlugins::CommandServe::Service::ExceptionLogger.log_exception method
         end
@@ -16,7 +18,8 @@ module VagrantPlugins
 
         def help(req, ctx)
           ServiceInfo.with_info(ctx) do |info|
-            options = command_options_for(info.plugin_name)
+            LOGGER.info("Getting help for #{info.plugin_name} #{info.command}")
+            options = command_options_for(info.plugin_name, info.command)
             SDK::Command::HelpResp.new(
               help: options.help
             )
@@ -99,6 +102,33 @@ module VagrantPlugins
           end
 
           klass
+        end
+
+        def subcommands_for(name, subcommands = [])
+          plugin = Vagrant::Plugin::V2::Plugin.manager.commands[name.to_sym].to_a.first
+          if !plugin
+            raise "Failed to locate command plugin for: #{name}"
+          end
+        
+          # Create a new anonymous class based on the command class
+          # so we can modify the setup behavior
+          klass = augment_cmd_class(Class.new(plugin.call))
+
+          # Execute the command to populate our options
+          happy_klass = Class.new do
+            def method_missing(*_)
+              self
+            end
+          end
+        
+          cmd = klass.new(subcommands, happy_klass.new)
+          # Go through the subcommands, looking for the command we actually want
+          subcommands.each do |subcommand|
+            cmd_cls = cmd.subcommands[subcommand.to_sym]
+            cmd = augment_cmd_class(cmd_cls).new([], happy_klass.new)
+          end
+
+          cmd.subcommands
         end
 
         # Get command options
