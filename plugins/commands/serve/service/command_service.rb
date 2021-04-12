@@ -6,66 +6,50 @@ module VagrantPlugins
       class CommandService < SDK::CommandService::Service
         prepend VagrantPlugins::CommandServe::Service::ExceptionLogger
 
-        LOGGER = Log4r::Logger.new("vagrant::plugin::command::service::command")
-
-        [:help, :synopsis, :execute, :flags, :subcommands].each do |method|
+        [:execute, :subcommands, :command_info].each do |method|
           VagrantPlugins::CommandServe::Service::ExceptionLogger.log_exception method
         end
 
-        def help_spec(*args)
+        def command_info_spec(*args)
           SDK::FuncSpec.new
         end
 
-        def help(req, ctx)
-          ServiceInfo.with_info(ctx) do |info|
-            LOGGER.info("Getting help for #{info.plugin_name} #{info.command}")
-            options = command_options_for(info.plugin_name, info.command)
-            SDK::Command::HelpResp.new(
-              help: options.help
-            )
-          end
-        end
-
-        def synopsis_spec(*args)
-          return SDK::FuncSpec.new
-        end
-
-        def synopsis(req, ctx)
+        def command_info(req, ctx)
           ServiceInfo.with_info(ctx) do |info|
             plugin_name = info.plugin_name
+
+            options = command_options_for(plugin_name, info.command)
+
+            if options.nil?
+              hlp_msg = ""
+              flags = []
+            else
+              hlp_msg = options.help
+              # Now we can build our list of flags
+              flags = options.top.list.find_all { |o|
+                o.is_a?(OptionParser::Switch)
+              }.map { |o|
+                SDK::Command::Flag.new(
+                  description: o.desc.join(" "),
+                  long_name: o.switch_name,
+                  short_name: o.short.first,
+                  type: o.is_a?(OptionParser::Switch::NoArgument) ?
+                    SDK::Command::Flag::Type::BOOL :
+                    SDK::Command::Flag::Type::STRING
+                )
+              }
+            end
+
+
             plugin = Vagrant::Plugin::V2::Plugin.manager.commands[plugin_name.to_sym].to_a.first
             if !plugin
               raise "Failed to locate command plugin for: #{plugin_name}"
             end
             klass = plugin.call
-            SDK::Command::SynopsisResp.new(
-              synopsis: klass.synopsis
-            )
-          end
-        end
-
-        def flags_spec(*args)
-          SDK::FuncSpec.new
-        end
-
-        def flags(req, ctx)
-          ServiceInfo.with_info(ctx) do |info|
-            options = command_options_for(info.plugin_name, info.command)
-            # Now we can build our list of flags
-            flags = options.top.list.find_all { |o|
-              o.is_a?(OptionParser::Switch)
-            }.map { |o|
-              SDK::Command::Flag.new(
-                description: o.desc.join(" "),
-                long_name: o.switch_name,
-                short_name: o.short.first,
-                type: o.is_a?(OptionParser::Switch::NoArgument) ?
-                  SDK::Command::Flag::Type::BOOL :
-                  SDK::Command::Flag::Type::STRING
-              )
-            }
-            SDK::Command::FlagsResp.new(
-              flags: flags
+            SDK::Command::CommandInfoResp.new(
+              help: hlp_msg,
+              flags: flags,
+              synopsis: klass.synopsis,
             )
           end
         end

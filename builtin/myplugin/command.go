@@ -6,7 +6,6 @@ import (
 
 	"github.com/DavidGamba/go-getoptions/option"
 	"github.com/hashicorp/vagrant-plugin-sdk/component"
-
 	plugincore "github.com/hashicorp/vagrant-plugin-sdk/core"
 	"github.com/hashicorp/vagrant-plugin-sdk/docs"
 	"github.com/hashicorp/vagrant-plugin-sdk/terminal"
@@ -60,9 +59,23 @@ func (c *Command) ExecuteFunc() interface{} {
 	return c.Execute
 }
 
-// HelpFunc implements component.Command
+// SubcommandFunc implements component.Command
 func (c *Command) SubcommandsFunc() interface{} {
 	return c.Subcommands
+}
+
+// CommandInfoFunc implements component.Command
+func (c *Command) CommandInfoFunc() interface{} {
+	return c.CommandInfo
+}
+
+func (c *Command) CommandInfo() *plugincore.CommandInfo {
+	return &plugincore.CommandInfo{
+		Name:     []string{"myplugin"},
+		Help:     c.Help(),
+		Synopsis: c.Synopsis(),
+		Flags:    c.Flags(),
+	}
 }
 
 func (c *Command) Synopsis() string {
@@ -87,8 +100,8 @@ func (c *Command) Flags() []*option.Option {
 	return []*option.Option{booltest, stringflag}
 }
 
-func (c *Command) Subcommands() []*plugincore.Command {
-	return nil
+func (c *Command) Subcommands() []string {
+	return []string{}
 }
 
 func (c *Command) Execute(trm terminal.UI, env plugincore.Project) int64 {

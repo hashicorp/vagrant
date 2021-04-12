@@ -98,17 +98,9 @@ func (b *Basis) Init() (result *vagrant_server.Job_InitResult, err error) {
 			continue
 		}
 		b.logger.Trace("started a new plugin for init", "name", name)
-		syn, err := cmd.Synopsis()
+		cmdInfo, err := cmd.CommandInfo()
 		if err != nil {
-			b.logger.Error("failed to get synopsis for command "+name, "error", err)
-		}
-		hlp, err := cmd.Help()
-		if err != nil {
-			b.logger.Error("failed to get help for command "+name, "error", err)
-		}
-		flgs, err := cmd.Flags()
-		if err != nil {
-			b.logger.Error("failed to get flags for command "+name, "error", err)
+			b.logger.Error("failed to get command info for command "+name, "error", err)
 		}
 		err = RegisterSubcommands(cmd, result)
 		if err != nil {
@@ -118,9 +110,9 @@ func (b *Basis) Init() (result *vagrant_server.Job_InitResult, err error) {
 			result.Commands,
 			&vagrant_server.Job_Command{
 				Name:     name,
-				Synopsis: syn,
-				Help:     hlp,
-				Flags:    FlagsToProtoMapper(flgs),
+				Synopsis: cmdInfo.Synopsis,
+				Help:     cmdInfo.Help,
+				Flags:    FlagsToProtoMapper(cmdInfo.Flags),
 			},
 		)
 	}
@@ -132,17 +124,17 @@ func RegisterSubcommands(cmd sdkcore.Command, result *vagrant_server.Job_InitRes
 	subcmds, err := cmd.Subcommands()
 	if len(subcmds) > 0 {
 		for _, scmd := range subcmds {
-			scmdName, _ := scmd.Name()
-			scmdHelp, _ := scmd.Help()
-			scmdSyn, _ := scmd.Synopsis()
-			scmdFlags, _ := scmd.Flags()
+			scmdInfo, err := scmd.CommandInfo()
+			if err != nil {
+				return err
+			}
 			result.Commands = append(
 				result.Commands,
 				&vagrant_server.Job_Command{
-					Name:     strings.Join(scmdName, " "),
-					Synopsis: scmdSyn,
-					Help:     scmdHelp,
-					Flags:    FlagsToProtoMapper(scmdFlags),
+					Name:     strings.Join(scmdInfo.Name, " "),
+					Synopsis: scmdInfo.Synopsis,
+					Help:     scmdInfo.Help,
+					Flags:    FlagsToProtoMapper(scmdInfo.Flags),
 				},
 			)
 			err = RegisterSubcommands(scmd, result)
