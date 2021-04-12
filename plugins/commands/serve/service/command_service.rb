@@ -50,7 +50,7 @@ module VagrantPlugins
 
         def flags(req, ctx)
           ServiceInfo.with_info(ctx) do |info|
-            options = command_options_for(info.plugin_name)
+            options = command_options_for(info.plugin_name, info.command)
             # Now we can build our list of flags
             flags = options.top.list.find_all { |o|
               o.is_a?(OptionParser::Switch)
@@ -76,7 +76,7 @@ module VagrantPlugins
 
         def subcommands(req, ctx)
           ServiceInfo.with_info(ctx) do |info|
-            cmds = subcommands_for(info.plugin_name)
+            cmds = subcommands_for(info.plugin_name, info.command)
             SDK::Command::SubcommandResp.new(
               commands: cmds.nil? ? [] : cmds.keys,
             )

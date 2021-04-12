@@ -87,9 +87,6 @@ func (b *Basis) Init() (result *vagrant_server.Job_InitResult, err error) {
 	f := b.factories[component.CommandType]
 	result = &vagrant_server.Job_InitResult{}
 	for _, name := range f.Registered() {
-		if name != "box" {
-			continue
-		}
 		c, err := componentCreatorMap[component.CommandType].Create(context.Background(), b, name)
 		if err != nil {
 			b.logger.Error("failed to start plugin", "name", name, "error", err)
@@ -113,24 +110,7 @@ func (b *Basis) Init() (result *vagrant_server.Job_InitResult, err error) {
 		if err != nil {
 			b.logger.Error("failed to get flags for command "+name, "error", err)
 		}
-		subcmds, err := cmd.Subcommands()
-		if subcmds != nil {
-			for _, scmd := range subcmds {
-				scmdName, _ := scmd.Name()
-				scmdHelp, _ := scmd.Help()
-				scmdSyn, _ := scmd.Synopsis()
-				scmdFlags, _ := scmd.Flags()
-				result.Commands = append(
-					result.Commands,
-					&vagrant_server.Job_Command{
-						Name:     strings.Join(scmdName, " "),
-						Synopsis: scmdSyn,
-						Help:     scmdHelp,
-						Flags:    FlagsToProtoMapper(scmdFlags),
-					},
-				)
-			}
-		}
+		err = RegisterSubcommands(cmd, result)
 		if err != nil {
 			b.logger.Error("subcommand error", err)
 		}
@@ -145,6 +125,29 @@ func (b *Basis) Init() (result *vagrant_server.Job_InitResult, err error) {
 		)
 	}
 
+	return
+}
+
+func RegisterSubcommands(cmd sdkcore.Command, result *vagrant_server.Job_InitResult) (err error) {
+	subcmds, err := cmd.Subcommands()
+	if len(subcmds) > 0 {
+		for _, scmd := range subcmds {
+			scmdName, _ := scmd.Name()
+			scmdHelp, _ := scmd.Help()
+			scmdSyn, _ := scmd.Synopsis()
+			scmdFlags, _ := scmd.Flags()
+			result.Commands = append(
+				result.Commands,
+				&vagrant_server.Job_Command{
+					Name:     strings.Join(scmdName, " "),
+					Synopsis: scmdSyn,
+					Help:     scmdHelp,
+					Flags:    FlagsToProtoMapper(scmdFlags),
+				},
+			)
+			err = RegisterSubcommands(scmd, result)
+		}
+	}
 	return
 }
 

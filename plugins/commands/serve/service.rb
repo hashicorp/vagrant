@@ -1,7 +1,6 @@
 module VagrantPlugins
   module CommandServe
     module Service
-      LOGGER = Log4r::Logger.new("vagrant::plugin::command::service")
 
       # Simple aliases
       SDK = Hashicorp::Vagrant::Sdk
@@ -67,12 +66,16 @@ module VagrantPlugins
         end
 
         def self.with_info(context)
-          if context.metadata["command"].nil?
+          cmd_meta = context.metadata["command"]
+          if cmd_meta.nil?
             command = []
           else
-            command = context.metadata["command"].split(" ")
+            if cmd_meta.is_a?(String)
+              command = context.metadata["command"].split(" ")
+            else
+              command = context.metadata["command"]
+            end
           end
-          LOGGER.info("command info: #{command}")
           info = new(
             basis: context.metadata["basis_resource_id"],
             project: context.metadata["project_resource_id"],
