@@ -1,0 +1,49 @@
+#!/usr/bin/env bash
+
+rvm --version || {
+  echo 'rvm not installed' >&2
+  exit 1
+}
+
+# bsdtar is required for a small subset of the tests
+if ! bsdtar --version
+then
+  apt-get install -y bsdtar &&
+    bsdtar --version || {
+      echo 'Failed to install bsdtar' >&2
+      exit 1
+    }
+fi
+
+# Install next-to-last Ruby that complies with Vagrant's version
+# constraint
+RUBY_VER_REQ=$(
+  awk '
+    $1 == "s.required_ruby_version" { print $4 }
+  ' /vagrant/vagrant.gemspec |
+    tr -d '"')
+RUBY_VER=$(sudo -u vagrant -i rvm list known |
+             tr '[]-' ' ' |
+             awk "/^ ruby  ${RUBY_VER_REQ:0:1}\./ { print \$2 }" |
+             sort -r |
+             sed -n '2p')
+sudo -u vagrant -i rvm install "${RUBY_VER}"
+sudo -u vagrant -i rvm --default use "${RUBY_VER}"
+
+# Output the Ruby version (for sanity)
+sudo -u vagrant -i ruby --version
+
+# Upgrade Rubygems
+sudo -u vagrant -i rvm "${RUBY_VER}" do gem update --system
+
+# Prepare to run unit tests
+sudo -u vagrant -i bash -c 'cd /vagrant; bundle install'
+
+# Automatically move into the shared folder, but only add the command if
+# it's not already there.
+if ! grep -q 'cd /vagrant' /home/vagrant/.bash_profile
+then
+  cat <<EOF >> /home/vagrant/.bash_profile
+cd /vagrant
+EOF
+fi
