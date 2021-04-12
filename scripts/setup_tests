@@ -37,7 +37,7 @@ sudo -u vagrant -i ruby --version
 sudo -u vagrant -i rvm "${RUBY_VER}" do gem update --system
 
 # Prepare to run unit tests
-sudo -u vagrant -i bash -c 'cd /vagrant; bundle install' 
+sudo -u vagrant -i bash -c 'cd /vagrant; bundle install'
 
 # Automatically move into the shared folder, but only add the command if
 # it's not already there.
