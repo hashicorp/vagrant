@@ -36,7 +36,7 @@ jobs:
       - name: Code Checkout
         uses: actions/checkout@v1
       - name: Setup Ruby
-        uses: actions/setup-ruby@v1
+        uses: ruby/setup-ruby@v1
         with:
           ruby-version: ${{matrix.ruby}}
           architecture: 'x64'
