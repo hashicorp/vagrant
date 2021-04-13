@@ -25,9 +25,9 @@ module VagrantPlugins
         opts = {with_stderr: true}
         result = execute('docker', 'build', *args, opts, &block)
         # Check for the new output format 'writing image sha256...'
-        # In this case, docker builtkit is enabled. Its format is different
+        # In this case, docker buildkit is enabled. Its format is different
         # from standard docker
-        matches = result.scan(/writing image .+:([0-9a-z]+) done/i).last
+        matches = result.scan(/writing image .+:([^\s]+)/i).last
         if !matches
           if podman?
             # Check for podman format when it is emulating docker CLI.
