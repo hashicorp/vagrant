@@ -99,6 +99,18 @@ if Net::SSH::Version::STRING == "6.1.0"
 
       verify(digester, sig, data)
     end
+
+    def signature_algorithm
+      "rsa-sha2-256"
+    end
+
+    def ssh_do_sign(data)
+      sign(OpenSSL::Digest::SHA256.new, data)
+    end
+
+    def to_blob
+      @blob ||= Net::SSH::Buffer.from(:string, signature_algorithm, :bignum, e, :bignum, n).to_s
+    end
   end
 
   OpenSSL::PKey::DSA.class_eval do
