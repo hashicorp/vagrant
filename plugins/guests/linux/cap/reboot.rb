@@ -12,13 +12,16 @@ module VagrantPlugins
 
         def self.reboot(machine)
           @logger = Log4r::Logger.new("vagrant::linux::reboot")
+          reboot_script = "ps -q 1 -o comm=,start= > /tmp/.vagrant-reboot"
+
           if systemd?(machine.communicate)
-            reboot_script = "systemctl reboot"
+            reboot_cmd = "systemctl reboot"
           else
-            reboot_script = "reboot"
+            reboot_cmd = "reboot"
           end
 
           comm = machine.communicate
+          reboot_script += "; #{reboot_cmd}"
 
           @logger.debug("Issuing reboot command for guest")
           comm.sudo(reboot_script)
@@ -43,8 +46,23 @@ module VagrantPlugins
         end
 
         def self.wait_for_reboot(machine)
-          while !machine.guest.ready?
+          caught = false
+          begin
+            check_script = 'grep "$(ps -q 1 -o comm=,start=)" /tmp/.vagrant-reboot'
+            while machine.guest.ready? && machine.communicate.execute(check_script, error_check: false) == 0
+              sleep 10
+            end
+          rescue
+            # The check script execution may result in an exception
+            # getting raised depending on the state of the communicator
+            # when executing. We'll allow for it to happen once, and then
+            # raise if we get an exception again
+            if caught
+              raise
+            end
+            caught = true
             sleep 10
+            retry
           end
         end
       end
