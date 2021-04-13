@@ -87,6 +87,9 @@ func (b *Basis) Init() (result *vagrant_server.Job_InitResult, err error) {
 	f := b.factories[component.CommandType]
 	result = &vagrant_server.Job_InitResult{}
 	for _, name := range f.Registered() {
+		if name != "myplugin" {
+			continue
+		}
 		c, err := componentCreatorMap[component.CommandType].Create(context.Background(), b, name)
 		if err != nil {
 			b.logger.Error("failed to start plugin", "name", name, "error", err)

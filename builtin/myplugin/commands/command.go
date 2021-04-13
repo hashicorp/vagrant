@@ -1,9 +1,6 @@
 package commands
 
 import (
-	"strings"
-	"time"
-
 	"github.com/DavidGamba/go-getoptions/option"
 	"github.com/hashicorp/vagrant-plugin-sdk/component"
 	plugincore "github.com/hashicorp/vagrant-plugin-sdk/core"
@@ -79,53 +76,26 @@ func (c *Command) CommandInfo() *plugincore.CommandInfo {
 }
 
 func (c *Command) Synopsis() string {
-	return "I don't really do anything"
+	return "I don't do much, just hanging around"
 }
 
 func (c *Command) Help() string {
-	return "Output some project information!"
+	return "I'm here for testing, try running some subcommands"
 }
 
 func (c *Command) Flags() []*option.Option {
-	booltest := option.New("booltest", option.BoolType)
-	booltest.Description = "a test flag for bools"
-	booltest.DefaultStr = "true"
-	booltest.Aliases = append(booltest.Aliases, "bt")
-
-	stringflag := option.New("stringflag", option.StringType)
-	stringflag.Description = "a test flag for strings"
-	stringflag.DefaultStr = "message"
-	stringflag.Aliases = append(stringflag.Aliases, "sf")
-
-	return []*option.Option{booltest, stringflag}
+	return []*option.Option{}
 }
 
-func (c *Command) Subcommands() []string {
-	return []string{}
+func (c *Command) Subcommands() []component.Command {
+	return []component.Command{
+		&DoThing{Command: c},
+		&Info{Command: c},
+	}
 }
 
-func (c *Command) Execute(trm terminal.UI, env plugincore.Project) int64 {
-	mn, _ := env.MachineNames()
-	trm.Output("\nMachines in this project")
-	trm.Output(strings.Join(mn[:], "\n"))
-
-	cwd, _ := env.CWD()
-	datadir, _ := env.DataDir()
-	vagrantfileName, _ := env.VagrantfileName()
-	home, _ := env.Home()
-	localDataPath, _ := env.LocalData()
-	defaultPrivateKeyPath, _ := env.DefaultPrivateKey()
-
-	trm.Output("\nEnvironment information")
-	trm.Output("Working directory: " + cwd)
-	trm.Output("Data directory: " + datadir)
-	trm.Output("Vagrantfile name: " + vagrantfileName)
-	trm.Output("Home directory: " + home)
-	trm.Output("Local data directory: " + localDataPath)
-	trm.Output("Default private key path: " + defaultPrivateKeyPath)
-
-	time.Sleep(1 * time.Second)
-
+func (c *Command) Execute(trm terminal.UI) int64 {
+	trm.Output(c.Help())
 	return 0
 }
 
