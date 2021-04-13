@@ -154,7 +154,8 @@ describe VagrantPlugins::DockerProvider::Driver do
 
   describe '#build' do
     let(:result) { "Successfully built other_package\nSuccessfully built 1a2b3c4d" }
-    let(:buildkit_result) { "writing image sha256:1a2b3c4d done" }
+    let(:buildkit_result_old) { "writing image sha256:1a2b3c4d done" }
+    let(:buildkit_result) { "writing image sha256:1a2b3c4d 0.0s done" }
     let(:podman_result) { "1a2b3c4d5e6f7g8h9i10j11k12l13m14n16o17p18q19r20s21t22u23v24w25x2" }
     let(:cid) { "1a2b3c4d" }
 
@@ -168,6 +169,14 @@ describe VagrantPlugins::DockerProvider::Driver do
 
     it "builds a container with buildkit docker" do
       allow(subject).to receive(:execute).and_return(buildkit_result)
+
+      container_id = subject.build("/tmp/fakedir")
+
+      expect(container_id).to eq(cid)
+    end
+
+    it "builds a container with buildkit docker (old output)" do
+      allow(subject).to receive(:execute).and_return(buildkit_result_old)
 
       container_id = subject.build("/tmp/fakedir")
 
