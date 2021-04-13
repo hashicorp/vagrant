@@ -121,7 +121,7 @@ describe "VagrantPlugins::GuestLinux::Cap::PersistMountSharedFolder" do
         before do
           allow(folder_plugin).to receive(:capability).with(:mount_type).and_return("cifs")
           allow(folder_plugin).to receive(:capability?).with(:mount_name).and_return(true)
-          allow(folder_plugin).to receive(:capability).with(:mount_name, any_args).and_return("//192.168.42.42/dummyname")
+          allow(folder_plugin).to receive(:capability).with(:mount_name, instance_of(String), any_args).and_return("//192.168.42.42/dummyname")
         end
       
         it "inserts folders into /etc/fstab" do
