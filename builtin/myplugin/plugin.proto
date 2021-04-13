@@ -2,6 +2,6 @@ syntax = "proto3";
 
 package myplugin;
 
-option go_package = "vagrant-agogo/builtin/myplugin";
+option go_package = "vagrant-ruby/builtin/myplugin";
 
 message UpResult {}

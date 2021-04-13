@@ -1,4 +1,4 @@
-package myplugin
+package commands
 
 import (
 	"strings"
