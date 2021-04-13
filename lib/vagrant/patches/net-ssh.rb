@@ -4,6 +4,32 @@ require "net/ssh"
 # these patches pull 6.1.0 up to the as of now
 # current 6.2.0 beta
 if Net::SSH::Version::STRING == "6.1.0"
+  require "net/ssh/authentication/methods/publickey"
+  Net::SSH::Authentication::Methods::Publickey.class_eval do
+    def rsa_compat_build_request(pub_key, *args)
+      s_ver_str = session.transport.server_version.version.match(/OpenSSH_(?<version>\d+\.\d+)/)[:version]
+      begin
+        s_ver = Gem::Version.new(s_ver_str)
+        if s_ver >= Gem::Version.new("7.2") && pub_key.is_a?(OpenSSL::PKey::RSA)
+          pub_key.deprecated_ssh_rsa = true
+          debug { "public key has been marked for deprecated ssh-rsa SHA1 behavior" }
+          info = key_manager.known_identities[pub_key]
+          if info && info[:key]
+            info[:key].deprecated_ssh_rsa = true
+            debug { "private key has been marked for deprecated ssh-rsa SHA1 behavior" }
+          else
+            warn { "cannot deprecate ssh rsa on private key, not loaded (#{info[:file]})" }
+          end
+        end
+      rescue ArgumentError
+        warn { "failed to parse OpenSSH version (raw: #{session.transport.server_version.version} attempted: #{s_ver_str}" }
+      end
+      _raw_build_request(pub_key, *args)
+    end
+    alias_method :_raw_build_request, :build_request
+    alias_method :build_request, :rsa_compat_build_request
+  end
+
   require "net/ssh/authentication/agent"
   # net/ssh/authentication/agent
   Net::SSH::Authentication::Agent.class_eval do
@@ -87,6 +113,8 @@ if Net::SSH::Version::STRING == "6.1.0"
   require "net/ssh/transport/openssl"
   # net/ssh/transport/openssl
   OpenSSL::PKey::RSA.class_eval do
+    attr_accessor :deprecated_ssh_rsa
+
     def ssh_do_verify(sig, data, options = {})
       digester =
         if options[:host_key] == "rsa-sha2-512"
@@ -98,6 +126,22 @@ if Net::SSH::Version::STRING == "6.1.0"
         end
 
       verify(digester, sig, data)
+    end
+
+    def ssh_type
+      deprecated_ssh_rsa ? signature_algorithm : "ssh-rsa"
+    end
+
+    def signature_algorithm
+      "rsa-sha2-256"
+    end
+
+    def ssh_do_sign(data)
+      if deprecated_ssh_rsa
+        sign(OpenSSL::Digest::SHA256.new, data)
+      else
+        sign(OpenSSL::Digest::SHA1.new, data)
+      end
     end
   end
 
