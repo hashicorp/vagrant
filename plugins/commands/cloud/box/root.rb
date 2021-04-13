@@ -52,18 +52,19 @@ module VagrantPlugins
               opts.banner = "Usage: vagrant cloud box <subcommand> [<args>]"
               opts.separator ""
               opts.separator "Commands to manage boxes on Vagrant Cloud"
-              opts.separator ""
-              opts.separator "Available subcommands:"
-
-              # Add the available subcommands as separators in order to print them
-              # out as well.
-              keys = []
-              @subcommands.each { |key, value| keys << key.to_s }
-
-              keys.sort.each do |key|
-                opts.separator "     #{key}"
+              if !Vagrant.server_mode?
+                opts.separator ""
+                opts.separator "Available subcommands:"
+  
+                # Add the available subcommands as separators in order to print them
+                # out as well.
+                keys = []
+                @subcommands.each { |key, value| keys << key.to_s }
+  
+                keys.sort.each do |key|
+                  opts.separator "     #{key}"
+                end
               end
-
               opts.separator ""
               opts.separator "For help on any individual subcommand run `vagrant cloud box <subcommand> -h`"
             end
