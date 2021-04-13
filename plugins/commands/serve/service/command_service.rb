@@ -40,16 +40,21 @@ module VagrantPlugins
               }
             end
 
-
-            plugin = Vagrant::Plugin::V2::Plugin.manager.commands[plugin_name.to_sym].to_a.first
-            if !plugin
-              raise "Failed to locate command plugin for: #{plugin_name}"
+            if info.command.empty?
+              plugin = Vagrant::Plugin::V2::Plugin.manager.commands[plugin_name.to_sym].to_a.first
+              if !plugin
+                raise "Failed to locate command plugin for: #{plugin_name}"
+              end
+              klass = plugin.call
+              synopsis = klass.synopsis
+            else
+              synopsis = ""
             end
-            klass = plugin.call
+
             SDK::Command::CommandInfoResp.new(
               help: hlp_msg,
               flags: flags,
-              synopsis: klass.synopsis,
+              synopsis: synopsis,
             )
           end
         end
