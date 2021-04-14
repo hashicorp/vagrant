@@ -71,7 +71,7 @@ func (c *Command) CommandInfoFunc() interface{} {
 
 func (c *Command) CommandInfo() *plugincore.CommandInfo {
 	return &plugincore.CommandInfo{
-		Name:     []string{"myplugin"},
+		Name:     "myplugin",
 		Help:     c.Help(),
 		Synopsis: c.Synopsis(),
 		Flags:    c.Flags(),

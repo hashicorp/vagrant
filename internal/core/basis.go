@@ -102,7 +102,8 @@ func (b *Basis) Init() (result *vagrant_server.Job_InitResult, err error) {
 		if err != nil {
 			b.logger.Error("failed to get command info for command "+name, "error", err)
 		}
-		err = RegisterSubcommands(cmd, result)
+		names := []string{cmdInfo.Name}
+		err = RegisterSubcommands(cmdInfo, names, result)
 		if err != nil {
 			b.logger.Error("subcommand error", err)
 		}
@@ -120,24 +121,21 @@ func (b *Basis) Init() (result *vagrant_server.Job_InitResult, err error) {
 	return
 }
 
-func RegisterSubcommands(cmd sdkcore.Command, result *vagrant_server.Job_InitResult) (err error) {
-	subcmds, err := cmd.Subcommands()
+func RegisterSubcommands(cmd *sdkcore.CommandInfo, names []string, result *vagrant_server.Job_InitResult) (err error) {
+	subcmds := cmd.Subcommands
 	if len(subcmds) > 0 {
 		for _, scmd := range subcmds {
-			scmdInfo, err := scmd.CommandInfo()
-			if err != nil {
-				return err
-			}
+			name := append(names, scmd.Name)
 			result.Commands = append(
 				result.Commands,
 				&vagrant_server.Job_Command{
-					Name:     strings.Join(scmdInfo.Name, " "),
-					Synopsis: scmdInfo.Synopsis,
-					Help:     scmdInfo.Help,
-					Flags:    FlagsToProtoMapper(scmdInfo.Flags),
+					Name:     strings.Join(name, " "),
+					Synopsis: scmd.Synopsis,
+					Help:     scmd.Help,
+					Flags:    FlagsToProtoMapper(scmd.Flags),
 				},
 			)
-			err = RegisterSubcommands(scmd, result)
+			err = RegisterSubcommands(scmd, name, result)
 		}
 	}
 	return

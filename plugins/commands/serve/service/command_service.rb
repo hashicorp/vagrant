@@ -6,7 +6,9 @@ module VagrantPlugins
       class CommandService < SDK::CommandService::Service
         prepend VagrantPlugins::CommandServe::Service::ExceptionLogger
 
-        [:execute, :subcommands, :command_info].each do |method|
+        LOGGER = Log4r::Logger.new("vagrant::plugins::command::service:command_service")
+
+        [:execute, :command_info].each do |method|
           VagrantPlugins::CommandServe::Service::ExceptionLogger.log_exception method
         end
 
@@ -16,60 +18,74 @@ module VagrantPlugins
 
         def command_info(req, ctx)
           ServiceInfo.with_info(ctx) do |info|
-            plugin_name = info.plugin_name
-
-            options = command_options_for(plugin_name, info.command)
-
-            if options.nil?
-              hlp_msg = ""
-              flags = []
-            else
-              hlp_msg = options.help
-              # Now we can build our list of flags
-              flags = options.top.list.find_all { |o|
-                o.is_a?(OptionParser::Switch)
-              }.map { |o|
-                SDK::Command::Flag.new(
-                  description: o.desc.join(" "),
-                  long_name: o.switch_name,
-                  short_name: o.short.first,
-                  type: o.is_a?(OptionParser::Switch::NoArgument) ?
-                    SDK::Command::Flag::Type::BOOL :
-                    SDK::Command::Flag::Type::STRING
-                )
-              }
-            end
-
-            if info.command.empty?
-              plugin = Vagrant::Plugin::V2::Plugin.manager.commands[plugin_name.to_sym].to_a.first
-              if !plugin
-                raise "Failed to locate command plugin for: #{plugin_name}"
-              end
-              klass = plugin.call
-              synopsis = klass.synopsis
-            else
-              synopsis = ""
-            end
-
+            command_info = collect_command_info(info.plugin_name, info.command)
+            LOGGER.info("command info, #{command_info}")
             SDK::Command::CommandInfoResp.new(
-              help: hlp_msg,
-              flags: flags,
-              synopsis: synopsis,
+              command_info: command_info,
             )
           end
         end
 
-        def subcommand_spec(*args)
-          return SDK::FuncSpec.new
+        def collect_command_info(plugin_name, subcommand_names)
+          LOGGER.info("collecting command information for #{plugin_name} #{subcommand_names}")
+          options = command_options_for(plugin_name, subcommand_names)
+          if options.nil?
+            hlp_msg = ""
+            flags = []
+          else
+            hlp_msg = options.help
+            # Now we can build our list of flags
+            flags = options.top.list.find_all { |o|
+              o.is_a?(OptionParser::Switch)
+            }.map { |o|
+              SDK::Command::Flag.new(
+                description: o.desc.join(" "),
+                long_name: o.switch_name,
+                short_name: o.short.first,
+                type: o.is_a?(OptionParser::Switch::NoArgument) ?
+                  SDK::Command::Flag::Type::BOOL :
+                  SDK::Command::Flag::Type::STRING
+              )
+            }
+          end
+
+          if subcommand_names.empty?
+            plugin = Vagrant::Plugin::V2::Plugin.manager.commands[plugin_name.to_sym].to_a.first
+            if !plugin
+              raise "Failed to locate command plugin for: #{plugin_name}"
+            end
+            klass = plugin.call
+            synopsis = klass.synopsis
+            command_name = plugin_name
+          else
+            synopsis = ""
+            command_name = subcommand_names.last
+          end
+          subcommands = get_subcommands(plugin_name, subcommand_names)
+
+          SDK::Command::CommandInfo.new(
+            name: command_name,
+            help: hlp_msg,
+            flags: flags,
+            synopsis: synopsis,
+            subcommands: subcommands
+          )
         end
 
-        def subcommands(req, ctx)
-          ServiceInfo.with_info(ctx) do |info|
-            cmds = subcommands_for(info.plugin_name, info.command)
-            SDK::Command::SubcommandResp.new(
-              commands: cmds.nil? ? [] : cmds.keys,
-            )
+        def get_subcommands(plugin_name, subcommand_names)
+          LOGGER.info("collecting subcommands for #{plugin_name} #{subcommand_names}")
+          subcommands = []
+          cmds = subcommands_for(plugin_name, subcommand_names)
+          if !cmds.nil?
+            LOGGER.info("found subcommands #{cmds.keys}")
+            cmds.keys.each do |subcmd|
+              subnms = subcommand_names.dup
+              subcommands << collect_command_info(plugin_name, subnms.append(subcmd.to_s))
+            end
+          else
+            LOGGER.info("no subcommands found")
           end
+          return subcommands
         end
 
         def augment_cmd_class(cmd_cls)
