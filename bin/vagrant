@@ -188,8 +188,14 @@ begin
     argv += argv_extra
   end
 
+  sub_cmd = Class.new(Vagrant.plugin("2", :command)) {
+    def sub_command
+      split_main_and_subcommand(@argv)[1]
+    end
+  }.new(argv.dup, nil).sub_command
+
   # Check if we are running the server
-  if Vagrant::CLI.new(argv.dup, nil).sub_command == "serve"
+  if sub_cmd == "serve"
     Vagrant.enable_server_mode!
   end
 
