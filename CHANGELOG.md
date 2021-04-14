@@ -4,6 +4,8 @@ FEATURES:
 
 IMPROVEMENTS:
 
+- guest/linux: Detect in process shutdown in reboot capability [GH-12302]
+
 BUG FIXES:
 
 - core: Add box directly with authed urls [GH-12278]
