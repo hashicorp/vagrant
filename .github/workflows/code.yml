@@ -15,7 +15,7 @@ jobs:
           persist-credentials: false
           fetch-depth: 0
       - name: Set Ruby
-        uses: actions/setup-ruby@v1
+        uses: ruby/setup-ruby@v1
         with:
           ruby-version: '2.6'
       - name: Sync Blackbox Testing Repository
