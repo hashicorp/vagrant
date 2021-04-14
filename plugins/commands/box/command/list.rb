@@ -52,7 +52,7 @@ module VagrantPlugins
             @env.ui.machine("box-version", version)
 
             info_file = @env.boxes.find(name, provider, version).
-              directory.join("info.json")
+              directory.join("include", "info.json")
             if info_file.file?
               info = JSON.parse(info_file.read)
               info.each do |k, v|
