@@ -5,7 +5,7 @@ module Vagrant
 
       # Add an attribute reader for the client
       # when applied to the Machine class
-      def self.included(klass)
+      def self.prepended(klass)
         klass.class_eval do
           attr_reader :client
         end
