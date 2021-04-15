@@ -1,40 +1,59 @@
-import s from './style.module.css'
-import { VERSION } from 'data/version.json'
-import ProductDownloader from '@hashicorp/react-product-downloader'
-import Head from 'next/head'
-import HashiHead from '@hashicorp/react-head'
+import { VERSION } from 'data/version'
+import { productSlug } from 'data/metadata'
+import ProductDownloadsPage from '@hashicorp/react-product-downloads-page'
+import { generateStaticProps } from '@hashicorp/react-product-downloads-page/server'
 import Link from 'next/link'
+import s from './style.module.css'
 
-export default function DownloadsPage({ releaseData }) {
+export default function DownloadsPage(staticProps) {
   return (
-    <div className={s.root}>
-      <HashiHead is={Head} title="Downloads | Vagrant by HashiCorp" />
-      <ProductDownloader
-        product="Vagrant"
-        version={VERSION}
-        releaseData={releaseData}
-      >
+    <ProductDownloadsPage
+      getStartedDescription="Follow step-by-step tutorials on the essentials of Vagrant."
+      getStartedLinks={[
+        {
+          label: 'Quick Start',
+          href:
+            'https://learn.hashicorp.com/tutorials/vagrant/getting-started-index',
+        },
+        {
+          label: 'Install and Specify a Box',
+          href:
+            'https://learn.hashicorp.com/tutorials/vagrant/getting-started-boxes',
+        },
+        {
+          label: 'Configure the Network',
+          href:
+            'https://learn.hashicorp.com/tutorials/vagrant/getting-started-networking',
+        },
+        {
+          label: 'View all Vagrant tutorials',
+          href: 'https://learn.hashicorp.com/vagrant',
+        },
+      ]}
+      logo={
+        <img
+          className={s.logo}
+          alt="Vagrant"
+          src={require('./img/vagrant-logo.svg')}
+        />
+      }
+      tutorialLink={{
+        href: 'https://learn.hashicorp.com/vagrant',
+        label: 'View Tutorials at HashiCorp Learn',
+      }}
+      merchandisingSlot={
         <Link href="/vmware/downloads">
           <a>&raquo; Download VMware Utility</a>
         </Link>
-      </ProductDownloader>
-    </div>
+      }
+      {...staticProps}
+    />
   )
 }
 
 export async function getStaticProps() {
-  return fetch(`https://releases.hashicorp.com/vagrant/${VERSION}/index.json`)
-    .then((res) => res.json())
-    .then((releaseData) => ({ props: { releaseData } }))
-    .catch(() => {
-      throw new Error(
-        `--------------------------------------------------------
-        Unable to resolve version ${VERSION} on releases.hashicorp.com from link
-        <https://releases.hashicorp.com/vagrant/${VERSION}/index.json>. Usually this
-        means that the specified version has not yet been released. The downloads page
-        version can only be updated after the new version has been released, to ensure
-        that it works for all users.
-        ----------------------------------------------------------`
-      )
-    })
+  return generateStaticProps({
+    product: productSlug,
+    latestVersion: VERSION,
+  })
 }
