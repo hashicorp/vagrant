@@ -29,6 +29,10 @@ and if the provider supports it.
   can be used by a packaged Vagrantfile (documented below) to perform additional
   tasks.
 
+- `--info path/to/info.json` - The package will include a custom JSON file containing
+  information to be displayed by the [list](/docs/cli/box#box-list) command when invoked
+  with the `-i` flag
+
 - `--vagrantfile FILE` - Packages a Vagrantfile with the box, that is loaded
   as part of the [Vagrantfile load order](/docs/vagrantfile/#load-order)
   when the resulting box is used.

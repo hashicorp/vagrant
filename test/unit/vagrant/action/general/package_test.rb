@@ -183,6 +183,34 @@ describe Vagrant::Action::General::Package do
     end
   end
 
+  describe "#copy_info" do
+    let(:package_directory) { @package_directory }
+    let(:package_info) { File.join(@package_info_directory, "info.json") }
+
+    before do
+      @package_directory = Dir.mktmpdir
+      @package_info_directory = Dir.mktmpdir
+      FileUtils.touch(File.join(@package_info_directory, "info.json"))
+      env["package.info"] = package_info
+      env["package.directory"] = package_directory
+      subject.instance_variable_set(:@env, env)
+
+      allow(ui).to receive(:info)
+    end
+
+    after do
+      FileUtils.rm_rf(@package_directory)
+      FileUtils.rm_rf(@package_info_directory)
+    end
+
+    it "should copy the specified info.json to package directory" do
+      subject.copy_info
+      expected_info = File.join(package_directory, "info.json")
+
+      expect(File.file? expected_info).to be_truthy
+    end
+  end
+
   describe "#compress" do
     let(:package_directory) { @package_directory }
     let(:fullpath) { "PATH" }

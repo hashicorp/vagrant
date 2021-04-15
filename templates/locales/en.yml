@@ -1293,6 +1293,9 @@ en:
         A file or directory you're attempting to include with your packaged
         box has symlinks in it. Vagrant cannot include symlinks in the
         resulting package. Please remove the symlinks and try again.
+      package_invalid_info: |-
+        The information file that you've attempted to include doesn't exist or isn't a valid JSON file.
+        Please check that the file exists and is titled 'info.json' and try again.
       provider_cant_install: |-
         The provider '%{provider}' doesn't support automatic installation.
         This is a limitation of this provider. Please report this as a feature
