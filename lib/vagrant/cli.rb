@@ -7,8 +7,6 @@ module Vagrant
   # Manages the command line interface to Vagrant.
   class CLI < Vagrant.plugin("2", :command)
 
-    attr_reader :main_args, :sub_command, :sub_args
-
     def initialize(argv, env)
       super
 
