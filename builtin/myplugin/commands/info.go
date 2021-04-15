@@ -36,29 +36,9 @@ func (c *Info) Documentation() (*docs.Documentation, error) {
 	return doc, nil
 }
 
-// SynopsisFunc implements component.Command
-func (c *Info) SynopsisFunc() interface{} {
-	return c.Synopsis
-}
-
-// HelpFunc implements component.Command
-func (c *Info) HelpFunc() interface{} {
-	return c.Help
-}
-
-// FlagsFunc implements component.Command
-func (c *Info) FlagsFunc() interface{} {
-	return c.Flags
-}
-
 // ExecuteFunc implements component.Command
 func (c *Info) ExecuteFunc() interface{} {
 	return c.Execute
-}
-
-// SubcommandFunc implements component.Command
-func (c *Info) SubcommandsFunc() interface{} {
-	return c.Subcommands
 }
 
 // CommandInfoFunc implements component.Command
@@ -68,7 +48,7 @@ func (c *Info) CommandInfoFunc() interface{} {
 
 func (c *Info) CommandInfo() *plugincore.CommandInfo {
 	return &plugincore.CommandInfo{
-		Name:     []string{"myplugin", "info"},
+		Name:     "info",
 		Help:     c.Help(),
 		Synopsis: c.Synopsis(),
 		Flags:    c.Flags(),
@@ -85,10 +65,6 @@ func (c *Info) Help() string {
 
 func (c *Info) Flags() []*option.Option {
 	return []*option.Option{}
-}
-
-func (c *Info) Subcommands() []string {
-	return []string{}
 }
 
 func (c *Info) Execute(trm terminal.UI, env plugincore.Project) int64 {

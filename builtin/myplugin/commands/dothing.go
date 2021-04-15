@@ -34,29 +34,9 @@ func (c *DoThing) Documentation() (*docs.Documentation, error) {
 	return doc, nil
 }
 
-// SynopsisFunc implements component.Command
-func (c *DoThing) SynopsisFunc() interface{} {
-	return c.Synopsis
-}
-
-// HelpFunc implements component.Command
-func (c *DoThing) HelpFunc() interface{} {
-	return c.Help
-}
-
-// FlagsFunc implements component.Command
-func (c *DoThing) FlagsFunc() interface{} {
-	return c.Flags
-}
-
 // ExecuteFunc implements component.Command
 func (c *DoThing) ExecuteFunc() interface{} {
 	return c.Execute
-}
-
-// SubcommandFunc implements component.Command
-func (c *DoThing) SubcommandsFunc() interface{} {
-	return c.Subcommands
 }
 
 // CommandInfoFunc implements component.Command
@@ -66,7 +46,7 @@ func (c *DoThing) CommandInfoFunc() interface{} {
 
 func (c *DoThing) CommandInfo() *plugincore.CommandInfo {
 	return &plugincore.CommandInfo{
-		Name:     []string{"myplugin", "donothing"},
+		Name:     "donothing",
 		Help:     c.Help(),
 		Synopsis: c.Synopsis(),
 		Flags:    c.Flags(),
@@ -93,10 +73,6 @@ func (c *DoThing) Flags() []*option.Option {
 	stringflag.Aliases = append(stringflag.Aliases, "sf")
 
 	return []*option.Option{booltest, stringflag}
-}
-
-func (c *DoThing) Subcommands() []string {
-	return []string{}
 }
 
 func (c *DoThing) Execute(trm terminal.UI) int64 {
