@@ -14,7 +14,9 @@ var (
 	// Builtins is the map of all available builtin plugins and their
 	// options for launching them.
 	Builtins = map[string][]sdk.Option{
-		"myplugin": myplugin.Options,
+		"myplugin":         myplugin.CommandOptions,
+		"myplugin dothing": myplugin.DoThingOptions,
+		"myplugin info":    myplugin.InfoOptions,
 	}
 
 	// Rubies is a map of all available plugins accessible via the

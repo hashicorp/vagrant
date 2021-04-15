@@ -46,7 +46,7 @@ func (c *DoThing) CommandInfoFunc() interface{} {
 
 func (c *DoThing) CommandInfo() *plugincore.CommandInfo {
 	return &plugincore.CommandInfo{
-		Name:     "donothing",
+		Name:     "dothing",
 		Help:     c.Help(),
 		Synopsis: c.Synopsis(),
 		Flags:    c.Flags(),

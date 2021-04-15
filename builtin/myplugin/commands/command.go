@@ -79,6 +79,10 @@ func (c *Command) Subcommands() []*plugincore.CommandInfo {
 
 func (c *Command) Execute(trm terminal.UI) int64 {
 	trm.Output(c.Help())
+	trm.Output("My subcommands are: ")
+	for _, cmd := range c.Subcommands() {
+		trm.Output("    " + cmd.Name)
+	}
 	return 0
 }
 
