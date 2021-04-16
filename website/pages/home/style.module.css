@@ -1,5 +1,10 @@
 .block {
   padding: 100px 0;
+
+  /** DEBT: remove when text split body copy color is updated */
+  & :global(.g-type-body) {
+    color: var(--gray-2);
+  }
 }
 
 .hero {
@@ -29,8 +34,6 @@
 
 .unifiedWorkflow {
   composes: block;
-  background: var(--vagrant);
-  color: white;
 }
 
 /* enforce consistency section */
@@ -47,14 +50,12 @@
 
 .crossPlatform {
   composes: block;
-  background: var(--brand, #2e71e5);
-  color: white;
 
   & img {
     max-width: 130px;
     min-width: 20px;
     height: auto;
-    fill: #fff;
+    fill: black;
     padding: 0 20px;
   }
 }
@@ -63,8 +64,7 @@
 
 .trustedAtScale {
   composes: block;
-  background: var(--black);
-  color: white;
+  background: var(--vagrant-secondary);
 
   & .customerImg {
     max-width: 80%;
@@ -80,8 +80,8 @@
 .tag {
   composes: g-type-label from global;
   display: inline-block;
-  background: white;
-  color: black;
+  background: black;
+  color: white;
   padding: 6px 8px;
 }
 
