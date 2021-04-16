@@ -75,8 +75,9 @@ func (c *DoThing) Flags() []*option.Option {
 	return []*option.Option{booltest, stringflag}
 }
 
-func (c *DoThing) Execute(trm terminal.UI) int64 {
+func (c *DoThing) Execute(trm terminal.UI, flags map[string]interface{}) int64 {
 	trm.Output("Tricked ya! I actually do nothing :P")
+	trm.Output("You gave me the stringflag: " + flags["stringflag"].(string))
 	return 0
 }
 

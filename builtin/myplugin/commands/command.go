@@ -65,7 +65,12 @@ func (c *Command) Help() string {
 }
 
 func (c *Command) Flags() []*option.Option {
-	return []*option.Option{}
+	stringflag := option.New("hehe", option.StringType)
+	stringflag.Description = "a test flag for strings"
+	stringflag.DefaultStr = "message"
+	stringflag.Aliases = append(stringflag.Aliases, "hh")
+
+	return []*option.Option{stringflag}
 }
 
 func (c *Command) Subcommands() []*plugincore.CommandInfo {
@@ -77,7 +82,9 @@ func (c *Command) Subcommands() []*plugincore.CommandInfo {
 	}
 }
 
-func (c *Command) Execute(trm terminal.UI) int64 {
+func (c *Command) Execute(trm terminal.UI, flags map[string]interface{}) int64 {
+	trm.Output("You gave me the flag: " + flags["hehe"].(string))
+
 	trm.Output(c.Help())
 	trm.Output("My subcommands are: ")
 	for _, cmd := range c.Subcommands() {

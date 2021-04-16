@@ -219,6 +219,9 @@ func NewBasis(ctx context.Context, opts ...BasisOption) (b *Basis, err error) {
 	envMapper, _ := argmapper.NewFunc(EnvironmentProto)
 	b.mappers = append(b.mappers, envMapper)
 
+	comandArgMapper, _ := argmapper.NewFunc(CommandArgToMap)
+	b.mappers = append(b.mappers, comandArgMapper)
+
 	if b.client == nil {
 		panic("b.client should never be nil")
 	}
@@ -237,6 +240,20 @@ func NewBasis(ctx context.Context, opts ...BasisOption) (b *Basis, err error) {
 
 	b.logger.Info("basis initialized")
 	return
+}
+
+// TODO: put this in a better place
+func CommandArgToMap(input *vagrant_plugin_sdk.Command_Arguments) (map[string]interface{}, error) {
+	result := make(map[string]interface{})
+	for _, flg := range input.Flags {
+		switch flg.Type {
+		case vagrant_plugin_sdk.Command_Arguments_Flag_STRING:
+			result[flg.Name] = flg.GetString_()
+		case vagrant_plugin_sdk.Command_Arguments_Flag_BOOL:
+			result[flg.Name] = flg.GetBool()
+		}
+	}
+	return result, nil
 }
 
 // TODO: put this in a better place
