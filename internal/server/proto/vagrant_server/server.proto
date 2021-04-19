@@ -4,6 +4,7 @@ package hashicorp.vagrant;
 
 option go_package = "github.com/hashicorp/vagrant/internal/server/proto/vagrant_server";
 
+import "google/protobuf/any.proto";
 import "google/protobuf/empty.proto";
 import "google/protobuf/timestamp.proto";
 import "google/rpc/status.proto";
@@ -187,42 +188,20 @@ message Basis {
   // Unique resource identifier (internal use)
   string resource_id = 1;
 
-  // Name for this basis (the path for now)
+  // Name for this basis
   string name = 2;
 
   // Path to this basis
   string path = 3;
 
+  // Projects within this basis
   repeated Ref.Project projects = 4;
 
-  // If true, then the `-remote` flag or the `vagrant build project/app`
-  // syntax can be used with a remote runner. If this is false, then
-  // this is not allowed. This is typically configured using the
-  // `runner {}` block in the vagrant config.
-  bool remote_enabled = 5;
+  // Custom metadata
+  map<string, string> metadata = 5;
 
-  // Where data is sourced for remote operations. If this isn't set, then
-  // there is no default data source and it will be an error if a job is
-  // queued for this project without a data source set. This is usually
-  // set using the `runner {}` block in the vagrant config.
-  Job.DataSource data_source = 6;
-}
-
-message Project {
-  // Unique resource identifier (internal use)
-  string resource_id = 1;
-
-  // Name of this project (the path for now)
-  string name = 2;
-
-  // Path where this project lives
-  string path = 3;
-
-  // Machines associated with this project
-  repeated Ref.Machine machines = 4;
-
-  // The basis which this project is within
-  Ref.Basis basis = 5;
+  // TODO(spox): look back over these options and see if we
+  // still care about them (i'm thinking no)
 
   // If true, then the `-remote` flag or the `vagrant build project/app`
   // syntax can be used with a remote runner. If this is false, then
@@ -237,35 +216,109 @@ message Project {
   Job.DataSource data_source = 7;
 }
 
+message Project {
+  // Unique resource identifier
+  string resource_id = 1;
+
+  // Name of this project
+  string name = 2;
+
+  // Path where this project lives
+  string path = 3;
+
+  // Targets associated with this project
+  repeated Ref.Target targets = 4;
+
+  // The basis which this project is within
+  Ref.Basis basis = 5;
+
+  // Custom metadata
+  map<string, string> metadata = 6;
+
+  // Serialized configuration of the project (Vagrantfile)
+  google.protobuf.Any configuration = 7;
+
+  // TODO(spox): look back over these options and see if we
+  // still care about them (i'm thinking no)
+
+  // If true, then the `-remote` flag or the `vagrant build project/app`
+  // syntax can be used with a remote runner. If this is false, then
+  // this is not allowed. This is typically configured using the
+  // `runner {}` block in the vagrant config.
+  bool remote_enabled = 8;
+
+  // Where data is sourced for remote operations. If this isn't set, then
+  // there is no default data source and it will be an error if a job is
+  // queued for this project without a data source set. This is usually
+  // set using the `runner {}` block in the vagrant config.
+  Job.DataSource data_source = 9;
+}
+
+message Target {
+  // Unique resource identifier
+  string resource_id = 1;
+
+  // Data directory for target specific files
+  sdk.Args.DataDir.Target datadir = 2;
+
+  // Name of the target
+  string name = 3;
+
+  // Project the target is associated
+  Ref.Project project = 4;
+
+  // Status of the target
+  Status status = 5;
+
+  // Targets contained within this target
+  repeated Target subtargets = 6;
+
+  // Parent if this target is a subtarget
+  Target parent = 7;
+
+  // Public unique identifier for target
+  string uuid = 8;
+
+  // Custom metadata
+  map<string, string> metadata = 9;
+
+  // Serialized configuration of the target (Vagrantfile)
+  google.protobuf.Any configuration = 10;
+
+  // Specialized target information (from provider)
+  google.protobuf.Any record = 11;
+
+  // TODO(spox): look back over these options and see if we
+  // still care about them (i'm thinking no)
+
+  // If true, then the `-remote` flag or the `vagrant build project/app`
+  // syntax can be used with a remote runner. If this is false, then
+  // this is not allowed. This is typically configured using the
+  // `runner {}` block in the vagrant config.
+  bool remote_enabled = 12;
+
+  // Where data is sourced for remote operations. If this isn't set, then
+  // there is no default data source and it will be an error if a job is
+  // queued for this project without a data source set. This is usually
+  // set using the `runner {}` block in the vagrant config.
+  Job.DataSource data_source = 13;
+}
+
 message Machine {
-  sdk.Args.DataDir.Machine datadir = 1;
-
-  // Unique resource identifier (internal use)
-  string resource_id = 2;
-
   // ID of machine as assigned by provider
-  string id = 3;
-
-  // Name of the machine
-  string name = 4;
-
-  // Project the machine is associated
-  Ref.Project project = 5;
-
-  // status of the machine
-  Status status = 6;
+  string id = 1;
 
   // Box information for guest
   sdk.Args.Box box = 7;
-
-  // Public unique identifier for machine
-  string uuid = 8;
 
   // User ID of machine creator
   string uid = 9;
 
   // State of the machine (Vagrant representation)
   sdk.Args.MachineState state = 10;
+
+  // Provider name backing machine
+  string provider = 11;
 
   Operation.PhysicalState physical_state = 50;
 
@@ -280,8 +333,6 @@ message Machine {
   // queued for this project without a data source set. This is usually
   // set using the `runner {}` block in the vagrant config.
   Job.DataSource data_source = 52;
-
-  string provider = 53;
 }
 
 /********************************************************************

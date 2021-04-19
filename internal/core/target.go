@@ -14,17 +14,18 @@ import (
 
 	"github.com/hashicorp/vagrant-plugin-sdk/component"
 	"github.com/hashicorp/vagrant-plugin-sdk/datadir"
+	"github.com/hashicorp/vagrant-plugin-sdk/proto/vagrant_plugin_sdk"
 	"github.com/hashicorp/vagrant-plugin-sdk/terminal"
 	"github.com/hashicorp/vagrant/internal/server/proto/vagrant_server"
 )
 
-type Machine struct {
+type Target struct {
 	name       string
 	resourceid string
 	project    *Project
 	logger     hclog.Logger
-	config     *config.Machine
-	dir        *datadir.Machine
+	config     *config.Target
+	dir        *datadir.Target
 
 	labels         map[string]string
 	overrideLabels map[string]string
@@ -33,12 +34,12 @@ type Machine struct {
 	UI      terminal.UI
 }
 
-func (m *Machine) Ui() terminal.UI {
-	return m.UI
+func (t *Target) Ui() terminal.UI {
+	return t.UI
 }
 
-func (m *Machine) Ref() interface{} {
-	return &vagrant_server.Ref_Machine{
+func (t *Target) Ref() interface{} {
+	return &vagrant_plugin_sdk.Ref_Target{
 		ResourceId: m.resourceid,
 		Name:       m.name,
 		Project:    m.project.Ref().(*vagrant_server.Ref_Project),
