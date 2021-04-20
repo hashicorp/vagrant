@@ -12,19 +12,7 @@ var CommandOptions = []sdk.Option{
 	sdk.WithComponents(
 		&Provider{},
 		&command.Command{},
-	),
-}
-
-var InfoOptions = []sdk.Option{
-	sdk.WithComponents(
-		&Provider{},
 		&command.Info{},
-	),
-}
-
-var DoThingOptions = []sdk.Option{
-	sdk.WithComponents(
-		&Provider{},
 		&command.DoThing{},
 	),
 }
