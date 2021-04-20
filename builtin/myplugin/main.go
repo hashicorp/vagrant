@@ -2,7 +2,7 @@ package myplugin
 
 import (
 	sdk "github.com/hashicorp/vagrant-plugin-sdk"
-	"github.com/hashicorp/vagrant/builtin/myplugin/commands"
+	"github.com/hashicorp/vagrant/builtin/myplugin/command"
 )
 
 //go:generate protoc -I ../../.. --go_opt=plugins=grpc --go_out=../../.. vagrant-ruby/builtin/myplugin/plugin.proto
@@ -11,20 +11,20 @@ import (
 var CommandOptions = []sdk.Option{
 	sdk.WithComponents(
 		&Provider{},
-		&commands.Command{},
+		&command.Command{},
 	),
 }
 
 var InfoOptions = []sdk.Option{
 	sdk.WithComponents(
 		&Provider{},
-		&commands.Info{},
+		&command.Info{},
 	),
 }
 
 var DoThingOptions = []sdk.Option{
 	sdk.WithComponents(
 		&Provider{},
-		&commands.DoThing{},
+		&command.DoThing{},
 	),
 }

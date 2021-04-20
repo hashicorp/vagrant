@@ -1,4 +1,4 @@
-package commands
+package command
 
 import (
 	"github.com/DavidGamba/go-getoptions/option"
