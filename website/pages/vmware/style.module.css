@@ -89,8 +89,8 @@
 
 .benefits {
   composes: block;
-  background: var(--vagrant);
-  color: white;
+  background: var(--vagrant-secondary);
+  color: var(--black);
 
   & h4 {
     margin-top: 20px;
@@ -121,19 +121,19 @@
     display: block;
 
     & a {
-      color: white;
+      color: var(--black);
       text-decoration: underline;
     }
   }
 }
 
 .buyNow {
-  background: var(--brand, #2e71e5);
-  color: white;
+  background: var(--vagrant-secondary);
+  color: var(--black);
   composes: block;
 
   & small a {
-    color: white;
+    color: var(--black);
     text-decoration: underline;
   }
 
