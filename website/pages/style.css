@@ -49,3 +49,7 @@
 .content {
   min-height: calc(100vh - 260px);
 }
+
+.g-type-body {
+  color: var(--gray-2);
+}
