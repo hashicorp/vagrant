@@ -200,7 +200,6 @@ func (p *Project) specializeComponent(c *Component) (cmp plugin.PluginMetadata, 
 func (p *Project) Run(ctx context.Context, task *vagrant_server.Task) (err error) {
 	p.logger.Debug("running new task", "project", p, "task", task)
 
-	// componentName := strings.Split(task.Component.Name, " ")[0]
 	cmd, err := p.basis.component(ctx, component.CommandType, task.Component.Name)
 	if err != nil {
 		return err

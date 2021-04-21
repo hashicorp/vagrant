@@ -98,7 +98,7 @@ func (b *Basis) Init() (result *vagrant_server.Job_InitResult, err error) {
 			continue
 		}
 		b.logger.Trace("started a new plugin for init", "name", name)
-		cmdInfo, err := cmd.CommandInfo()
+		cmdInfo, err := cmd.CommandInfo([]string{name})
 		if err != nil {
 			b.logger.Error("failed to get command info for command "+name, "error", err)
 		}

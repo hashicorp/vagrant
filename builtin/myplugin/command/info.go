@@ -42,7 +42,7 @@ func (c *Info) ExecuteFunc([]string) interface{} {
 }
 
 // CommandInfoFunc implements component.Command
-func (c *Info) CommandInfoFunc() interface{} {
+func (c *Info) CommandInfoFunc([]string) interface{} {
 	return c.CommandInfo
 }
 
