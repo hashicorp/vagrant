@@ -3,6 +3,7 @@ package core
 import (
 	"context"
 	"io"
+	"strings"
 	"sync"
 
 	"github.com/golang/protobuf/proto"
@@ -215,7 +216,7 @@ func (p *Project) Run(ctx context.Context, task *vagrant_server.Task) (err error
 		p.logger,
 		(interface{})(nil),
 		cmd,
-		cmd.Value.(component.Command).ExecuteFunc(),
+		cmd.Value.(component.Command).ExecuteFunc(strings.Split(task.CommandName, " ")),
 		argmapper.Typed(task.CliArgs),
 		// TODO: add extra args here
 		argmapper.Typed(p.env),

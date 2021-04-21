@@ -827,6 +827,7 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
       map :labels, :string, :string, 10
       optional :job_id, :string, 11
       optional :cli_args, :message, 12, "hashicorp.vagrant.sdk.Command.Arguments"
+      optional :command_name, :string, 13
       oneof :scope do
         optional :machine, :message, 1, "hashicorp.vagrant.Ref.Machine"
         optional :project, :message, 2, "hashicorp.vagrant.Ref.Project"

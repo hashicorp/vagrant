@@ -411,7 +411,7 @@ func (b *Basis) Run(ctx context.Context, task *vagrant_server.Task) (err error) 
 		b.logger,
 		(interface{})(nil),
 		cmd,
-		cmd.Value.(component.Command).ExecuteFunc(),
+		cmd.Value.(component.Command).ExecuteFunc(strings.Split(task.CommandName, " ")),
 		argmapper.Typed(task.CliArgs),
 	)
 	if err != nil || result == nil || result.(int64) != 0 {

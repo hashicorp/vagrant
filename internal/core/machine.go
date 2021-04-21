@@ -2,6 +2,7 @@ package core
 
 import (
 	"context"
+	"strings"
 
 	"github.com/golang/protobuf/proto"
 
@@ -87,7 +88,7 @@ func (m *Machine) Run(ctx context.Context, task *vagrant_server.Task) (err error
 		m.logger,
 		(interface{})(nil),
 		cmd,
-		cmd.Value.(component.Command).ExecuteFunc(),
+		cmd.Value.(component.Command).ExecuteFunc(strings.Split(task.CommandName, " ")),
 		argmapper.Typed(task.CliArgs),
 	)
 

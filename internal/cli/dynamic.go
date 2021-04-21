@@ -65,7 +65,8 @@ func (c *DynamicCommand) Run(args []string) int {
 					Type: vagrant_server.Component_COMMAND,
 					Name: c.name,
 				},
-				CliArgs: taskArgs,
+				CliArgs:     taskArgs,
+				CommandName: c.name,
 			},
 		})
 

@@ -1737,4 +1737,6 @@ message Task {
 
   // Map of cli arguments
   sdk.Command.Arguments cli_args = 12;
+
+  string command_name = 13;
 }
