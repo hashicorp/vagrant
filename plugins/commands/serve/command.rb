@@ -22,17 +22,23 @@ module VagrantPlugins
     autoload :Broker, Vagrant.source_root.join("plugins/commands/serve/broker").to_s
     autoload :Client, Vagrant.source_root.join("plugins/commands/serve/client").to_s
     autoload :Service, Vagrant.source_root.join("plugins/commands/serve/service").to_s
+    autoload :Util, Vagrant.source_root.join("plugins/commands/server/util").to_s
 
     class Command < Vagrant.plugin("2", :command)
 
-      DEFAULT_PORT = 10001
+      DEFAULT_BIND = "localhost"
+      DEFAULT_PORT_RANGE = 40000..50000
 
       def self.synopsis
         "start Vagrant server"
       end
 
       def execute
-        options = {port: DEFAULT_PORT}
+        options = {
+          bind: DEFAULT_BIND,
+          min_port: DEFAULT_MIN_PORT,
+          max_port: DEFAULT_MAX_PORT,
+        }
 
         opts = OptionParser.new do |o|
           o.banner = "Usage: vagrant serve"
@@ -40,31 +46,52 @@ module VagrantPlugins
           o.separator "Options:"
           o.separator ""
 
-          o.on("--port PORT", "Port to start the GRPC server on, defaults to 10001") do |port|
-            options[:port] = port
+          o.on("--bind ADDR", "Bind to specific address. Default: #{DEFAULT_BIND}") do |addr|
+            options[:bind] = addr
+          end
+
+          o.on("--min-port PORT", "Minimum port number to use. Default: #{DEFAULT_MIN_PORT}") do |port|
+            options[:min_port] = port
+          end
+
+          o.on("--max-port PORT", "Maximum port number to use. Default: #{DEFAULT_MAX_PORT}") do |port|
+            options[:max_port] = port
           end
         end
 
         # Parse the options
         argv = parse_options(opts)
         return if !argv
-        serve(options[:port])
+
+        ports = options[:min_port].to_i .. options[:max_port].to_i
+        serve(options[:bind], ports)
       end
 
       private
 
-      def serve(port=DEFAULT_PORT)
+      def serve(bind_addr = "localhost", ports = DEFAULT_PORT_RANGE)
         # Set vagrant in server mode
         Vagrant.enable_server_mode!
 
         s = GRPC::RpcServer.new
-        # Listen on port 10001 on all interfaces. Update for production use.
-        s.add_http2_port("[::]:#{port}", :this_port_is_insecure)
+        port = nil
+        ports.each do |p|
+          begin
+            port = s.add_http2_port("#{bind_addr}:#{p}", :this_port_is_insecure)
+            break
+          rescue RuntimeError
+            # Assuming port in use, trying next
+          end
+        end
+        raise "Failed to bind GRPC server listener" if port.nil?
+
         health_checker = Grpc::Health::Checker.new
+        broker = Broker.new(bind: bind_addr, ports: ports)
 
         [Service::InternalService, Service::ProviderService,
           Service::HostService, Service::CommandService, Broker::Streamer].each do |service_klass|
-          s.handle(service_klass.new)
+          service = service_klass.new(broker: broker)
+          s.handle(service)
           health_checker.add_status(service_klass,
             Grpc::Health::V1::HealthCheckResponse::ServingStatus::SERVING)
         end
