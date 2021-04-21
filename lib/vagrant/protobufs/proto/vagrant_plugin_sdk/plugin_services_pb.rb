@@ -17,7 +17,7 @@ module Hashicorp
         # interact with it indirectly via a terminal.UI implementation.
         class Service
 
-          include ::GRPC::GenericService
+          include GRPC::GenericService
 
           self.marshal_class_method = :encode
           self.unmarshal_class_method = :decode
@@ -35,7 +35,7 @@ module Hashicorp
         # to convert to/from various types.
         class Service
 
-          include ::GRPC::GenericService
+          include GRPC::GenericService
 
           self.marshal_class_method = :encode
           self.unmarshal_class_method = :decode
@@ -62,7 +62,7 @@ module Hashicorp
         # the state of a machine
         class Service
 
-          include ::GRPC::GenericService
+          include GRPC::GenericService
 
           self.marshal_class_method = :encode
           self.unmarshal_class_method = :decode
@@ -116,7 +116,7 @@ module Hashicorp
         # A Provisioner runs actions against a VM
         class Service
 
-          include ::GRPC::GenericService
+          include GRPC::GenericService
 
           self.marshal_class_method = :encode
           self.unmarshal_class_method = :decode
@@ -132,7 +132,7 @@ module Hashicorp
       module CommandService
         class Service
 
-          include ::GRPC::GenericService
+          include GRPC::GenericService
 
           self.marshal_class_method = :encode
           self.unmarshal_class_method = :decode
@@ -141,10 +141,10 @@ module Hashicorp
           rpc :ConfigStruct, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::Config::StructResp
           rpc :Configure, ::Hashicorp::Vagrant::Sdk::Config::ConfigureRequest, ::Google::Protobuf::Empty
           rpc :Documentation, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::Config::Documentation
-          rpc :ExecuteSpec, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::FuncSpec
-          rpc :Execute, ::Hashicorp::Vagrant::Sdk::FuncSpec::Args, ::Hashicorp::Vagrant::Sdk::Command::ExecuteResp
-          rpc :CommandInfoSpec, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::FuncSpec
-          rpc :CommandInfo, ::Hashicorp::Vagrant::Sdk::FuncSpec::Args, ::Hashicorp::Vagrant::Sdk::Command::CommandInfoResp
+          rpc :ExecuteSpec, ::Hashicorp::Vagrant::Sdk::Command::SpecReq, ::Hashicorp::Vagrant::Sdk::FuncSpec
+          rpc :Execute, ::Hashicorp::Vagrant::Sdk::Command::ExecuteReq, ::Hashicorp::Vagrant::Sdk::Command::ExecuteResp
+          rpc :CommandInfoSpec, ::Hashicorp::Vagrant::Sdk::Command::SpecReq, ::Hashicorp::Vagrant::Sdk::FuncSpec
+          rpc :CommandInfo, ::Hashicorp::Vagrant::Sdk::Command::CommandInfoReq, ::Hashicorp::Vagrant::Sdk::Command::CommandInfoResp
         end
 
         Stub = Service.rpc_stub_class
@@ -152,7 +152,7 @@ module Hashicorp
       module CommunicatorService
         class Service
 
-          include ::GRPC::GenericService
+          include GRPC::GenericService
 
           self.marshal_class_method = :encode
           self.unmarshal_class_method = :decode
@@ -188,7 +188,7 @@ module Hashicorp
       module ConfigService
         class Service
 
-          include ::GRPC::GenericService
+          include GRPC::GenericService
 
           self.marshal_class_method = :encode
           self.unmarshal_class_method = :decode
@@ -204,7 +204,7 @@ module Hashicorp
       module GuestService
         class Service
 
-          include ::GRPC::GenericService
+          include GRPC::GenericService
 
           self.marshal_class_method = :encode
           self.unmarshal_class_method = :decode
@@ -226,7 +226,7 @@ module Hashicorp
       module HostService
         class Service
 
-          include ::GRPC::GenericService
+          include GRPC::GenericService
 
           self.marshal_class_method = :encode
           self.unmarshal_class_method = :decode
@@ -244,7 +244,7 @@ module Hashicorp
       module SyncedFolderService
         class Service
 
-          include ::GRPC::GenericService
+          include GRPC::GenericService
 
           self.marshal_class_method = :encode
           self.unmarshal_class_method = :decode
@@ -263,7 +263,7 @@ module Hashicorp
         # ******************************************************************
         class Service
 
-          include ::GRPC::GenericService
+          include GRPC::GenericService
 
           self.marshal_class_method = :encode
           self.unmarshal_class_method = :decode
@@ -296,7 +296,7 @@ module Hashicorp
         # ******************************************************************
         class Service
 
-          include ::GRPC::GenericService
+          include GRPC::GenericService
 
           self.marshal_class_method = :encode
           self.unmarshal_class_method = :decode

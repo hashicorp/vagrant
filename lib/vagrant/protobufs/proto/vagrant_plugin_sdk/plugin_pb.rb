@@ -333,14 +333,21 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
       repeated :flags, :message, 4, "hashicorp.vagrant.sdk.Command.Flag"
       repeated :subcommands, :message, 5, "hashicorp.vagrant.sdk.Command.CommandInfo"
     end
+    add_message "hashicorp.vagrant.sdk.Command.CommandInfoReq" do
+      repeated :command_string, :string, 1
+    end
     add_message "hashicorp.vagrant.sdk.Command.CommandInfoResp" do
       optional :command_info, :message, 1, "hashicorp.vagrant.sdk.Command.CommandInfo"
+    end
+    add_message "hashicorp.vagrant.sdk.Command.ExecuteReq" do
+      optional :args, :message, 1, "hashicorp.vagrant.sdk.FuncSpec.Args"
+      repeated :command_string, :string, 2
     end
     add_message "hashicorp.vagrant.sdk.Command.ExecuteResp" do
       optional :exit_code, :int64, 1
     end
-    add_message "hashicorp.vagrant.sdk.Command.SubcommandResp" do
-      repeated :commands, :string, 1
+    add_message "hashicorp.vagrant.sdk.Command.SpecReq" do
+      repeated :command_string, :string, 1
     end
     add_message "hashicorp.vagrant.sdk.Command.Arguments" do
       repeated :flags, :message, 1, "hashicorp.vagrant.sdk.Command.Arguments.Flag"
@@ -612,9 +619,11 @@ module Hashicorp
       Command::Flag = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Command.Flag").msgclass
       Command::Flag::Type = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Command.Flag.Type").enummodule
       Command::CommandInfo = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Command.CommandInfo").msgclass
+      Command::CommandInfoReq = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Command.CommandInfoReq").msgclass
       Command::CommandInfoResp = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Command.CommandInfoResp").msgclass
+      Command::ExecuteReq = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Command.ExecuteReq").msgclass
       Command::ExecuteResp = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Command.ExecuteResp").msgclass
-      Command::SubcommandResp = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Command.SubcommandResp").msgclass
+      Command::SpecReq = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Command.SpecReq").msgclass
       Command::Arguments = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Command.Arguments").msgclass
       Command::Arguments::Flag = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Command.Arguments.Flag").msgclass
       Command::Arguments::Flag::Type = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Command.Arguments.Flag.Type").enummodule

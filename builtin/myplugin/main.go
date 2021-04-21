@@ -2,6 +2,7 @@ package myplugin
 
 import (
 	sdk "github.com/hashicorp/vagrant-plugin-sdk"
+	"github.com/hashicorp/vagrant-plugin-sdk/component"
 	"github.com/hashicorp/vagrant/builtin/myplugin/command"
 )
 
@@ -11,8 +12,10 @@ import (
 var CommandOptions = []sdk.Option{
 	sdk.WithComponents(
 		&Provider{},
-		&command.Command{},
-		&command.Info{},
-		&command.DoThing{},
+		[]component.Command{
+			&command.Command{},
+			&command.Info{},
+			&command.DoThing{},
+		},
 	),
 }
