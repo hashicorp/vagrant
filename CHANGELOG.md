@@ -4,7 +4,15 @@ FEATURES:
 
 IMPROVEMENTS:
 
+- guest/linux: Detect in process shutdown in reboot capability [GH-12302]
+
 BUG FIXES:
+
+- core: Add box directly with authed urls [GH-12278]
+- communicator/ssh: Properly handle authentication with RSA keys [GH-12298]
+- guest/fedora: Import guest detection module [GH-12275]
+- guest/linux: Fix SMB folder mount name capability call [GH-12281]
+- provider/docker: Properly handle updated buildkit build output [GH-12300]
 
 ## 2.2.15 (March 30, 2021)
 

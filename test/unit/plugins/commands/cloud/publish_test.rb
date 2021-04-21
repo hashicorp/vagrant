@@ -171,7 +171,7 @@ describe VagrantPlugins::CloudCommand::Command::Publish do
   describe "load_box_version" do
     let(:box_version) { "1.0.0" }
 
-    context "when vesion exists" do
+    context "when version exists" do
       before do
         allow(box).to receive(:versions).and_return([version])
         allow(version).to receive(:version).and_return(box_version)

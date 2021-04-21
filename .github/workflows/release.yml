@@ -15,7 +15,7 @@ jobs:
       - name: Code Checkout
         uses: actions/checkout@v1
       - name: Set Ruby
-        uses: actions/setup-ruby@v1
+        uses: ruby/setup-ruby@v1
         with:
           ruby-version: '2.6'
       - name: Create Builders Release
