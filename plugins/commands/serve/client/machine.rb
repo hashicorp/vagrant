@@ -6,6 +6,16 @@ module VagrantPlugins
         attr_reader :client
         attr_reader :resource_id
 
+        def initialize(conn)
+          @client = SDK::MachineService::Stub.new(conn, :this_channel_is_insecure)
+        end
+
+        def self.load(raw_machine)
+          m = SDK::Args::Machine.decode(raw_machine)
+          conn = Broker.instance.dial(m.stream_id)
+          self.new(conn.to_s)
+        end
+
         # Create a new instance
         def initialize(name:)
           @client = ServiceInfo.client_for(SDK::MachineService)
