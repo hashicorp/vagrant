@@ -37,7 +37,7 @@ func (c *Command) Documentation() (*docs.Documentation, error) {
 }
 
 // ExecuteFunc implements component.Command
-func (c *Command) ExecuteFunc(name []string) interface{} {
+func (c *Command) ExecuteFunc([]string) interface{} {
 	return c.Execute
 }
 

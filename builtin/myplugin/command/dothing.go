@@ -35,7 +35,7 @@ func (c *DoThing) Documentation() (*docs.Documentation, error) {
 }
 
 // ExecuteFunc implements component.Command
-func (c *DoThing) ExecuteFunc(name []string) interface{} {
+func (c *DoThing) ExecuteFunc([]string) interface{} {
 	return c.Execute
 }
 

@@ -245,10 +245,10 @@ module VagrantPlugins
         def execute(req, ctx)
           ServiceInfo.with_info(ctx) do |info|
             plugin_name = info.plugin_name
-            raw_terminal = req.args.detect { |a|
+            raw_terminal = req.args.args.detect { |a|
               a.type == "hashicorp.vagrant.sdk.Args.TerminalUI"
             }&.value&.value
-            raw_args = req.args.detect { |a|
+            raw_args = req.args.args.detect { |a|
               a.type == "hashicorp.vagrant.sdk.Command.Arguments"
             }&.value&.value
 
