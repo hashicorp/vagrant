@@ -375,6 +375,11 @@ func (b *Basis) Components(ctx context.Context) ([]*Component, error) {
 }
 
 func (b *Basis) component(ctx context.Context, typ component.Type, name string) (*Component, error) {
+	// If this is a command type component, the plugin is registered
+	// as only the root command
+	if typ == component.CommandType {
+		name = strings.Split(name, " ")[0]
+	}
 	return componentCreatorMap[typ].Create(ctx, b, name)
 }
 
