@@ -125,7 +125,7 @@ module VagrantPlugins
           networks.each do |network|
             network[:device] = interfaces[network[:interface]]
 
-            entry = TemplateRenderer.render("guests/debian/network_#{network[:type]}",
+            entry = TemplateRenderer.render("guests/astra/network_#{network[:type]}",
               options: network.merge(:root_device => root_device),
             )
             entries << entry
@@ -174,7 +174,7 @@ module VagrantPlugins
           if remote_path.nil?
             remote_path = "/tmp/vagrant-network-entry-#{Time.now.to_i}"
           end
-          Tempfile.open("vagrant-debian-configure-networks") do |f|
+          Tempfile.open("vagrant-astra-configure-networks") do |f|
             f.binmode
             f.write(content)
             f.fsync
