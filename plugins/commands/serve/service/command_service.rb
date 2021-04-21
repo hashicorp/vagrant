@@ -1,16 +1,12 @@
-require_relative "exception_logger"
-
 module VagrantPlugins
   module CommandServe
     module Service
       class CommandService < SDK::CommandService::Service
-        prepend VagrantPlugins::CommandServe::Service::ExceptionLogger
+
+        prepend Util::HasBroker
+        prepend Util::ExceptionLogger
 
         LOGGER = Log4r::Logger.new("vagrant::plugins::command::service:command_service")
-
-        [:execute, :command_info].each do |method|
-          VagrantPlugins::CommandServe::Service::ExceptionLogger.log_exception method
-        end
 
         def command_info_spec(*args)
           SDK::FuncSpec.new
@@ -25,6 +21,66 @@ module VagrantPlugins
             )
           end
         end
+
+        def execute_spec(req, ctx)
+          SDK::FuncSpec.new(
+            name: "execute_spec",
+            args: [
+              SDK::FuncSpec::Value.new(
+                type: "hashicorp.vagrant.sdk.Args.TerminalUI",
+                name: "",
+              ),
+              SDK::FuncSpec::Value.new(
+                type: "hashicorp.vagrant.sdk.Command.Arguments",
+                name: "",
+              )
+            ],
+            result: [
+              SDK::FuncSpec::Value.new(
+                type: "hashicorp.vagrant.sdk.Command.ExecuteResp",
+                name: "",
+              ),
+            ],
+          )
+        end
+
+        def execute(req, ctx)
+          ServiceInfo.with_info(ctx) do |info|
+            plugin_name = info.plugin_name
+            raw_terminal = req.spec.args.detect { |a|
+              a.type == "hashicorp.vagrant.sdk.Args.TerminalUI"
+            }&.value&.value
+            raw_args = req.spec.args.detect { |a|
+              a.type == "hashicorp.vagrant.sdk.Command.Arguments"
+            }&.value&.value
+
+            arguments = SDK::Command::Arguments.decode(raw_args)
+            ui_client = Client::Terminal.terminal_arg_to_terminal_ui(raw_terminal)
+
+            ui = Vagrant::UI::RemoteUI.new(ui_client)
+            env = Vagrant::Environment.new(ui: ui)
+
+            plugin = Vagrant::Plugin::V2::Plugin.manager.commands[plugin_name.to_sym].to_a.first
+            if !plugin
+              raise "Failed to locate command plugin for: #{plugin_name}"
+            end
+            cmd_klass = plugin.call
+            cmd_args = req.command_args.to_a[1..] + arguments.args.to_a
+            cmd = cmd_klass.new(cmd_args, env)
+            result = cmd.execute
+
+            LOGGER.debug(result)
+            if !result.is_a?(Integer)
+              result = 1
+            end
+
+            SDK::Command::ExecuteResp.new(
+              exit_code: result.respond_to?(:to_i) ? result.to_i : 1
+            )
+          end
+        end
+
+        protected
 
         def collect_command_info(plugin_name, subcommand_names)
           LOGGER.info("collecting command information for #{plugin_name} #{subcommand_names}")
@@ -205,64 +261,6 @@ module VagrantPlugins
 
           # Send the options back
           options
-        end
-
-        def execute_spec(req, ctx)
-          SDK::FuncSpec.new(
-            name: "execute_spec",
-            args: [
-              SDK::FuncSpec::Value.new(
-                type: "hashicorp.vagrant.sdk.Args.TerminalUI",
-                name: "",
-              ),
-              SDK::FuncSpec::Value.new(
-                type: "hashicorp.vagrant.sdk.Command.Arguments",
-                name: "",
-              )
-            ],
-            result: [
-              SDK::FuncSpec::Value.new(
-                type: "hashicorp.vagrant.sdk.Command.ExecuteResp",
-                name: "",
-              ),
-            ],
-          )
-        end
-
-        def execute(req, ctx)
-          ServiceInfo.with_info(ctx) do |info|
-            plugin_name = info.plugin_name
-            raw_terminal = req.spec.args.detect { |a|
-              a.type == "hashicorp.vagrant.sdk.Args.TerminalUI"
-            }&.value&.value
-            raw_args = req.spec.args.detect { |a|
-              a.type == "hashicorp.vagrant.sdk.Command.Arguments"
-            }&.value&.value
-
-            arguments = SDK::Command::Arguments.decode(raw_args)
-            ui_client = Client::Terminal.terminal_arg_to_terminal_ui(raw_terminal)
-
-            ui = Vagrant::UI::RemoteUI.new(ui_client)
-            env = Vagrant::Environment.new(ui: ui)
-
-            plugin = Vagrant::Plugin::V2::Plugin.manager.commands[plugin_name.to_sym].to_a.first
-            if !plugin
-              raise "Failed to locate command plugin for: #{plugin_name}"
-            end
-            cmd_klass = plugin.call
-            cmd_args = req.command_args.to_a[1..] + arguments.args.to_a
-            cmd = cmd_klass.new(cmd_args, env)
-            result = cmd.execute
-
-            LOGGER.debug(result)
-            if !result.is_a?(Integer)
-              result = 1
-            end
-
-            SDK::Command::ExecuteResp.new(
-              exit_code: result.respond_to?(:to_i) ? result.to_i : 1
-            )
-          end
         end
       end
     end

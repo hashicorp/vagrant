@@ -1,18 +1,13 @@
 require 'vagrant/machine'
 require 'vagrant/batch_action'
 require 'vagrant/ui'
-require_relative '../client/terminal_client'
-require_relative "exception_logger"
 
 module VagrantPlugins
   module CommandServe
     module Service
-      class ProviderService < Hashicorp::Vagrant::Sdk::ProviderService::Service
-        prepend VagrantPlugins::CommandServe::Service::ExceptionLogger
-
-        [:usable, :installed, :init, :action_up].each do |method|
-          VagrantPlugins::CommandServe::Service::ExceptionLogger.log_exception method
-        end
+      class ProviderService < SDK::ProviderService::Service
+        prepend Util::HasBroker
+        prepend Util::ExceptionLogger
 
         def usable(req, _unused_call)
           nil
@@ -38,21 +33,20 @@ module VagrantPlugins
           nil
         end
 
-        def action_up(req, _unused_call)
-          machine = machine_arg_to_machine(req)
-          machine.ui.warn("hello from vagrant")
-          Hashicorp::Vagrant::Sdk::Provider::ActionResp.new(success: true)
-        end
-
-        def machine_arg_to_machine(req)
-          raw_machine_arg = req.args[0].value.value
-          raw_terminal_arg  = req.args[1].value.value
-          ui_client = VagrantPlugins::CommandServe::Client::TerminalClient.terminal_arg_to_terminal_ui(raw_terminal_arg)
-          
-          machine_arg = Hashicorp::Vagrant::Sdk::Args::Machine.decode(raw_machine_arg)
-          mclient = Vagrant::MachineClient.new(machine_arg.serverAddr)
-          machine = mclient.get_machine(machine_arg.resource_id, ui_client)
-          machine
+        def action_up(req, ctx)
+          ServiceInfo.with_info(ctx) do |info|
+            plugin_name = info.plugin_name
+            raw_terminal = req.args.detect { |a|
+              a.type == "hashicorp.vagrant.sdk.Args.TerminalUI"
+            }&.value&.value
+            raw_machine = req.args.detect { |a|
+              a.type == "hashicorp.vagrant.sdk.Args.Machine"
+            }&.value&.value
+            ui = Client::Terminal.load(raw_terminal)
+            machine = Client::Machine.load(raw_machine, ui)
+            machine.ui.warn("hello from vagrant")
+            SDK::Provider::ActionResp.new(success: true)
+          end
         end
 
         def action_up_spec(req, _unused_call)

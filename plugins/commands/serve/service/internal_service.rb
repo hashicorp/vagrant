@@ -1,4 +1,3 @@
-
 require "vagrant/plugin/v2/plugin"
 require "vagrant/vagrantfile"
 require "vagrant/box_collection"
@@ -11,6 +10,9 @@ module VagrantPlugins
   module CommandServe
     module Service
       class InternalService < Hashicorp::Vagrant::RubyVagrant::Service
+        prepend HasBroker
+        prepend Util::ExceptionLogger
+
         def get_plugins(req, _unused_call)
           plugins = []
           plugin_manager = Vagrant::Plugin::V2::Plugin.manager
