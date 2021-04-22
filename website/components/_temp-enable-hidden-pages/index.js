@@ -50,6 +50,7 @@ export async function generateStaticProps({
   params,
   paramId = DEFAULT_PARAM_ID,
   additionalComponents,
+  scope,
 }) {
   // Read in the "hidden" nav data, and flatten it
   const navDataVisible = readNavData(navDataFile)
@@ -68,6 +69,7 @@ export async function generateStaticProps({
     params,
     paramId,
     additionalComponents,
+    scope,
   })
   return { ...staticProps, navData: navDataVisible }
 }
