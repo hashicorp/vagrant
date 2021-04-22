@@ -250,11 +250,17 @@ module VagrantPlugins
               raise "Failed to locate command plugin for: #{plugin_name}"
             end
             cmd_klass = plugin.call
-            subcommand = cmd_klass.new(arguments.args.to_a, env)
-            result = subcommand.execute
+            cmd_args = req.command_string.to_a[1..] + arguments.args.to_a
+            cmd = cmd_klass.new(cmd_args, env)
+            result = cmd.execute
+
+            LOGGER.debug(result)
+            if !result.is_a?(Integer)
+              result = 1
+            end
 
             SDK::Command::ExecuteResp.new(
-              exit_code: result.to_i
+              exit_code: result
             )
           end
         end
