@@ -18,7 +18,8 @@ module VagrantPlugins
 
         def command_info(req, ctx)
           ServiceInfo.with_info(ctx) do |info|
-            command_info = collect_command_info(info.plugin_name, info.command)
+            subcommand = req.command_string.to_a[1..]
+            command_info = collect_command_info(info.plugin_name, subcommand)
             LOGGER.info("command info, #{command_info}")
             SDK::Command::CommandInfoResp.new(
               command_info: command_info,

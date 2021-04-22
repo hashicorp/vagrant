@@ -30,18 +30,15 @@ module VagrantPlugins
         attr_reader :vagrant_service_endpoint
         # @return [String] Name of requested plugin
         attr_reader :plugin_name
-        # @return [String[], nil] Name of subcommand for command plugins 
-        attr_reader :command
 
         CLIENT_LOCK = Mutex.new
 
-        def initialize(basis: nil, project: nil, machine: nil, vagrant_service_endpoint: nil, plugin_name: nil, command: nil)
+        def initialize(basis: nil, project: nil, machine: nil, vagrant_service_endpoint: nil, plugin_name: nil)
           @basis = basis
           @project = project
           @machine = machine
           @vagrant_service_endpoint = vagrant_service_endpoint
           @plugin_name = plugin_name
-          @command = command
         end
 
         def self.info
@@ -66,23 +63,12 @@ module VagrantPlugins
         end
 
         def self.with_info(context)
-          cmd_meta = context.metadata["command"]
-          if cmd_meta.nil?
-            command = []
-          else
-            if cmd_meta.is_a?(String)
-              command = context.metadata["command"].split(" ")
-            else
-              command = context.metadata["command"]
-            end
-          end
           info = new(
             basis: context.metadata["basis_resource_id"],
             project: context.metadata["project_resource_id"],
             machine: context.metadata["machine_resource_id"],
             vagrant_service_endpoint: context.metadata["vagrant_service_endpoint"],
             plugin_name: context.metadata["plugin_name"],
-            command: command,
           )
           Thread.current.thread_variable_set(:service_info, info)
           return if !block_given?
