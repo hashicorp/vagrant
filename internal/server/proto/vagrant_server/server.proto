@@ -267,8 +267,8 @@ message Target {
   // Project the target is associated
   Ref.Project project = 4;
 
-  // Status of the target
-  Status status = 5;
+  // State of the target
+  Operation.PhysicalState state = 5;
 
   // Targets contained within this target
   repeated Target subtargets = 6;
@@ -495,8 +495,8 @@ message Operation {
   enum PhysicalState {
     UNKNOWN = 0;
     PENDING = 1;
-    CREATED = 3;
-    DESTROYED = 4;
+    CREATED = 2;
+    DESTROYED = 3;
   };
 }
 
@@ -1757,9 +1757,9 @@ message GetTaskRequest {
 message Task {
   // The scope this task was run within
   oneof scope {
-    Ref.Machine machine = 1;
-    Ref.Project project = 2;
-    Ref.Basis basis = 3;
+    sdk.Ref.Target target = 1;
+    sdk.Ref.Project project = 2;
+    sdk.Ref.Basis basis = 3;
   }
 
   // Name of the task executed
