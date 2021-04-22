@@ -264,11 +264,7 @@ module VagrantPlugins
             end
             cmd_klass = plugin.call
             subcommand = cmd_klass.new(arguments.args.to_a, env)
-            begin
-              result = subcommand.execute
-            rescue => e
-              raise e.message.tr("\n", " ") # + "\n" + e.backtrace.join("\n")
-            end
+            result = subcommand.execute
 
             SDK::Command::ExecuteResp.new(
               exit_code: result.to_i
