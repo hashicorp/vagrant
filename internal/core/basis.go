@@ -7,19 +7,15 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/DavidGamba/go-getoptions/option"
 	"github.com/golang/protobuf/proto"
 	"github.com/hashicorp/go-argmapper"
 	"github.com/hashicorp/go-hclog"
 	"github.com/hashicorp/go-multierror"
-	"github.com/mitchellh/mapstructure"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
 	"github.com/hashicorp/vagrant-plugin-sdk/component"
-	sdkcore "github.com/hashicorp/vagrant-plugin-sdk/core"
 	"github.com/hashicorp/vagrant-plugin-sdk/datadir"
-	"github.com/hashicorp/vagrant-plugin-sdk/helper/path"
 	"github.com/hashicorp/vagrant-plugin-sdk/internal-shared/protomappers"
 	"github.com/hashicorp/vagrant-plugin-sdk/proto/vagrant_plugin_sdk"
 	"github.com/hashicorp/vagrant-plugin-sdk/terminal"
@@ -57,130 +53,6 @@ type Basis struct {
 	lock    sync.Mutex
 	closers []func() error
 	UI      terminal.UI
-}
-
-func (b *Basis) Ui() terminal.UI {
-	return b.UI
-}
-
-func (b *Basis) Ref() interface{} {
-	return &vagrant_server.Ref_Basis{
-		ResourceId: b.resourceid,
-		Name:       b.name,
-	}
-}
-
-func (b *Basis) JobInfo() *component.JobInfo {
-	return b.jobInfo
-}
-
-func (b *Basis) Client() *serverclient.VagrantClient {
-	return b.client
-}
-
-func (b *Basis) Environment() *Environment {
-	return b.env
-}
-
-func (b *Basis) Init() (result *vagrant_server.Job_InitResult, err error) {
-	b.logger.Trace("running init for basis")
-	f := b.factories[component.CommandType]
-	result = &vagrant_server.Job_InitResult{}
-	for _, name := range f.Registered() {
-		c, err := componentCreatorMap[component.CommandType].Create(context.Background(), b, name)
-		if err != nil {
-			b.logger.Error("failed to start plugin", "name", name, "error", err)
-			continue
-		}
-		cmd, ok := c.Value.(sdkcore.Command)
-		if !ok {
-			b.logger.Error("failed to convert to command component")
-			continue
-		}
-		b.logger.Trace("started a new plugin for init", "name", name)
-		cmdInfo, err := cmd.CommandInfo([]string{name})
-		if err != nil {
-			b.logger.Error("failed to get command info for command "+name, "error", err)
-		}
-		names := []string{cmdInfo.Name}
-		err = RegisterSubcommands(cmdInfo, names, result)
-		if err != nil {
-			b.logger.Error("subcommand error", err)
-		}
-		result.Commands = append(
-			result.Commands,
-			&vagrant_server.Job_Command{
-				Name:     name,
-				Synopsis: cmdInfo.Synopsis,
-				Help:     cmdInfo.Help,
-				Flags:    FlagsToProtoMapper(cmdInfo.Flags),
-			},
-		)
-	}
-
-	return
-}
-
-func RegisterSubcommands(cmd *sdkcore.CommandInfo, names []string, result *vagrant_server.Job_InitResult) (err error) {
-	subcmds := cmd.Subcommands
-	if len(subcmds) > 0 {
-		for _, scmd := range subcmds {
-			name := append(names, scmd.Name)
-			result.Commands = append(
-				result.Commands,
-				&vagrant_server.Job_Command{
-					Name:     strings.Join(name, " "),
-					Synopsis: scmd.Synopsis,
-					Help:     scmd.Help,
-					Flags:    FlagsToProtoMapper(scmd.Flags),
-				},
-			)
-			err = RegisterSubcommands(scmd, name, result)
-		}
-	}
-	return
-}
-
-func FlagsToProtoMapper(input []*option.Option) []*vagrant_server.Job_Flag {
-	output := []*vagrant_server.Job_Flag{}
-
-	for _, f := range input {
-		var flagType vagrant_server.Job_Flag_Type
-		switch f.OptType {
-		case option.StringType:
-			flagType = vagrant_server.Job_Flag_STRING
-		case option.BoolType:
-			flagType = vagrant_server.Job_Flag_BOOL
-		}
-
-		// TODO: get aliases
-		j := &vagrant_server.Job_Flag{
-			LongName:     f.Name,
-			ShortName:    f.Name,
-			Description:  f.Description,
-			DefaultValue: f.DefaultStr,
-			Type:         flagType,
-		}
-		output = append(output, j)
-	}
-	return output
-}
-
-func ProtoToFlagsMapper(input []*vagrant_server.Job_Flag) (opt []*option.Option, err error) {
-	opt = []*option.Option{}
-	for _, f := range input {
-		var newOpt *option.Option
-		switch f.Type {
-		case vagrant_server.Job_Flag_STRING:
-			newOpt = option.New(f.LongName, option.StringType)
-		case vagrant_server.Job_Flag_BOOL:
-			newOpt = option.New(f.LongName, option.BoolType)
-		}
-		newOpt.Description = f.Description
-		newOpt.DefaultStr = f.DefaultValue
-		opt = append(opt, newOpt)
-	}
-	return opt, err
 }
 
 // NewBasis creates a new Basis with the given options.
@@ -239,48 +111,72 @@ func NewBasis(ctx context.Context, opts ...BasisOption) (b *Basis, err error) {
 	return
 }
 
-// TODO: put this in a better place
-func CommandArgToMap(input *vagrant_plugin_sdk.Command_Arguments) (map[string]interface{}, error) {
-	result := make(map[string]interface{})
-	for _, flg := range input.Flags {
-		switch flg.Type {
-		case vagrant_plugin_sdk.Command_Arguments_Flag_STRING:
-			result[flg.Name] = flg.GetString_()
-		case vagrant_plugin_sdk.Command_Arguments_Flag_BOOL:
-			result[flg.Name] = flg.GetBool()
-		}
-	}
-	return result, nil
+func (b *Basis) Ui() terminal.UI {
+	return b.UI
 }
 
-// TODO: put this in a better place
-func EnvironmentProto(input *Environment) (*vagrant_plugin_sdk.Args_Project, error) {
-	var result vagrant_plugin_sdk.Args_Project
-	pathToStringHook := func(f, t reflect.Type, data interface{}) (interface{}, error) {
-		if f != reflect.TypeOf(path.NewPath(".")) {
-			return data, nil
+func (b *Basis) Ref() interface{} {
+	return &vagrant_server.Ref_Basis{
+		ResourceId: b.resourceid,
+		Name:       b.name,
+	}
+}
+
+func (b *Basis) JobInfo() *component.JobInfo {
+	return b.jobInfo
+}
+
+func (b *Basis) Client() *serverclient.VagrantClient {
+	return b.client
+}
+
+func (b *Basis) Environment() *Environment {
+	return b.env
+}
+
+func (b *Basis) Init() (result *vagrant_server.Job_InitResult, err error) {
+	b.logger.Debug("running init for basis")
+	f := b.factories[component.CommandType]
+	result = &vagrant_server.Job_InitResult{
+		Commands: []*vagrant_server.Job_Command{},
+	}
+	ctx := context.Background()
+
+	for _, name := range f.Registered() {
+		var cmd *Component
+		cmd, err = b.component(ctx, component.CommandType, name)
+		if err != nil {
+			return
 		}
 
-		if t.Kind() != reflect.String {
-			return data, nil
+		if _, err = b.specializeComponent(cmd); err != nil {
+			return
 		}
 
-		// Convert it
-		path := data.(path.Path)
-		return path.String(), nil
+		raw, err := b.callDynamicFunc(
+			ctx,
+			b.logger,
+			(interface{})(nil),
+			cmd,
+			cmd.Value.(component.Command).CommandInfoFunc(),
+		)
+
+		if err != nil {
+			return nil, err
+		}
+
+		r, err := protomappers.CommandInfo(
+			raw.(*vagrant_plugin_sdk.Command_CommandInfoResp).CommandInfo)
+		if err != nil {
+			return nil, err
+		}
+
+		result.Commands = append(result.Commands,
+			b.convertCommandInfo(r, []string{})...)
 	}
 
-	decoder, err := mapstructure.NewDecoder(
-		&mapstructure.DecoderConfig{
-			DecodeHook: pathToStringHook,
-			Metadata:   nil,
-			Result:     &result,
-		},
-	)
-	if err != nil {
-		return nil, err
-	}
-	return &result, decoder.Decode(input)
+	b.logger.Warn("resulting init commands", "commands", result.Commands)
+	return
 }
 
 func (b *Basis) LoadProject(ctx context.Context, popts ...ProjectOption) (p *Project, err error) {
@@ -371,26 +267,6 @@ func (b *Basis) Components(ctx context.Context) ([]*Component, error) {
 	return results, nil
 }
 
-func (b *Basis) component(ctx context.Context, typ component.Type, name string) (*Component, error) {
-	// If this is a command type component, the plugin is registered
-	// as only the root command
-	if typ == component.CommandType {
-		name = strings.Split(name, " ")[0]
-	}
-	return componentCreatorMap[typ].Create(ctx, b, name)
-}
-
-func (b *Basis) specializeComponent(c *Component) (cmp plugin.PluginMetadata, err error) {
-	var ok bool
-	if cmp, ok = c.Value.(plugin.PluginMetadata); !ok {
-		return nil, fmt.Errorf("component does not support specialization")
-	}
-	cmp.SetRequestMetadata("basis_resource_id", b.resourceid)
-	cmp.SetRequestMetadata("vagrant_service_endpoint", b.client.ServerTarget())
-
-	return
-}
-
 func (b *Basis) Run(ctx context.Context, task *vagrant_server.Task) (err error) {
 	b.logger.Debug("running new task", "basis", b, "task", task)
 
@@ -417,6 +293,43 @@ func (b *Basis) Run(ctx context.Context, task *vagrant_server.Task) (err error) 
 	}
 
 	return
+}
+
+func (b *Basis) component(ctx context.Context, typ component.Type, name string) (*Component, error) {
+	// If this is a command type component, the plugin is registered
+	// as only the root command
+	if typ == component.CommandType {
+		name = strings.Split(name, " ")[0]
+	}
+	return componentCreatorMap[typ].Create(ctx, b, name)
+}
+
+func (b *Basis) specializeComponent(c *Component) (cmp plugin.PluginMetadata, err error) {
+	var ok bool
+	if cmp, ok = c.Value.(plugin.PluginMetadata); !ok {
+		return nil, fmt.Errorf("component does not support specialization")
+	}
+	cmp.SetRequestMetadata("basis_resource_id", b.resourceid)
+	cmp.SetRequestMetadata("vagrant_service_endpoint", b.client.ServerTarget())
+
+	return
+}
+
+func (b *Basis) convertCommandInfo(c *component.CommandInfo, names []string) []*vagrant_server.Job_Command {
+	names = append(names, c.Name)
+	cmds := []*vagrant_server.Job_Command{
+		&vagrant_server.Job_Command{
+			Name:     strings.Join(names, " "),
+			Synopsis: c.Synopsis,
+			Help:     c.Help,
+			Flags:    FlagsToProtoMapper(c.Flags),
+		},
+	}
+
+	for _, scmd := range c.Subcommands {
+		cmds = append(cmds, b.convertCommandInfo(scmd, names)...)
+	}
+	return cmds
 }
 
 // startPlugin starts a plugin with the given type and name. The returned
