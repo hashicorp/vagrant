@@ -30,7 +30,7 @@ export default function App({ Component, pageProps }) {
         description="Vagrant enables users to create and configure lightweight, reproducible, and
           portable development environments."
         image="https://www.vagrantup.com/img/og-image.png"
-        icon={[{ href: '/favicon.ico' }]}
+        icon={[{ href: '/_favicon.ico' }]}
       />
       <HashiStackMenu />
       <ProductSubnav />
