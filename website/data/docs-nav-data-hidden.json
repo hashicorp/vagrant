@@ -1,0 +1,32 @@
+[
+  {
+    "title": "CLI",
+    "routes": [
+      {
+        "title": "rsync",
+        "path": "cli/rsync"
+      },
+      {
+        "title": "rsync-auto",
+        "path": "cli/rsync-auto"
+      },
+      {
+        "title": "winrm",
+        "path": "cli/winrm"
+      },
+      {
+        "title": "winrm_config",
+        "path": "cli/winrm_config"
+      }
+    ]
+  },
+  {
+    "title": "Other",
+    "routes": [
+      {
+        "title": "macOS Catalina",
+        "path": "other/macos-catalina"
+      }
+    ]
+  }
+]
