@@ -23,14 +23,14 @@ func (h *OSXHost) DetectFunc() interface{} {
 }
 
 func (h *OSXHost) Detect() bool {
+	h.InitializeCapabilities()
 	return true
 }
 
 func (h *OSXHost) InitializeCapabilities() {
-	h.RegisterCapability("write_hello", cap.WriteHello)
+	h.RegisterCapability("write_hello", cap.WriteHelloFunc)
 }
 
 var (
 	_ component.Host = (*OSXHost)(nil)
-	_ sdkcore.Host   = (*OSXHost)(nil)
 )
