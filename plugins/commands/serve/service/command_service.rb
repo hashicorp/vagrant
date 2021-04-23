@@ -261,7 +261,7 @@ module VagrantPlugins
             end
 
             SDK::Command::ExecuteResp.new(
-              exit_code: result
+              exit_code: result.respond_to?(:to_i) ? result.to_i : 1
             )
           end
         end
