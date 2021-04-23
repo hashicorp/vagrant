@@ -4,6 +4,7 @@ import (
 	sdk "github.com/hashicorp/vagrant-plugin-sdk"
 	"github.com/hashicorp/vagrant-plugin-sdk/component"
 	"github.com/hashicorp/vagrant/builtin/myplugin"
+	"github.com/hashicorp/vagrant/builtin/otherplugin"
 	"github.com/hashicorp/vagrant/internal/factory"
 )
 
@@ -14,7 +15,8 @@ var (
 	// Builtins is the map of all available builtin plugins and their
 	// options for launching them.
 	Builtins = map[string][]sdk.Option{
-		"myplugin": myplugin.CommandOptions,
+		"myplugin":    myplugin.CommandOptions,
+		"otherplugin": otherplugin.CommandOptions,
 	}
 
 	// Rubies is a map of all available plugins accessible via the
