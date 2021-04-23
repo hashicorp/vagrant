@@ -3,7 +3,6 @@ package command
 import (
 	"github.com/DavidGamba/go-getoptions/option"
 	"github.com/hashicorp/vagrant-plugin-sdk/component"
-	plugincore "github.com/hashicorp/vagrant-plugin-sdk/core"
 	"github.com/hashicorp/vagrant-plugin-sdk/docs"
 	"github.com/hashicorp/vagrant-plugin-sdk/terminal"
 )
@@ -40,17 +39,17 @@ func (c *DoThing) ExecuteFunc([]string) interface{} {
 }
 
 // CommandInfoFunc implements component.Command
-func (c *DoThing) CommandInfoFunc([]string) interface{} {
+func (c *DoThing) CommandInfoFunc() interface{} {
 	return c.CommandInfo
 }
 
-func (c *DoThing) CommandInfo() *plugincore.CommandInfo {
-	return &plugincore.CommandInfo{
+func (c *DoThing) CommandInfo() (*component.CommandInfo, error) {
+	return &component.CommandInfo{
 		Name:     "dothing",
 		Help:     c.Help(),
 		Synopsis: c.Synopsis(),
 		Flags:    c.Flags(),
-	}
+	}, nil
 }
 
 func (c *DoThing) Synopsis() string {

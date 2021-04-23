@@ -8,6 +8,10 @@ import (
 	"github.com/hashicorp/vagrant-plugin-sdk/terminal"
 )
 
+type Subcommand interface {
+	CommandInfo() (*component.CommandInfo, error)
+}
+
 type CommandConfig struct {
 }
 
@@ -37,22 +41,41 @@ func (c *Command) Documentation() (*docs.Documentation, error) {
 }
 
 // ExecuteFunc implements component.Command
-func (c *Command) ExecuteFunc([]string) interface{} {
+func (c *Command) ExecuteFunc(cliArgs []string) interface{} {
+	if len(cliArgs) < 2 {
+		return c.Execute
+	}
+	n := cliArgs[1]
+	switch n {
+	case "info":
+		return c.ExecuteInfo
+	case "dothing":
+		return c.ExecuteDoThing
+	}
+
 	return c.Execute
 }
 
+func (c *Command) ExecuteInfo(trm terminal.UI, env plugincore.Project) int64 {
+	return (&Info{Command: c}).Execute(trm, env)
+}
+
+func (c *Command) ExecuteDoThing(trm terminal.UI, flags map[string]interface{}) int64 {
+	return (&DoThing{Command: c}).Execute(trm, flags)
+}
+
 // CommandInfoFunc implements component.Command
-func (c *Command) CommandInfoFunc([]string) interface{} {
+func (c *Command) CommandInfoFunc() interface{} {
 	return c.CommandInfo
 }
 
-func (c *Command) CommandInfo() *plugincore.CommandInfo {
-	return &plugincore.CommandInfo{
+func (c *Command) CommandInfo() *component.CommandInfo {
+	return &component.CommandInfo{
 		Name:        "myplugin",
 		Help:        c.Help(),
 		Synopsis:    c.Synopsis(),
 		Flags:       c.Flags(),
-		Subcommands: c.Subcommands(),
+		Subcommands: c.subcommandsInfo(),
 	}
 }
 
@@ -73,24 +96,30 @@ func (c *Command) Flags() []*option.Option {
 	return []*option.Option{stringflag}
 }
 
-func (c *Command) Subcommands() []*plugincore.CommandInfo {
-	doThingCmd := &DoThing{Command: c}
-	infoCmd := &Info{Command: c}
-	return []*plugincore.CommandInfo{
-		doThingCmd.CommandInfo(),
-		infoCmd.CommandInfo(),
-	}
-}
-
 func (c *Command) Execute(trm terminal.UI, flags map[string]interface{}) int64 {
 	trm.Output("You gave me the flag: " + flags["hehe"].(string))
 
 	trm.Output(c.Help())
 	trm.Output("My subcommands are: ")
-	for _, cmd := range c.Subcommands() {
+	for _, cmd := range c.subcommandsInfo() {
 		trm.Output("    " + cmd.Name)
 	}
 	return 0
+}
+
+func (c *Command) subcommandsInfo() (r []*component.CommandInfo) {
+	for _, cmd := range c.subcommands() {
+		v, _ := cmd.CommandInfo()
+		r = append(r, v)
+	}
+	return
+}
+
+func (c *Command) subcommands() map[string]Subcommand {
+	return map[string]Subcommand{
+		"info":    &Info{Command: c},
+		"dothing": &DoThing{Command: c},
+	}
 }
 
 var (

@@ -37,22 +37,22 @@ func (c *Info) Documentation() (*docs.Documentation, error) {
 }
 
 // ExecuteFunc implements component.Command
-func (c *Info) ExecuteFunc([]string) interface{} {
+func (c *Info) ExecuteFunc(cliArgs []string) interface{} {
 	return c.Execute
 }
 
 // CommandInfoFunc implements component.Command
-func (c *Info) CommandInfoFunc([]string) interface{} {
+func (c *Info) CommandInfoFunc() interface{} {
 	return c.CommandInfo
 }
 
-func (c *Info) CommandInfo() *plugincore.CommandInfo {
-	return &plugincore.CommandInfo{
+func (c *Info) CommandInfo() (*component.CommandInfo, error) {
+	return &component.CommandInfo{
 		Name:     "info",
 		Help:     c.Help(),
 		Synopsis: c.Synopsis(),
 		Flags:    c.Flags(),
-	}
+	}, nil
 }
 
 func (c *Info) Synopsis() string {
@@ -91,5 +91,5 @@ func (c *Info) Execute(trm terminal.UI, env plugincore.Project) int64 {
 }
 
 var (
-	_ component.Command = (*Command)(nil)
+	_ component.Command = (*Info)(nil)
 )
