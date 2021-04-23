@@ -115,7 +115,7 @@ module VagrantPlugins
           if !plugin
             raise "Failed to locate command plugin for: #{name}"
           end
-        
+
           # Create a new anonymous class based on the command class
           # so we can modify the setup behavior
           klass = augment_cmd_class(Class.new(plugin.call))
@@ -126,7 +126,7 @@ module VagrantPlugins
               self
             end
           end
-        
+
           cmd = klass.new(subcommands, happy_klass.new)
           # Go through the subcommands, looking for the command we actually want
           subcommands.each do |subcommand|
@@ -150,7 +150,7 @@ module VagrantPlugins
           if !plugin
             raise "Failed to locate command plugin for: #{name}"
           end
-        
+
           # Create a new anonymous class based on the command class
           # so we can modify the setup behavior
           klass = augment_cmd_class(Class.new(plugin.call))
@@ -169,19 +169,19 @@ module VagrantPlugins
               Thread.current.thread_variable_set(:command_options, self)
             end
           end
-        
+
           # Now we need to swap out the constant. Swapping out constants
           # is bad, so we need to force our request through.
           VagrantPlugins.send(:remove_const, :OptionParser)
           VagrantPlugins.const_set(:OptionParser, optparse_klass)
-        
+
           # Execute the command to populate our options
           happy_klass = Class.new do
             def method_missing(*_)
               self
             end
           end
-        
+
           cmd = klass.new(subcommands, happy_klass.new)
           # Go through the subcommands, looking for the command we actually want
           subcommands.each do |subcommand|
@@ -199,11 +199,11 @@ module VagrantPlugins
 
           # Clean our option data out of the thread
           Thread.current.thread_variable_set(:command_options, nil)
-        
+
           # And finally we restore our constants
           VagrantPlugins.send(:remove_const, :OptionParser)
           VagrantPlugins.const_set(:OptionParser, VagrantPlugins.const_get(:VagrantOriginalOptionParser))
-        
+
           # Send the options back
           options
         end
@@ -233,10 +233,10 @@ module VagrantPlugins
         def execute(req, ctx)
           ServiceInfo.with_info(ctx) do |info|
             plugin_name = info.plugin_name
-            raw_terminal = req.args.args.detect { |a|
+            raw_terminal = req.spec.args.detect { |a|
               a.type == "hashicorp.vagrant.sdk.Args.TerminalUI"
             }&.value&.value
-            raw_args = req.args.args.detect { |a|
+            raw_args = req.spec.args.detect { |a|
               a.type == "hashicorp.vagrant.sdk.Command.Arguments"
             }&.value&.value
 
