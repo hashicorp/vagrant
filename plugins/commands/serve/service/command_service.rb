@@ -18,8 +18,7 @@ module VagrantPlugins
 
         def command_info(req, ctx)
           ServiceInfo.with_info(ctx) do |info|
-            subcommand = req.command_string.to_a[1..]
-            command_info = collect_command_info(info.plugin_name, subcommand)
+            command_info = collect_command_info(info.plugin_name, [])
             LOGGER.info("command info, #{command_info}")
             SDK::Command::CommandInfoResp.new(
               command_info: command_info,
@@ -251,7 +250,7 @@ module VagrantPlugins
               raise "Failed to locate command plugin for: #{plugin_name}"
             end
             cmd_klass = plugin.call
-            cmd_args = req.command_string.to_a[1..] + arguments.args.to_a
+            cmd_args = req.command_args.to_a[1..] + arguments.args.to_a
             cmd = cmd_klass.new(cmd_args, env)
             result = cmd.execute
 

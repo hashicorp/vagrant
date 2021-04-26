@@ -141,10 +141,10 @@ module Hashicorp
           rpc :ConfigStruct, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::Config::StructResp
           rpc :Configure, ::Hashicorp::Vagrant::Sdk::Config::ConfigureRequest, ::Google::Protobuf::Empty
           rpc :Documentation, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::Config::Documentation
-          rpc :ExecuteSpec, ::Hashicorp::Vagrant::Sdk::Command::SpecReq, ::Hashicorp::Vagrant::Sdk::FuncSpec
+          rpc :ExecuteSpec, ::Hashicorp::Vagrant::Sdk::Command::ExecuteSpecReq, ::Hashicorp::Vagrant::Sdk::FuncSpec
           rpc :Execute, ::Hashicorp::Vagrant::Sdk::Command::ExecuteReq, ::Hashicorp::Vagrant::Sdk::Command::ExecuteResp
-          rpc :CommandInfoSpec, ::Hashicorp::Vagrant::Sdk::Command::SpecReq, ::Hashicorp::Vagrant::Sdk::FuncSpec
-          rpc :CommandInfo, ::Hashicorp::Vagrant::Sdk::Command::CommandInfoReq, ::Hashicorp::Vagrant::Sdk::Command::CommandInfoResp
+          rpc :CommandInfoSpec, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::FuncSpec
+          rpc :CommandInfo, ::Hashicorp::Vagrant::Sdk::FuncSpec::Args, ::Hashicorp::Vagrant::Sdk::Command::CommandInfoResp
         end
 
         Stub = Service.rpc_stub_class
