@@ -35,6 +35,9 @@ type Plugin struct {
 		Guest        bool
 		Host         bool
 		SyncedFolder bool
+		Config       bool
+		LogViewer    bool
+		LogPlatform  bool
 	}
 
 	// Checksum is the SHA256 checksum to validate this plugin.
@@ -138,6 +141,9 @@ func (p *Plugin) pluginMap() map[interface{}]*bool {
 		component.ProviderType:            &p.Type.Provider,
 		component.ProvisionerType:         &p.Type.Provisioner,
 		component.SyncedFolderType:        &p.Type.SyncedFolder,
+		component.ConfigType:              &p.Type.Config,
+		component.LogPlatformType:         &p.Type.LogPlatform,
+		component.LogViewerType:           &p.Type.LogViewer,
 		ruby_vagrant.Plugin_COMMAND:       &p.Type.Command,
 		ruby_vagrant.Plugin_COMMUNICATOR:  &p.Type.Communicator,
 		ruby_vagrant.Plugin_GUEST:         &p.Type.Guest,

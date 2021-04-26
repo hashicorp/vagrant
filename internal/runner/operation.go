@@ -31,15 +31,21 @@ func (r *Runner) LoadPlugins(cfg *configpkg.Config) error {
 		cfg.TrackRubyPlugin(p.Name, []interface{}{p.Type})
 	}
 
+	components := []interface{}{}
+	for typ, _ := range plugin.BaseFactories {
+		components = append(components, typ)
+	}
 	// Now lets load builtin plugins
 	for name, options := range plugin.Builtins {
+		r.logger.Info("loading builtin plugin " + name)
+
 		if plugin.IN_PROCESS_PLUGINS {
 			if err := r.builtinPlugins.Add(name, options...); err != nil {
 				return err
 			}
 		}
 
-		cfg.TrackBuiltinPlugin(name, []interface{}{component.CommandType})
+		cfg.TrackBuiltinPlugin(name, components)
 	}
 
 	return nil
