@@ -13,7 +13,6 @@ type HostConfig struct {
 type OSXHost struct {
 	config HostConfig
 
-	// Include capability host
 	sdkcore.CapabilityHost
 }
 
@@ -23,14 +22,16 @@ func (h *OSXHost) DetectFunc() interface{} {
 }
 
 func (h *OSXHost) Detect() bool {
-	h.InitializeCapabilities()
+	// h.InitializeCapabilities()
 	return true
 }
 
-func (h *OSXHost) InitializeCapabilities() {
-	h.RegisterCapability("write_hello", cap.WriteHelloFunc)
+func (h *OSXHost) InitializeCapabilities() (err error) {
+	err = h.RegisterCapability("write_hello", cap.WriteHelloFunc)
+	return
 }
 
 var (
 	_ component.Host = (*OSXHost)(nil)
+	_ sdkcore.Host   = (*OSXHost)(nil)
 )
