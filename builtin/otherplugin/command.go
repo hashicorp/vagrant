@@ -17,6 +17,13 @@ func (c *Command) ExecuteFunc(cliArgs []string) interface{} {
 	}
 	switch cliArgs[1] {
 	case "info":
+		if len(cliArgs) < 3 {
+			return c.ExecuteInfo
+		}
+		switch cliArgs[2] {
+		case "ofni":
+			return c.ExecuteOfni
+		}
 		return c.ExecuteInfo
 	case "dothing":
 		return c.ExecuteThing
@@ -47,6 +54,14 @@ func (c *Command) CommandInfo() *component.CommandInfo {
 				Help:     "Shows info",
 				Synopsis: "IT. SHOWS. INFO.",
 				Flags:    []*option.Option{},
+				Subcommands: []*component.CommandInfo{
+					&component.CommandInfo{
+						Name:     "ofni",
+						Help:     "Shows ofni",
+						Synopsis: "BIZZARO info",
+						Flags:    []*option.Option{},
+					},
+				},
 			},
 			&component.CommandInfo{
 				Name:     "dothing",
@@ -98,5 +113,10 @@ func (c *Command) ExecuteInfo(trm terminal.UI, env plugincore.Project) int64 {
 	trm.Output("Local data directory: " + localDataPath)
 	trm.Output("Default private key path: " + defaultPrivateKeyPath)
 
+	return 0
+}
+
+func (c *Command) ExecuteOfni(trm terminal.UI) int64 {
+	trm.Output("I am bizzaro info! Call me ofni")
 	return 0
 }
