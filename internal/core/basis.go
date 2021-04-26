@@ -169,18 +169,9 @@ func ProtoToFlagsMapper(input []*vagrant_server.Job_Flag) (opt []*option.Option,
 // NewBasis creates a new Basis with the given options.
 func NewBasis(ctx context.Context, opts ...BasisOption) (b *Basis, err error) {
 	b = &Basis{
-		logger:  hclog.L(),
-		jobInfo: &component.JobInfo{},
-		factories: map[component.Type]*factory.Factory{
-			component.CommandType:      plugin.BaseFactories[component.CommandType],
-			component.CommunicatorType: plugin.BaseFactories[component.CommunicatorType],
-			component.ConfigType:       plugin.BaseFactories[component.ConfigType],
-			component.GuestType:        plugin.BaseFactories[component.GuestType],
-			component.HostType:         plugin.BaseFactories[component.HostType],
-			component.ProviderType:     plugin.BaseFactories[component.ProviderType],
-			component.ProvisionerType:  plugin.BaseFactories[component.ProvisionerType],
-			component.SyncedFolderType: plugin.BaseFactories[component.SyncedFolderType],
-		},
+		logger:    hclog.L(),
+		jobInfo:   &component.JobInfo{},
+		factories: plugin.BaseFactories,
 	}
 
 	for _, opt := range opts {

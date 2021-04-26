@@ -89,24 +89,12 @@ func New(opts ...Option) (*Runner, error) {
 
 	// Our default runner
 	runner := &Runner{
-		id:       id,
-		logger:   hclog.L(),
-		ctx:      context.Background(),
-		runner:   &vagrant_server.Runner{Id: id},
-		opConfig: &intcfg.Config{},
-		factories: map[component.Type]*factory.Factory{
-			component.MapperType:       plugin.BaseFactories[component.MapperType],
-			component.CommandType:      plugin.BaseFactories[component.CommandType],
-			component.CommunicatorType: plugin.BaseFactories[component.CommunicatorType],
-			component.ConfigType:       plugin.BaseFactories[component.ConfigType],
-			component.GuestType:        plugin.BaseFactories[component.GuestType],
-			component.HostType:         plugin.BaseFactories[component.HostType],
-			component.LogPlatformType:  plugin.BaseFactories[component.LogPlatformType],
-			component.LogViewerType:    plugin.BaseFactories[component.LogViewerType],
-			component.ProviderType:     plugin.BaseFactories[component.ProviderType],
-			component.ProvisionerType:  plugin.BaseFactories[component.ProvisionerType],
-			component.SyncedFolderType: plugin.BaseFactories[component.SyncedFolderType],
-		},
+		id:        id,
+		logger:    hclog.L(),
+		ctx:       context.Background(),
+		runner:    &vagrant_server.Runner{Id: id},
+		opConfig:  &intcfg.Config{},
+		factories: plugin.BaseFactories,
 	}
 
 	// Build our config
