@@ -21,7 +21,7 @@ Gem::Specification.new do |s|
   s.add_dependency "erubi"
   s.add_dependency "hashicorp-checkpoint", "~> 0.1.5"
   s.add_dependency "i18n", "~> 1.8"
-  s.add_dependency "listen", "~> 3.4"
+  s.add_dependency "listen", "~> 3.5"
   s.add_dependency "log4r", "~> 1.1.9", "< 1.1.11"
   s.add_dependency "mime-types", "~> 3.3"
   s.add_dependency "net-ssh", ">= 6.1.0", "< 6.2"
