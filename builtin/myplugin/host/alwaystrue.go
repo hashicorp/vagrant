@@ -9,29 +9,29 @@ import (
 type HostConfig struct {
 }
 
-// TestOSXHost is a Host implementation for myplugin.
-type OSXHost struct {
+// AlwaysTrueHost is a Host implementation for myplugin.
+type AlwaysTrueHost struct {
 	config HostConfig
 
 	sdkcore.CapabilityHost
 }
 
 // DetectFunc implements component.Host
-func (h *OSXHost) DetectFunc() interface{} {
-	return h.Detect()
+func (h *AlwaysTrueHost) DetectFunc() interface{} {
+	return h.Detect
 }
 
-func (h *OSXHost) Detect() bool {
-	// h.InitializeCapabilities()
+func (h *AlwaysTrueHost) Detect() bool {
+	h.InitializeCapabilities()
 	return true
 }
 
-func (h *OSXHost) InitializeCapabilities() (err error) {
+func (h *AlwaysTrueHost) InitializeCapabilities() (err error) {
 	err = h.RegisterCapability("write_hello", cap.WriteHelloFunc)
 	return
 }
 
 var (
-	_ component.Host = (*OSXHost)(nil)
-	_ sdkcore.Host   = (*OSXHost)(nil)
+	_ component.Host = (*AlwaysTrueHost)(nil)
+	_ sdkcore.Host   = (*AlwaysTrueHost)(nil)
 )
