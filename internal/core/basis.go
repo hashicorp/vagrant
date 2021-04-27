@@ -134,6 +134,51 @@ func (b *Basis) Environment() *Environment {
 	return b.env
 }
 
+func (b *Basis) initHosts(ctx context.Context) error {
+	f := b.factories[component.HostType]
+	for _, name := range f.Registered() {
+		if name != "myplugin" {
+			continue
+		}
+		h, err := componentCreatorMap[component.HostType].Create(context.Background(), b, name)
+		if err != nil {
+			return err
+		}
+		detected, err := b.callDynamicFunc(
+			ctx,
+			b.logger,
+			(interface{})(nil),
+			h,
+			h.Value.(component.Host).DetectFunc(),
+		)
+		if detected.(bool) == false {
+			return err
+		}
+		hasCap, err := b.callDynamicFunc(
+			ctx,
+			b.logger,
+			(interface{})(nil),
+			h,
+			h.Value.(component.Host).HasCapabilityFunc(),
+			argmapper.Typed("write_hello"),
+		)
+		if hasCap.(bool) {
+			_, err := b.callDynamicFunc(
+				ctx,
+				b.logger,
+				(interface{})(nil),
+				h,
+				h.Value.(component.Host).CapabilityFunc("write_hello"),
+				argmapper.Typed(b.UI),
+			)
+			if err != nil {
+				return err
+			}
+		}
+	}
+	return nil
+}
+
 func (b *Basis) Init() (result *vagrant_server.Job_InitResult, err error) {
 	b.logger.Debug("running init for basis")
 	f := b.factories[component.CommandType]
@@ -141,6 +186,7 @@ func (b *Basis) Init() (result *vagrant_server.Job_InitResult, err error) {
 		Commands: []*vagrant_server.Job_Command{},
 	}
 	ctx := context.Background()
+	b.initHosts(ctx)
 
 	for _, name := range f.Registered() {
 		var cmd *Component
