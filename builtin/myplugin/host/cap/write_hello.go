@@ -11,9 +11,9 @@ func WriteHelloFunc() interface{} {
 }
 
 func WriteHello(trm terminal.UI) error {
-	trm.Output("Writing to /tmp/dat1")
+	trm.Output("Writing hello to /tmp/hello")
 
-	data := []byte("hello\ngo\n")
-	ioutil.WriteFile("/tmp/dat1", data, 0644)
+	data := []byte("hello from the always true host plugin\n")
+	ioutil.WriteFile("/tmp/hello", data, 0644)
 	return nil
 }
