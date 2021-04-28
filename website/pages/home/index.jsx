@@ -105,7 +105,7 @@ $ vagrant ssh
           </p>
           <img
             className={s.customerImg}
-            src="/img/customers.png"
+            src="/img/vagrant-trusted-by-logos.png"
             alt="Logos of Vagrant customers"
           />
         </div>
