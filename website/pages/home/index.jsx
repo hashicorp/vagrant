@@ -67,7 +67,7 @@ $ vagrant ssh
             }}
             reverse={true}
           >
-            <img src="/img/parity.svg" alt="Server Parity Diagram" />
+            <img src="/img/vagrant_parity.svg" alt="Server Parity Diagram" />
           </TextSplit>
         </div>
       </section>
