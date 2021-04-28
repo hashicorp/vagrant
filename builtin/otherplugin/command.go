@@ -4,6 +4,7 @@ import (
 	"strings"
 
 	"github.com/DavidGamba/go-getoptions/option"
+	"github.com/hashicorp/go-argmapper"
 	"github.com/hashicorp/vagrant-plugin-sdk/component"
 	plugincore "github.com/hashicorp/vagrant-plugin-sdk/core"
 	//	"github.com/hashicorp/vagrant-plugin-sdk/proto/vagrant_plugin_sdk"
@@ -29,6 +30,8 @@ func (c *Command) ExecuteFunc(cliArgs []string) interface{} {
 		return c.ExecuteInfo
 	case "dothing":
 		return c.ExecuteThing
+	case "use-host":
+		return c.ExecuteUseHostPlugin
 	}
 	return c.ExecuteMain
 }
@@ -77,6 +80,12 @@ func (c *Command) CommandInfo() *component.CommandInfo {
 						DefaultStr:  "I'm a string!",
 					},
 				},
+			},
+			&component.CommandInfo{
+				Name:     "use-host",
+				Help:     "Executes a host capability",
+				Synopsis: "Executes a host capability",
+				Flags:    []*option.Option{},
 			},
 		},
 	}
@@ -144,5 +153,13 @@ func (c *Command) ExecuteInfo(trm terminal.UI, p plugincore.Project, t plugincor
 
 func (c *Command) ExecuteOfni(trm terminal.UI) int64 {
 	trm.Output("I am bizzaro info! Call me ofni")
+	return 0
+}
+
+func (c *Command) ExecuteUseHostPlugin(trm terminal.UI, host plugincore.Host) int64 {
+	trm.Output("I'm going to use a the host plugin to do something!")
+	if ok, _ := host.HasCapability("write_hello"); ok {
+		host.Capability("write_hello", argmapper.Typed(trm))
+	}
 	return 0
 }
