@@ -9,7 +9,7 @@ import (
 )
 
 // disable in process plugins by default for now
-const IN_PROCESS_PLUGINS = false
+const IN_PROCESS_PLUGINS = true
 
 var (
 	// Builtins is the map of all available builtin plugins and their

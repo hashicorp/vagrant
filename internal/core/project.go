@@ -20,6 +20,7 @@ import (
 	"github.com/hashicorp/vagrant-plugin-sdk/proto/vagrant_plugin_sdk"
 	"github.com/hashicorp/vagrant-plugin-sdk/terminal"
 
+	alwaysTrueHost "github.com/hashicorp/vagrant/builtin/myplugin/host"
 	"github.com/hashicorp/vagrant/internal/config"
 	"github.com/hashicorp/vagrant/internal/factory"
 	"github.com/hashicorp/vagrant/internal/plugin"
@@ -232,7 +233,13 @@ func (p *Project) Components(ctx context.Context) (results []*Component, err err
 func (p *Project) Run(ctx context.Context, task *vagrant_server.Task) (err error) {
 	p.logger.Debug("running new task", "project", p, "task", task)
 
+	hostPluginName, err := p.findHostPlugin(ctx)
+	if hostPluginName != "" {
+
+	}
 	cmd, err := p.basis.component(ctx, component.CommandType, task.Component.Name)
+	// hostPlugin, err := p.basis.component(ctx, component.HostType, hostPluginName)
+
 	if err != nil {
 		return err
 	}

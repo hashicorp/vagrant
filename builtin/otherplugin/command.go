@@ -158,8 +158,12 @@ func (c *Command) ExecuteOfni(trm terminal.UI) int64 {
 
 func (c *Command) ExecuteUseHostPlugin(trm terminal.UI, host plugincore.Host) int64 {
 	trm.Output("I'm going to use a the host plugin to do something!")
+	host.HasCapability("write_hello")
 	if ok, _ := host.HasCapability("write_hello"); ok {
+		trm.Output("Writing to file using `write_hello` capability")
 		host.Capability("write_hello", argmapper.Typed(trm))
+	} else {
+		trm.Output("no `write_hello` capability found")
 	}
 	return 0
 }
