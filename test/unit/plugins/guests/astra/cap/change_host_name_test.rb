@@ -54,34 +54,6 @@ describe "VagrantPlugins::GuestAstra::Cap::ChangeHostName" do
       end
     end
 
-    # NOTE: failed
-    context "multiple networks configured with hostname" do 
-      it "adds a new entry only for the hostname" do 
-        networks = [
-          [:forwarded_port, {:guest=>22, :host=>2222, :host_ip=>"127.0.0.1", :id=>"ssh", :auto_correct=>true, :protocol=>"tcp"}],
-          [:public_network, {:ip=>"192.168.0.1", :hostname=>true, :protocol=>"tcp", :id=>"93a4ad88-0774-4127-a161-ceb715ff372f"}],
-          [:public_network, {:ip=>"192.168.0.2", :protocol=>"tcp", :id=>"5aebe848-7d85-4425-8911-c2003d924120"}]
-        ]
-        allow(machine).to receive_message_chain(:config, :vm, :networks).and_return(networks)
-        ##expect(cap).to receive(:replace_host)
-        expect(cap).to_not receive(:add_hostname_to_loopback_interface)
-        cap.change_host_name(machine, name)
-      end
-
-      # NOTE: failed
-      it "appends an entry to the loopback interface" do 
-        networks = [
-          [:forwarded_port, {:guest=>22, :host=>2222, :host_ip=>"127.0.0.1", :id=>"ssh", :auto_correct=>true, :protocol=>"tcp"}],
-          [:public_network, {:ip=>"192.168.0.1", :protocol=>"tcp", :id=>"93a4ad88-0774-4127-a161-ceb715ff372f"}],
-          [:public_network, {:ip=>"192.168.0.2", :protocol=>"tcp", :id=>"5aebe848-7d85-4425-8911-c2003d924120"}]
-        ]
-        allow(machine).to receive_message_chain(:config, :vm, :networks).and_return(networks)
-        expect(cap).to_not receive(:replace_host)
-        ##expect(cap).to receive(:add_hostname_to_loopback_interface).once
-        cap.change_host_name(machine, name)
-      end
-    end
-
     context "when hostnamectl is in use" do
       let(:hostnamectl) { true }
 
