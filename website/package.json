@@ -12,7 +12,7 @@
     "@hashicorp/react-hashi-stack-menu": "2.0.3",
     "@hashicorp/react-head": "^3.0.2",
     "@hashicorp/react-product-downloader": "4.1.5",
-    "@hashicorp/react-product-downloads-page": "2.0.1",
+    "@hashicorp/react-product-downloads-page": "^2.0.2-alpha.10",
     "@hashicorp/react-search": "^5.0.2",
     "@hashicorp/react-section-header": "5.0.2",
     "@hashicorp/react-subnav": "^8.1.0",
