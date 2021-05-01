@@ -99,7 +99,7 @@ Some of these options are for advanced usage only and should not be used unless 
   }
   ```
 
-  Example with [group variables](https://docs.ansible.com/ansible/intro_inventory.html#group-variables):
+  Example with [group variables](https://docs.ansible.com/ansible/latest/user_guide/intro_inventory.html#assigning-a-variable-to-many-machines-group-variables):
 
   ```ruby
   ansible.groups = {
@@ -114,7 +114,7 @@ Some of these options are for advanced usage only and should not be used unless 
   - Alphanumeric patterns are not supported (e.g. `db-[a:f]`, `vm[01:10]`).
   - This option has no effect when the `inventory_path` option is defined.
 
-- `host_vars` (hash) - Set of inventory host variables to be included in the [auto-generated inventory file](https://docs.ansible.com/ansible/intro_inventory.html#host-variables).
+- `host_vars` (hash) - Set of inventory host variables to be included in the [auto-generated inventory file](https://docs.ansible.com/ansible/latest/user_guide/intro_inventory.html#assigning-a-variable-to-one-machine-host-variables).
 
   Example:
 
