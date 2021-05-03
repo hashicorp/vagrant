@@ -20,9 +20,6 @@
 @import '~@hashicorp/react-vertical-text-block-list/style.css';
 @import '~@hashicorp/react-product-downloader/dist/style.css';
 
-/* Local Components */
-@import '../components/search-bar/style.css';
-
 /* Print Styles */
 @import './print.css';
 
@@ -49,6 +46,10 @@
 }
 
 /* Sticky Footer */
-.content {
+#p-docs {
   min-height: calc(100vh - 260px);
+}
+
+.g-type-body {
+  color: var(--gray-2);
 }
