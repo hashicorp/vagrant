@@ -46,7 +46,7 @@
 }
 
 /* Sticky Footer */
-.content {
+#p-docs {
   min-height: calc(100vh - 260px);
 }
 
