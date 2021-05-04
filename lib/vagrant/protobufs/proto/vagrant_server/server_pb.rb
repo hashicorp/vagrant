@@ -107,6 +107,7 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
     add_message "hashicorp.vagrant.Component" do
       optional :type, :enum, 1, "hashicorp.vagrant.Component.Type"
       optional :name, :string, 2
+      optional :server_addr, :string, 3
     end
     add_enum "hashicorp.vagrant.Component.Type" do
       value :UNKNOWN, 0

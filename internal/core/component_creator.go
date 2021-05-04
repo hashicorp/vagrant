@@ -109,8 +109,9 @@ func (cc *componentCreator) Create(
 	return &Component{
 		Value: pinst.Component,
 		Info: &vagrant_server.Component{
-			Type: vagrant_server.Component_Type(cc.Type),
-			Name: pluginName,
+			Type:       vagrant_server.Component_Type(cc.Type),
+			Name:       pluginName,
+			ServerAddr: s.(*Basis).Client().ServerTarget(),
 		},
 
 		hooks:   hooks,

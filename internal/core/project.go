@@ -20,7 +20,6 @@ import (
 	"github.com/hashicorp/vagrant-plugin-sdk/proto/vagrant_plugin_sdk"
 	"github.com/hashicorp/vagrant-plugin-sdk/terminal"
 
-	alwaysTrueHost "github.com/hashicorp/vagrant/builtin/myplugin/host"
 	"github.com/hashicorp/vagrant/internal/config"
 	"github.com/hashicorp/vagrant/internal/factory"
 	"github.com/hashicorp/vagrant/internal/plugin"
@@ -238,7 +237,7 @@ func (p *Project) Run(ctx context.Context, task *vagrant_server.Task) (err error
 
 	}
 	cmd, err := p.basis.component(ctx, component.CommandType, task.Component.Name)
-	// hostPlugin, err := p.basis.component(ctx, component.HostType, hostPluginName)
+	hostPlugin, err := p.basis.component(ctx, component.HostType, hostPluginName)
 
 	if err != nil {
 		return err
@@ -249,6 +248,7 @@ func (p *Project) Run(ctx context.Context, task *vagrant_server.Task) (err error
 		return
 	}
 
+	hostComponentToProtoMapper, _ := argmapper.NewFunc(HostComponentToProtoMapper)
 	result, err := p.callDynamicFunc(
 		ctx,
 		p.logger,

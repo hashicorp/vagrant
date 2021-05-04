@@ -94,3 +94,9 @@ func FlagsToProtoMapper(input []*option.Option) []*vagrant_server.Job_Flag {
 	}
 	return output
 }
+
+func HostComponentToProtoMapper(input Component) *vagrant_plugin_sdk.Args_Host {
+	return &vagrant_plugin_sdk.Args_Host{
+		ServerAddr: input.Info.ServerAddr,
+	}
+}

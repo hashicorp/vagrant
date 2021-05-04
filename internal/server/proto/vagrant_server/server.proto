@@ -403,6 +403,8 @@ message Component {
   // name of the component
   string name = 2;
 
+  string server_addr = 3;
+
   // Supported component types, the values here MUST match the enum values
   // in the Go sdk/component package exactly. A test in internal/server
   // validates this.
