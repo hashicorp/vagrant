@@ -154,6 +154,26 @@
       {
         "title": "Machine Readable Output",
         "path": "cli/machine-readable"
+      },
+      {
+        "title": "rsync",
+        "path": "cli/rsync",
+        "hidden": true
+      },
+      {
+        "title": "rsync-auto",
+        "path": "cli/rsync-auto",
+        "hidden": true
+      },
+      {
+        "title": "winrm",
+        "path": "cli/winrm",
+        "hidden": true
+      },
+      {
+        "title": "winrm_config",
+        "path": "cli/winrm_config",
+        "hidden": true
       }
     ]
   },
@@ -742,6 +762,11 @@
       {
         "title": "WSL",
         "path": "other/wsl"
+      },
+      {
+        "title": "macOS Catalina",
+        "path": "other/macos-catalina",
+        "hidden": true
       }
     ]
   },
