@@ -8,7 +8,7 @@
     "@hashicorp/nextjs-scripts": "18.1.0",
     "@hashicorp/react-button": "^5.0.1",
     "@hashicorp/react-code-block": "^4.0.1",
-    "@hashicorp/react-docs-page": "^13.1.4",
+    "@hashicorp/react-docs-page": "13.1.7-alpha.9",
     "@hashicorp/react-hashi-stack-menu": "2.0.3",
     "@hashicorp/react-head": "^3.0.2",
     "@hashicorp/react-product-downloader": "4.1.5",
