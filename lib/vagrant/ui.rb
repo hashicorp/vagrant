@@ -283,15 +283,16 @@ module Vagrant
       end
     end
 
-    class RemoteUI < NonInteractive 
+    class RemoteUI < Basic 
       def initialize(client)
         super()
         @client = client
       end
 
-      # TODO
-      def ask(*args)
-        raise Errors::UIExpectsTTY
+      # This method handles actually outputting a message of a given type
+      # to the console.
+      def say(type, message, opts={})
+        @client.output([message])
       end
 
       [:detail, :warn, :error, :info, :output, :success].each do |method|
