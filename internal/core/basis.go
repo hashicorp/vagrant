@@ -403,7 +403,6 @@ func (b *Basis) callDynamicFunc(
 		argmapper.Typed(
 			b.jobInfo,
 			b.dir,
-			b.UI,
 		),
 	)
 

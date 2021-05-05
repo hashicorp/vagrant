@@ -65,7 +65,15 @@ func (c *Interactive) Flags() []*option.Option {
 }
 
 func (c *Interactive) Execute(trm terminal.UI) int64 {
-	output, err := trm.Input(&terminal.Input{Prompt: "What do you have to say"})
+	output, err := trm.Input(&terminal.Input{Prompt: "\nWhat do you have to say: "})
+	if err != nil {
+		trm.Output("Error getting input")
+		trm.Output(err.Error())
+		return 1
+	}
+	trm.Output("Did you say " + output)
+
+	output, err = trm.Input(&terminal.Input{Prompt: "\nTell me a secret: "})
 	if err != nil {
 		trm.Output("Error getting input")
 		trm.Output(err.Error())
