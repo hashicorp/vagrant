@@ -119,7 +119,7 @@ describe VagrantPlugins::Kernel_V2::VagrantConfigDisk do
   describe "#add_provider_config" do
     it "normalizes provider config" do
       test_provider_config = {provider__something: "special" }
-      subject.add_provider_config(test_provider_config)
+      subject.add_provider_config(**test_provider_config)
       expect(subject.provider_config).to eq( { provider: {something: "special" }} )
     end
   end
