@@ -85,7 +85,7 @@ module VagrantPlugins
       # Duplicates will be overriden
       #
       # @param [Hash] options
-      def add_provider_config(**options, &block)
+      def add_provider_config(**options)
         current = {}
         options.each do |k,v|
           opts = k.to_s.split("__")
