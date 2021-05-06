@@ -24,6 +24,7 @@ type service struct {
 	vagrant_server.UnimplementedVagrantServer
 	vagrant_plugin_sdk.UnimplementedTargetServiceServer
 	vagrant_plugin_sdk.UnimplementedProjectServiceServer
+	vagrant_plugin_sdk.UnimplementedVagrantfileServiceServer
 }
 
 // New returns a Vagrant server implementation that uses BoltDB plus
@@ -130,3 +131,6 @@ func WithAcceptURLTerms(accept bool) Option {
 }
 
 var _ vagrant_server.VagrantServer = (*service)(nil)
+var _ vagrant_plugin_sdk.MachineServiceServer = (*service)(nil)
+var _ vagrant_plugin_sdk.ProjectServiceServer = (*service)(nil)
+var _ vagrant_plugin_sdk.VagrantfileServiceServer = (*service)(nil)
