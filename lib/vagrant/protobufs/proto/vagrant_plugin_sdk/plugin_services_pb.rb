@@ -407,6 +407,23 @@ module Hashicorp
 
         Stub = Service.rpc_stub_class
       end
+      module VagrantfileService
+        # *******************************************************************
+        # Vagrantfile services
+        # ******************************************************************
+        class Service
+
+          include GRPC::GenericService
+
+          self.marshal_class_method = :encode
+          self.unmarshal_class_method = :decode
+          self.service_name = 'hashicorp.vagrant.sdk.VagrantfileService'
+
+          rpc :GetVagrantfile, ::Hashicorp::Vagrant::Sdk::Vagrantfile::GetVagrantfileRequest, ::Hashicorp::Vagrant::Sdk::Vagrantfile::GetVagrantfileResponse
+        end
+
+        Stub = Service.rpc_stub_class
+      end
     end
   end
 end

@@ -392,6 +392,11 @@ message Ref {
 
   // RunnerAny will reference any runner.
   message RunnerAny {}
+
+  // Vagrantfile references a Vagrantfile
+  message Vagrantfile {
+    string resource_id = 1;
+  }
 }
 
 // Component represents metadata about a component. A component is the
