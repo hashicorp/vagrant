@@ -55,6 +55,10 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
       optional :data_source, :message, 52, "hashicorp.vagrant.Job.DataSource"
       optional :provider, :string, 53
     end
+    add_message "hashicorp.vagrant.Vagrantfile" do
+      optional :resource_id, :string, 1
+      optional :path, :string, 2
+    end
     add_message "hashicorp.vagrant.Ref" do
     end
     add_message "hashicorp.vagrant.Ref.Machine" do
@@ -851,6 +855,7 @@ module Hashicorp
     Basis = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.Basis").msgclass
     Project = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.Project").msgclass
     Machine = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.Machine").msgclass
+    Vagrantfile = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.Vagrantfile").msgclass
     Ref = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.Ref").msgclass
     Ref::Machine = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.Ref.Machine").msgclass
     Ref::Project = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.Ref.Project").msgclass

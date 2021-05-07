@@ -55,36 +55,38 @@ message ParseVagrantfileRequest {
 
 message ParseVagrantfileResponse {
   // Vagrantfile representation
-  Vagrantfile vagrantfile = 1;
+  VagrantfileComponents.Vagrantfile vagrantfile = 1;
 }
 
-// TODO: Review what needs to be sent here
-message Provisioner {
-  string name = 1;
-  google.protobuf.Any config = 2;
-}
+message VagrantfileComponents {
+  // TODO: Review what needs to be sent here
+  message Provisioner {
+    string name = 1;
+    google.protobuf.Any config = 2;
+  }
 
-// TODO: Review what needs to be sent here
-message MachineConfig {
-  string name = 1;
-  string box = 2;
-  repeated Provisioner provisioners = 3;
-}
+  // TODO: Review what needs to be sent here
+  message MachineConfig {
+    string name = 1;
+    string box = 2;
+    repeated Provisioner provisioners = 3;
+  }
 
-// TODO: Review what needs to be sent here
-message Communicator {
-  string name = 1;
-  // This is the config that belongs to the communicator.
-  // Should be a message type from the core plugin or defined
-  // by a plugin author
-  google.protobuf.Any config = 2;
-}
+  // TODO: Review what needs to be sent here
+  message Communicator {
+    string name = 1;
+    // This is the config that belongs to the communicator.
+    // Should be a message type from the core plugin or defined
+    // by a plugin author
+    google.protobuf.Any config = 2;
+  }
 
-// TODO: Review what needs to be sent here
-message Vagrantfile {
-  string path = 1;
-  string raw = 2;
-  string current_version = 3;
-  repeated MachineConfig machine_configs = 4;
-  repeated Communicator communicators = 5;
+  // TODO: Review what needs to be sent here
+  message Vagrantfile {
+    string path = 1;
+    string raw = 2;
+    string current_version = 3;
+    repeated MachineConfig machine_configs = 4;
+    repeated Communicator communicators = 5;
+  }
 }

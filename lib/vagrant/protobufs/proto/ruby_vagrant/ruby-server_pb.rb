@@ -27,27 +27,29 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
       optional :path, :string, 1
     end
     add_message "hashicorp.vagrant.ParseVagrantfileResponse" do
-      optional :vagrantfile, :message, 1, "hashicorp.vagrant.Vagrantfile"
+      optional :vagrantfile, :message, 1, "hashicorp.vagrant.VagrantfileComponents.Vagrantfile"
     end
-    add_message "hashicorp.vagrant.Provisioner" do
+    add_message "hashicorp.vagrant.VagrantfileComponents" do
+    end
+    add_message "hashicorp.vagrant.VagrantfileComponents.Provisioner" do
       optional :name, :string, 1
       optional :config, :message, 2, "google.protobuf.Any"
     end
-    add_message "hashicorp.vagrant.MachineConfig" do
+    add_message "hashicorp.vagrant.VagrantfileComponents.MachineConfig" do
       optional :name, :string, 1
       optional :box, :string, 2
-      repeated :provisioners, :message, 3, "hashicorp.vagrant.Provisioner"
+      repeated :provisioners, :message, 3, "hashicorp.vagrant.VagrantfileComponents.Provisioner"
     end
-    add_message "hashicorp.vagrant.Communicator" do
+    add_message "hashicorp.vagrant.VagrantfileComponents.Communicator" do
       optional :name, :string, 1
       optional :config, :message, 2, "google.protobuf.Any"
     end
-    add_message "hashicorp.vagrant.Vagrantfile" do
+    add_message "hashicorp.vagrant.VagrantfileComponents.Vagrantfile" do
       optional :path, :string, 1
       optional :raw, :string, 2
       optional :current_version, :string, 3
-      repeated :machine_configs, :message, 4, "hashicorp.vagrant.MachineConfig"
-      repeated :communicators, :message, 5, "hashicorp.vagrant.Communicator"
+      repeated :machine_configs, :message, 4, "hashicorp.vagrant.VagrantfileComponents.MachineConfig"
+      repeated :communicators, :message, 5, "hashicorp.vagrant.VagrantfileComponents.Communicator"
     end
   end
 end
@@ -59,9 +61,10 @@ module Hashicorp
     Plugin::Type = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.Plugin.Type").enummodule
     ParseVagrantfileRequest = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.ParseVagrantfileRequest").msgclass
     ParseVagrantfileResponse = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.ParseVagrantfileResponse").msgclass
-    Provisioner = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.Provisioner").msgclass
-    MachineConfig = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.MachineConfig").msgclass
-    Communicator = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.Communicator").msgclass
-    Vagrantfile = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.Vagrantfile").msgclass
+    VagrantfileComponents = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.VagrantfileComponents").msgclass
+    VagrantfileComponents::Provisioner = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.VagrantfileComponents.Provisioner").msgclass
+    VagrantfileComponents::MachineConfig = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.VagrantfileComponents.MachineConfig").msgclass
+    VagrantfileComponents::Communicator = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.VagrantfileComponents.Communicator").msgclass
+    VagrantfileComponents::Vagrantfile = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.VagrantfileComponents.Vagrantfile").msgclass
   end
 end

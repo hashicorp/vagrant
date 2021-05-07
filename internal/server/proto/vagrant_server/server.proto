@@ -328,6 +328,17 @@ message Target {
   Job.DataSource data_source = 101;
 }
 
+message Vagrantfile {
+  // Unique resource identifier (internal use)
+  string resource_id = 1;
+
+  // TODO: not sure about this path
+  // Path where this Vagarant lives
+  string path = 2;
+
+  // TODO: Determine Vagrantfile representation in DB
+}
+
 /********************************************************************
 * Shared Messages
 ********************************************************************/

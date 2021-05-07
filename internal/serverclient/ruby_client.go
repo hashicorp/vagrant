@@ -15,7 +15,7 @@ import (
 
 type RubyVagrant interface {
 	GetPlugins() ([]*ruby_vagrant.Plugin, error)
-	ParseVagrantfile(string) (*ruby_vagrant.Vagrantfile, error)
+	ParseVagrantfile(string) (*ruby_vagrant.VagrantfileComponents_Vagrantfile, error)
 }
 
 // This is the implementation of plugin.GRPCPlugin so we can serve/consume this.
@@ -65,7 +65,7 @@ func (r *RubyVagrantClient) GetPlugins() ([]*ruby_vagrant.Plugin, error) {
 }
 
 // TODO: This should return an hcl Vagrantfile representation
-func (r *RubyVagrantClient) ParseVagrantfile(path string) (*ruby_vagrant.Vagrantfile, error) {
+func (r *RubyVagrantClient) ParseVagrantfile(path string) (*ruby_vagrant.VagrantfileComponents_Vagrantfile, error) {
 	vf, err := r.client.ParseVagrantfile(
 		context.Background(),
 		&ruby_vagrant.ParseVagrantfileRequest{Path: path},
