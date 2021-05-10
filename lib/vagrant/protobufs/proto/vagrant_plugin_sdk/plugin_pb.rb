@@ -437,6 +437,9 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
     add_message "hashicorp.vagrant.sdk.Ref.Machine" do
       optional :resource_id, :string, 1
     end
+    add_message "hashicorp.vagrant.sdk.Ref.Basis" do
+      optional :resource_id, :string, 1
+    end
     add_message "hashicorp.vagrant.sdk.Machine" do
     end
     add_message "hashicorp.vagrant.sdk.Machine.SetNameRequest" do
@@ -553,7 +556,11 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
     add_message "hashicorp.vagrant.sdk.Vagrantfile" do
     end
     add_message "hashicorp.vagrant.sdk.Vagrantfile.GetVagrantfileRequest" do
-      optional :project, :message, 1, "hashicorp.vagrant.sdk.Ref.Project"
+      oneof :component do
+        optional :project, :message, 1, "hashicorp.vagrant.sdk.Ref.Project"
+        optional :box, :message, 2, "hashicorp.vagrant.sdk.Ref.Box"
+        optional :basis, :message, 3, "hashicorp.vagrant.sdk.Ref.Basis"
+      end
     end
     add_message "hashicorp.vagrant.sdk.Vagrantfile.GetVagrantfileResponse" do
       optional :vagrantfile, :message, 1, "hashicorp.vagrant.sdk.Args.Vagrantfile"
@@ -666,6 +673,7 @@ module Hashicorp
       Ref::Box = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Ref.Box").msgclass
       Ref::Project = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Ref.Project").msgclass
       Ref::Machine = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Ref.Machine").msgclass
+      Ref::Basis = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Ref.Basis").msgclass
       Machine = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Machine").msgclass
       Machine::SetNameRequest = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Machine.SetNameRequest").msgclass
       Machine::SetNameResponse = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Machine.SetNameResponse").msgclass

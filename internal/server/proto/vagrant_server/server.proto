@@ -1783,4 +1783,6 @@ message Task {
   sdk.Command.Arguments cli_args = 12;
 
   string command_name = 13;
+
+  Vagrantfile vagrantfile = 14;
 }
