@@ -10,5 +10,9 @@ func (s *service) GetVagrantfile(
 	ctx context.Context,
 	in *vagrant_plugin_sdk.Vagrantfile_GetVagrantfileRequest,
 ) (result *vagrant_plugin_sdk.Vagrantfile_GetVagrantfileResponse, err error) {
-	return nil, nil
+	// TODO: actually get the Vagrantfile
+	dummyResponse := &vagrant_plugin_sdk.Vagrantfile_GetVagrantfileResponse{
+		Vagrantfile: &vagrant_plugin_sdk.Args_Vagrantfile{},
+	}
+	return dummyResponse, nil
 }
