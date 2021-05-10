@@ -1,6 +1,7 @@
 package runner
 
 import (
+	"errors"
 	"io"
 
 	"github.com/hashicorp/vagrant-plugin-sdk/terminal"
@@ -22,10 +23,26 @@ func (u *multiUI) Close() error {
 }
 
 func (u *multiUI) Input(input *terminal.Input) (string, error) {
-	return "", terminal.ErrNonInteractive
+	numInteractive := 0
+	var term terminal.UI
+	for _, u := range u.UIs {
+		if u.Interactive() {
+			numInteractive += 1
+			term = u
+		}
+	}
+	if numInteractive > 1 {
+		return "", errors.New("More than one interactive terminal available. Please ensure only one interactive terminal is available")
+	}
+	return term.Input(input)
 }
 
 func (u *multiUI) Interactive() bool {
+	for _, u := range u.UIs {
+		if u.Interactive() {
+			return true
+		}
+	}
 	return false
 }
 

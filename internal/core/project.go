@@ -273,7 +273,7 @@ func (p *Project) callDynamicFunc(
 		argmapper.Typed(
 			p.jobInfo,
 			p.dir,
-			terminal.ConsoleUI(ctx),
+			p.UI,
 		),
 	)
 
