@@ -46,6 +46,24 @@ export default function DownloadsPage(staticProps) {
           <a>&raquo; Download VMware Utility</a>
         </Link>
       }
+      packageManagerOverrides={[
+        {
+          label: 'Homebrew',
+          commands: [
+            `brew tap hashicorp/tap`,
+            `brew install ${productSlug}`,
+          ],
+          os: 'darwin',
+        },
+        {
+          label: 'Homebrew',
+          commands: [
+              `brew tap hashicorp/tap`,
+              `brew install ${productSlug}`,
+          ],
+          os: 'linux',
+      },
+      ]}
       {...staticProps}
     />
   )
