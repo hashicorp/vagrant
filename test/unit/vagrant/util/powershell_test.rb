@@ -114,6 +114,8 @@ describe Vagrant::Util::PowerShell do
   describe ".execute" do
     before do
       allow(described_class).to receive(:validate_install!)
+      allow(described_class).to receive(:executable)
+        .and_return("powershell")
       allow(Vagrant::Util::Subprocess).to receive(:execute)
     end
 
@@ -159,6 +161,7 @@ describe Vagrant::Util::PowerShell do
     before do
       allow(described_class).to receive(:validate_install!)
       allow(Vagrant::Util::Subprocess).to receive(:execute).and_return(result)
+      allow(described_class).to receive(:executable).and_return("powershell")
     end
 
     it "should validate installation before use" do
@@ -223,6 +226,7 @@ describe Vagrant::Util::PowerShell do
     before do
       allow(described_class).to receive(:validate_install!)
       allow(Vagrant::Util::Subprocess).to receive(:execute).and_return(result)
+      allow(described_class).to receive(:executable).and_return("powershell")
     end
 
     it "should validate installation before use" do
