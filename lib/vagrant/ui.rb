@@ -289,16 +289,22 @@ module Vagrant
         @client = client
       end
 
+      def clear_line
+        # no-op
+      end
+
       # This method handles actually outputting a message of a given type
       # to the console.
       def say(type, message, opts={})
         @client.output([message])
       end
 
-      [:detail, :warn, :error, :info, :output, :success].each do |method|
-        define_method(method) do |message, *args, **opts|
-          @client.output([message])
-        end
+      [:detail, :info, :warn, :error, :output, :success].each do |method|
+        class_eval <<-CODE
+          def #{method}(message, *args)
+            say(#{method.inspect}, message, *args)
+          end
+        CODE
       end
     end
 
