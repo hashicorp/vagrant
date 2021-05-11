@@ -296,7 +296,7 @@ module Vagrant
       # This method handles actually outputting a message of a given type
       # to the console.
       def say(type, message, opts={})
-        @client.output([message])
+        @client.output([message.gsub("%", "%%")])
       end
 
       [:detail, :info, :warn, :error, :output, :success].each do |method|
