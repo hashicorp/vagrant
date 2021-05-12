@@ -4,6 +4,22 @@
 # Ruby, run unit tests, etc.
 
 Vagrant.configure("2") do |config|
-  config.vm.box = "hashicorp/bionic64"
+  config.vm.define "one" do |c|
+    c.vm.box = "hashicorp/bionic64"
+    c.vm.provision "shell", inline: "echo hello world"
+    c.vm.provision "shell" do |s|
+      s.inline = "echo goodbye"
+    end
+    c.vm.provision "file", source: "/Users/sophia/project/vagrant-ruby/.gitignore", destination: "/.gitignore" 
+  end
+
+  ["a", "b"].each do |m|
+    config.vm.define m do |c|
+      c.vm.box = "hashicorp/bionic64"
+    end
+  end
+
+  config.vm.provision "shell", inline: "echo hello world"
+
 end
 
