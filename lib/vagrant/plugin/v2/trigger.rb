@@ -271,7 +271,7 @@ module Vagrant
                 options[:color] = :red if !config.keep_color
               end
 
-              @ui.detail(data, options)
+              @ui.detail(data, **options)
             end
             if !exit_codes.include?(result.exit_code)
               raise Errors::TriggersBadExitCodes,
