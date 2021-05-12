@@ -10,6 +10,7 @@ import (
 	"github.com/hashicorp/vagrant-plugin-sdk/helper/paths"
 	vagrant_plugin_sdk "github.com/hashicorp/vagrant-plugin-sdk/proto/vagrant_plugin_sdk"
 	"github.com/hashicorp/vagrant-plugin-sdk/terminal"
+	configpkg "github.com/hashicorp/vagrant/internal/config"
 	"github.com/hashicorp/vagrant/internal/server/proto/vagrant_server"
 )
 
@@ -25,6 +26,18 @@ type Project struct {
 	basis   *Basis
 	project *vagrant_server.Project
 	logger  hclog.Logger
+}
+
+// Finds the Vagrantfile associated with the project
+func (p *Project) LoadVagrantfiles() error {
+	_, err := configpkg.FindPath(p.project.Path, configpkg.GetVagrantfileName())
+	if err != nil {
+		return err
+	}
+	// TODO:
+	// 1) Send Vagrantfile found for this project to the ruby runtime to be parsed
+	// 2) Upload the Vagrantfile to the vagrant server
+	return nil
 }
 
 func (p *Project) LoadTarget(t *vagrant_server.Target) (*Target, error) {

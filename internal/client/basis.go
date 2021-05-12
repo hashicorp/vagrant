@@ -107,6 +107,9 @@ func New(ctx context.Context, opts ...Option) (basis *Basis, err error) {
 	)
 	if err == nil && result.Found {
 		basis.basis = result.Basis
+		if err = basis.LoadVagrantfiles(); err != nil {
+			return nil, err
+		}
 		return basis, nil
 	}
 
@@ -125,6 +128,10 @@ func New(ctx context.Context, opts ...Option) (basis *Basis, err error) {
 	}
 
 	basis.basis = uresult.Basis
+	// Find and load Vagrantfiles for the basis
+	if err = basis.LoadVagrantfiles(); err != nil {
+		return nil, err
+	}
 
 	return basis, nil
 }
@@ -142,6 +149,9 @@ func (b *Basis) LoadProject(p *vagrant_server.Project) (*Project, error) {
 			basis:   b,
 			project: result.Project,
 			logger:  b.logger.Named("project"),
+		}
+		if err = b.Project.LoadVagrantfiles(); err != nil {
+			return nil, err
 		}
 		return b.Project, nil
 	}
@@ -166,7 +176,22 @@ func (b *Basis) LoadProject(p *vagrant_server.Project) (*Project, error) {
 		logger:  b.logger.Named("project"),
 	}
 
+	if err = b.Project.LoadVagrantfiles(); err != nil {
+		return nil, err
+	}
 	return b.Project, nil
+}
+
+// Finds the Vagrantfile associated with the basis
+func (b *Basis) LoadVagrantfiles() error {
+	_, err := configpkg.FindPath(b.basis.Path, configpkg.GetVagrantfileName())
+	if err != nil {
+		return err
+	}
+	// TODO:
+	// 1) Send Vagrantfile found for this basis to the ruby runtime to be parsed
+	// 2) Upload the Vagrantfile to the vagrant server
+	return nil
 }
 
 func (b *Basis) Ref() *vagrant_plugin_sdk.Ref_Basis {
