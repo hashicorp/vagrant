@@ -42,23 +42,6 @@ module VagrantPlugins
           config_loader.set(:root, vagrantfile_path)
           v = Vagrant::Vagrantfile.new(config_loader, [:root])
 
-          sc = v.config.ssh
-          ssh_config = Hashicorp::Vagrant::Sdk::SSHInfo.new(
-            port: sc.guest_port.to_s, ssh_command: sc.shell
-          )
-          wc = v.config.winrm
-          winrm_config = Hashicorp::Vagrant::Sdk::WinrmInfo.new(
-            username: wc.username, password: wc.password, host: wc.host,
-            port: wc.port, guest_port: wc.guest_port)
-          communicators = [
-            Hashicorp::Vagrant::Communicator.new(
-              name: "ssh", config: Google::Protobuf::Any.pack(ssh_config)
-            ),
-            Hashicorp::Vagrant::Communicator.new(
-              name: "winrm", config: Google::Protobuf::Any.pack(winrm_config)
-            ),
-          ]
-
           machine_configs = []
           # Get the config for each machine
           v.machine_names.each do |mach|
@@ -77,7 +60,6 @@ module VagrantPlugins
             raw: raw,
             current_version: Vagrant::Config::CURRENT_VERSION,
             machine_configs: machine_configs,
-            communicators: communicators,
           )
           Hashicorp::Vagrant::ParseVagrantfileResponse.new(
             vagrantfile: vagrantfile

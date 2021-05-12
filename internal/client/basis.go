@@ -2,7 +2,9 @@ package client
 
 import (
 	"context"
+	"fmt"
 	"io"
+	"os"
 
 	"github.com/hashicorp/go-hclog"
 	"github.com/hashicorp/go-plugin"
@@ -184,13 +186,28 @@ func (b *Basis) LoadProject(p *vagrant_server.Project) (*Project, error) {
 
 // Finds the Vagrantfile associated with the basis
 func (b *Basis) LoadVagrantfiles() error {
-	_, err := configpkg.FindPath(b.basis.Path, configpkg.GetVagrantfileName())
+	vagrantfilePath, err := configpkg.FindPath(b.basis.Path, configpkg.GetVagrantfileName())
 	if err != nil {
 		return err
 	}
-	// TODO:
-	// 1) Send Vagrantfile found for this basis to the ruby runtime to be parsed
-	// 2) Upload the Vagrantfile to the vagrant server
+	// If the path does not exist, no Vagrantfile was found
+	if _, err := os.Stat(vagrantfilePath); os.IsNotExist(err) {
+		return nil
+	}
+
+	raw, err := b.vagrantRubyRuntime.Dispense("vagrantrubyruntime")
+	if err != nil {
+		return err
+	}
+	rvc, ok := raw.(serverclient.RubyVagrantClient)
+	if !ok {
+		return fmt.Errorf("Couldn't attach to Ruby runtime")
+	}
+	// TODO: Upload the Vagrantfile to the vagrant server
+	_, err = rvc.ParseVagrantfile(vagrantfilePath)
+	if err != nil {
+		return err
+	}
 	return nil
 }
 

@@ -3,6 +3,7 @@ package client
 import (
 	"context"
 	"errors"
+	"fmt"
 	"os"
 
 	"github.com/hashicorp/go-hclog"
@@ -12,6 +13,7 @@ import (
 	"github.com/hashicorp/vagrant-plugin-sdk/terminal"
 	configpkg "github.com/hashicorp/vagrant/internal/config"
 	"github.com/hashicorp/vagrant/internal/server/proto/vagrant_server"
+	"github.com/hashicorp/vagrant/internal/serverclient"
 )
 
 // Project is the primary structure for interacting with a Vagrant
@@ -30,13 +32,28 @@ type Project struct {
 
 // Finds the Vagrantfile associated with the project
 func (p *Project) LoadVagrantfiles() error {
-	_, err := configpkg.FindPath(p.project.Path, configpkg.GetVagrantfileName())
+	vagrantfilePath, err := configpkg.FindPath(p.project.Path, configpkg.GetVagrantfileName())
 	if err != nil {
 		return err
 	}
-	// TODO:
-	// 1) Send Vagrantfile found for this project to the ruby runtime to be parsed
-	// 2) Upload the Vagrantfile to the vagrant server
+	// If the path does not exist, no Vagrantfile was found
+	if _, err := os.Stat(vagrantfilePath); os.IsNotExist(err) {
+		return nil
+	}
+
+	raw, err := p.basis.vagrantRubyRuntime.Dispense("vagrantrubyruntime")
+	if err != nil {
+		return err
+	}
+	rvc, ok := raw.(serverclient.RubyVagrantClient)
+	if !ok {
+		return fmt.Errorf("Couldn't attach to Ruby runtime")
+	}
+	// TODO: Upload the Vagrantfile to the vagrant server
+	_, err = rvc.ParseVagrantfile(vagrantfilePath)
+	if err != nil {
+		return err
+	}
 	return nil
 }
 
