@@ -59,26 +59,58 @@ message ParseVagrantfileResponse {
 }
 
 message VagrantfileComponents {
-  // TODO: Review what needs to be sent here
-  message Provisioner {
-    string name = 1;
-    google.protobuf.Any config = 2;
+
+  message ConfigVM {
+    bool allow_fstab_modification = 1;
+    bool allow_hosts_modificaion = 2;
+    string box = 3;
+    repeated Provisioner provisioners = 4;
+    // TODO
+  }
+
+  message ConfigSSH {
+    bool compresssion = 1;
+    int64 connect_timeout = 2;
+    // TODO
+  }
+
+  message ConfigWinRM {
+    string username = 1;
+    string password = 2;
+    // TODO
+  }
+
+  message ConfigWinssh {
+    bool forward_agent = 1;
+    repeated string forward_env = 2;
+    // TODO
+  }
+  
+  message ConfigVagrant {
+    string host = 1;
+    repeated string plugins = 2;
+    // TODO
   }
 
   // TODO: Review what needs to be sent here
   message MachineConfig {
     string name = 1;
-    string box = 2;
-    repeated Provisioner provisioners = 3;
+    ConfigVM config_vm = 2;
+    ConfigSSH config_ssh = 3;
+    ConfigWinRM config_winrm = 4;
+    ConfigWinssh config_winssh = 5;
+    ConfigVagrant config_vagrant = 6;
   }
 
-  // TODO: Review what needs to be sent here
-  message Communicator {
+  message Provisioner {
     string name = 1;
-    // This is the config that belongs to the communicator.
-    // Should be a message type from the core plugin or defined
-    // by a plugin author
-    google.protobuf.Any config = 2;
+    string type = 2;
+    string before = 3;
+    string after = 4;
+    bool communicator_required = 5;
+    // A Provisioner plugin defines it's own configuration,
+    // that gets added in here
+    google.protobuf.Any config = 6;
   }
 
   // TODO: Review what needs to be sent here
@@ -87,6 +119,5 @@ message VagrantfileComponents {
     string raw = 2;
     string current_version = 3;
     repeated MachineConfig machine_configs = 4;
-    repeated Communicator communicators = 5;
   }
 }
