@@ -50,8 +50,10 @@ module VagrantPlugins
             config = root_config.vm
             machine_configs << Hashicorp::Vagrant::VagrantfileComponents::MachineConfig.new(
               name: mach.to_s,
-              box: config.box,
-              provisioners: []
+              config_vm: Hashicorp::Vagrant::VagrantfileComponents::ConfigVM.new(
+                box: config.box,
+                provisioners: []
+              ),
             )
           end
 
