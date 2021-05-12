@@ -47,12 +47,36 @@ module VagrantPlugins
           v.machine_names.each do |mach|
             machine_info = v.machine_config(mach, nil, nil)
             root_config = machine_info[:config]
-            config = root_config.vm
+            vm_config = root_config.vm
+            provisioners = []
+            vm_config.provisioners.each do |p|
+              # On the other side of this, when the provisioner is getting read in 
+              # by the (ruby) plugin, Vagrant must create a provisioner of this
+              # type, with the map of options. That should look something like:
+              #
+              # plugin = Vagrant.plugin("2").manager.provisioners[p.type]
+              # plugin_config = Vagrant.plugin("2").manager.provisioner_configs[p.type]
+              # config = plugin_config.new
+              # config.set_options(p.config)
+              # provisioner = plugin.new(machine, config)
+              # provisioner.provision
+              
+              config_struct = Google::Protobuf::Struct.from_hash(p.config.instance_variables_hash)
+              config_any = Google::Protobuf::Any.pack(config_struct)
+              provisioners << Hashicorp::Vagrant::VagrantfileComponents::Provisioner.new(
+                name: p.name,
+                type: p.type.to_s,
+                before: p.before,
+                after: p.after,
+                communicator_required: p.communicator_required,
+                config: config_any,
+              )
+            end
             machine_configs << Hashicorp::Vagrant::VagrantfileComponents::MachineConfig.new(
               name: mach.to_s,
               config_vm: Hashicorp::Vagrant::VagrantfileComponents::ConfigVM.new(
-                box: config.box,
-                provisioners: []
+                box: vm_config.box,
+                provisioners: provisioners,
               ),
             )
           end
