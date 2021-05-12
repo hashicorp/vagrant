@@ -48,14 +48,14 @@ module VagrantPlugins
             machine_info = v.machine_config(mach, nil, nil)
             root_config = machine_info[:config]
             config = root_config.vm
-            machine_configs << Hashicorp::Vagrant::MachineConfig.new(
+            machine_configs << Hashicorp::Vagrant::VagrantfileComponents::MachineConfig.new(
               name: mach.to_s,
               box: config.box,
               provisioners: []
             )
           end
 
-          vagrantfile = Hashicorp::Vagrant::Vagrantfile.new(
+          vagrantfile = Hashicorp::Vagrant::VagrantfileComponents::Vagrantfile.new(
             path: vagrantfile_path,
             raw: raw,
             current_version: Vagrant::Config::CURRENT_VERSION,
