@@ -53,15 +53,15 @@ service Vagrant {
   // can use GetProject to get more information about the project.
   rpc ListProjects(google.protobuf.Empty) returns (ListProjectsResponse);
 
-  // UpsertMachine upserts a machine with a project. If the machine
+  // UpsertTarget upserts a target with a project. If the target
   // is already registered this does nothing.
-  rpc UpsertMachine(UpsertMachineRequest) returns (UpsertMachineResponse);
+  rpc UpsertTarget(UpsertTargetRequest) returns (UpsertTargetResponse);
 
-  rpc GetMachine(GetMachineRequest) returns (GetMachineResponse);
+  rpc GetTarget(GetTargetRequest) returns (GetTargetResponse);
 
-  rpc FindMachine(FindMachineRequest) returns (FindMachineResponse);
+  rpc FindTarget(FindTargetRequest) returns (FindTargetResponse);
 
-  rpc ListMachines(google.protobuf.Empty) returns (ListMachinesResponse);
+  rpc ListTargets(google.protobuf.Empty) returns (ListTargetsResponse);
 
   // GetLogStream reads the log stream for a deployment. This will immediately
   // send a single LogEntry with the lines we have so far. If there are no
@@ -195,10 +195,14 @@ message Basis {
   string path = 3;
 
   // Projects within this basis
-  repeated Ref.Project projects = 4;
+  repeated sdk.Ref.Project projects = 4;
 
   // Custom metadata
-  map<string, string> metadata = 5;
+  sdk.Args.MetadataSet metadata = 5;
+
+  // Serialized configuration of the project (Vagrantfile)
+  google.protobuf.Any configuration = 6;
+
 
   // TODO(spox): look back over these options and see if we
   // still care about them (i'm thinking no)
@@ -207,13 +211,13 @@ message Basis {
   // syntax can be used with a remote runner. If this is false, then
   // this is not allowed. This is typically configured using the
   // `runner {}` block in the vagrant config.
-  bool remote_enabled = 6;
+  bool remote_enabled = 100;
 
   // Where data is sourced for remote operations. If this isn't set, then
   // there is no default data source and it will be an error if a job is
   // queued for this project without a data source set. This is usually
   // set using the `runner {}` block in the vagrant config.
-  Job.DataSource data_source = 7;
+  Job.DataSource data_source = 101;
 }
 
 message Project {
@@ -227,13 +231,13 @@ message Project {
   string path = 3;
 
   // Targets associated with this project
-  repeated Ref.Target targets = 4;
+  repeated sdk.Ref.Target targets = 4;
 
   // The basis which this project is within
-  Ref.Basis basis = 5;
+  sdk.Ref.Basis basis = 5;
 
   // Custom metadata
-  map<string, string> metadata = 6;
+  sdk.Args.MetadataSet metadata = 6;
 
   // Serialized configuration of the project (Vagrantfile)
   google.protobuf.Any configuration = 7;
@@ -245,13 +249,13 @@ message Project {
   // syntax can be used with a remote runner. If this is false, then
   // this is not allowed. This is typically configured using the
   // `runner {}` block in the vagrant config.
-  bool remote_enabled = 8;
+  bool remote_enabled = 100;
 
   // Where data is sourced for remote operations. If this isn't set, then
   // there is no default data source and it will be an error if a job is
   // queued for this project without a data source set. This is usually
   // set using the `runner {}` block in the vagrant config.
-  Job.DataSource data_source = 9;
+  Job.DataSource data_source = 101;
 }
 
 message Target {
@@ -265,7 +269,7 @@ message Target {
   string name = 3;
 
   // Project the target is associated
-  Ref.Project project = 4;
+  sdk.Ref.Project project = 4;
 
   // State of the target
   Operation.PhysicalState state = 5;
@@ -280,13 +284,33 @@ message Target {
   string uuid = 8;
 
   // Custom metadata
-  map<string, string> metadata = 9;
+  sdk.Args.MetadataSet metadata = 9;
 
   // Serialized configuration of the target (Vagrantfile)
   google.protobuf.Any configuration = 10;
 
   // Specialized target information (from provider)
   google.protobuf.Any record = 11;
+
+  // Specialized target (machine)
+  message Machine {
+    // ID of machine as assigned by provider
+    string id = 1;
+
+    // Box information for guest
+    sdk.Args.Target.Machine.Box box = 7;
+
+    // User ID of machine creator
+    string uid = 9;
+
+    // State of the machine (Vagrant representation)
+    sdk.Args.Target.Machine.State state = 10;
+
+    // Provider name backing machine
+    string provider = 11;
+
+    Operation.PhysicalState physical_state = 50;
+  }
 
   // TODO(spox): look back over these options and see if we
   // still care about them (i'm thinking no)
@@ -295,44 +319,13 @@ message Target {
   // syntax can be used with a remote runner. If this is false, then
   // this is not allowed. This is typically configured using the
   // `runner {}` block in the vagrant config.
-  bool remote_enabled = 12;
+  bool remote_enabled = 100;
 
   // Where data is sourced for remote operations. If this isn't set, then
   // there is no default data source and it will be an error if a job is
   // queued for this project without a data source set. This is usually
   // set using the `runner {}` block in the vagrant config.
-  Job.DataSource data_source = 13;
-}
-
-message Machine {
-  // ID of machine as assigned by provider
-  string id = 1;
-
-  // Box information for guest
-  sdk.Args.Box box = 7;
-
-  // User ID of machine creator
-  string uid = 9;
-
-  // State of the machine (Vagrant representation)
-  sdk.Args.MachineState state = 10;
-
-  // Provider name backing machine
-  string provider = 11;
-
-  Operation.PhysicalState physical_state = 50;
-
-  // If true, then the `-remote` flag or the `vagrant build project/app`
-  // syntax can be used with a remote runner. If this is false, then
-  // this is not allowed. This is typically configured using the
-  // `runner {}` block in the vagrant config.
-  bool remote_enabled = 51;
-
-  // Where data is sourced for remote operations. If this isn't set, then
-  // there is no default data source and it will be an error if a job is
-  // queued for this project without a data source set. This is usually
-  // set using the `runner {}` block in the vagrant config.
-  Job.DataSource data_source = 52;
+  Job.DataSource data_source = 101;
 }
 
 /********************************************************************
@@ -343,24 +336,6 @@ message Machine {
 //
 // Refs should be used when the full type shouldn't be embedded in the message.
 message Ref {
-  message Machine {
-    string resource_id = 1;
-    string name = 2;
-    Ref.Project project = 3;
-  }
-
-  // Project references a project.
-  message Project {
-    string resource_id = 1;
-    string name = 2;
-    Ref.Basis basis = 3;
-  }
-
-  message Basis {
-    string resource_id = 1;
-    string name = 2;
-  }
-
   // Component references a component.
   message Component {
     hashicorp.vagrant.Component.Type type = 1;
@@ -372,32 +347,30 @@ message Ref {
   message Operation {
     oneof target {
       string id = 1;
-      MachineOperationSeq machine_sequence = 2;
+      TargetOperationSeq target_sequence = 2;
       ProjectOperationSeq project_sequence = 3;
       BasisOperationSeq basis_sequence = 4;
     }
   }
 
-  // MachineOperationSeq references an operation by sequence number anchored
-  // to a Machine
-  // NOTE: The sequence is actually anchored to the project but this
-  // is just a nicety for users
-  message MachineOperationSeq {
-    Machine machine = 1;
+  // TargetOperationSeq references an operation by sequence number anchored
+  // to a Target
+  message TargetOperationSeq {
+    sdk.Ref.Target target = 1;
     uint64 number = 2;
   }
 
   // MachineOperationSeq references an operation by sequence number anchored
   // to a Project
   message ProjectOperationSeq {
-    Project project = 1;
+    sdk.Ref.Project project = 1;
     uint64 number = 2;
   }
 
   // BasisOperationSeq references an operation by sequence number anchored
   // to a Basis
   message BasisOperationSeq {
-    Basis basis = 1;
+    sdk.Ref.Basis basis = 1;
     uint64 number = 2;
   }
 
@@ -581,9 +554,9 @@ message Job {
   // certain fields of this to be empty, so check with the operation
   // documentation to determine what needs to be set. Generally, project
   // must be set.
-  Ref.Basis basis = 2;
-  Ref.Project project = 3;
-  Ref.Machine machine = 4;
+  sdk.Ref.Basis basis = 2;
+  sdk.Ref.Project project = 3;
+  sdk.Ref.Target target = 4;
 
   // The runner that should execute this job. This is required.
   Ref.Runner target_runner = 5;
@@ -1179,7 +1152,7 @@ message UpsertBasisResponse {
 }
 
 message GetBasisRequest {
-  Ref.Basis basis = 1;
+  sdk.Ref.Basis basis = 1;
 }
 
 message GetBasisResponse {
@@ -1196,7 +1169,7 @@ message FindBasisResponse {
 }
 
 message ListBasisResponse {
-  repeated Ref.Basis basis = 1;
+  repeated sdk.Ref.Basis basis = 1;
 }
 
 message UpsertProjectRequest {
@@ -1209,7 +1182,7 @@ message UpsertProjectResponse {
 }
 
 message GetProjectRequest {
-  Ref.Project project = 1;
+  sdk.Ref.Project project = 1;
 }
 
 message GetProjectResponse {
@@ -1226,40 +1199,40 @@ message FindProjectResponse {
 }
 
 message ListProjectsResponse {
-  repeated Ref.Project projects = 1;
+  repeated sdk.Ref.Project projects = 1;
 }
 
-message UpsertMachineRequest {
+message UpsertTargetRequest {
   // project to register the app against
-  Ref.Project project = 1;
+  sdk.Ref.Project project = 1;
 
-  Machine machine = 2;
+  Target target = 2;
 }
 
-message UpsertMachineResponse {
-  Machine machine = 1;
+message UpsertTargetResponse {
+  Target target = 1;
 }
 
-message GetMachineRequest {
-  Ref.Project project = 1;
-  Ref.Machine machine = 2;
+message GetTargetRequest {
+  sdk.Ref.Project project = 1;
+  sdk.Ref.Target target = 2;
 }
 
-message GetMachineResponse {
-  Machine machine = 1;
+message GetTargetResponse {
+  Target target = 1;
 }
 
-message FindMachineRequest {
-  Machine machine = 1;
+message FindTargetRequest {
+  Target target = 1;
 }
 
-message FindMachineResponse {
+message FindTargetResponse {
   bool found = 1;
-  Machine machine = 2;
+  Target target = 2;
 }
 
-message ListMachinesResponse {
-  repeated Ref.Machine machines = 1;
+message ListTargetsResponse {
+  repeated sdk.Ref.Target targets = 1;
 }
 
 /********************************************************************
@@ -1268,9 +1241,9 @@ message ListMachinesResponse {
 
 message GetLogStreamRequest {
   oneof scope {
-    Ref.Basis basis = 1;
-    Ref.Project project = 2;
-    Ref.Machine machine = 3;
+    sdk.Ref.Basis basis = 1;
+    sdk.Ref.Project project = 2;
+    sdk.Ref.Target target = 3;
   }
 
   // limit_backlog sets the maximum backlog lines to return on the initial
@@ -1302,8 +1275,8 @@ message LogBatch {
 message ConfigVar {
   // scope is the scoping for this config variable.
   oneof scope {
-    Ref.Machine machine = 3;
-    Ref.Project project = 4;
+    sdk.Ref.Target target = 3;
+    sdk.Ref.Project project = 4;
 
     // This specifies that the configuration variable is for runners only.
     // You can use more complex runner targeting via this ref.
@@ -1323,8 +1296,8 @@ message ConfigSetResponse {}
 message ConfigGetRequest {
   // scope is the scoping for this config variable.
   oneof scope {
-    Ref.Machine machine = 2;
-    Ref.Project project = 3;
+    sdk.Ref.Target target = 2;
+    sdk.Ref.Project project = 3;
     Ref.RunnerId runner = 4;
   }
 
@@ -1719,18 +1692,18 @@ message UpsertTaskResponse {
 message GetLatestTaskRequest {
   // The scope of the task
   oneof scope {
-    Ref.Machine machine = 1;
-    Ref.Project project = 2;
-    Ref.Basis basis = 3;
+    sdk.Ref.Target target = 1;
+    sdk.Ref.Project project = 2;
+    sdk.Ref.Basis basis = 3;
   }
 }
 
 message ListTasksRequest {
   // The scope of the task
   oneof scope {
-    Ref.Machine machine = 1;
-    Ref.Project project = 2;
-    Ref.Basis basis = 3;
+    sdk.Ref.Target target = 1;
+    sdk.Ref.Project project = 2;
+    sdk.Ref.Basis basis = 3;
   }
 
   // The filters to apply to this request. These are ORed, so you should
