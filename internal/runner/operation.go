@@ -11,6 +11,7 @@ import (
 	"google.golang.org/grpc/status"
 
 	"github.com/hashicorp/vagrant-plugin-sdk/component"
+	"github.com/hashicorp/vagrant-plugin-sdk/proto/vagrant_plugin_sdk"
 	"github.com/hashicorp/vagrant-plugin-sdk/terminal"
 	configpkg "github.com/hashicorp/vagrant/internal/config"
 	"github.com/hashicorp/vagrant/internal/core"
@@ -62,6 +63,7 @@ func (r *Runner) executeJob(
 ) (result *vagrant_server.Job_Result, err error) {
 	// Eventually we'll need to extract the data source. For now we're
 	// just building for local exec so it is the working directory.
+	// TODO(spox): config loading needs to be moved to core within basis and project
 	path := configpkg.Filename
 	if wd != "" {
 		path = filepath.Join(wd, path)
@@ -90,18 +92,31 @@ func (r *Runner) executeJob(
 		Local: r.local,
 	}
 
-	log.Debug("job we are processing", "job", job, "basis", job.Basis, "project", job.Project, "machine", job.Machine)
+	log.Debug("processing operation ", "job", job, "basis", job.Basis,
+		"project", job.Project, "target", job.Target)
 
-	// Load our basis
-	b, err := core.NewBasis(ctx,
-		core.WithBasisConfig(cfg),
+	// Initial options for setting up the basis
+	opts := []core.BasisOption{
 		core.WithLogger(log),
 		core.WithUI(ui),
 		core.WithComponents(r.factories),
 		core.WithClient(r.client),
 		core.WithJobInfo(jobInfo),
-		core.WithBasisRef(job.Basis),
-	)
+	}
+
+	// Work backwards to setup the basis
+	var ref *vagrant_plugin_sdk.Ref_Basis
+	if job.Target != nil {
+		ref = job.Target.Basis
+	} else if job.Project != nil {
+		ref = job.Project.Basis
+	} else {
+		ref = job.Basis
+	}
+	opts = append(opts, core.WithBasisRef(ref))
+
+	// Load our basis
+	b, err := core.NewBasis(ctx, opts...)
 	if err != nil {
 		return
 	}
