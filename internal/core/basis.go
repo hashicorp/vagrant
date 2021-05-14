@@ -2,6 +2,7 @@ package core
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"reflect"
 	"strings"
@@ -11,6 +12,7 @@ import (
 	"github.com/hashicorp/go-argmapper"
 	"github.com/hashicorp/go-hclog"
 	"github.com/hashicorp/go-multierror"
+	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
@@ -34,23 +36,30 @@ import (
 // finished with the basis to properly clean
 // up any open resources.
 type Basis struct {
-	name       string
-	resourceid string
-	logger     hclog.Logger
-	config     *config.Config
-	projects   map[string]*Project
-	factories  map[component.Type]*factory.Factory
-	mappers    []*argmapper.Func
-	dir        *datadir.Basis
-	env        *Environment
+	basis     *vagrant_server.Basis
+	logger    hclog.Logger
+	config    *config.Config
+	projects  map[string]*Project
+	factories map[component.Type]*factory.Factory
+	mappers   []*argmapper.Func
+	dir       *datadir.Basis
+	ctx       context.Context
 
-	labels         map[string]string
-	overrideLabels map[string]string
-
+	lock   sync.Mutex
 	client *serverclient.VagrantClient
 
+	// NOTE: we can't have a broker to easily just shove at the
+	// mappers to help us. instead, lets update our scope defs
+	// in the proto Args so they can be a stream id (when being
+	// wrapped/passed by a plugin) or a connection end point. This
+	// will let us serve it from here without a new process being
+	// spun out, and we can wrap as needed as it gets shuttled around.
+	// Will just need a direct connection end point like we had for the
+	// ruby side before the broker there, and the mapper can just use
+	// what ever is available when doing setup.
+	grpcServer *grpc.Server
+
 	jobInfo *component.JobInfo
-	lock    sync.Mutex
 	closers []func() error
 	UI      terminal.UI
 }
@@ -58,24 +67,43 @@ type Basis struct {
 // NewBasis creates a new Basis with the given options.
 func NewBasis(ctx context.Context, opts ...BasisOption) (b *Basis, err error) {
 	b = &Basis{
+		ctx:       ctx,
 		logger:    hclog.L(),
 		jobInfo:   &component.JobInfo{},
 		factories: plugin.BaseFactories,
 	}
 
 	for _, opt := range opts {
-		opt(b)
+		if oerr := opt(b); oerr != nil {
+			err = multierror.Append(err, oerr)
+		}
+	}
+
+	if err != nil {
+		return
+	}
+
+	if b.basis == nil {
+		return nil, errors.New("basis data was not properly loaded")
+	}
+
+	// Client is required to be provided
+	if b.client == nil {
+		return nil, errors.New("client was not provided to basis")
 	}
 
 	// If we don't have a data directory set, lets do that now
+	// TODO(spox): actually do that
 	if b.dir == nil {
 		return nil, fmt.Errorf("WithDataDir must be specified")
 	}
 
+	// If no UI was provided, initialize a console UI
 	if b.UI == nil {
 		b.UI = terminal.ConsoleUI(ctx)
 	}
 
+	// If the mappers aren't already set, load known mappers
 	if len(b.mappers) == 0 {
 		b.mappers, err = argmapper.NewFuncList(protomappers.All,
 			argmapper.Logger(b.logger),
@@ -84,28 +112,29 @@ func NewBasis(ctx context.Context, opts ...BasisOption) (b *Basis, err error) {
 			return
 		}
 	}
-
-	envMapper, _ := argmapper.NewFunc(EnvironmentProto)
-	b.mappers = append(b.mappers, envMapper)
-
 	comandArgMapper, _ := argmapper.NewFunc(CommandArgToMap)
 	b.mappers = append(b.mappers, comandArgMapper)
 
-	if b.client == nil {
-		panic("b.client should never be nil")
-	}
-
+	// TODO(spox): After fixing up datadir, use that to do
+	// configuration loading
 	if b.config == nil {
-		b.config, err = config.Load("", "")
+		if b.config, err = config.Load("", ""); err != nil {
+			return
+		}
 	}
 
-	b.env, err = NewEnvironment(ctx,
-		WithHomePath(b.dir.Dir.RootDir()),
-		WithServerAddr(b.client.ServerTarget()),
-	)
-	if err != nil {
-		return nil, err
-	}
+	// Finally, init a server to make this basis available
+	b.grpcServer = grpc.NewServer([]grpc.ServerOption{}...)
+	vagrant_plugin_sdk.RegisterTargetServiceServer(b.grpcServer, b)
+
+	// Close down the local server when finished with the basis
+	b.Closer(func() error {
+		b.grpcServer.GracefulStop()
+		return nil
+	})
+
+	// Ensure any modifications to the basis are persisted
+	b.Closer(func() error { b.Save() })
 
 	b.logger.Info("basis initialized")
 	return
@@ -116,10 +145,26 @@ func (b *Basis) Ui() terminal.UI {
 }
 
 func (b *Basis) Ref() interface{} {
-	return &vagrant_server.Ref_Basis{
-		ResourceId: b.resourceid,
-		Name:       b.name,
+	return &vagrant_plugin_sdk.Ref_Basis{
+		ResourceId: b.ResourceId(),
+		Name:       b.Name(),
 	}
+}
+
+func (b *Basis) Name() string {
+	if b.basis == nil {
+		return ""
+	}
+
+	return b.basis.Name
+}
+
+func (b *Basis) ResourceId() string {
+	if b.basis == nil {
+		return ""
+	}
+
+	return b.basis.ResourceId
 }
 
 func (b *Basis) JobInfo() *component.JobInfo {
@@ -128,10 +173,6 @@ func (b *Basis) JobInfo() *component.JobInfo {
 
 func (b *Basis) Client() *serverclient.VagrantClient {
 	return b.client
-}
-
-func (b *Basis) Environment() *Environment {
-	return b.env
 }
 
 func (b *Basis) Init() (result *vagrant_server.Job_InitResult, err error) {
@@ -153,6 +194,7 @@ func (b *Basis) Init() (result *vagrant_server.Job_InitResult, err error) {
 			return
 		}
 
+		// TODO(spox): Update this to use sdk core interface (against server so manual map required)
 		raw, err := b.callDynamicFunc(
 			ctx,
 			b.logger,
@@ -179,67 +221,125 @@ func (b *Basis) Init() (result *vagrant_server.Job_InitResult, err error) {
 	return
 }
 
-func (b *Basis) LoadProject(ctx context.Context, popts ...ProjectOption) (p *Project, err error) {
+func (b *Basis) Project(nameOrId string) *Project {
+	if p, ok := b.projects[nameOrId]; ok {
+		return p
+	}
+	for _, p := range b.projects {
+		if p.project.ResourceId == nameOrId {
+			return p
+		}
+	}
+	return nil
+}
+
+func (b *Basis) LoadProject(popts ...ProjectOption) (p *Project, err error) {
 	// Create our project
 	p = &Project{
+		ctx:       b.ctx,
 		basis:     b,
 		logger:    b.logger.Named("project"),
 		mappers:   b.mappers,
 		factories: b.factories,
-		machines:  map[string]*Machine{},
+		targets:   map[string]*Target{},
 		UI:        b.UI,
-		env:       b.env,
 	}
-	var opts options
 
 	// Apply any options provided
 	for _, opt := range popts {
-		opt(p, &opts)
+		if oerr := opt(p); oerr != nil {
+			err = multierror.Append(err, oerr)
+		}
+	}
+
+	if err != nil {
+		return
+	}
+
+	// If we already have this project setup, use it instead
+	if project := b.Project(p.project.ResourceId); project != nil {
+		return project, nil
 	}
 
 	// Ensure project directory is set
 	if p.dir == nil {
-		return nil, fmt.Errorf("WithProjectDataDir must be specified")
-	}
-
-	// Validate the configuration
-	if err = opts.Config.Validate(); err != nil {
-		return
-	}
-
-	// Validate the labels
-	if errs := config.ValidateLabels(p.overrideLabels); len(errs) > 0 {
-		return nil, multierror.Append(nil, errs...)
-	}
-
-	p.labels = opts.Config.Labels
-
-	for _, mCfg := range opts.Config.Machines {
-		var d *datadir.Machine
-		if d, err = p.dir.Machine(mCfg.Name); err != nil {
+		if p.dir, err = b.dir.Project(p.project.Name); err != nil {
 			return
 		}
+	}
 
-		m := &Machine{
-			name:   mCfg.Name,
-			config: mCfg,
-			logger: p.logger.Named(mCfg.Name),
-			dir:    d,
-			UI:     terminal.ConsoleUI(ctx),
+	// Init server to make this project available
+	p.grpcServer = grpc.NewServer()
+	vagrant_plugin_sdk.RegisterProjectServiceServer(p.grpcServer, p)
+
+	// Close down the local server when complete
+	p.Closer(func() error {
+		p.grpcServer.GracefulStop()
+		return nil
+	})
+
+	// Ensure any modifications to the project are persisted
+	p.Closer(func() error { return p.Save() })
+
+	return
+}
+
+func (b *Basis) Closer(c func() error) {
+	b.closers = append(b.closers, c)
+}
+
+func (b *Basis) Close() (err error) {
+	defer b.lock.Unlock()
+	b.lock.Lock()
+
+	b.logger.Debug("closing basis", "basis", b.ResourceId())
+
+	// Close down any projects that were loaded
+	for name, p := range b.projects {
+		b.logger.Trace("closing project", "project", name)
+		if cerr := p.Close(); cerr != nil {
+			b.logger.Warn("error closing project", "project", name,
+				"error", cerr)
+			err = multierror.Append(err, cerr)
 		}
+	}
 
-		p.machines[m.name] = m
+	// Call any closers that were registered locally
+	for _, c := range b.closers {
+		if cerr := c(); cerr != nil {
+			b.logger.Warn("error executing closer", "error", cerr)
+			err = multierror.Append(err, cerr)
+		}
 	}
 
 	return
 }
 
-func (b *Basis) Close() error {
-	for _, c := range b.closers {
-		c()
+// Saves the basis to the db
+func (b *Basis) Save() (err error) {
+	b.logger.Debug("saving basis to db", "basis", b.ResourceId())
+	_, err := b.Client().UpsertBasis(b.ctx, &vagrant_server.UpsertBasisRequest{
+		Basis: b.basis})
+	if err != nil {
+		b.logger.Trace("failed to save basis", "basis", b.ResourceId(), "error", err)
 	}
+	return
+}
 
-	return nil
+// Saves the basis to the db as well as any projects that have been loaded
+func (b *Basis) SaveFull() (err error) {
+	b.logger.Debug("performing full save", "basis", b.ResourceId())
+	for _, p := range b.projects {
+		b.logger.Trace("saving project", "basis", b.ResourceId(), "project", p.ResourceId())
+		if perr := p.SaveFull(); perr != nil {
+			b.logger.Trace("error while saving project", "project", p.ResourceId(), "error", err)
+			err = multierror.Append(err, perr)
+		}
+	}
+	if berr := b.Save(); berr != nil {
+		err = multierror.Append(err, berr)
+	}
+	return
 }
 
 func (b *Basis) Components(ctx context.Context) ([]*Component, error) {
@@ -309,7 +409,7 @@ func (b *Basis) specializeComponent(c *Component) (cmp plugin.PluginMetadata, er
 	if cmp, ok = c.Value.(plugin.PluginMetadata); !ok {
 		return nil, fmt.Errorf("component does not support specialization")
 	}
-	cmp.SetRequestMetadata("basis_resource_id", b.resourceid)
+	cmp.SetRequestMetadata("basis_resource_id", b.ResourceId())
 	cmp.SetRequestMetadata("vagrant_service_endpoint", b.client.ServerTarget())
 
 	return
@@ -409,7 +509,6 @@ func (b *Basis) callDynamicFunc(
 	// Make sure we have access to our context and logger and default args
 	args = append(args,
 		argmapper.Typed(ctx, log),
-		argmapper.Named("labels", &component.LabelSet{Labels: c.labels}),
 	)
 
 	// Build the chain and call it
@@ -437,18 +536,6 @@ func (b *Basis) callDynamicFunc(
 	return raw, nil
 }
 
-func (b *Basis) mergeLabels(ls ...map[string]string) map[string]string {
-	result := map[string]string{}
-
-	// Merge order
-	mergeOrder := []map[string]string{result, b.labels}
-	mergeOrder = append(mergeOrder, ls...)
-	mergeOrder = append(mergeOrder, b.overrideLabels)
-
-	// Merge them
-	return labelsMerge(mergeOrder...)
-}
-
 func (b *Basis) execHook(ctx context.Context, log hclog.Logger, h *config.Hook) error {
 	return execHook(ctx, b, log, h)
 }
@@ -458,61 +545,87 @@ func (b *Basis) doOperation(ctx context.Context, log hclog.Logger, op operation)
 }
 
 // BasisOption is used to set options for NewBasis.
-type BasisOption func(*Basis)
+type BasisOption func(*Basis) error
 
 // WithClient sets the API client to use.
 func WithClient(client *serverclient.VagrantClient) BasisOption {
-	return func(b *Basis) {
+	return func(b *Basis) (err error) {
 		b.client = client
+		return
 	}
 }
 
 // WithLogger sets the logger to use with the project. If this option
 // is not provided, a default logger will be used (`hclog.L()`).
 func WithLogger(log hclog.Logger) BasisOption {
-	return func(b *Basis) { b.logger = log }
+	return func(b *Basis) (err error) {
+		b.logger = log
+		return
+	}
 }
 
 // WithFactory sets a factory for a component type. If this isn't set for
 // any component type, then the builtin mapper will be used.
 func WithFactory(t component.Type, f *factory.Factory) BasisOption {
-	return func(b *Basis) { b.factories[t] = f }
+	return func(b *Basis) (err error) {
+		b.factories[t] = f
+		return
+	}
 }
 
 func WithBasisConfig(c *config.Config) BasisOption {
-	return func(b *Basis) { b.config = c }
+	return func(b *Basis) (err error) {
+		b.config = c
+		return
+	}
 }
 
 // WithComponents sets the factories for components.
 func WithComponents(fs map[component.Type]*factory.Factory) BasisOption {
-	return func(b *Basis) { b.factories = fs }
+	return func(b *Basis) (err error) {
+		b.factories = fs
+		return
+	}
 }
 
 // WithMappers adds the mappers to the list of mappers.
 func WithMappers(m ...*argmapper.Func) BasisOption {
-	return func(b *Basis) { b.mappers = append(b.mappers, m...) }
+	return func(b *Basis) (err error) {
+		b.mappers = append(b.mappers, m...)
+		return
+	}
 }
 
 // WithUI sets the UI to use. If this isn't set, a BasicUI is used.
 func WithUI(ui terminal.UI) BasisOption {
-	return func(b *Basis) { b.UI = ui }
+	return func(b *Basis) (err error) {
+		b.UI = ui
+		return
+	}
 }
 
 // WithJobInfo sets the base job info used for any executed operations.
 func WithJobInfo(info *component.JobInfo) BasisOption {
-	return func(b *Basis) { b.jobInfo = info }
+	return func(b *Basis) (err error) {
+		b.jobInfo = info
+		return
+	}
 }
 
 func WithBasisDataDir(dir *datadir.Basis) BasisOption {
-	return func(b *Basis) { b.dir = dir }
+	return func(b *Basis) (err error) {
+		b.dir = dir
+		return
+	}
 }
 
-func WithBasisRef(r *vagrant_server.Ref_Basis) BasisOption {
-	return func(b *Basis) {
+func WithBasisRef(r *vagrant_plugin_sdk.Ref_Basis) BasisOption {
+	return func(b *Basis) (err error) {
 		var basis *vagrant_server.Basis
 		// if we don't have a resource ID we need to upsert
 		if r.ResourceId == "" {
-			result, err := b.client.UpsertBasis(
+			var result *vagrant_server.UpsertBasisResponse
+			result, err = b.client.UpsertBasis(
 				context.Background(),
 				&vagrant_server.UpsertBasisRequest{
 					Basis: &vagrant_server.Basis{
@@ -522,31 +635,50 @@ func WithBasisRef(r *vagrant_server.Ref_Basis) BasisOption {
 				},
 			)
 			if err != nil {
-				panic("failed to upsert basis") // TODO(spox): don't panic
+				return
 			}
 			basis = result.Basis
 		} else {
-			result, err := b.client.GetBasis(
+			var result *vagrant_server.GetBasisResponse
+			result, err = b.client.GetBasis(
 				context.Background(),
 				&vagrant_server.GetBasisRequest{
 					Basis: r,
 				},
 			)
 			if err != nil {
-				panic("failed to retrieve basis") // TODO(spox): don't panic
+				return
 			}
 			basis = result.Basis
 		}
-		b.name = basis.Name
-		b.resourceid = basis.ResourceId
+		b.basis = basis
 		// if the datadir isn't set, do that now
 		if b.dir == nil {
-			var err error
 			b.dir, err = datadir.NewBasis(basis.Path)
 			if err != nil {
-				panic("failed to setup basis datadir") // TODO(spox): don't panic
+				return
 			}
 		}
+		return
+	}
+}
+
+func WithBasisResourceId(rid string) BasisOption {
+	return func(b *Basis) (err error) {
+		result, err := b.client.FindBasis(b.ctx, &vagrant_server.FindBasisRequest{
+			Basis: &vagrant_server.Basis{
+				ResourceId: rid,
+			},
+		})
+		if err != nil {
+			return
+		}
+		if !result.Found {
+			b.logger.Error("failed to locate basis during setup", "resource-id", rid)
+			return errors.New("requested basis is not found")
+		}
+		b.basis = result.Basis
+		return
 	}
 }
 

@@ -24,7 +24,6 @@ type scope interface {
 	JobInfo() *component.JobInfo
 	Client() *serverclient.VagrantClient
 	execHook(ctx context.Context, log hclog.Logger, h *config.Hook) (err error)
-	mergeLabels(...map[string]string) map[string]string
 }
 
 // operation is a private interface that we implement for "operations" such

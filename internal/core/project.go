@@ -2,19 +2,22 @@ package core
 
 import (
 	"context"
-	"io"
+	"errors"
 	"strings"
 	"sync"
 
 	"github.com/golang/protobuf/proto"
 	"github.com/hashicorp/go-argmapper"
 	"github.com/hashicorp/go-hclog"
+	"github.com/hashicorp/go-multierror"
 
+	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
 	"github.com/hashicorp/vagrant-plugin-sdk/component"
 	"github.com/hashicorp/vagrant-plugin-sdk/datadir"
+	"github.com/hashicorp/vagrant-plugin-sdk/proto/vagrant_plugin_sdk"
 	"github.com/hashicorp/vagrant-plugin-sdk/terminal"
 
 	"github.com/hashicorp/vagrant/internal/config"
@@ -29,122 +32,100 @@ import (
 // The Close function should be called when finished with the project
 // to properly clean up any open resources.
 type Project struct {
+	project   *vagrant_server.Project
+	ctx       context.Context
 	basis     *Basis
 	config    *config.Project
 	logger    hclog.Logger
-	machines  map[string]*Machine
+	targets   map[string]*Target
 	factories map[component.Type]*factory.Factory
 	dir       *datadir.Project
 	mappers   []*argmapper.Func
-	env       *Environment
 
-	// name is the name of the project
-	name string
-
-	// path is the location of the project
-	path string
-
-	// resourceid is the unique identifier of the project
-	resourceid string
-
-	// labels is the list of labels that are assigned to this project.
-	labels map[string]string
+	grpcServer *grpc.Server
 
 	// jobInfo is the base job info for executed functions.
 	jobInfo *component.JobInfo
 
-	// This lock only needs to be held currently to protect localClosers.
+	// This lock only needs to be held currently to protect closers.
 	lock sync.Mutex
 
 	// The below are resources we need to close when Close is called, if non-nil
-	localClosers []io.Closer
+	closers []func() error
 
 	// UI is the terminal UI to use for messages related to the project
 	// as a whole. These messages will show up unprefixed for example compared
 	// to the app-specific UI.
 	UI terminal.UI
-
-	// overrideLabels are the labels specified via the CLI to override
-	// all other conflicting keys.
-	overrideLabels map[string]string
 }
 
 func (p *Project) Ui() terminal.UI {
 	return p.UI
 }
 
+func (p *Project) Name() string {
+	return p.project.Name
+}
+
+func (p *Project) ResourceId() string {
+	return p.project.ResourceId
+}
+
 func (p *Project) JobInfo() *component.JobInfo {
 	return p.jobInfo
 }
 
-func (p *Project) Environment() *Environment {
-	return p.env
+func (p *Project) Target(nameOrId string) *Target {
+	if t, ok := p.targets[nameOrId]; ok {
+		return t
+	}
+	for _, t := range p.targets {
+		if t.target.ResourceId == nameOrId {
+			return t
+		}
+	}
+	return nil
 }
 
-func (p *Project) MachineFromRef(r *vagrant_server.Ref_Machine) (*Machine, error) {
-	var machine *vagrant_server.Machine
-	if r.ResourceId != "" {
-		result, err := p.Client().GetMachine(
-			context.Background(),
-			&vagrant_server.GetMachineRequest{
-				Project: p.Ref().(*vagrant_server.Ref_Project),
-				Machine: r,
-			},
-		)
-		if err != nil {
-			return nil, err
-		}
-		machine = result.Machine
-	} else {
-		result, err := p.Client().UpsertMachine(
-			context.Background(),
-			&vagrant_server.UpsertMachineRequest{
-				Project: p.Ref().(*vagrant_server.Ref_Project),
-				Machine: &vagrant_server.Machine{
-					Name:    r.Name,
-					Project: p.Ref().(*vagrant_server.Ref_Project),
-				},
-			},
-		)
-		if err != nil {
-			return nil, err
-		}
-		machine = result.Machine
+func (p *Project) LoadTarget(topts ...TargetOption) (t *Target, err error) {
+	// Create our target
+	t = &Target{
+		ctx:     p.ctx,
+		project: p,
+		logger:  p.logger.Named("target"),
+		UI:      p.UI,
 	}
-	mdir, err := p.dir.Machine(machine.Name)
+
+	// Apply any options provided
+	for _, opt := range topts {
+		if oerr := opt(t); oerr != nil {
+			err = multierror.Append(err, oerr)
+		}
+	}
+
 	if err != nil {
-		return nil, err
-	}
-	m := &Machine{
-		name:       machine.Name,
-		resourceid: machine.ResourceId,
-		project:    p,
-		logger:     p.logger.Named(machine.Name),
-		dir:        mdir,
-		UI:         p.UI,
+		return
 	}
 
-	return m, nil
-}
-
-// App initializes and returns the machine with the given name.
-func (p *Project) Machine(name string) (*Machine, error) {
-	m, ok := p.machines[name]
-	if !ok {
-		d, err := p.dir.Machine(name)
-		if err != nil {
-			return nil, err
-		}
-		m = &Machine{
-			name:    name,
-			project: p,
-			logger:  p.logger.Named(name),
-			dir:     d,
-			UI:      p.UI,
-		}
-		p.machines[name] = m
+	// If the machine is already loaded, return that
+	if target, ok := p.targets[t.Name()]; ok {
+		return target, nil
 	}
-	return p.machines[name], nil
+
+	// Init server to make this target available
+	t.grpcServer = grpc.NewServer()
+	vagrant_plugin_sdk.RegisterTargetServiceServer(t.grpcServer, t)
+
+	// Close down the local server when complete
+	t.Closer(func() error {
+		t.grpcServer.GracefulStop()
+		return nil
+	})
+
+	// Ensure any modifications to the target are persisted
+	t.Closer(func() error { return t.Save() })
+
+	return
 }
 
 // Client returns the API client for the backend server.
@@ -154,10 +135,10 @@ func (p *Project) Client() *serverclient.VagrantClient {
 
 // Ref returns the project ref for API calls.
 func (p *Project) Ref() interface{} {
-	return &vagrant_server.Ref_Project{
-		ResourceId: p.resourceid,
-		Name:       p.name,
-		Basis:      p.basis.Ref().(*vagrant_server.Ref_Basis),
+	return &vagrant_plugin_sdk.Ref_Project{
+		ResourceId: p.project.ResourceId,
+		Name:       p.project.Name,
+		Basis:      p.project.Basis,
 	}
 }
 
@@ -189,14 +170,6 @@ func (p *Project) Components(ctx context.Context) (results []*Component, err err
 	return results, nil
 }
 
-func (p *Project) specializeComponent(c *Component) (cmp plugin.PluginMetadata, err error) {
-	if cmp, err = p.basis.specializeComponent(c); err != nil {
-		return
-	}
-	cmp.SetRequestMetadata("project_resource_id", p.resourceid)
-	return
-}
-
 func (p *Project) Run(ctx context.Context, task *vagrant_server.Task) (err error) {
 	p.logger.Debug("running new task", "project", p, "task", task)
 
@@ -217,8 +190,6 @@ func (p *Project) Run(ctx context.Context, task *vagrant_server.Task) (err error
 		cmd,
 		cmd.Value.(component.Command).ExecuteFunc(strings.Split(task.CommandName, " ")),
 		argmapper.Typed(task.CliArgs),
-		// TODO: add extra args here
-		argmapper.Typed(p.env),
 	)
 	if err != nil || result == nil || result.(int64) != 0 {
 		p.logger.Error("failed to execute command", "type", component.CommandType, "name", task.Component.Name, "result", result, "error", err)
@@ -228,31 +199,64 @@ func (p *Project) Run(ctx context.Context, task *vagrant_server.Task) (err error
 	return
 }
 
+func (p *Project) Closer(c func() error) {
+	p.closers = append(p.closers, c)
+}
+
 // Close is called to clean up resources allocated by the project.
 // This should be called and blocked on to gracefully stop the project.
-func (p *Project) Close() error {
-	p.lock.Lock()
+func (p *Project) Close() (err error) {
 	defer p.lock.Unlock()
+	p.lock.Lock()
 
 	p.logger.Debug("closing project", "project", p)
 
-	// Stop all our machines (not sure what this actually affects)
-	for name, m := range p.machines {
-		p.logger.Trace("closing machine", "machine", name)
-		if err := m.Close(); err != nil {
-			p.logger.Warn("error closing machine", "err", err)
+	// close all the loaded targets
+	for name, m := range p.targets {
+		p.logger.Trace("closing target", "target", name)
+		if cerr := m.Close(); cerr != nil {
+			p.logger.Warn("error closing target", "target", name,
+				"err", cerr)
+			err = multierror.Append(err, cerr)
 		}
 	}
 
-	// If we're running in local mode, close our local resources we started
-	for _, c := range p.localClosers {
-		if err := c.Close(); err != nil {
-			return err
+	for _, f := range p.closers {
+		if cerr := f(); cerr != nil {
+			p.logger.Warn("error executing closer", "error", cerr)
+			err = multierror.Append(err, cerr)
 		}
 	}
-	p.localClosers = nil
+	// Remove this project from built project list in basis
+	delete(p.basis.projects, p.Name())
+	return
+}
 
-	return nil
+// Saves the project to the db
+func (p *Project) Save() (err error) {
+	p.logger.Trace("saving project to db", "project", p.ResourceId())
+	_, err := p.Client().UpsertProject(p.ctx, &vagrant_server.UpsertProjectRequest{
+		Project: p.project})
+	if err != nil {
+		p.logger.Trace("failed to save project", "project", p.ResourceId())
+	}
+	return
+}
+
+// Saves the project to the db as well as any targets that have been loaded
+func (p *Project) SaveFull() (err error) {
+	p.logger.Debug("performing full save", "project", p.ResourceId())
+	for _, t := range p.targets {
+		p.logger.Trace("saving target", "project", p.ResourceId(), "target", t.ResourceId())
+		if terr := t.Save(); terr != nil {
+			p.logger.Trace("error while saving target", "target", t.ResourceId(), "error", err)
+			err = multierror.Append(err, terr)
+		}
+	}
+	if perr := p.Save(); perr != nil {
+		err = multierror.Append(err, perr)
+	}
+	return
 }
 
 func (p *Project) callDynamicFunc(
@@ -280,21 +284,12 @@ func (p *Project) callDynamicFunc(
 	return p.basis.callDynamicFunc(ctx, log, result, c, f, args...)
 }
 
-// mergeLabels merges the set of labels given. This will set the project
-// labels as a base automatically and then merge ls in order.
-func (p *Project) mergeLabels(ls ...map[string]string) map[string]string {
-	result := map[string]string{}
-
-	// Set our builtin labels
-	// result["vagrant/workspace"] = p.workspace
-
-	// Merge order
-	mergeOrder := []map[string]string{result, p.labels}
-	mergeOrder = append(mergeOrder, ls...)
-	mergeOrder = append(mergeOrder, p.overrideLabels)
-
-	// Merge them
-	return labelsMerge(mergeOrder...)
+func (p *Project) specializeComponent(c *Component) (cmp plugin.PluginMetadata, err error) {
+	if cmp, err = p.basis.specializeComponent(c); err != nil {
+		return
+	}
+	cmp.SetRequestMetadata("project_resource_id", p.ResourceId())
+	return
 }
 
 func (p *Project) execHook(ctx context.Context, log hclog.Logger, h *config.Hook) error {
@@ -314,36 +309,90 @@ type options struct {
 }
 
 // ProjectOption is used to set options for LoadProject
-type ProjectOption func(*Project, *options)
-
-// WithConfig uses the given project configuration for initializing the
-// Project. This configuration must be validated already prior to using this
-// option.
-func WithConfig(c *config.Project) ProjectOption {
-	return func(p *Project, opts *options) {
-		opts.Config = c
-	}
-}
+type ProjectOption func(*Project) error
 
 func WithBasis(b *Basis) ProjectOption {
-	return func(p *Project, opts *options) {
+	return func(p *Project) (err error) {
 		p.basis = b
+		return
 	}
 }
 
 func WithProjectDataDir(dir *datadir.Project) ProjectOption {
-	return func(p *Project, opts *options) {
+	return func(p *Project) (err error) {
 		p.dir = dir
+		return
 	}
 }
 
-func WithProjectRef(r *vagrant_server.Ref_Project) ProjectOption {
-	return func(p *Project, opts *options) {
+func WithProjectName(name string) ProjectOption {
+	return func(p *Project) (err error) {
+		if p.basis == nil {
+			return errors.New("basis must be set before loading project")
+		}
+		if ex := p.basis.Project(name); ex != nil {
+			p.project = ex.project
+			return
+		}
+
+		var match *vagrant_plugin_sdk.Ref_Project
+		for _, m := range p.basis.basis.Projects {
+			if m.Name == name {
+				match = m
+				break
+			}
+		}
+		if match == nil {
+			return errors.New("project is not registered in basis")
+		}
+		result, err := p.Client().FindProject(p.ctx, &vagrant_server.FindProjectRequest{
+			Project: &vagrant_server.Project{Name: name},
+		})
+		if err != nil {
+			return
+		}
+		if !result.Found {
+			p.logger.Error("failed to locate project during setup", "project", name,
+				"basis", p.basis.Ref())
+			return errors.New("failed to load project")
+		}
+		p.project = result.Project
+		p.basis.projects[p.project.Name] = p
+
+		return
+	}
+}
+
+func WithProjectRef(r *vagrant_plugin_sdk.Ref_Project) ProjectOption {
+	return func(p *Project) (err error) {
+		// Basis must be set before we continue
+		if p.basis == nil {
+			return errors.New("basis must be set before loading project")
+		}
+
 		var project *vagrant_server.Project
-		// if we don't have a resource ID we need to upsert
-		if r.ResourceId == "" {
-			result, err := p.Client().UpsertProject(
-				context.Background(),
+		// Check if the basis has already loaded the project. If so,
+		// then initialize on that project
+		if ex := p.basis.projects[r.Name]; ex != nil {
+			project = ex.project
+			return
+		}
+		result, err := p.Client().FindProject(p.ctx,
+			&vagrant_server.FindProjectRequest{
+				Project: &vagrant_server.Project{
+					Name: r.Name,
+					Path: r.Path,
+				},
+			},
+		)
+		if err != nil {
+			return err
+		}
+		if result.Found {
+			project = result.Project
+		} else {
+			var result *vagrant_server.UpsertProjectResponse
+			result, err = p.Client().UpsertProject(p.ctx,
 				&vagrant_server.UpsertProjectRequest{
 					Project: &vagrant_server.Project{
 						Name:  r.Name,
@@ -353,31 +402,20 @@ func WithProjectRef(r *vagrant_server.Ref_Project) ProjectOption {
 				},
 			)
 			if err != nil {
-				panic("failed to upsert project") // TODO(spox): don't panic
-			}
-			project = result.Project
-		} else {
-			result, err := p.Client().GetProject(
-				context.Background(),
-				&vagrant_server.GetProjectRequest{
-					Project: r,
-				},
-			)
-			if err != nil {
-				panic("failed to retrieve project") // TODO(spox): don't panic
+				return
 			}
 			project = result.Project
 		}
-		p.name = project.Name
-		p.resourceid = project.ResourceId
-		p.path = project.Path
-		if p.dir == nil {
-			var err error
-			p.dir, err = datadir.NewProject(p.path + "/.vagrant")
-			if err != nil {
-				panic("failed to create project data dir") // TODO(spox): don't panic
-			}
+		// Before we init, validate basis is consistent
+		if project.Basis.ResourceId != r.Basis.ResourceId {
+			p.logger.Error("invalid basis for project", "request-basis", r.Basis,
+				"project-basis", project.Basis)
+			return errors.New("project basis configuration is invalid")
 		}
+		p.project = project
+		// Finally set the project into the basis
+		p.basis.projects[p.Name()] = p
+		return
 	}
 }
 
