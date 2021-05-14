@@ -138,8 +138,6 @@ func (b *Basis) initLocalServer(ctx context.Context) (_ *grpc.ClientConn, err er
 		server.WithLogger(log),
 		server.WithGRPC(ln),
 		server.WithImpl(impl),
-		server.WithMachineImpl(impl.(vagrant_plugin_sdk.MachineServiceServer)),
-		server.WithEnvironmentImpl(impl.(vagrant_plugin_sdk.ProjectServiceServer)),
 	)
 
 	client, err := serverclient.NewVagrantClient(ctx, log, ln.Addr().String())
