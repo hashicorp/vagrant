@@ -9,7 +9,6 @@ import (
 	"github.com/oklog/run"
 	"google.golang.org/grpc"
 
-	"github.com/hashicorp/vagrant-plugin-sdk/proto/vagrant_plugin_sdk"
 	"github.com/hashicorp/vagrant/internal/server/proto/vagrant_server"
 )
 
@@ -128,20 +127,6 @@ func WithHTTP(ln net.Listener) Option {
 // WithImpl sets the service implementation to serve.
 func WithImpl(impl vagrant_server.VagrantServer) Option {
 	return func(opts *options) { opts.Service = impl }
-}
-
-func WithMachineImpl(impl vagrant_plugin_sdk.MachineServiceServer) Option {
-	return func(opts *options) {
-		opts.GRPCServices = append(opts.GRPCServices,
-			func(s *grpc.Server) { vagrant_plugin_sdk.RegisterMachineServiceServer(s, impl) })
-	}
-}
-
-func WithEnvironmentImpl(impl vagrant_plugin_sdk.ProjectServiceServer) Option {
-	return func(opts *options) {
-		opts.GRPCServices = append(opts.GRPCServices,
-			func(s *grpc.Server) { vagrant_plugin_sdk.RegisterProjectServiceServer(s, impl) })
-	}
 }
 
 // WithAuthentication configures the server to require authentication.
