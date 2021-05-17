@@ -70,21 +70,22 @@ func (r *Runner) executeJob(
 	}
 
 	// Setup our basis configuration
-	cfg, err := configpkg.Load("", "")
-	if err != nil {
-		log.Warn("failed here for basis trying to read configuration", "path", path)
-		// return
-		cfg = &configpkg.Config{}
-	}
+	// cfg, err := configpkg.Load("", "")
+	// if err != nil {
+	// 	log.Warn("failed here for basis trying to read configuration", "path", path)
+	// 	// return
+	// 	cfg = &configpkg.Config{}
+	// }
 
 	// Determine the evaluation context we'll be using
 	log.Trace("reading configuration", "path", path)
-	cfg, err = configpkg.Load(path, filepath.Dir(path))
+	cfg, err := configpkg.Load(path, filepath.Dir(path))
 	if err != nil {
 		log.Warn("failed here trying to read configuration", "path", path)
 		cfg = &configpkg.Config{}
 		// return nil, err
 	}
+	log.Trace("configuration loaded", "cfg", cfg)
 
 	// Build our job info
 	jobInfo := &component.JobInfo{
@@ -107,7 +108,7 @@ func (r *Runner) executeJob(
 	// Work backwards to setup the basis
 	var ref *vagrant_plugin_sdk.Ref_Basis
 	if job.Target != nil {
-		ref = job.Target.Basis
+		ref = job.Target.Project.Basis
 	} else if job.Project != nil {
 		ref = job.Project.Basis
 	} else {
@@ -128,8 +129,7 @@ func (r *Runner) executeJob(
 	var p *core.Project
 
 	if job.Project != nil {
-		p, err = b.LoadProject(ctx,
-			core.WithConfig(&configpkg.Project{}),
+		p, err = b.LoadProject(
 			core.WithProjectRef(job.Project),
 		)
 		if err != nil {
@@ -138,11 +138,11 @@ func (r *Runner) executeJob(
 		defer p.Close()
 	}
 
-	// Finally, if we have a machine defined, load it up
-	var m *core.Machine
+	// Finally, if we have a target defined, load it up
+	var m *core.Target
 
-	if job.Machine != nil && p != nil && job.Machine.Name != "" {
-		m, err = p.MachineFromRef(job.Machine)
+	if job.Target != nil && p != nil && job.Target.Name != "" {
+		m, err = p.LoadTarget(core.WithTargetRef(job.Target))
 		if err != nil {
 			return
 		}
