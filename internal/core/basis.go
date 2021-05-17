@@ -12,12 +12,12 @@ import (
 	"github.com/hashicorp/go-argmapper"
 	"github.com/hashicorp/go-hclog"
 	"github.com/hashicorp/go-multierror"
-	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
 	"github.com/hashicorp/vagrant-plugin-sdk/component"
 	"github.com/hashicorp/vagrant-plugin-sdk/datadir"
+	"github.com/hashicorp/vagrant-plugin-sdk/internal-shared/plugincore"
 	"github.com/hashicorp/vagrant-plugin-sdk/internal-shared/protomappers"
 	"github.com/hashicorp/vagrant-plugin-sdk/proto/vagrant_plugin_sdk"
 	"github.com/hashicorp/vagrant-plugin-sdk/terminal"
@@ -48,20 +48,9 @@ type Basis struct {
 	lock   sync.Mutex
 	client *serverclient.VagrantClient
 
-	// NOTE: we can't have a broker to easily just shove at the
-	// mappers to help us. instead, lets update our scope defs
-	// in the proto Args so they can be a stream id (when being
-	// wrapped/passed by a plugin) or a connection end point. This
-	// will let us serve it from here without a new process being
-	// spun out, and we can wrap as needed as it gets shuttled around.
-	// Will just need a direct connection end point like we had for the
-	// ruby side before the broker there, and the mapper can just use
-	// what ever is available when doing setup.
-	grpcServer *grpc.Server
-
 	jobInfo *component.JobInfo
 	closers []func() error
-	UI      terminal.UI
+	ui      terminal.UI
 }
 
 // NewBasis creates a new Basis with the given options.
@@ -71,6 +60,7 @@ func NewBasis(ctx context.Context, opts ...BasisOption) (b *Basis, err error) {
 		logger:    hclog.L(),
 		jobInfo:   &component.JobInfo{},
 		factories: plugin.BaseFactories,
+		projects:  map[string]*Project{},
 	}
 
 	for _, opt := range opts {
@@ -99,8 +89,8 @@ func NewBasis(ctx context.Context, opts ...BasisOption) (b *Basis, err error) {
 	}
 
 	// If no UI was provided, initialize a console UI
-	if b.UI == nil {
-		b.UI = terminal.ConsoleUI(ctx)
+	if b.ui == nil {
+		b.ui = terminal.ConsoleUI(ctx)
 	}
 
 	// If the mappers aren't already set, load known mappers
@@ -119,29 +109,25 @@ func NewBasis(ctx context.Context, opts ...BasisOption) (b *Basis, err error) {
 	// configuration loading
 	if b.config == nil {
 		if b.config, err = config.Load("", ""); err != nil {
-			return
+			b.logger.Warn("failed to load config, using stub", "error", err)
+			b.config = &config.Config{}
+			err = nil
 		}
 	}
 
-	// Finally, init a server to make this basis available
-	b.grpcServer = grpc.NewServer([]grpc.ServerOption{}...)
-	vagrant_plugin_sdk.RegisterTargetServiceServer(b.grpcServer, b)
-
-	// Close down the local server when finished with the basis
-	b.Closer(func() error {
-		b.grpcServer.GracefulStop()
-		return nil
-	})
-
 	// Ensure any modifications to the basis are persisted
-	b.Closer(func() error { b.Save() })
+	b.Closer(func() error { return b.Save() })
 
 	b.logger.Info("basis initialized")
 	return
 }
 
-func (b *Basis) Ui() terminal.UI {
-	return b.UI
+func (b *Basis) UI() (terminal.UI, error) {
+	return b.ui, nil
+}
+
+func (b *Basis) DataDir() (*datadir.Basis, error) {
+	return b.dir, nil
 }
 
 func (b *Basis) Ref() interface{} {
@@ -242,7 +228,7 @@ func (b *Basis) LoadProject(popts ...ProjectOption) (p *Project, err error) {
 		mappers:   b.mappers,
 		factories: b.factories,
 		targets:   map[string]*Target{},
-		UI:        b.UI,
+		ui:        b.ui,
 	}
 
 	// Apply any options provided
@@ -267,16 +253,6 @@ func (b *Basis) LoadProject(popts ...ProjectOption) (p *Project, err error) {
 			return
 		}
 	}
-
-	// Init server to make this project available
-	p.grpcServer = grpc.NewServer()
-	vagrant_plugin_sdk.RegisterProjectServiceServer(p.grpcServer, p)
-
-	// Close down the local server when complete
-	p.Closer(func() error {
-		p.grpcServer.GracefulStop()
-		return nil
-	})
 
 	// Ensure any modifications to the project are persisted
 	p.Closer(func() error { return p.Save() })
@@ -318,7 +294,7 @@ func (b *Basis) Close() (err error) {
 // Saves the basis to the db
 func (b *Basis) Save() (err error) {
 	b.logger.Debug("saving basis to db", "basis", b.ResourceId())
-	_, err := b.Client().UpsertBasis(b.ctx, &vagrant_server.UpsertBasisRequest{
+	_, err = b.Client().UpsertBasis(b.ctx, &vagrant_server.UpsertBasisRequest{
 		Basis: b.basis})
 	if err != nil {
 		b.logger.Trace("failed to save basis", "basis", b.ResourceId(), "error", err)
@@ -370,14 +346,32 @@ func (b *Basis) Components(ctx context.Context) ([]*Component, error) {
 func (b *Basis) Run(ctx context.Context, task *vagrant_server.Task) (err error) {
 	b.logger.Debug("running new task", "basis", b, "task", task)
 
+	// Build the component to run
 	cmd, err := b.component(ctx, component.CommandType, task.Component.Name)
 	if err != nil {
 		return err
 	}
 
+	// Specialize it if required
 	if _, err = b.specializeComponent(cmd); err != nil {
 		return
 	}
+
+	// Pass along to the call
+	basis := plugincore.NewBasisPlugin(b, b.logger)
+	streamId, err := wrapInstance(basis, cmd.plugin.Broker, b)
+	bproto := &vagrant_plugin_sdk.Args_Basis{StreamId: streamId}
+
+	// NOTE(spox): Should this be closed after the dynamic func
+	// call is complete, or when we tear this down? The latter
+	// would allow plugins to keep a persistent connection if
+	// multiple things are being run
+	b.Closer(func() error {
+		if c, ok := basis.(closes); ok {
+			return c.Close()
+		}
+		return nil
+	})
 
 	result, err := b.callDynamicFunc(
 		ctx,
@@ -386,6 +380,8 @@ func (b *Basis) Run(ctx context.Context, task *vagrant_server.Task) (err error) 
 		cmd,
 		cmd.Value.(component.Command).ExecuteFunc(strings.Split(task.CommandName, " ")),
 		argmapper.Typed(task.CliArgs),
+		argmapper.Typed(bproto),
+		argmapper.Named("basis", bproto),
 	)
 	if err != nil || result == nil || result.(int64) != 0 {
 		b.logger.Error("failed to execute command", "type", component.CommandType, "name", task.Component.Name, "error", err)
@@ -496,13 +492,14 @@ func (b *Basis) callDynamicFunc(
 
 	// Be sure that the status is closed after every operation so we don't leak
 	// weird output outside the normal execution.
-	defer b.UI.Status().Close()
+	defer b.ui.Status().Close()
 
 	args = append(args,
 		argmapper.ConverterFunc(b.mappers...),
 		argmapper.Typed(
 			b.jobInfo,
 			b.dir,
+			b.ui,
 		),
 	)
 
@@ -599,7 +596,7 @@ func WithMappers(m ...*argmapper.Func) BasisOption {
 // WithUI sets the UI to use. If this isn't set, a BasicUI is used.
 func WithUI(ui terminal.UI) BasisOption {
 	return func(b *Basis) (err error) {
-		b.UI = ui
+		b.ui = ui
 		return
 	}
 }

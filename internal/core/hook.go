@@ -11,11 +11,15 @@ import (
 
 // execHook executes the given hook. This will return any errors. This ignores
 // on_failure configurations so this must be processed external.
-func execHook(ctx context.Context, s scope, log hclog.Logger, h *config.Hook) error {
+func execHook(ctx context.Context, s scope, log hclog.Logger, h *config.Hook) (err error) {
 	log.Debug("executing hook", "command", h.Command)
 
 	// Get our writers
-	stdout, stderr, err := s.Ui().OutputWriters()
+	ui, err := s.UI()
+	if err != nil {
+		return
+	}
+	stdout, stderr, err := ui.OutputWriters()
 	if err != nil {
 		log.Warn("error getting UI stdout/stderr", "err", err)
 		return err

@@ -11,12 +11,13 @@ import (
 	"github.com/hashicorp/go-hclog"
 	"github.com/hashicorp/go-multierror"
 
-	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
 	"github.com/hashicorp/vagrant-plugin-sdk/component"
+	"github.com/hashicorp/vagrant-plugin-sdk/core"
 	"github.com/hashicorp/vagrant-plugin-sdk/datadir"
+	"github.com/hashicorp/vagrant-plugin-sdk/internal-shared/plugincore"
 	"github.com/hashicorp/vagrant-plugin-sdk/proto/vagrant_plugin_sdk"
 	"github.com/hashicorp/vagrant-plugin-sdk/terminal"
 
@@ -42,8 +43,6 @@ type Project struct {
 	dir       *datadir.Project
 	mappers   []*argmapper.Func
 
-	grpcServer *grpc.Server
-
 	// jobInfo is the base job info for executed functions.
 	jobInfo *component.JobInfo
 
@@ -56,12 +55,59 @@ type Project struct {
 	// UI is the terminal UI to use for messages related to the project
 	// as a whole. These messages will show up unprefixed for example compared
 	// to the app-specific UI.
-	UI terminal.UI
+	ui terminal.UI
 }
 
-func (p *Project) Ui() terminal.UI {
-	return p.UI
+// Start required core.Project interface functions
+func (p *Project) UI() (terminal.UI, error) {
+	return p.ui, nil
 }
+
+func (p *Project) CWD() (path string, err error) {
+	// TODO: implement
+	return
+}
+
+func (p *Project) DataDir() (*datadir.Project, error) {
+	return p.dir, nil
+}
+
+func (p *Project) VagrantfileName() (name string, err error) {
+	// TODO: implement
+	return
+}
+
+func (p *Project) Home() (path string, err error) {
+	// TODO: implement
+	return
+}
+
+func (p *Project) LocalData() (path string, err error) {
+	// TODO: implement
+	return
+}
+
+func (p *Project) Tmp() (path string, err error) {
+	// TODO: implement
+	return
+}
+
+func (p *Project) DefaultPrivateKey() (path string, err error) {
+	// TODO: implement
+	return
+}
+
+func (p *Project) Host() (host core.Host, err error) {
+	// TODO: implement
+	return
+}
+
+func (p *Project) MachineNames() (names []string, err error) {
+	// TODO: implement
+	return
+}
+
+// End required core.Project interface functions
 
 func (p *Project) Name() string {
 	return p.project.Name
@@ -93,7 +139,7 @@ func (p *Project) LoadTarget(topts ...TargetOption) (t *Target, err error) {
 		ctx:     p.ctx,
 		project: p,
 		logger:  p.logger.Named("target"),
-		UI:      p.UI,
+		ui:      p.ui,
 	}
 
 	// Apply any options provided
@@ -108,19 +154,9 @@ func (p *Project) LoadTarget(topts ...TargetOption) (t *Target, err error) {
 	}
 
 	// If the machine is already loaded, return that
-	if target, ok := p.targets[t.Name()]; ok {
+	if target, ok := p.targets[t.target.Name]; ok {
 		return target, nil
 	}
-
-	// Init server to make this target available
-	t.grpcServer = grpc.NewServer()
-	vagrant_plugin_sdk.RegisterTargetServiceServer(t.grpcServer, t)
-
-	// Close down the local server when complete
-	t.Closer(func() error {
-		t.grpcServer.GracefulStop()
-		return nil
-	})
 
 	// Ensure any modifications to the target are persisted
 	t.Closer(func() error { return t.Save() })
@@ -183,6 +219,18 @@ func (p *Project) Run(ctx context.Context, task *vagrant_server.Task) (err error
 		return
 	}
 
+	// Pass along to the call
+	project := plugincore.NewProjectPlugin(p, p.logger)
+	streamId, err := wrapInstance(project, cmd.plugin.Broker, p)
+	pproto := &vagrant_plugin_sdk.Args_Project{StreamId: streamId}
+
+	p.Closer(func() error {
+		if c, ok := project.(closes); ok {
+			return c.Close()
+		}
+		return nil
+	})
+
 	result, err := p.callDynamicFunc(
 		ctx,
 		p.logger,
@@ -190,6 +238,8 @@ func (p *Project) Run(ctx context.Context, task *vagrant_server.Task) (err error
 		cmd,
 		cmd.Value.(component.Command).ExecuteFunc(strings.Split(task.CommandName, " ")),
 		argmapper.Typed(task.CliArgs),
+		argmapper.Typed(pproto),
+		argmapper.Named("project", pproto),
 	)
 	if err != nil || result == nil || result.(int64) != 0 {
 		p.logger.Error("failed to execute command", "type", component.CommandType, "name", task.Component.Name, "result", result, "error", err)
@@ -235,7 +285,7 @@ func (p *Project) Close() (err error) {
 // Saves the project to the db
 func (p *Project) Save() (err error) {
 	p.logger.Trace("saving project to db", "project", p.ResourceId())
-	_, err := p.Client().UpsertProject(p.ctx, &vagrant_server.UpsertProjectRequest{
+	_, err = p.Client().UpsertProject(p.ctx, &vagrant_server.UpsertProjectRequest{
 		Project: p.project})
 	if err != nil {
 		p.logger.Trace("failed to save project", "project", p.ResourceId())
@@ -245,11 +295,11 @@ func (p *Project) Save() (err error) {
 
 // Saves the project to the db as well as any targets that have been loaded
 func (p *Project) SaveFull() (err error) {
-	p.logger.Debug("performing full save", "project", p.ResourceId())
+	p.logger.Debug("performing full save", "project", p.project.ResourceId)
 	for _, t := range p.targets {
-		p.logger.Trace("saving target", "project", p.ResourceId(), "target", t.ResourceId())
+		p.logger.Trace("saving target", "project", p.project.ResourceId, "target", t.target.ResourceId)
 		if terr := t.Save(); terr != nil {
-			p.logger.Trace("error while saving target", "target", t.ResourceId(), "error", err)
+			p.logger.Trace("error while saving target", "target", t.target.ResourceId, "error", err)
 			err = multierror.Append(err, terr)
 		}
 	}
@@ -270,7 +320,7 @@ func (p *Project) callDynamicFunc(
 
 	// Be sure that the status is closed after every operation so we don't leak
 	// weird output outside the normal execution.
-	defer p.UI.Status().Close()
+	defer p.ui.Status().Close()
 
 	args = append(args,
 		argmapper.ConverterFunc(p.mappers...),
@@ -420,3 +470,4 @@ func WithProjectRef(r *vagrant_plugin_sdk.Ref_Project) ProjectOption {
 }
 
 var _ *Project = (*Project)(nil)
+var _ core.Project = (*Project)(nil)

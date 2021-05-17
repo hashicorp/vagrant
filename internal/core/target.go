@@ -14,9 +14,12 @@ import (
 	"github.com/hashicorp/vagrant/internal/plugin"
 	"github.com/hashicorp/vagrant/internal/serverclient"
 	"google.golang.org/grpc"
+	"google.golang.org/protobuf/types/known/anypb"
 
 	"github.com/hashicorp/vagrant-plugin-sdk/component"
+	"github.com/hashicorp/vagrant-plugin-sdk/core"
 	"github.com/hashicorp/vagrant-plugin-sdk/datadir"
+	"github.com/hashicorp/vagrant-plugin-sdk/internal-shared/plugincore"
 	"github.com/hashicorp/vagrant-plugin-sdk/proto/vagrant_plugin_sdk"
 	"github.com/hashicorp/vagrant-plugin-sdk/terminal"
 
@@ -35,11 +38,11 @@ type Target struct {
 	lock       sync.Mutex
 	jobInfo    *component.JobInfo
 	closers    []func() error
-	UI         terminal.UI
+	ui         terminal.UI
 }
 
-func (t *Target) Ui() terminal.UI {
-	return t.UI
+func (t *Target) UI() (terminal.UI, error) {
+	return t.ui, nil
 }
 
 func (t *Target) Ref() interface{} {
@@ -49,12 +52,32 @@ func (t *Target) Ref() interface{} {
 	}
 }
 
-func (t *Target) Name() string {
-	return t.target.Name
+func (t *Target) Name() (string, error) {
+	return t.target.Name, nil
 }
 
-func (t *Target) ResourceId() string {
-	return t.target.ResourceId
+func (t *Target) ResourceId() (string, error) {
+	return t.target.ResourceId, nil
+}
+
+func (t *Target) Project() (core.Project, error) {
+	return t.project, nil
+}
+
+func (t *Target) Metadata() (map[string]string, error) {
+	return t.target.Metadata.Metadata, nil
+}
+
+func (t *Target) DataDir() (*datadir.Target, error) {
+	return t.dir, nil
+}
+
+func (t *Target) State() (core.State, error) {
+	return core.UNKNOWN, nil
+}
+
+func (t *Target) Record() (*anypb.Any, error) {
+	return t.target.Record, nil
 }
 
 func (t *Target) JobInfo() *component.JobInfo {
@@ -87,11 +110,11 @@ func (t *Target) Close() (err error) {
 }
 
 func (t *Target) Save() (err error) {
-	t.logger.Debug("saving target to db", "target", t.ResourceId())
-	_, err := t.Client().UpsertTarget(t.ctx, &vagrant_server.UpsertTargetRequest{
+	t.logger.Debug("saving target to db", "target", t.target.ResourceId)
+	_, err = t.Client().UpsertTarget(t.ctx, &vagrant_server.UpsertTargetRequest{
 		Target: t.target})
 	if err != nil {
-		t.logger.Trace("failed to save target", "target", t.ResourceId(), "error", err)
+		t.logger.Trace("failed to save target", "target", t.target.ResourceId, "error", err)
 	}
 	return
 }
@@ -114,6 +137,18 @@ func (t *Target) Run(ctx context.Context, task *vagrant_server.Task) (err error)
 		return
 	}
 
+	// Pass along to the call
+	target := plugincore.NewTargetPlugin(t, t.logger)
+	streamId, err := wrapInstance(target, cmd.plugin.Broker, t)
+	tproto := &vagrant_plugin_sdk.Args_Project{StreamId: streamId}
+
+	t.Closer(func() error {
+		if c, ok := target.(closes); ok {
+			return c.Close()
+		}
+		return nil
+	})
+
 	result, err := t.callDynamicFunc(
 		ctx,
 		t.logger,
@@ -121,6 +156,8 @@ func (t *Target) Run(ctx context.Context, task *vagrant_server.Task) (err error)
 		cmd,
 		cmd.Value.(component.Command).ExecuteFunc(strings.Split(task.CommandName, " ")),
 		argmapper.Typed(task.CliArgs),
+		argmapper.Typed(tproto),
+		argmapper.Named("target", target),
 	)
 
 	if err != nil || result == nil || result.(int64) != 0 {
@@ -142,7 +179,7 @@ func (t *Target) callDynamicFunc(
 
 	// Be sure that the status is closed after every operation so we don't leak
 	// weird output outside the normal execution.
-	defer t.UI.Status().Close()
+	defer t.ui.Status().Close()
 
 	args = append(args,
 		argmapper.Typed(
@@ -180,7 +217,7 @@ func WithTargetName(name string) TargetOption {
 			return
 		}
 		for _, target := range t.project.targets {
-			if target.Name() != name {
+			if target.target.Name != name {
 				continue
 			}
 			var result *vagrant_server.GetTargetResponse
@@ -212,7 +249,8 @@ func WithTargetRef(r *vagrant_plugin_sdk.Ref_Target) TargetOption {
 		result, err := t.Client().FindTarget(t.ctx,
 			&vagrant_server.FindTargetRequest{
 				Target: &vagrant_server.Target{
-					Name: r.Name,
+					Name:    r.Name,
+					Project: r.Project,
 				},
 			},
 		)
@@ -242,7 +280,7 @@ func WithTargetRef(r *vagrant_plugin_sdk.Ref_Target) TargetOption {
 			return errors.New("target project configuration is invalid")
 		}
 		t.target = target
-		t.project.targets[t.Name()] = t
+		t.project.targets[t.target.Name] = t
 		return
 	}
 }

@@ -19,7 +19,7 @@ import (
 )
 
 type scope interface {
-	Ui() terminal.UI
+	UI() (terminal.UI, error)
 	Ref() interface{}
 	JobInfo() *component.JobInfo
 	Client() *serverclient.VagrantClient
@@ -72,9 +72,6 @@ func doOperation(
 	if err != nil {
 		return nil, nil, err
 	}
-
-	// Initialize our labels
-	msgUpdateLabels(s, op.Labels(s), msg, nil)
 
 	// Setup our job id if we have that field.
 	if f := msgField(msg, "JobId"); f.IsValid() {
@@ -135,9 +132,6 @@ func doOperation(
 		log.Debug("running local operation")
 		result, doErr = op.Do(ctx, log, s, msg)
 		if doErr == nil {
-			// Set our labels if we can
-			msgUpdateLabels(s, op.Labels(s), msg, result)
-
 			// No error, our state is success
 			server.StatusSetSuccess(*statusPtr)
 
@@ -198,29 +192,6 @@ func doOperation(
 	return result, msg, nil
 }
 
-func msgUpdateLabels(
-	s scope,
-	base map[string]string,
-	msg proto.Message,
-	result interface{},
-) {
-	// Get our labels field in our proto message. If we don't have one
-	// then we don't bother doing anything else since labels are moot.
-	val := msgField(msg, "Labels")
-	if !val.IsValid() {
-		return
-	}
-
-	// Determine any labels we have in our result
-	var resultLabels map[string]string
-	if labels, ok := result.(interface{ Labels() map[string]string }); ok {
-		resultLabels = labels.Labels()
-	}
-
-	// Merge them
-	val.Set(reflect.ValueOf(s.mergeLabels(base, resultLabels)))
-}
-
 // msgId gets the id of the message by looking for the "Id" field. This
 // will return empty string if the ID field can't be found for any reason.
 func msgId(msg proto.Message) string {
@@ -246,4 +217,4 @@ func msgField(msg proto.Message, f string) reflect.Value {
 
 var _ scope = (*Basis)(nil)
 var _ scope = (*Project)(nil)
-var _ scope = (*Machine)(nil)
+var _ scope = (*Target)(nil)
