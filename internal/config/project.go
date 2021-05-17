@@ -3,7 +3,7 @@ package config
 import (
 	"github.com/hashicorp/hcl/v2"
 
-	"github.com/hashicorp/vagrant/internal/server/proto/vagrant_server"
+	"github.com/hashicorp/vagrant-plugin-sdk/proto/vagrant_plugin_sdk"
 )
 
 type Project struct {
@@ -21,11 +21,11 @@ type Project struct {
 	Remain hcl.Body `hcl:",remain"`
 
 	path   string
-	ref    *vagrant_server.Ref_Project
+	ref    *vagrant_plugin_sdk.Ref_Project
 	config *Config
 }
 
-func (p *Project) Ref() *vagrant_server.Ref_Project {
+func (p *Project) Ref() *vagrant_plugin_sdk.Ref_Project {
 	return p.ref
 }
 

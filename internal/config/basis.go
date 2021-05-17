@@ -14,7 +14,7 @@ type Basis struct {
 
 	// These should _roughly_ map to existing Vagrantfile configurations
 	Vagrant       *Vagrant        `hcl:"vagrant,block"`
-	Machines      []*Machine      `hcl:"machine,block"`
+	Targets       []*Target       `hcl:"target,block"`
 	Communicators []*Communicator `hcl:"communicator,block"`
 
 	Body   hcl.Body `hcl:",body"`
