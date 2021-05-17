@@ -52,6 +52,10 @@ func (p *RubyVagrantPlugin) GRPCClient(ctx context.Context, broker *plugin.GRPCB
 	}, nil
 }
 
+func (r *RubyVagrantClient) GRPCBroker() *plugin.GRPCBroker {
+	return r.broker
+}
+
 func (r *RubyVagrantClient) GetPlugins() ([]*ruby_vagrant.Plugin, error) {
 	plugins, err := r.client.GetPlugins(context.Background(), &empty.Empty{})
 	if err != nil {
