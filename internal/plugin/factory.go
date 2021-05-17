@@ -66,6 +66,13 @@ func Factory(cmd *exec.Cmd, typ component.Type) interface{} {
 			}
 		}
 
+		b, ok := raw.(hasGRPCBroker)
+		if !ok {
+			log.Error("cannot extract grpc broker from plugin client")
+			client.Kill()
+			return nil, errors.New("unable to extract broker from plugin client")
+		}
+
 		// Request the mappers
 		mappers, err := pluginclient.Mappers(client)
 		if err != nil {
@@ -77,6 +84,7 @@ func Factory(cmd *exec.Cmd, typ component.Type) interface{} {
 		log.Debug("plugin successfully launched and connected")
 		return &Instance{
 			Component: raw,
+			Broker:    b.GRPCBroker(),
 			Mappers:   mappers,
 			Close:     func() { client.Kill() },
 		}, nil
@@ -114,8 +122,15 @@ func BuiltinRubyFactory(rubyClient plugin.ClientProtocol, name string, typ compo
 		}
 		setter.SetRequestMetadata("plugin_name", name)
 
+		b, ok := raw.(hasGRPCBroker)
+		if !ok {
+			log.Error("cannot extract grpc broker from plugin client", "type", typ, "name", name)
+			return nil, errors.New("unable to extract broker from builtin ruby plugin client")
+		}
+
 		return &Instance{
 			Component: raw,
+			Broker:    b.GRPCBroker(),
 			Mappers:   nil,
 			Close:     func() {},
 		}, nil
@@ -131,7 +146,14 @@ type Instance struct {
 	// Mappers is the list of mappers that this plugin is providing.
 	Mappers []*argmapper.Func
 
+	// The GRPCBroker attached to this plugin
+	Broker *plugin.GRPCBroker
+
 	// Closer is a function that should be called to clean up resources
 	// associated with this plugin.
 	Close func()
+}
+
+type hasGRPCBroker interface {
+	GRPCBroker() *plugin.GRPCBroker
 }
