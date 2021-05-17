@@ -7,7 +7,6 @@ module VagrantPlugins
     # within the go-plugin library. This can be used to provide
     # feature parity with golang based go-plugins
     class Broker
-      include Singleton
 
       # Broker specific errors
       class Error < StandardError
@@ -52,7 +51,7 @@ module VagrantPlugins
         # @param broker [Broker] broker to register requests
         # @return [self]
         def initialize(broker:)
-          super
+          super()
           @broker = broker
         end
 
