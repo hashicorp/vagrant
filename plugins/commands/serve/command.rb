@@ -22,7 +22,7 @@ module VagrantPlugins
     autoload :Broker, Vagrant.source_root.join("plugins/commands/serve/broker").to_s
     autoload :Client, Vagrant.source_root.join("plugins/commands/serve/client").to_s
     autoload :Service, Vagrant.source_root.join("plugins/commands/serve/service").to_s
-    autoload :Util, Vagrant.source_root.join("plugins/commands/server/util").to_s
+    autoload :Util, Vagrant.source_root.join("plugins/commands/serve/util").to_s
 
     class Command < Vagrant.plugin("2", :command)
 
@@ -36,8 +36,8 @@ module VagrantPlugins
       def execute
         options = {
           bind: DEFAULT_BIND,
-          min_port: DEFAULT_MIN_PORT,
-          max_port: DEFAULT_MAX_PORT,
+          min_port: DEFAULT_PORT_RANGE.first,
+          max_port: DEFAULT_PORT_RANGE.last,
         }
 
         opts = OptionParser.new do |o|
@@ -50,11 +50,11 @@ module VagrantPlugins
             options[:bind] = addr
           end
 
-          o.on("--min-port PORT", "Minimum port number to use. Default: #{DEFAULT_MIN_PORT}") do |port|
+          o.on("--min-port PORT", "Minimum port number to use. Default: #{DEFAULT_PORT_RANGE.first}") do |port|
             options[:min_port] = port
           end
 
-          o.on("--max-port PORT", "Maximum port number to use. Default: #{DEFAULT_MAX_PORT}") do |port|
+          o.on("--max-port PORT", "Maximum port number to use. Default: #{DEFAULT_PORT_RANGE.last}") do |port|
             options[:max_port] = port
           end
         end
