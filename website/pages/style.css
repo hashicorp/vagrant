@@ -8,6 +8,7 @@
   --highlight-color: var(--vagrant);
 }
 
+@import '~@hashicorp/react-alert-banner/style.css';
 @import '~@hashicorp/react-button/styles/index.css';
 @import '~@hashicorp/react-code-block/style.css';
 @import '~@hashicorp/react-consent-manager/style.css';
