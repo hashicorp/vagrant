@@ -93,21 +93,21 @@ func (c *Command) ExecuteThing(trm terminal.UI, flags map[string]interface{}) in
 	return 0
 }
 
-func (c *Command) ExecuteInfo(trm terminal.UI, env plugincore.Project) int64 {
-	mn, _ := env.MachineNames()
+func (c *Command) ExecuteInfo(trm terminal.UI, p plugincore.Project) int64 {
+	mn, _ := p.MachineNames()
 	trm.Output("\nMachines in this project")
 	trm.Output(strings.Join(mn[:], "\n"))
 
-	cwd, _ := env.CWD()
-	datadir, _ := env.DataDir()
-	vagrantfileName, _ := env.VagrantfileName()
-	home, _ := env.Home()
-	localDataPath, _ := env.LocalData()
-	defaultPrivateKeyPath, _ := env.DefaultPrivateKey()
+	cwd, _ := p.CWD()
+	datadir, _ := p.DataDir()
+	vagrantfileName, _ := p.VagrantfileName()
+	home, _ := p.Home()
+	localDataPath, _ := p.LocalData()
+	defaultPrivateKeyPath, _ := p.DefaultPrivateKey()
 
 	trm.Output("\nEnvironment information")
 	trm.Output("Working directory: " + cwd)
-	trm.Output("Data directory: " + datadir)
+	trm.Output("Data directory: " + datadir.DataDir().String())
 	trm.Output("Vagrantfile name: " + vagrantfileName)
 	trm.Output("Home directory: " + home)
 	trm.Output("Local data directory: " + localDataPath)
