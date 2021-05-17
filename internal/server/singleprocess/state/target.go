@@ -9,6 +9,7 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
+	"github.com/hashicorp/vagrant-plugin-sdk/proto/vagrant_plugin_sdk"
 	"github.com/hashicorp/vagrant/internal/server/proto/vagrant_server"
 	serverptypes "github.com/hashicorp/vagrant/internal/server/ptypes"
 )
@@ -48,7 +49,7 @@ func (s *State) TargetPut(target *vagrant_server.Target) (*vagrant_server.Target
 	return target, err
 }
 
-func (s *State) TargetDelete(ref *vagrant_server.Ref_Target) error {
+func (s *State) TargetDelete(ref *vagrant_plugin_sdk.Ref_Target) error {
 	memTxn := s.inmem.Txn(true)
 	defer memTxn.Abort()
 
@@ -62,7 +63,7 @@ func (s *State) TargetDelete(ref *vagrant_server.Ref_Target) error {
 	return err
 }
 
-func (s *State) TargetGet(ref *vagrant_server.Ref_Target) (*vagrant_server.Target, error) {
+func (s *State) TargetGet(ref *vagrant_plugin_sdk.Ref_Target) (*vagrant_server.Target, error) {
 	memTxn := s.inmem.Txn(false)
 	defer memTxn.Abort()
 
@@ -76,7 +77,7 @@ func (s *State) TargetGet(ref *vagrant_server.Ref_Target) (*vagrant_server.Targe
 	return result, err
 }
 
-func (s *State) TargetList() ([]*vagrant_server.Ref_Target, error) {
+func (s *State) TargetList() ([]*vagrant_plugin_sdk.Ref_Target, error) {
 	memTxn := s.inmem.Txn(false)
 	defer memTxn.Abort()
 
@@ -111,41 +112,31 @@ func (s *State) targetFind(
 			match = raw.(*targetIndexRecord)
 		}
 	}
-	// Finally try the target id
-	if match == nil && req.TargetId != "" {
-		if raw, err := memTxn.First(
-			targetIndexTableName,
-			targetIndexTargetIdIndexName,
-			req.TargetId,
-		); raw != nil && err == nil {
-			match = raw.(*targetIndexRecord)
-		}
-	}
 
 	if match == nil {
 		return nil, status.Errorf(codes.NotFound, "record not found for Target")
 	}
 
-	return s.targetGet(dbTxn, memTxn, &vagrant_server.Ref_Target{
+	return s.targetGet(dbTxn, memTxn, &vagrant_plugin_sdk.Ref_Target{
 		ResourceId: match.Id,
 	})
 }
 
 func (s *State) targetList(
 	memTxn *memdb.Txn,
-) ([]*vagrant_server.Ref_Target, error) {
+) ([]*vagrant_plugin_sdk.Ref_Target, error) {
 	iter, err := memTxn.Get(targetIndexTableName, targetIndexIdIndexName+"_prefix", "")
 	if err != nil {
 		return nil, err
 	}
 
-	var result []*vagrant_server.Ref_Target
+	var result []*vagrant_plugin_sdk.Ref_Target
 	for {
 		next := iter.Next()
 		if next == nil {
 			break
 		}
-		result = append(result, &vagrant_server.Ref_Target{
+		result = append(result, &vagrant_plugin_sdk.Ref_Target{
 			ResourceId: next.(*targetIndexRecord).Id,
 			Name:       next.(*targetIndexRecord).Name,
 		})
@@ -211,7 +202,7 @@ func (s *State) targetPut(
 func (s *State) targetGet(
 	dbTxn *bolt.Tx,
 	memTxn *memdb.Txn,
-	ref *vagrant_server.Ref_Target,
+	ref *vagrant_plugin_sdk.Ref_Target,
 ) (*vagrant_server.Target, error) {
 	var result vagrant_server.Target
 	b := dbTxn.Bucket(targetBucket)
@@ -221,9 +212,9 @@ func (s *State) targetGet(
 func (s *State) targetDelete(
 	dbTxn *bolt.Tx,
 	memTxn *memdb.Txn,
-	ref *vagrant_server.Ref_Target,
+	ref *vagrant_plugin_sdk.Ref_Target,
 ) (err error) {
-	p, err := s.projectGet(dbTxn, memTxn, &vagrant_server.Ref_Project{ResourceId: ref.Project.ResourceId})
+	p, err := s.projectGet(dbTxn, memTxn, &vagrant_plugin_sdk.Ref_Project{ResourceId: ref.Project.ResourceId})
 	if err != nil {
 		return
 	}
@@ -285,30 +276,19 @@ func targetIndexSchema() *memdb.TableSchema {
 					Lowercase: true,
 				},
 			},
-			targetIndexTargetIdIndexName: {
-				Name:         targetIndexTargetIdIndexName,
-				AllowMissing: true,
-				Unique:       true,
-				Indexer: &memdb.StringFieldIndex{
-					Field:     "TargetId",
-					Lowercase: false,
-				},
-			},
 		},
 	}
 }
 
 const (
-	targetIndexIdIndexName       = "id"
-	targetIndexNameIndexName     = "name"
-	targetIndexTargetIdIndexName = "target-id"
-	targetIndexTableName         = "target-index"
+	targetIndexIdIndexName   = "id"
+	targetIndexNameIndexName = "name"
+	targetIndexTableName     = "target-index"
 )
 
 type targetIndexRecord struct {
-	Id       string // Resource ID
-	Name     string // Project Resource ID + Target Name
-	TargetId string // Project Resource ID + Target ID (not target resource id)
+	Id   string // Resource ID
+	Name string // Project Resource ID + Target Name
 }
 
 func (s *State) newTargetIndexRecord(m *vagrant_server.Target) *targetIndexRecord {
@@ -316,13 +296,10 @@ func (s *State) newTargetIndexRecord(m *vagrant_server.Target) *targetIndexRecor
 		Id:   m.ResourceId,
 		Name: strings.ToLower(m.Project.ResourceId + "+" + m.Name),
 	}
-	if m.Id != "" {
-		i.TargetId = m.Project.ResourceId + "+" + m.Id
-	}
 	return i
 }
 
-func (s *State) newTargetIndexRecordByRef(ref *vagrant_server.Ref_Target) *targetIndexRecord {
+func (s *State) newTargetIndexRecordByRef(ref *vagrant_plugin_sdk.Ref_Target) *targetIndexRecord {
 	return &targetIndexRecord{
 		Id:   ref.ResourceId,
 		Name: strings.ToLower(ref.Project.ResourceId + "+" + ref.Name),
@@ -333,6 +310,6 @@ func (s *State) targetId(m *vagrant_server.Target) []byte {
 	return []byte(m.ResourceId)
 }
 
-func (s *State) targetIdByRef(m *vagrant_server.Ref_Target) []byte {
+func (s *State) targetIdByRef(m *vagrant_plugin_sdk.Ref_Target) []byte {
 	return []byte(m.ResourceId)
 }

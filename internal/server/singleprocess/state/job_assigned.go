@@ -115,9 +115,9 @@ func (s *State) jobAssignedSet(memTxn *memdb.Txn, idx *jobIndex, assigned bool) 
 }
 
 func (s *State) jobAssignedIdxArgs(idx *jobIndex) []interface{} {
-	if idx.Machine != nil {
+	if idx.Target != nil {
 		return []interface{}{
-			idx.Machine.Project.Basis.ResourceId, idx.Machine.Project.ResourceId, idx.Machine.ResourceId,
+			idx.Target.Project.Basis.ResourceId, idx.Target.Project.ResourceId, idx.Target.ResourceId,
 		}
 	} else if idx.Project != nil {
 		return []interface{}{

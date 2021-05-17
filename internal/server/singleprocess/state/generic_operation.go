@@ -17,6 +17,7 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
+	"github.com/hashicorp/vagrant-plugin-sdk/proto/vagrant_plugin_sdk"
 	"github.com/hashicorp/vagrant/internal/server/proto/vagrant_server"
 )
 
@@ -96,9 +97,9 @@ func (op *genericOperation) Get(s *State, ref *vagrant_server.Ref_Operation) (in
 		case *vagrant_server.Ref_Operation_Id:
 			id = t.Id
 
-		case *vagrant_server.Ref_Operation_MachineSequence:
+		case *vagrant_server.Ref_Operation_TargetSequence:
 			var err error
-			id, err = op.getIdForSeq(s, tx, memTxn, t.MachineSequence.Number)
+			id, err = op.getIdForSeq(s, tx, memTxn, t.TargetSequence.Number)
 			if err != nil {
 				return err
 			}
@@ -138,11 +139,11 @@ func (op *genericOperation) getIdForSeq(
 	var args []interface{}
 	var number uint64
 
-	if r, ok := ref.(*vagrant_server.Ref_MachineOperationSeq); ok {
+	if r, ok := ref.(*vagrant_server.Ref_TargetOperationSeq); ok {
 		args = []interface{}{
-			r.Machine.Project.Basis.ResourceId,
-			r.Machine.Project.ResourceId,
-			r.Machine.ResourceId,
+			r.Target.Project.Basis.ResourceId,
+			r.Target.Project.ResourceId,
+			r.Target.ResourceId,
 			r.Number,
 		}
 		number = r.Number
@@ -299,21 +300,21 @@ func (op *genericOperation) Latest(
 
 	var args []interface{}
 
-	if r, ok := ref.(*vagrant_server.Ref_Machine); ok {
+	if r, ok := ref.(*vagrant_plugin_sdk.Ref_Target); ok {
 		args = []interface{}{
 			r.Project.Basis.ResourceId,
 			r.Project.ResourceId,
 			r.ResourceId,
 			indexTimeLatest{},
 		}
-	} else if r, ok := ref.(*vagrant_server.Ref_Project); ok {
+	} else if r, ok := ref.(*vagrant_plugin_sdk.Ref_Project); ok {
 		args = []interface{}{
 			r.Basis.ResourceId,
 			r.ResourceId,
 			"",
 			indexTimeLatest{},
 		}
-	} else if r, ok := ref.(*vagrant_server.Ref_Basis); ok {
+	} else if r, ok := ref.(*vagrant_plugin_sdk.Ref_Basis); ok {
 		args = []interface{}{
 			r.ResourceId,
 			"",
@@ -410,11 +411,11 @@ func (op *genericOperation) dbPut(
 	}
 
 	// Determine the type so we can default the put
-	if r, ok := ref.(*vagrant_server.Ref_Machine); ok {
-		_, err = s.machineGet(dbTxn, memTxn, r)
-	} else if r, ok := ref.(*vagrant_server.Ref_Project); ok {
+	if r, ok := ref.(*vagrant_plugin_sdk.Ref_Target); ok {
+		_, err = s.targetGet(dbTxn, memTxn, r)
+	} else if r, ok := ref.(*vagrant_plugin_sdk.Ref_Project); ok {
 		_, err = s.projectGet(dbTxn, memTxn, r)
-	} else if r, ok := ref.(*vagrant_server.Ref_Basis); ok {
+	} else if r, ok := ref.(*vagrant_plugin_sdk.Ref_Basis); ok {
 		_, err = s.basisGet(dbTxn, memTxn, r)
 	} else {
 		err = status.Error(codes.Internal,
@@ -485,7 +486,7 @@ func (op *genericOperation) dbPut(
 func (op *genericOperation) getSeq(ref interface{}) *uint64 {
 	// Our ref can be a machine, project, or basis. Determine type and then
 	// find sequence
-	if r, ok := ref.(*vagrant_server.Ref_Machine); ok {
+	if r, ok := ref.(*vagrant_plugin_sdk.Ref_Target); ok {
 		// Machine operations are scoped to the project
 		if op.seqProject == nil {
 			op.seqProject = map[string]*uint64{}
@@ -498,7 +499,7 @@ func (op *genericOperation) getSeq(ref interface{}) *uint64 {
 			op.seqProject[k] = seq
 		}
 		return seq
-	} else if r, ok := ref.(*vagrant_server.Ref_Project); ok {
+	} else if r, ok := ref.(*vagrant_plugin_sdk.Ref_Project); ok {
 		if op.seqProject == nil {
 			op.seqProject = map[string]*uint64{}
 		}
@@ -510,7 +511,7 @@ func (op *genericOperation) getSeq(ref interface{}) *uint64 {
 			op.seqProject[k] = seq
 		}
 		return seq
-	} else if r, ok := ref.(*vagrant_server.Ref_Basis); ok {
+	} else if r, ok := ref.(*vagrant_plugin_sdk.Ref_Basis); ok {
 		if op.seqBasis == nil {
 			op.seqBasis = map[string]*uint64{}
 		}
@@ -600,15 +601,15 @@ func (op *genericOperation) indexPut(s *State, txn *memdb.Txn, value proto.Messa
 	// Get any reference information we can extract from the operation
 	var basis, project, machine string
 
-	if ref := op.valueField(value, "Machine").(*vagrant_server.Ref_Machine); ref != nil {
+	if ref := op.valueField(value, "Machine").(*vagrant_plugin_sdk.Ref_Target); ref != nil {
 		basis = ref.Project.Basis.ResourceId
 		project = ref.Project.ResourceId
 		machine = ref.ResourceId
-	} else if ref := op.valueField(value, "Project").(*vagrant_server.Ref_Project); ref != nil {
+	} else if ref := op.valueField(value, "Project").(*vagrant_plugin_sdk.Ref_Project); ref != nil {
 		basis = ref.Basis.ResourceId
 		project = ref.ResourceId
 	} else {
-		ref := op.valueField(value, "Basis").(*vagrant_server.Ref_Basis)
+		ref := op.valueField(value, "Basis").(*vagrant_plugin_sdk.Ref_Basis)
 		basis = ref.ResourceId
 	}
 
@@ -766,16 +767,16 @@ type operationIndexRecord struct {
 // this because we use LowerBound lookups in memdb and this may return
 // a non-matching value at a certain point after iteration.
 func (rec *operationIndexRecord) MatchRef(ref interface{}) bool {
-	if r, ok := ref.(*vagrant_server.Ref_Machine); ok {
+	if r, ok := ref.(*vagrant_plugin_sdk.Ref_Target); ok {
 		return rec.Machine == r.ResourceId &&
 			rec.Project == r.Project.ResourceId &&
 			rec.Basis == r.Project.Basis.ResourceId
 	}
-	if r, ok := ref.(*vagrant_server.Ref_Project); ok {
+	if r, ok := ref.(*vagrant_plugin_sdk.Ref_Project); ok {
 		return rec.Project == r.ResourceId &&
 			rec.Basis == r.Basis.ResourceId
 	}
-	if r, ok := ref.(*vagrant_server.Ref_Basis); ok {
+	if r, ok := ref.(*vagrant_plugin_sdk.Ref_Basis); ok {
 		return rec.Basis == r.ResourceId
 	}
 	return false
@@ -791,9 +792,9 @@ const (
 // listOperationsOptions are options that can be set for List calls on
 // operations for filtering and limiting the response.
 type listOperationsOptions struct {
-	Basis         *vagrant_server.Ref_Basis
-	Project       *vagrant_server.Ref_Project
-	Machine       *vagrant_server.Ref_Machine
+	Basis         *vagrant_plugin_sdk.Ref_Basis
+	Project       *vagrant_plugin_sdk.Ref_Project
+	Machine       *vagrant_plugin_sdk.Ref_Target
 	Status        []*vagrant_server.StatusFilter
 	Order         *vagrant_server.OperationOrder
 	PhysicalState vagrant_server.Operation_PhysicalState
@@ -801,11 +802,11 @@ type listOperationsOptions struct {
 
 func buildListOperationsOptions(ref interface{}, opts ...ListOperationOption) *listOperationsOptions {
 	var result listOperationsOptions
-	if r, ok := ref.(*vagrant_server.Ref_Basis); ok {
+	if r, ok := ref.(*vagrant_plugin_sdk.Ref_Basis); ok {
 		result.Basis = r
-	} else if r, ok := ref.(*vagrant_server.Ref_Project); ok {
+	} else if r, ok := ref.(*vagrant_plugin_sdk.Ref_Project); ok {
 		result.Project = r
-	} else if r, ok := ref.(*vagrant_server.Ref_Machine); ok {
+	} else if r, ok := ref.(*vagrant_plugin_sdk.Ref_Target); ok {
 		result.Machine = r
 	} else {
 		// TODO(spox): do something better here?
@@ -822,19 +823,19 @@ func buildListOperationsOptions(ref interface{}, opts ...ListOperationOption) *l
 // ListOperationOption is an exported type to set configuration for listing operations.
 type ListOperationOption func(opts *listOperationsOptions)
 
-func ListWithBasis(b *vagrant_server.Ref_Basis) ListOperationOption {
+func ListWithBasis(b *vagrant_plugin_sdk.Ref_Basis) ListOperationOption {
 	return func(opts *listOperationsOptions) {
 		opts.Basis = b
 	}
 }
 
-func ListWithProject(p *vagrant_server.Ref_Project) ListOperationOption {
+func ListWithProject(p *vagrant_plugin_sdk.Ref_Project) ListOperationOption {
 	return func(opts *listOperationsOptions) {
 		opts.Project = p
 	}
 }
 
-func ListWithMachine(m *vagrant_server.Ref_Machine) ListOperationOption {
+func ListWithMachine(m *vagrant_plugin_sdk.Ref_Target) ListOperationOption {
 	return func(opts *listOperationsOptions) {
 		opts.Machine = m
 	}

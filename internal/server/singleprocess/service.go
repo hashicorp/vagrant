@@ -22,7 +22,7 @@ type service struct {
 	id string
 
 	vagrant_server.UnimplementedVagrantServer
-	vagrant_plugin_sdk.UnimplementedMachineServiceServer
+	vagrant_plugin_sdk.UnimplementedTargetServiceServer
 	vagrant_plugin_sdk.UnimplementedProjectServiceServer
 }
 

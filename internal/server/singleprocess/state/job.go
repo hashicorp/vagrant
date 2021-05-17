@@ -15,6 +15,7 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
+	"github.com/hashicorp/vagrant-plugin-sdk/proto/vagrant_plugin_sdk"
 	"github.com/hashicorp/vagrant/internal/server/logbuffer"
 	"github.com/hashicorp/vagrant/internal/server/proto/vagrant_server"
 )
@@ -114,9 +115,9 @@ type jobIndex struct {
 
 	// The basis/project/machine that this job is part of. This is used
 	// to determine if the job is blocked. See job_assigned.go for more details.
-	Basis   *vagrant_server.Ref_Basis
-	Project *vagrant_server.Ref_Project
-	Machine *vagrant_server.Ref_Machine
+	Basis   *vagrant_plugin_sdk.Ref_Basis
+	Project *vagrant_plugin_sdk.Ref_Project
+	Target  *vagrant_plugin_sdk.Ref_Target
 
 	// QueueTime is the time that the job was queued.
 	QueueTime time.Time
@@ -813,7 +814,7 @@ func (s *State) jobIndexSet(txn *memdb.Txn, id []byte, jobpb *vagrant_server.Job
 		State:   jobpb.State,
 		Basis:   jobpb.Basis,
 		Project: jobpb.Project,
-		Machine: jobpb.Machine,
+		Target:  jobpb.Target,
 		OpType:  reflect.TypeOf(jobpb.Operation),
 	}
 

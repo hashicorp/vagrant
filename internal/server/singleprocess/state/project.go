@@ -9,6 +9,7 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
+	"github.com/hashicorp/vagrant-plugin-sdk/proto/vagrant_plugin_sdk"
 	"github.com/hashicorp/vagrant/internal/server/proto/vagrant_server"
 	serverptypes "github.com/hashicorp/vagrant/internal/server/ptypes"
 )
@@ -52,7 +53,7 @@ func (s *State) ProjectFind(p *vagrant_server.Project) (*vagrant_server.Project,
 }
 
 // ProjectGet gets a project by reference.
-func (s *State) ProjectGet(ref *vagrant_server.Ref_Project) (*vagrant_server.Project, error) {
+func (s *State) ProjectGet(ref *vagrant_plugin_sdk.Ref_Project) (*vagrant_server.Project, error) {
 	memTxn := s.inmem.Txn(false)
 	defer memTxn.Abort()
 
@@ -68,7 +69,7 @@ func (s *State) ProjectGet(ref *vagrant_server.Ref_Project) (*vagrant_server.Pro
 // ProjectDelete deletes a project by reference. This is a complete data
 // delete. This will delete all operations associated with this project
 // as well.
-func (s *State) ProjectDelete(ref *vagrant_server.Ref_Project) error {
+func (s *State) ProjectDelete(ref *vagrant_plugin_sdk.Ref_Project) error {
 	memTxn := s.inmem.Txn(true)
 	defer memTxn.Abort()
 
@@ -85,7 +86,7 @@ func (s *State) ProjectDelete(ref *vagrant_server.Ref_Project) error {
 }
 
 // ProjectList returns the list of projects.
-func (s *State) ProjectList() ([]*vagrant_server.Ref_Project, error) {
+func (s *State) ProjectList() ([]*vagrant_plugin_sdk.Ref_Project, error) {
 	memTxn := s.inmem.Txn(false)
 	defer memTxn.Abort()
 
@@ -134,7 +135,7 @@ func (s *State) projectFind(
 		return nil, status.Errorf(codes.NotFound, "record not found for Project")
 	}
 
-	return s.projectGet(dbTxn, memTxn, &vagrant_server.Ref_Project{
+	return s.projectGet(dbTxn, memTxn, &vagrant_plugin_sdk.Ref_Project{
 		ResourceId: match.Id,
 	})
 }
@@ -147,7 +148,7 @@ func (s *State) projectPut(
 	s.log.Trace("storing project", "project", value, "basis", value.Basis)
 
 	// Grab the stored project if it's available
-	existProject, err := s.projectGet(dbTxn, memTxn, &vagrant_server.Ref_Project{
+	existProject, err := s.projectGet(dbTxn, memTxn, &vagrant_plugin_sdk.Ref_Project{
 		ResourceId: value.ResourceId,
 	})
 	if err != nil {
@@ -229,7 +230,7 @@ func (s *State) projectPut(
 func (s *State) projectGet(
 	dbTxn *bolt.Tx,
 	memTxn *memdb.Txn,
-	ref *vagrant_server.Ref_Project,
+	ref *vagrant_plugin_sdk.Ref_Project,
 ) (*vagrant_server.Project, error) {
 	var result vagrant_server.Project
 	b := dbTxn.Bucket(projectBucket)
@@ -238,13 +239,13 @@ func (s *State) projectGet(
 
 func (s *State) projectList(
 	memTxn *memdb.Txn,
-) ([]*vagrant_server.Ref_Project, error) {
+) ([]*vagrant_plugin_sdk.Ref_Project, error) {
 	iter, err := memTxn.Get(projectIndexTableName, projectIndexIdIndexName+"_prefix", "")
 	if err != nil {
 		return nil, err
 	}
 
-	var result []*vagrant_server.Ref_Project
+	var result []*vagrant_plugin_sdk.Ref_Project
 	for {
 		next := iter.Next()
 		if next == nil {
@@ -252,7 +253,7 @@ func (s *State) projectList(
 		}
 		idx := next.(*projectIndexRecord)
 
-		result = append(result, &vagrant_server.Ref_Project{
+		result = append(result, &vagrant_plugin_sdk.Ref_Project{
 			ResourceId: idx.Id,
 			Name:       idx.Name,
 		})
@@ -264,7 +265,7 @@ func (s *State) projectList(
 func (s *State) projectDelete(
 	dbTxn *bolt.Tx,
 	memTxn *memdb.Txn,
-	ref *vagrant_server.Ref_Project,
+	ref *vagrant_plugin_sdk.Ref_Project,
 ) (err error) {
 	p, err := s.projectGet(dbTxn, memTxn, ref)
 	if err != nil {
@@ -272,8 +273,8 @@ func (s *State) projectDelete(
 	}
 
 	// Start with scrubbing all the machines
-	for _, m := range p.Machines {
-		if err = s.machineDelete(dbTxn, memTxn, m); err != nil {
+	for _, m := range p.Targets {
+		if err = s.targetDelete(dbTxn, memTxn, m); err != nil {
 			return
 		}
 	}
@@ -378,7 +379,7 @@ func (s *State) newProjectIndexRecord(p *vagrant_server.Project) *projectIndexRe
 	}
 }
 
-func (s *State) newProjectIndexRecordByRef(ref *vagrant_server.Ref_Project) *projectIndexRecord {
+func (s *State) newProjectIndexRecordByRef(ref *vagrant_plugin_sdk.Ref_Project) *projectIndexRecord {
 	return &projectIndexRecord{
 		Id:   ref.ResourceId,
 		Name: strings.ToLower(ref.Name),
@@ -389,6 +390,6 @@ func (s *State) projectId(p *vagrant_server.Project) []byte {
 	return []byte(p.ResourceId)
 }
 
-func (s *State) projectIdByRef(ref *vagrant_server.Ref_Project) []byte {
+func (s *State) projectIdByRef(ref *vagrant_plugin_sdk.Ref_Project) []byte {
 	return []byte(ref.ResourceId)
 }

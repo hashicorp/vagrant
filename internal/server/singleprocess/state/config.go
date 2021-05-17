@@ -7,6 +7,7 @@ import (
 	"github.com/boltdb/bolt"
 	"github.com/golang/protobuf/proto"
 	"github.com/hashicorp/go-memdb"
+	"github.com/hashicorp/vagrant-plugin-sdk/proto/vagrant_plugin_sdk"
 
 	"github.com/hashicorp/vagrant/internal/server/proto/vagrant_server"
 	serversort "github.com/hashicorp/vagrant/internal/server/sort"
@@ -159,7 +160,7 @@ func (s *State) configGetExact(
 	// 		return nil, err
 	// 	}
 
-	case *vagrant_server.Ref_Project:
+	case *vagrant_plugin_sdk.Ref_Project:
 		var err error
 		iter, err = memTxn.Get(
 			configIndexTableName,

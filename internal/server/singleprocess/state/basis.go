@@ -9,6 +9,7 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
+	"github.com/hashicorp/vagrant-plugin-sdk/proto/vagrant_plugin_sdk"
 	"github.com/hashicorp/vagrant/internal/server/proto/vagrant_server"
 )
 
@@ -34,7 +35,7 @@ func (s *State) BasisFind(b *vagrant_server.Basis) (*vagrant_server.Basis, error
 	return result, err
 }
 
-func (s *State) BasisGet(ref *vagrant_server.Ref_Basis) (*vagrant_server.Basis, error) {
+func (s *State) BasisGet(ref *vagrant_plugin_sdk.Ref_Basis) (*vagrant_server.Basis, error) {
 	memTxn := s.inmem.Txn(false)
 	defer memTxn.Abort()
 
@@ -62,7 +63,7 @@ func (s *State) BasisPut(b *vagrant_server.Basis) error {
 	return err
 }
 
-func (s *State) BasisDelete(ref *vagrant_server.Ref_Basis) error {
+func (s *State) BasisDelete(ref *vagrant_plugin_sdk.Ref_Basis) error {
 	memTxn := s.inmem.Txn(true)
 	defer memTxn.Abort()
 
@@ -77,7 +78,7 @@ func (s *State) BasisDelete(ref *vagrant_server.Ref_Basis) error {
 	return err
 }
 
-func (s *State) BasisList() ([]*vagrant_server.Ref_Basis, error) {
+func (s *State) BasisList() ([]*vagrant_plugin_sdk.Ref_Basis, error) {
 	memTxn := s.inmem.Txn(false)
 	defer memTxn.Abort()
 
@@ -87,7 +88,7 @@ func (s *State) BasisList() ([]*vagrant_server.Ref_Basis, error) {
 func (s *State) basisGet(
 	dbTxn *bolt.Tx,
 	memTxn *memdb.Txn,
-	ref *vagrant_server.Ref_Basis,
+	ref *vagrant_plugin_sdk.Ref_Basis,
 ) (*vagrant_server.Basis, error) {
 	var result vagrant_server.Basis
 	b := dbTxn.Bucket(basisBucket)
@@ -136,7 +137,7 @@ func (s *State) basisFind(
 		return nil, status.Errorf(codes.NotFound, "record not found for Basis")
 	}
 
-	return s.basisGet(dbTxn, memTxn, &vagrant_server.Ref_Basis{
+	return s.basisGet(dbTxn, memTxn, &vagrant_plugin_sdk.Ref_Basis{
 		ResourceId: match.Id,
 	})
 }
@@ -177,13 +178,13 @@ func (s *State) basisPut(
 
 func (s *State) basisList(
 	memTxn *memdb.Txn,
-) ([]*vagrant_server.Ref_Basis, error) {
+) ([]*vagrant_plugin_sdk.Ref_Basis, error) {
 	iter, err := memTxn.Get(basisIndexTableName, basisIndexIdIndexName+"_prefix", "")
 	if err != nil {
 		return nil, err
 	}
 
-	var result []*vagrant_server.Ref_Basis
+	var result []*vagrant_plugin_sdk.Ref_Basis
 	for {
 		next := iter.Next()
 		if next == nil {
@@ -191,7 +192,7 @@ func (s *State) basisList(
 		}
 		idx := next.(*basisIndexRecord)
 
-		result = append(result, &vagrant_server.Ref_Basis{
+		result = append(result, &vagrant_plugin_sdk.Ref_Basis{
 			ResourceId: idx.Id,
 			Name:       idx.Name,
 		})
@@ -203,7 +204,7 @@ func (s *State) basisList(
 func (s *State) basisDelete(
 	dbTxn *bolt.Tx,
 	memTxn *memdb.Txn,
-	ref *vagrant_server.Ref_Basis,
+	ref *vagrant_plugin_sdk.Ref_Basis,
 ) error {
 	b, err := s.basisGet(dbTxn, memTxn, ref)
 	if err != nil {
@@ -306,7 +307,7 @@ func (s *State) newBasisIndexRecord(b *vagrant_server.Basis) *basisIndexRecord {
 	}
 }
 
-func (s *State) newBasisIndexRecordByRef(ref *vagrant_server.Ref_Basis) *basisIndexRecord {
+func (s *State) newBasisIndexRecordByRef(ref *vagrant_plugin_sdk.Ref_Basis) *basisIndexRecord {
 	return &basisIndexRecord{
 		Id:   ref.ResourceId,
 		Name: strings.ToLower(ref.Name),
@@ -317,6 +318,6 @@ func (s *State) basisId(b *vagrant_server.Basis) []byte {
 	return []byte(b.ResourceId)
 }
 
-func (s *State) basisIdByRef(ref *vagrant_server.Ref_Basis) []byte {
+func (s *State) basisIdByRef(ref *vagrant_plugin_sdk.Ref_Basis) []byte {
 	return []byte(ref.ResourceId)
 }
