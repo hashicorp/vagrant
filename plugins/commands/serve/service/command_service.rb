@@ -6,8 +6,6 @@ module VagrantPlugins
         prepend Util::HasBroker
         prepend Util::ExceptionLogger
 
-        LOGGER = Log4r::Logger.new("vagrant::plugins::command::service:command_service")
-
         def command_info_spec(*args)
           SDK::FuncSpec.new
         end
@@ -55,7 +53,7 @@ module VagrantPlugins
             }&.value&.value
 
             arguments = SDK::Command::Arguments.decode(raw_args)
-            ui_client = Client::Terminal.terminal_arg_to_terminal_ui(raw_terminal)
+            ui_client = Client::Terminal.load(raw_terminal, broker: broker)
 
             ui = Vagrant::UI::RemoteUI.new(ui_client)
             env = Vagrant::Environment.new(ui: ui)

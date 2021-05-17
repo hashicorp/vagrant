@@ -10,7 +10,7 @@ module VagrantPlugins
   module CommandServe
     module Service
       class InternalService < Hashicorp::Vagrant::RubyVagrant::Service
-        prepend HasBroker
+        prepend Util::HasBroker
         prepend Util::ExceptionLogger
 
         def get_plugins(req, _unused_call)

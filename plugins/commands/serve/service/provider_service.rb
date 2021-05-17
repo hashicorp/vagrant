@@ -42,7 +42,7 @@ module VagrantPlugins
             raw_machine = req.args.detect { |a|
               a.type == "hashicorp.vagrant.sdk.Args.Machine"
             }&.value&.value
-            ui = Client::Terminal.load(raw_terminal)
+            ui = Client::Terminal.load(raw_terminal, broker: broker)
             machine = Client::Machine.load(raw_machine, ui)
             machine.ui.warn("hello from vagrant")
             SDK::Provider::ActionResp.new(success: true)
