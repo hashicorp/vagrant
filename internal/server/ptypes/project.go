@@ -6,6 +6,7 @@ import (
 	"github.com/mitchellh/go-testing-interface"
 	"github.com/stretchr/testify/require"
 
+	"github.com/hashicorp/vagrant-plugin-sdk/proto/vagrant_plugin_sdk"
 	"github.com/hashicorp/vagrant/internal/server/proto/vagrant_server"
 )
 
@@ -28,9 +29,9 @@ func TestProject(t testing.T, src *vagrant_server.Project) *vagrant_server.Proje
 type Project struct{ *vagrant_server.Project }
 
 // MachineIdx returns the index of the machine with the given resource id or -1 if its not found.
-func (p *Project) MachineIdx(n string) int {
-	for i, machine := range p.Machines {
-		if machine.ResourceId == n {
+func (p *Project) TargetIdx(n string) int {
+	for i, target := range p.Targets {
+		if target.ResourceId == n {
 			return i
 		}
 	}
@@ -39,18 +40,18 @@ func (p *Project) MachineIdx(n string) int {
 }
 
 // Machine returns the machine with the given resource id. Returns nil if not found.
-func (p *Project) Machine(n string) *vagrant_server.Ref_Machine {
-	for _, machine := range p.Machines {
-		if machine.ResourceId == n {
-			return machine
+func (p *Project) Target(n string) *vagrant_plugin_sdk.Ref_Target {
+	for _, target := range p.Targets {
+		if target.ResourceId == n {
+			return target
 		}
 	}
 	return nil
 }
 
-func (p *Project) AddMachine(m *vagrant_server.Machine) bool {
-	return p.AddMachineRef(
-		&vagrant_server.Ref_Machine{
+func (p *Project) AddTarget(m *vagrant_server.Target) bool {
+	return p.AddTargetRef(
+		&vagrant_plugin_sdk.Ref_Target{
 			Project:    m.Project,
 			Name:       m.Name,
 			ResourceId: m.ResourceId,
@@ -58,18 +59,18 @@ func (p *Project) AddMachine(m *vagrant_server.Machine) bool {
 	)
 }
 
-func (p *Project) AddMachineRef(m *vagrant_server.Ref_Machine) bool {
-	i := p.MachineIdx(m.ResourceId)
+func (p *Project) AddTargetRef(m *vagrant_plugin_sdk.Ref_Target) bool {
+	i := p.TargetIdx(m.ResourceId)
 	if i >= 0 {
 		return false
 	}
-	p.Project.Machines = append(p.Project.Machines, m)
+	p.Project.Targets = append(p.Project.Targets, m)
 	return true
 }
 
-func (p *Project) DeleteMachine(m *vagrant_server.Machine) bool {
-	return p.DeleteMachineRef(
-		&vagrant_server.Ref_Machine{
+func (p *Project) DeleteTarget(m *vagrant_server.Target) bool {
+	return p.DeleteTargetRef(
+		&vagrant_plugin_sdk.Ref_Target{
 			Project:    m.Project,
 			Name:       m.Name,
 			ResourceId: m.ResourceId,
@@ -77,14 +78,14 @@ func (p *Project) DeleteMachine(m *vagrant_server.Machine) bool {
 	)
 }
 
-func (p *Project) DeleteMachineRef(m *vagrant_server.Ref_Machine) bool {
-	i := p.MachineIdx(m.ResourceId)
+func (p *Project) DeleteTargetRef(m *vagrant_plugin_sdk.Ref_Target) bool {
+	i := p.TargetIdx(m.ResourceId)
 	if i < 0 {
 		return false
 	}
-	ms := p.Project.Machines
+	ms := p.Project.Targets
 	ms[len(ms)-1], ms[i] = ms[i], ms[len(ms)-1]
-	p.Project.Machines = ms
+	p.Project.Targets = ms
 	return true
 }
 

@@ -6,6 +6,7 @@ import (
 	"github.com/mitchellh/go-testing-interface"
 	"github.com/stretchr/testify/require"
 
+	"github.com/hashicorp/vagrant-plugin-sdk/proto/vagrant_plugin_sdk"
 	"github.com/hashicorp/vagrant/internal/server/proto/vagrant_server"
 )
 
@@ -39,7 +40,7 @@ func (b *Basis) ProjectIdx(n string) int {
 }
 
 // Project returns the project with the given resource id. Returns nil if not found.
-func (b *Basis) Project(n string) *vagrant_server.Ref_Project {
+func (b *Basis) Project(n string) *vagrant_plugin_sdk.Ref_Project {
 	for _, project := range b.Projects {
 		if project.ResourceId == n {
 			return project
@@ -50,7 +51,7 @@ func (b *Basis) Project(n string) *vagrant_server.Ref_Project {
 
 func (b *Basis) AddProject(p *vagrant_server.Project) bool {
 	return b.AddProjectRef(
-		&vagrant_server.Ref_Project{
+		&vagrant_plugin_sdk.Ref_Project{
 			Basis:      p.Basis,
 			Name:       p.Name,
 			ResourceId: p.ResourceId,
@@ -58,7 +59,7 @@ func (b *Basis) AddProject(p *vagrant_server.Project) bool {
 	)
 }
 
-func (b *Basis) AddProjectRef(p *vagrant_server.Ref_Project) bool {
+func (b *Basis) AddProjectRef(p *vagrant_plugin_sdk.Ref_Project) bool {
 	i := b.ProjectIdx(p.ResourceId)
 	if i >= 0 {
 		return false
@@ -69,7 +70,7 @@ func (b *Basis) AddProjectRef(p *vagrant_server.Ref_Project) bool {
 
 func (b *Basis) DeleteProject(p *vagrant_server.Project) bool {
 	return b.DeleteProjectRef(
-		&vagrant_server.Ref_Project{
+		&vagrant_plugin_sdk.Ref_Project{
 			Basis:      p.Basis,
 			Name:       p.Name,
 			ResourceId: p.ResourceId,
@@ -77,7 +78,7 @@ func (b *Basis) DeleteProject(p *vagrant_server.Project) bool {
 	)
 }
 
-func (b *Basis) DeleteProjectRef(p *vagrant_server.Ref_Project) bool {
+func (b *Basis) DeleteProjectRef(p *vagrant_plugin_sdk.Ref_Project) bool {
 	i := b.ProjectIdx(p.ResourceId)
 	if i < 0 {
 		return false

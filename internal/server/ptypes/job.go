@@ -9,6 +9,7 @@ import (
 	"github.com/mitchellh/go-testing-interface"
 	"github.com/stretchr/testify/require"
 
+	"github.com/hashicorp/vagrant-plugin-sdk/proto/vagrant_plugin_sdk"
 	"github.com/hashicorp/vagrant/internal/server/proto/vagrant_server"
 )
 
@@ -20,11 +21,11 @@ func TestJobNew(t testing.T, src *vagrant_server.Job) *vagrant_server.Job {
 	}
 
 	require.NoError(t, mergo.Merge(src, &vagrant_server.Job{
-		Machine: &vagrant_server.Ref_Machine{
+		Target: &vagrant_plugin_sdk.Ref_Target{
 			ResourceId: "TESTMACH",
-			Project: &vagrant_server.Ref_Project{
+			Project: &vagrant_plugin_sdk.Ref_Project{
 				ResourceId: "TESTPROJ",
-				Basis: &vagrant_server.Ref_Basis{
+				Basis: &vagrant_plugin_sdk.Ref_Basis{
 					ResourceId: "TESTBAS",
 				},
 			},
