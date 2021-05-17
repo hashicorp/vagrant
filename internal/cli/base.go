@@ -50,9 +50,9 @@ type baseCommand struct {
 	ui terminal.UI
 
 	// client for performing operations
-	basis    *clientpkg.Basis
-	project  *clientpkg.Project
-	machines []*clientpkg.Machine
+	basis   *clientpkg.Basis
+	project *clientpkg.Project
+	targets []*clientpkg.Target
 
 	// clientContext is set to the context information for the current
 	// connection. This might not exist in the contextStorage yet if this
@@ -82,7 +82,7 @@ type baseCommand struct {
 	flagBasis string
 
 	// flagMachine is the machine to target.
-	flagMachine string
+	flagTarget string
 
 	// flagConnection contains manual flag-based connection info.
 	flagConnection clicontext.Config
@@ -276,20 +276,20 @@ func (c *baseCommand) Init(opts ...Option) error {
 
 	// If we have an app target requirement, we have to get it from the args
 	// or the config.
-	if baseCfg.MachineTargetRequired && c.project != nil {
+	if baseCfg.TargetRequired && c.project != nil {
 		// If we have args, attempt to extract there first.
 		if len(c.args) > 0 {
-			match := reMachineTarget.FindStringSubmatch(c.args[0])
+			match := reTarget.FindStringSubmatch(c.args[0])
 			if match != nil {
 				// Set our machine
-				mach, err := c.project.LoadMachine(&vagrant_server.Machine{
+				t, err := c.project.LoadTarget(&vagrant_server.Target{
 					Name:    match[1],
 					Project: c.project.Ref(),
 				})
 				if err != nil {
 					return err
 				}
-				c.machines = append(c.machines, mach)
+				c.targets = append(c.targets, t)
 
 				// Shift the args
 				c.args = c.args[1:]
@@ -300,7 +300,7 @@ func (c *baseCommand) Init(opts ...Option) error {
 		}
 
 		// If we didn't get our ref, then we need to load config
-		if len(c.machines) == 0 {
+		if len(c.targets) == 0 {
 			baseCfg.Config = true
 		}
 	}
@@ -329,11 +329,11 @@ func (c *baseCommand) Init(opts ...Option) error {
 			// and the user provided it via the CLI, set it now. This code
 			// path is only reached if it wasn't set via the args either
 			// above.
-			if c.flagMachine == "" {
-				c.flagMachine = "default"
+			if c.flagTarget == "" {
+				c.flagTarget = "default"
 			}
-			mach, err := c.project.LoadMachine(&vagrant_server.Machine{
-				Name:    c.flagMachine,
+			t, err := c.project.LoadTarget(&vagrant_server.Target{
+				Name:    c.flagTarget,
 				Project: c.project.Ref(),
 			})
 
@@ -341,7 +341,7 @@ func (c *baseCommand) Init(opts ...Option) error {
 				return err
 			}
 
-			c.machines = append(c.machines, mach)
+			c.targets = append(c.targets, t)
 		}
 	}
 
@@ -356,7 +356,7 @@ func (c *baseCommand) Init(opts ...Option) error {
 	// }
 
 	// Validate remote vs. local operations.
-	if c.flagRemote && len(c.machines) == 0 {
+	if c.flagRemote && len(c.targets) == 0 {
 		if c.cfg == nil || c.cfg.Runner == nil || !c.cfg.Runner.Enabled {
 			err := errors.New(
 				"The `-remote` flag was specified but remote operations are not supported\n" +
@@ -371,10 +371,10 @@ func (c *baseCommand) Init(opts ...Option) error {
 
 	// If this is a single app mode then make sure that we only have
 	// one app or that we have an app target.
-	if false && baseCfg.MachineTargetRequired {
-		if len(c.machines) == 0 {
-			if len(c.cfg.Project.Machines) != 1 {
-				c.ui.Output(errMachineModeSingle, terminal.WithErrorStyle())
+	if false && baseCfg.TargetRequired {
+		if len(c.targets) == 0 {
+			if len(c.cfg.Project.Targets) != 1 {
+				c.ui.Output(errTargetModeSingle, terminal.WithErrorStyle())
 				return ErrSentinel
 			}
 
@@ -391,8 +391,8 @@ func (c *baseCommand) Init(opts ...Option) error {
 				}
 			}
 
-			mach, err := c.project.LoadMachine(&vagrant_server.Machine{
-				Name:    c.cfg.Project.Machines[0].Name,
+			target, err := c.project.LoadTarget(&vagrant_server.Target{
+				Name:    c.cfg.Project.Targets[0].Name,
 				Project: c.project.Ref(),
 			})
 
@@ -400,7 +400,7 @@ func (c *baseCommand) Init(opts ...Option) error {
 				return err
 			}
 
-			c.machines = append(c.machines, mach)
+			c.targets = append(c.targets, target)
 		}
 	}
 
@@ -429,8 +429,8 @@ type Tasker interface {
 // will stop any remaining callbacks and exit early.
 func (c *baseCommand) Do(ctx context.Context, f func(context.Context, Tasker) error) (finalErr error) {
 	// Start with checking if we are running in a machine based scope
-	if len(c.machines) > 0 {
-		for _, m := range c.machines {
+	if len(c.targets) > 0 {
+		for _, m := range c.targets {
 			c.Log.Warn("running command on machine", "machine", m)
 			// If the context has been canceled, then bail
 			if err := ctx.Err(); err != nil {
@@ -482,11 +482,11 @@ func (c *baseCommand) flagSet(bit flagSetBit, f func(*getoptions.GetOpt)) *getop
 	)
 
 	set.StringVar(
-		&c.flagMachine,
-		"machine",
+		&c.flagTarget,
+		"target",
 		"",
-		set.Description("Machine to target. Certain commands require a single machine target for "+
-			"Vagrant configurations with multiple apps. If you have a single machine, "+
+		set.Description("Target to apply. Certain commands require a single target for "+
+			"Vagrant configurations with multiple apps. If you have a single target, "+
 			"then this can be ignored."),
 	)
 
@@ -571,10 +571,10 @@ var (
 	// ErrSentinel is a sentinel value that we can return from Init to force an exit.
 	ErrSentinel = errors.New("error sentinel")
 
-	errMachineModeSingle = strings.TrimSpace(`
+	errTargetModeSingle = strings.TrimSpace(`
 This command requires a single targeted machine. You have multiple machines defined
 so you can specify the machine to target using the "-machine" flag.
 `)
 
-	reMachineTarget = regexp.MustCompile(`^(?P<machine>[-0-9A-Za-z_]+)$`)
+	reTarget = regexp.MustCompile(`^(?P<machine>[-0-9A-Za-z_]+)$`)
 )

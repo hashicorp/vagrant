@@ -57,8 +57,8 @@ func (c *DynamicCommand) Run(args []string) int {
 		}
 		result, err := tasker.Task(ctx, &vagrant_server.Job_RunOp{
 			Task: &vagrant_server.Task{
-				Scope: &vagrant_server.Task_Machine{
-					Machine: tasker.(*client.Machine).Ref(),
+				Scope: &vagrant_server.Task_Target{
+					Target: tasker.(*client.Target).Ref(),
 				},
 				Task: c.name,
 				Component: &vagrant_server.Component{

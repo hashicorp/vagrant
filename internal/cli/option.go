@@ -27,9 +27,9 @@ func WithFlags(f *getoptions.GetOpt) Option {
 // one or more machines defined but a single machine targeted with `-app`.
 // If only a single machine exists, it is implicitly the target.
 // Zero machine is an error.
-func WithSingleMachine() Option {
+func WithSingleTarget() Option {
 	return func(c *baseConfig) {
-		c.MachineTargetRequired = true
+		c.TargetRequired = true
 		c.Config = false
 		c.Client = true
 	}
@@ -67,11 +67,11 @@ func WithUI(ui terminal.UI) Option {
 }
 
 type baseConfig struct {
-	Args                  []string
-	Flags                 *getoptions.GetOpt
-	Config                bool
-	ConfigOptional        bool
-	Client                bool
-	MachineTargetRequired bool
-	UI                    terminal.UI
+	Args           []string
+	Flags          *getoptions.GetOpt
+	Config         bool
+	ConfigOptional bool
+	Client         bool
+	TargetRequired bool
+	UI             terminal.UI
 }
