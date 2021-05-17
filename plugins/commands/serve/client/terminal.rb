@@ -7,9 +7,9 @@ module VagrantPlugins
           @client = SDK::TerminalUIService::Stub.new(server_endpoint, :this_channel_is_insecure)
         end
 
-        def self.load(raw_terminal)
+        def self.load(raw_terminal, broker:)
           t = SDK::Args::TerminalUI.decode(raw_terminal)
-          conn = Broker.instance.dial(t.stream_id)
+          conn = broker.dial(t.stream_id)
           self.new(conn.to_s)
         end
 
