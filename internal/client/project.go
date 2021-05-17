@@ -20,73 +20,74 @@ import (
 type Project struct {
 	ui terminal.UI
 
-	Machines []*Machine
+	Targets []*Target
 
 	basis   *Basis
 	project *vagrant_server.Project
 	logger  hclog.Logger
 }
 
-func (p *Project) LoadMachine(m *vagrant_server.Machine) (*Machine, error) {
-	machine, err := p.GetMachine(m.Name)
+func (p *Project) LoadTarget(t *vagrant_server.Target) (*Target, error) {
+	target, err := p.GetTarget(t.Name)
 	if err == nil {
-		return machine, nil
+		return target, nil
 	}
 
 	// Ensure the machine is set to this project
-	m.Project = p.Ref()
+	t.Project = p.Ref()
 
-	result, err := p.basis.client.FindMachine(
+	result, err := p.basis.client.FindTarget(
 		context.Background(),
-		&vagrant_server.FindMachineRequest{
-			Machine: m,
+		&vagrant_server.FindTargetRequest{
+			Target: t,
 		},
 	)
 	if err == nil && result.Found {
-		machine := &Machine{
+		target := &Target{
 			ui:      p.UI(),
 			project: p,
-			machine: result.Machine,
-			logger:  p.logger.Named("machine"),
+			target:  result.Target,
+			logger:  p.logger.Named("target"),
 		}
-		p.Machines = append(p.Machines, machine)
+		p.Targets = append(p.Targets, target)
 
-		return machine, nil
+		return target, nil
 	}
 
-	p.logger.Trace("failed to locate existing machine", "machine", m,
+	p.logger.Trace("failed to locate existing target", "target", t,
 		"result", result, "error", err)
 
 	// TODO: set machine box from vagrant file
 
-	if m.Datadir == nil {
-		m.Datadir = p.GetDataDir()
+	if t.Datadir == nil {
+		t.Datadir = p.GetDataDir()
 	}
 
-	if m.Provider == "" {
-		m.Provider, err = p.GetDefaultProvider([]string{}, false, true)
-	}
+	// TODO: this is specialized
+	// if t.Provider == "" {
+	// 	t.Provider, err = p.GetDefaultProvider([]string{}, false, true)
+	// }
 
-	uresult, err := p.basis.client.UpsertMachine(
+	uresult, err := p.basis.client.UpsertTarget(
 		context.Background(),
-		&vagrant_server.UpsertMachineRequest{
-			Machine: m,
+		&vagrant_server.UpsertTargetRequest{
+			Target: t,
 		},
 	)
 	if err != nil {
 		return nil, err
 	}
 
-	machine = &Machine{
+	target = &Target{
 		ui:      p.UI(),
 		project: p,
-		machine: uresult.Machine,
-		logger:  p.logger.Named("machine"),
+		target:  uresult.Target,
+		logger:  p.logger.Named("target"),
 	}
 
-	p.Machines = append(p.Machines, machine)
+	p.Targets = append(p.Targets, target)
 
-	return machine, nil
+	return target, nil
 }
 
 // TODO: Determine default provider by implementing algorithm from
@@ -103,7 +104,7 @@ func (p *Project) GetDefaultProvider(exclude []string, forceDefault bool, checkU
 	return "virtualbox", nil
 }
 
-func (p *Project) GetDataDir() *vagrant_plugin_sdk.Args_DataDir_Machine {
+func (p *Project) GetDataDir() *vagrant_plugin_sdk.Args_DataDir_Target {
 	// TODO: probably need to get datadir from the projet + basis
 
 	root, _ := paths.VagrantHome()
@@ -111,7 +112,7 @@ func (p *Project) GetDataDir() *vagrant_plugin_sdk.Args_DataDir_Machine {
 	dataDir := root.Join("data")
 	tmpDir := root.Join("tmp")
 
-	return &vagrant_plugin_sdk.Args_DataDir_Machine{
+	return &vagrant_plugin_sdk.Args_DataDir_Target{
 		CacheDir: cacheDir.String(),
 		DataDir:  dataDir.String(),
 		RootDir:  root.String(),
@@ -119,13 +120,13 @@ func (p *Project) GetDataDir() *vagrant_plugin_sdk.Args_DataDir_Machine {
 	}
 }
 
-func (p *Project) GetMachine(name string) (m *Machine, err error) {
-	for _, m = range p.Machines {
-		if m.Ref().Name == name {
+func (p *Project) GetTarget(name string) (t *Target, err error) {
+	for _, t = range p.Targets {
+		if t.Ref().Name == name {
 			return
 		}
 	}
-	return nil, errors.New("failed to locate requested machine")
+	return nil, errors.New("failed to locate requested target")
 }
 
 func (p *Project) UI() terminal.UI {
@@ -137,8 +138,8 @@ func (p *Project) Close() error {
 }
 
 // Ref returns the raw Vagrant server API client.
-func (p *Project) Ref() *vagrant_server.Ref_Project {
-	return &vagrant_server.Ref_Project{
+func (p *Project) Ref() *vagrant_plugin_sdk.Ref_Project {
+	return &vagrant_plugin_sdk.Ref_Project{
 		Name:       p.project.Name,
 		ResourceId: p.project.ResourceId,
 		Basis:      p.basis.Ref(),

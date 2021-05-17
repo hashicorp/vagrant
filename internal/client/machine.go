@@ -5,40 +5,41 @@ import (
 
 	"github.com/hashicorp/go-hclog"
 
+	"github.com/hashicorp/vagrant-plugin-sdk/proto/vagrant_plugin_sdk"
 	"github.com/hashicorp/vagrant-plugin-sdk/terminal"
 	"github.com/hashicorp/vagrant/internal/server/proto/vagrant_server"
 )
 
-type Machine struct {
+type Target struct {
 	ui terminal.UI
 
 	project *Project
-	machine *vagrant_server.Machine
+	target  *vagrant_server.Target
 	logger  hclog.Logger
 }
 
-func (m *Machine) UI() terminal.UI {
+func (m *Target) UI() terminal.UI {
 	return m.ui
 }
 
-func (m *Machine) Ref() *vagrant_server.Ref_Machine {
-	return &vagrant_server.Ref_Machine{
-		ResourceId: m.machine.ResourceId,
-		Name:       m.machine.Name,
+func (m *Target) Ref() *vagrant_plugin_sdk.Ref_Target {
+	return &vagrant_plugin_sdk.Ref_Target{
+		ResourceId: m.target.ResourceId,
+		Name:       m.target.Name,
 		Project:    m.project.Ref(),
 	}
 }
 
-func (m *Machine) job() *vagrant_server.Job {
+func (m *Target) job() *vagrant_server.Job {
 	job := m.project.job()
-	job.Machine = m.Ref()
+	job.Target = m.Ref()
 	return job
 }
 
-func (m *Machine) Close() error {
+func (m *Target) Close() error {
 	return m.project.Close()
 }
 
-func (m *Machine) doJob(ctx context.Context, job *vagrant_server.Job) (*vagrant_server.Job_Result, error) {
+func (m *Target) doJob(ctx context.Context, job *vagrant_server.Job) (*vagrant_server.Job_Result, error) {
 	return m.project.doJob(ctx, job, m.ui)
 }

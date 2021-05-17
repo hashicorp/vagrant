@@ -8,6 +8,7 @@ import (
 	"github.com/hashicorp/go-plugin"
 
 	"github.com/hashicorp/vagrant-plugin-sdk/helper/paths"
+	"github.com/hashicorp/vagrant-plugin-sdk/proto/vagrant_plugin_sdk"
 	"github.com/hashicorp/vagrant-plugin-sdk/terminal"
 	configpkg "github.com/hashicorp/vagrant/internal/config"
 	"github.com/hashicorp/vagrant/internal/server/proto/vagrant_server"
@@ -166,8 +167,8 @@ func (b *Basis) LoadProject(p *vagrant_server.Project) (*Project, error) {
 	return b.Project, nil
 }
 
-func (b *Basis) Ref() *vagrant_server.Ref_Basis {
-	return &vagrant_server.Ref_Basis{
+func (b *Basis) Ref() *vagrant_plugin_sdk.Ref_Basis {
+	return &vagrant_plugin_sdk.Ref_Basis{
 		Name:       b.basis.Name,
 		ResourceId: b.basis.ResourceId,
 	}

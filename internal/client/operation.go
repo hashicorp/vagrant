@@ -77,7 +77,7 @@ func (p *Project) Task(ctx context.Context, op *vagrant_server.Job_RunOp) (*vagr
 	return result.Run, err
 }
 
-func (m *Machine) Task(ctx context.Context, op *vagrant_server.Job_RunOp) (*vagrant_server.Job_RunResult, error) {
+func (m *Target) Task(ctx context.Context, op *vagrant_server.Job_RunOp) (*vagrant_server.Job_RunResult, error) {
 	if op == nil {
 		op = &vagrant_server.Job_RunOp{}
 	}
