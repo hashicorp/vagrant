@@ -20,22 +20,22 @@ def parse_vagrantfile(path)
   machine_configs = []
   # Get the config for each machine
   v.machine_names.each do |mach|
-    machine_info = v.machine_config(mach, nil, nil)
+    machine_info = v.machine_config(mach, nil, nil, false)
     root_config = machine_info[:config]
     vm_config = root_config.vm
     provisioners = []
     vm_config.provisioners.each do |p|
-    config_struct = Google::Protobuf::Struct.from_hash(p.config.instance_variables_hash)
-    config_any = Google::Protobuf::Any.pack(config_struct)
-    provisioners << Hashicorp::Vagrant::VagrantfileComponents::Provisioner.new(
-      name: p.name,
-      type: p.type.to_s,
-      before: p.before,
-      after: p.after,
-      communicator_required: p.communicator_required,
-      config: config_any,
-    )
-  end
+      config_struct = Google::Protobuf::Struct.from_hash(p.config.instance_variables_hash)
+      config_any = Google::Protobuf::Any.pack(config_struct)
+      provisioners << Hashicorp::Vagrant::VagrantfileComponents::Provisioner.new(
+        name: p.name,
+        type: p.type.to_s,
+        before: p.before,
+        after: p.after,
+        communicator_required: p.communicator_required,
+        config: config_any,
+      )
+    end
     machine_configs << Hashicorp::Vagrant::VagrantfileComponents::MachineConfig.new(
       name: mach.to_s,
       config_vm: Hashicorp::Vagrant::VagrantfileComponents::ConfigVM.new(
@@ -76,21 +76,27 @@ end
 
 def proto_to_provisioner(vagrantfile_proto)
   # Just grab the first provisioner
-  p = vagrantfile_proto.machine_configs[0].config_vm.provisioners[0]
-  plugin = Vagrant.plugin("2").manager.provisioners[p.type.to_sym]
-  plugin_config = Vagrant.plugin("2").manager.provisioner_configs[p.type.to_sym]
-  # Create a new config
-  config = plugin_config.new
-  # Unpack the config from the proto
-  raw_config = p.config.unpack( Google::Protobuf::Struct).to_h
-  # Set config
-  config.set_options(raw_config)
-  # Ensure config is valid
-  config.validate("machine")
-  # Create new provisioner
-  provisioner = plugin.new("machine", config)
+  vagrantfile_proto.machine_configs[0].config_vm.provisioners.each do |p| 
+    plugin = Vagrant.plugin("2").manager.provisioners[p.type.to_sym]
+    raw_config = p.config.unpack( Google::Protobuf::Struct).to_h
+    puts raw_config
 
-  puts provisioner
+    # TODO: fetch this config
+    #       if it doesn't exist, then pass in generic config
+    plugin_config = Vagrant.plugin("2").manager.provisioner_configs[p.type.to_sym]
+    # Create a new config
+    config = plugin_config.new
+    # Unpack the config from the proto
+    raw_config = p.config.unpack( Google::Protobuf::Struct).to_h
+    # Set config
+    config.set_options(raw_config)
+    # Ensure config is valid
+    config.validate("machine")
+    # Create new provisioner
+    provisioner = plugin.new("machine", config)
+
+    puts provisioner
+  end
 end
 
 parse_vagrantifle_response = parse_vagrantfile(vagrantfile_path)

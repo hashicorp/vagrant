@@ -100,8 +100,19 @@ module VagrantPlugins
       end
 
       def add_config(**options, &block)
-        return if invalid?
+        if invalid?
+          add_invalid_config(**options, &block)
+          return
+        end
 
+        current = @config_class.new
+        current.set_options(options) if options
+        block.call(current) if block
+        current = @config.merge(current) if @config
+        @config = current
+      end
+
+      def add_invalid_config(**options, &block)
         current = @config_class.new
         current.set_options(options) if options
         block.call(current) if block

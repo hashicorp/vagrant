@@ -20,6 +20,6 @@ Vagrant.configure("2") do |config|
   end
 
   config.vm.provision "shell", inline: "echo hello world"
-
+  config.vm.provision "idontexistinruby", key: "val", foo: "bar", communicator_required: false
 end
 
