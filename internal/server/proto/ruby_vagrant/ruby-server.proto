@@ -64,8 +64,12 @@ message VagrantfileComponents {
     bool allow_fstab_modification = 1;
     bool allow_hosts_modificaion = 2;
     string box = 3;
-    repeated Provisioner provisioners = 4;
-    // TODO
+    // TODO: CloudInit = 4 (Experimental)
+    Provider provider = 5;
+    // TODO: Disks = 6 (Experimental)
+    repeated Network networks = 7;
+    repeated Provisioner provisioners = 8;
+    repeated SyncedFolder synced_folders = 9;
   }
 
   message ConfigSSH {
@@ -111,6 +115,74 @@ message VagrantfileComponents {
     // A Provisioner plugin defines it's own configuration,
     // that gets added in here
     google.protobuf.Any config = 6;
+  }
+
+  message Provider {
+    string type = 1;
+    google.protobuf.Any config = 2;
+  }
+
+  message Network {
+    string type = 1;
+    oneof config {
+      ForwardedPort forwarded_port = 2;
+      PrivateNetwork private_network = 3;
+      PublicNetwork public_network = 4;
+    }
+  }
+
+  message ForwardedPort {
+    bool auto_correct = 1;
+    int32 guest = 2;
+    string guest_ip = 3;
+    int32 host = 4;
+    string host_ip = 5;
+    string id = 6;
+    string protocol = 7;
+  }
+
+  message PrivateNetwork {
+    string type = 1;
+    bool auto_config = 2;
+    oneof config {
+      DHCP dhcp = 3;
+      StaticIp static_ip = 4;
+    }
+  }
+
+  message PublicNetwork {
+    string type = 1;
+    bool auto_config = 2;
+    repeated string bridge = 3;
+    oneof config {
+      DHCP dhcp = 4;
+      StaticIp static_ip = 5;
+    }
+  }
+
+  message DHCP {
+    bool use_dhcp_assigned_default_route = 1;
+  }
+
+  message StaticIp {
+    string ip = 1;
+    string netmask = 2;
+  }
+
+  message SyncedFolder {
+    string source = 1;
+    string destination = 2;
+    // A SyncedFolder plugin defines it's own configuration,
+    // that gets added in here
+    google.protobuf.Any config = 3;
+   
+    bool create = 4;
+    bool disabled = 5;
+    string group = 6;
+    string id = 7;
+    repeated string mount_options = 8;
+    string owner = 9;
+    string type = 10;
   }
 
   // TODO: Review what needs to be sent here
