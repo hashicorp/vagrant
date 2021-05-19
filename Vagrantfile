@@ -5,7 +5,7 @@
 
 Vagrant.configure("2") do |config|
   config.vm.define "one" do |c|
-    c.vm.box = "hashicorp/bionic64"
+    c.vm.box = "bento/ubuntu"
     c.vm.provision "shell", inline: "echo hello world"
     c.vm.provision "shell" do |s|
       s.inline = "echo goodbye"

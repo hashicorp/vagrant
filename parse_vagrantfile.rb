@@ -23,55 +23,62 @@ def parse_vagrantfile(path)
     machine_info = v.machine_config(mach, nil, nil, false)
     root_config = machine_info[:config]
     vm_config = root_config.vm
-    provisioners = []
-    vm_config.provisioners.each do |p|
-      config_struct = Google::Protobuf::Struct.from_hash(p.config.instance_variables_hash)
-      config_any = Google::Protobuf::Any.pack(config_struct)
-      provisioners << Hashicorp::Vagrant::VagrantfileComponents::Provisioner.new(
-        name: p.name,
-        type: p.type.to_s,
-        before: p.before,
-        after: p.after,
-        communicator_required: p.communicator_required,
-        config: config_any,
-      )
+    
+    config_vm_proto = Hashicorp::Vagrant::VagrantfileComponents::ConfigVM.new()
+    vm_config.instance_variables_hash.each do |k, v|
+      if v.class == Object 
+        # Skip config that has not be set
+        next
+      end
+      if k == "provisioners"
+        vm_config.provisioners.each do |p|
+          provisioner_proto = Hashicorp::Vagrant::VagrantfileComponents::Provisioner.new()
+          p.instance_variables_hash.each do |k, v|
+            begin
+              if k == "config"
+                config_struct = Google::Protobuf::Struct.from_hash(p.config.instance_variables_hash)
+                config_any = Google::Protobuf::Any.pack(config_struct)
+                provisioner_proto.config = config_any
+                next
+              end
+              if !v.nil?
+                v = v.to_s if v.is_a?(Symbol)
+                provisioner_proto.send("#{k}=", v)
+              end
+            rescue NoMethodError
+              # this is ok
+            end
+          end
+          config_vm_proto.provisioners << provisioner_proto
+        end
+        next
+      end
+      if ["networks", "synced_folders"].include?(k)
+        next
+      end
+      begin
+        config_vm_proto.send("#{k}=", v)
+      rescue NoMethodError
+        # Reach here when Hashicorp::Vagrant::VagrantfileComponents::ConfigVM does not
+        # have a config variable for one of the instance methods. This is ok.
+      end
     end
     machine_configs << Hashicorp::Vagrant::VagrantfileComponents::MachineConfig.new(
       name: mach.to_s,
-      config_vm: Hashicorp::Vagrant::VagrantfileComponents::ConfigVM.new(
-        box: vm_config.box,
-        provisioners: provisioners,
-      ),
+      config_vm: config_vm_proto,
     )
   end
-
+  
   vagrantfile = Hashicorp::Vagrant::VagrantfileComponents::Vagrantfile.new(
     path: path,
     # raw: raw,
     current_version: Vagrant::Config::CURRENT_VERSION,
     machine_configs: machine_configs,
   )
+  puts vagrantfile
   Hashicorp::Vagrant::ParseVagrantfileResponse.new(
     vagrantfile: vagrantfile
   )
-end
-
-def proto_to_vagrantfile(vagrantfile_proto)
-  puts "Vagrant.configure(\"2\") do |config|"
-  vagrantfile_proto.machine_configs.each do |m|
-    puts "config.vm.define \"#{m.name}\" do |c|"
-    puts "  c.vm.box = \"#{m.config_vm.box}\""
-    m.config_vm.provisioners.each do |p|
-      provisioner_config = p.config.unpack( Google::Protobuf::Struct).to_h
-      puts "  c.vm.provision \"#{p.type}\" do |s|"
-      provisioner_config.each do |key, val|
-        puts "    s.#{key} = \"#{val}\""
-      end
-      puts "  end"
-    end
-    puts "end\n"
-  end
-  puts "end"
 end
 
 def proto_to_provisioner(vagrantfile_proto, validate=false)
@@ -98,8 +105,6 @@ def proto_to_provisioner(vagrantfile_proto, validate=false)
     end
     # Create new provisioner
     provisioner = plugin.new("machine", config)
-
-    puts provisioner
   end
 end
 
