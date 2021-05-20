@@ -7,7 +7,11 @@ Vagrant.configure("2") do |config|
   config.ssh.connection_timeout = 30
 
   config.vm.provider "virtualbox" do |v|
-    v.name = "my_vm",
+    v.default_nic_type = "82543GC"
+    v.gui = false
+  end
+
+  config.vm.provider "idontexist" do |v|
     v.gui = false
   end
 
@@ -31,6 +35,10 @@ Vagrant.configure("2") do |config|
     c.vm.provision "file", source: "/Users/sophia/project/vagrant-ruby/.gitignore", destination: "/.gitignore" 
     c.vm.network "forwarded_port", guest: 80, host: 8080
     c.vm.synced_folder ".", "vagrant", disabled: true
+
+    c.vm.provider "virtualbox" do |v|
+      v.gui = true
+    end
   end
 
   config.vm.provision "shell", inline: "echo hello world"
