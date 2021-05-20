@@ -17,7 +17,6 @@ import (
 	"github.com/hashicorp/vagrant-plugin-sdk/component"
 	"github.com/hashicorp/vagrant-plugin-sdk/core"
 	"github.com/hashicorp/vagrant-plugin-sdk/datadir"
-	"github.com/hashicorp/vagrant-plugin-sdk/internal-shared/plugincore"
 	"github.com/hashicorp/vagrant-plugin-sdk/proto/vagrant_plugin_sdk"
 	"github.com/hashicorp/vagrant-plugin-sdk/terminal"
 
@@ -74,17 +73,17 @@ func (p *Project) DataDir() (*datadir.Project, error) {
 
 func (p *Project) VagrantfileName() (name string, err error) {
 	// TODO: implement
-	return
+	return "VagrantFile", nil
 }
 
 func (p *Project) Home() (path string, err error) {
 	// TODO: implement
-	return
+	return "/home", nil
 }
 
 func (p *Project) LocalData() (path string, err error) {
 	// TODO: implement
-	return
+	return "/local/data", nil
 }
 
 func (p *Project) Tmp() (path string, err error) {
@@ -94,7 +93,7 @@ func (p *Project) Tmp() (path string, err error) {
 
 func (p *Project) DefaultPrivateKey() (path string, err error) {
 	// TODO: implement
-	return
+	return "/key/path", nil
 }
 
 func (p *Project) Host() (host core.Host, err error) {
@@ -104,7 +103,7 @@ func (p *Project) Host() (host core.Host, err error) {
 
 func (p *Project) MachineNames() (names []string, err error) {
 	// TODO: implement
-	return
+	return []string{"test"}, nil
 }
 
 // End required core.Project interface functions
@@ -219,18 +218,6 @@ func (p *Project) Run(ctx context.Context, task *vagrant_server.Task) (err error
 		return
 	}
 
-	// Pass along to the call
-	project := plugincore.NewProjectPlugin(p, p.logger)
-	streamId, err := wrapInstance(project, cmd.plugin.Broker, p)
-	pproto := &vagrant_plugin_sdk.Args_Project{StreamId: streamId}
-
-	p.Closer(func() error {
-		if c, ok := project.(closes); ok {
-			return c.Close()
-		}
-		return nil
-	})
-
 	result, err := p.callDynamicFunc(
 		ctx,
 		p.logger,
@@ -238,8 +225,8 @@ func (p *Project) Run(ctx context.Context, task *vagrant_server.Task) (err error
 		cmd,
 		cmd.Value.(component.Command).ExecuteFunc(strings.Split(task.CommandName, " ")),
 		argmapper.Typed(task.CliArgs),
-		argmapper.Typed(pproto),
-		argmapper.Named("project", pproto),
+		argmapper.Typed(p),
+		argmapper.Named("project", p),
 	)
 	if err != nil || result == nil || result.(int64) != 0 {
 		p.logger.Error("failed to execute command", "type", component.CommandType, "name", task.Component.Name, "result", result, "error", err)
@@ -407,7 +394,6 @@ func WithProjectName(name string) ProjectOption {
 			return errors.New("failed to load project")
 		}
 		p.project = result.Project
-		p.basis.projects[p.project.Name] = p
 
 		return
 	}
@@ -463,8 +449,7 @@ func WithProjectRef(r *vagrant_plugin_sdk.Ref_Project) ProjectOption {
 			return errors.New("project basis configuration is invalid")
 		}
 		p.project = project
-		// Finally set the project into the basis
-		p.basis.projects[p.Name()] = p
+
 		return
 	}
 }

@@ -17,7 +17,6 @@ import (
 
 	"github.com/hashicorp/vagrant-plugin-sdk/component"
 	"github.com/hashicorp/vagrant-plugin-sdk/datadir"
-	"github.com/hashicorp/vagrant-plugin-sdk/internal-shared/plugincore"
 	"github.com/hashicorp/vagrant-plugin-sdk/internal-shared/protomappers"
 	"github.com/hashicorp/vagrant-plugin-sdk/proto/vagrant_plugin_sdk"
 	"github.com/hashicorp/vagrant-plugin-sdk/terminal"
@@ -237,7 +236,6 @@ func (b *Basis) LoadProject(popts ...ProjectOption) (p *Project, err error) {
 			err = multierror.Append(err, oerr)
 		}
 	}
-
 	if err != nil {
 		return
 	}
@@ -246,6 +244,8 @@ func (b *Basis) LoadProject(popts ...ProjectOption) (p *Project, err error) {
 	if project := b.Project(p.project.ResourceId); project != nil {
 		return project, nil
 	}
+
+	b.projects[p.ResourceId()] = p
 
 	// Ensure project directory is set
 	if p.dir == nil {
@@ -357,22 +357,6 @@ func (b *Basis) Run(ctx context.Context, task *vagrant_server.Task) (err error) 
 		return
 	}
 
-	// Pass along to the call
-	basis := plugincore.NewBasisPlugin(b, b.logger)
-	streamId, err := wrapInstance(basis, cmd.plugin.Broker, b)
-	bproto := &vagrant_plugin_sdk.Args_Basis{StreamId: streamId}
-
-	// NOTE(spox): Should this be closed after the dynamic func
-	// call is complete, or when we tear this down? The latter
-	// would allow plugins to keep a persistent connection if
-	// multiple things are being run
-	b.Closer(func() error {
-		if c, ok := basis.(closes); ok {
-			return c.Close()
-		}
-		return nil
-	})
-
 	result, err := b.callDynamicFunc(
 		ctx,
 		b.logger,
@@ -380,8 +364,8 @@ func (b *Basis) Run(ctx context.Context, task *vagrant_server.Task) (err error) 
 		cmd,
 		cmd.Value.(component.Command).ExecuteFunc(strings.Split(task.CommandName, " ")),
 		argmapper.Typed(task.CliArgs),
-		argmapper.Typed(bproto),
-		argmapper.Named("basis", bproto),
+		argmapper.Typed(b),
+		argmapper.Named("basis", b),
 	)
 	if err != nil || result == nil || result.(int64) != 0 {
 		b.logger.Error("failed to execute command", "type", component.CommandType, "name", task.Component.Name, "error", err)
@@ -414,7 +398,7 @@ func (b *Basis) specializeComponent(c *Component) (cmp plugin.PluginMetadata, er
 func (b *Basis) convertCommandInfo(c *component.CommandInfo, names []string) []*vagrant_server.Job_Command {
 	names = append(names, c.Name)
 	cmds := []*vagrant_server.Job_Command{
-		&vagrant_server.Job_Command{
+		{
 			Name:     strings.Join(names, " "),
 			Synopsis: c.Synopsis,
 			Help:     c.Help,

@@ -19,7 +19,6 @@ import (
 	"github.com/hashicorp/vagrant-plugin-sdk/component"
 	"github.com/hashicorp/vagrant-plugin-sdk/core"
 	"github.com/hashicorp/vagrant-plugin-sdk/datadir"
-	"github.com/hashicorp/vagrant-plugin-sdk/internal-shared/plugincore"
 	"github.com/hashicorp/vagrant-plugin-sdk/proto/vagrant_plugin_sdk"
 	"github.com/hashicorp/vagrant-plugin-sdk/terminal"
 
@@ -137,18 +136,6 @@ func (t *Target) Run(ctx context.Context, task *vagrant_server.Task) (err error)
 		return
 	}
 
-	// Pass along to the call
-	target := plugincore.NewTargetPlugin(t, t.logger)
-	streamId, err := wrapInstance(target, cmd.plugin.Broker, t)
-	tproto := &vagrant_plugin_sdk.Args_Project{StreamId: streamId}
-
-	t.Closer(func() error {
-		if c, ok := target.(closes); ok {
-			return c.Close()
-		}
-		return nil
-	})
-
 	result, err := t.callDynamicFunc(
 		ctx,
 		t.logger,
@@ -156,8 +143,8 @@ func (t *Target) Run(ctx context.Context, task *vagrant_server.Task) (err error)
 		cmd,
 		cmd.Value.(component.Command).ExecuteFunc(strings.Split(task.CommandName, " ")),
 		argmapper.Typed(task.CliArgs),
-		argmapper.Typed(tproto),
-		argmapper.Named("target", target),
+		argmapper.Typed(t),
+		argmapper.Named("target", t),
 	)
 
 	if err != nil || result == nil || result.(int64) != 0 {
