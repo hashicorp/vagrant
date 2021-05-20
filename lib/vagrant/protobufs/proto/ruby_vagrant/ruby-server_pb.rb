@@ -78,44 +78,8 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
     end
     add_message "hashicorp.vagrant.VagrantfileComponents.Network" do
       optional :type, :string, 1
-      oneof :config do
-        optional :forwarded_port, :message, 2, "hashicorp.vagrant.VagrantfileComponents.ForwardedPort"
-        optional :private_network, :message, 3, "hashicorp.vagrant.VagrantfileComponents.PrivateNetwork"
-        optional :public_network, :message, 4, "hashicorp.vagrant.VagrantfileComponents.PublicNetwork"
-      end
-    end
-    add_message "hashicorp.vagrant.VagrantfileComponents.ForwardedPort" do
-      optional :auto_correct, :bool, 1
-      optional :guest, :int32, 2
-      optional :guest_ip, :string, 3
-      optional :host, :int32, 4
-      optional :host_ip, :string, 5
-      optional :id, :string, 6
-      optional :protocol, :string, 7
-    end
-    add_message "hashicorp.vagrant.VagrantfileComponents.PrivateNetwork" do
-      optional :type, :string, 1
-      optional :auto_config, :bool, 2
-      oneof :config do
-        optional :dhcp, :message, 3, "hashicorp.vagrant.VagrantfileComponents.DHCP"
-        optional :static_ip, :message, 4, "hashicorp.vagrant.VagrantfileComponents.StaticIp"
-      end
-    end
-    add_message "hashicorp.vagrant.VagrantfileComponents.PublicNetwork" do
-      optional :type, :string, 1
-      optional :auto_config, :bool, 2
-      repeated :bridge, :string, 3
-      oneof :config do
-        optional :dhcp, :message, 4, "hashicorp.vagrant.VagrantfileComponents.DHCP"
-        optional :static_ip, :message, 5, "hashicorp.vagrant.VagrantfileComponents.StaticIp"
-      end
-    end
-    add_message "hashicorp.vagrant.VagrantfileComponents.DHCP" do
-      optional :use_dhcp_assigned_default_route, :bool, 1
-    end
-    add_message "hashicorp.vagrant.VagrantfileComponents.StaticIp" do
-      optional :ip, :string, 1
-      optional :netmask, :string, 2
+      optional :id, :string, 2
+      optional :config, :message, 3, "google.protobuf.Any"
     end
     add_message "hashicorp.vagrant.VagrantfileComponents.SyncedFolder" do
       optional :source, :string, 1
@@ -155,11 +119,6 @@ module Hashicorp
     VagrantfileComponents::Provisioner = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.VagrantfileComponents.Provisioner").msgclass
     VagrantfileComponents::Provider = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.VagrantfileComponents.Provider").msgclass
     VagrantfileComponents::Network = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.VagrantfileComponents.Network").msgclass
-    VagrantfileComponents::ForwardedPort = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.VagrantfileComponents.ForwardedPort").msgclass
-    VagrantfileComponents::PrivateNetwork = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.VagrantfileComponents.PrivateNetwork").msgclass
-    VagrantfileComponents::PublicNetwork = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.VagrantfileComponents.PublicNetwork").msgclass
-    VagrantfileComponents::DHCP = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.VagrantfileComponents.DHCP").msgclass
-    VagrantfileComponents::StaticIp = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.VagrantfileComponents.StaticIp").msgclass
     VagrantfileComponents::SyncedFolder = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.VagrantfileComponents.SyncedFolder").msgclass
     VagrantfileComponents::Vagrantfile = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.VagrantfileComponents.Vagrantfile").msgclass
   end

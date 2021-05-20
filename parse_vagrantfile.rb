@@ -10,12 +10,10 @@ require_relative "./plugins/commands/serve/command"
 
 vagrantfile_path = "/Users/sophia/project/vagrant-ruby/Vagrantfile"
 
+PROVIDER_PROTO_CLS = Hashicorp::Vagrant::VagrantfileComponents::Provisioner
 PROVISION_PROTO_CLS = Hashicorp::Vagrant::VagrantfileComponents::Provisioner
 SYNCED_FOLDER_PROTO_CLS = Hashicorp::Vagrant::VagrantfileComponents::SyncedFolder
 NETWORK_PROTO_CLS = Hashicorp::Vagrant::VagrantfileComponents::Network
-NETWORK_FORWARDED_PORT_PROTO_CLS = Hashicorp::Vagrant::VagrantfileComponents::ForwardedPort
-NETWORK_PRIVATE_PROTO_CLS = Hashicorp::Vagrant::VagrantfileComponents::PrivateNetwork
-NETWORK_PUBLIC_PROTO_CLS = Hashicorp::Vagrant::VagrantfileComponents::PrivateNetwork
 
 def extract_component(target_cls, target, vagrant_config)
   vagrant_config.each do |c|
@@ -40,22 +38,28 @@ def extract_component(target_cls, target, vagrant_config)
   end
 end
 
+# Network configs take the form
+# [
+#   [:type, {:id=>"tcp8080", ...}], ...
+# ]
 def extract_network(target, networks)
   networks.each do |n|
-    network_proto = NETWORK_PROTO_CLS.new()
-    network_proto.type = n[0]
-    case n[0]
-    when :forwarded_port
-      network_proto.forwarded_port = NETWORK_FORWARDED_PORT_PROTO_CLS.new(n[1])
-    when :private
-      network_proto.private_network = NETWORK_PRIVATE_PROTO_CLS.new(n[1])
-    when :public
-      network_proto.public_network = NETWORK_PUBLIC_PROTO_CLS.new(n[1])
-    end
+    type = n[0]
+    opts = n[1]
+    network_proto = NETWORK_PROTO_CLS.new(type: type, id: opts.fetch(:id, ""))
+    opts.delete(:id)
+    opts.transform_keys!(&:to_s)
+    config_struct = Google::Protobuf::Struct.from_hash(opts)
+    config_any = Google::Protobuf::Any.pack(config_struct)
+    network_proto.config = config_any
     target << network_proto
   end
 end
 
+# Synced folders take the form of a hash map
+# {
+#   "name"=>{:type=>:rsync, ...},  ...
+# },
 def extract_synced_folders(target, synced_folders)
   synced_folders.each do |k,v|
     sf_proto = SYNCED_FOLDER_PROTO_CLS.new()
@@ -121,6 +125,7 @@ def parse_vagrantfile(path)
         # have a config variable for one of the instance methods. This is ok.
       end
     end
+
     extract_component(PROVISION_PROTO_CLS, config_vm_proto.provisioners, vm_config.provisioners)
     extract_network(config_vm_proto.networks, vm_config.networks)
     extract_synced_folders(config_vm_proto.synced_folders, vm_config.synced_folders)
@@ -130,7 +135,7 @@ def parse_vagrantfile(path)
       config_vm: config_vm_proto,
     )
   end
-  
+
   vagrantfile = Hashicorp::Vagrant::VagrantfileComponents::Vagrantfile.new(
     path: path,
     # raw: raw,

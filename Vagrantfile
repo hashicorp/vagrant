@@ -14,7 +14,10 @@ Vagrant.configure("2") do |config|
   ["a", "b"].each do |m|
     config.vm.define m do |c|
       c.vm.box = "hashicorp/bionic64"
-      c.vm.network "private_network", ip: "192.168.50.4"
+      c.vm.network "forwarded_port", guest: 80, host: 8080
+
+      c.vm.network "private_network", ip: "192.168.50.4", thing: "what"
+      c.vm.network "public_network"
       c.vm.synced_folder "../tm", "/tm", type: "rsync", rsync__exclude: ".git/"
     end
   end

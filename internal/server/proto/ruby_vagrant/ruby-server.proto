@@ -124,49 +124,8 @@ message VagrantfileComponents {
 
   message Network {
     string type = 1;
-    oneof config {
-      ForwardedPort forwarded_port = 2;
-      PrivateNetwork private_network = 3;
-      PublicNetwork public_network = 4;
-    }
-  }
-
-  message ForwardedPort {
-    bool auto_correct = 1;
-    int32 guest = 2;
-    string guest_ip = 3;
-    int32 host = 4;
-    string host_ip = 5;
-    string id = 6;
-    string protocol = 7;
-  }
-
-  message PrivateNetwork {
-    string type = 1;
-    bool auto_config = 2;
-    oneof config {
-      DHCP dhcp = 3;
-      StaticIp static_ip = 4;
-    }
-  }
-
-  message PublicNetwork {
-    string type = 1;
-    bool auto_config = 2;
-    repeated string bridge = 3;
-    oneof config {
-      DHCP dhcp = 4;
-      StaticIp static_ip = 5;
-    }
-  }
-
-  message DHCP {
-    bool use_dhcp_assigned_default_route = 1;
-  }
-
-  message StaticIp {
-    string ip = 1;
-    string netmask = 2;
+    string id = 2;
+    google.protobuf.Any config = 3;
   }
 
   message SyncedFolder {
