@@ -4,6 +4,21 @@
 # Ruby, run unit tests, etc.
 
 Vagrant.configure("2") do |config|
+  config.ssh.connection_timeout = 30
+
+  config.vm.provider "virtualbox" do |v|
+    v.name = "my_vm",
+    v.gui = false
+  end
+
+  ["a", "b"].each do |m|
+    config.vm.define m do |c|
+      c.vm.box = "hashicorp/bionic64"
+      c.vm.network "private_network", ip: "192.168.50.4"
+      c.vm.synced_folder "../tm", "/tm", type: "rsync", rsync__exclude: ".git/"
+    end
+  end
+
   config.vm.define "one" do |c|
     c.vm.box = "bento/ubuntu"
     c.vm.provision "shell", inline: "echo hello world"
@@ -11,12 +26,8 @@ Vagrant.configure("2") do |config|
       s.inline = "echo goodbye"
     end
     c.vm.provision "file", source: "/Users/sophia/project/vagrant-ruby/.gitignore", destination: "/.gitignore" 
-  end
-
-  ["a", "b"].each do |m|
-    config.vm.define m do |c|
-      c.vm.box = "hashicorp/bionic64"
-    end
+    c.vm.network "forwarded_port", guest: 80, host: 8080
+    c.vm.synced_folder ".", "vagrant", disabled: true
   end
 
   config.vm.provision "shell", inline: "echo hello world"

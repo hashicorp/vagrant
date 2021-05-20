@@ -10,6 +10,84 @@ require_relative "./plugins/commands/serve/command"
 
 vagrantfile_path = "/Users/sophia/project/vagrant-ruby/Vagrantfile"
 
+PROVISION_PROTO_CLS = Hashicorp::Vagrant::VagrantfileComponents::Provisioner
+SYNCED_FOLDER_PROTO_CLS = Hashicorp::Vagrant::VagrantfileComponents::SyncedFolder
+NETWORK_PROTO_CLS = Hashicorp::Vagrant::VagrantfileComponents::Network
+NETWORK_FORWARDED_PORT_PROTO_CLS = Hashicorp::Vagrant::VagrantfileComponents::ForwardedPort
+NETWORK_PRIVATE_PROTO_CLS = Hashicorp::Vagrant::VagrantfileComponents::PrivateNetwork
+NETWORK_PUBLIC_PROTO_CLS = Hashicorp::Vagrant::VagrantfileComponents::PrivateNetwork
+
+def extract_component(target_cls, target, vagrant_config)
+  vagrant_config.each do |c|
+    proto = target_cls.new()
+    c.instance_variables_hash.each do |k, v|
+      begin
+        if k == "config"
+          config_struct = Google::Protobuf::Struct.from_hash(c.config.instance_variables_hash)
+          config_any = Google::Protobuf::Any.pack(config_struct)
+          proto.config = config_any
+          next
+        end
+        if !v.nil?
+          v = v.to_s if v.is_a?(Symbol)
+          proto.send("#{k}=", v)
+        end
+      rescue NoMethodError
+        # this is ok
+      end
+    end
+    target << proto
+  end
+end
+
+def extract_network(target, networks)
+  networks.each do |n|
+    network_proto = NETWORK_PROTO_CLS.new()
+    network_proto.type = n[0]
+    case n[0]
+    when :forwarded_port
+      network_proto.forwarded_port = NETWORK_FORWARDED_PORT_PROTO_CLS.new(n[1])
+    when :private
+      network_proto.private_network = NETWORK_PRIVATE_PROTO_CLS.new(n[1])
+    when :public
+      network_proto.public_network = NETWORK_PUBLIC_PROTO_CLS.new(n[1])
+    end
+    target << network_proto
+  end
+end
+
+def extract_synced_folders(target, synced_folders)
+  synced_folders.each do |k,v|
+    sf_proto = SYNCED_FOLDER_PROTO_CLS.new()
+
+    # Need to set source and destination since they don't exactly map
+    sf_proto.source = v[:hostpath]
+    sf_proto.destination = v[:guestpath]
+
+    # config_opts keep track of the config options specific to the synced
+    # folder type. They are in the form `type`__`option`
+    config_opts = {}
+
+    v.each do |opt, val|
+      # already accounted for above
+      next if ["guestpath", "hostpath"].include?(opt.to_s)
+
+      # match the synced folder specific options and store them in the
+      # config_opts
+      if opt.to_s.match(/#{v[:type]}__/)
+        config_opts[opt.to_s.split("__")[1]] = val
+        next
+      end
+
+      sf_proto.send("#{opt.to_s}=", val)
+    end
+    config_struct = Google::Protobuf::Struct.from_hash(config_opts)
+    config_any = Google::Protobuf::Any.pack(config_struct)
+    sf_proto.config = config_any
+    target << sf_proto
+  end
+end
+
 def parse_vagrantfile(path)
   # Load up/parse the vagrantfile
   config_loader = Vagrant::Config::Loader.new(
@@ -21,39 +99,19 @@ def parse_vagrantfile(path)
   # Get the config for each machine
   v.machine_names.each do |mach|
     machine_info = v.machine_config(mach, nil, nil, false)
+    # TODO: Get config.ssh, config.winrm, config.winssh, config.vagrant from
+    #       root config
     root_config = machine_info[:config]
     vm_config = root_config.vm
-    
+
     config_vm_proto = Hashicorp::Vagrant::VagrantfileComponents::ConfigVM.new()
     vm_config.instance_variables_hash.each do |k, v|
       if v.class == Object 
         # Skip config that has not be set
         next
       end
-      if k == "provisioners"
-        vm_config.provisioners.each do |p|
-          provisioner_proto = Hashicorp::Vagrant::VagrantfileComponents::Provisioner.new()
-          p.instance_variables_hash.each do |k, v|
-            begin
-              if k == "config"
-                config_struct = Google::Protobuf::Struct.from_hash(p.config.instance_variables_hash)
-                config_any = Google::Protobuf::Any.pack(config_struct)
-                provisioner_proto.config = config_any
-                next
-              end
-              if !v.nil?
-                v = v.to_s if v.is_a?(Symbol)
-                provisioner_proto.send("#{k}=", v)
-              end
-            rescue NoMethodError
-              # this is ok
-            end
-          end
-          config_vm_proto.provisioners << provisioner_proto
-        end
-        next
-      end
-      if ["networks", "synced_folders"].include?(k)
+      if ["provisioners", "networks", "synced_folders"].include?(k)
+        # Going to deal with these seperately because they are more involved
         next
       end
       begin
@@ -63,6 +121,10 @@ def parse_vagrantfile(path)
         # have a config variable for one of the instance methods. This is ok.
       end
     end
+    extract_component(PROVISION_PROTO_CLS, config_vm_proto.provisioners, vm_config.provisioners)
+    extract_network(config_vm_proto.networks, vm_config.networks)
+    extract_synced_folders(config_vm_proto.synced_folders, vm_config.synced_folders)
+
     machine_configs << Hashicorp::Vagrant::VagrantfileComponents::MachineConfig.new(
       name: mach.to_s,
       config_vm: config_vm_proto,
@@ -75,7 +137,6 @@ def parse_vagrantfile(path)
     current_version: Vagrant::Config::CURRENT_VERSION,
     machine_configs: machine_configs,
   )
-  puts vagrantfile
   Hashicorp::Vagrant::ParseVagrantfileResponse.new(
     vagrantfile: vagrantfile
   )
@@ -86,10 +147,13 @@ def proto_to_provisioner(vagrantfile_proto, validate=false)
   vagrantfile_proto.machine_configs[0].config_vm.provisioners.each do |p| 
     plugin = Vagrant.plugin("2").manager.provisioners[p.type.to_sym]
     if plugin.nil?
-      puts "No plugin available for #{p.type}"
+      puts "No plugin available for #{p.type}\n"
       next
     end
     raw_config = p.config.unpack(Google::Protobuf::Struct).to_h
+    puts p.type
+    puts raw_config
+    puts "\n"
     # TODO: fetch this config
     #       if it doesn't exist, then pass in generic config
     plugin_config = Vagrant.plugin("2").manager.provisioner_configs[p.type.to_sym]
