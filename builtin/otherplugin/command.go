@@ -107,11 +107,20 @@ func (c *Command) ExecuteInfo(trm terminal.UI, p plugincore.Project) int64 {
 
 	trm.Output("\nEnvironment information")
 	trm.Output("Working directory: " + cwd)
-	trm.Output("Data directory: " + datadir.DataDir().String())
+	if datadir != nil && datadir.DataDir() != nil {
+		trm.Output("Data directory: " + datadir.DataDir().String())
+	}
 	trm.Output("Vagrantfile name: " + vagrantfileName)
 	trm.Output("Home directory: " + home)
 	trm.Output("Local data directory: " + localDataPath)
 	trm.Output("Default private key path: " + defaultPrivateKeyPath)
+
+	ptrm, err := p.UI()
+	if err != nil {
+		trm.Output("Failed to get project specific UI! Reason: " + err.Error())
+	} else {
+		ptrm.Output("YAY! This is project specific output!")
+	}
 
 	return 0
 }
