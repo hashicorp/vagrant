@@ -152,14 +152,40 @@ def parse_vagrantfile(path)
 
     config_vm_proto = Hashicorp::Vagrant::VagrantfileComponents::ConfigVM.new()
     vm_config.instance_variables_hash.each do |k, v|
-      if v.class == Object 
-        # Skip config that has not be set
-        next
+      # Skip config that has not be set
+      next if v.class == Object 
+
+      # Going to deal with these seperately because they are more involved
+      next if ["provisioners", "networks", "synced_folders", "disks", "cloud_init_configs"].include?(k)
+
+      # Skip all variables that are internal
+      next if k.start_with?("_")
+
+      if v.nil? 
+        # If v is nil, set it to the default value defined by the proto
+        v = config_vm_proto.send(k)
       end
-      if ["provisioners", "networks", "synced_folders"].include?(k)
-        # Going to deal with these seperately because they are more involved
-        next
+
+      if v.is_a?(Range)
+        v = v.to_a
       end
+
+      if v.is_a?(Hash)
+        m = config_vm_proto.send(k)
+        v.each do |k,v2|
+          m[k] = v2
+        end 
+        v = m
+      end
+
+      if v.is_a?(Array)
+        m = config_vm_proto.send(k)
+        v.each do |v2|
+          m << v2
+        end 
+        v = m
+      end
+
       begin
         config_vm_proto.send("#{k}=", v)
       rescue NoMethodError
@@ -167,6 +193,7 @@ def parse_vagrantfile(path)
         # have a config variable for one of the instance methods. This is ok.
       end
     end
+
 
     extract_component(PROVISION_PROTO_CLS, config_vm_proto.provisioners, vm_config.provisioners)
     extract_network(config_vm_proto.networks, vm_config.networks)

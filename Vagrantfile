@@ -19,6 +19,7 @@ Vagrant.configure("2") do |config|
 
   ["a", "b"].each do |m|
     config.vm.define m do |c|
+      c.vm.hostname = "computer-#{m}"
       c.vm.box = "hashicorp/bionic64"
       c.vm.network "forwarded_port", guest: 80, host: 8080
 
@@ -29,6 +30,8 @@ Vagrant.configure("2") do |config|
   end
 
   config.vm.define "one" do |c|
+    c.vm.hostname = "one"
+    c.vm.usable_port_range = 8070..8090
     c.vm.box = "bento/ubuntu"
     c.vm.provision "shell", inline: "echo hello world"
     c.vm.provision "shell" do |s|

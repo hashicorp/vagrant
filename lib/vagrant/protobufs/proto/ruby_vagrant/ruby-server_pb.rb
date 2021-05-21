@@ -32,13 +32,37 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
     add_message "hashicorp.vagrant.VagrantfileComponents" do
     end
     add_message "hashicorp.vagrant.VagrantfileComponents.ConfigVM" do
-      optional :allow_fstab_modification, :bool, 1
-      optional :allow_hosts_modificaion, :bool, 2
-      optional :box, :string, 3
-      repeated :providers, :message, 5, "hashicorp.vagrant.VagrantfileComponents.Provider"
-      repeated :networks, :message, 7, "hashicorp.vagrant.VagrantfileComponents.Network"
-      repeated :provisioners, :message, 8, "hashicorp.vagrant.VagrantfileComponents.Provisioner"
-      repeated :synced_folders, :message, 9, "hashicorp.vagrant.VagrantfileComponents.SyncedFolder"
+      repeated :allowed_synced_folder_types, :string, 1
+      optional :allow_fstab_modification, :bool, 2
+      optional :allow_hosts_modificaion, :bool, 3
+      optional :base_mac, :string, 4
+      optional :base_address, :string, 5
+      optional :boot_timeout, :int32, 6
+      optional :box, :string, 7
+      optional :ignore_box_vagrantfile, :bool, 8
+      optional :box_check_update, :bool, 9
+      optional :box_url, :string, 10
+      optional :box_server_url, :string, 11
+      optional :box_version, :string, 12
+      optional :box_download_ca_cert, :string, 13
+      optional :box_download_ca_path, :string, 14
+      optional :box_download_checksum, :string, 15
+      optional :box_download_checksum_type, :string, 16
+      optional :box_download_client_cert, :string, 17
+      optional :box_download_insecure, :bool, 18
+      optional :box_download_location_trusted, :bool, 19
+      map :box_download_options, :string, :string, 20
+      optional :communicator, :string, 21
+      optional :graceful_halt_timeout, :int32, 22
+      optional :guest, :string, 23
+      optional :hostname, :string, 24
+      optional :post_up_message, :string, 25
+      repeated :usable_port_range, :int32, 26
+      repeated :box_extra_download_options, :string, 27
+      repeated :providers, :message, 29, "hashicorp.vagrant.VagrantfileComponents.Provider"
+      repeated :networks, :message, 31, "hashicorp.vagrant.VagrantfileComponents.Network"
+      repeated :provisioners, :message, 32, "hashicorp.vagrant.VagrantfileComponents.Provisioner"
+      repeated :synced_folders, :message, 33, "hashicorp.vagrant.VagrantfileComponents.SyncedFolder"
     end
     add_message "hashicorp.vagrant.VagrantfileComponents.ConfigSSH" do
       optional :compresssion, :bool, 1

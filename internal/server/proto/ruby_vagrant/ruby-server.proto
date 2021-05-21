@@ -61,15 +61,40 @@ message ParseVagrantfileResponse {
 message VagrantfileComponents {
 
   message ConfigVM {
-    bool allow_fstab_modification = 1;
-    bool allow_hosts_modificaion = 2;
-    string box = 3;
+    repeated string allowed_synced_folder_types = 1;
+    bool allow_fstab_modification = 2;
+    bool allow_hosts_modificaion = 3;
+    string base_mac = 4;
+    string base_address = 5;
+    int32 boot_timeout = 6;
+    string box = 7;
+    bool ignore_box_vagrantfile = 8;
+    bool box_check_update = 9;
+    string box_url = 10;
+    string box_server_url = 11;
+    string box_version = 12;
+    string box_download_ca_cert = 13;
+    string box_download_ca_path = 14;
+    string box_download_checksum = 15;
+    string box_download_checksum_type = 16;
+    string box_download_client_cert = 17;
+    bool box_download_insecure = 18;
+    bool box_download_location_trusted = 19;
+    map<string, string> box_download_options = 20;
+    string communicator = 21;
+    int32 graceful_halt_timeout = 22;
+    string guest = 23;
+    string hostname = 24;
+    string post_up_message = 25;
+    repeated int32 usable_port_range = 26;
+    repeated string box_extra_download_options = 27;
+
     // TODO: CloudInit = 4 (Experimental)
-    repeated Provider providers = 5;
+    repeated Provider providers = 29;
     // TODO: Disks = 6 (Experimental)
-    repeated Network networks = 7;
-    repeated Provisioner provisioners = 8;
-    repeated SyncedFolder synced_folders = 9;
+    repeated Network networks = 31;
+    repeated Provisioner provisioners = 32;
+    repeated SyncedFolder synced_folders = 33;
   }
 
   message ConfigSSH {
