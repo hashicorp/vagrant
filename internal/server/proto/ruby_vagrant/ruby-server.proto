@@ -65,7 +65,7 @@ message VagrantfileComponents {
     bool allow_hosts_modificaion = 2;
     string box = 3;
     // TODO: CloudInit = 4 (Experimental)
-    repeated Provider provider = 5;
+    repeated Provider providers = 5;
     // TODO: Disks = 6 (Experimental)
     repeated Network networks = 7;
     repeated Provisioner provisioners = 8;

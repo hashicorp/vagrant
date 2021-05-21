@@ -9,10 +9,12 @@ Vagrant.configure("2") do |config|
   config.vm.provider "virtualbox" do |v|
     v.default_nic_type = "82543GC"
     v.gui = false
+    v.customize ["modifyvm", :id, "--cpuexecutioncap", "50"]
   end
 
   config.vm.provider "idontexist" do |v|
     v.gui = false
+    v.something = ["modifyvm", :id, "--cpuexecutioncap", "50"]
   end
 
   ["a", "b"].each do |m|

@@ -10,10 +10,27 @@ require_relative "./plugins/commands/serve/command"
 
 vagrantfile_path = "/Users/sophia/project/vagrant-ruby/Vagrantfile"
 
-PROVIDER_PROTO_CLS = Hashicorp::Vagrant::VagrantfileComponents::Provisioner
+PROVIDER_PROTO_CLS = Hashicorp::Vagrant::VagrantfileComponents::Provider
 PROVISION_PROTO_CLS = Hashicorp::Vagrant::VagrantfileComponents::Provisioner
 SYNCED_FOLDER_PROTO_CLS = Hashicorp::Vagrant::VagrantfileComponents::SyncedFolder
 NETWORK_PROTO_CLS = Hashicorp::Vagrant::VagrantfileComponents::Network
+
+def stringify_symbols(m)
+  m.each do |k,v|
+    if v.is_a?(Hash)
+      # All keys need to be strings
+      v.transform_keys!{|sk| sk.to_s}
+      stringify_symbols(v)
+      next
+    end
+    if v.is_a?(Array)
+      v.map!{|sk| sk.is_a?(Symbol) ? sk.to_s : sk}
+      next
+    end
+    k = k.to_s if k.is_a?(Symbol)
+    v = v.to_s if v.is_a?(Symbol)
+  end
+end
 
 def extract_component(target_cls, target, vagrant_config)
   vagrant_config.each do |c|
@@ -56,6 +73,29 @@ def extract_network(target, networks)
   end
 end
 
+# Providers take the form
+# {
+#   :type=> #<VagrantPlugins::PluginClass::Config:Object>, ...
+# }
+def extract_provider(target, vm_config)
+  #WARNING: hacks ahead
+  vm_config.define_singleton_method(:compiled_provider_configs) do
+    return @__compiled_provider_configs
+  end
+
+  vm_config.compiled_provider_configs.each do |type, config|
+    c = config.instance_variables_hash
+    stringify_symbols(c)
+    c.delete("__invalid_methods")
+
+    provider_proto = PROVIDER_PROTO_CLS.new(type: type)
+    config_struct = Google::Protobuf::Struct.from_hash(c)
+    config_any = Google::Protobuf::Any.pack(config_struct)
+    provider_proto.config = config_any
+    target << provider_proto
+  end
+end 
+
 # Synced folders take the form of a hash map
 # {
 #   "name"=>{:type=>:rsync, ...},  ...
@@ -91,6 +131,7 @@ def extract_synced_folders(target, synced_folders)
     target << sf_proto
   end
 end
+
 
 def parse_vagrantfile(path)
   # Load up/parse the vagrantfile
@@ -129,6 +170,9 @@ def parse_vagrantfile(path)
     extract_component(PROVISION_PROTO_CLS, config_vm_proto.provisioners, vm_config.provisioners)
     extract_network(config_vm_proto.networks, vm_config.networks)
     extract_synced_folders(config_vm_proto.synced_folders, vm_config.synced_folders)
+    extract_provider(config_vm_proto.providers, vm_config)
+
+    # require "pry-byebug"; binding.pry
 
     machine_configs << Hashicorp::Vagrant::VagrantfileComponents::MachineConfig.new(
       name: mach.to_s,

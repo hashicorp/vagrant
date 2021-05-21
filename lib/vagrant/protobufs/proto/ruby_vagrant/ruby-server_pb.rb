@@ -35,7 +35,7 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
       optional :allow_fstab_modification, :bool, 1
       optional :allow_hosts_modificaion, :bool, 2
       optional :box, :string, 3
-      repeated :provider, :message, 5, "hashicorp.vagrant.VagrantfileComponents.Provider"
+      repeated :providers, :message, 5, "hashicorp.vagrant.VagrantfileComponents.Provider"
       repeated :networks, :message, 7, "hashicorp.vagrant.VagrantfileComponents.Network"
       repeated :provisioners, :message, 8, "hashicorp.vagrant.VagrantfileComponents.Provisioner"
       repeated :synced_folders, :message, 9, "hashicorp.vagrant.VagrantfileComponents.SyncedFolder"
