@@ -5,7 +5,17 @@ module Vagrant
       # to it. Anything, and it just appears to keep working.
       class DummyConfig
         def method_missing(name, *args, &block)
-          DummyConfig.new
+          # Trying to define a variable
+          if name.to_s.match(/[\w]*=/)
+            var_name = "@#{name.to_s.split("=")[0]}"
+            self.instance_variable_set(var_name, args[0])
+          else
+            DummyConfig.new
+          end
+        end
+
+        def merge(c)
+          c
         end
 
         def set_options(options)

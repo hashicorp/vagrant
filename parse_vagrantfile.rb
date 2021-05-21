@@ -25,6 +25,7 @@ def stringify_symbols(m)
     end
     if v.is_a?(Array)
       v.map!{|sk| sk.is_a?(Symbol) ? sk.to_s : sk}
+      stringify_symbols(v)
       next
     end
     k = k.to_s if k.is_a?(Symbol)
@@ -171,8 +172,6 @@ def parse_vagrantfile(path)
     extract_network(config_vm_proto.networks, vm_config.networks)
     extract_synced_folders(config_vm_proto.synced_folders, vm_config.synced_folders)
     extract_provider(config_vm_proto.providers, vm_config)
-
-    # require "pry-byebug"; binding.pry
 
     machine_configs << Hashicorp::Vagrant::VagrantfileComponents::MachineConfig.new(
       name: mach.to_s,
