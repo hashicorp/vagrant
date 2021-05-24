@@ -4,7 +4,14 @@ FEATURES:
 
 IMPROVEMENTS:
 
+BUG FIXES:
+
+## 2.2.16 (April 29, 2021)
+
+IMPROVEMENTS:
+
 - guest/linux: Detect in process shutdown in reboot capability [GH-12302]
+- util/powershell: Support `pwsh` executable in new versions of powershell [GH-12335]
 
 BUG FIXES:
 
