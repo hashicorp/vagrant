@@ -4,7 +4,12 @@
 # Ruby, run unit tests, etc.
 
 Vagrant.configure("2") do |config|
+  config.vagrant.host = "hahah"
+
   config.ssh.connection_timeout = 30
+
+  config.winrm.username = "test"
+  config.winrm.password = "test"
 
   config.vm.provider "virtualbox" do |v|
     v.default_nic_type = "82543GC"
@@ -19,6 +24,8 @@ Vagrant.configure("2") do |config|
 
   ["a", "b"].each do |m|
     config.vm.define m do |c|
+      c.vagrant.host = "ubuntu"
+      c.winrm_host = "computer-#{m}"
       c.vm.hostname = "computer-#{m}"
       c.vm.box = "hashicorp/bionic64"
       c.vm.network "forwarded_port", guest: 80, host: 8080

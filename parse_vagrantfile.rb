@@ -15,6 +15,12 @@ PROVISION_PROTO_CLS = Hashicorp::Vagrant::VagrantfileComponents::Provisioner
 SYNCED_FOLDER_PROTO_CLS = Hashicorp::Vagrant::VagrantfileComponents::SyncedFolder
 NETWORK_PROTO_CLS = Hashicorp::Vagrant::VagrantfileComponents::Network
 
+CONFIG_VM_CLS =  Hashicorp::Vagrant::VagrantfileComponents::ConfigVM
+CONFIG_SSH_CLS = Hashicorp::Vagrant::VagrantfileComponents::ConfigSSH
+CONFIG_WINRM_CLS = Hashicorp::Vagrant::VagrantfileComponents::ConfigWinRM
+CONFIG_WINSSH_CLS = Hashicorp::Vagrant::VagrantfileComponents::ConfigWinssh
+CONFIG_VAGRANT_CLS = Hashicorp::Vagrant::VagrantfileComponents::ConfigVagrant
+
 def stringify_symbols(m)
   m.each do |k,v|
     if v.is_a?(Hash)
@@ -150,7 +156,7 @@ def parse_vagrantfile(path)
     root_config = machine_info[:config]
     vm_config = root_config.vm
 
-    config_vm_proto = Hashicorp::Vagrant::VagrantfileComponents::ConfigVM.new()
+    config_vm_proto = CONFIG_VM_CLS.new()
     vm_config.instance_variables_hash.each do |k, v|
       # Skip config that has not be set
       next if v.class == Object 
@@ -193,7 +199,6 @@ def parse_vagrantfile(path)
         # have a config variable for one of the instance methods. This is ok.
       end
     end
-
 
     extract_component(PROVISION_PROTO_CLS, config_vm_proto.provisioners, vm_config.provisioners)
     extract_network(config_vm_proto.networks, vm_config.networks)

@@ -67,18 +67,58 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
     add_message "hashicorp.vagrant.VagrantfileComponents.ConfigSSH" do
       optional :compresssion, :bool, 1
       optional :connect_timeout, :int64, 2
+      optional :config, :string, 3
+      optional :dsa_authentication, :bool, 4
+      optional :export_command_template, :string, 5
+      repeated :extra_args, :string, 6
+      optional :forward_agent, :bool, 7
+      repeated :forward_env, :string, 8
+      optional :forward_x11, :bool, 9
+      optional :guest_port, :int32, 10
+      optional :host, :string, 11
+      optional :insert_key, :bool, 12
+      optional :keep_alive, :bool, 13
+      optional :keys_only, :bool, 14
+      optional :paranoid, :bool, 15
+      optional :port, :int32, 16
+      repeated :private_key_path, :string, 17
+      optional :proxy_command, :string, 18
+      optional :pty, :bool, 19
+      optional :remote_user, :string, 20
+      optional :shell, :string, 21
+      optional :sudo_command, :string, 22
+      optional :username, :string, 23
+      optional :verify_host_key, :string, 24
     end
     add_message "hashicorp.vagrant.VagrantfileComponents.ConfigWinRM" do
       optional :username, :string, 1
       optional :password, :string, 2
+      optional :host, :string, 3
+      optional :port, :int32, 4
+      optional :guest_port, :int32, 5
+      optional :transport, :string, 6
+      optional :basic_auth_only, :bool, 7
+      optional :execution_time_limit, :string, 8
+      optional :ssl_peer_verification, :bool, 9
+      optional :timeout, :int32, 10
+      optional :max_tries, :int32, 11
+      optional :retry_delay, :int32, 12
+      optional :codepage, :string, 13
     end
     add_message "hashicorp.vagrant.VagrantfileComponents.ConfigWinssh" do
       optional :forward_agent, :bool, 1
       repeated :forward_env, :string, 2
+      optional :proxy_command, :string, 3
+      optional :keep_alive, :bool, 4
+      optional :shell, :string, 5
+      optional :export_command_template, :string, 6
+      optional :sudo_command, :string, 7
+      optional :upload_directory, :string, 8
     end
     add_message "hashicorp.vagrant.VagrantfileComponents.ConfigVagrant" do
       optional :host, :string, 1
       repeated :plugins, :string, 2
+      repeated :sensitive, :string, 3
     end
     add_message "hashicorp.vagrant.VagrantfileComponents.MachineConfig" do
       optional :name, :string, 1

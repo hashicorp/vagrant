@@ -100,25 +100,65 @@ message VagrantfileComponents {
   message ConfigSSH {
     bool compresssion = 1;
     int64 connect_timeout = 2;
-    // TODO
+    string config = 3;
+    bool dsa_authentication = 4;
+    string export_command_template = 5;
+    repeated string extra_args = 6;
+    bool forward_agent = 7;
+    repeated string forward_env = 8;
+    bool forward_x11 = 9;
+    int32 guest_port = 10;
+    string host = 11;
+    bool insert_key = 12;
+    bool keep_alive = 13;
+    bool keys_only = 14;
+    bool paranoid = 15;
+    int32 port = 16;
+    repeated string private_key_path = 17;
+    string proxy_command = 18;
+    bool pty = 19;
+    string remote_user = 20;
+    string shell = 21;
+    string sudo_command = 22;
+    string username = 23;
+    string verify_host_key = 24;
   }
 
   message ConfigWinRM {
     string username = 1;
     string password = 2;
-    // TODO
+    string host = 3;
+    int32 port = 4;
+    int32 guest_port = 5;
+    // Note: this could be an enum, however in order to make 
+    // the ruby -> proto translation a bit more simple, leaving
+    // this as a string
+    string transport = 6;
+    bool basic_auth_only = 7;
+    string execution_time_limit = 8;
+    bool ssl_peer_verification = 9;
+    int32 timeout = 10;
+    int32 max_tries = 11;
+    int32 retry_delay = 12;
+    string codepage = 13;
   }
 
   message ConfigWinssh {
     bool forward_agent = 1;
     repeated string forward_env = 2;
-    // TODO
+    string proxy_command = 3;
+    bool keep_alive = 4;
+    string shell = 5;
+    string export_command_template = 6;
+    string sudo_command = 7;
+    string upload_directory = 8;
   }
   
   message ConfigVagrant {
     string host = 1;
+    // TODO: plugins can be a string, a hash or array
     repeated string plugins = 2;
-    // TODO
+    repeated string sensitive = 3;
   }
 
   // TODO: Review what needs to be sent here
