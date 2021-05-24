@@ -4,6 +4,8 @@ FEATURES:
 
 IMPROVEMENTS:
 
+- provisioners/salt: Always use upstream Salt bootstrap script on Windows [GH-12127]
+
 BUG FIXES:
 
 ## 2.2.16 (April 29, 2021)
