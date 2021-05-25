@@ -38,7 +38,7 @@ require (
 	github.com/go-playground/universal-translator v0.17.0 // indirect
 	github.com/go-playground/validator v9.31.0+incompatible
 	github.com/gofrs/flock v0.8.0
-	github.com/golang/protobuf v1.4.2
+	github.com/golang/protobuf v1.5.2
 	github.com/google/shlex v0.0.0-20191202100458-e7afc7fbc510
 	github.com/gorilla/handlers v1.4.2
 	github.com/hashicorp/go-argmapper v0.0.0-20200721221215-04ae500ede3b
@@ -85,12 +85,12 @@ require (
 	github.com/zclconf/go-cty v1.5.1
 	github.com/zclconf/go-cty-yaml v1.0.2
 	golang.org/x/crypto v0.0.0-20201002170205-7f63de1d35b0
-	golang.org/x/net v0.0.0-20201021035429-f5854403a974
-	golang.org/x/sys v0.0.0-20200930185726-fdedc70b468f
+	golang.org/x/net v0.0.0-20210520170846-37e1c6afe023
+	golang.org/x/sys v0.0.0-20210514084401-e8d321eab015
 	google.golang.org/api v0.20.0
-	google.golang.org/genproto v0.0.0-20201002142447-3860012362da
-	google.golang.org/grpc v1.32.0
-	google.golang.org/protobuf v1.25.0
+	google.golang.org/genproto v0.0.0-20210520160233-290a1ae68a05
+	google.golang.org/grpc v1.38.0
+	google.golang.org/protobuf v1.26.0
 	gopkg.in/go-playground/assert.v1 v1.2.1 // indirect
 	gopkg.in/yaml.v2 v2.3.0
 	k8s.io/api v0.18.0
@@ -104,6 +104,7 @@ require (
 // replace github.com/hashicorp/horizon => ../horizon
 
 replace github.com/hashicorp/vagrant-plugin-sdk => ../vagrant-plugin-sdk
+replace github.com/hashicorp/go-argmapper => ../go-argmapper
 
 replace (
 	// v0.3.11 panics for some reason on our tests
