@@ -431,7 +431,7 @@ func (c *baseCommand) Do(ctx context.Context, f func(context.Context, Tasker) er
 	// Start with checking if we are running in a machine based scope
 	if len(c.targets) > 0 {
 		for _, m := range c.targets {
-			c.Log.Warn("running command on machine", "machine", m)
+			c.Log.Warn("running command on target", "target", m)
 			// If the context has been canceled, then bail
 			if err := ctx.Err(); err != nil {
 				return err
