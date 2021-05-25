@@ -232,8 +232,10 @@ type TargetOption func(*Target) error
 
 func WithTargetName(name string) TargetOption {
 	return func(t *Target) (err error) {
-		if ex := t.project.Target(name); ex != nil {
-			t.target = ex.target
+		if ex, _ := t.project.Target(name); ex != nil {
+			if et, ok := ex.(*Target); ok {
+				t.target = et.target
+			}
 			return
 		}
 		for _, target := range t.project.targets {
@@ -262,8 +264,10 @@ func WithTargetRef(r *vagrant_plugin_sdk.Ref_Target) TargetOption {
 		}
 
 		var target *vagrant_server.Target
-		if ex := t.project.Target(r.Name); ex != nil {
-			t.target = ex.target
+		if ex, _ := t.project.Target(r.Name); ex != nil {
+			if et, ok := ex.(*Target); ok {
+				t.target = et.target
+			}
 			return
 		}
 		result, err := t.Client().FindTarget(t.ctx,

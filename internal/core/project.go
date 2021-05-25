@@ -120,7 +120,7 @@ func (p *Project) JobInfo() *component.JobInfo {
 	return p.jobInfo
 }
 
-func (p *Project) Target(nameOrId string) (*Target, error) {
+func (p *Project) Target(nameOrId string) (core.Target, error) {
 	if t, ok := p.targets[nameOrId]; ok {
 		return t, nil
 	}
