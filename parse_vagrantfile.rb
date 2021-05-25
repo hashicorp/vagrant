@@ -39,13 +39,22 @@ def stringify_symbols(m)
   end
 end
 
+def clean_up_config_object(config)
+  protoize = config
+  stringify_symbols(protoize)
+  # Remote variables that are internal
+  protoize.delete_if{|k,v| k.start_with?("_") }
+  protoize
+end
+
 def extract_provisioners(target, provisioners)
   provisioners.each do |c|
     proto = PROVISION_PROTO_CLS.new()
     c.instance_variables_hash.each do |k, v|
       begin
         if k == "config"
-          config_struct = Google::Protobuf::Struct.from_hash(c.config.instance_variables_hash)
+          protoize = clean_up_config_object(c.config.instance_variables_hash)
+          config_struct = Google::Protobuf::Struct.from_hash(protoize)
           config_any = Google::Protobuf::Any.pack(config_struct)
           proto.config = config_any
           next
@@ -195,9 +204,7 @@ def extract_communicator(config_cls, config)
       protoize[k] = hashed_config
     end
   end
-  stringify_symbols(protoize)
-  # Remote variables that are internal
-  protoize.delete_if{|k,v| k.start_with?("_") }
+  protoize = clean_up_config_object(protoize)
   config_struct = Google::Protobuf::Struct.from_hash(protoize)
   config_any = Google::Protobuf::Any.pack(config_struct)
   config_cls.new(config: config_any)
