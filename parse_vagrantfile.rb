@@ -268,33 +268,68 @@ end
 
 def proto_to_provisioner(vagrantfile_proto, validate=false)
   # Just grab the first provisioner
-  vagrantfile_proto.machine_configs[0].config_vm.provisioners.each do |p| 
-    plugin = Vagrant.plugin("2").manager.provisioners[p.type.to_sym]
-    if plugin.nil?
-      puts "No plugin available for #{p.type}\n"
-      next
+  vagrantfile_proto.machine_configs.each do |m|
+    puts "MACHINE: #{m.name}"
+    m.config_vm.provisioners.each do |p| 
+      plugin = Vagrant.plugin("2").manager.provisioners[p.type.to_sym]
+      if plugin.nil?
+        puts "No plugin available for #{p.type}\n"
+        next
+      end
+      raw_config = p.config.unpack(Google::Protobuf::Struct).to_h
+      puts p.type
+      puts raw_config
+      puts "\n"
+      # TODO: fetch this config
+      #       if it doesn't exist, then pass in generic config
+      plugin_config = Vagrant.plugin("2").manager.provisioner_configs[p.type.to_sym]
+      # Create a new config
+      config = plugin_config.new
+      # Unpack the config from the proto
+      raw_config = p.config.unpack(Google::Protobuf::Struct).to_h
+      # Set config
+      config.set_options(raw_config)
+      if validate
+        # Ensure config is valid
+        config.validate("machine")
+      end
+      # Create new provisioner
+      provisioner = plugin.new("machine", config)
     end
-    raw_config = p.config.unpack(Google::Protobuf::Struct).to_h
-    puts p.type
-    puts raw_config
-    puts "\n"
-    # TODO: fetch this config
-    #       if it doesn't exist, then pass in generic config
-    plugin_config = Vagrant.plugin("2").manager.provisioner_configs[p.type.to_sym]
-    # Create a new config
-    config = plugin_config.new
-    # Unpack the config from the proto
-    raw_config = p.config.unpack(Google::Protobuf::Struct).to_h
-    # Set config
-    config.set_options(raw_config)
-    if validate
-      # Ensure config is valid
-      config.validate("machine")
+  end
+end
+
+def proto_to_provider(vagrantfile_proto, validate=false)
+  # Just grab the first provisioner
+  vagrantfile_proto.machine_configs.each do |m|
+    puts "MACHINE: #{m.name}"
+    m.config_vm.providers.each do |p| 
+      plugin = Vagrant.plugin("2").manager.providers[p.type.to_sym]
+      if plugin.nil?
+        puts "No plugin available for #{p.type}\n"
+        next
+      end
+      raw_config = p.config.unpack(Google::Protobuf::Struct).to_h
+      puts p.type
+      puts raw_config
+      puts "\n"
+      # TODO: fetch this config
+      #       if it doesn't exist, then pass in generic config
+      plugin_config = Vagrant.plugin("2").manager.provider_configs[p.type.to_sym]
+      # Create a new config
+      config = plugin_config.new
+      # Unpack the config from the proto
+      raw_config = p.config.unpack(Google::Protobuf::Struct).to_h
+      # Set config
+      config.set_options(raw_config)
+      if validate
+        # Ensure config is valid
+        config.validate("machine")
+      end
     end
-    # Create new provisioner
-    provisioner = plugin.new("machine", config)
   end
 end
 
 parse_vagrantifle_response = parse_vagrantfile(vagrantfile_path)
-proto_to_provisioner(parse_vagrantifle_response.vagrantfile)
+# proto_to_provisioner(parse_vagrantifle_response.vagrantfile)
+proto_to_provider(parse_vagrantifle_response.vagrantfile)
