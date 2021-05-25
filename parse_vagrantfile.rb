@@ -39,9 +39,9 @@ def stringify_symbols(m)
   end
 end
 
-def extract_component(target_cls, target, vagrant_config)
-  vagrant_config.each do |c|
-    proto = target_cls.new()
+def extract_provisioners(target, provisioners)
+  provisioners.each do |c|
+    proto = PROVISION_PROTO_CLS.new()
     c.instance_variables_hash.each do |k, v|
       begin
         if k == "config"
@@ -200,7 +200,7 @@ def parse_vagrantfile(path)
       end
     end
 
-    extract_component(PROVISION_PROTO_CLS, config_vm_proto.provisioners, vm_config.provisioners)
+    extract_provisioners(config_vm_proto.provisioners, vm_config.provisioners)
     extract_network(config_vm_proto.networks, vm_config.networks)
     extract_synced_folders(config_vm_proto.synced_folders, vm_config.synced_folders)
     extract_provider(config_vm_proto.providers, vm_config)
