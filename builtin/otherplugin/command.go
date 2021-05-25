@@ -6,7 +6,9 @@ import (
 	"github.com/DavidGamba/go-getoptions/option"
 	"github.com/hashicorp/vagrant-plugin-sdk/component"
 	plugincore "github.com/hashicorp/vagrant-plugin-sdk/core"
+	//	"github.com/hashicorp/vagrant-plugin-sdk/proto/vagrant_plugin_sdk"
 	"github.com/hashicorp/vagrant-plugin-sdk/terminal"
+	//"google.golang.org/protobuf/types/known/anypb"
 )
 
 type Command struct{}
@@ -93,7 +95,7 @@ func (c *Command) ExecuteThing(trm terminal.UI, flags map[string]interface{}) in
 	return 0
 }
 
-func (c *Command) ExecuteInfo(trm terminal.UI, p plugincore.Project) int64 {
+func (c *Command) ExecuteInfo(trm terminal.UI, p plugincore.Project, t plugincore.Target) int64 {
 	mn, _ := p.MachineNames()
 	trm.Output("\nMachines in this project")
 	trm.Output(strings.Join(mn[:], "\n"))
@@ -120,6 +122,21 @@ func (c *Command) ExecuteInfo(trm terminal.UI, p plugincore.Project) int64 {
 		trm.Output("Failed to get project specific UI! Reason: " + err.Error())
 	} else {
 		ptrm.Output("YAY! This is project specific output!")
+	}
+
+	m, err := t.Specialize((*plugincore.Machine)(nil))
+	if err != nil {
+		trm.Output("Failed to specialize to machine! -- " + err.Error())
+		return 1
+	}
+
+	machine := m
+	trm.Output("successfully specialized to machine")
+	id, err := machine.ID()
+	if err != nil {
+		trm.Output("failed to get machine id --> " + err.Error())
+	} else {
+		trm.Output("machine id is: " + id)
 	}
 
 	return 0
