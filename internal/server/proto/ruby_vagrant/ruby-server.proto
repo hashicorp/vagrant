@@ -70,7 +70,7 @@ message VagrantfileComponents {
     string box = 7;
     bool ignore_box_vagrantfile = 8;
     bool box_check_update = 9;
-    string box_url = 10;
+    repeated string box_url = 10;
     string box_server_url = 11;
     string box_version = 12;
     string box_download_ca_cert = 13;

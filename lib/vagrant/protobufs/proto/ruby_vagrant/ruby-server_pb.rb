@@ -41,7 +41,7 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
       optional :box, :string, 7
       optional :ignore_box_vagrantfile, :bool, 8
       optional :box_check_update, :bool, 9
-      optional :box_url, :string, 10
+      repeated :box_url, :string, 10
       optional :box_server_url, :string, 11
       optional :box_version, :string, 12
       optional :box_download_ca_cert, :string, 13
