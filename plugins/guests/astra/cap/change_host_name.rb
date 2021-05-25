@@ -1,4 +1,6 @@
 require "log4r"
+require 'vagrant/util/guest_hosts'
+require 'vagrant/util/guest_inspection'
 require_relative "../../linux/cap/network_interfaces"
 
 module VagrantPlugins
@@ -6,34 +8,36 @@ module VagrantPlugins
     module Cap
       class ChangeHostName
 
-        extend Vagrant::Util::GuestInspection::Linux
+        include Vagrant::Util::GuestInspection::Linux
+        include Vagrant::Util::GuestHosts::Linux
 
         def self.change_host_name(machine, name)
           @logger = Log4r::Logger.new("vagrant::guest::astra::changehostname")
+          new(machine, name, @logger).change!
+        end
+
+        attr_reader :machine, :name, :logger
+
+        def initialize(machine, name, logger)
+          @logger = logger
+          @machine = machine
+          @name = name
+        end
+
+        def change!
           comm = machine.communicate
 
-          if !comm.test("hostname -f | grep '^#{name}$'", sudo: false)
-            basename = name.split(".", 2)[0]
-            comm.sudo <<-EOH.gsub(/^ {14}/, '')
-              # Set the hostname
-              echo '#{basename}' > /etc/hostname
+          if change_host_name?(comm, name)
+            # Write the name to a file 'hostname'
+            update_etc_hostname            
+            # Prepend ourselves to /etc/hosts
+            update_etc_hosts
+            update_mailname
 
-              # Prepend ourselves to /etc/hosts
-              grep -w '#{name}' /etc/hosts || {
-                if grep -w '^127\\.0\\.1\\.1' /etc/hosts ; then
-                  sed -i'' 's/^127\\.0\\.1\\.1\\s.*$/127.0.1.1\\t#{name}\\t#{basename}/' /etc/hosts
-                else
-                  sed -i'' '1i 127.0.1.1\\t#{name}\\t#{basename}' /etc/hosts
-                fi
-              }
 
-              # Update mailname
-              echo '#{name}' > /etc/mailname
-
-            EOH
-
+            # NOTE: it may not work correctly if there is no dbus package in the image
             if hostnamectl?(comm)
-              comm.sudo("hostnamectl set-hostname '#{basename}'")
+              comm.sudo("hostnamectl set-hostname '#{short_hostname}'")
             else
               comm.sudo <<-EOH.gsub(/^ {14}/, '')
               hostname -F /etc/hostname
@@ -67,26 +71,53 @@ module VagrantPlugins
           end
         end
 
+        def change_host_name?(comm, name)
+          !comm.test("hostname -f | grep '^#{name}$'", sudo: false)
+        end
+
+        def update_etc_hostname
+          machine.communicate.sudo("echo '#{short_hostname}' > /etc/hostname")
+        end
+
+        def update_etc_hosts
+          comm = machine.communicate
+          network_with_hostname = machine.config.vm.networks.map {|_, c| c if c[:hostname] }.compact[0]
+          if network_with_hostname
+            replace_host(comm, name, network_with_hostname[:ip])
+          else
+            add_hostname_to_loopback_interface(comm, name)
+          end
+        end
+
+        def update_mailname
+          machine.communicate.sudo('hostname -f > /etc/mailname')
+        end
+
+        def short_hostname
+          name.split('.').first
+        end
+
+
         protected
 
-        # Due to how most astra systems and older Ubuntu systems handle restarting
-        # networking, we cannot simply run the networking init script or use the ifup/down
+        # Due to how some older Debian like systems handle restarting networking, we
+        # cannot simply run the networking init script or use the ifup/down
         # tools to restart all interfaces to renew the machines DHCP lease when setting
         # its hostname. This method is a workaround for those older systems that
-        # cannoy reliably restart networking. It restarts each individual interface
+        # cannot reliably restart networking. It restarts each individual interface
         # on its own instead.
         #
         # @param [Vagrant::Machine] machine
         # @param [Log4r::Logger] logger
-        def self.restart_each_interface(machine, logger)
+        def restart_each_interface(machine, logger)
           comm = machine.communicate
           interfaces = VagrantPlugins::GuestLinux::Cap::NetworkInterfaces.network_interfaces(machine)
           nettools = true
           if systemd?(comm)
-            @logger.debug("Attempting to restart networking with systemctl")
+            logger.debug("Attempting to restart networking with systemctl")
             nettools = false
           else
-            @logger.debug("Attempting to restart networking with ifup/down nettools")
+            logger.debug("Attempting to restart networking with ifup/down nettools")
           end
 
           interfaces.each do |iface|
@@ -99,6 +130,7 @@ module VagrantPlugins
             comm.sudo(restart_command)
           end
         end
+
       end
     end
   end
