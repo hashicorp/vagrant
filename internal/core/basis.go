@@ -16,6 +16,7 @@ import (
 	"google.golang.org/grpc/status"
 
 	"github.com/hashicorp/vagrant-plugin-sdk/component"
+	"github.com/hashicorp/vagrant-plugin-sdk/core"
 	"github.com/hashicorp/vagrant-plugin-sdk/datadir"
 	"github.com/hashicorp/vagrant-plugin-sdk/internal-shared/protomappers"
 	"github.com/hashicorp/vagrant-plugin-sdk/proto/vagrant_plugin_sdk"
@@ -245,12 +246,20 @@ func (b *Basis) LoadProject(popts ...ProjectOption) (p *Project, err error) {
 		return project, nil
 	}
 
-	b.projects[p.ResourceId()] = p
+	// Set our loaded project into the basis
+	b.projects[p.project.ResourceId] = p
 
 	// Ensure project directory is set
 	if p.dir == nil {
 		if p.dir, err = b.dir.Project(p.project.Name); err != nil {
 			return
+		}
+	}
+
+	// If any targets are defined in the project, load them
+	if len(p.project.Targets) > 0 {
+		for _, tref := range p.project.Targets {
+			p.LoadTarget(WithTargetRef(tref))
 		}
 	}
 
@@ -363,9 +372,7 @@ func (b *Basis) Run(ctx context.Context, task *vagrant_server.Task) (err error) 
 		(interface{})(nil),
 		cmd,
 		cmd.Value.(component.Command).ExecuteFunc(strings.Split(task.CommandName, " ")),
-		argmapper.Typed(task.CliArgs),
-		argmapper.Typed(b),
-		argmapper.Named("basis", b),
+		argmapper.Typed(task.CliArgs, b.jobInfo, b.dir),
 	)
 	if err != nil || result == nil || result.(int64) != 0 {
 		b.logger.Error("failed to execute command", "type", component.CommandType, "name", task.Component.Name, "error", err)
@@ -480,17 +487,11 @@ func (b *Basis) callDynamicFunc(
 
 	args = append(args,
 		argmapper.ConverterFunc(b.mappers...),
-		argmapper.Typed(
-			b.jobInfo,
-			b.dir,
-			b.ui,
-		),
+		argmapper.Typed(b, b.ui, ctx, log),
+		argmapper.Named("basis", b),
 	)
 
-	// Make sure we have access to our context and logger and default args
-	args = append(args,
-		argmapper.Typed(ctx, log),
-	)
+	b.logger.Info("running dynamic call from basis", "basis", b)
 
 	// Build the chain and call it
 	callResult := rawFunc.Call(args...)
@@ -663,4 +664,4 @@ func WithBasisResourceId(rid string) BasisOption {
 	}
 }
 
-var _ *Basis = (*Basis)(nil)
+var _ core.Basis = (*Basis)(nil)
