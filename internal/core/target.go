@@ -5,6 +5,7 @@ import (
 	"errors"
 	"strings"
 	"sync"
+	"time"
 
 	"github.com/golang/protobuf/proto"
 	"github.com/hashicorp/go-argmapper"
@@ -19,6 +20,7 @@ import (
 	"github.com/hashicorp/vagrant-plugin-sdk/component"
 	"github.com/hashicorp/vagrant-plugin-sdk/core"
 	"github.com/hashicorp/vagrant-plugin-sdk/datadir"
+	"github.com/hashicorp/vagrant-plugin-sdk/helper/path"
 	"github.com/hashicorp/vagrant-plugin-sdk/proto/vagrant_plugin_sdk"
 	"github.com/hashicorp/vagrant-plugin-sdk/terminal"
 
@@ -55,6 +57,30 @@ func (t *Target) Name() (string, error) {
 	return t.target.Name, nil
 }
 
+func (t *Target) SetName(value string) (err error) {
+	return
+}
+
+func (t *Target) Provider() (p core.Provider, err error) {
+	return
+}
+
+func (t *Target) VagrantfileName() (name string, err error) {
+	return
+}
+
+func (t *Target) VagrantfilePath() (p path.Path, err error) {
+	return
+}
+
+func (t *Target) Communicate() (c core.Communicator, err error) {
+	return
+}
+
+func (t *Target) UpdatedAt() (tm *time.Time, err error) {
+	return
+}
+
 func (t *Target) ResourceId() (string, error) {
 	return t.target.ResourceId, nil
 }
@@ -77,6 +103,10 @@ func (t *Target) State() (core.State, error) {
 
 func (t *Target) Record() (*anypb.Any, error) {
 	return t.target.Record, nil
+}
+
+func (t *Target) Specialize(_ interface{}) (core.Machine, error) {
+	return t.Machine(), nil
 }
 
 func (t *Target) JobInfo() *component.JobInfo {
@@ -142,9 +172,7 @@ func (t *Target) Run(ctx context.Context, task *vagrant_server.Task) (err error)
 		(interface{})(nil),
 		cmd,
 		cmd.Value.(component.Command).ExecuteFunc(strings.Split(task.CommandName, " ")),
-		argmapper.Typed(task.CliArgs),
-		argmapper.Typed(t),
-		argmapper.Named("target", t),
+		argmapper.Typed(task.CliArgs, t.jobInfo, t.dir),
 	)
 
 	if err != nil || result == nil || result.(int64) != 0 {
@@ -169,13 +197,12 @@ func (t *Target) callDynamicFunc(
 	defer t.ui.Status().Close()
 
 	args = append(args,
-		argmapper.Typed(
-			t.jobInfo,
-			t.dir,
-			t.UI,
-		),
+		argmapper.Typed(t),
+		argmapper.Named("target", t),
+		argmapper.Named("target_ui", t.UI),
 	)
 
+	t.logger.Info("running dynamic call from target", "target", t)
 	return t.project.callDynamicFunc(ctx, log, result, c, f, args...)
 }
 
@@ -193,6 +220,12 @@ func (t *Target) execHook(ctx context.Context, log hclog.Logger, h *config.Hook)
 
 func (t *Target) doOperation(ctx context.Context, log hclog.Logger, op operation) (interface{}, proto.Message, error) {
 	return doOperation(ctx, log, t, op)
+}
+
+func (t *Target) Machine() core.Machine {
+	return &Machine{
+		Target: t,
+	}
 }
 
 type TargetOption func(*Target) error
@@ -272,4 +305,4 @@ func WithTargetRef(r *vagrant_plugin_sdk.Ref_Target) TargetOption {
 	}
 }
 
-var _ *Target = (*Target)(nil)
+var _ core.Target = (*Target)(nil)

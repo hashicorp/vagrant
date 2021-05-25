@@ -120,16 +120,32 @@ func (p *Project) JobInfo() *component.JobInfo {
 	return p.jobInfo
 }
 
-func (p *Project) Target(nameOrId string) *Target {
+func (p *Project) Target(nameOrId string) (*Target, error) {
 	if t, ok := p.targets[nameOrId]; ok {
-		return t
+		return t, nil
 	}
 	for _, t := range p.targets {
 		if t.target.ResourceId == nameOrId {
-			return t
+			return t, nil
 		}
 	}
-	return nil
+	return nil, errors.New("requested target does not exist")
+}
+
+func (p *Project) TargetNames() ([]string, error) {
+	var names []string
+	for _, t := range p.project.Targets {
+		names = append(names, t.Name)
+	}
+	return names, nil
+}
+
+func (p *Project) TargetIds() ([]string, error) {
+	var ids []string
+	for _, t := range p.project.Targets {
+		ids = append(ids, t.ResourceId)
+	}
+	return ids, nil
 }
 
 func (p *Project) LoadTarget(topts ...TargetOption) (t *Target, err error) {
@@ -153,8 +169,16 @@ func (p *Project) LoadTarget(topts ...TargetOption) (t *Target, err error) {
 	}
 
 	// If the machine is already loaded, return that
-	if target, ok := p.targets[t.target.Name]; ok {
+	if target, ok := p.targets[t.target.ResourceId]; ok {
 		return target, nil
+	}
+
+	p.targets[t.target.ResourceId] = t
+
+	if t.dir == nil {
+		if t.dir, err = p.dir.Target(t.target.Name); err != nil {
+			return
+		}
 	}
 
 	// Ensure any modifications to the target are persisted
@@ -224,9 +248,7 @@ func (p *Project) Run(ctx context.Context, task *vagrant_server.Task) (err error
 		(interface{})(nil),
 		cmd,
 		cmd.Value.(component.Command).ExecuteFunc(strings.Split(task.CommandName, " ")),
-		argmapper.Typed(task.CliArgs),
-		argmapper.Typed(p),
-		argmapper.Named("project", p),
+		argmapper.Typed(task.CliArgs, p.jobInfo, p.dir),
 	)
 	if err != nil || result == nil || result.(int64) != 0 {
 		p.logger.Error("failed to execute command", "type", component.CommandType, "name", task.Component.Name, "result", result, "error", err)
@@ -311,13 +333,12 @@ func (p *Project) callDynamicFunc(
 
 	args = append(args,
 		argmapper.ConverterFunc(p.mappers...),
-		argmapper.Typed(
-			p.jobInfo,
-			p.dir,
-			p.UI,
-		),
+		argmapper.Typed(p),
+		argmapper.Named("project", p),
+		argmapper.Named("project_ui", p.UI),
 	)
 
+	p.logger.Info("running dynamic call from project", "project", p)
 	return p.basis.callDynamicFunc(ctx, log, result, c, f, args...)
 }
 
@@ -454,5 +475,4 @@ func WithProjectRef(r *vagrant_plugin_sdk.Ref_Project) ProjectOption {
 	}
 }
 
-var _ *Project = (*Project)(nil)
 var _ core.Project = (*Project)(nil)
