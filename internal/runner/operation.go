@@ -105,6 +105,8 @@ func (r *Runner) executeJob(
 		core.WithJobInfo(jobInfo),
 	}
 
+	var scope Runs
+
 	// Work backwards to setup the basis
 	var ref *vagrant_plugin_sdk.Ref_Basis
 	if job.Target != nil {
@@ -123,6 +125,7 @@ func (r *Runner) executeJob(
 	}
 
 	defer b.Close()
+	scope = b
 
 	// Lets check for a project, and if we have one,
 	// load it up now
@@ -136,6 +139,7 @@ func (r *Runner) executeJob(
 			return
 		}
 		defer p.Close()
+		scope = p
 	}
 
 	// Finally, if we have a target defined, load it up
@@ -147,6 +151,7 @@ func (r *Runner) executeJob(
 			return
 		}
 		defer m.Close()
+		scope = m
 	}
 
 	// Execute the operation
@@ -168,8 +173,8 @@ func (r *Runner) executeJob(
 		return r.executeInitOp(ctx, job, b)
 
 	case *vagrant_server.Job_Run:
-		log.Warn("running a run operation against project", "project", p, "job", job)
-		return r.executeRunOp(ctx, job, p)
+		log.Warn("running a run operation", "scope", scope, "job", job)
+		return r.executeRunOp(ctx, job, scope)
 
 	case *vagrant_server.Job_Auth:
 		return r.executeAuthOp(ctx, log, job, p)
