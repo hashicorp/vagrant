@@ -10,7 +10,7 @@ module Hashicorp
       # The service that is implemented for the server backend.
       class Service
 
-        include GRPC::GenericService
+        include ::GRPC::GenericService
 
         self.marshal_class_method = :encode
         self.unmarshal_class_method = :decode
@@ -42,12 +42,12 @@ module Hashicorp
         # ListApplications because applications are a part of projects and you
         # can use GetProject to get more information about the project.
         rpc :ListProjects, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::ListProjectsResponse
-        # UpsertMachine upserts a machine with a project. If the machine
+        # UpsertTarget upserts a target with a project. If the target
         # is already registered this does nothing.
-        rpc :UpsertMachine, ::Hashicorp::Vagrant::UpsertMachineRequest, ::Hashicorp::Vagrant::UpsertMachineResponse
-        rpc :GetMachine, ::Hashicorp::Vagrant::GetMachineRequest, ::Hashicorp::Vagrant::GetMachineResponse
-        rpc :FindMachine, ::Hashicorp::Vagrant::FindMachineRequest, ::Hashicorp::Vagrant::FindMachineResponse
-        rpc :ListMachines, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::ListMachinesResponse
+        rpc :UpsertTarget, ::Hashicorp::Vagrant::UpsertTargetRequest, ::Hashicorp::Vagrant::UpsertTargetResponse
+        rpc :GetTarget, ::Hashicorp::Vagrant::GetTargetRequest, ::Hashicorp::Vagrant::GetTargetResponse
+        rpc :FindTarget, ::Hashicorp::Vagrant::FindTargetRequest, ::Hashicorp::Vagrant::FindTargetResponse
+        rpc :ListTargets, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::ListTargetsResponse
         # GetLogStream reads the log stream for a deployment. This will immediately
         # send a single LogEntry with the lines we have so far. If there are no
         # available lines this will NOT block and instead will return an error.
