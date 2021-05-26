@@ -10,16 +10,16 @@ require_relative "./plugins/commands/serve/command"
 
 vagrantfile_path = "/Users/sophia/project/vagrant-ruby/Vagrantfile"
 
-PROVIDER_PROTO_CLS = Hashicorp::Vagrant::VagrantfileComponents::Provider
-PROVISION_PROTO_CLS = Hashicorp::Vagrant::VagrantfileComponents::Provisioner
-SYNCED_FOLDER_PROTO_CLS = Hashicorp::Vagrant::VagrantfileComponents::SyncedFolder
-NETWORK_PROTO_CLS = Hashicorp::Vagrant::VagrantfileComponents::Network
+PROVIDER_PROTO_CLS = Hashicorp::Vagrant::Sdk::Vagrantfile::Provider
+PROVISION_PROTO_CLS = Hashicorp::Vagrant::Sdk::Vagrantfile::Provisioner
+SYNCED_FOLDER_PROTO_CLS = Hashicorp::Vagrant::Sdk::Vagrantfile::SyncedFolder
+NETWORK_PROTO_CLS = Hashicorp::Vagrant::Sdk::Vagrantfile::Network
 
-CONFIG_VM_CLS =  Hashicorp::Vagrant::VagrantfileComponents::ConfigVM
-CONFIG_SSH_CLS = Hashicorp::Vagrant::VagrantfileComponents::ConfigSSH
-CONFIG_WINRM_CLS = Hashicorp::Vagrant::VagrantfileComponents::ConfigWinRM
-CONFIG_WINSSH_CLS = Hashicorp::Vagrant::VagrantfileComponents::ConfigWinssh
-CONFIG_VAGRANT_CLS = Hashicorp::Vagrant::VagrantfileComponents::ConfigVagrant
+CONFIG_VM_CLS =  Hashicorp::Vagrant::Sdk::Vagrantfile::ConfigVM
+CONFIG_SSH_CLS = Hashicorp::Vagrant::Sdk::Vagrantfile::ConfigSSH
+CONFIG_WINRM_CLS = Hashicorp::Vagrant::Sdk::Vagrantfile::ConfigWinRM
+CONFIG_WINSSH_CLS = Hashicorp::Vagrant::Sdk::Vagrantfile::ConfigWinssh
+CONFIG_VAGRANT_CLS = Hashicorp::Vagrant::Sdk::Vagrantfile::ConfigVagrant
 
 def stringify_symbols(m)
   m.each do |k,v|
@@ -244,7 +244,7 @@ def parse_vagrantfile(path)
     extract_synced_folders(config_vm_proto.synced_folders, vm_config.synced_folders)
     extract_provider(config_vm_proto.providers, vm_config)
 
-    machine_configs << Hashicorp::Vagrant::VagrantfileComponents::MachineConfig.new(
+    machine_configs << Hashicorp::Vagrant::Sdk::Vagrantfile::MachineConfig.new(
       name: mach.to_s,
       config_vm: config_vm_proto,
       config_vagrant: config_vagrant_proto,
@@ -255,7 +255,7 @@ def parse_vagrantfile(path)
     )
   end
 
-  vagrantfile = Hashicorp::Vagrant::VagrantfileComponents::Vagrantfile.new(
+  vagrantfile = Hashicorp::Vagrant::Sdk::Vagrantfile::Vagrantfile.new(
     path: path,
     # raw: raw,
     current_version: Vagrant::Config::CURRENT_VERSION,

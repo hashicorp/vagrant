@@ -5,6 +5,7 @@ require 'google/protobuf'
 
 require 'google/protobuf/empty_pb'
 require 'google/protobuf/any_pb'
+require 'plugin_pb'
 Google::Protobuf::DescriptorPool.generated_pool.build do
   add_file("proto/ruby_vagrant/ruby-server.proto", :syntax => :proto3) do
     add_message "hashicorp.vagrant.GetPluginsResponse" do
@@ -27,99 +28,7 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
       optional :path, :string, 1
     end
     add_message "hashicorp.vagrant.ParseVagrantfileResponse" do
-      optional :vagrantfile, :message, 1, "hashicorp.vagrant.VagrantfileComponents.Vagrantfile"
-    end
-    add_message "hashicorp.vagrant.VagrantfileComponents" do
-    end
-    add_message "hashicorp.vagrant.VagrantfileComponents.ConfigVM" do
-      repeated :allowed_synced_folder_types, :string, 1
-      optional :allow_fstab_modification, :bool, 2
-      optional :allow_hosts_modificaion, :bool, 3
-      optional :base_mac, :string, 4
-      optional :base_address, :string, 5
-      optional :boot_timeout, :int32, 6
-      optional :box, :string, 7
-      optional :ignore_box_vagrantfile, :bool, 8
-      optional :box_check_update, :bool, 9
-      repeated :box_url, :string, 10
-      optional :box_server_url, :string, 11
-      optional :box_version, :string, 12
-      optional :box_download_ca_cert, :string, 13
-      optional :box_download_ca_path, :string, 14
-      optional :box_download_checksum, :string, 15
-      optional :box_download_checksum_type, :string, 16
-      optional :box_download_client_cert, :string, 17
-      optional :box_download_insecure, :bool, 18
-      optional :box_download_location_trusted, :bool, 19
-      map :box_download_options, :string, :string, 20
-      optional :communicator, :string, 21
-      optional :graceful_halt_timeout, :int32, 22
-      optional :guest, :string, 23
-      optional :hostname, :string, 24
-      optional :post_up_message, :string, 25
-      repeated :usable_port_range, :int32, 26
-      repeated :box_extra_download_options, :string, 27
-      repeated :providers, :message, 29, "hashicorp.vagrant.VagrantfileComponents.Provider"
-      repeated :networks, :message, 31, "hashicorp.vagrant.VagrantfileComponents.Network"
-      repeated :provisioners, :message, 32, "hashicorp.vagrant.VagrantfileComponents.Provisioner"
-      repeated :synced_folders, :message, 33, "hashicorp.vagrant.VagrantfileComponents.SyncedFolder"
-    end
-    add_message "hashicorp.vagrant.VagrantfileComponents.ConfigSSH" do
-      optional :config, :message, 1, "google.protobuf.Any"
-    end
-    add_message "hashicorp.vagrant.VagrantfileComponents.ConfigWinRM" do
-      optional :config, :message, 1, "google.protobuf.Any"
-    end
-    add_message "hashicorp.vagrant.VagrantfileComponents.ConfigWinssh" do
-      optional :config, :message, 1, "google.protobuf.Any"
-    end
-    add_message "hashicorp.vagrant.VagrantfileComponents.ConfigVagrant" do
-      optional :host, :string, 1
-      repeated :plugins, :string, 2
-      repeated :sensitive, :string, 3
-    end
-    add_message "hashicorp.vagrant.VagrantfileComponents.MachineConfig" do
-      optional :name, :string, 1
-      optional :config_vm, :message, 2, "hashicorp.vagrant.VagrantfileComponents.ConfigVM"
-      optional :config_ssh, :message, 3, "hashicorp.vagrant.VagrantfileComponents.ConfigSSH"
-      optional :config_winrm, :message, 4, "hashicorp.vagrant.VagrantfileComponents.ConfigWinRM"
-      optional :config_winssh, :message, 5, "hashicorp.vagrant.VagrantfileComponents.ConfigWinssh"
-      optional :config_vagrant, :message, 6, "hashicorp.vagrant.VagrantfileComponents.ConfigVagrant"
-    end
-    add_message "hashicorp.vagrant.VagrantfileComponents.Provisioner" do
-      optional :name, :string, 1
-      optional :type, :string, 2
-      optional :before, :string, 3
-      optional :after, :string, 4
-      optional :communicator_required, :bool, 5
-      optional :config, :message, 6, "google.protobuf.Any"
-    end
-    add_message "hashicorp.vagrant.VagrantfileComponents.Provider" do
-      optional :type, :string, 1
-      optional :config, :message, 2, "google.protobuf.Any"
-    end
-    add_message "hashicorp.vagrant.VagrantfileComponents.Network" do
-      optional :type, :string, 1
-      optional :id, :string, 2
-      optional :config, :message, 3, "google.protobuf.Any"
-    end
-    add_message "hashicorp.vagrant.VagrantfileComponents.SyncedFolder" do
-      optional :source, :string, 1
-      optional :destination, :string, 2
-      optional :config, :message, 3, "google.protobuf.Any"
-      optional :create, :bool, 4
-      optional :disabled, :bool, 5
-      optional :group, :string, 6
-      optional :id, :string, 7
-      repeated :mount_options, :string, 8
-      optional :owner, :string, 9
-      optional :type, :string, 10
-    end
-    add_message "hashicorp.vagrant.VagrantfileComponents.Vagrantfile" do
-      optional :path, :string, 1
-      optional :raw, :string, 2
-      optional :current_version, :string, 3
-      repeated :machine_configs, :message, 4, "hashicorp.vagrant.VagrantfileComponents.MachineConfig"
+      optional :vagrantfile, :message, 1, "hashicorp.vagrant.sdk.Vagrantfile.Vagrantfile"
     end
   end
 end
@@ -131,17 +40,5 @@ module Hashicorp
     Plugin::Type = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.Plugin.Type").enummodule
     ParseVagrantfileRequest = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.ParseVagrantfileRequest").msgclass
     ParseVagrantfileResponse = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.ParseVagrantfileResponse").msgclass
-    VagrantfileComponents = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.VagrantfileComponents").msgclass
-    VagrantfileComponents::ConfigVM = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.VagrantfileComponents.ConfigVM").msgclass
-    VagrantfileComponents::ConfigSSH = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.VagrantfileComponents.ConfigSSH").msgclass
-    VagrantfileComponents::ConfigWinRM = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.VagrantfileComponents.ConfigWinRM").msgclass
-    VagrantfileComponents::ConfigWinssh = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.VagrantfileComponents.ConfigWinssh").msgclass
-    VagrantfileComponents::ConfigVagrant = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.VagrantfileComponents.ConfigVagrant").msgclass
-    VagrantfileComponents::MachineConfig = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.VagrantfileComponents.MachineConfig").msgclass
-    VagrantfileComponents::Provisioner = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.VagrantfileComponents.Provisioner").msgclass
-    VagrantfileComponents::Provider = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.VagrantfileComponents.Provider").msgclass
-    VagrantfileComponents::Network = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.VagrantfileComponents.Network").msgclass
-    VagrantfileComponents::SyncedFolder = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.VagrantfileComponents.SyncedFolder").msgclass
-    VagrantfileComponents::Vagrantfile = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.VagrantfileComponents.Vagrantfile").msgclass
   end
 end

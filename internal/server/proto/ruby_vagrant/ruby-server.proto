@@ -7,6 +7,8 @@ option go_package = "github.com/hashicorp/vagrant/internal/server/proto/ruby_vag
 import "google/protobuf/empty.proto";
 import "google/protobuf/any.proto";
 
+import "plugin.proto";
+
 // The service that is implemented for the server backend.
 service RubyVagrant {
   // Gets available ruby plugins
@@ -55,120 +57,5 @@ message ParseVagrantfileRequest {
 
 message ParseVagrantfileResponse {
   // Vagrantfile representation
-  VagrantfileComponents.Vagrantfile vagrantfile = 1;
-}
-
-message VagrantfileComponents {
-
-  message ConfigVM {
-    repeated string allowed_synced_folder_types = 1;
-    bool allow_fstab_modification = 2;
-    bool allow_hosts_modificaion = 3;
-    string base_mac = 4;
-    string base_address = 5;
-    int32 boot_timeout = 6;
-    string box = 7;
-    bool ignore_box_vagrantfile = 8;
-    bool box_check_update = 9;
-    repeated string box_url = 10;
-    string box_server_url = 11;
-    string box_version = 12;
-    string box_download_ca_cert = 13;
-    string box_download_ca_path = 14;
-    string box_download_checksum = 15;
-    string box_download_checksum_type = 16;
-    string box_download_client_cert = 17;
-    bool box_download_insecure = 18;
-    bool box_download_location_trusted = 19;
-    map<string, string> box_download_options = 20;
-    string communicator = 21;
-    int32 graceful_halt_timeout = 22;
-    string guest = 23;
-    string hostname = 24;
-    string post_up_message = 25;
-    repeated int32 usable_port_range = 26;
-    repeated string box_extra_download_options = 27;
-
-    // TODO: CloudInit = 4 (Experimental)
-    repeated Provider providers = 29;
-    // TODO: Disks = 6 (Experimental)
-    repeated Network networks = 31;
-    repeated Provisioner provisioners = 32;
-    repeated SyncedFolder synced_folders = 33;
-  }
-
-  message ConfigSSH {
-    google.protobuf.Any config = 1;
-  }
-
-  message ConfigWinRM {
-    google.protobuf.Any config = 1;
-  }
-
-  message ConfigWinssh {
-    google.protobuf.Any config = 1;
-  }
-  
-  message ConfigVagrant {
-    string host = 1;
-    // TODO: plugins can be a string, a hash or array
-    repeated string plugins = 2;
-    repeated string sensitive = 3;
-  }
-
-  // TODO: Review what needs to be sent here
-  message MachineConfig {
-    string name = 1;
-    ConfigVM config_vm = 2;
-    ConfigSSH config_ssh = 3;
-    ConfigWinRM config_winrm = 4;
-    ConfigWinssh config_winssh = 5;
-    ConfigVagrant config_vagrant = 6;
-  }
-
-  message Provisioner {
-    string name = 1;
-    string type = 2;
-    string before = 3;
-    string after = 4;
-    bool communicator_required = 5;
-    // A Provisioner plugin defines it's own configuration,
-    // that gets added in here
-    google.protobuf.Any config = 6;
-  }
-
-  message Provider {
-    string type = 1;
-    google.protobuf.Any config = 2;
-  }
-
-  message Network {
-    string type = 1;
-    string id = 2;
-    google.protobuf.Any config = 3;
-  }
-
-  message SyncedFolder {
-    string source = 1;
-    string destination = 2;
-    // A SyncedFolder plugin defines it's own configuration,
-    // that gets added in here
-    google.protobuf.Any config = 3;
-   
-    bool create = 4;
-    bool disabled = 5;
-    string group = 6;
-    string id = 7;
-    repeated string mount_options = 8;
-    string owner = 9;
-    string type = 10;
-  }
-
-  // TODO: Review what needs to be sent here
-  message Vagrantfile {
-    string path = 1;
-    string raw = 2;
-    string current_version = 3;
-    repeated MachineConfig machine_configs = 4;
-  }
+  sdk.Vagrantfile.Vagrantfile vagrantfile = 1;
 }

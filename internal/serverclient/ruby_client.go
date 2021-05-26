@@ -10,12 +10,13 @@ import (
 	"google.golang.org/grpc"
 
 	"github.com/hashicorp/vagrant-plugin-sdk/internal-shared/pluginclient"
+	"github.com/hashicorp/vagrant-plugin-sdk/proto/vagrant_plugin_sdk"
 	"github.com/hashicorp/vagrant/internal/server/proto/ruby_vagrant"
 )
 
 type RubyVagrant interface {
 	GetPlugins() ([]*ruby_vagrant.Plugin, error)
-	ParseVagrantfile(string) (*ruby_vagrant.VagrantfileComponents_Vagrantfile, error)
+	ParseVagrantfile(string) (*vagrant_plugin_sdk.Vagrantfile_Vagrantfile, error)
 }
 
 // This is the implementation of plugin.GRPCPlugin so we can serve/consume this.
@@ -65,7 +66,7 @@ func (r *RubyVagrantClient) GetPlugins() ([]*ruby_vagrant.Plugin, error) {
 }
 
 // TODO: This should return an hcl Vagrantfile representation
-func (r *RubyVagrantClient) ParseVagrantfile(path string) (*ruby_vagrant.VagrantfileComponents_Vagrantfile, error) {
+func (r *RubyVagrantClient) ParseVagrantfile(path string) (*vagrant_plugin_sdk.Vagrantfile_Vagrantfile, error) {
 	vf, err := r.client.ParseVagrantfile(
 		context.Background(),
 		&ruby_vagrant.ParseVagrantfileRequest{Path: path},
