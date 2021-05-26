@@ -389,7 +389,7 @@ gathered version stdout version:
             if ansible_version_pattern
               _, @gathered_version, _ = ansible_version_pattern.captures
               if @gathered_version
-                @gathered_version_major = @gathered_version.match(/^(\d)\..+$/).captures[0].to_i
+                @gathered_version_major = @gathered_version.match(/(\d)\..+$/).captures[0].to_i
               end
             end
           end
