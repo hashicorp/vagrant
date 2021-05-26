@@ -16,32 +16,95 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
     add_message "hashicorp.vagrant.sdk.Args.DataDir" do
     end
     add_message "hashicorp.vagrant.sdk.Args.DataDir.Basis" do
-      optional :cache_dir, :string, 1
-      optional :data_dir, :string, 2
-      optional :root_dir, :string, 3
+      optional :root_dir, :string, 1
+      optional :cache_dir, :string, 2
+      optional :data_dir, :string, 3
       optional :temp_dir, :string, 4
     end
     add_message "hashicorp.vagrant.sdk.Args.DataDir.Project" do
-      optional :cache_dir, :string, 1
-      optional :data_dir, :string, 2
-      optional :root_dir, :string, 3
+      optional :root_dir, :string, 1
+      optional :cache_dir, :string, 2
+      optional :data_dir, :string, 3
       optional :temp_dir, :string, 4
     end
-    add_message "hashicorp.vagrant.sdk.Args.DataDir.Machine" do
-      optional :cache_dir, :string, 1
-      optional :data_dir, :string, 2
-      optional :root_dir, :string, 3
+    add_message "hashicorp.vagrant.sdk.Args.DataDir.Target" do
+      optional :root_dir, :string, 1
+      optional :cache_dir, :string, 2
+      optional :data_dir, :string, 3
       optional :temp_dir, :string, 4
     end
     add_message "hashicorp.vagrant.sdk.Args.DataDir.Component" do
-      optional :cache_dir, :string, 1
-      optional :data_dir, :string, 2
-      optional :root_dir, :string, 3
+      optional :root_dir, :string, 1
+      optional :cache_dir, :string, 2
+      optional :data_dir, :string, 3
       optional :temp_dir, :string, 4
     end
-    add_message "hashicorp.vagrant.sdk.Args.MachineIndex" do
+    add_message "hashicorp.vagrant.sdk.Args.MetadataSet" do
+      map :metadata, :string, :string, 1
     end
-    add_message "hashicorp.vagrant.sdk.Args.MachineIndex.Entry" do
+    add_message "hashicorp.vagrant.sdk.Args.TerminalUI" do
+      optional :stream_id, :uint32, 1
+    end
+    add_message "hashicorp.vagrant.sdk.Args.Logger" do
+      optional :name, :string, 1
+    end
+    add_message "hashicorp.vagrant.sdk.Args.JobInfo" do
+      optional :local, :bool, 1
+      optional :resource_id, :string, 2
+      optional :resource_type, :enum, 3, "hashicorp.vagrant.sdk.Args.JobInfo.ResourceType"
+      optional :id, :string, 4
+    end
+    add_enum "hashicorp.vagrant.sdk.Args.JobInfo.ResourceType" do
+      value :BASIS, 0
+      value :PROJECT, 1
+      value :TARGET, 2
+    end
+    add_message "hashicorp.vagrant.sdk.Args.Basis" do
+      optional :stream_id, :uint32, 1
+    end
+    add_message "hashicorp.vagrant.sdk.Args.Project" do
+      optional :stream_id, :uint32, 1
+    end
+    add_message "hashicorp.vagrant.sdk.Args.Provider" do
+      optional :stream_id, :uint32, 1
+    end
+    add_message "hashicorp.vagrant.sdk.Args.Target" do
+      optional :stream_id, :uint32, 1
+    end
+    add_message "hashicorp.vagrant.sdk.Args.Target.State" do
+      optional :state, :enum, 1, "hashicorp.vagrant.sdk.Args.Target.State.State"
+    end
+    add_enum "hashicorp.vagrant.sdk.Args.Target.State.State" do
+      value :UNKNOWN, 0
+      value :PENDING, 1
+      value :CREATED, 2
+      value :DESTROYED, 3
+    end
+    add_message "hashicorp.vagrant.sdk.Args.Target.Machine" do
+      optional :stream_id, :uint32, 1
+    end
+    add_message "hashicorp.vagrant.sdk.Args.Target.Machine.Box" do
+      optional :name, :string, 1
+      optional :provider, :string, 2
+      optional :version, :string, 3
+      optional :directory, :string, 4
+      map :metadata, :string, :string, 5
+      optional :metadata_url, :string, 6
+    end
+    add_message "hashicorp.vagrant.sdk.Args.Target.Machine.State" do
+      optional :id, :string, 1
+      optional :short_description, :string, 2
+      optional :long_description, :string, 3
+    end
+    add_message "hashicorp.vagrant.sdk.Args.StateBag" do
+      optional :stream_id, :uint32, 1
+    end
+    add_message "hashicorp.vagrant.sdk.Args.Host" do
+      optional :stream_id, :uint32, 1
+    end
+    add_message "hashicorp.vagrant.sdk.TargetIndex" do
+    end
+    add_message "hashicorp.vagrant.sdk.TargetIndex.Entry" do
       optional :id, :string, 1
       optional :local_data_path, :string, 2
       optional :name, :string, 3
@@ -50,81 +113,12 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
       optional :vagrantfile_name, :string, 6
       optional :vagrantfile_path, :string, 7
       optional :updated_at, :string, 8
-      optional :extra_data, :message, 9, "hashicorp.vagrant.sdk.Args.Options"
+      map :extra_data, :string, :string, 9
     end
-    add_message "hashicorp.vagrant.sdk.Args.BoxCollection" do
+    add_message "hashicorp.vagrant.sdk.BoxCollection" do
       optional :directory, :string, 1
     end
-    add_message "hashicorp.vagrant.sdk.Args.Box" do
-      optional :name, :string, 1
-      optional :provider, :string, 2
-      optional :version, :string, 3
-      optional :directory, :string, 4
-      map :metadata, :string, :string, 5
-      optional :metadata_url, :string, 6
-    end
-    add_message "hashicorp.vagrant.sdk.Args.Project" do
-      optional :cwd, :string, 1
-      optional :data_dir, :string, 2
-      optional :vagrantfile_name, :string, 3
-      optional :ui, :message, 4, "hashicorp.vagrant.sdk.Args.TerminalUI"
-      optional :home_path, :string, 5
-      optional :local_data_path, :string, 6
-      optional :tmp_path, :string, 7
-      optional :aliases_path, :string, 8
-      optional :boxes_path, :string, 9
-      optional :gems_path, :string, 10
-      optional :default_private_key_path, :string, 11
-      optional :server_addr, :string, 12
-    end
-    add_message "hashicorp.vagrant.sdk.Args.Machine" do
-      optional :resource_id, :string, 1
-      optional :server_addr, :string, 2
-    end
-    add_message "hashicorp.vagrant.sdk.Args.Configuration" do
-    end
-    add_message "hashicorp.vagrant.sdk.Args.Configuration.Vagrant" do
-    end
-    add_message "hashicorp.vagrant.sdk.Args.Configuration.VM" do
-    end
-    add_message "hashicorp.vagrant.sdk.Args.Configuration.Provider" do
-    end
-    add_message "hashicorp.vagrant.sdk.Args.LabelSet" do
-      map :labels, :string, :string, 1
-    end
-    add_message "hashicorp.vagrant.sdk.Args.Options" do
-      optional :opt, :message, 1, "hashicorp.vagrant.sdk.Args.LabelSet"
-    end
-    add_message "hashicorp.vagrant.sdk.Args.Vagrantfile" do
-    end
-    add_message "hashicorp.vagrant.sdk.Args.JobInfo" do
-      optional :local, :bool, 1
-      optional :workspace, :string, 2
-      optional :id, :string, 3
-    end
-    add_message "hashicorp.vagrant.sdk.Args.Logger" do
-      optional :name, :string, 1
-    end
-    add_message "hashicorp.vagrant.sdk.Args.TerminalUI" do
-      optional :stream_id, :uint32, 1
-      optional :network, :string, 2
-      optional :target, :string, 3
-    end
-    add_message "hashicorp.vagrant.sdk.Args.StateBag" do
-      map :data, :string, :message, 1, "hashicorp.vagrant.sdk.Args.StateBag.Value"
-    end
-    add_message "hashicorp.vagrant.sdk.Args.StateBag.Value" do
-      oneof :value do
-        optional :text, :string, 1
-        optional :map, :message, 2, "google.protobuf.Any"
-      end
-    end
-    add_message "hashicorp.vagrant.sdk.Args.MachineState" do
-      optional :id, :string, 1
-      optional :short_description, :string, 2
-      optional :long_description, :string, 3
-    end
-    add_message "hashicorp.vagrant.sdk.Args.SSHInfo" do
+    add_message "hashicorp.vagrant.sdk.SSHInfo" do
       optional :host, :string, 1
       optional :port, :string, 2
       optional :private_key_path, :string, 3
@@ -143,7 +137,7 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
       optional :ssh_command, :string, 16
       optional :proxy_command, :string, 17
     end
-    add_message "hashicorp.vagrant.sdk.Args.WinrmInfo" do
+    add_message "hashicorp.vagrant.sdk.WinrmInfo" do
       optional :username, :string, 1
       optional :password, :string, 2
       optional :host, :string, 3
@@ -152,13 +146,13 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
       optional :max_tries, :int64, 6
       optional :retry_delay, :int64, 7
       optional :timeout, :int64, 8
-      optional :transport, :enum, 9, "hashicorp.vagrant.sdk.Args.WinrmInfo.Transport"
+      optional :transport, :enum, 9, "hashicorp.vagrant.sdk.WinrmInfo.Transport"
       optional :ssl_peer_verification, :bool, 10
       optional :execution_time_limit, :string, 11
       optional :basic_auth_only, :bool, 12
       optional :codepage, :string, 13
     end
-    add_enum "hashicorp.vagrant.sdk.Args.WinrmInfo.Transport" do
+    add_enum "hashicorp.vagrant.sdk.WinrmInfo.Transport" do
       value :NEGOTIATE, 0
       value :SSL, 1
       value :PLAINTEXT, 2
@@ -301,6 +295,29 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
     add_message "hashicorp.vagrant.sdk.Map.ListResponse" do
       repeated :funcs, :message, 1, "hashicorp.vagrant.sdk.FuncSpec"
     end
+    add_message "hashicorp.vagrant.sdk.StateBag" do
+    end
+    add_message "hashicorp.vagrant.sdk.StateBag.GetRequest" do
+      optional :key, :string, 1
+    end
+    add_message "hashicorp.vagrant.sdk.StateBag.GetResponse" do
+      optional :value, :string, 1
+    end
+    add_message "hashicorp.vagrant.sdk.StateBag.GetOkResponse" do
+      optional :ok, :bool, 1
+      optional :value, :string, 2
+    end
+    add_message "hashicorp.vagrant.sdk.StateBag.PutRequest" do
+      optional :key, :string, 1
+      optional :value, :string, 2
+    end
+    add_message "hashicorp.vagrant.sdk.StateBag.PutResponse" do
+    end
+    add_message "hashicorp.vagrant.sdk.StateBag.RemoveRequest" do
+      optional :key, :string, 1
+    end
+    add_message "hashicorp.vagrant.sdk.StateBag.RemoveResponse" do
+    end
     add_message "hashicorp.vagrant.sdk.Provider" do
     end
     add_message "hashicorp.vagrant.sdk.Provider.UsableResp" do
@@ -377,9 +394,9 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
     add_message "hashicorp.vagrant.sdk.Communicator.FileTransferResp" do
     end
     add_message "hashicorp.vagrant.sdk.Communicator.ExecutionRequest" do
-      optional :machine, :message, 1, "hashicorp.vagrant.sdk.Args.Machine"
+      optional :machine, :message, 1, "hashicorp.vagrant.sdk.Args.Target.Machine"
       optional :command, :string, 2
-      optional :options, :message, 3, "hashicorp.vagrant.sdk.Args.LabelSet"
+      optional :options, :message, 3, "hashicorp.vagrant.sdk.Args.MetadataSet"
     end
     add_message "hashicorp.vagrant.sdk.Communicator.ExecuteResp" do
       optional :exit_code, :int32, 1
@@ -431,114 +448,78 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
     add_message "hashicorp.vagrant.sdk.Ref.Box" do
       optional :resource_id, :string, 1
     end
-    add_message "hashicorp.vagrant.sdk.Ref.Project" do
-      optional :project_id, :string, 1
-    end
-    add_message "hashicorp.vagrant.sdk.Ref.Machine" do
-      optional :resource_id, :string, 1
-    end
     add_message "hashicorp.vagrant.sdk.Ref.Basis" do
       optional :resource_id, :string, 1
+      optional :path, :string, 2
+      optional :name, :string, 3
     end
-    add_message "hashicorp.vagrant.sdk.Machine" do
+    add_message "hashicorp.vagrant.sdk.Ref.Project" do
+      optional :resource_id, :string, 1
+      optional :path, :string, 2
+      optional :basis, :message, 3, "hashicorp.vagrant.sdk.Ref.Basis"
+      optional :name, :string, 4
     end
-    add_message "hashicorp.vagrant.sdk.Machine.SetNameRequest" do
-      optional :machine, :message, 1, "hashicorp.vagrant.sdk.Ref.Machine"
-      optional :name, :string, 2
+    add_message "hashicorp.vagrant.sdk.Ref.Target" do
+      optional :resource_id, :string, 1
+      optional :project, :message, 2, "hashicorp.vagrant.sdk.Ref.Project"
+      optional :name, :string, 3
     end
-    add_message "hashicorp.vagrant.sdk.Machine.SetNameResponse" do
+    add_message "hashicorp.vagrant.sdk.Target" do
     end
-    add_message "hashicorp.vagrant.sdk.Machine.GetNameRequest" do
-      optional :machine, :message, 1, "hashicorp.vagrant.sdk.Ref.Machine"
+    add_message "hashicorp.vagrant.sdk.Target.ResourceIdResponse" do
+      optional :resource_id, :string, 1
     end
-    add_message "hashicorp.vagrant.sdk.Machine.GetNameResponse" do
+    add_message "hashicorp.vagrant.sdk.Target.RecordResponse" do
+      optional :record, :message, 1, "google.protobuf.Any"
+    end
+    add_message "hashicorp.vagrant.sdk.Target.NameResponse" do
       optional :name, :string, 1
     end
-    add_message "hashicorp.vagrant.sdk.Machine.SetIDRequest" do
-      optional :machine, :message, 1, "hashicorp.vagrant.sdk.Ref.Machine"
-      optional :id, :string, 2
+    add_message "hashicorp.vagrant.sdk.Target.ProjectResponse" do
+      optional :project, :message, 1, "hashicorp.vagrant.sdk.Ref.Project"
     end
-    add_message "hashicorp.vagrant.sdk.Machine.SetIDResponse" do
-    end
-    add_message "hashicorp.vagrant.sdk.Machine.GetIDRequest" do
-      optional :machine, :message, 1, "hashicorp.vagrant.sdk.Ref.Machine"
-    end
-    add_message "hashicorp.vagrant.sdk.Machine.GetIDResponse" do
-      optional :id, :string, 1
-    end
-    add_message "hashicorp.vagrant.sdk.Machine.SetStateRequest" do
-      optional :machine, :message, 1, "hashicorp.vagrant.sdk.Ref.Machine"
-      optional :state, :message, 2, "hashicorp.vagrant.sdk.Args.MachineState"
-    end
-    add_message "hashicorp.vagrant.sdk.Machine.SetStateResponse" do
-    end
-    add_message "hashicorp.vagrant.sdk.Machine.GetStateRequest" do
-      optional :machine, :message, 1, "hashicorp.vagrant.sdk.Ref.Machine"
-    end
-    add_message "hashicorp.vagrant.sdk.Machine.GetStateResponse" do
-      optional :state, :message, 1, "hashicorp.vagrant.sdk.Args.MachineState"
-    end
-    add_message "hashicorp.vagrant.sdk.Machine.GetUUIDRequest" do
-      optional :machine, :message, 1, "hashicorp.vagrant.sdk.Ref.Machine"
-    end
-    add_message "hashicorp.vagrant.sdk.Machine.GetUUIDResponse" do
-      optional :uuid, :string, 1
-    end
-    add_message "hashicorp.vagrant.sdk.Machine.SetUUIDRequest" do
-      optional :machine, :message, 1, "hashicorp.vagrant.sdk.Ref.Machine"
-      optional :uuid, :string, 2
-    end
-    add_message "hashicorp.vagrant.sdk.Machine.SetUUIDResponse" do
-    end
-    add_message "hashicorp.vagrant.sdk.Machine.BoxRequest" do
-      optional :machine, :message, 1, "hashicorp.vagrant.sdk.Ref.Machine"
-    end
-    add_message "hashicorp.vagrant.sdk.Machine.BoxResponse" do
-      optional :box, :message, 1, "hashicorp.vagrant.sdk.Args.Box"
-    end
-    add_message "hashicorp.vagrant.sdk.Machine.DatadirRequest" do
-      optional :machine, :message, 1, "hashicorp.vagrant.sdk.Ref.Machine"
-    end
-    add_message "hashicorp.vagrant.sdk.Machine.DatadirResponse" do
-      optional :datadir, :message, 1, "hashicorp.vagrant.sdk.Args.DataDir.Machine"
-    end
-    add_message "hashicorp.vagrant.sdk.Machine.LocalDataPathRequest" do
-      optional :machine, :message, 1, "hashicorp.vagrant.sdk.Ref.Machine"
-    end
-    add_message "hashicorp.vagrant.sdk.Machine.LocalDataPathResponse" do
-      optional :path, :string, 1
-    end
-    add_message "hashicorp.vagrant.sdk.Machine.ProviderRequest" do
-      optional :machine, :message, 1, "hashicorp.vagrant.sdk.Ref.Machine"
-    end
-    add_message "hashicorp.vagrant.sdk.Machine.ProviderResponse" do
-      optional :provider, :string, 1
-    end
-    add_message "hashicorp.vagrant.sdk.Machine.VagrantfileNameRequest" do
-      optional :machine, :message, 1, "hashicorp.vagrant.sdk.Ref.Machine"
-    end
-    add_message "hashicorp.vagrant.sdk.Machine.VagrantfileNameResponse" do
+    add_message "hashicorp.vagrant.sdk.Target.SetNameRequest" do
       optional :name, :string, 1
     end
-    add_message "hashicorp.vagrant.sdk.Machine.VagrantfilePathRequest" do
-      optional :machine, :message, 1, "hashicorp.vagrant.sdk.Ref.Machine"
+    add_message "hashicorp.vagrant.sdk.Target.VagrantfileNameResponse" do
+      optional :name, :string, 1
     end
-    add_message "hashicorp.vagrant.sdk.Machine.VagrantfilePathResponse" do
+    add_message "hashicorp.vagrant.sdk.Target.VagrantfilePathResponse" do
       optional :path, :string, 1
     end
-    add_message "hashicorp.vagrant.sdk.Machine.UpdatedAtRequest" do
-      optional :machine, :message, 1, "hashicorp.vagrant.sdk.Ref.Machine"
-    end
-    add_message "hashicorp.vagrant.sdk.Machine.UpdatedAtResponse" do
+    add_message "hashicorp.vagrant.sdk.Target.UpdatedAtResponse" do
       optional :updated_at, :message, 1, "google.protobuf.Timestamp"
     end
-    add_message "hashicorp.vagrant.sdk.Machine.UIRequest" do
-      optional :machine, :message, 1, "hashicorp.vagrant.sdk.Ref.Machine"
+    add_message "hashicorp.vagrant.sdk.Target.Machine" do
     end
-    add_message "hashicorp.vagrant.sdk.Machine.UIResponse" do
-      optional :ui, :message, 1, "hashicorp.vagrant.sdk.Args.TerminalUI"
+    add_message "hashicorp.vagrant.sdk.Target.Machine.SetIDRequest" do
+      optional :id, :string, 1
+    end
+    add_message "hashicorp.vagrant.sdk.Target.Machine.GetIDResponse" do
+      optional :id, :string, 1
+    end
+    add_message "hashicorp.vagrant.sdk.Target.Machine.SetStateRequest" do
+      optional :state, :message, 1, "hashicorp.vagrant.sdk.Args.Target.Machine.State"
+    end
+    add_message "hashicorp.vagrant.sdk.Target.Machine.GetStateResponse" do
+      optional :state, :message, 1, "hashicorp.vagrant.sdk.Args.Target.Machine.State"
+    end
+    add_message "hashicorp.vagrant.sdk.Target.Machine.GetUUIDResponse" do
+      optional :uuid, :string, 1
+    end
+    add_message "hashicorp.vagrant.sdk.Target.Machine.SetUUIDRequest" do
+      optional :uuid, :string, 1
     end
     add_message "hashicorp.vagrant.sdk.Project" do
+    end
+    add_message "hashicorp.vagrant.sdk.Project.TargetRequest" do
+      optional :name, :string, 1
+    end
+    add_message "hashicorp.vagrant.sdk.Project.TargetNamesResponse" do
+      repeated :names, :string, 1
+    end
+    add_message "hashicorp.vagrant.sdk.Project.TargetIdsResponse" do
+      repeated :ids, :string, 1
     end
     add_message "hashicorp.vagrant.sdk.Project.MachineAndProvider" do
       optional :name, :string, 1
@@ -547,11 +528,26 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
     add_message "hashicorp.vagrant.sdk.Project.MachineNamesResponse" do
       repeated :names, :string, 1
     end
-    add_message "hashicorp.vagrant.sdk.Project.ActiveMachinesRequest" do
-      optional :env, :message, 1, "hashicorp.vagrant.sdk.Ref.Project"
-    end
     add_message "hashicorp.vagrant.sdk.Project.ActiveMachinesResponse" do
       repeated :machines, :message, 1, "hashicorp.vagrant.sdk.Project.MachineAndProvider"
+    end
+    add_message "hashicorp.vagrant.sdk.Project.CwdResponse" do
+      optional :path, :string, 1
+    end
+    add_message "hashicorp.vagrant.sdk.Project.VagrantfileNameResponse" do
+      optional :name, :string, 1
+    end
+    add_message "hashicorp.vagrant.sdk.Project.HomeResponse" do
+      optional :path, :string, 1
+    end
+    add_message "hashicorp.vagrant.sdk.Project.LocalDataResponse" do
+      optional :path, :string, 1
+    end
+    add_message "hashicorp.vagrant.sdk.Project.TmpResponse" do
+      optional :path, :string, 1
+    end
+    add_message "hashicorp.vagrant.sdk.Project.DefaultPrivateKeyResponse" do
+      optional :key, :string, 1
     end
     add_message "hashicorp.vagrant.sdk.Vagrantfile" do
     end
@@ -562,8 +558,10 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
         optional :basis, :message, 3, "hashicorp.vagrant.sdk.Ref.Basis"
       end
     end
+    add_message "hashicorp.vagrant.sdk.Vagrantfile.Vagrantfile" do
+    end
     add_message "hashicorp.vagrant.sdk.Vagrantfile.GetVagrantfileResponse" do
-      optional :vagrantfile, :message, 1, "hashicorp.vagrant.sdk.Args.Vagrantfile"
+      optional :vagrantfile, :message, 1, "hashicorp.vagrant.sdk.Vagrantfile.Vagrantfile"
     end
   end
 end
@@ -575,30 +573,30 @@ module Hashicorp
       Args::DataDir = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Args.DataDir").msgclass
       Args::DataDir::Basis = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Args.DataDir.Basis").msgclass
       Args::DataDir::Project = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Args.DataDir.Project").msgclass
-      Args::DataDir::Machine = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Args.DataDir.Machine").msgclass
+      Args::DataDir::Target = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Args.DataDir.Target").msgclass
       Args::DataDir::Component = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Args.DataDir.Component").msgclass
-      Args::MachineIndex = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Args.MachineIndex").msgclass
-      Args::MachineIndex::Entry = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Args.MachineIndex.Entry").msgclass
-      Args::BoxCollection = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Args.BoxCollection").msgclass
-      Args::Box = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Args.Box").msgclass
-      Args::Project = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Args.Project").msgclass
-      Args::Machine = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Args.Machine").msgclass
-      Args::Configuration = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Args.Configuration").msgclass
-      Args::Configuration::Vagrant = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Args.Configuration.Vagrant").msgclass
-      Args::Configuration::VM = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Args.Configuration.VM").msgclass
-      Args::Configuration::Provider = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Args.Configuration.Provider").msgclass
-      Args::LabelSet = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Args.LabelSet").msgclass
-      Args::Options = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Args.Options").msgclass
-      Args::Vagrantfile = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Args.Vagrantfile").msgclass
-      Args::JobInfo = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Args.JobInfo").msgclass
-      Args::Logger = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Args.Logger").msgclass
+      Args::MetadataSet = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Args.MetadataSet").msgclass
       Args::TerminalUI = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Args.TerminalUI").msgclass
+      Args::Logger = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Args.Logger").msgclass
+      Args::JobInfo = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Args.JobInfo").msgclass
+      Args::JobInfo::ResourceType = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Args.JobInfo.ResourceType").enummodule
+      Args::Basis = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Args.Basis").msgclass
+      Args::Project = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Args.Project").msgclass
+      Args::Provider = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Args.Provider").msgclass
+      Args::Target = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Args.Target").msgclass
+      Args::Target::State = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Args.Target.State").msgclass
+      Args::Target::State::State = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Args.Target.State.State").enummodule
+      Args::Target::Machine = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Args.Target.Machine").msgclass
+      Args::Target::Machine::Box = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Args.Target.Machine.Box").msgclass
+      Args::Target::Machine::State = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Args.Target.Machine.State").msgclass
       Args::StateBag = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Args.StateBag").msgclass
-      Args::StateBag::Value = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Args.StateBag.Value").msgclass
-      Args::MachineState = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Args.MachineState").msgclass
-      Args::SSHInfo = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Args.SSHInfo").msgclass
-      Args::WinrmInfo = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Args.WinrmInfo").msgclass
-      Args::WinrmInfo::Transport = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Args.WinrmInfo.Transport").enummodule
+      Args::Host = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Args.Host").msgclass
+      TargetIndex = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.TargetIndex").msgclass
+      TargetIndex::Entry = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.TargetIndex.Entry").msgclass
+      BoxCollection = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.BoxCollection").msgclass
+      SSHInfo = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.SSHInfo").msgclass
+      WinrmInfo = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.WinrmInfo").msgclass
+      WinrmInfo::Transport = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.WinrmInfo.Transport").enummodule
       FuncSpec = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.FuncSpec").msgclass
       FuncSpec::Value = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.FuncSpec.Value").msgclass
       FuncSpec::Args = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.FuncSpec.Args").msgclass
@@ -632,6 +630,14 @@ module Hashicorp
       Map::Request = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Map.Request").msgclass
       Map::Response = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Map.Response").msgclass
       Map::ListResponse = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Map.ListResponse").msgclass
+      StateBag = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.StateBag").msgclass
+      StateBag::GetRequest = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.StateBag.GetRequest").msgclass
+      StateBag::GetResponse = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.StateBag.GetResponse").msgclass
+      StateBag::GetOkResponse = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.StateBag.GetOkResponse").msgclass
+      StateBag::PutRequest = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.StateBag.PutRequest").msgclass
+      StateBag::PutResponse = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.StateBag.PutResponse").msgclass
+      StateBag::RemoveRequest = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.StateBag.RemoveRequest").msgclass
+      StateBag::RemoveResponse = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.StateBag.RemoveResponse").msgclass
       Provider = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Provider").msgclass
       Provider::UsableResp = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Provider.UsableResp").msgclass
       Provider::InstalledResp = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Provider.InstalledResp").msgclass
@@ -671,49 +677,41 @@ module Hashicorp
       Host::Capability::Resp = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Host.Capability.Resp").msgclass
       Ref = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Ref").msgclass
       Ref::Box = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Ref.Box").msgclass
-      Ref::Project = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Ref.Project").msgclass
-      Ref::Machine = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Ref.Machine").msgclass
       Ref::Basis = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Ref.Basis").msgclass
-      Machine = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Machine").msgclass
-      Machine::SetNameRequest = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Machine.SetNameRequest").msgclass
-      Machine::SetNameResponse = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Machine.SetNameResponse").msgclass
-      Machine::GetNameRequest = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Machine.GetNameRequest").msgclass
-      Machine::GetNameResponse = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Machine.GetNameResponse").msgclass
-      Machine::SetIDRequest = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Machine.SetIDRequest").msgclass
-      Machine::SetIDResponse = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Machine.SetIDResponse").msgclass
-      Machine::GetIDRequest = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Machine.GetIDRequest").msgclass
-      Machine::GetIDResponse = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Machine.GetIDResponse").msgclass
-      Machine::SetStateRequest = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Machine.SetStateRequest").msgclass
-      Machine::SetStateResponse = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Machine.SetStateResponse").msgclass
-      Machine::GetStateRequest = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Machine.GetStateRequest").msgclass
-      Machine::GetStateResponse = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Machine.GetStateResponse").msgclass
-      Machine::GetUUIDRequest = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Machine.GetUUIDRequest").msgclass
-      Machine::GetUUIDResponse = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Machine.GetUUIDResponse").msgclass
-      Machine::SetUUIDRequest = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Machine.SetUUIDRequest").msgclass
-      Machine::SetUUIDResponse = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Machine.SetUUIDResponse").msgclass
-      Machine::BoxRequest = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Machine.BoxRequest").msgclass
-      Machine::BoxResponse = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Machine.BoxResponse").msgclass
-      Machine::DatadirRequest = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Machine.DatadirRequest").msgclass
-      Machine::DatadirResponse = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Machine.DatadirResponse").msgclass
-      Machine::LocalDataPathRequest = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Machine.LocalDataPathRequest").msgclass
-      Machine::LocalDataPathResponse = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Machine.LocalDataPathResponse").msgclass
-      Machine::ProviderRequest = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Machine.ProviderRequest").msgclass
-      Machine::ProviderResponse = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Machine.ProviderResponse").msgclass
-      Machine::VagrantfileNameRequest = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Machine.VagrantfileNameRequest").msgclass
-      Machine::VagrantfileNameResponse = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Machine.VagrantfileNameResponse").msgclass
-      Machine::VagrantfilePathRequest = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Machine.VagrantfilePathRequest").msgclass
-      Machine::VagrantfilePathResponse = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Machine.VagrantfilePathResponse").msgclass
-      Machine::UpdatedAtRequest = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Machine.UpdatedAtRequest").msgclass
-      Machine::UpdatedAtResponse = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Machine.UpdatedAtResponse").msgclass
-      Machine::UIRequest = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Machine.UIRequest").msgclass
-      Machine::UIResponse = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Machine.UIResponse").msgclass
+      Ref::Project = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Ref.Project").msgclass
+      Ref::Target = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Ref.Target").msgclass
+      Target = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Target").msgclass
+      Target::ResourceIdResponse = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Target.ResourceIdResponse").msgclass
+      Target::RecordResponse = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Target.RecordResponse").msgclass
+      Target::NameResponse = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Target.NameResponse").msgclass
+      Target::ProjectResponse = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Target.ProjectResponse").msgclass
+      Target::SetNameRequest = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Target.SetNameRequest").msgclass
+      Target::VagrantfileNameResponse = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Target.VagrantfileNameResponse").msgclass
+      Target::VagrantfilePathResponse = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Target.VagrantfilePathResponse").msgclass
+      Target::UpdatedAtResponse = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Target.UpdatedAtResponse").msgclass
+      Target::Machine = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Target.Machine").msgclass
+      Target::Machine::SetIDRequest = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Target.Machine.SetIDRequest").msgclass
+      Target::Machine::GetIDResponse = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Target.Machine.GetIDResponse").msgclass
+      Target::Machine::SetStateRequest = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Target.Machine.SetStateRequest").msgclass
+      Target::Machine::GetStateResponse = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Target.Machine.GetStateResponse").msgclass
+      Target::Machine::GetUUIDResponse = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Target.Machine.GetUUIDResponse").msgclass
+      Target::Machine::SetUUIDRequest = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Target.Machine.SetUUIDRequest").msgclass
       Project = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Project").msgclass
+      Project::TargetRequest = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Project.TargetRequest").msgclass
+      Project::TargetNamesResponse = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Project.TargetNamesResponse").msgclass
+      Project::TargetIdsResponse = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Project.TargetIdsResponse").msgclass
       Project::MachineAndProvider = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Project.MachineAndProvider").msgclass
       Project::MachineNamesResponse = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Project.MachineNamesResponse").msgclass
-      Project::ActiveMachinesRequest = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Project.ActiveMachinesRequest").msgclass
       Project::ActiveMachinesResponse = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Project.ActiveMachinesResponse").msgclass
+      Project::CwdResponse = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Project.CwdResponse").msgclass
+      Project::VagrantfileNameResponse = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Project.VagrantfileNameResponse").msgclass
+      Project::HomeResponse = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Project.HomeResponse").msgclass
+      Project::LocalDataResponse = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Project.LocalDataResponse").msgclass
+      Project::TmpResponse = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Project.TmpResponse").msgclass
+      Project::DefaultPrivateKeyResponse = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Project.DefaultPrivateKeyResponse").msgclass
       Vagrantfile = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Vagrantfile").msgclass
       Vagrantfile::GetVagrantfileRequest = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Vagrantfile.GetVagrantfileRequest").msgclass
+      Vagrantfile::Vagrantfile = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Vagrantfile.Vagrantfile").msgclass
       Vagrantfile::GetVagrantfileResponse = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Vagrantfile.GetVagrantfileResponse").msgclass
     end
   end

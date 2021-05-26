@@ -12,7 +12,7 @@ func (s *service) GetVagrantfile(
 ) (result *vagrant_plugin_sdk.Vagrantfile_GetVagrantfileResponse, err error) {
 	// TODO: actually get the Vagrantfile
 	dummyResponse := &vagrant_plugin_sdk.Vagrantfile_GetVagrantfileResponse{
-		Vagrantfile: &vagrant_plugin_sdk.Args_Vagrantfile{},
+		Vagrantfile: &vagrant_plugin_sdk.Vagrantfile_Vagrantfile{},
 	}
 	return dummyResponse, nil
 }

@@ -131,6 +131,3 @@ func WithAcceptURLTerms(accept bool) Option {
 }
 
 var _ vagrant_server.VagrantServer = (*service)(nil)
-var _ vagrant_plugin_sdk.MachineServiceServer = (*service)(nil)
-var _ vagrant_plugin_sdk.ProjectServiceServer = (*service)(nil)
-var _ vagrant_plugin_sdk.VagrantfileServiceServer = (*service)(nil)
