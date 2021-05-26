@@ -112,7 +112,7 @@ Note that the generated inventory file is uploaded to the guest VM in a subdirec
 
 #### Host Variables
 
-As of Vagrant 1.8.0, the [`host_vars`](/docs/provisioning/ansible_common#host_vars) option can be used to set [variables for individual hosts](https://docs.ansible.com/ansible/intro_inventory.html#host-variables) in the generated inventory file (see also the notes on group variables below).
+As of Vagrant 1.8.0, the [`host_vars`](/docs/provisioning/ansible_common#host_vars) option can be used to set [variables for individual hosts](https://docs.ansible.com/ansible/latest/user_guide/intro_inventory.html#assigning-a-variable-to-one-machine-host-variables) in the generated inventory file (see also the notes on group variables below).
 
 With this configuration example:
 
@@ -145,7 +145,7 @@ host2 ansible_host=... http_port=303 maxRequestsPerChild=909
 
 The [`groups`](/docs/provisioning/ansible_common#groups) option can be used to pass a hash of group names and group members to be included in the generated inventory file.
 
-As of Vagrant 1.8.0, it is also possible to specify [group variables](https://docs.ansible.com/ansible/intro_inventory.html#group-variables), and group members as [host ranges (with numeric or alphabetic patterns)](https://docs.ansible.com/ansible/intro_inventory.html#hosts-and-groups).
+As of Vagrant 1.8.0, it is also possible to specify [group variables](https://docs.ansible.com/ansible/latest/user_guide/intro_inventory.html#assigning-a-variable-to-many-machines-group-variables), and group members as [host ranges (with numeric or alphabetic patterns)](https://docs.ansible.com/ansible/latest/user_guide/intro_inventory.html#inventory-basics-formats-hosts-and-groups).
 
 With this configuration example:
 
@@ -217,7 +217,7 @@ variable2=example
   }
   ```
 
-- [Host range patterns (numeric and alphabetic ranges)](https://docs.ansible.com/ansible/intro_inventory.html#hosts-and-groups) will not be validated by Vagrant. As of Vagrant 1.8.0, host range patterns will be added as group members to the inventory anyway, this might lead to errors in Ansible (e.g _unreachable host_).
+- [Host range patterns (numeric and alphabetic ranges)](https://docs.ansible.com/ansible/latest/user_guide/intro_inventory.html#inventory-basics-formats-hosts-and-groups) will not be validated by Vagrant. As of Vagrant 1.8.0, host range patterns will be added as group members to the inventory anyway, this might lead to errors in Ansible (e.g _unreachable host_).
 
 ### Static Inventory
 

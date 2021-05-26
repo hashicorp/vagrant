@@ -2882,7 +2882,7 @@ en:
           Vagrant has detected a host range pattern in the `groups` option.
           Vagrant doesn't fully check the validity of these parameters!
 
-          Please check https://docs.ansible.com/ansible/intro_inventory.html#hosts-and-groups
+          Please check https://docs.ansible.com/ansible/latest/user_guide/intro_inventory.html#inventory-basics-formats-hosts-and-groups
           for more information.
         cannot_detect: |-
           Vagrant does not support detecting whether Ansible is installed
