@@ -561,6 +561,32 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
     add_message "hashicorp.vagrant.sdk.Vagrantfile.GetVagrantfileResponse" do
       optional :vagrantfile, :message, 1, "hashicorp.vagrant.sdk.Vagrantfile.Vagrantfile"
     end
+    add_message "hashicorp.vagrant.sdk.Vagrantfile.TargetRequest" do
+      optional :name, :string, 1
+      optional :provider, :string, 2
+      optional :boxes, :message, 3, "hashicorp.vagrant.sdk.BoxCollection"
+      optional :data_path, :string, 4
+      optional :project, :message, 5, "hashicorp.vagrant.sdk.Args.Project"
+    end
+    add_message "hashicorp.vagrant.sdk.Vagrantfile.TargetResponse" do
+      optional :target, :message, 1, "hashicorp.vagrant.sdk.Ref.Target"
+    end
+    add_message "hashicorp.vagrant.sdk.Vagrantfile.TargetConfigRequest" do
+      optional :name, :string, 1
+      optional :provider, :string, 2
+      optional :boxes, :message, 3, "hashicorp.vagrant.sdk.BoxCollection"
+      optional :data_path, :string, 4
+      optional :validate_provider, :bool, 5
+    end
+    add_message "hashicorp.vagrant.sdk.Vagrantfile.TargetConfigResponse" do
+      optional :target_config, :message, 1, "hashicorp.vagrant.sdk.Vagrantfile.MachineConfig"
+    end
+    add_message "hashicorp.vagrant.sdk.Vagrantfile.TargetNamesResponse" do
+      repeated :name, :string, 1
+    end
+    add_message "hashicorp.vagrant.sdk.Vagrantfile.PrimaryTargetNameResponse" do
+      optional :name, :string, 1
+    end
     add_message "hashicorp.vagrant.sdk.Vagrantfile.ConfigVM" do
       repeated :allowed_synced_folder_types, :string, 1
       optional :allow_fstab_modification, :bool, 2
@@ -800,6 +826,12 @@ module Hashicorp
       Vagrantfile = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Vagrantfile").msgclass
       Vagrantfile::GetVagrantfileRequest = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Vagrantfile.GetVagrantfileRequest").msgclass
       Vagrantfile::GetVagrantfileResponse = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Vagrantfile.GetVagrantfileResponse").msgclass
+      Vagrantfile::TargetRequest = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Vagrantfile.TargetRequest").msgclass
+      Vagrantfile::TargetResponse = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Vagrantfile.TargetResponse").msgclass
+      Vagrantfile::TargetConfigRequest = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Vagrantfile.TargetConfigRequest").msgclass
+      Vagrantfile::TargetConfigResponse = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Vagrantfile.TargetConfigResponse").msgclass
+      Vagrantfile::TargetNamesResponse = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Vagrantfile.TargetNamesResponse").msgclass
+      Vagrantfile::PrimaryTargetNameResponse = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Vagrantfile.PrimaryTargetNameResponse").msgclass
       Vagrantfile::ConfigVM = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Vagrantfile.ConfigVM").msgclass
       Vagrantfile::ConfigSSH = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Vagrantfile.ConfigSSH").msgclass
       Vagrantfile::ConfigWinRM = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Vagrantfile.ConfigWinRM").msgclass

@@ -336,7 +336,7 @@ message Vagrantfile {
   // Path where this Vagarant lives
   string path = 2;
 
-  // TODO: Determine Vagrantfile representation in DB
+  sdk.Vagrantfile.Vagrantfile vagrantfile = 3;
 }
 
 /********************************************************************

@@ -70,6 +70,7 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
     add_message "hashicorp.vagrant.Vagrantfile" do
       optional :resource_id, :string, 1
       optional :path, :string, 2
+      optional :vagrantfile, :message, 3, "hashicorp.vagrant.sdk.Vagrantfile.Vagrantfile"
     end
     add_message "hashicorp.vagrant.Ref" do
     end

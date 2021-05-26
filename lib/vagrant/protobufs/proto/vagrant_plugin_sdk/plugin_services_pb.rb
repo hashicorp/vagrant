@@ -420,6 +420,10 @@ module Hashicorp
           self.service_name = 'hashicorp.vagrant.sdk.VagrantfileService'
 
           rpc :GetVagrantfile, ::Hashicorp::Vagrant::Sdk::Vagrantfile::GetVagrantfileRequest, ::Hashicorp::Vagrant::Sdk::Vagrantfile::GetVagrantfileResponse
+          rpc :Target, ::Hashicorp::Vagrant::Sdk::Vagrantfile::TargetRequest, ::Hashicorp::Vagrant::Sdk::Vagrantfile::TargetResponse
+          rpc :TargetConfig, ::Hashicorp::Vagrant::Sdk::Vagrantfile::TargetConfigRequest, ::Hashicorp::Vagrant::Sdk::Vagrantfile::TargetConfigResponse
+          rpc :TargetNames, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::Vagrantfile::TargetNamesResponse
+          rpc :PrimaryTargetName, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::Vagrantfile::PrimaryTargetNameResponse
         end
 
         Stub = Service.rpc_stub_class
