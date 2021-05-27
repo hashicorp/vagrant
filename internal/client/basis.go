@@ -203,11 +203,11 @@ func (b *Basis) LoadVagrantfiles() error {
 	if !ok {
 		return fmt.Errorf("Couldn't attach to Ruby runtime")
 	}
-	// TODO: Upload the Vagrantfile to the vagrant server
-	_, err = rvc.ParseVagrantfile(vagrantfilePath)
+	vagrantfile, err := rvc.ParseVagrantfile(vagrantfilePath)
 	if err != nil {
 		return err
 	}
+	b.basis.Configuration = vagrantfile
 	return nil
 }
 
