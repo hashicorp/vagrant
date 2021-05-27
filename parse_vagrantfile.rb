@@ -100,9 +100,7 @@ def extract_provider(target, vm_config)
   end
 
   vm_config.compiled_provider_configs.each do |type, config|
-    c = config.instance_variables_hash
-    stringify_symbols(c)
-    c.delete("__invalid_methods")
+    c = clean_up_config_object(config.instance_variables_hash)
 
     provider_proto = PROVIDER_PROTO_CLS.new(type: type)
     config_struct = Google::Protobuf::Struct.from_hash(c)
@@ -171,8 +169,8 @@ def extract_config_component(config_cls, config)
 
     if v.is_a?(Hash)
       m = config_proto.send(k)
-      v.each do |k,v2|
-        m[k] = v2
+      v.each do |k2,v2|
+        m[k2] = v2
       end 
       v = m
     end
@@ -198,6 +196,7 @@ end
 def extract_communicator(config_cls, config)
   protoize = config.instance_variables_hash
   protoize.map do |k,v|
+    # Get embedded default struct
     if v.is_a?(Vagrant.plugin("2", :config))
       hashed_config = v.instance_variables_hash
       hashed_config.delete_if{|k,v| k.start_with?("_") }

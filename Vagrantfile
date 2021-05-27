@@ -4,7 +4,7 @@
 # Ruby, run unit tests, etc.
 
 Vagrant.configure("2") do |config|
-  config.vagrant.host = "hahah"
+  config.vagrant.host = "linux"
 
   config.ssh.connect_timeout = 30
 

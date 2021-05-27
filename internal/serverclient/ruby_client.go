@@ -65,7 +65,6 @@ func (r *RubyVagrantClient) GetPlugins() ([]*ruby_vagrant.Plugin, error) {
 	return plugins.Plugins, nil
 }
 
-// TODO: This should return an hcl Vagrantfile representation
 func (r *RubyVagrantClient) ParseVagrantfile(path string) (*vagrant_plugin_sdk.Vagrantfile_Vagrantfile, error) {
 	vf, err := r.client.ParseVagrantfile(
 		context.Background(),
