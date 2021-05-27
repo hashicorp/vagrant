@@ -208,6 +208,13 @@ func (b *Basis) LoadVagrantfiles() error {
 		return err
 	}
 	b.basis.Configuration = vagrantfile
+	// Push Vagrantfile updates to basis
+	b.client.UpsertBasis(
+		context.Background(),
+		&vagrant_server.UpsertBasisRequest{
+			Basis: b.basis,
+		},
+	)
 	return nil
 }
 
