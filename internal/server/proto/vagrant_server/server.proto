@@ -201,7 +201,7 @@ message Basis {
   sdk.Args.MetadataSet metadata = 5;
 
   // Serialized configuration of the project (Vagrantfile)
-  google.protobuf.Any configuration = 6;
+  sdk.Vagrantfile.Vagrantfile configuration = 6;
 
 
   // TODO(spox): look back over these options and see if we
@@ -240,7 +240,7 @@ message Project {
   sdk.Args.MetadataSet metadata = 6;
 
   // Serialized configuration of the project (Vagrantfile)
-  google.protobuf.Any configuration = 7;
+  sdk.Vagrantfile.Vagrantfile configuration = 7;
 
   // TODO(spox): look back over these options and see if we
   // still care about them (i'm thinking no)
@@ -287,7 +287,7 @@ message Target {
   sdk.Args.MetadataSet metadata = 9;
 
   // Serialized configuration of the target (Vagrantfile)
-  google.protobuf.Any configuration = 10;
+  sdk.Vagrantfile.Vagrantfile configuration = 10;
 
   // Specialized target information (from provider)
   google.protobuf.Any record = 11;

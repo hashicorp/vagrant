@@ -29,7 +29,7 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
       optional :path, :string, 3
       repeated :projects, :message, 4, "hashicorp.vagrant.sdk.Ref.Project"
       optional :metadata, :message, 5, "hashicorp.vagrant.sdk.Args.MetadataSet"
-      optional :configuration, :message, 6, "google.protobuf.Any"
+      optional :configuration, :message, 6, "hashicorp.vagrant.sdk.Vagrantfile.Vagrantfile"
       optional :remote_enabled, :bool, 100
       optional :data_source, :message, 101, "hashicorp.vagrant.Job.DataSource"
     end
@@ -40,7 +40,7 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
       repeated :targets, :message, 4, "hashicorp.vagrant.sdk.Ref.Target"
       optional :basis, :message, 5, "hashicorp.vagrant.sdk.Ref.Basis"
       optional :metadata, :message, 6, "hashicorp.vagrant.sdk.Args.MetadataSet"
-      optional :configuration, :message, 7, "google.protobuf.Any"
+      optional :configuration, :message, 7, "hashicorp.vagrant.sdk.Vagrantfile.Vagrantfile"
       optional :remote_enabled, :bool, 100
       optional :data_source, :message, 101, "hashicorp.vagrant.Job.DataSource"
     end
@@ -54,7 +54,7 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
       optional :parent, :message, 7, "hashicorp.vagrant.Target"
       optional :uuid, :string, 8
       optional :metadata, :message, 9, "hashicorp.vagrant.sdk.Args.MetadataSet"
-      optional :configuration, :message, 10, "google.protobuf.Any"
+      optional :configuration, :message, 10, "hashicorp.vagrant.sdk.Vagrantfile.Vagrantfile"
       optional :record, :message, 11, "google.protobuf.Any"
       optional :remote_enabled, :bool, 100
       optional :data_source, :message, 101, "hashicorp.vagrant.Job.DataSource"
