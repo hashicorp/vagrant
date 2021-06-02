@@ -4,6 +4,9 @@
 # Ruby, run unit tests, etc.
 
 Vagrant.configure("2") do |config|
+  config.vbguest.auto_update = false
+  config.vbguest.installer_options = { foo: 1, bar: 2 }
+
   config.vagrant.host = "linux"
 
   config.ssh.connect_timeout = 30
@@ -24,6 +27,8 @@ Vagrant.configure("2") do |config|
 
   ["a", "b"].each do |m|
     config.vm.define m do |c|
+      c.vbguest.installer_options[:zort] = 3
+
       c.vagrant.host = "ubuntu"
       c.winrm.host = "computer-#{m}"
       c.vm.hostname = "computer-#{m}"

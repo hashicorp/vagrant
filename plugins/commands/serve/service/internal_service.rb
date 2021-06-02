@@ -17,6 +17,7 @@ module VagrantPlugins
         PROVISION_PROTO_CLS = Hashicorp::Vagrant::Sdk::Vagrantfile::Provisioner
         SYNCED_FOLDER_PROTO_CLS = Hashicorp::Vagrant::Sdk::Vagrantfile::SyncedFolder
         NETWORK_PROTO_CLS = Hashicorp::Vagrant::Sdk::Vagrantfile::Network
+        GENERAL_CONFIG_CLS = Hashicorp::Vagrant::Sdk::Vagrantfile::GeneralConfig
 
         CONFIG_VM_CLS =  Hashicorp::Vagrant::Sdk::Vagrantfile::ConfigVM
         CONFIG_SSH_CLS = Hashicorp::Vagrant::Sdk::Vagrantfile::ConfigSSH
@@ -79,6 +80,14 @@ module VagrantPlugins
             extract_synced_folders(config_vm_proto.synced_folders, vm_config.synced_folders)
             extract_provider(config_vm_proto.providers, vm_config)
 
+            plugin_configs = []
+            root_config.__internal_state["keys"].each do |name, config|
+              # A builtin plugin
+              # TODO: find a better way to check the module
+              next if config.class.to_s.split("::")[0] == "VagrantPlugins"
+              plugin_configs << extract_plugin_config(name, config)
+            end
+
             machine_configs << Hashicorp::Vagrant::Sdk::Vagrantfile::MachineConfig.new(
               name: mach.to_s,
               config_vm: config_vm_proto,
@@ -86,7 +95,7 @@ module VagrantPlugins
               config_ssh: config_ssh_proto,
               config_winrm: config_winrm_proto,
               config_winssh: config_winssh_proto,
-
+              plugin_configs: plugin_configs
             )
           end
 
@@ -287,6 +296,14 @@ module VagrantPlugins
           config_struct = Google::Protobuf::Struct.from_hash(protoize)
           config_any = Google::Protobuf::Any.pack(config_struct)
           config_cls.new(config: config_any)
+        end
+
+        def extract_plugin_config(type, config)
+          protoize = config.instance_variables_hash
+          protoize = clean_up_config_object(protoize)
+          config_struct = Google::Protobuf::Struct.from_hash(protoize)
+          config_any = Google::Protobuf::Any.pack(config_struct)
+          GENERAL_CONFIG_CLS.new(type: type, config: config_any)
         end
       end
     end

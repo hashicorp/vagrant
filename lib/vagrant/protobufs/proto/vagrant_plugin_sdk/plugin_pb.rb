@@ -634,6 +634,10 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
       repeated :plugins, :string, 2
       repeated :sensitive, :string, 3
     end
+    add_message "hashicorp.vagrant.sdk.Vagrantfile.GeneralConfig" do
+      optional :type, :string, 1
+      optional :config, :message, 2, "google.protobuf.Any"
+    end
     add_message "hashicorp.vagrant.sdk.Vagrantfile.MachineConfig" do
       optional :name, :string, 1
       optional :config_vm, :message, 2, "hashicorp.vagrant.sdk.Vagrantfile.ConfigVM"
@@ -641,6 +645,7 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
       optional :config_winrm, :message, 4, "hashicorp.vagrant.sdk.Vagrantfile.ConfigWinRM"
       optional :config_winssh, :message, 5, "hashicorp.vagrant.sdk.Vagrantfile.ConfigWinssh"
       optional :config_vagrant, :message, 6, "hashicorp.vagrant.sdk.Vagrantfile.ConfigVagrant"
+      repeated :plugin_configs, :message, 7, "hashicorp.vagrant.sdk.Vagrantfile.GeneralConfig"
     end
     add_message "hashicorp.vagrant.sdk.Vagrantfile.Provisioner" do
       optional :name, :string, 1
@@ -837,6 +842,7 @@ module Hashicorp
       Vagrantfile::ConfigWinRM = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Vagrantfile.ConfigWinRM").msgclass
       Vagrantfile::ConfigWinssh = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Vagrantfile.ConfigWinssh").msgclass
       Vagrantfile::ConfigVagrant = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Vagrantfile.ConfigVagrant").msgclass
+      Vagrantfile::GeneralConfig = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Vagrantfile.GeneralConfig").msgclass
       Vagrantfile::MachineConfig = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Vagrantfile.MachineConfig").msgclass
       Vagrantfile::Provisioner = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Vagrantfile.Provisioner").msgclass
       Vagrantfile::Provider = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Vagrantfile.Provider").msgclass
