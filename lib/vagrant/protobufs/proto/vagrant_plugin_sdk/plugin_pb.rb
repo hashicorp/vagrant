@@ -96,9 +96,6 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
       optional :short_description, :string, 2
       optional :long_description, :string, 3
     end
-    add_message "hashicorp.vagrant.sdk.Args.Host" do
-      optional :server_addr, :string, 1
-    end
     add_message "hashicorp.vagrant.sdk.Args.StateBag" do
       optional :stream_id, :uint32, 1
     end

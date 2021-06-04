@@ -17,7 +17,7 @@ module Hashicorp
         # interact with it indirectly via a terminal.UI implementation.
         class Service
 
-          include ::GRPC::GenericService
+          include GRPC::GenericService
 
           self.marshal_class_method = :encode
           self.unmarshal_class_method = :decode
@@ -35,7 +35,7 @@ module Hashicorp
         # to convert to/from various types.
         class Service
 
-          include ::GRPC::GenericService
+          include GRPC::GenericService
 
           self.marshal_class_method = :encode
           self.unmarshal_class_method = :decode
@@ -57,7 +57,7 @@ module Hashicorp
         #
         class Service
 
-          include ::GRPC::GenericService
+          include GRPC::GenericService
 
           self.marshal_class_method = :encode
           self.unmarshal_class_method = :decode
@@ -84,7 +84,7 @@ module Hashicorp
         # the state of a machine
         class Service
 
-          include ::GRPC::GenericService
+          include GRPC::GenericService
 
           self.marshal_class_method = :encode
           self.unmarshal_class_method = :decode
@@ -138,7 +138,7 @@ module Hashicorp
         # A Provisioner runs actions against a VM
         class Service
 
-          include ::GRPC::GenericService
+          include GRPC::GenericService
 
           self.marshal_class_method = :encode
           self.unmarshal_class_method = :decode
@@ -154,7 +154,7 @@ module Hashicorp
       module CommandService
         class Service
 
-          include ::GRPC::GenericService
+          include GRPC::GenericService
 
           self.marshal_class_method = :encode
           self.unmarshal_class_method = :decode
@@ -174,7 +174,7 @@ module Hashicorp
       module CommunicatorService
         class Service
 
-          include ::GRPC::GenericService
+          include GRPC::GenericService
 
           self.marshal_class_method = :encode
           self.unmarshal_class_method = :decode
@@ -210,7 +210,7 @@ module Hashicorp
       module ConfigService
         class Service
 
-          include ::GRPC::GenericService
+          include GRPC::GenericService
 
           self.marshal_class_method = :encode
           self.unmarshal_class_method = :decode
@@ -226,7 +226,7 @@ module Hashicorp
       module GuestService
         class Service
 
-          include ::GRPC::GenericService
+          include GRPC::GenericService
 
           self.marshal_class_method = :encode
           self.unmarshal_class_method = :decode
@@ -248,7 +248,7 @@ module Hashicorp
       module HostService
         class Service
 
-          include ::GRPC::GenericService
+          include GRPC::GenericService
 
           self.marshal_class_method = :encode
           self.unmarshal_class_method = :decode
@@ -270,7 +270,7 @@ module Hashicorp
       module SyncedFolderService
         class Service
 
-          include ::GRPC::GenericService
+          include GRPC::GenericService
 
           self.marshal_class_method = :encode
           self.unmarshal_class_method = :decode
@@ -286,7 +286,7 @@ module Hashicorp
       module BasisService
         class Service
 
-          include ::GRPC::GenericService
+          include GRPC::GenericService
 
           self.marshal_class_method = :encode
           self.unmarshal_class_method = :decode
@@ -304,7 +304,7 @@ module Hashicorp
         # ******************************************************************
         class Service
 
-          include ::GRPC::GenericService
+          include GRPC::GenericService
 
           self.marshal_class_method = :encode
           self.unmarshal_class_method = :decode
@@ -331,7 +331,7 @@ module Hashicorp
       module TargetMachineService
         class Service
 
-          include ::GRPC::GenericService
+          include GRPC::GenericService
 
           self.marshal_class_method = :encode
           self.unmarshal_class_method = :decode
@@ -370,7 +370,7 @@ module Hashicorp
         # ******************************************************************
         class Service
 
-          include ::GRPC::GenericService
+          include GRPC::GenericService
 
           self.marshal_class_method = :encode
           self.unmarshal_class_method = :decode
