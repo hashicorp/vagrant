@@ -26,7 +26,7 @@ Gem::Specification.new do |s|
   s.add_dependency "mime-types", "~> 3.3"
   s.add_dependency "net-ssh", ">= 6.1.0", "< 6.2"
   s.add_dependency "net-sftp", "~> 3.0"
-  s.add_dependency "net-scp", "~> 1.2.0"
+  s.add_dependency "net-scp", ">= 1.2.0", "< 4.0"
   s.add_dependency "rb-kqueue", "~> 0.2.0"
   s.add_dependency "rubyzip", "~> 2.0"
   s.add_dependency "vagrant_cloud", "~> 3.0.4"
