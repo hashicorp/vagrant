@@ -166,13 +166,19 @@ func (t *Target) Run(ctx context.Context, task *vagrant_server.Task) (err error)
 		return
 	}
 
+	host, _ := t.project.Host()
+
+	ok := host.HasCapability("write_hello")
+	if ok {
+	}
+
 	result, err := t.callDynamicFunc(
 		ctx,
 		t.logger,
 		(interface{})(nil),
 		cmd,
 		cmd.Value.(component.Command).ExecuteFunc(strings.Split(task.CommandName, " ")),
-		argmapper.Typed(task.CliArgs, t.jobInfo, t.dir),
+		argmapper.Typed(task.CliArgs, t.jobInfo, t.dir, host),
 	)
 
 	if err != nil || result == nil || result.(int64) != 0 {

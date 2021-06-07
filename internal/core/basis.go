@@ -384,6 +384,31 @@ func (b *Basis) Run(ctx context.Context, task *vagrant_server.Task) (err error) 
 	return
 }
 
+func (b *Basis) findHostPlugin(ctx context.Context) (*Component, error) {
+	f := b.factories[component.HostType]
+	for _, name := range f.Registered() {
+		if name != "myplugin" {
+			continue
+		}
+		h, err := componentCreatorMap[component.HostType].Create(ctx, b, name)
+		if err != nil {
+			return nil, err
+		}
+		detected, err := b.callDynamicFunc(
+			ctx,
+			b.logger,
+			(interface{})(nil),
+			h,
+			h.Value.(component.Host).DetectFunc(),
+		)
+		if detected != nil && detected.(bool) {
+			return h, nil
+		}
+		// h.Close()
+	}
+	return nil, errors.New("host plugin not found")
+}
+
 func (b *Basis) component(ctx context.Context, typ component.Type, name string) (*Component, error) {
 	// If this is a command type component, the plugin is registered
 	// as only the root command

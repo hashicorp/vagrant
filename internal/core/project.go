@@ -97,8 +97,11 @@ func (p *Project) DefaultPrivateKey() (path string, err error) {
 }
 
 func (p *Project) Host() (host core.Host, err error) {
-	// TODO: implement
-	return
+	hostComponent, err := p.basis.findHostPlugin(p.ctx)
+	if err != nil {
+		return nil, err
+	}
+	return hostComponent.Value.(core.Host), nil
 }
 
 func (p *Project) MachineNames() (names []string, err error) {
@@ -232,12 +235,7 @@ func (p *Project) Components(ctx context.Context) (results []*Component, err err
 func (p *Project) Run(ctx context.Context, task *vagrant_server.Task) (err error) {
 	p.logger.Debug("running new task", "project", p, "task", task)
 
-	hostPluginName, err := p.findHostPlugin(ctx)
-	if hostPluginName != "" {
-
-	}
 	cmd, err := p.basis.component(ctx, component.CommandType, task.Component.Name)
-	hostPlugin, err := p.basis.component(ctx, component.HostType, hostPluginName)
 
 	if err != nil {
 		return err
@@ -248,7 +246,6 @@ func (p *Project) Run(ctx context.Context, task *vagrant_server.Task) (err error
 		return
 	}
 
-	hostComponentToProtoMapper, _ := argmapper.NewFunc(HostComponentToProtoMapper)
 	result, err := p.callDynamicFunc(
 		ctx,
 		p.logger,

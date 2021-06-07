@@ -33,4 +33,5 @@ func (h *AlwaysTrueHost) InitializeCapabilities() (err error) {
 
 var (
 	_ component.Host = (*AlwaysTrueHost)(nil)
+	_ sdkcore.Host   = (*AlwaysTrueHost)(nil)
 )

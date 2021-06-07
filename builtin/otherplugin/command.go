@@ -7,6 +7,7 @@ import (
 	"github.com/hashicorp/go-argmapper"
 	"github.com/hashicorp/vagrant-plugin-sdk/component"
 	plugincore "github.com/hashicorp/vagrant-plugin-sdk/core"
+
 	//	"github.com/hashicorp/vagrant-plugin-sdk/proto/vagrant_plugin_sdk"
 	"github.com/hashicorp/vagrant-plugin-sdk/terminal"
 	//"google.golang.org/protobuf/types/known/anypb"
@@ -158,8 +159,8 @@ func (c *Command) ExecuteOfni(trm terminal.UI) int64 {
 
 func (c *Command) ExecuteUseHostPlugin(trm terminal.UI, host plugincore.Host) int64 {
 	trm.Output("I'm going to use a the host plugin to do something!")
-	host.HasCapability("write_hello")
-	if ok, _ := host.HasCapability("write_hello"); ok {
+	ok := host.HasCapability("write_hello")
+	if ok {
 		trm.Output("Writing to file using `write_hello` capability")
 		host.Capability("write_hello", argmapper.Typed(trm))
 	} else {
