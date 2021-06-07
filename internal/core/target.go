@@ -168,10 +168,6 @@ func (t *Target) Run(ctx context.Context, task *vagrant_server.Task) (err error)
 
 	host, _ := t.project.Host()
 
-	ok := host.HasCapability("write_hello")
-	if ok {
-	}
-
 	result, err := t.callDynamicFunc(
 		ctx,
 		t.logger,
