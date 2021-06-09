@@ -105,6 +105,16 @@ module.exports = [
     destination: '/downloads',
     permanent: true,
   },
+  {
+    source: '/vmware',
+    destination: '/docs/providers/vmware',
+    permanent: true,
+  },
+  {
+    source: '/vmware/reseller',
+    destination: '/docs/providers/vmware',
+    permanent: true,
+  },
   // disallow '.html' or '/index.html' in favor of cleaner, simpler paths
   { source: '/:path*/index', destination: '/:path*', permanent: true },
   { source: '/:path*.html', destination: '/:path*', permanent: true },
