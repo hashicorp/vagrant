@@ -27,37 +27,6 @@ $ vagrant plugin install vagrant-vmware-desktop
 For more information on plugin installation, please see the
 [Vagrant plugin usage documentation](/docs/plugins/usage).
 
-The Vagrant VMware plugin is a commercial product provided by
-[HashiCorp](https://www.hashicorp.com) and **requires the purchase of a license**
-to operate. To purchase a license, please visit the
-[Vagrant VMware provider](/vmware#buy-now) page. Upon
-purchasing a license, you will receive a license file in your inbox. Download
-this file and save it to a temporary location on your computer.
-
-~> **Warning!** You cannot use your VMware product license as a
-Vagrant VMware plugin license. They are separate commercial products, each
-requiring their own license.
-
-After installing the Vagrant VMware Desktop plugin for your system, you
-will need to install the license:
-
-```shell-session
-$ vagrant plugin license vagrant-vmware-desktop ~/license.lic
-```
-
-The first parameter is the name of the plugin, and the second parameter is the
-path to the license file on disk. Please be sure to replace `~/license.lic`
-with the path where you temporarily saved the downloaded license file to disk.
-After you have installed the plugin license, you may remove the temporary file.
-
-To verify the license installation, run:
-
-```shell-session
-$ vagrant
-```
-
-If the license is not installed correctly, you will see an error message.
-
 ## Upgrading to v1.x
 
 It is **extremely important** that the VMware plugin is upgraded to 1.0.0 or
@@ -93,11 +62,3 @@ Desktop plugin:
 ```shell-session
 $ vagrant plugin update vagrant-vmware-desktop
 ```
-
-## Support
-
-If you have any issues purchasing, installing, or using the Vagrant VMware
-plugins, please [contact support](mailto:support@hashicorp.com). To
-expedite the support process, please include the
-[Vagrant debug output](/docs/other/debugging) as a Gist if
-applicable. This will help us more quickly diagnose your issue.
