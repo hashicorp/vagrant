@@ -1,5 +1,5 @@
-# Powershell supports only TLS 1.0 by default. Add support for TLS 1.2 and TLS 1.3
-[System.Net.ServicePointManager]::SecurityProtocol = [System.Net.SecurityProtocolType]'Tls12,Tls13'
+# Powershell supports only TLS 1.0 by default. Add support for TLS 1.2
+[System.Net.ServicePointManager]::SecurityProtocol = [System.Net.SecurityProtocolType]'Tls12'
 
 # Define script root for PowerShell 2.0
 $ScriptRoot = Split-Path $script:MyInvocation.MyCommand.Path
