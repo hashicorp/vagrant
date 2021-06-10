@@ -27,7 +27,7 @@ func (h *AlwaysTrueHost) Detect() bool {
 }
 
 func (h *AlwaysTrueHost) InitializeCapabilities() (err error) {
-	err = h.RegisterCapability("write_hello", cap.WriteHelloFunc())
+	err = h.RegisterCapability("write_hello", cap.WriteHello)
 	return
 }
 

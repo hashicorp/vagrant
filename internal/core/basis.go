@@ -18,7 +18,6 @@ import (
 	"github.com/hashicorp/vagrant-plugin-sdk/component"
 	"github.com/hashicorp/vagrant-plugin-sdk/core"
 	"github.com/hashicorp/vagrant-plugin-sdk/datadir"
-	"github.com/hashicorp/vagrant-plugin-sdk/internal-shared/componentprotomappers"
 	"github.com/hashicorp/vagrant-plugin-sdk/internal-shared/protomappers"
 	"github.com/hashicorp/vagrant-plugin-sdk/proto/vagrant_plugin_sdk"
 	"github.com/hashicorp/vagrant-plugin-sdk/terminal"
@@ -96,8 +95,7 @@ func NewBasis(ctx context.Context, opts ...BasisOption) (b *Basis, err error) {
 
 	// If the mappers aren't already set, load known mappers
 	if len(b.mappers) == 0 {
-		mappers := append(protomappers.All, componentprotomappers.All...)
-		b.mappers, err = argmapper.NewFuncList(mappers,
+		b.mappers, err = argmapper.NewFuncList(protomappers.All,
 			argmapper.Logger(b.logger),
 		)
 		if err != nil {

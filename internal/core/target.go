@@ -168,6 +168,16 @@ func (t *Target) Run(ctx context.Context, task *vagrant_server.Task) (err error)
 
 	host, _ := t.project.Host()
 
+	_, err = t.callDynamicFunc(
+		ctx,
+		t.logger,
+		(interface{})(nil),
+		nil,
+		host.(component.Host).CapabilityFunc("write_hello"),
+		argmapper.Typed(t.ui),
+	)
+	// host.Capability("write_hello", argmapper.Typed(t.ui))
+
 	result, err := t.callDynamicFunc(
 		ctx,
 		t.logger,
