@@ -63,6 +63,7 @@ Building an image is easy:
 
 ```ruby
 Vagrant.configure("2") do |config|
+  config.vm.box = "hashicorp/bionic64"
   config.vm.provision "docker" do |d|
     d.build_image "/vagrant/app"
   end
@@ -87,6 +88,7 @@ pull. The first is as an array using `images`:
 
 ```ruby
 Vagrant.configure("2") do |config|
+  config.vm.box = "hashicorp/bionic64"
   config.vm.provision "docker",
     images: ["ubuntu"]
 end
@@ -104,6 +106,7 @@ simple configuration method for provisioners (specifying it all in one line).
 
 ```ruby
 Vagrant.configure("2") do |config|
+  config.vm.box = "hashicorp/bionic64"
   config.vm.provision "docker" do |d|
     d.pull_images "ubuntu"
     d.pull_images "vagrant"
@@ -122,6 +125,7 @@ the `do...end` blocks. An example of running a container is shown below:
 
 ```ruby
 Vagrant.configure("2") do |config|
+  config.vm.box = "hashicorp/bionic64"
   config.vm.provision "docker" do |d|
     d.run "rabbitmq"
   end
@@ -163,6 +167,7 @@ with the Vagrant shared directory mounted inside of it:
 
 ```ruby
 Vagrant.configure("2") do |config|
+  config.vm.box = "hashicorp/bionic64"
   config.vm.provision "docker" do |d|
     d.run "ubuntu",
       cmd: "bash -l",
@@ -176,6 +181,7 @@ so by providing different names and specifying the `image` parameter to it:
 
 ```ruby
 Vagrant.configure("2") do |config|
+  config.vm.box = "hashicorp/bionic64"
   config.vm.provision "docker" do |d|
     d.run "db-1", image: "user/mysql"
     d.run "db-2", image: "user/mysql"
@@ -194,6 +200,7 @@ To customize this file, use the `post_install_provision` shell provisioner.
 
 ```ruby
 Vagrant.configure("2") do |config|
+  config.vm.box = "hashicorp/bionic64"
   config.vm.provision "docker" do |d|
     d.post_install_provision "shell", inline:"echo export http_proxy='http://127.0.0.1:3128/' >> /etc/default/docker"
     d.run "ubuntu",
