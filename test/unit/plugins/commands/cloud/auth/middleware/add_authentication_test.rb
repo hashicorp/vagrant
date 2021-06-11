@@ -48,6 +48,25 @@ describe VagrantPlugins::CloudCommand::AddAuthentication do
       expect(env[:box_urls]).to eq(original)
     end
 
+    context "when urls are set" do
+      it "does not modify urls" do
+        original = ["https://example.com/boxes/test.box",
+          "file://C:/my/box/path/local.box"]
+        env[:box_urls] = original.dup
+        subject.call(env)
+        expect(env[:box_urls]).to eq(original)
+      end
+
+      it "should remove access_token parameters when found" do
+        env[:box_urls] = ["https://example.com/boxes/test.box?access_token=TEST",
+          "file://C:/my/box/path/local.box"]
+        subject.call(env)
+        expect(env[:box_urls]).to eq([
+          "https://example.com/boxes/test.box",
+          "file://C:/my/box/path/local.box"])
+      end
+    end
+
     context "with VAGRANT_SERVER_ACCESS_TOKEN_BY_URL set" do
 
       before { stub_env("VAGRANT_SERVER_ACCESS_TOKEN_BY_URL" => "1") }
