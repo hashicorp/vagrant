@@ -162,7 +162,7 @@ func (c *Command) ExecuteUseHostPlugin(trm terminal.UI, host plugincore.Host) in
 	ok := host.HasCapability("write_hello")
 	if ok {
 		trm.Output("Writing to file using `write_hello` capability")
-		_, err := host.Capability("write_hello", argmapper.Typed("hehehe i'm a string"), argmapper.Typed(trm))
+		_, err := host.Capability("write_hello", argmapper.Typed(trm))
 		if err != nil {
 			trm.Output("Error!")
 			return 1
