@@ -6,6 +6,7 @@ IMPROVEMENTS:
 
 - provisioners/salt: Always use upstream Salt bootstrap script on Windows [GH-12127]
 - provisioners/ansible: Detects new versions of ansible-4.0.0+ [GH-12391] 
+- provisioner/ansible: Strip whitespace from ansible version [GH-12420] 
 
 BUG FIXES:
 
