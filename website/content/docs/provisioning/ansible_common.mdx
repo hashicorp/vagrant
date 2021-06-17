@@ -15,11 +15,11 @@ These options get passed to the `ansible-playbook` command that ships with Ansib
 
 Some of these options are for advanced usage only and should not be used unless you understand their purpose.
 
-- `become` (boolean) - Perform all the Ansible playbook tasks [as another user](http://docs.ansible.com/ansible/become.html), different from the user used to log into the guest system.
+- `become` (boolean) - Perform all the Ansible playbook tasks [as another user](https://docs.ansible.com/ansible/latest/become.html), different from the user used to log into the guest system.
 
   The default value is `false`.
 
-- `become_user` (string) - Set the default username to be used by the Ansible `become` [privilege escalation](http://docs.ansible.com/ansible/become.html) mechanism.
+- `become_user` (string) - Set the default username to be used by the Ansible `become` [privilege escalation](https://docs.ansible.com/ansible/latest/become.html) mechanism.
 
   By default this option is not set, and the Ansible default value (`root`) will be used.
 
@@ -39,7 +39,7 @@ Some of these options are for advanced usage only and should not be used unless 
 
   -> **Compatibility Note:** This option was introduced in Vagrant 2.0. The behavior of previous Vagrant versions can be simulated by setting the `compatibility_mode` to `"1.8"`.
 
-- `config_file` (string) - The path to an [Ansible Configuration file](https://docs.ansible.com/intro_configuration.html).
+- `config_file` (string) - The path to an [Ansible Configuration file](https://docs.ansible.com/ansible/latest/intro_configuration.html).
 
   By default, this option is not set, and Ansible will [search for a possible configuration file in some default locations](/docs/provisioning/ansible_intro#the-ansible-configuration-file).
 
@@ -130,11 +130,11 @@ Some of these options are for advanced usage only and should not be used unless 
 
   Note: This option has no effect when the `inventory_path` option is defined.
 
-- `inventory_path` (string) - The path to an Ansible inventory resource (e.g. a [static inventory file](https://docs.ansible.com/intro_inventory.html), a [dynamic inventory script](https://docs.ansible.com/intro_dynamic_inventory.html) or even [multiple inventories stored in the same directory](https://docs.ansible.com/intro_dynamic_inventory.html#using-multiple-inventory-sources)).
+- `inventory_path` (string) - The path to an Ansible inventory resource (e.g. a [static inventory file](https://docs.ansible.com/ansible/latest/intro_inventory.html), a [dynamic inventory script](https://docs.ansible.com/ansible/latest/intro_dynamic_inventory.html) or even [multiple inventories stored in the same directory](https://docs.ansible.com/ansible/latest/intro_dynamic_inventory.html#using-multiple-inventory-sources)).
 
   By default, this option is disabled and Vagrant generates an inventory based on the `Vagrantfile` information.
 
-- `limit` (string or array of strings) - Set of machines or groups from the inventory file to further control which hosts [are affected](https://docs.ansible.com/glossary.html#limit-groups).
+- `limit` (string or array of strings) - Set of machines or groups from the inventory file to further control which hosts [are affected](https://docs.ansible.com/ansible/latest/glossary.html#limit-groups).
 
   The default value is set to the machine name (taken from `Vagrantfile`) to ensure that `vagrant provision` command only affect the expected machine.
 
@@ -157,9 +157,9 @@ Some of these options are for advanced usage only and should not be used unless 
     elements. Therefore **don't write** something like `["-c paramiko"]`, which
     will result with an invalid `" paramiko"` parameter value.
 
-- `skip_tags` (string or array of strings) - Only plays, roles and tasks that [_do not match_ these values will be executed](https://docs.ansible.com/playbooks_tags.html).
+- `skip_tags` (string or array of strings) - Only plays, roles and tasks that [_do not match_ these values will be executed](https://docs.ansible.com/ansible/latest/playbooks_tags.html).
 
-- `start_at_task` (string) - The task name where the [playbook execution will start](https://docs.ansible.com/playbooks_startnstep.html#start-at-task).
+- `start_at_task` (string) - The task name where the [playbook execution will start](https://docs.ansible.com/ansible/latest/playbooks_startnstep.html#start-at-task).
 
 - `sudo` (boolean) - Backwards compatible alias for the [`become`](#become) option.
 
@@ -171,9 +171,9 @@ Some of these options are for advanced usage only and should not be used unless 
   ~> **Deprecation:**
   The `sudo_user` option is deprecated and will be removed in a future release. Please use the [**`become_user`**](#become_user) option instead.
 
-- `tags` (string or array of strings) - Only plays, roles and tasks [tagged with these values will be executed](https://docs.ansible.com/playbooks_tags.html) .
+- `tags` (string or array of strings) - Only plays, roles and tasks [tagged with these values will be executed](https://docs.ansible.com/ansible/latest/playbooks_tags.html) .
 
-- `vault_password_file` (string) - The path of a file containing the password used by [Ansible Vault](https://docs.ansible.com/playbooks_vault.html#vault).
+- `vault_password_file` (string) - The path of a file containing the password used by [Ansible Vault](https://docs.ansible.com/ansible/latest/playbooks_vault.html#vault).
 
 - `verbose` (boolean or string) - Set Ansible's verbosity to obtain detailed logging
 
