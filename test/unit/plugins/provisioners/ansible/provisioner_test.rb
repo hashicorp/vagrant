@@ -984,6 +984,16 @@ VF
         end
       end
 
+      describe "whitespace in version string" do
+        before do
+          allow(subject).to receive(:gather_ansible_version).and_return("ansible #{config.version}  \n...\n")
+        end
+
+        it "sets the correct gathered_version" do
+          expect(Vagrant::Util::Subprocess).to receive(:execute).with('ansible-playbook', any_args).and_return(default_execute_result)
+        end
+      end
+
       describe "and there is an ansible version mismatch" do
         before do
           allow(subject).to receive(:gather_ansible_version).and_return("ansible 1.9.6\n...\n")
