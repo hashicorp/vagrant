@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+
+export DEBIAN_FRONTEND=noninteractive
+
+if ! rvm --version
+then
+  # https://github.com/rvm/ubuntu_rvm#install
+  apt-add-repository -y ppa:rael-gc/rvm &&
+    apt-get update -y &&
+    apt-get install -y rvm || {
+      echo 'Failed to install rvm' >&2
+      exit 1
+    }
+fi
+
+usermod -a -G rvm vagrant || {
+  echo 'Failed to add vagrant to the rvm group' >&2
+  exit 1
+}

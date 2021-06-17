@@ -34,6 +34,8 @@ No pull request template is provided on GitHub. The expected changes are often a
 
 ### Setup a development installation of Vagrant
 
+*A Vagrantfile is provided that should take care setting up a VM for running the rspec tests.* If you only need to run those tests and don't also want to run a development version of Vagrant from a host machine then it's recommended to use that.
+
 There are a few prerequisites for setting up a development environment with Vagrant. Ensure you have the following installed on your machine:
 
 * git
