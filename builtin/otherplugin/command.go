@@ -4,7 +4,6 @@ import (
 	"strings"
 
 	"github.com/DavidGamba/go-getoptions/option"
-	"github.com/hashicorp/go-argmapper"
 	"github.com/hashicorp/vagrant-plugin-sdk/component"
 	plugincore "github.com/hashicorp/vagrant-plugin-sdk/core"
 
@@ -157,18 +156,28 @@ func (c *Command) ExecuteOfni(trm terminal.UI) int64 {
 	return 0
 }
 
-func (c *Command) ExecuteUseHostPlugin(trm terminal.UI, host plugincore.Host) int64 {
-	trm.Output("I'm going to use a the host plugin to do something!")
-	ok := host.HasCapability("write_hello")
+func (c *Command) ExecuteUseHostPlugin(trm terminal.UI, basis plugincore.Basis) int64 {
+	trm.Output("I'm going to use a the host plugin to do something!\n\n")
+	host, err := basis.Host()
+	if err != nil {
+		trm.Output("Error: Failed to receive host plugin - " + err.Error() + "\n\n")
+		return 1
+	}
+	ok, err := host.HasCapability("write_hello")
+	if err != nil {
+		trm.Output("ERROR: " + err.Error() + "\n\n")
+		//	return 1
+	}
 	if ok {
-		trm.Output("Writing to file using `write_hello` capability")
-		_, err := host.Capability("write_hello", argmapper.Typed(trm))
+		trm.Output("Writing to file using `write_hello` capability\n\n")
+		_, err = host.Capability("write_hello", trm)
 		if err != nil {
-			trm.Output("Error!")
+			trm.Output("Error executing capability - " + err.Error() + "\n\n")
 			return 1
 		}
 	} else {
 		trm.Output("no `write_hello` capability found")
 	}
+
 	return 0
 }

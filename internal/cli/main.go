@@ -228,7 +228,7 @@ func Commands(
 func logger(args []string) ([]string, hclog.Logger, io.Writer, error) {
 	app := args[0]
 
-	// Determine our log level if we have any. First override we check if env var
+	// Determine our log level if we have any. First override we check is env var
 	level := hclog.NoLevel
 	if v := os.Getenv(EnvLogLevel); v != "" {
 		level = hclog.LevelFromString(v)

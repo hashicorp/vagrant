@@ -30,6 +30,7 @@ func Run(opts ...Option) error {
 	if cfg.Logger == nil {
 		cfg.Logger = hclog.L()
 	}
+	cfg.Logger = cfg.Logger.ResetNamed("vagrant.server")
 
 	// Setup our run group since we're going to be starting multiple
 	// goroutines for all the servers that we want to live/die as a group.

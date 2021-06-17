@@ -73,6 +73,12 @@ func NewBasis(ctx context.Context, opts ...BasisOption) (b *Basis, err error) {
 		return
 	}
 
+	if b.logger.IsTrace() {
+		b.logger = b.logger.Named("basis")
+	} else {
+		b.logger = b.logger.ResetNamed("vagrant.core.basis")
+	}
+
 	if b.basis == nil {
 		return nil, errors.New("basis data was not properly loaded")
 	}
@@ -96,8 +102,9 @@ func NewBasis(ctx context.Context, opts ...BasisOption) (b *Basis, err error) {
 	// If the mappers aren't already set, load known mappers
 	if len(b.mappers) == 0 {
 		b.mappers, err = argmapper.NewFuncList(protomappers.All,
-			argmapper.Logger(b.logger),
+			argmapper.Logger(dynamicLogger),
 		)
+
 		if err != nil {
 			return
 		}
@@ -161,6 +168,15 @@ func (b *Basis) Client() *serverclient.VagrantClient {
 	return b.client
 }
 
+func (b *Basis) Host() (host core.Host, err error) {
+	h, err := b.findHostPlugin(b.ctx)
+	if err != nil {
+		return
+	}
+	host = h.Value.(core.Host)
+	return
+}
+
 func (b *Basis) Init() (result *vagrant_server.Job_InitResult, err error) {
 	b.logger.Debug("running init for basis")
 	f := b.factories[component.CommandType]
@@ -203,7 +219,6 @@ func (b *Basis) Init() (result *vagrant_server.Job_InitResult, err error) {
 			b.convertCommandInfo(r, []string{})...)
 	}
 
-	b.logger.Warn("resulting init commands", "commands", result.Commands)
 	return
 }
 
@@ -224,7 +239,7 @@ func (b *Basis) LoadProject(popts ...ProjectOption) (p *Project, err error) {
 	p = &Project{
 		ctx:       b.ctx,
 		basis:     b,
-		logger:    b.logger.Named("project"),
+		logger:    b.logger,
 		mappers:   b.mappers,
 		factories: b.factories,
 		targets:   map[string]*Target{},
@@ -237,6 +252,7 @@ func (b *Basis) LoadProject(popts ...ProjectOption) (p *Project, err error) {
 			err = multierror.Append(err, oerr)
 		}
 	}
+
 	if err != nil {
 		return
 	}
@@ -248,6 +264,12 @@ func (b *Basis) LoadProject(popts ...ProjectOption) (p *Project, err error) {
 
 	// Set our loaded project into the basis
 	b.projects[p.project.ResourceId] = p
+
+	if p.logger.IsTrace() {
+		p.logger = p.logger.Named("project")
+	} else {
+		p.logger = p.logger.ResetNamed("vagrant.core.project")
+	}
 
 	// Ensure project directory is set
 	if p.dir == nil {
@@ -399,6 +421,9 @@ func (b *Basis) findHostPlugin(ctx context.Context) (*Component, error) {
 			h,
 			h.Value.(component.Host).DetectFunc(),
 		)
+		if err != nil {
+			return nil, err
+		}
 		if detected != nil && detected.(bool) {
 			return h, nil
 		}
@@ -451,7 +476,7 @@ func (b *Basis) startPlugin(
 	typ component.Type,
 	n string,
 ) (*plugin.Instance, error) {
-	log := b.logger.Named(strings.ToLower(typ.String()))
+	log := b.logger.ResetNamed(fmt.Sprintf("vagrant.plugin.%s.%s", strings.ToLower(typ.String()), n))
 
 	f, ok := b.factories[typ]
 	if !ok {
@@ -465,11 +490,11 @@ func (b *Basis) startPlugin(
 	}
 
 	// Call the factory to get our raw value (interface{} type)
-	fnResult := fn.Call(argmapper.Typed(ctx, log))
+	fnResult := fn.Call(argmapper.Typed(ctx, log), argmapper.Logger(dynamicLogger))
 	if err := fnResult.Err(); err != nil {
 		return nil, err
 	}
-	log.Info("initialized component", "type", typ.String())
+	log.Info("initialized component", "type", typ.String(), "name", n)
 	raw := fnResult.Out(0)
 
 	// If we have a plugin.Instance then we can extract other information
@@ -494,13 +519,14 @@ func (b *Basis) callDynamicFunc(
 	f interface{}, // function
 	args ...argmapper.Arg,
 ) (interface{}, error) {
-	// We allow f to be a *mapper.Func because our plugin system creates
-	// a func directly due to special argument types.
-	// TODO: test
-	rawFunc, ok := f.(*argmapper.Func)
-	if !ok {
+	var rawFunc *argmapper.Func
+	if fn, ok := f.(*argmapper.Func); ok {
+		rawFunc = fn
+	} else if fn, ok := f.(*component.SpicyFunc); ok {
+		rawFunc = fn.Func
+	} else {
 		var err error
-		rawFunc, err = argmapper.NewFunc(f, argmapper.Logger(log))
+		rawFunc, err = argmapper.NewFunc(f)
 		if err != nil {
 			return nil, err
 		}
@@ -512,11 +538,12 @@ func (b *Basis) callDynamicFunc(
 
 	args = append(args,
 		argmapper.ConverterFunc(b.mappers...),
-		argmapper.Typed(b, b.ui, ctx, log),
+		argmapper.Typed(b, b.ui, ctx, log.Named("plugin-call")),
 		argmapper.Named("basis", b),
+		argmapper.Logger(dynamicLogger),
 	)
 
-	b.logger.Info("running dynamic call from basis", "basis", b)
+	b.logger.Info("running dynamic call from basis", "basis", b, "func", rawFunc.Name())
 
 	// Build the chain and call it
 	callResult := rawFunc.Call(args...)
@@ -690,3 +717,8 @@ func WithBasisResourceId(rid string) BasisOption {
 }
 
 var _ core.Basis = (*Basis)(nil)
+
+var dynamicLogger hclog.Logger = hclog.New(&hclog.LoggerOptions{
+	Name:  "vagrant.core.dynamic-function",
+	Level: hclog.Error,
+})

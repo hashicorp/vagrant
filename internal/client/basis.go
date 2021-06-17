@@ -38,7 +38,7 @@ type Basis struct {
 
 func New(ctx context.Context, opts ...Option) (basis *Basis, err error) {
 	basis = &Basis{
-		logger: hclog.L().Named("basis"),
+		logger: hclog.L(),
 		runner: &vagrant_server.Ref_Runner{
 			Target: &vagrant_server.Ref_Runner_Any{
 				Any: &vagrant_server.Ref_RunnerAny{},
@@ -54,6 +54,8 @@ func New(ctx context.Context, opts ...Option) (basis *Basis, err error) {
 			return nil, err
 		}
 	}
+
+	basis.logger = basis.logger.Named("basis")
 
 	// If no internal basis was provided, set it up now
 	if basis.basis == nil {

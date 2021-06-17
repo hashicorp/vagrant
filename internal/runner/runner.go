@@ -106,6 +106,7 @@ func New(opts ...Option) (*Runner, error) {
 		}
 	}
 
+	runner.logger = runner.logger.ResetNamed("vagrant.runner")
 	// Setup our runner components list
 	for t, f := range runner.factories {
 		for _, n := range f.Registered() {

@@ -179,7 +179,7 @@ func BaseCommand(ctx context.Context, log hclog.Logger, logOutput io.Writer, opt
 
 	// Start building our client options
 	basisOpts := []clientpkg.Option{
-		clientpkg.WithLogger(bc.Log),
+		clientpkg.WithLogger(bc.Log.ResetNamed("vagrant.client")),
 		clientpkg.WithClientConnect(connectOpts...),
 		clientpkg.WithBasis(
 			&vagrant_server.Basis{
@@ -431,7 +431,7 @@ func (c *baseCommand) Do(ctx context.Context, f func(context.Context, Tasker) er
 	// Start with checking if we are running in a machine based scope
 	if len(c.targets) > 0 {
 		for _, m := range c.targets {
-			c.Log.Warn("running command on target", "target", m)
+			c.Log.Debug("running command on target", "target", m)
 			// If the context has been canceled, then bail
 			if err := ctx.Err(); err != nil {
 				return err

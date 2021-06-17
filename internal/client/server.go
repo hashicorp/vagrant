@@ -35,7 +35,7 @@ import (
 //      found, this will spin up an in-memory server.
 //
 func (b *Basis) initServerClient(ctx context.Context, cfg *config) (*grpc.ClientConn, error) {
-	log := b.logger.Named("server")
+	log := b.logger.ResetNamed("vagrant.server")
 
 	// If we're local, then connection is optional.
 	opts := cfg.connectOpts
@@ -73,7 +73,7 @@ func (b *Basis) initServerClient(ctx context.Context, cfg *config) (*grpc.Client
 // If this returns an error, all resources associated with this operation
 // will be closed, but the project can retry.
 func (b *Basis) initLocalServer(ctx context.Context) (_ *grpc.ClientConn, err error) {
-	log := b.logger.Named("server")
+	log := b.logger.ResetNamed("vagrant.server")
 	b.localServer = true
 
 	// We use this pointer to accumulate things we need to clean up

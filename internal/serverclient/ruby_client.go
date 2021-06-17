@@ -32,7 +32,7 @@ type RubyVagrantClient struct {
 }
 
 func RubyVagrantPluginConfig(log hclog.Logger) *plugin.ClientConfig {
-	log = log.Named("vagrant-ruby-runtime")
+	log = log.ResetNamed("vagrant.client.ruby-runtime")
 	config := pluginclient.ClientConfig(log)
 	config.Logger = log
 	config.VersionedPlugins[1]["vagrantrubyruntime"] = &RubyVagrantPlugin{}

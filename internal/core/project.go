@@ -97,11 +97,7 @@ func (p *Project) DefaultPrivateKey() (path string, err error) {
 }
 
 func (p *Project) Host() (host core.Host, err error) {
-	hostComponent, err := p.basis.findHostPlugin(p.ctx)
-	if err != nil {
-		return nil, err
-	}
-	return hostComponent.Value.(core.Host), nil
+	return p.basis.Host()
 }
 
 func (p *Project) MachineNames() (names []string, err error) {
@@ -156,7 +152,7 @@ func (p *Project) LoadTarget(topts ...TargetOption) (t *Target, err error) {
 	t = &Target{
 		ctx:     p.ctx,
 		project: p,
-		logger:  p.logger.Named("target"),
+		logger:  p.logger,
 		ui:      p.ui,
 	}
 
@@ -177,6 +173,12 @@ func (p *Project) LoadTarget(topts ...TargetOption) (t *Target, err error) {
 	}
 
 	p.targets[t.target.ResourceId] = t
+
+	if t.logger.IsTrace() {
+		t.logger = t.logger.Named("target")
+	} else {
+		t.logger = t.logger.ResetNamed("vagrant.core.target")
+	}
 
 	if t.dir == nil {
 		if t.dir, err = p.dir.Target(t.target.Name); err != nil {

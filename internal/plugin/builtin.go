@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"strings"
+	"sync"
 
 	"github.com/hashicorp/go-hclog"
 	"github.com/hashicorp/go-plugin"
@@ -20,6 +21,7 @@ type Builtin struct {
 	log     hclog.Logger
 	cancel  context.CancelFunc
 	ctx     context.Context
+	mu      sync.Mutex
 }
 
 func NewBuiltins(ctx context.Context, log hclog.Logger) *Builtin {
@@ -33,6 +35,8 @@ func NewBuiltins(ctx context.Context, log hclog.Logger) *Builtin {
 }
 
 func (b *Builtin) ConnectInfo(name string) (*plugin.ReattachConfig, error) {
+	b.mu.Lock()
+	defer b.mu.Unlock()
 	r, ok := b.servers[name]
 	if !ok {
 		b.log.Error("failed to locate plugin", "name", name, "servers", b.servers)
@@ -54,7 +58,12 @@ func (b *Builtin) Add(name string, opts ...sdk.Option) (err error) {
 	opts = append(opts, sdk.InProcess(cfg), sdk.WithLogger(b.log))
 
 	// Spin off a new go routine to get the reattach config
-	go func() { b.servers[name] = <-reCh }()
+	go func() {
+		rc := <-reCh
+		b.mu.Lock()
+		defer b.mu.Unlock()
+		b.servers[name] = rc
+	}()
 
 	// Add the plugin server to our group
 	b.group.Add(func() error {
