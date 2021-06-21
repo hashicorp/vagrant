@@ -8,6 +8,7 @@ module VagrantPlugins
       class ConfigureNetworks
         include Vagrant::Util
         extend Vagrant::Util::GuestInspection::Linux
+        extend Vagrant::Util::Retryable
 
         NETPLAN_DEFAULT_VERSION = 2
         NETPLAN_DIRECTORY = "/etc/netplan".freeze
@@ -166,11 +167,16 @@ module VagrantPlugins
             rm -f /tmp/vagrant-network-interfaces.post
           EOH
 
+          comm.sudo(commands.join("\n"))
+          network_up_commands = []
+         
           # Bring back up each network interface, reconfigured.
           networks.each do |network|
-            commands << "/sbin/ifup '#{network[:device]}'"
+            network_up_commands << "/sbin/ifup '#{network[:device]}'"
           end
-          comm.sudo(commands.join("\n"))
+          retryable(on: Vagrant::Errors::VagrantError, sleep: 2, tries: 2) do
+            comm.sudo(network_up_commands.join("\n"))
+          end
         end
 
         # Simple helper to upload content to guest temporary file
