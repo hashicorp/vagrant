@@ -12,7 +12,7 @@ Gem::Specification.new do |s|
   s.summary       = "Build and distribute virtualized development environments."
   s.description   = "Vagrant is a tool for building and distributing virtualized development environments."
 
-  s.required_ruby_version     = "~> 2.5", "< 2.8"
+  s.required_ruby_version     = ">= 2.5", "< 3.1"
   s.required_rubygems_version = ">= 1.3.6"
 
   s.add_dependency "bcrypt_pbkdf", "~> 1.1"
@@ -38,10 +38,11 @@ Gem::Specification.new do |s|
   # Constraint rake to properly handle deprecated method usage
   # from within rspec
   s.add_development_dependency "rake", "~> 13.0"
-  s.add_development_dependency "rspec", "~> 3.5.0"
+  s.add_development_dependency "rspec", "~> 3.10.0"
   s.add_development_dependency "rspec-its", "~> 1.3.0"
   s.add_development_dependency "webmock", "~> 2.3.1"
   s.add_development_dependency "fake_ftp", "~> 0.1.1"
+  s.add_development_dependency "webrick", "~> 1.7.0"
 
   # The following block of code determines the files that should be included
   # in the gem. It does this by reading all the files in the directory where

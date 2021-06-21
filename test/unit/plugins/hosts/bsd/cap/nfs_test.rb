@@ -8,7 +8,7 @@ describe VagrantPlugins::HostBSD::Cap::NFS do
   describe ".nfs_export" do
     let(:environment) { double("environment", host: host) }
     let(:host) { double("host") }
-    let(:ui) { double("ui") }
+    let(:ui) { Vagrant::UI::Silent.new }
     let(:id) { "UUID" }
     let(:ips) { [] }
     let(:folders) { {} }

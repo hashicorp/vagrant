@@ -5,7 +5,7 @@ require Vagrant.source_root.join("plugins/providers/hyperv/config")
 describe VagrantPlugins::HyperV::Config do
 
   let(:machine){ double("machine", ui: ui) }
-  let(:ui){ double("ui") }
+  let(:ui){ Vagrant::UI::Silent.new }
 
   describe "#ip_address_timeout" do
     it "can be set" do
@@ -241,7 +241,7 @@ describe VagrantPlugins::HyperV::Config do
       expect(result["Hyper-V"]).not_to be_empty
     end
   end
-  
+
 
   describe "#enable_enhanced_session_mode" do
     it "is false by default" do

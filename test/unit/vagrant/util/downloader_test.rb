@@ -30,7 +30,7 @@ describe Vagrant::Util::Downloader do
     }
 
     context "with UI" do
-      let(:ui) { double("ui") }
+      let(:ui) { Vagrant::UI::Silent.new }
       let(:options) { {ui: ui} }
       let(:source) { "http://example.org/vagrant.box" }
       let(:redirect) { nil }

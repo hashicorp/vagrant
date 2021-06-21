@@ -11,7 +11,7 @@ describe Vagrant::Action::Builtin::Disk do
 
   let(:disks) { [double("disk")] }
 
-  let(:ui)  { double("ui") }
+  let(:ui)  { Vagrant::UI::Silent.new }
 
   let(:disk_data) { {disk: [{uuid: "123456789", name: "storage"}], floppy: [], dvd: []} }
 

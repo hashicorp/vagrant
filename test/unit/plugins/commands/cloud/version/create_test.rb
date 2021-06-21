@@ -16,7 +16,7 @@ describe VagrantPlugins::CloudCommand::VersionCommand::Command::Create do
   describe "#create_version" do
     let(:options) { {} }
     let(:env) { double("env", ui: ui) }
-    let(:ui) { double("ui") }
+    let(:ui) { Vagrant::UI::Silent.new }
     let(:argv) { [] }
 
     before do

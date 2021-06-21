@@ -8,7 +8,7 @@ describe "VagrantPlugins::GuestLinux::Cap::MountSMBSharedFolder" do
   end
 
   let(:machine) { double("machine", env: env, config: config) }
-  let(:env) { double("env", host: host, ui: double("ui"), data_dir: double("data_dir")) }
+  let(:env) { double("env", host: host, ui: Vagrant::UI::Silent.new, data_dir: double("data_dir")) }
   let(:host) { double("host") }
   let(:guest) { double("guest") }
   let(:comm) { VagrantTests::DummyCommunicator::Communicator.new(machine) }
@@ -102,7 +102,7 @@ describe "VagrantPlugins::GuestLinux::Cap::MountSMBSharedFolder" do
       allow(gate_file).to receive(:to_path).and_return("PATH")
       allow(FileUtils).to receive(:touch)
     end
-  
+
     it "should output warning message" do
       expect(env.ui).to receive(:warn).with(/VAGRANT_DISABLE_SMBMFSYMLINKS=1/)
       cap.display_mfsymlinks_warning(env)

@@ -16,7 +16,7 @@ describe VagrantPlugins::CloudCommand::VersionCommand::Command::Release do
   describe "#release_version" do
     let(:options) { {} }
     let(:env) { double("env", ui: ui) }
-    let(:ui) { double("ui") }
+    let(:ui) { Vagrant::UI::Silent.new }
     let(:argv) { [] }
 
     before do

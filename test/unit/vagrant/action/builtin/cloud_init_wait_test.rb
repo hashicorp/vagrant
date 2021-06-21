@@ -1,12 +1,12 @@
 require File.expand_path("../../../../base", __FILE__)
 
 describe Vagrant::Action::Builtin::CloudInitWait do
- 
+
   let(:app) { lambda { |env| } }
   let(:config) { double("config", :vm => vm) }
   let(:comm) { double("comm") }
   let(:machine) { double("machie", :config => config, :communicate => comm, :name => "test") }
-  let(:ui) { double("ui") }
+  let(:ui) { Vagrant::UI::Silent.new }
   let(:env) { { machine: machine, ui: ui} }
 
   let(:subject) { described_class.new(app, env) }
@@ -18,13 +18,13 @@ describe Vagrant::Action::Builtin::CloudInitWait do
     end
 
     context "cloud init configuration exists" do
-      
+
       let(:vm) { double("vm", cloud_init_configs: ["some config"]) }
 
       before do
         allow(comm).to receive(:test).with("command -v cloud-init").and_return(true)
       end
-      
+
       it "waits for cloud init to be executed" do
         expect(comm).to receive(:sudo).with("cloud-init status --wait", any_args).and_return(0)
         subject.call(env)
@@ -44,7 +44,7 @@ describe Vagrant::Action::Builtin::CloudInitWait do
     end
 
     context "no cloud init configuration" do
-      
+
       let(:vm) { double("vm", cloud_init_configs: []) }
 
       before do

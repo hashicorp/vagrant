@@ -18,7 +18,7 @@ describe VagrantPlugins::CloudCommand::ProviderCommand::Command::Delete do
   describe "#delete_provider" do
     let(:options) { {} }
     let(:env) { double("env", ui: ui) }
-    let(:ui) { double("ui") }
+    let(:ui) { Vagrant::UI::Silent.new }
     let(:argv) { [] }
 
     before do

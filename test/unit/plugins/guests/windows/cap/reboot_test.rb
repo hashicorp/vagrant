@@ -11,7 +11,7 @@ describe "VagrantPlugins::GuestWindows::Cap::Reboot" do
   let(:machine) { double("machine", ui: ui) }
   let(:guest) { double("guest") }
   let(:communicator) { double("communicator") }
-  let(:ui) { double("ui") }
+  let(:ui) { Vagrant::UI::Silent.new }
 
   before do
     allow(machine).to receive(:communicate).and_return(communicator)

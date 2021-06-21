@@ -5,7 +5,7 @@ require Vagrant.source_root.join("plugins/providers/hyperv/action/read_state")
 describe VagrantPlugins::HyperV::Action::ReadState do
   let(:app){ double("app") }
   let(:env){ {ui: ui, machine: machine, machine_state_id: state_id} }
-  let(:ui){ double("ui") }
+  let(:ui){ Vagrant::UI::Silent.new }
   let(:provider){ double("provider", driver: driver) }
   let(:driver){ double("driver") }
   let(:machine){ double("machine", provider: provider) }

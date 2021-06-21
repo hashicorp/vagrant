@@ -5,7 +5,7 @@ require Vagrant.source_root.join("plugins/providers/hyperv/action/is_windows")
 describe VagrantPlugins::HyperV::Action::IsWindows do
   let(:app){ double("app") }
   let(:env){ {ui: ui, machine: machine} }
-  let(:ui){ double("ui") }
+  let(:ui){ Vagrant::UI::Silent.new }
   let(:provider){ double("provider", driver: driver) }
   let(:driver){ double("driver") }
   let(:machine){ double("machine", provider: provider, config: config) }

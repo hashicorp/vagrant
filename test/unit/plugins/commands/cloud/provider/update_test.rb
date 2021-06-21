@@ -20,7 +20,7 @@ describe VagrantPlugins::CloudCommand::ProviderCommand::Command::Update do
     let(:argv) { [] }
     let(:options) { {} }
     let(:env) { double("env", ui: ui) }
-    let(:ui) { double("ui") }
+    let(:ui) { Vagrant::UI::Silent.new }
 
     before do
       allow(ui).to receive(:info)

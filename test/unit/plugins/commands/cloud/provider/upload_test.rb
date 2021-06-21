@@ -21,7 +21,7 @@ describe VagrantPlugins::CloudCommand::ProviderCommand::Command::Upload do
     let(:argv) { [] }
     let(:options) { {} }
     let(:env) { double("env", ui: ui) }
-    let(:ui) { double("ui") }
+    let(:ui) { Vagrant::UI::Silent.new }
     let(:upload_url) { double("upload-url") }
     let(:uploader) { double("uploader") }
 

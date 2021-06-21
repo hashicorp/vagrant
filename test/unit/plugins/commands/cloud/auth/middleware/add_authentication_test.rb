@@ -6,7 +6,7 @@ describe VagrantPlugins::CloudCommand::AddAuthentication do
   include_context "unit"
 
   let(:app) { lambda { |env| } }
-  let(:ui) { double("ui") }
+  let(:ui) { Vagrant::UI::Silent.new }
   let(:env) { {
     env: iso_env,
     ui: ui

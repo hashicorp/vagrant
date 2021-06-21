@@ -5,11 +5,11 @@ require Vagrant.source_root.join("plugins/synced_folders/unix_mount_helpers")
 describe VagrantPlugins::SyncedFolder::UnixMountHelpers do
   include_context "unit"
 
-  subject{ 
-    Class.new do
-      @@logger = nil
-      extend  VagrantPlugins::SyncedFolder::UnixMountHelpers
-    end 
+  subject{
+    Class.new do |c|
+      def self.name; "UnixMountHelpersTest"; end
+      extend VagrantPlugins::SyncedFolder::UnixMountHelpers
+    end
   }
 
 

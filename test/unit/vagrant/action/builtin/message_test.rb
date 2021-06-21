@@ -7,7 +7,7 @@ describe Vagrant::Action::Builtin::Message do
   let(:app) { lambda { |env| } }
   let(:env) { { ui: ui } }
 
-  let(:ui)  { double("ui") }
+  let(:ui)  { Vagrant::UI::Silent.new }
 
   describe "#call" do
     it "outputs the given message" do
