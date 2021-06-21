@@ -5,10 +5,10 @@
   "author": "HashiCorp",
   "dependencies": {
     "@hashicorp/mktg-global-styles": "^3.0.1",
-    "@hashicorp/nextjs-scripts": "19.0.1",
+    "@hashicorp/nextjs-scripts": "19.0.2",
     "@hashicorp/react-alert-banner": "^6.1.1",
     "@hashicorp/react-button": "^5.0.1",
-    "@hashicorp/react-code-block": "4.1.1",
+    "@hashicorp/react-code-block": "4.1.2",
     "@hashicorp/react-docs-page": "13.2.0",
     "@hashicorp/react-hashi-stack-menu": "2.0.3",
     "@hashicorp/react-head": "^3.0.2",
