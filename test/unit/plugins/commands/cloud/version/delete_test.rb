@@ -16,7 +16,7 @@ describe VagrantPlugins::CloudCommand::VersionCommand::Command::Delete do
   describe "#delete_version" do
     let(:options) { {} }
     let(:env) { double("env", ui: ui) }
-    let(:ui) { double("ui") }
+    let(:ui) { Vagrant::UI::Silent.new }
     let(:argv) { [] }
 
     before do

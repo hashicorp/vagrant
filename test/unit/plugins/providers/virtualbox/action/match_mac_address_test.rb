@@ -1,7 +1,7 @@
 require_relative "../base"
 
 describe VagrantPlugins::ProviderVirtualBox::Action::MatchMACAddress do
-  let(:ui) { double("ui") }
+  let(:ui) { Vagrant::UI::Silent.new }
   let(:machine) { double("machine", config: config, provider: double("provider", driver: driver)) }
   let(:driver) { double("driver") }
   let(:env) {

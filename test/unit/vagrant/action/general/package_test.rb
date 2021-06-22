@@ -9,7 +9,7 @@ describe Vagrant::Action::General::Package do
   }
   let(:environment) { double("environment") }
   let(:machine) { double("machine") }
-  let(:ui) { double("ui") }
+  let(:ui) { Vagrant::UI::Silent.new }
 
   let(:subject) { described_class.new(app, env) }
 

@@ -215,7 +215,7 @@ describe VagrantPlugins::ProviderVirtualBox::SyncedFolder do
   end
 
   describe "#display_symlink_create_warning" do
-    let(:env){ double("env", ui: double("ui"), data_dir: double("data_dir")) }
+    let(:env){ double("env", ui: Vagrant::UI::Silent.new, data_dir: double("data_dir")) }
     let(:gate_file){ double("gate") }
 
     before{ allow(gate_file).to receive(:to_path).and_return("PATH") }

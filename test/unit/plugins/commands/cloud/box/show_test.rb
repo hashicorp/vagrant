@@ -15,7 +15,7 @@ describe VagrantPlugins::CloudCommand::BoxCommand::Command::Show do
   describe "#show_box" do
     let(:options) { {} }
     let(:env) { double("env", ui: ui) }
-    let(:ui) { double("ui") }
+    let(:ui) { Vagrant::UI::Silent.new }
     let(:argv) { [] }
 
     before do

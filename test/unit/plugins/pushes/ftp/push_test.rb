@@ -17,11 +17,7 @@ describe VagrantPlugins::FTPPush::Push do
       destination: "/var/www/site",
     )
   end
-  let(:ui) do
-    double("ui",
-      info: nil,
-    )
-  end
+  let(:ui) { Vagrant::UI::Silent.new }
 
   subject { described_class.new(env, config) }
 

@@ -48,11 +48,7 @@ describe Vagrant::Action::Builtin::HandleForwardedPortCollisions do
     end
   end
 
-  let(:ui) do
-    double("ui").tap do |result|
-      allow(result).to receive(:info)
-    end
-  end
+  let(:ui){ Vagrant::UI::Silent.new }
 
   let(:instance){ described_class.new(app, env) }
 

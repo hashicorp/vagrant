@@ -14,7 +14,7 @@ describe VagrantPlugins::CloudCommand::Command::Publish do
   let(:version) { double("version") }
   let(:provider) { double("provider") }
   let(:uploader) { double("uploader") }
-  let(:ui) { double("ui") }
+  let(:ui) { Vagrant::UI::Silent.new }
   let(:upload_url) { double("upload_url") }
   let(:access_token) { double("access_token") }
 

@@ -5,7 +5,7 @@ require Vagrant.source_root.join("plugins/providers/hyperv/action/wait_for_ip_ad
 describe VagrantPlugins::HyperV::Action::WaitForIPAddress do
   let(:app){ double("app") }
   let(:env){ {ui: ui, machine: machine} }
-  let(:ui){ double("ui") }
+  let(:ui){ Vagrant::UI::Silent.new }
   let(:provider){ double("provider", driver: driver) }
   let(:driver){ double("driver") }
   let(:machine){ double("machine", provider: provider, provider_config: provider_config) }

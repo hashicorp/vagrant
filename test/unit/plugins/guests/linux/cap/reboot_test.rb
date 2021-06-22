@@ -10,7 +10,7 @@ describe "VagrantPlugins::GuestLinux::Cap::Reboot" do
   let(:machine) { double("machine", guest: guest) }
   let(:guest) { double("guest") }
   let(:communicator) { VagrantTests::DummyCommunicator::Communicator.new(machine) }
-  let(:ui) { double("ui") }
+  let(:ui) { Vagrant::UI::Silent.new }
 
   context "systemd not enabled" do
     before do

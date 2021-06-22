@@ -78,7 +78,7 @@ module VagrantPlugins
           options = {}
           options[:color] = color if !config.keep_color
 
-          @machine.ui.detail(data.chomp, options)
+          @machine.ui.detail(data.chomp, **options)
         end
       end
 
@@ -161,7 +161,7 @@ module VagrantPlugins
               info = @machine.ssh_info
               raise Vagrant::Errors::SSHNotReady if info.nil?
             end
-            
+
             comm.upload(path.to_s, remote_path)
 
             if config.name

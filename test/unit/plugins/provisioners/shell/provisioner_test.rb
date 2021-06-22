@@ -448,11 +448,10 @@ describe "Vagrant::Shell::Provisioner" do
 
     let(:communicator) { double("communicator") }
     let(:guest) { double("guest") }
-    let(:ui) { double("ui") }
+    let(:ui) { Vagrant::UI::Silent.new }
 
     before {
       allow(guest).to receive(:capability?).with(:wait_for_reboot).and_return(false)
-      allow(ui).to receive(:detail)
       allow(communicator).to receive(:sudo)
       allow(machine).to receive(:communicate).and_return(communicator)
       allow(machine).to receive(:guest).and_return(guest)
@@ -502,7 +501,7 @@ describe "Vagrant::Shell::Provisioner" do
           :powershell_elevated_interactive => false
         )
       }
-  
+
       it "creates an executable with an extension" do
         allow(machine).to receive_message_chain(:config, :winssh, :shell).and_return(nil)
         allow(vsp).to receive(:with_script_file).and_yield(default_win_path)
@@ -544,11 +543,10 @@ describe "Vagrant::Shell::Provisioner" do
 
     let(:communicator) { double("communicator") }
     let(:guest) { double("guest") }
-    let(:ui) { double("ui") }
+    let(:ui) { Vagrant::UI::Silent.new }
 
     before {
       allow(guest).to receive(:capability?).with(:wait_for_reboot).and_return(false)
-      allow(ui).to receive(:detail)
       allow(communicator).to receive(:sudo)
       allow(communicator).to receive_message_chain(:machine_config_ssh, :shell)
       allow(machine).to receive(:communicate).and_return(communicator)
@@ -562,7 +560,7 @@ describe "Vagrant::Shell::Provisioner" do
         allow(config).to receive(:path).and_return("script/info.ps1")
         allow(vsp).to receive(:with_script_file).and_yield(config.path)
       end
-      
+
       it "ensures that files are uploaded same extension as provided path.ps1" do
         allow(machine).to receive_message_chain(:config, :winssh, :shell).and_return("cmd")
         expect(communicator).to receive(:upload).with(config.path, /arbitrary.ps1/)
@@ -642,6 +640,90 @@ describe "Vagrant::Shell::Provisioner" do
             vsp.send(:provision_winssh, "")
           end
         end
+      end
+    end
+  end
+
+  describe "#handle_comm" do
+    let(:ui) { Vagrant::UI::Silent.new }
+    let(:keep_color) { false }
+    let(:config) {
+      double(
+        :config,
+        :keep_color  => keep_color,
+      )
+    }
+    let(:env){ isolated_environment }
+    let(:machine) { double(:machine, env: env, id: "ID") }
+    let(:vsp) {
+      VagrantPlugins::Shell::Provisioner.new(machine, config)
+    }
+
+    before do
+      allow(machine).to receive(:ui).and_return(ui)
+    end
+
+    context "when type is stdout" do
+      let(:type) { :stdout }
+      let(:data) { "output data" }
+
+      it "should output data through the ui" do
+        expect(ui).to receive(:detail).and_call_original
+        vsp.send(:handle_comm, type, data)
+      end
+
+      it "should color the output" do
+        expect(ui).to receive(:detail).with(data, hash_including(color: :green))
+        vsp.send(:handle_comm, type, data)
+      end
+
+      context "when configured to keep color" do
+        let(:keep_color) { true }
+
+        it "should not color the output" do
+          expect(ui).to receive(:detail) do |msg, **opts|
+            expect(msg).to eq(data)
+            expect(opts).to be_empty
+          end
+          vsp.send(:handle_comm, type, data)
+        end
+      end
+    end
+
+    context "when type is stderr" do
+      let(:type) { :stderr }
+      let(:data) { "output data" }
+
+      it "should output data through the ui" do
+        expect(ui).to receive(:detail).and_call_original
+        vsp.send(:handle_comm, type, data)
+      end
+
+      it "should color the output" do
+        expect(ui).to receive(:detail).with(data, hash_including(color: :red))
+        vsp.send(:handle_comm, type, data)
+      end
+
+      context "when configured to keep color" do
+        let(:keep_color) { true }
+
+        it "should not color the output" do
+          expect(ui).to receive(:detail) do |msg, **opts|
+            expect(msg).to eq(data)
+            expect(opts).to be_empty
+          end
+          vsp.send(:handle_comm, type, data)
+        end
+      end
+    end
+
+    context "when type is not stdout or stderr" do
+      let(:type) { :stdnull }
+      let(:data) { "output data" }
+
+      it "should not output data through the ui" do
+        expect(ui).not_to receive(:detail)
+        vsp.send(:handle_comm, type, data)
       end
     end
   end

@@ -2,6 +2,7 @@ require 'vagrant/action/builder'
 
 module Vagrant
   module Action
+    autoload :Builder,     'vagrant/action/builder'
     autoload :Hook,        'vagrant/action/hook'
     autoload :Runner,      'vagrant/action/runner'
     autoload :Warden,      'vagrant/action/warden'
@@ -12,12 +13,13 @@ module Vagrant
       autoload :BoxAdd,    "vagrant/action/builtin/box_add"
       autoload :BoxCheckOutdated, "vagrant/action/builtin/box_check_outdated"
       autoload :BoxRemove, "vagrant/action/builtin/box_remove"
+      autoload :BoxUpdate, "vagrant/action/builtin/box_update"
       autoload :Call,    "vagrant/action/builtin/call"
       autoload :CleanupDisks, "vagrant/action/builtin/cleanup_disks"
       autoload :CloudInitSetup, "vagrant/action/builtin/cloud_init_setup"
       autoload :CloudInitWait, "vagrant/action/builtin/cloud_init_wait"
-      autoload :Confirm, "vagrant/action/builtin/confirm"
       autoload :ConfigValidate, "vagrant/action/builtin/config_validate"
+      autoload :Confirm, "vagrant/action/builtin/confirm"
       autoload :Delayed, "vagrant/action/builtin/delayed"
       autoload :DestroyConfirm, "vagrant/action/builtin/destroy_confirm"
       autoload :Disk, "vagrant/action/builtin/disk"
@@ -31,14 +33,16 @@ module Vagrant
       autoload :IsState, "vagrant/action/builtin/is_state"
       autoload :Lock, "vagrant/action/builtin/lock"
       autoload :Message, "vagrant/action/builtin/message"
+      autoload :MixinProvisioners, "vagrant/action/builtin/mixin_provisioners"
+      autoload :MixinSyncedFolders, "vagrant/action/builtin/mixin_synced_folders"
       autoload :PrepareClone, "vagrant/action/builtin/prepare_clone"
       autoload :Provision, "vagrant/action/builtin/provision"
       autoload :ProvisionerCleanup, "vagrant/action/builtin/provisioner_cleanup"
       autoload :SetHostname, "vagrant/action/builtin/set_hostname"
       autoload :SSHExec, "vagrant/action/builtin/ssh_exec"
       autoload :SSHRun,  "vagrant/action/builtin/ssh_run"
-      autoload :SyncedFolders, "vagrant/action/builtin/synced_folders"
       autoload :SyncedFolderCleanup, "vagrant/action/builtin/synced_folder_cleanup"
+      autoload :SyncedFolders, "vagrant/action/builtin/synced_folders"
       autoload :Trigger, "vagrant/action/builtin/trigger"
       autoload :WaitForCommunicator, "vagrant/action/builtin/wait_for_communicator"
     end

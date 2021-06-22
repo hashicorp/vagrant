@@ -22,11 +22,7 @@ describe Vagrant::Action::Builtin::SyncedFolderCleanup do
 
   let(:vm_config) { double("machine_vm_config") }
 
-  let(:ui) do
-    double("ui").tap do |result|
-      allow(result).to receive(:info)
-    end
-  end
+  let(:ui) { Vagrant::UI::Silent.new }
 
   subject { described_class.new(app, env) }
 

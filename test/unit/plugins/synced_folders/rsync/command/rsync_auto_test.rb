@@ -81,7 +81,7 @@ describe VagrantPlugins::SyncedFolderRSync::Command::RsyncAuto do
       allow(machine.env).to receive(:cwd).
         and_return("/Users/brian/code/vagrant-sandbox")
       allow(machine.provider).to receive(:capability?).and_return(false)
-      allow(machine.config).to receive(:vm).and_return(true)
+      allow(machine.config).to receive(:vm).and_return(double("vm"))
       allow(machine.config.vm).to receive(:synced_folders).and_return(config_synced_folders)
 
       allow(subject).to receive(:synced_folders).
