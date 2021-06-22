@@ -12,6 +12,10 @@ IMPROVEMENTS:
 
 BUG FIXES:
 
+- command/cloud: Fix authentication middleware to prevent breaking local paths [GH-12419]
+- communicator/ssh: Fix net-ssh patches for RSA signatures [GH-12415]
+- core: Add box directly with authed urls [GH-12278]
+
 ## 2.2.16 (April 29, 2021)
 
 IMPROVEMENTS:
@@ -21,9 +25,7 @@ IMPROVEMENTS:
 
 BUG FIXES:
 
-- command/cloud: Fix authentication middleware to prevent breaking local paths [GH-12419]
 - communicator/ssh: Properly handle authentication with RSA keys [GH-12298]
-- core: Add box directly with authed urls [GH-12278]
 - guest/fedora: Import guest detection module [GH-12275]
 - guest/linux: Fix SMB folder mount name capability call [GH-12281]
 - provider/docker: Properly handle updated buildkit build output [GH-12300]
