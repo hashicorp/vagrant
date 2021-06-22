@@ -4,10 +4,10 @@ FEATURES:
 
 IMPROVEMENTS:
 
+- guest/debian: Retry network setup on debain [GH-12421]
 - provisioners/salt: Always use upstream Salt bootstrap script on Windows [GH-12127]
 - provisioners/ansible: Detects new versions of ansible-4.0.0+ [GH-12391]
 - provisioner/ansible: Strip whitespace from ansible version [GH-12420]
-- guest/debian: Retry network setup on debain [GH-12421]
 - vagrant: Updates to support Ruby 3.0 [GH-12427]
 
 BUG FIXES:
@@ -21,8 +21,9 @@ IMPROVEMENTS:
 
 BUG FIXES:
 
-- core: Add box directly with authed urls [GH-12278]
+- command/cloud: Fix authentication middleware to prevent breaking local paths [GH-12419]
 - communicator/ssh: Properly handle authentication with RSA keys [GH-12298]
+- core: Add box directly with authed urls [GH-12278]
 - guest/fedora: Import guest detection module [GH-12275]
 - guest/linux: Fix SMB folder mount name capability call [GH-12281]
 - provider/docker: Properly handle updated buildkit build output [GH-12300]
