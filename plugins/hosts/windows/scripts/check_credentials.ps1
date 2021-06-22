@@ -11,9 +11,24 @@ $DSContext = New-Object System.DirectoryServices.AccountManagement.PrincipalCont
     [System.DirectoryServices.AccountManagement.ContextType]::Machine,
     $env:COMPUTERNAME
 )
-
 if ( $DSContext.ValidateCredentials( $username, $password ) ) {
     exit 0
-} else {
-    exit 1
-}
+} 
+
+$DSContext = New-Object System.DirectoryServices.AccountManagement.PrincipalContext(
+    [System.DirectoryServices.AccountManagement.ContextType]::Domain,
+    $env:COMPUTERNAME
+)
+if ( $DSContext.ValidateCredentials( $username, $password ) ) {
+    exit 0
+} 
+
+$DSContext = New-Object System.DirectoryServices.AccountManagement.PrincipalContext(
+    [System.DirectoryServices.AccountManagement.ContextType]::ApplicationDirectory,
+    $env:COMPUTERNAME
+)
+if ( $DSContext.ValidateCredentials( $username, $password ) ) {
+    exit 0
+} 
+
+exit 1
