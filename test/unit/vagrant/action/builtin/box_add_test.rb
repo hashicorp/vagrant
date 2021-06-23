@@ -339,7 +339,7 @@ describe Vagrant::Action::Builtin::BoxAdd, :skip_windows, :bsdtar do
 
         expect(app).to receive(:call).with(env)
 
-        expect(env[:ui]).to receive(:warn)
+        expect(env[:ui]).to receive(:warn).and_call_original
           .with(/It looks like you attempted to add a box with a URL for the name/)
 
         subject.call(env)
@@ -383,8 +383,9 @@ describe Vagrant::Action::Builtin::BoxAdd, :skip_windows, :bsdtar do
             true
           }.and_return(box)
 
-          allow(env[:ui]).to receive(:detail)
-          expect(env[:ui]).to receive(:detail).with(%r{.*http://(?!#{username}).+?:(?!#{password}).+?@127\.0\.0\.1:#{port}/#{box_path.basename}.*})
+          allow(env[:ui]).to receive(:detail).and_call_original
+          expect(env[:ui]).to receive(:detail).with(%r{.*http://(?!#{username}).+?:(?!#{password}).+?@127\.0\.0\.1:#{port}/#{box_path.basename}.*}).
+            and_call_original
           expect(app).to receive(:call).with(env)
 
           subject.call(env)

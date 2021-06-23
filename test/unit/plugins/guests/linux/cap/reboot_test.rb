@@ -18,7 +18,6 @@ describe "VagrantPlugins::GuestLinux::Cap::Reboot" do
       allow(machine).to receive(:guest).and_return(guest)
       allow(machine.guest).to receive(:ready?).and_return(true)
       allow(machine).to receive(:ui).and_return(ui)
-      allow(ui).to receive(:info)
       allow(communicator).to receive(:test).and_return(false)
     end
 
@@ -45,7 +44,7 @@ describe "VagrantPlugins::GuestLinux::Cap::Reboot" do
         after { described_class.reboot(machine) }
 
         it "sends message to user that guest is rebooting" do
-          expect(ui).to receive(:info)
+          expect(ui).to receive(:info).and_call_original
         end
       end
     end
@@ -56,7 +55,6 @@ describe "VagrantPlugins::GuestLinux::Cap::Reboot" do
         allow(machine).to receive(:guest).and_return(guest)
         allow(machine.guest).to receive(:ready?).and_return(true)
         allow(machine).to receive(:ui).and_return(ui)
-        allow(ui).to receive(:info)
         allow(communicator).to receive(:test).and_return(true)
       end
 

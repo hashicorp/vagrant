@@ -16,9 +16,6 @@ describe VagrantPlugins::HyperV::Action::Export do
 
   before do
     allow(app).to receive(:call)
-    allow(ui).to receive(:info)
-    allow(ui).to receive(:clear_line)
-    allow(ui).to receive(:report_progress)
     allow(driver).to receive(:export)
   end
 

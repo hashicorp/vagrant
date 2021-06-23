@@ -673,7 +673,8 @@ describe "Vagrant::Shell::Provisioner" do
       end
 
       it "should color the output" do
-        expect(ui).to receive(:detail).with(data, hash_including(color: :green))
+        expect(ui).to receive(:detail).with(data, hash_including(color: :green)).
+          and_call_original
         vsp.send(:handle_comm, type, data)
       end
 
@@ -700,7 +701,8 @@ describe "Vagrant::Shell::Provisioner" do
       end
 
       it "should color the output" do
-        expect(ui).to receive(:detail).with(data, hash_including(color: :red))
+        expect(ui).to receive(:detail).with(data, hash_including(color: :red)).
+          and_call_original
         vsp.send(:handle_comm, type, data)
       end
 

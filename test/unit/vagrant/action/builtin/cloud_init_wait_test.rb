@@ -13,10 +13,6 @@ describe Vagrant::Action::Builtin::CloudInitWait do
 
   describe "#call" do
 
-    before do
-      allow(ui).to receive(:output)
-    end
-
     context "cloud init configuration exists" do
 
       let(:vm) { double("vm", cloud_init_configs: ["some config"]) }

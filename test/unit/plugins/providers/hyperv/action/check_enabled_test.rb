@@ -11,8 +11,6 @@ describe VagrantPlugins::HyperV::Action::CheckEnabled do
   let(:machine){ double("machine", provider: provider) }
   let(:subject){ described_class.new(app, env) }
 
-  before{ allow(ui).to receive(:output) }
-
   it "should continue when Hyper-V is enabled" do
     expect(driver).to receive(:execute).and_return("result" => true)
     expect(app).to receive(:call)

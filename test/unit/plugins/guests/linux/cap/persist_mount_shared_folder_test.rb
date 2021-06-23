@@ -48,11 +48,10 @@ describe "VagrantPlugins::GuestLinux::Cap::PersistMountSharedFolder" do
 
   describe ".persist_mount_shared_folder" do
 
-    let(:ui){ double(:ui) }
+    let(:ui){ Vagrant::UI::Silent.new }
 
     before do
       allow(comm).to receive(:sudo).with(any_args)
-      allow(ui).to receive(:warn)
       allow(machine).to receive(:ui).and_return(ui)
     end
 
@@ -101,7 +100,7 @@ describe "VagrantPlugins::GuestLinux::Cap::PersistMountSharedFolder" do
         cap.persist_mount_shared_folder(machine, nil)
       end
     end
-   
+
     context "smb folder" do
       let (:fstab_folders) {
         Vagrant::Plugin::V2::SyncedFolder::Collection[
@@ -123,13 +122,13 @@ describe "VagrantPlugins::GuestLinux::Cap::PersistMountSharedFolder" do
           allow(folder_plugin).to receive(:capability?).with(:mount_name).and_return(true)
           allow(folder_plugin).to receive(:capability).with(:mount_name, instance_of(String), any_args).and_return("//192.168.42.42/dummyname")
         end
-      
+
         it "inserts folders into /etc/fstab" do
           expected_entry_vagrant = "//192.168.42.42/dummyname /vagrant cifs #{expected_mount_options} 0 0"
           expected_entry_test = "//192.168.42.42/dummyname /test1 cifs #{expected_mount_options} 0 0"
           expect(cap).to receive(:remove_vagrant_managed_fstab)
           expect(comm).to receive(:sudo).with(/#{expected_entry_test}\n#{expected_entry_vagrant}/)
-    
+
           cap.persist_mount_shared_folder(machine, folders)
         end
       end

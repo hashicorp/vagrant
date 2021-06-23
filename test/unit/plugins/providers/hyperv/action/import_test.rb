@@ -36,8 +36,6 @@ describe VagrantPlugins::HyperV::Action::Import do
     allow(data_dir).to receive(:to_s).and_return("DATA_DIR_PATH")
     allow(driver).to receive(:import).and_return("id" => "VMID")
     allow(machine).to receive(:id=)
-    allow(ui).to receive(:output)
-    allow(ui).to receive(:detail)
   end
 
   context "with missing virtual machines directory" do

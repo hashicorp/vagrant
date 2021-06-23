@@ -49,7 +49,7 @@ describe Vagrant::BoxCollection, :skip_windows do
       environment.box3("foo-VAGRANTSLASH-bar", "1.0", :virtualbox)
       environment.box3("foo-VAGRANTCOLON-colon", "1.0", :virtualbox)
 
-      expect(ui).to receive(:warn).once
+      expect(ui).to receive(:warn).once.and_call_original
 
       # Verify some output
       results = subject.all

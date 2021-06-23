@@ -13,7 +13,6 @@ describe VagrantPlugins::HyperV::Action::DeleteVM do
 
   before do
     allow(app).to receive(:call)
-    allow(ui).to receive(:info)
     allow(driver).to receive(:delete_vm)
     allow(FileUtils).to receive(:rm_rf)
     allow(FileUtils).to receive(:mkdir_p)
