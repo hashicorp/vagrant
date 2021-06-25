@@ -9,7 +9,7 @@ module VagrantPlugins
         extend Vagrant::Util::GuestInspection::Linux
 
         def self.change_host_name(machine, name)
-          @logger = Log4r::Logger.new("vagrant::guest::debian::changehostname")
+          @logger = Log4r::Logger.new("vagrant::guest::astra::changehostname")
 	  @hostname = name
           comm = machine.communicate
 
