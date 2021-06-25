@@ -114,7 +114,7 @@ describe "VagrantPlugins::GuestAstra::Cap::ChangeHostName" do
     end
 
     it "does not set the hostname if unset" do
-      comm.stub_command("hostname -f | grep '^#{name}$'", exit_code: 0)
+      comm.stub_command("hostname -f", stdout: name)
       cap.change_host_name(machine, name)
       expect(comm.received_commands.size).to eq(1)
     end

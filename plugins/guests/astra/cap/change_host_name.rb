@@ -13,37 +13,49 @@ module VagrantPlugins
 	  @hostname = name
           comm = machine.communicate
 
-          if !comm.test("hostname -f | grep '^#{name}$'", sudo: false)
-            update_etc_hostname(machine)
-            update_etc_hosts(machine)
-            update_mailname(machine)
+          return unless should_change?(comm)
+          update_etc_hostname(machine)
+          update_etc_hosts(machine)
+          update_mailname(machine)
 
-            if hostnamectl?(comm)
-              comm.sudo("hostnamectl set-hostname '#{short_hostname}'")
-            else
-              comm.sudo("hostname -F /etc/hostname")
-            end
+          if hostnamectl?(comm)
+            comm.sudo("hostnamectl set-hostname '#{short_hostname}'")
+          else
+            comm.sudo("hostname -F /etc/hostname")
+          end
 
-            restart_command = nil
-            if systemd?(comm)
-              if systemd_networkd?(comm)
-                @logger.debug("Attempting to restart networking with systemd-networkd")
-                restart_command = "systemctl restart systemd-networkd.service"
-              elsif systemd_controlled?(comm, "NetworkManager.service")
-                @logger.debug("Attempting to restart networking with NetworkManager")
-                restart_command = "systemctl restart NetworkManager.service"
-              end
+          restart_command = nil
+          if systemd?(comm)
+            if systemd_networkd?(comm)
+              @logger.debug("Attempting to restart networking with systemd-networkd")
+              restart_command = "systemctl restart systemd-networkd.service"
+            elsif systemd_controlled?(comm, "NetworkManager.service")
+              @logger.debug("Attempting to restart networking with NetworkManager")
+              restart_command = "systemctl restart NetworkManager.service"
             end
+          end
 
-            if restart_command
-              comm.sudo(restart_command)
-            else
-              restart_each_interface(machine, @logger)
-            end
+          if restart_command
+            comm.sudo(restart_command)
+          else
+            restart_each_interface(machine, @logger)
           end
         end
 
         protected
+
+	def self.should_change?(comm)
+	  @hostname != current_hostname(comm)
+	end
+
+        def self.current_hostname(comm)
+	  hostname = ''
+	  comm.sudo 'hostname -f' do |type, data|
+            hostname = data.chomp if type == :stdout && hostname.empty?
+          end
+
+	  hostname
+        end
 
 	def self.update_etc_hostname(machine)
           @logger.debug("Attempting to write hostname to the /etc/hostname file")
