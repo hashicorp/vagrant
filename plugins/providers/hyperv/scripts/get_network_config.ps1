@@ -15,9 +15,9 @@ try {
 }
 
 try {
-    $networks = Hyper-V\Get-VMNetworkAdapter -VM $vm | Select-Object -First 1
-    foreach ($network in $networks) {
-        if ($network.IpAddresses.Length -gt 0) {
+    $netdev = Hyper-V\Get-VMNetworkAdapter -VM $vm | Select-Object -Index 0
+    if ($netdev -ne $null) {
+        if ($netdev.IpAddresses.Length -gt 0) {
             foreach ($ip_address in $network.IpAddresses) {
                 if ($ip_address.Contains(".") -And [string]::IsNullOrEmpty($ip4_address)) {
                     $ip4_address = $ip_address
@@ -26,14 +26,11 @@ try {
                 }
             }
         }
-    }
 
-    # If no address was found in the network settings, check for
-    # neighbor with mac address and see if an IP exists
-    if (([string]::IsNullOrEmpty($ip4_address)) -And ([string]::IsNullOrEmpty($ip6_address))) {
-        $macaddresses = $networks | select MacAddress
-        foreach ($macaddr in $macaddresses) {
-            $macaddress = $macaddr.MacAddress -replace '(.{2})(?!$)', '${1}-'
+        # If no address was found in the network settings, check for
+        # neighbor with mac address and see if an IP exists
+        if (([string]::IsNullOrEmpty($ip4_address)) -And ([string]::IsNullOrEmpty($ip6_address))) {
+            $macaddress = $netdev.MacAddress -replace '(.{2})(?!$)', '${1}-'
             $addr = Get-NetNeighbor -LinkLayerAddress $macaddress -ErrorAction SilentlyContinue | select IPAddress
             if ($addr) {
                 $ip_address = $addr.IPAddress
