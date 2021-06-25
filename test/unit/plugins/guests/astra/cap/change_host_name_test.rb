@@ -26,32 +26,18 @@ describe "VagrantPlugins::GuestAstra::Cap::ChangeHostName" do
     let(:hostnamectl) { true }
     let(:networkd) { true }
     let(:network_manager) { false }
-    let(:networks) { [
-      [:forwarded_port, {:guest=>22, :host=>2222, :host_ip=>"127.0.0.1", :id=>"ssh", :auto_correct=>true, :protocol=>"tcp"}]
-    ] }
 
     before do
       allow(cap).to receive(:systemd?).and_return(systemd)
       allow(cap).to receive(:hostnamectl?).and_return(hostnamectl)
       allow(cap).to receive(:systemd_networkd?).and_return(networkd)
       allow(cap).to receive(:systemd_controlled?).with(anything, /NetworkManager/).and_return(network_manager)
-      allow(machine).to receive_message_chain(:config, :vm, :networks).and_return(networks)
-      allow(cap).to receive(:add_hostname_to_loopback_interface)
-      allow(cap).to receive(:replace_host)
     end
 
-    context "minimal network config" do
-      it "sets the hostname if not set" do
-        comm.stub_command("hostname -f | grep '^#{name}$'", exit_code: 1)
-        cap.change_host_name(machine, name)
-        expect(comm.received_commands[1]).to match(/echo 'banana-rama' > \/etc\/hostname/)
-      end
-
-      it "sets the hostname if not set" do
-        comm.stub_command("hostname -f | grep '^#{name}$'", exit_code: 0)
-        cap.change_host_name(machine, name)
-        expect(comm.received_commands[1]).to_not match(/echo 'banana-rama' > \/etc\/hostname/)
-      end
+    it "sets the hostname if not set" do
+      comm.stub_command("hostname -f | grep '^#{name}$'", exit_code: 1)
+      cap.change_host_name(machine, name)
+      expect(comm.received_commands[1]).to match(/echo 'banana-rama' > \/etc\/hostname/)
     end
 
     context "when hostnamectl is in use" do
@@ -59,7 +45,7 @@ describe "VagrantPlugins::GuestAstra::Cap::ChangeHostName" do
 
       it "sets hostname with hostnamectl" do
         cap.change_host_name(machine, name)
-        expect(comm.received_commands[2]).to match(/hostnamectl/)
+        expect(comm.received_commands[4]).to match(/hostnamectl/)
       end
     end
 
@@ -68,7 +54,7 @@ describe "VagrantPlugins::GuestAstra::Cap::ChangeHostName" do
 
       it "sets hostname with hostname command" do
         cap.change_host_name(machine, name)
-        expect(comm.received_commands[2]).to match(/hostname -F/)
+        expect(comm.received_commands[4]).to match(/hostname -F/)
       end
     end
 
@@ -78,7 +64,7 @@ describe "VagrantPlugins::GuestAstra::Cap::ChangeHostName" do
 
         it "restarts networkd with systemctl" do
           cap.change_host_name(machine, name)
-          expect(comm.received_commands[3]).to match(/systemctl restart systemd-networkd/)
+          expect(comm.received_commands[5]).to match(/systemctl restart systemd-networkd/)
         end
       end
 
@@ -88,7 +74,7 @@ describe "VagrantPlugins::GuestAstra::Cap::ChangeHostName" do
 
         it "restarts NetworkManager with systemctl" do
           cap.change_host_name(machine, name)
-          expect(comm.received_commands[3]).to match(/systemctl restart NetworkManager/)
+          expect(comm.received_commands[5]).to match(/systemctl restart NetworkManager/)
         end
       end
 
@@ -129,9 +115,8 @@ describe "VagrantPlugins::GuestAstra::Cap::ChangeHostName" do
 
     it "does not set the hostname if unset" do
       comm.stub_command("hostname -f | grep '^#{name}$'", exit_code: 0)
-      expect(cap).to_not receive(:add_hostname_to_loopback_interface)
-      expect(cap).to_not receive(:replace_host)
       cap.change_host_name(machine, name)
+      expect(comm.received_commands.size).to eq(1)
     end
   end
 
