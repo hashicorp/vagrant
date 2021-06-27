@@ -30,6 +30,11 @@ module VagrantPlugins
           args << "-password" << "'#{password.gsub("'", "''")}'"
 
           r = Vagrant::Util::PowerShell.execute(script_path, *args)
+          if r.exit_code == 1
+            # https://docs.microsoft.com/en-us/dotnet/api/system.directoryservices.accountmanagement.contexttype?view=dotnet-plat-ext-3.1
+            args << "-contextType" << "Domain"
+            r = Vagrant::Util::PowerShell.execute(script_path, *args)
+          end
           r.exit_code == 0
         end
 
