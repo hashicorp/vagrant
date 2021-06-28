@@ -18,7 +18,8 @@ module Vagrant
       POWERSHELL_NAMES = ["powershell", "pwsh"].map(&:freeze).freeze
       # Paths to powershell executable
       POWERSHELL_PATHS = [
-        "%WINDIR%/WindowsPowerShell/v1.0",
+        "%SYSTEMROOT%/System32/WindowsPowerShell/v1.0",
+        "%WINDIR%/System32/WindowsPowerShell/v1.0",
         "%PROGRAMFILES%/PowerShell/7",
         "%PROGRAMFILES%/PowerShell/6"
       ].map(&:freeze).freeze
