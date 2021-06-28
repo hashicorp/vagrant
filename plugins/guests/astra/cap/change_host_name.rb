@@ -86,8 +86,8 @@ module VagrantPlugins
 	  @hostname.split('.').first
 	end
 
-        # Due to how most Debian like systems handle restartingcnetworking, we cannot
-	# simply run the networking init script or use the ifup/downctools to restart
+        # Due to how most Debian like systems handle restarting networking, we cannot
+	# simply run the networking init script or use the ifup/down tools to restart
 	# all interfaces to renew the machines DHCP lease when settingcits hostname.
 	# This method is a workaround for those older systems thatccannot reliably
 	# restart networking. It restarts each individual interface on its own instead.
