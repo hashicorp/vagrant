@@ -5,6 +5,7 @@ FEATURES:
 IMPROVEMENTS:
 
 - guest/debian: Retry network setup on debain [GH-12421]
+- host/windows: Check Domain and Application Directory contexts for credentials when validating SMB creds [GH-12428]
 - providers/hyper-v: Fix IP detection when multiple devices are attached [GH-12232]
 - provisioners/salt: Always use upstream Salt bootstrap script on Windows [GH-12127]
 - provisioners/salt: Use more conservative TLS settings to work on older .NET versions [GH-12413]
