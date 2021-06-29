@@ -9,10 +9,11 @@ IMPROVEMENTS:
 - guest/windows: Get powershell path in %WINDIR%/System32 [GH-12436]
 - host/windows: Check Domain and Application Directory contexts for credentials when validating SMB creds [GH-12428]
 - providers/hyper-v: Fix IP detection when multiple devices are attached [GH-12232]
-- provisioners/salt: Always use upstream Salt bootstrap script on Windows [GH-12127]
-- provisioners/salt: Use more conservative TLS settings to work on older .NET versions [GH-12413]
-- provisioners/ansible: Detects new versions of ansible-4.0.0+ [GH-12391]
+- provisioner/ansible: Detects new versions of ansible-4.0.0+ [GH-12391]
 - provisioner/ansible: Strip whitespace from ansible version [GH-12420]
+- provisioner/salt: Always use upstream Salt bootstrap script on Windows [GH-12127]
+- provisioner/salt: Use more conservative TLS settings to work on older .NET versions [GH-12413]
+- provisioner/shell: Buffer output to display full lines [GH-12437]
 - vagrant: Updates to support Ruby 3.0 [GH-12427]
 
 BUG FIXES:
