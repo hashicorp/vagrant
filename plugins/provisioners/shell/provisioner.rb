@@ -66,39 +66,19 @@ module VagrantPlugins
 
       protected
 
-      # This buffers a communicator output data (which can have partial
-      # lines) into full lines and emits them back to the UI.
-      def comm_line_buffer(&block)
-        stdout = Vagrant::Util::LineBuffer.new
-        stderr = Vagrant::Util::LineBuffer.new
-
-        line_buffer_handle_comm = Proc.new do |type, data|
-          case type
-          when :stdout
-            stdout.lines data do |line|
-              handle_comm(type, line)
-            end
-          when :stderr
-            stderr.lines data do |line|
-              handle_comm(type, line)
-            end
-          end
-        end
-
-        # execute the block and emit complete lines to the UI.
-        block.call(line_buffer_handle_comm)
-
-        # emit the remaining as incomplete/partial lines to the UI.
-        stdout.remaining do |line|
-          handle_comm(:stdout, line)
-        end
-        stderr.remaining do |line|
-          handle_comm(:stderr, line)
-        end
+      def build_outputs
+        outputs = {
+          stdout: Vagrant::Util::LineBuffer.new { |line| handle_comm(:stdout, line) },
+          stderr: Vagrant::Util::LineBuffer.new { |line| handle_comm(:stderr, line) },
+        }
+        block = proc { |type, data|
+          outputs[type] << data if outputs[type]
+        }
+        return outputs, block
       end
 
       # This handles outputting the communication line back to the UI
-      def handle_comm(type, line)
+      def handle_comm(type, data)
         if [:stderr, :stdout].include?(type)
           # Output the line with the proper color based on the stream.
           color = type == :stdout ? :green : :red
@@ -149,14 +129,16 @@ module VagrantPlugins
             end
 
             # Execute it with sudo
-            comm_line_buffer do |handle_comm|
+            outputs, handler = build_outputs
+            begin
               comm.execute(
                 command,
                 sudo: config.privileged,
-                error_key: :ssh_bad_exit_status_muted
-              ) do |type, data|
-                handle_comm.call(type, data)
-              end
+                error_key: :ssh_bad_exit_status_muted,
+                &handler
+              )
+            ensure
+              outputs.values.map(&:close)
             end
           end
         end
@@ -206,14 +188,16 @@ module VagrantPlugins
             end
 
             # Execute it with sudo
-            comm_line_buffer do |handle_comm|
+            begin
+              outputs, handler = build_outputs
               comm.execute(
                 command,
                 shell: :powershell,
-                error_key: :ssh_bad_exit_status_muted
-              ) do |type, data|
-                handle_comm.call(type, data)
-              end
+                error_key: :ssh_bad_exit_status_muted,
+                &handler
+              )
+            ensure
+              outputs.values.map(&:close)
             end
           end
         end
@@ -277,10 +261,15 @@ module VagrantPlugins
             end
 
             # Execute it with sudo
-            comm_line_buffer do |handle_comm|
-              comm.sudo(command, { elevated: config.privileged, interactive: config.powershell_elevated_interactive }) do |type, data|
-                handle_comm.call(type, data)
-              end
+            begin
+              outputs, handler = build_outputs
+              comm.sudo(command,
+                elevated: config.privileged,
+                interactive: config.powershell_elevated_interactive,
+                &handler
+              )
+            ensure
+              outputs.values.map(&:close)
             end
           end
         end
