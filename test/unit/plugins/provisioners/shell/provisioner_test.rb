@@ -438,7 +438,8 @@ describe "Vagrant::Shell::Provisioner" do
         :powershell_args                 => "",
         :name                            => nil,
         :privileged                      => false,
-        :powershell_elevated_interactive => false
+        :powershell_elevated_interactive => false,
+        :keep_color                      => true,
       )
     }
 
@@ -456,7 +457,25 @@ describe "Vagrant::Shell::Provisioner" do
       allow(machine).to receive(:communicate).and_return(communicator)
       allow(machine).to receive(:guest).and_return(guest)
       allow(machine).to receive(:ui).and_return(ui)
+      allow(vsp).to receive(:with_script_file).and_yield(config.path)
+      allow(communicator).to receive(:upload).with(config.path, /arbitrary.ps1$/)
     }
+
+    it "should output all received output" do
+      stdout = ["two lines\n", "from stdout\n"]
+      stderr = ["one line\n", "and partial from stderr"]
+      expect(communicator).to receive(:sudo).
+        and_yield(:stdout, stdout.first).
+        and_yield(:stderr, stderr.first).
+        and_yield(:stderr, stderr.last).
+        and_yield(:stdout, stdout.last)
+      allow(ui).to receive(:detail)
+      expect(ui).to receive(:detail).with("two lines", any_args)
+      expect(ui).to receive(:detail).with("from stdout", any_args)
+      expect(ui).to receive(:detail).with("one line", any_args)
+      expect(ui).to receive(:detail).with("and partial from stderr", any_args)
+      vsp.send(:provision_winrm, "")
+    end
 
     it "ensures that files are uploaded with an extension" do
       allow(vsp).to receive(:with_script_file).and_yield(config.path)
@@ -533,7 +552,8 @@ describe "Vagrant::Shell::Provisioner" do
         :powershell_args                 => "",
         :name                            => nil,
         :privileged                      => false,
-        :powershell_elevated_interactive => false
+        :powershell_elevated_interactive => false,
+        :keep_color                      => true,
       )
     }
 
@@ -548,6 +568,7 @@ describe "Vagrant::Shell::Provisioner" do
     before {
       allow(guest).to receive(:capability?).with(:wait_for_reboot).and_return(false)
       allow(communicator).to receive(:sudo)
+      allow(communicator).to receive(:upload)
       allow(communicator).to receive_message_chain(:machine_config_ssh, :shell)
       allow(machine).to receive(:communicate).and_return(communicator)
       allow(machine).to receive(:guest).and_return(guest)
@@ -565,6 +586,22 @@ describe "Vagrant::Shell::Provisioner" do
         allow(machine).to receive_message_chain(:config, :winssh, :shell).and_return("cmd")
         expect(communicator).to receive(:upload).with(config.path, /arbitrary.ps1/)
         expect(communicator).to receive(:execute).with(/powershell.*arbitrary.ps1/, anything)
+        vsp.send(:provision_winssh, "")
+      end
+
+      it "should output all received output" do
+        stdout = ["two lines\n", "from stdout\n"]
+        stderr = ["one line\n", "and partial from stderr"]
+        expect(communicator).to receive(:execute).
+          and_yield(:stdout, stdout.first).
+          and_yield(:stderr, stderr.first).
+          and_yield(:stderr, stderr.last).
+          and_yield(:stdout, stdout.last)
+        allow(ui).to receive(:detail)
+        expect(ui).to receive(:detail).with("two lines", any_args)
+        expect(ui).to receive(:detail).with("from stdout", any_args)
+        expect(ui).to receive(:detail).with("one line", any_args)
+        expect(ui).to receive(:detail).with("and partial from stderr", any_args)
         vsp.send(:provision_winssh, "")
       end
     end
