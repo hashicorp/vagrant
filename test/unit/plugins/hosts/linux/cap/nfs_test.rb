@@ -17,7 +17,7 @@ describe VagrantPlugins::HostLinux::Cap::NFS do
   end
   let(:exports_path){ VagrantPlugins::HostLinux::Cap::NFS::NFS_EXPORTS_PATH }
   let(:env){ double(:env) }
-  let(:ui){ double(:ui) }
+  let(:ui){ Vagrant::UI::Silent.new }
   let(:host){ double(:host) }
 
   before do
@@ -125,7 +125,6 @@ describe VagrantPlugins::HostLinux::Cap::NFS do
       allow(host).to receive(:capability).with(:nfs_apply_command).and_return("/bin/true")
       allow(host).to receive(:capability).with(:nfs_check_command).and_return("/bin/true")
       allow(host).to receive(:capability).with(:nfs_start_command).and_return("/bin/true")
-      allow(ui).to receive(:info)
       allow(Vagrant::Util::Subprocess).to receive(:execute).and_call_original
       allow(Vagrant::Util::Subprocess).to receive(:execute).with("sudo", "/bin/true").and_return(double(:result, exit_code: 0))
       allow(Vagrant::Util::Subprocess).to receive(:execute).with("/bin/true").and_return(double(:result, exit_code: 0))
@@ -206,7 +205,6 @@ EOH
     let(:cap){ caps.get(:nfs_prune) }
 
     before do
-      allow(ui).to receive(:info)
       allow(Vagrant::Util::Subprocess).to receive(:execute).with("mv", any_args).
         and_call_original
     end

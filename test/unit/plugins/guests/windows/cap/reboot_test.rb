@@ -19,7 +19,6 @@ describe "VagrantPlugins::GuestWindows::Cap::Reboot" do
     allow(machine.guest).to receive(:ready?).and_return(true)
     allow(machine).to receive(:config).and_return(config)
     allow(config).to receive(:vm).and_return(vm)
-    allow(ui).to receive(:info)
   end
 
   describe ".reboot" do
@@ -47,7 +46,7 @@ describe "VagrantPlugins::GuestWindows::Cap::Reboot" do
 
       it "sends message to user that guest is rebooting" do
         expect(communicator).to receive(:test).and_return(true)
-        expect(ui).to receive(:info)
+        expect(ui).to receive(:info).and_call_original
       end
     end
 

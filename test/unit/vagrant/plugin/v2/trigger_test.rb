@@ -224,13 +224,9 @@ describe Vagrant::Plugin::V2::Trigger do
     let(:message) { "Printing some info" }
 
     it "prints messages at INFO" do
-      output = ""
-      allow(ui).to receive(:info) do |data|
-        output << data
-      end
+      expect(ui).to receive(:info).with(message).and_call_original
 
       subject.send(:info, message)
-      expect(output).to include(message)
     end
   end
 
@@ -238,13 +234,9 @@ describe Vagrant::Plugin::V2::Trigger do
     let(:message) { "Printing some warnings" }
 
     it "prints messages at WARN" do
-      output = ""
-      allow(ui).to receive(:warn) do |data|
-        output << data
-      end
+      expect(ui).to receive(:warn).with(message).and_call_original
 
       subject.send(:warn, message)
-      expect(output).to include(message)
     end
   end
 
@@ -297,6 +289,7 @@ describe Vagrant::Plugin::V2::Trigger do
     it "executes an inline script with powershell if windows" do
       allow(Vagrant::Util::Platform).to receive(:windows?).and_return(true)
       allow(Vagrant::Util::PowerShell).to receive(:execute_inline).
+        and_yield(:stderr, "some output").
         and_return(subprocess_result)
 
       trigger = trigger_run.after_triggers.first
@@ -309,9 +302,10 @@ describe Vagrant::Plugin::V2::Trigger do
       subject.send(:run, shell_config, on_error, exit_codes)
     end
 
-    it "executes an path script with powershell if windows" do
+    it "executes a path script with powershell if windows" do
       allow(Vagrant::Util::Platform).to receive(:windows?).and_return(true)
       allow(Vagrant::Util::PowerShell).to receive(:execute).
+        and_yield(:stdout, "more output").
         and_return(subprocess_result)
       allow(env).to receive(:root_path).and_return("/vagrant/home")
 
@@ -339,7 +333,7 @@ describe Vagrant::Plugin::V2::Trigger do
       subject.send(:run, shell_config, on_error, exit_codes)
     end
 
-    it "executes an path script" do
+    it "executes a path script" do
       allow(Vagrant::Util::Subprocess).to receive(:execute).
         and_return(subprocess_result)
       allow(env).to receive(:root_path).and_return("/vagrant/home")
@@ -524,10 +518,6 @@ describe Vagrant::Plugin::V2::Trigger do
   describe "#trigger_abort" do
     it "system exits when called" do
       allow(Process).to receive(:exit!).and_return(true)
-      output = ""
-      allow(machine.ui).to receive(:warn) do |data|
-        output << data
-      end
 
       expect(Process).to receive(:exit!).with(3)
       subject.send(:trigger_abort, 3)

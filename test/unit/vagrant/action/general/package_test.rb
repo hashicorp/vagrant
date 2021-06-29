@@ -87,7 +87,6 @@ describe Vagrant::Action::General::Package do
     let(:path) { double("path") }
 
     before do
-      allow(ui).to receive(:info)
       allow(FileUtils).to receive(:mkdir_p)
       subject.instance_variable_set(:@env, env)
     end
@@ -158,8 +157,6 @@ describe Vagrant::Action::General::Package do
       env["package.files"] = package_files
       env["package.directory"] = package_directory
       subject.instance_variable_set(:@env, env)
-
-      allow(ui).to receive(:info)
     end
 
     after do
@@ -178,7 +175,7 @@ describe Vagrant::Action::General::Package do
     end
 
     it "should notify user of copy" do
-      expect(ui).to receive(:info)
+      expect(ui).to receive(:info).at_least(1).and_call_original
       subject.copy_include_files
     end
   end
@@ -333,8 +330,6 @@ describe Vagrant::Action::General::Package do
     let(:fullpath) { "FULLPATH" }
 
     before do
-      allow(ui).to receive(:info)
-
       allow(described_class).to receive(:validate!)
       allow(subject).to receive(:fullpath).and_return(fullpath)
       allow(subject).to receive(:package_with_folder_path)
@@ -362,7 +357,7 @@ describe Vagrant::Action::General::Package do
     end
 
     it "should notify of package compressing" do
-      expect(ui).to receive(:info)
+      expect(ui).to receive(:info).and_call_original
       subject.call(env)
     end
 

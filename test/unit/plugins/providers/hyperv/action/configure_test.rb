@@ -41,8 +41,6 @@ describe VagrantPlugins::HyperV::Action::Configure do
     allow(driver).to receive(:execute)
     allow(app).to receive(:call)
     expect(driver).to receive(:execute).with(:get_switches).and_return(switches)
-    allow(ui).to receive(:detail)
-    allow(ui).to receive(:output)
     allow(ui).to receive(:ask).and_return("1")
     allow(data_dir).to receive(:join).and_return(sentinel)
     allow(sentinel).to receive(:file?).and_return(false)

@@ -21,7 +21,6 @@ describe VagrantPlugins::CloudCommand::AddDownloaderAuthentication do
 
   before do
     allow(Vagrant).to receive(:server_url).and_return(server_url)
-    allow(ui).to receive(:warn)
     stub_env("ATLAS_TOKEN" => nil)
     stub_env("VAGRANT_SERVER_ACCESS_TOKEN_BY_URL" => nil)
   end
@@ -59,7 +58,7 @@ describe VagrantPlugins::CloudCommand::AddDownloaderAuthentication do
         VagrantPlugins::CloudCommand::Client.new(iso_env).store_token(token)
 
         expect(subject).to receive(:sleep).once
-        expect(ui).to receive(:warn).once
+        expect(ui).to receive(:warn).once.and_call_original
 
         env[:downloader] = dwnloader
         subject.call(env)

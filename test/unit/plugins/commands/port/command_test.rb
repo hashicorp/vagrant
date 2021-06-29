@@ -54,18 +54,16 @@ describe VagrantPlugins::CommandPort::Command do
 
     it "ensures the vm is running" do
       allow(state).to receive(:id).and_return(:stopped)
-      expect(env.ui).to receive(:error).with(any_args) { |message, _|
-        expect(message).to include("does not support listing forwarded ports")
-      }
+      expect(env.ui).to receive(:error).with(/does not support listing forwarded ports/).
+        and_call_original
 
       expect(subject.execute).to eq(1)
     end
 
     it "shows a friendly error when the capability is not supported" do
       allow(machine.provider).to receive(:capability?).and_return(false)
-      expect(env.ui).to receive(:error).with(any_args) { |message, _|
-        expect(message).to include("does not support listing forwarded ports")
-      }
+      expect(env.ui).to receive(:error).with(/does not support listing forwarded ports/).
+        and_call_original
 
       expect(subject.execute).to eq(1)
     end
@@ -75,9 +73,8 @@ describe VagrantPlugins::CommandPort::Command do
       allow(machine.provider).to receive(:capability).with(:forwarded_ports)
         .and_return([])
 
-      expect(env.ui).to receive(:info).with(any_args) { |message, _|
-        expect(message).to include("there are no forwarded ports")
-      }
+      expect(env.ui).to receive(:info).with(/there are no forwarded ports/).
+        and_call_original
 
       expect(subject.execute).to eq(0)
     end
@@ -125,14 +122,10 @@ describe VagrantPlugins::CommandPort::Command do
       allow(machine.provider).to receive(:capability).with(:forwarded_ports)
         .and_return([[2222,22]])
 
-      output = ""
-      allow(env.ui).to receive(:error) do |data|
-        output << data
-      end
+      expect(env.ui).to receive(:error).with(/not currently mapping port 80/).
+        and_call_original
 
       expect(subject.execute).to_not eq(0)
-
-      expect(output).to include("not currently mapping port 80")
     end
   end
 end

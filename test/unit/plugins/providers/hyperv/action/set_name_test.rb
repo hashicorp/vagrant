@@ -17,7 +17,6 @@ describe VagrantPlugins::HyperV::Action::SetName do
   let(:subject){ described_class.new(app, env) }
 
   before do
-    allow(ui).to receive(:info)
     allow(driver).to receive(:set_name)
     allow(app).to receive(:call)
     allow(data_dir).to receive(:join).and_return(sentinel)

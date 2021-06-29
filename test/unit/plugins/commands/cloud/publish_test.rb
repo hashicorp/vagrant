@@ -21,10 +21,6 @@ describe VagrantPlugins::CloudCommand::Command::Publish do
   subject { described_class.new(argv, iso_env) }
 
   before do
-    allow(ui).to receive(:info)
-    allow(ui).to receive(:warn)
-    allow(ui).to receive(:success)
-    allow(ui).to receive(:error)
     allow(iso_env).to receive(:ui).and_return(ui)
     allow(File).to receive(:stat).with(box).
       and_return(double("box_stat", size: box_size))

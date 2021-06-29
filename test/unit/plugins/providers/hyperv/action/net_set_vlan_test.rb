@@ -14,7 +14,6 @@ describe VagrantPlugins::HyperV::Action::NetSetVLan do
   let(:subject){ described_class.new(app, env) }
 
   before do
-    allow(ui).to receive(:info)
     allow(driver).to receive(:net_set_vlan)
     allow(app).to receive(:call)
   end

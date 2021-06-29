@@ -16,7 +16,6 @@ describe VagrantPlugins::ProviderVirtualBox::Action::MatchMACAddress do
   let(:subject) { described_class.new(app, env) }
 
   before do
-    allow(ui).to receive(:info)
     allow(app).to receive(:call)
   end
 

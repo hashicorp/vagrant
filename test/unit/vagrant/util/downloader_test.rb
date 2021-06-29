@@ -36,12 +36,6 @@ describe Vagrant::Util::Downloader do
       let(:redirect) { nil }
       let(:progress_data) { "Location: #{redirect}" }
 
-      before do
-        allow(ui).to receive(:clear_line)
-        allow(ui).to receive(:detail)
-        allow(ui).to receive(:rewriting).and_yield(ui)
-      end
-
       after do
         expect(subject).to receive(:execute_curl) do |*_, &data_proc|
           expect(data_proc).not_to be_nil
@@ -62,7 +56,7 @@ describe Vagrant::Util::Downloader do
         let(:redirect) { "http://example.com/vagrant.box" }
 
         it "should output redirection information" do
-          expect(ui).to receive(:detail).with(/example.com/)
+          expect(ui).to receive(:detail).with(/example.com/).and_call_original
         end
       end
 
@@ -70,7 +64,7 @@ describe Vagrant::Util::Downloader do
         let(:redirect) { "http://downloads.example.org/vagrant.box" }
 
         it "should output redirection information" do
-          expect(ui).to receive(:detail).with(/downloads.example.org/)
+          expect(ui).to receive(:detail).with(/downloads.example.org/).and_call_original
         end
       end
 
@@ -87,7 +81,7 @@ describe Vagrant::Util::Downloader do
           let(:progress_data) { "X-Custom-Location: #{custom_redirect}\nLocation: #{redirect}" }
 
           it "should output redirection information" do
-            expect(ui).to receive(:detail).with(/downloads.example.com/)
+            expect(ui).to receive(:detail).with(/downloads.example.com/).and_call_original
           end
         end
       end

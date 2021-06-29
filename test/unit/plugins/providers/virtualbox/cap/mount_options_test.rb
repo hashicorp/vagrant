@@ -129,9 +129,8 @@ describe "VagrantPlugins::ProviderVirtualBox::Cap::MountOptions" do
     end
 
     context "with custom mount options" do
-      let(:ui){ double(:ui) }
+      let(:ui){ Vagrant::UI::Silent.new }
       before do
-        allow(ui).to receive(:warn)
         allow(machine).to receive(:ui).and_return(ui)
       end
 

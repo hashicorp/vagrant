@@ -23,10 +23,6 @@ describe VagrantPlugins::CloudCommand::ProviderCommand::Command::Create do
     let(:argv) { [] }
 
     before do
-      allow(ui).to receive(:info)
-      allow(ui).to receive(:warn)
-      allow(ui).to receive(:success)
-      allow(ui).to receive(:error)
       allow(env).to receive(:ui).and_return(ui)
       allow(VagrantCloud::Account).to receive(:new).
         with(custom_server: anything, access_token: access_token).

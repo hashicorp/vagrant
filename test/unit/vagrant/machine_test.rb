@@ -335,7 +335,6 @@ describe Vagrant::Machine do
       initial_action_name  = :destroy
       second_action_name  = :reload
       callable     = lambda { |_env| }
-      original_cwd = env.cwd.to_s
 
       allow(provider).to receive(:action).with(initial_action_name).and_return(callable)
       allow(provider).to receive(:action).with(second_action_name).and_return(callable)

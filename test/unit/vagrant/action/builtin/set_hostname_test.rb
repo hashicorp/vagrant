@@ -11,7 +11,6 @@ describe Vagrant::Action::Builtin::SetHostname do
   before do
     allow(machine).to receive_message_chain(:config, :vm, :hostname).and_return("whatever")
     allow(machine).to receive_message_chain(:guest, :capability)
-    allow(ui).to receive(:info)
   end
 
   it "should change hostname if hosts modification enabled" do
