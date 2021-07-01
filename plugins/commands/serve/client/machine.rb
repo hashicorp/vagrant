@@ -7,55 +7,17 @@ module VagrantPlugins
         attr_reader :resource_id
 
         def initialize(conn)
-          @client = SDK::MachineService::Stub.new(conn, :this_channel_is_insecure)
+          @logger = Log4r::Logger.new("vagrant::command::serve::client::machine")
+          @logger.debug("connecting to target machine service on #{conn}")
+          @client = SDK::TargetMachineService::Stub.new(conn, :this_channel_is_insecure)
         end
 
-        def self.load(raw_machine)
-          m = SDK::Args::Machine.decode(raw_machine)
-          conn = Broker.instance.dial(m.stream_id)
+        def self.load(raw_machine, broker:)
+          m = SDK::Args::Target.decode(raw_machine)
+          conn = broker.dial(m.stream_id)
           self.new(conn.to_s)
         end
 
-        # Create a new instance
-        def initialize(name:)
-          @client = ServiceInfo.client_for(SDK::MachineService)
-          if name.nil?
-            @resource_id = ServiceInfo.info.machine
-          else
-            load_machine(name)
-          end
-        end
-
-        # Seed this instance with the resource id for the
-        # requested machine. If the machine doesn't already
-        # exist, create it
-        def load_machine(name)
-          c = ServiceInfo.client_for(SRV::Vagrant)
-          machine = SRV::Machine.new(
-            name: name,
-            project: SRV::Ref::Project.new(
-              resource_id: ServiceInfo.info.project
-            ),
-            state: SDK::Args::MachineState.new(
-              id: :not_created,
-              short_description: "not created",
-              long_description: "Machine not currently created"
-            )
-          )
-
-          begin
-            resp = c.find_machine(SRV::FindMachineRequest.new(
-              machine: machine))
-            @resource_id = resp.machine.resource_id
-            return
-          rescue GRPC::NotFound
-            # Let this fall through so we create the machine
-          end
-
-          resp = c.upsert_machine(SRV::UpsertMachineRequest.new(
-            machine: machine))
-          @resource_id = resp.machine.resource_id
-        end
 
         def ref
           SDK::Ref::Machine.new(resource_id: resource_id)
@@ -63,25 +25,20 @@ module VagrantPlugins
 
         # @return [String] machine name
         def get_name
-          req = SDK::Machine::GetNameRequest.new(
-            machine: ref
-          )
-          client.get_name(req).name
+          req = Google::Protobuf::Empty.new
+          @client.name(req).name
         end
 
         def set_name(name)
-          req = SDK::Machine::SetNameRequest.new(
-            machine: ref,
+          req = SDK::Target::SetNameRequest.new(
             name: name
           )
-          client.set_name(req)
+          @client.set_name(req)
         end
 
         def get_id
-          req = SDK::Machine::GetIDRequest.new(
-            machine: ref
-          )
-          result = client.get_id(req).id
+          req = Google::Protobuf::Empty.new
+          result = @client.get_id(req).id
           if result.nil?
             raise "Failed to get machine ID. REF: #{ref.inspect} - ID WAS NIL"
           end
@@ -89,18 +46,15 @@ module VagrantPlugins
         end
 
         def set_id(new_id)
-          req = SDK::Machine::SetIDRequest.new(
-            machine: ref,
+          req = SDK::Target::SetIDRequest.new(
             id: new_id
           )
-          client.set_id(req)
+          @client.set_id(req)
         end
 
         def get_box
-          req = SDK::Machine::BoxRequest.new(
-            machine: ref
-          )
-          resp = client.box(req)
+          req = Google::Protobuf::Empty.new
+          resp = @client.box(req)
           Vagrant::Box.new(
             resp.box.name,
             resp.box.provider.to_sym,
@@ -110,55 +64,44 @@ module VagrantPlugins
         end
 
         def get_data_dir
-          req = SDK::Machine::DatadirRequest.new(
-            machine: ref
-          )
-          client.datadir(req).data_dir
+          req = Google::Protobuf::Empty.new
+          @client.datadir(req).data_dir
         end
 
+        # TODO: local data path comes from the project
         def get_local_data_path
           req = SDK::Machine::LocalDataPathRequest.new(
             machine: ref
           )
-          client.localdatapath(req).path
+          @client.localdatapath(req).path
         end
 
         def get_provider
-          req = SDK::Machine::ProviderRequest.new(
-            machine: ref
-          )
-          client.provider(req)
+          req = Google::Protobuf::Empty.new
+          @client.provider(req)
         end
 
         def get_vagrantfile_name
-          req = SDK::Machine::VagrantfileNameRequest.new(
-            machine: ref
-          )
-          resp = client.vagrantfile_name(req)
+          req = Google::Protobuf::Empty.new
+          resp = @client.vagrantfile_name(req)
           resp.name
         end
 
         def get_vagrantfile_path
-          req = SDK::Machine::VagrantfilePathRequest.new(
-            machine: ref
-          )
-          resp = client.vagrantfile_path(req)
+          req = Google::Protobuf::Empty.new
+          resp = @client.vagrantfile_path(req)
           Pathname.new(resp.path)
         end
 
         def updated_at
-          req = SDK::Machine::UpdatedAtRequest.new(
-            machine: ref
-          )
-          resp = client.updated_at(req)
+          req = Google::Protobuf::Empty.new
+          resp = @client.updated_at(req)
           resp.updated_at
         end
 
         def get_state
-          req = SDK::Machine::GetStateRequest.new(
-            machine: ref
-          )
-          resp = client.get_state(req)
+          req = Google::Protobuf::Empty.new
+          resp = @client.get_state(req)
           Vagrant::MachineState.new(
             resp.state.id.to_sym,
             resp.state.short_description,
@@ -166,27 +109,23 @@ module VagrantPlugins
           )
         end
 
+        # @param [SRV::Operation::PhysicalState] state of the machine
         def set_state(state)
-          req = SDK::Machine::SetStateRequest.new(
-            machine: ref,
-            state: SDK::Args::MachineState.new(
-              id: state.id.to_s,
-              short_description: state.short_description.to_s,
-              long_description: state.long_description.to_s
+          req = SDK::Target::Machine::SetStateRequest.new(
+            state: SDK::Args::Target::Machine::State.new(
+              id: state.id,
+              short_description: state.short_description,
+              long_description: state.long_description,
             )
           )
-          client.set_state(req)
+          @client.set_state(req)
         end
 
         def get_uuid
-          req = SDK::Machine::GetUUIDRequest.new(
-            machine: ref
-          )
-          client.get_uuid(req).uuid
+          req = Google::Protobuf::Empty.new
+          @client.get_uuid(req).uuid
         end
-
       end
     end
-
   end
 end

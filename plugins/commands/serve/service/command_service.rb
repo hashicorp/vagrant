@@ -5,6 +5,7 @@ module VagrantPlugins
 
         prepend Util::HasBroker
         prepend Util::ExceptionLogger
+        LOG  = Log4r::Logger.new("vagrant::command::serve::command")
 
         def command_info_spec(*args)
           SDK::FuncSpec.new
@@ -33,6 +34,10 @@ module VagrantPlugins
                 name: "",
               ),
               SDK::FuncSpec::Value.new(
+                type: "hashicorp.vagrant.sdk.Args.Target",
+                name: "",
+              ),
+              SDK::FuncSpec::Value.new(
                 type: "hashicorp.vagrant.sdk.Command.Arguments",
                 name: "",
               )
@@ -55,6 +60,43 @@ module VagrantPlugins
             raw_args = req.spec.args.detect { |a|
               a.type == "hashicorp.vagrant.sdk.Command.Arguments"
             }&.value&.value
+            raw_project = req.spec.args.detect { |a|
+              a.type == "hashicorp.vagrant.sdk.Args.Project"
+            }&.value&.value
+            raw_target = req.spec.args.detect { |a|
+              a.type == "hashicorp.vagrant.sdk.Args.Target"
+            }&.value&.value
+
+            begin
+              # If a target is specified, specialize into a machine
+              if !raw_target.nil? 
+                t = SDK::Args::Target.decode(raw_target)
+                LOG.debug("got a target: #{t}")
+                conn = broker.dial(t.stream_id)
+                target_service = SDK::TargetService::Stub.new(conn.to_s, :this_channel_is_insecure)
+                req = Google::Protobuf::Empty.new
+                LOG.debug("got target #{target_service.name(req).name}")
+                LOG.debug("specializing target #{target_service}")
+
+                machine = target_service.specialize(
+                  Google::Protobuf::Any.pack(
+                    SDK::SSHInfo.new(
+                      port: "", ssh_command: ""
+                    )
+                  )
+                )
+                @logger.debug("target specialized to #{machine}")
+                m = SDK::Args::MachineTarget.decode(machine)
+                LOG.debug("got a machine: #{m}")
+                conn = broker.dial(m.stream_id)
+                @logger.debug("connecting to target machine service on #{conn}")
+                machine_service = SDK::TargetMachineService::Stub.new(conn.to_s, :this_channel_is_insecure)
+                @logger.debug("machine name: #{machine_service.name(Google::Protobuf::Empty.new).name}")
+              end
+            rescue => err
+              LOG.debug("#{err.class}: #{err}\n#{err.backtrace.join("\n")}")
+              raise
+            end
 
             arguments = SDK::Command::Arguments.decode(raw_args)
             ui_client = Client::Terminal.load(raw_terminal, broker: broker)
