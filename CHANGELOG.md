@@ -6,6 +6,7 @@ IMPROVEMENTS:
 
 - command/package: Add --info flag to package command [GH-12304]
 - guest/debian: Retry network setup on debain [GH-12421]
+- guest/suse: Use systemctl poweroff in the background instead of shutdown [GH-12439]
 - guest/windows: Get powershell path in %WINDIR%/System32 [GH-12436]
 - host/windows: Check Domain and Application Directory contexts for credentials when validating SMB creds [GH-12428]
 - providers/hyper-v: Fix IP detection when multiple devices are attached [GH-12232]
