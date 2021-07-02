@@ -16,7 +16,7 @@ Gem::Specification.new do |s|
   s.required_rubygems_version = ">= 1.3.6"
 
   s.add_dependency "bcrypt_pbkdf", "~> 1.1"
-  s.add_dependency "childprocess", "~> 4.0.0"
+  s.add_dependency "childprocess", "~> 4.1.0"
   s.add_dependency "ed25519", "~> 1.2.4"
   s.add_dependency "erubi"
   s.add_dependency "hashicorp-checkpoint", "~> 0.1.5"
@@ -26,7 +26,7 @@ Gem::Specification.new do |s|
   s.add_dependency "mime-types", "~> 3.3"
   s.add_dependency "net-ssh", ">= 6.1.0", "< 6.2"
   s.add_dependency "net-sftp", "~> 3.0"
-  s.add_dependency "net-scp", "~> 1.2.0"
+  s.add_dependency "net-scp", "~> 3.0.0"
   s.add_dependency "rb-kqueue", "~> 0.2.0"
   s.add_dependency "rexml", "~> 3.2"
   s.add_dependency "rubyzip", "~> 2.0"
