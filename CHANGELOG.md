@@ -2,6 +2,8 @@
 
 FEATURES:
 
+- guest/rocky: Add guest support for Rocky Linux [GH-12440]
+
 IMPROVEMENTS:
 
 - command/package: Add --info flag to package command [GH-12304]
