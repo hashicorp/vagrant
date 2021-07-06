@@ -38,6 +38,7 @@ module VagrantPlugins
         def get_id
           req = Google::Protobuf::Empty.new
           result = @client.get_id(req).id
+          @logger.debug("Got remote machine id: #{result}")
           if result.nil?
             raise "Failed to get machine ID. REF: #{ref.inspect} - ID WAS NIL"
           end
@@ -45,7 +46,7 @@ module VagrantPlugins
         end
 
         def set_id(new_id)
-          req = SDK::Target::SetIDRequest.new(
+          req = SDK::Target::Machine::SetIDRequest.new(
             id: new_id
           )
           @client.set_id(req)

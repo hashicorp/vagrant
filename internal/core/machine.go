@@ -13,10 +13,11 @@ func (m *Machine) Close() (err error) {
 }
 
 func (m *Machine) ID() (id string, err error) {
-	return "machine-id-value", nil
+	return m.target.Uuid, nil
 }
 
 func (m *Machine) SetID(value string) (err error) {
+	m.target.Uuid = value
 	return
 }
 
