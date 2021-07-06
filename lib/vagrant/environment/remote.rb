@@ -22,8 +22,14 @@ module Vagrant
       #   backed by.
       # @param [Boolean] refresh If true, then if there is a cached version
       #   it is reloaded.
-      # @return [Machine]
-      def machine(name, provider, refresh=false)
+      # @return [Vagrant::Remote::Machine]
+      # def machine(name, provider, refresh=false)
+      #   return Machine.new(
+      #     name, provider.to_s, nil, nil, nil, {}, nil, nil, self, nil, false)
+      # end
+
+      # return [VagrantPlugins::CommandServe::Client::Machine]
+      def get_target(name)
         return @client.target(name)
       end
     end

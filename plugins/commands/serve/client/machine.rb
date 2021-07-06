@@ -99,14 +99,22 @@ module VagrantPlugins
         end
 
         def get_state
-          req = Google::Protobuf::Empty.new
-          resp = @client.get_state(req)
+          # req = Google::Protobuf::Empty.new
+          # resp = @client.get_state(req)
+          # @logger.debug("Got state #{resp}")
+          # Vagrant::MachineState.new(
+          #   resp.state.id.to_sym,
+          #   resp.state.short_description,
+          #   resp.state.long_description
+          # )
           Vagrant::MachineState.new(
-            resp.state.id.to_sym,
-            resp.state.short_description,
-            resp.state.long_description
+            :UNKNOWN,
+            "all good",
+            "you know, all good"
           )
         end
+
+        alias state get_state
 
         # @param [SRV::Operation::PhysicalState] state of the machine
         def set_state(state)

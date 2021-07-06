@@ -13,7 +13,7 @@ module Vagrant
 
       def initialize(name, provider_name, provider_cls, provider_config, provider_options, config, data_dir, box, env, vagrantfile, base=false)
         @logger = Log4r::Logger.new("vagrant::machine")
-        @client = VagrantPlugins::CommandServe::Client::Machine.new(env: env)
+        @client = env.get_target(name)
         @env = env
         @ui = Vagrant::UI::Prefixed.new(@env.ui, name)
         @provider_name = provider_name
