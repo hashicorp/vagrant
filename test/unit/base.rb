@@ -3,7 +3,6 @@ require "rubygems"
 
 # Gems
 require "checkpoint"
-require "webmock/rspec"
 require "rspec/its"
 
 # Require Vagrant itself so we can reference the proper
