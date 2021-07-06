@@ -11,26 +11,44 @@ module Vagrant
         end
       end
 
+      # Initialize a new machine.
+      #
+      # @param [String] name Name of the virtual machine.
+      # @param [Class] provider The provider backing this machine. This is
+      #   currently expected to be a V1 `provider` plugin.
+      # @param [Object] provider_config The provider-specific configuration for
+      #   this machine.
+      # @param [Hash] provider_options The provider-specific options from the
+      #   plugin definition.
+      # @param [Object] config The configuration for this machine.
+      # @param [Pathname] data_dir The directory where machine-specific data
+      #   can be stored. This directory is ensured to exist.
+      # @param [Box] box The box that is backing this virtual machine.
+      # @param [Environment] env The environment that this machine is a
+      #   part of.
       def initialize(name, provider_name, provider_cls, provider_config, provider_options, config, data_dir, box, env, vagrantfile, base=false)
         @logger = Log4r::Logger.new("vagrant::machine")
         @client = env.get_target(name)
         @env = env
         @ui = Vagrant::UI::Prefixed.new(@env.ui, name)
+
+        # TODO: Get provider info from client
         @provider_name = provider_name
         @provider = provider_cls.new(self)
         @provider._initialize(provider_name, self)
         @provider_options = provider_options
+        @provider_config = provider_config
 
+        #TODO: get box from @client.get_box()
         @box             = box
         @config          = config
-        @data_dir        = data_dir
+        @data_dir        = @client.get_data_dir()
         @vagrantfile     = vagrantfile
         @guest           = Guest.new(
           self,
           Vagrant.plugin("2").manager.guests,
           Vagrant.plugin("2").manager.guest_capabilities)
         @name            = name
-        @provider_config = provider_config
         @ui_mutex        = Mutex.new
         @state_mutex     = Mutex.new
         @triggers        = Vagrant::Plugin::V2::Trigger.new(@env, @config.trigger, self, @ui)

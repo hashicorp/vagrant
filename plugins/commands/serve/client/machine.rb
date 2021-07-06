@@ -65,7 +65,7 @@ module VagrantPlugins
 
         def get_data_dir
           req = Google::Protobuf::Empty.new
-          @client.datadir(req).data_dir
+          Pathname.new(@client.data_dir(req).data_dir)
         end
 
         # TODO: local data path comes from the project
@@ -100,18 +100,13 @@ module VagrantPlugins
         end
 
         def get_state
-          # req = Google::Protobuf::Empty.new
-          # resp = @client.get_state(req)
-          # @logger.debug("Got state #{resp}")
-          # Vagrant::MachineState.new(
-          #   resp.state.id.to_sym,
-          #   resp.state.short_description,
-          #   resp.state.long_description
-          # )
+          req = Google::Protobuf::Empty.new
+          resp = @client.get_state(req)
+          @logger.debug("Got state #{resp}")
           Vagrant::MachineState.new(
-            :UNKNOWN,
-            "all good",
-            "you know, all good"
+            resp.state.id.to_sym,
+            resp.state.short_description,
+            resp.state.long_description
           )
         end
 

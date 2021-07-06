@@ -65,52 +65,25 @@ module VagrantPlugins
             raw_project = req.spec.args.detect { |a|
               a.type == "hashicorp.vagrant.sdk.Args.Project"
             }&.value&.value
-            raw_target = req.spec.args.detect { |a|
-              a.type == "hashicorp.vagrant.sdk.Args.Target"
-            }&.value&.value
 
-            # If a target is specified, specialize into a machine
-            if !raw_target.nil? 
-              t = SDK::Args::Target.decode(raw_target)
-              LOG.debug("got a target: #{t}")
-              conn = broker.dial(t.stream_id)
-              target_service = SDK::TargetService::Stub.new(conn.to_s, :this_channel_is_insecure)
-              LOG.debug("got target #{target_service.name(Google::Protobuf::Empty.new).name}")
-              LOG.debug("specializing target #{target_service}")
-              machine = target_service.specialize(Google::Protobuf::Any.new)
-              LOG.debug("target specialized to #{machine.value}")
-              m = SDK::Args::Target::Machine.decode(machine.value)
-              LOG.debug("got a machine: #{m}")
-              conn = broker.dial(m.stream_id)
-              LOG.debug("connecting to target machine service on #{conn}")
-              machine_service = SDK::TargetMachineService::Stub.new(conn.to_s, :this_channel_is_insecure)
-              LOG.debug("machine name: #{machine_service.name(Google::Protobuf::Empty.new).name}")
+            arguments = SDK::Command::Arguments.decode(raw_args)
+            ui_client = Client::Terminal.load(raw_terminal, broker: broker)
+            env_client = Client::Project.load(raw_project, broker: broker)
+
+            ui = Vagrant::UI::RemoteUI.new(ui_client)
+            env = Vagrant::Environment.new(
+              {ui: ui, client: env_client}
+            )
+
+            plugin = Vagrant::Plugin::V2::Plugin.manager.commands[plugin_name.to_sym].to_a.first
+            if !plugin
+              raise "Failed to locate command plugin for: #{plugin_name}"
             end
 
-            begin
-              arguments = SDK::Command::Arguments.decode(raw_args)
-              ui_client = Client::Terminal.load(raw_terminal, broker: broker)
-              env_client = Client::Project.load(raw_project, broker: broker)
-
-              ui = Vagrant::UI::RemoteUI.new(ui_client)
-              env = Vagrant::Environment.new(
-                {ui: ui, client: env_client}
-              )
-
-              plugin = Vagrant::Plugin::V2::Plugin.manager.commands[plugin_name.to_sym].to_a.first
-              if !plugin
-                raise "Failed to locate command plugin for: #{plugin_name}"
-              end
-
-              cmd_klass = plugin.call
-              cmd_args = req.command_args.to_a[1..] + arguments.args.to_a
-              cmd = cmd_klass.new(cmd_args, env)
-              result = cmd.execute
-            rescue => err
-              LOG.error(err)
-              LOG.debug("#{err.class}: #{err}\n#{err.backtrace.join("\n")}")
-              raise
-            end
+            cmd_klass = plugin.call
+            cmd_args = req.command_args.to_a[1..] + arguments.args.to_a
+            cmd = cmd_klass.new(cmd_args, env)
+            result = cmd.execute
 
             LOGGER.debug(result)
             if !result.is_a?(Integer)

@@ -18,6 +18,7 @@ module VagrantPlugins
         end
 
         # Returns a machine client for the given name
+        # return [VagrantPlugins::CommandServe::Client::Machine]
         def target(name)
           @logger.debug("searching for target #{name}")
           req = SDK::Project::TargetRequest.new(name: name)
