@@ -18,7 +18,6 @@ module VagrantPlugins
           self.new(conn.to_s)
         end
 
-
         def ref
           SDK::Ref::Machine.new(resource_id: resource_id)
         end

@@ -87,22 +87,30 @@ module VagrantPlugins
               LOG.debug("machine name: #{machine_service.name(Google::Protobuf::Empty.new).name}")
             end
 
+            begin
+              arguments = SDK::Command::Arguments.decode(raw_args)
+              ui_client = Client::Terminal.load(raw_terminal, broker: broker)
+              env_client = Client::Project.load(raw_project, broker: broker)
 
-            arguments = SDK::Command::Arguments.decode(raw_args)
-            ui_client = Client::Terminal.load(raw_terminal, broker: broker)
+              ui = Vagrant::UI::RemoteUI.new(ui_client)
+              env = Vagrant::Environment.new(
+                {ui: ui, client: env_client}
+              )
 
-            ui = Vagrant::UI::RemoteUI.new(ui_client)
-            env = Vagrant::Environment.new(ui: ui)
+              plugin = Vagrant::Plugin::V2::Plugin.manager.commands[plugin_name.to_sym].to_a.first
+              if !plugin
+                raise "Failed to locate command plugin for: #{plugin_name}"
+              end
 
-            plugin = Vagrant::Plugin::V2::Plugin.manager.commands[plugin_name.to_sym].to_a.first
-            if !plugin
-              raise "Failed to locate command plugin for: #{plugin_name}"
+              cmd_klass = plugin.call
+              cmd_args = req.command_args.to_a[1..] + arguments.args.to_a
+              cmd = cmd_klass.new(cmd_args, env)
+              result = cmd.execute
+            rescue => err
+              LOG.error(err)
+              LOG.debug("#{err.class}: #{err}\n#{err.backtrace.join("\n")}")
+              raise
             end
-
-            cmd_klass = plugin.call
-            cmd_args = req.command_args.to_a[1..] + arguments.args.to_a
-            cmd = cmd_klass.new(cmd_args, env)
-            result = cmd.execute
 
             LOGGER.debug(result)
             if !result.is_a?(Integer)
