@@ -4,9 +4,13 @@ module Vagrant
       # This is a configuration object that can have anything done
       # to it. Anything, and it just appears to keep working.
       class DummyConfig
+        LOG  = Log4r::Logger.new("vagrant::config::v2::dummy_config")
+
         def method_missing(name, *args, &block)
           # Trying to define a variable
-          if name.to_s.match(/[\w]*=/)
+          if name.to_s.match(/^[\w]*=/)
+            LOG.debug("found name #{name}")
+            LOG.debug("setting instance variable name #{name.to_s.split("=")[0]}")
             var_name = "@#{name.to_s.split("=")[0]}"
             self.instance_variable_set(var_name, args[0])
           else
@@ -20,8 +24,10 @@ module Vagrant
 
         def set_options(options)
           options.each do |key, value|
-            var_name = "@#{key.to_s}"
-            self.instance_variable_set(var_name, value)
+            if key.to_s.match(/^[\w]*=/)
+              var_name = "@#{key.to_s}"
+              self.instance_variable_set(var_name, value)
+            end
           end
         end
 
