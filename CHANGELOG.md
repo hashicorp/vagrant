@@ -1,4 +1,4 @@
-## Next version (Unreleased)
+## 2.2.17 (July 7, 2021)
 
 FEATURES:
 
