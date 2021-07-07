@@ -4,6 +4,7 @@ import (
 	"errors"
 
 	"github.com/hashicorp/vagrant-plugin-sdk/component"
+	//	"github.com/hashicorp/vagrant-plugin-sdk/core"
 	"github.com/hashicorp/vagrant-plugin-sdk/terminal"
 	"github.com/hashicorp/vagrant/builtin/myplugin/host/cap"
 )
