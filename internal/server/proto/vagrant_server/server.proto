@@ -287,7 +287,7 @@ message Target {
   sdk.Args.MetadataSet metadata = 9;
 
   // Serialized configuration of the target (Vagrantfile)
-  sdk.Vagrantfile.Vagrantfile configuration = 10;
+  sdk.Vagrantfile.MachineConfig configuration = 10;
 
   // Specialized target information (from provider)
   google.protobuf.Any record = 11;

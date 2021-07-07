@@ -55,12 +55,38 @@ func (p *Project) LoadVagrantfiles() error {
 	}
 	p.project.Configuration = vagrantfile
 	// Push Vagrantfile updates to project
-	p.basis.client.UpsertProject(
+	projectRef, err := p.basis.client.UpsertProject(
 		context.Background(),
 		&vagrant_server.UpsertProjectRequest{
 			Project: p.project,
 		},
 	)
+	if err != nil {
+		return err
+	}
+	for _, machineConfig := range vagrantfile.MachineConfigs {
+		vagrant_server_target := &vagrant_server.Target{
+			Configuration: machineConfig,
+			Name:          machineConfig.Name,
+			Project:       &vagrant_plugin_sdk.Ref_Project{ResourceId: projectRef.Project.ResourceId},
+		}
+		newTarget := &Target{
+			ui:      p.ui,
+			project: p,
+			target:  vagrant_server_target,
+		}
+		p.Targets = append(p.Targets, newTarget)
+		_, err := p.basis.client.UpsertTarget(
+			context.Background(),
+			&vagrant_server.UpsertTargetRequest{
+				Project: &vagrant_plugin_sdk.Ref_Project{ResourceId: projectRef.Project.ResourceId},
+				Target:  vagrant_server_target,
+			},
+		)
+		if err != nil {
+			return err
+		}
+	}
 	if err != nil {
 		return err
 	}

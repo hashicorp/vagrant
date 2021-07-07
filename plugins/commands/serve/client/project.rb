@@ -22,7 +22,12 @@ module VagrantPlugins
         def target(name)
           @logger.debug("searching for target #{name}")
           req = SDK::Project::TargetRequest.new(name: name)
-          raw_target = @client.target(req)
+          begin
+            raw_target = @client.target(req)
+          rescue
+            @logger.debug("no target found for #{name}")
+            return Machine.new(nil)
+          end
           @logger.debug("got target #{raw_target}")
           conn = @broker.dial(raw_target.stream_id)
           target_service = SDK::TargetService::Stub.new(conn.to_s, :this_channel_is_insecure)

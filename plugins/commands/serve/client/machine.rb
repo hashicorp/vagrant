@@ -9,7 +9,9 @@ module VagrantPlugins
         def initialize(conn)
           @logger = Log4r::Logger.new("vagrant::command::serve::client::machine")
           @logger.debug("connecting to target machine service on #{conn}")
-          @client = SDK::TargetMachineService::Stub.new(conn, :this_channel_is_insecure)
+          if !conn.nil?
+            @client = SDK::TargetMachineService::Stub.new(conn, :this_channel_is_insecure)
+          end
         end
 
         def self.load(raw_machine, broker:)

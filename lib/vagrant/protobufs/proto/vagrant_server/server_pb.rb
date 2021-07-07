@@ -54,7 +54,7 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
       optional :parent, :message, 7, "hashicorp.vagrant.Target"
       optional :uuid, :string, 8
       optional :metadata, :message, 9, "hashicorp.vagrant.sdk.Args.MetadataSet"
-      optional :configuration, :message, 10, "hashicorp.vagrant.sdk.Vagrantfile.Vagrantfile"
+      optional :configuration, :message, 10, "hashicorp.vagrant.sdk.Vagrantfile.MachineConfig"
       optional :record, :message, 11, "google.protobuf.Any"
       optional :remote_enabled, :bool, 100
       optional :data_source, :message, 101, "hashicorp.vagrant.Job.DataSource"

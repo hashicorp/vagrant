@@ -13,6 +13,8 @@ module VagrantPlugins
         prepend Util::HasBroker
         prepend Util::ExceptionLogger
 
+        LOG = Log4r::Logger.new("vagrant::command::serve::service::internal")
+
         PROVIDER_PROTO_CLS = Hashicorp::Vagrant::Sdk::Vagrantfile::Provider
         PROVISION_PROTO_CLS = Hashicorp::Vagrant::Sdk::Vagrantfile::Provisioner
         SYNCED_FOLDER_PROTO_CLS = Hashicorp::Vagrant::Sdk::Vagrantfile::SyncedFolder
@@ -53,32 +55,44 @@ module VagrantPlugins
             Vagrant::Config::VERSIONS, Vagrant::Config::VERSIONS_ORDER)
           config_loader.set(:root, path)
           v = Vagrant::Vagrantfile.new(config_loader, [:root])
+          LOG.debug("loaded vagrantfile")
 
           machine_configs = []
           # Get the config for each machine
           v.machine_names.each do |mach|
+            LOG.debug("loading machine config for #{mach}")
             machine_info = v.machine_config(mach, nil, nil, false)
             root_config = machine_info[:config]
             vm_config = root_config.vm
 
+            LOG.debug("extracting config.ssh")
             # Get config.ssh.*
             config_ssh_proto = extract_communicator(CONFIG_SSH_CLS, root_config.ssh)
 
+            LOG.debug("extracting config.winrm")
             # Get config.winrm.*
             config_winrm_proto = extract_communicator(CONFIG_WINRM_CLS, root_config.winrm)
 
+            LOG.debug("extracting config.winssh")
             #Get config.winssh.*
             config_winssh_proto = extract_communicator(CONFIG_WINSSH_CLS, root_config.winssh)
 
+            LOG.debug("extracting config.vagrant")
             # Get config.vagrant.*
             config_vagrant_proto = extract_config_component(CONFIG_VAGRANT_CLS, root_config.vagrant)
 
+            LOG.debug("extracting config.vm")
             # Get's config.vm.*
             config_vm_proto = extract_config_component(CONFIG_VM_CLS, vm_config)
+            LOG.debug("extracting provisioners")
             extract_provisioners(config_vm_proto.provisioners, vm_config.provisioners)
+            LOG.debug("extracting network")
             extract_network(config_vm_proto.networks, vm_config.networks)
+            LOG.debug("extracting synced folder")
             extract_synced_folders(config_vm_proto.synced_folders, vm_config.synced_folders)
+            LOG.debug("extracting provider")
             extract_provider(config_vm_proto.providers, vm_config)
+            LOG.debug("done loading machine config for #{mach}")
 
             plugin_configs = []
             root_config.__internal_state["keys"].each do |name, config|
@@ -105,6 +119,7 @@ module VagrantPlugins
             current_version: Vagrant::Config::CURRENT_VERSION,
             machine_configs: machine_configs,
           )
+          LOG.debug("vagrantfile parsed!")
           Hashicorp::Vagrant::ParseVagrantfileResponse.new(
             vagrantfile: vagrantfile
           )
