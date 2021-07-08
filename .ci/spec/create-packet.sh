@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+export PACKET_EXEC_PREFER_FACILITIES="${PACKET_EXEC_PREFER_FACILITIES:-iad2,dfw2,dfw1,ny5,ny7,ewr1,la4,lax1,lax2,tr2,ch3,ord1,ord4}"
+
 csource="${BASH_SOURCE[0]}"
 while [ -h "$csource" ] ; do csource="$(readlink "$csource")"; done
 root="$( cd -P "$( dirname "$csource" )/../../" && pwd )"
