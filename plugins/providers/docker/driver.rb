@@ -23,7 +23,7 @@ module VagrantPlugins
         args = Array(opts[:extra_args])
         args << dir
         opts = {with_stderr: true}
-        result = execute('docker', 'build', *args, opts, &block)
+        result = execute('docker', 'build', *args, **opts, &block)
         # Check for the new output format 'writing image sha256...'
         # In this case, docker buildkit is enabled. Its format is different
         # from standard docker
