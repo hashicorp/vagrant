@@ -166,18 +166,10 @@ func (t *Target) Run(ctx context.Context, task *vagrant_server.Task) (err error)
 		return
 	}
 
-	host, err := t.project.Host()
-	if err != nil {
-		return err
-	}
-
-	result, err := t.callDynamicFunc(
-		ctx,
-		t.logger,
-		nil,
-		cmd,
-		cmd.Value.(component.Command).ExecuteFunc(strings.Split(task.CommandName, " ")),
-		argmapper.Typed(task.CliArgs, t.jobInfo, t.dir, host),
+	fn := cmd.Value.(component.Command).ExecuteFunc(
+		strings.Split(task.CommandName, " "))
+	result, err := t.callDynamicFunc(ctx, t.logger, fn, (*int64)(nil),
+		argmapper.Typed(task.CliArgs, t.jobInfo, t.dir),
 	)
 
 	if err != nil || result == nil || result.(int64) != 0 {
@@ -188,27 +180,33 @@ func (t *Target) Run(ctx context.Context, task *vagrant_server.Task) (err error)
 	return
 }
 
+// Calls the function provided and converts the
+// result to an expected type. If no type conversion
+// is required, a `false` value for the expectedType
+// will return the raw interface return value.
+//
+// By default, the target is added as a typed argument
+// and the target and target UI are both added as a
+// named arguments. Execution is passed up to the project
+// level so it can set arguments as well.
 func (t *Target) callDynamicFunc(
-	ctx context.Context,
-	log hclog.Logger,
-	result interface{}, // expected result type
-	c *Component, // component
-	f interface{}, // function
-	args ...argmapper.Arg,
+	ctx context.Context, // context for function execution
+	log hclog.Logger, // logger to provide function execution
+	f interface{}, // function to call
+	expectedType interface{}, // nil pointer of expected return type
+	args ...argmapper.Arg, // list of argmapper arguments
 ) (interface{}, error) {
-
-	// Be sure that the status is closed after every operation so we don't leak
-	// weird output outside the normal execution.
+	// ensure our UI status is closed after every call in case it is used
 	defer t.ui.Status().Close()
 
+	// add project related arguments
 	args = append(args,
 		argmapper.Typed(t),
 		argmapper.Named("target", t),
 		argmapper.Named("target_ui", t.UI),
 	)
 
-	t.logger.Info("running dynamic call from target", "target", t)
-	return t.project.callDynamicFunc(ctx, log, result, c, f, args...)
+	return t.project.callDynamicFunc(ctx, log, f, expectedType, args...)
 }
 
 func (t *Target) specializeComponent(c *Component) (cmp plugin.PluginMetadata, err error) {

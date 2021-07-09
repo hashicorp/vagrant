@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"reflect"
 	"strings"
 	"sync"
 
@@ -18,6 +17,7 @@ import (
 	"github.com/hashicorp/vagrant-plugin-sdk/component"
 	"github.com/hashicorp/vagrant-plugin-sdk/core"
 	"github.com/hashicorp/vagrant-plugin-sdk/datadir"
+	"github.com/hashicorp/vagrant-plugin-sdk/internal-shared/dynamic"
 	"github.com/hashicorp/vagrant-plugin-sdk/internal-shared/protomappers"
 	"github.com/hashicorp/vagrant-plugin-sdk/proto/vagrant_plugin_sdk"
 	"github.com/hashicorp/vagrant-plugin-sdk/terminal"
@@ -196,27 +196,15 @@ func (b *Basis) Init() (result *vagrant_server.Job_InitResult, err error) {
 			return
 		}
 
-		// TODO(spox): Update this to use sdk core interface (against server so manual map required)
-		raw, err := b.callDynamicFunc(
-			ctx,
-			b.logger,
-			(interface{})(nil),
-			cmd,
-			cmd.Value.(component.Command).CommandInfoFunc(),
-		)
+		fn := cmd.Value.(component.Command).CommandInfoFunc()
+		raw, err := b.callDynamicFunc(ctx, b.logger, fn, (**component.CommandInfo)(nil))
 
-		if err != nil {
-			return nil, err
-		}
-
-		r, err := protomappers.CommandInfo(
-			raw.(*vagrant_plugin_sdk.Command_CommandInfoResp).CommandInfo)
 		if err != nil {
 			return nil, err
 		}
 
 		result.Commands = append(result.Commands,
-			b.convertCommandInfo(r, []string{})...)
+			b.convertCommandInfo(raw.(*component.CommandInfo), []string{})...)
 	}
 
 	return
@@ -388,16 +376,17 @@ func (b *Basis) Run(ctx context.Context, task *vagrant_server.Task) (err error) 
 		return
 	}
 
-	result, err := b.callDynamicFunc(
-		ctx,
-		b.logger,
-		(interface{})(nil),
-		cmd,
-		cmd.Value.(component.Command).ExecuteFunc(strings.Split(task.CommandName, " ")),
-		argmapper.Typed(task.CliArgs, b.jobInfo, b.dir),
-	)
+	fn := cmd.Value.(component.Command).ExecuteFunc(
+		strings.Split(task.CommandName, " "))
+	result, err := b.callDynamicFunc(ctx, b.logger, fn, (*int64)(nil),
+		argmapper.Typed(task.CliArgs, b.jobInfo, b.dir))
+
 	if err != nil || result == nil || result.(int64) != 0 {
-		b.logger.Error("failed to execute command", "type", component.CommandType, "name", task.Component.Name, "error", err)
+		b.logger.Error("failed to execute command",
+			"type", component.CommandType,
+			"name", task.Component.Name,
+			"error", err)
+
 		return err
 	}
 
@@ -414,17 +403,13 @@ func (b *Basis) findHostPlugin(ctx context.Context) (*Component, error) {
 		if err != nil {
 			return nil, err
 		}
-		detected, err := b.callDynamicFunc(
-			ctx,
-			b.logger,
-			(interface{})(nil),
-			h,
-			h.Value.(component.Host).DetectFunc(),
-		)
+		fn := h.Value.(component.Host).DetectFunc()
+		detected, err := b.callDynamicFunc(ctx, b.logger, fn, (*bool)(nil))
+
 		if err != nil {
 			return nil, err
 		}
-		if detected != nil && detected.(bool) {
+		if detected.(bool) {
 			return h, nil
 		}
 		// h.Close()
@@ -511,63 +496,32 @@ func (b *Basis) startPlugin(
 	return pinst, nil
 }
 
+// Calls the function provided and converts the
+// result to an expected type. If no type conversion
+// is required, a `false` value for the expectedType
+// will return the raw interface return value.
+//
+// By default, the basis, provided context, and basis
+// UI are added as a typed arguments. The basis is
+// also added as a named argument.
 func (b *Basis) callDynamicFunc(
-	ctx context.Context,
-	log hclog.Logger,
-	result interface{}, // expected result type
-	c *Component, // component
-	f interface{}, // function
-	args ...argmapper.Arg,
+	ctx context.Context, // context for function execution
+	log hclog.Logger, // logger to provide function execution
+	f interface{}, // function to call
+	expectedType interface{}, // nil pointer of expected return type
+	args ...argmapper.Arg, // list of argmapper arguments
 ) (interface{}, error) {
-	var rawFunc *argmapper.Func
-	if fn, ok := f.(*argmapper.Func); ok {
-		rawFunc = fn
-	} else if fn, ok := f.(*component.SpicyFunc); ok {
-		rawFunc = fn.Func
-	} else {
-		var err error
-		rawFunc, err = argmapper.NewFunc(f)
-		if err != nil {
-			return nil, err
-		}
-	}
-
-	// Be sure that the status is closed after every operation so we don't leak
-	// weird output outside the normal execution.
+	// ensure our UI status is closed after every call since this is
+	// the UI we send by default
 	defer b.ui.Status().Close()
 
+	// add the default arguments always provided by the basis
 	args = append(args,
-		argmapper.ConverterFunc(b.mappers...),
 		argmapper.Typed(b, b.ui, ctx, log.Named("plugin-call")),
 		argmapper.Named("basis", b),
-		argmapper.Logger(dynamicLogger),
 	)
 
-	b.logger.Info("running dynamic call from basis", "basis", b, "func", rawFunc.Name())
-
-	// Build the chain and call it
-	callResult := rawFunc.Call(args...)
-	if err := callResult.Err(); err != nil {
-		return nil, err
-	}
-	raw := callResult.Out(0)
-
-	// If we don't have an expected result type, then just return as-is.
-	// Otherwise, we need to verify the result type matches properly.
-	if result == nil {
-		return raw, nil
-	}
-
-	// Verify
-	interfaceType := reflect.TypeOf(result).Elem()
-	if rawType := reflect.TypeOf(raw); !rawType.Implements(interfaceType) {
-		return nil, status.Errorf(codes.FailedPrecondition,
-			"operation expected result type %s, got %s",
-			interfaceType.String(),
-			rawType.String())
-	}
-
-	return raw, nil
+	return dynamic.CallFunc(f, expectedType, b.mappers, args...)
 }
 
 func (b *Basis) execHook(ctx context.Context, log hclog.Logger, h *config.Hook) error {

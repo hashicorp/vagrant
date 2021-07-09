@@ -248,12 +248,9 @@ func (p *Project) Run(ctx context.Context, task *vagrant_server.Task) (err error
 		return
 	}
 
-	result, err := p.callDynamicFunc(
-		ctx,
-		p.logger,
-		(interface{})(nil),
-		cmd,
-		cmd.Value.(component.Command).ExecuteFunc(strings.Split(task.CommandName, " ")),
+	fn := cmd.Value.(component.Command).ExecuteFunc(
+		strings.Split(task.CommandName, " "))
+	result, err := p.callDynamicFunc(ctx, p.logger, fn, (*int64)(nil),
 		argmapper.Typed(task.CliArgs, p.jobInfo, p.dir),
 	)
 	if err != nil || result == nil || result.(int64) != 0 {
@@ -324,28 +321,34 @@ func (p *Project) SaveFull() (err error) {
 	return
 }
 
+// Calls the function provided and converts the
+// result to an expected type. If no type conversion
+// is required, a `false` value for the expectedType
+// will return the raw interface return value.
+//
+// By default, the project is added as a typed argument
+// and the project and project UI are both added as a
+// named arguments. Execution is passed up to the basis
+// level so it can set arguments as well and actually
+// execute the function.
 func (p *Project) callDynamicFunc(
-	ctx context.Context,
-	log hclog.Logger,
-	result interface{}, // expected result type
-	c *Component, // component
-	f interface{}, // function
-	args ...argmapper.Arg,
+	ctx context.Context, // context for function execution
+	log hclog.Logger, // logger to provide function execution
+	f interface{}, // function to call
+	expectedType interface{}, // nil pointer of expected return type
+	args ...argmapper.Arg, // list of argmapper arguments
 ) (interface{}, error) {
-
-	// Be sure that the status is closed after every operation so we don't leak
-	// weird output outside the normal execution.
+	// ensure our UI status is closed after every call in case it is used
 	defer p.ui.Status().Close()
 
+	// add project related arguments
 	args = append(args,
-		argmapper.ConverterFunc(p.mappers...),
 		argmapper.Typed(p),
 		argmapper.Named("project", p),
 		argmapper.Named("project_ui", p.UI),
 	)
 
-	p.logger.Info("running dynamic call from project", "project", p)
-	return p.basis.callDynamicFunc(ctx, log, result, c, f, args...)
+	return p.basis.callDynamicFunc(ctx, log, f, expectedType, args...)
 }
 
 func (p *Project) specializeComponent(c *Component) (cmp plugin.PluginMetadata, err error) {
