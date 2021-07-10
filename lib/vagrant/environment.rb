@@ -1011,7 +1011,7 @@ module Vagrant
           options[:require] = pconfig[:entry_point] if pconfig[:entry_point]
           options[:version] = pconfig[:version] if pconfig[:version]
 
-          spec = Plugin::Manager.instance.install_plugin(name, options)
+          spec = Plugin::Manager.instance.install_plugin(name, **options)
 
           ui.info(I18n.t("vagrant.commands.plugin.installed",
             name: spec.name, version: spec.version.to_s))
