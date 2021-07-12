@@ -23,7 +23,7 @@ module VagrantPlugins
         args = Array(opts[:extra_args])
         args << dir
         opts = {with_stderr: true}
-        result = execute('docker', 'build', *args, opts, &block)
+        result = execute('docker', 'build', *args, **opts, &block)
         # Check for the new output format 'writing image sha256...'
         # In this case, docker buildkit is enabled. Its format is different
         # from standard docker
@@ -47,7 +47,7 @@ module VagrantPlugins
         end
 
         # Return the matched group `id`
-        matches[0]
+        matches[0].strip
       end
 
       # Check if podman emulating docker CLI is enabled.
@@ -79,7 +79,7 @@ module VagrantPlugins
             if v.index(":") != v.rindex(":")
               # If we have 2 colons, the host path is an absolute Windows URL
               # and we need to remove the colon from it
-              host, colon, guest = v.rpartition(":")
+              host, _, guest = v.rpartition(":")
               host = "//" + host[0].downcase + host[2..-1]
               v = [host, guest].join(":")
             else
