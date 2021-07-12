@@ -1,17 +1,27 @@
 package core
 
 import (
-	"reflect"
+	"strings"
 
 	"github.com/DavidGamba/go-getoptions/option"
-	"github.com/mitchellh/mapstructure"
 
-	"github.com/hashicorp/vagrant-plugin-sdk/helper/path"
+	"github.com/hashicorp/vagrant-plugin-sdk/component"
 	"github.com/hashicorp/vagrant-plugin-sdk/proto/vagrant_plugin_sdk"
 	"github.com/hashicorp/vagrant/internal/server/proto/vagrant_server"
 )
 
-func ProtoToFlagsMapper(input []*vagrant_server.Job_Flag) (opt []*option.Option, err error) {
+var Mappers = []interface{}{
+	CommandArgToMap,
+	FlagOption,
+	JobCommandProto,
+	OptionFlagProto,
+}
+
+func JobCommandProto(c *component.CommandInfo) []*vagrant_server.Job_Command {
+	return jobCommandProto(c, []string{})
+}
+
+func FlagOption(input []*vagrant_server.Job_Flag) (opt []*option.Option, err error) {
 	opt = []*option.Option{}
 	for _, f := range input {
 		var newOpt *option.Option
@@ -28,35 +38,6 @@ func ProtoToFlagsMapper(input []*vagrant_server.Job_Flag) (opt []*option.Option,
 	return opt, err
 }
 
-func EnvironmentProto(input *Environment) (*vagrant_plugin_sdk.Args_Project, error) {
-	var result vagrant_plugin_sdk.Args_Project
-	pathToStringHook := func(f, t reflect.Type, data interface{}) (interface{}, error) {
-		if f != reflect.TypeOf(path.NewPath(".")) {
-			return data, nil
-		}
-
-		if t.Kind() != reflect.String {
-			return data, nil
-		}
-
-		// Convert it
-		path := data.(path.Path)
-		return path.String(), nil
-	}
-
-	decoder, err := mapstructure.NewDecoder(
-		&mapstructure.DecoderConfig{
-			DecodeHook: pathToStringHook,
-			Metadata:   nil,
-			Result:     &result,
-		},
-	)
-	if err != nil {
-		return nil, err
-	}
-	return &result, decoder.Decode(input)
-}
-
 func CommandArgToMap(input *vagrant_plugin_sdk.Command_Arguments) (map[string]interface{}, error) {
 	result := make(map[string]interface{})
 	for _, flg := range input.Flags {
@@ -70,7 +51,7 @@ func CommandArgToMap(input *vagrant_plugin_sdk.Command_Arguments) (map[string]in
 	return result, nil
 }
 
-func FlagsToProtoMapper(input []*option.Option) []*vagrant_server.Job_Flag {
+func OptionFlagProto(input []*option.Option) []*vagrant_server.Job_Flag {
 	output := []*vagrant_server.Job_Flag{}
 
 	for _, f := range input {
@@ -93,4 +74,21 @@ func FlagsToProtoMapper(input []*option.Option) []*vagrant_server.Job_Flag {
 		output = append(output, j)
 	}
 	return output
+}
+
+func jobCommandProto(c *component.CommandInfo, names []string) []*vagrant_server.Job_Command {
+	names = append(names, c.Name)
+	cmds := []*vagrant_server.Job_Command{
+		{
+			Name:     strings.Join(names, " "),
+			Synopsis: c.Synopsis,
+			Help:     c.Help,
+			Flags:    OptionFlagProto(c.Flags),
+		},
+	}
+
+	for _, scmd := range c.Subcommands {
+		cmds = append(cmds, jobCommandProto(scmd, names)...)
+	}
+	return cmds
 }
