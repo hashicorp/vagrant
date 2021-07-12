@@ -187,7 +187,7 @@ func Commands(
 	for i := 0; i < len(result.Commands); i++ {
 		n := result.Commands[i]
 
-		flgs, _ := core.ProtoToFlagsMapper(n.Flags)
+		flgs, _ := core.FlagOption(n.Flags)
 		if _, ok := commands[n.Name]; !ok {
 			commands[n.Name] = func() (cli.Command, error) {
 				return &DynamicCommand{
