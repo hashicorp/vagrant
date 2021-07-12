@@ -60,7 +60,8 @@ func (t *Target) Name() (string, error) {
 
 // SetName implements core.Target
 func (t *Target) SetName(value string) (err error) {
-	return
+	t.target.Name = value
+	return t.Save()
 }
 
 // Provider implements core.Target
@@ -103,9 +104,20 @@ func (t *Target) DataDir() (*datadir.Target, error) {
 	return t.dir, nil
 }
 
-// State implements core.Target
-func (t *Target) State() (core.State, error) {
-	return core.UNKNOWN, nil
+func (t *Target) State() (state core.State, err error) {
+	switch t.target.State {
+	case vagrant_server.Operation_UNKNOWN:
+		state = core.UNKNOWN
+	case vagrant_server.Operation_CREATED:
+		state = core.CREATED
+	case vagrant_server.Operation_DESTROYED:
+		state = core.DESTROYED
+	case vagrant_server.Operation_PENDING:
+		state = core.PENDING
+	default:
+		state = core.UNKNOWN
+	}
+	return
 }
 
 // Record implements core.Target
