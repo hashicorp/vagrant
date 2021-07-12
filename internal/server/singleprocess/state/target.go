@@ -1,8 +1,6 @@
 package state
 
 import (
-	"strings"
-
 	"github.com/boltdb/bolt"
 	"github.com/golang/protobuf/proto"
 	"github.com/hashicorp/go-memdb"
@@ -270,7 +268,7 @@ func targetIndexSchema() *memdb.TableSchema {
 			targetIndexNameIndexName: {
 				Name:         targetIndexNameIndexName,
 				AllowMissing: false,
-				Unique:       true,
+				Unique:       false,
 				Indexer: &memdb.StringFieldIndex{
 					Field:     "Name",
 					Lowercase: true,
@@ -287,22 +285,33 @@ const (
 )
 
 type targetIndexRecord struct {
-	Id   string // Resource ID
-	Name string // Project Resource ID + Target Name
+	Id        string // Resource ID
+	Name      string // Target Name
+	ProjectId string // Project Resource ID
 }
 
 func (s *State) newTargetIndexRecord(m *vagrant_server.Target) *targetIndexRecord {
+	var projectResourceId string
+	if m.Project != nil {
+		projectResourceId = m.Project.ResourceId
+	}
 	i := &targetIndexRecord{
-		Id:   m.ResourceId,
-		Name: strings.ToLower(m.Project.ResourceId + "+" + m.Name),
+		Id:        m.ResourceId,
+		Name:      m.Name,
+		ProjectId: projectResourceId,
 	}
 	return i
 }
 
 func (s *State) newTargetIndexRecordByRef(ref *vagrant_plugin_sdk.Ref_Target) *targetIndexRecord {
+	var projectResourceId string
+	if ref.Project != nil {
+		projectResourceId = ref.Project.ResourceId
+	}
 	return &targetIndexRecord{
-		Id:   ref.ResourceId,
-		Name: strings.ToLower(ref.Project.ResourceId + "+" + ref.Name),
+		Id:        ref.ResourceId,
+		Name:      ref.Name,
+		ProjectId: projectResourceId,
 	}
 }
 
