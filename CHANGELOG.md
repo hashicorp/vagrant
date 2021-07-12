@@ -6,6 +6,8 @@ IMPROVEMENTS:
 
 BUG FIXES:
 
+- core: Fix of plugin manager kwargs [GH-12452]
+
 ## 2.2.17 (July 7, 2021)
 
 FEATURES:
