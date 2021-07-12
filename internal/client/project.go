@@ -75,10 +75,10 @@ func (p *Project) LoadVagrantfiles() error {
 			},
 		)
 		if err != nil {
-
+			p.logger.Trace("Target not found, upserting target to Vagrant server")
 		}
 		if vagrantServerTarget == nil {
-			vagrantServerTarget, _ := p.basis.client.UpsertTarget(
+			vagrantServerTarget, err := p.basis.client.UpsertTarget(
 				context.Background(),
 				&vagrant_server.UpsertTargetRequest{
 					Project: refProject,
@@ -89,6 +89,9 @@ func (p *Project) LoadVagrantfiles() error {
 					},
 				},
 			)
+			if err != nil {
+				return err
+			}
 			p.Targets = append(p.Targets, &Target{
 				ui:      p.ui,
 				project: p,
@@ -101,12 +104,6 @@ func (p *Project) LoadVagrantfiles() error {
 				target:  vagrantServerTarget.Target,
 			})
 		}
-		if err != nil {
-			return err
-		}
-	}
-	if err != nil {
-		return err
 	}
 	return nil
 }
