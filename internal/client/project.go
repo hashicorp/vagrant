@@ -64,25 +64,43 @@ func (p *Project) LoadVagrantfiles() error {
 	if err != nil {
 		return err
 	}
+
 	for _, machineConfig := range vagrantfile.MachineConfigs {
-		vagrant_server_target := &vagrant_server.Target{
-			Configuration: machineConfig,
-			Name:          machineConfig.Name,
-			Project:       &vagrant_plugin_sdk.Ref_Project{ResourceId: projectRef.Project.ResourceId},
-		}
-		newTarget := &Target{
-			ui:      p.ui,
-			project: p,
-			target:  vagrant_server_target,
-		}
-		p.Targets = append(p.Targets, newTarget)
-		_, err := p.basis.client.UpsertTarget(
+		refProject := &vagrant_plugin_sdk.Ref_Project{ResourceId: projectRef.Project.ResourceId}
+
+		vagrantServerTarget, err := p.basis.client.FindTarget(
 			context.Background(),
-			&vagrant_server.UpsertTargetRequest{
-				Project: &vagrant_plugin_sdk.Ref_Project{ResourceId: projectRef.Project.ResourceId},
-				Target:  vagrant_server_target,
+			&vagrant_server.FindTargetRequest{
+				Target: &vagrant_server.Target{Name: machineConfig.Name},
 			},
 		)
+		if err != nil {
+
+		}
+		if vagrantServerTarget == nil {
+			vagrantServerTarget, _ := p.basis.client.UpsertTarget(
+				context.Background(),
+				&vagrant_server.UpsertTargetRequest{
+					Project: refProject,
+					Target: &vagrant_server.Target{
+						Configuration: machineConfig,
+						Name:          machineConfig.Name,
+						Project:       refProject,
+					},
+				},
+			)
+			p.Targets = append(p.Targets, &Target{
+				ui:      p.ui,
+				project: p,
+				target:  vagrantServerTarget.Target,
+			})
+		} else {
+			p.Targets = append(p.Targets, &Target{
+				ui:      p.ui,
+				project: p,
+				target:  vagrantServerTarget.Target,
+			})
+		}
 		if err != nil {
 			return err
 		}
