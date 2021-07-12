@@ -1,3 +1,4 @@
+require "yaml"
 require_relative "../../../base"
 
 require Vagrant.source_root.join("lib/vagrant/util/deep_merge")
@@ -5,6 +6,17 @@ require Vagrant.source_root.join("plugins/providers/docker/driver")
 
 describe VagrantPlugins::DockerProvider::Driver::Compose do
   let(:cmd_executed) { @cmd }
+  let(:execute_result) {
+    double("execute_result",
+      exit_code: exit_code,
+      stderr: stderr,
+      stdout: stdout
+    )
+  }
+  let(:exit_code) { 0 }
+  let(:stderr) { "" }
+  let(:stdout) { "" }
+
   let(:cid)          { 'side-1-song-10' }
   let(:docker_yml){ double("docker-yml", path: "/tmp-file") }
   let(:machine){ double("machine", env: env, name: :docker_1, id: :docker_id, provider_config: provider_config) }
@@ -33,11 +45,26 @@ describe VagrantPlugins::DockerProvider::Driver::Compose do
   let(:data_directory){ double("data-directory", join: composition_path) }
   let(:local_data_path){ double("local-data-path") }
   let(:compose_execute_up){ ["docker-compose", "-f", "docker-compose.yml", "-p", "cwd", "up", "--remove-orphans", "-d", any_args] }
-
+  let(:compose_execute_up_regex) { /docker-compose -f docker-compose.yml -p cwd up --remove-orphans -d/ }
 
   subject{ described_class.new(machine) }
 
   before do
+    @cmd = []
+    allow(Vagrant::Util::Subprocess).to receive(:execute) { |*args|
+      if args.last.is_a?(Hash)
+        args = args[0, args.size - 1]
+      end
+      invalid = args.detect { |a| !a.is_a?(String) }
+      if invalid
+        raise TypeError,
+          "Vagrant::Util::Subprocess#execute only accepts signle option Hash and String arguments, received `#{invalid.class}'"
+      end
+      @cmd << args.join(" ")
+    }.and_return(execute_result)
+    allow_any_instance_of(Vagrant::Errors::VagrantError).
+      to receive(:translate_error) { |*args| args.join(" ") }
+
     allow(Vagrant::Util::Which).to receive(:which).and_return("/dev/null/docker-compose")
     allow(env).to receive(:lock).and_yield
     allow(Pathname).to receive(:new).with(local_data_path).and_return(local_data_path)
@@ -48,10 +75,6 @@ describe VagrantPlugins::DockerProvider::Driver::Compose do
     allow(Tempfile).to receive(:new).with("vagrant-docker-compose").and_return(docker_yml)
     allow(docker_yml).to receive(:write)
     allow(docker_yml).to receive(:close)
-    allow(subject).to receive(:execute) do |*args|
-      args.delete_if{|i| i.is_a?(Hash) }
-      @cmd = args.join(' ')
-    end
   end
 
   describe '#build' do
@@ -85,8 +108,10 @@ describe VagrantPlugins::DockerProvider::Driver::Compose do
       privileged: true
     } }
 
-    before { expect(subject).to receive(:execute).with(*compose_execute_up) }
-    after { subject.create(params) }
+    after {
+      subject.create(params)
+      expect(cmd_executed.first).to match(compose_execute_up_regex)
+    }
 
     it 'sets container name' do
       expect(docker_yml).to receive(:write).with(/#{machine.name}/)
@@ -168,26 +193,24 @@ describe VagrantPlugins::DockerProvider::Driver::Compose do
 
     it 'performs the check on all containers list' do
       subject.created?(cid)
-      expect(cmd_executed).to match(/docker ps \-a \-q/)
+      expect(cmd_executed.first).to match(/docker ps \-a \-q/)
     end
 
     context 'when container exists' do
-      before { allow(subject).to receive(:execute)
-        .and_return("foo\n#{cid}\nbar") }
+      let(:stdout) { "foo\n#{cid}\nbar" }
       it { expect(result).to be_truthy }
     end
 
     context 'when container does not exist' do
-      before { allow(subject).to receive(:execute)
-        .and_return("foo\n#{cid}extra\nbar") }
+      let(:stdout) { "foo\n#{cid}extra\nbar" }
       it { expect(result).to be_falsey }
     end
   end
 
   describe '#pull' do
     it 'should pull images' do
-      expect(subject).to receive(:execute).with('docker', 'pull', 'foo')
       subject.pull('foo')
+      expect(cmd_executed.first).to eq("docker pull foo")
     end
   end
 
@@ -196,19 +219,17 @@ describe VagrantPlugins::DockerProvider::Driver::Compose do
 
     it 'performs the check on the running containers list' do
       subject.running?(cid)
-      expect(cmd_executed).to match(/docker ps \-q/)
-      expect(cmd_executed).to_not include('-a')
+      expect(cmd_executed.first).to match(/docker ps \-q/)
+      expect(cmd_executed.first).to_not include('-a')
     end
 
     context 'when container exists' do
-      before { allow(subject).to receive(:execute)
-        .and_return("foo\n#{cid}\nbar") }
+      let(:stdout) { "foo\n#{cid}\nbar" }
       it { expect(result).to be_truthy }
     end
 
     context 'when container does not exist' do
-      before { allow(subject).to receive(:execute)
-        .and_return("foo\n#{cid}extra\nbar") }
+      let(:stdout) { "foo\n#{cid}extra\nbar" }
       it { expect(result).to be_falsey }
     end
   end
@@ -232,8 +253,8 @@ describe VagrantPlugins::DockerProvider::Driver::Compose do
       before { allow(subject).to receive(:running?).and_return(true) }
 
       it 'does not start the container' do
-        expect(subject).not_to receive(:execute).with('docker', 'start', cid)
         subject.start(cid)
+        expect(cmd_executed).to be_empty
       end
     end
 
@@ -241,8 +262,8 @@ describe VagrantPlugins::DockerProvider::Driver::Compose do
       before { allow(subject).to receive(:running?).and_return(false) }
 
       it 'starts the container' do
-        expect(subject).to receive(:execute).with('docker', 'start', cid)
         subject.start(cid)
+        expect(cmd_executed.first).to eq("docker start #{cid}")
       end
     end
   end
@@ -252,13 +273,13 @@ describe VagrantPlugins::DockerProvider::Driver::Compose do
       before { allow(subject).to receive(:running?).and_return(true) }
 
       it 'stops the container' do
-        expect(subject).to receive(:execute).with('docker', 'stop', '-t', '1', cid)
         subject.stop(cid, 1)
+        expect(cmd_executed.first).to eq("docker stop -t 1 #{cid}")
       end
 
       it "stops the container with the set timeout" do
-        expect(subject).to receive(:execute).with('docker', 'stop', '-t', '5', cid)
         subject.stop(cid, 5)
+        expect(cmd_executed.first).to eq("docker stop -t 5 #{cid}")
       end
     end
 
@@ -268,6 +289,7 @@ describe VagrantPlugins::DockerProvider::Driver::Compose do
       it 'does not stop container' do
         expect(subject).not_to receive(:execute).with('docker', 'stop', '-t', '1', cid)
         subject.stop(cid, 1)
+        expect(cmd_executed).to be_empty
       end
     end
   end
@@ -277,8 +299,8 @@ describe VagrantPlugins::DockerProvider::Driver::Compose do
       before { allow(subject).to receive(:created?).and_return(true) }
 
       it 'removes the container' do
-        expect(subject).to receive(:execute).with("docker-compose", "-f", "docker-compose.yml", "-p", "cwd", "rm", "-f", "docker_1", any_args)
         subject.rm(cid)
+        expect(cmd_executed.first).to match(/docker-compose -f docker-compose.yml -p cwd rm -f docker_1/)
       end
     end
 
@@ -286,20 +308,18 @@ describe VagrantPlugins::DockerProvider::Driver::Compose do
       before { allow(subject).to receive(:created?).and_return(false) }
 
       it 'does not attempt to remove the container' do
-        expect(subject).not_to receive(:execute).with("docker-compose", "-f", "docker-compose.yml", "-p", "cwd", "rm", "-f", "docker_1", {})
         subject.rm(cid)
+        expect(cmd_executed).to be_empty
       end
     end
   end
 
   describe '#inspect_container' do
-    let(:data) { '[{"json": "value"}]' }
-
-    before { allow(subject).to receive(:execute).and_return(data) }
+    let(:stdout) { '[{"json": "value"}]' }
 
     it 'inspects the container' do
-      expect(subject).to receive(:execute).with('docker', 'inspect', cid)
       subject.inspect_container(cid)
+      expect(cmd_executed.first).to eq("docker inspect #{cid}")
     end
 
     it 'parses the json output' do
@@ -308,24 +328,20 @@ describe VagrantPlugins::DockerProvider::Driver::Compose do
   end
 
   describe '#all_containers' do
-    let(:containers) { "container1\ncontainer2" }
-
-    before { allow(subject).to receive(:execute).and_return(containers) }
+    let(:stdout) { "container1\ncontainer2" }
 
     it 'returns an array of all known containers' do
-      expect(subject).to receive(:execute).with('docker', 'ps', '-a', '-q', '--no-trunc')
       expect(subject.all_containers).to eq(['container1', 'container2'])
+      expect(cmd_executed.first).to eq("docker ps -a -q --no-trunc")
     end
   end
 
   describe '#docker_bridge_ip' do
-    let(:containers) { " inet 123.456.789.012/16 " }
-
-    before { allow(subject).to receive(:execute).and_return(containers) }
+    let(:stdout) { " inet 123.456.789.012/16 " }
 
     it 'returns an array of all known containers' do
-      expect(subject).to receive(:execute).with('/sbin/ip', '-4', 'addr', 'show', 'scope', 'global', 'docker0')
       expect(subject.docker_bridge_ip).to eq('123.456.789.012')
+      expect(cmd_executed.first).to eq("/sbin/ip -4 addr show scope global docker0")
     end
   end
 end
