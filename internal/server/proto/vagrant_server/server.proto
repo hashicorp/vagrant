@@ -740,6 +740,8 @@ message Job {
     bool run_result = 2;
     // Provides any error information
     google.rpc.Status run_error = 3;
+    // Exit code if applicable
+    sint32 exit_code = 4;
   }
 
   // AuthOp is the configuration to authenticate any plugins.
