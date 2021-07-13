@@ -64,7 +64,7 @@ func (c *Interactive) Flags() []*option.Option {
 	return []*option.Option{}
 }
 
-func (c *Interactive) Execute(trm terminal.UI) int64 {
+func (c *Interactive) Execute(trm terminal.UI) int32 {
 	output, err := trm.Input(&terminal.Input{Prompt: "\nWhat do you have to say: "})
 	if err != nil {
 		trm.Output("Error getting input")

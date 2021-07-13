@@ -67,7 +67,7 @@ func (c *Info) Flags() []*option.Option {
 	return []*option.Option{}
 }
 
-func (c *Info) Execute(trm terminal.UI, p plugincore.Project) int64 {
+func (c *Info) Execute(trm terminal.UI, p plugincore.Project) int32 {
 	mn, _ := p.MachineNames()
 	trm.Output("\nMachines in this project")
 	trm.Output(strings.Join(mn[:], "\n"))

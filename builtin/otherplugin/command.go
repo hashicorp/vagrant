@@ -91,20 +91,20 @@ func (c *Command) CommandInfo() *component.CommandInfo {
 	}
 }
 
-func (c *Command) ExecuteMain(trm terminal.UI, flags map[string]interface{}) int64 {
+func (c *Command) ExecuteMain(trm terminal.UI, flags map[string]interface{}) int32 {
 	trm.Output("You gave me the flag: " + flags["thing"].(string))
 
 	trm.Output("My subcommands are: `info` and `dothing`")
 	return 0
 }
 
-func (c *Command) ExecuteThing(trm terminal.UI, flags map[string]interface{}) int64 {
+func (c *Command) ExecuteThing(trm terminal.UI, flags map[string]interface{}) int32 {
 	trm.Output("Tricked ya! I actually do nothing :P")
 	trm.Output("You gave me the stringflag: " + flags["stringflag"].(string))
 	return 0
 }
 
-func (c *Command) ExecuteInfo(trm terminal.UI, p plugincore.Project, t plugincore.Target) int64 {
+func (c *Command) ExecuteInfo(trm terminal.UI, p plugincore.Project, t plugincore.Target) int32 {
 	mn, _ := p.MachineNames()
 	trm.Output("\nMachines in this project")
 	trm.Output(strings.Join(mn[:], "\n"))
@@ -148,15 +148,15 @@ func (c *Command) ExecuteInfo(trm terminal.UI, p plugincore.Project, t plugincor
 		trm.Output("machine id is: " + id)
 	}
 
-	return 0
+	return 10
 }
 
-func (c *Command) ExecuteOfni(trm terminal.UI) int64 {
+func (c *Command) ExecuteOfni(trm terminal.UI) int32 {
 	trm.Output("I am bizzaro info! Call me ofni")
 	return 0
 }
 
-func (c *Command) ExecuteUseHostPlugin(trm terminal.UI, basis plugincore.Basis) int64 {
+func (c *Command) ExecuteUseHostPlugin(trm terminal.UI, basis plugincore.Basis) int32 {
 	trm.Output("I'm going to use a the host plugin to do something!\n\n")
 	host, err := basis.Host()
 	if err != nil {
