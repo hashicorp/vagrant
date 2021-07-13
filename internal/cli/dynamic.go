@@ -33,7 +33,8 @@ func (c *DynamicCommand) Run(args []string) int {
 		return 1
 	}
 
-	err := c.Do(c.Ctx, func(ctx context.Context, tasker Tasker) error {
+	var r *vagrant_server.Job_RunResult
+	err := c.Do(c.Ctx, func(ctx context.Context, tasker Tasker) (err error) {
 		tasker.UI().Output("Running "+c.name+"... ", terminal.WithHeaderStyle())
 		taskArgs := &vagrant_plugin_sdk.Command_Arguments{
 			Args:  args,
@@ -55,7 +56,7 @@ func (c *DynamicCommand) Run(args []string) int {
 			}
 			taskArgs.Flags = append(taskArgs.Flags, f)
 		}
-		result, err := tasker.Task(ctx, &vagrant_server.Job_RunOp{
+		r, err = tasker.Task(ctx, &vagrant_server.Job_RunOp{
 			Task: &vagrant_server.Task{
 				Scope: &vagrant_server.Task_Target{
 					Target: tasker.(*client.Target).Ref(),
@@ -73,21 +74,21 @@ func (c *DynamicCommand) Run(args []string) int {
 		if err != nil {
 			tasker.UI().Output("Running of task "+c.name+" failed unexpectedly\n", terminal.WithErrorStyle())
 			tasker.UI().Output("Error: "+err.Error(), terminal.WithErrorStyle())
-		} else if !result.RunResult {
-			tasker.UI().Output("Error: "+result.RunError.Message+"\n", terminal.WithErrorStyle())
+		} else if !r.RunResult {
+			tasker.UI().Output("Error: "+r.RunError.Message+"\n", terminal.WithErrorStyle())
 			err = errors.New("execution failed")
 		}
 
-		c.Log.Debug("result from operation", "task", c.name, "result", result)
+		c.Log.Debug("result from operation", "task", c.name, "result", r)
 
 		return err
 	})
 
 	if err != nil {
-		return 1
+		return int(r.ExitCode)
 	}
 
-	return 0
+	return int(r.ExitCode)
 }
 
 func (c *DynamicCommand) Synopsis() string {

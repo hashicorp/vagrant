@@ -5,6 +5,7 @@ import (
 
 	"google.golang.org/grpc/status"
 
+	"github.com/hashicorp/vagrant/internal/core"
 	"github.com/hashicorp/vagrant/internal/server/proto/vagrant_server"
 )
 
@@ -38,10 +39,13 @@ func (r *Runner) executeRunOp(
 	if err != nil {
 		st, _ := status.FromError(err)
 		jrr.RunError = st.Proto()
+		if cmdErr, ok := err.(core.CommandError); ok {
+			jrr.ExitCode = int32(cmdErr.ExitCode())
+		}
 	}
 
 	r.logger.Info("run operation is complete!")
-	// TODO: Return machine
+
 	return &vagrant_server.Job_Result{
 		Run: &jrr,
 	}, nil

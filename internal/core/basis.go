@@ -35,15 +35,15 @@ import (
 // finished with the basis to properly clean
 // up any open resources.
 type Basis struct {
-	basis      *vagrant_server.Basis
-	logger     hclog.Logger
-	config     *config.Config
-	components map[component.Type]map[string]*Component
-	projects   map[string]*Project
-	factories  map[component.Type]*factory.Factory
-	mappers    []*argmapper.Func
-	dir        *datadir.Basis
-	ctx        context.Context
+	basis          *vagrant_server.Basis
+	logger         hclog.Logger
+	config         *config.Config
+	componentCache map[component.Type]map[string]*Component
+	projects       map[string]*Project
+	factories      map[component.Type]*factory.Factory
+	mappers        []*argmapper.Func
+	dir            *datadir.Basis
+	ctx            context.Context
 
 	lock   sync.Mutex
 	client *serverclient.VagrantClient
@@ -109,8 +109,9 @@ func NewBasis(ctx context.Context, opts ...BasisOption) (b *Basis, err error) {
 			return
 		}
 	}
-	comandArgMapper, _ := argmapper.NewFunc(CommandArgToMap)
-	b.mappers = append(b.mappers, comandArgMapper)
+	commandArgMapper, _ := argmapper.NewFunc(CommandArgToMap,
+		argmapper.Logger(dynamic.Logger))
+	b.mappers = append(b.mappers, commandArgMapper)
 
 	// TODO(spox): After fixing up datadir, use that to do
 	// configuration loading
@@ -127,9 +128,9 @@ func NewBasis(ctx context.Context, opts ...BasisOption) (b *Basis, err error) {
 	b.Closer(func() error { return b.Save() })
 
 	// Setup our caching area for components
-	b.components = map[component.Type]map[string]*Component{}
+	b.componentCache = map[component.Type]map[string]*Component{}
 	for t, _ := range component.TypeMap {
-		b.components[t] = map[string]*Component{}
+		b.componentCache[t] = map[string]*Component{}
 	}
 
 	// Add in our local mappers
@@ -333,8 +334,8 @@ func (b *Basis) Closer(c func() error) {
 	b.closers = append(b.closers, c)
 }
 
-// Close the basis. This should be called when work with this
-// basis has been completed.
+// Close is called to clean up resources allocated by the basis.
+// This should be called and blocked on to gracefully stop the basis.
 func (b *Basis) Close() (err error) {
 	defer b.lock.Unlock()
 	b.lock.Lock()
@@ -455,16 +456,24 @@ func (b *Basis) Run(ctx context.Context, task *vagrant_server.Task) (err error) 
 
 	fn := cmd.Value.(component.Command).ExecuteFunc(
 		strings.Split(task.CommandName, " "))
-	result, err := b.callDynamicFunc(ctx, b.logger, fn, (*int64)(nil),
+	result, err := b.callDynamicFunc(ctx, b.logger, fn, (*int32)(nil),
 		argmapper.Typed(task.CliArgs, b.jobInfo, b.dir))
 
-	if err != nil || result == nil || result.(int64) != 0 {
+	if err != nil || result == nil || result.(int32) != 0 {
 		b.logger.Error("failed to execute command",
 			"type", component.CommandType,
 			"name", task.Component.Name,
 			"error", err)
 
-		return err
+		cmdErr := &runError{}
+		if err != nil {
+			cmdErr.err = err
+		}
+		if result != nil {
+			cmdErr.exitCode = result.(int32)
+		}
+
+		return cmdErr
 	}
 
 	return
@@ -481,13 +490,14 @@ func (b *Basis) component(
 	if typ == component.CommandType {
 		name = strings.Split(name, " ")[0]
 	}
-	if c, ok := b.components[typ][name]; ok {
+	if c, ok := b.componentCache[typ][name]; ok {
 		return c, nil
 	}
 	c, err := componentCreatorMap[typ].Create(ctx, b, name)
 	if err != nil {
 		return nil, err
 	}
+	b.componentCache[typ][name] = c
 	b.Closer(func() error { return c.Close() })
 	return c, nil
 }
@@ -499,6 +509,7 @@ func (b *Basis) typeComponents(
 ) ([]*Component, error) {
 	f := b.factories[typ]
 	result := []*Component{}
+
 	for _, name := range f.Registered() {
 		c, err := b.component(ctx, typ, name)
 		if err != nil {
@@ -509,11 +520,29 @@ func (b *Basis) typeComponents(
 	return result, nil
 }
 
+// Load all components
+func (b *Basis) components(
+	ctx context.Context, // context for the plugins
+) ([]*Component, error) {
+	result := []*Component{}
+
+	for typ, f := range b.factories {
+		for _, name := range f.Registered() {
+			c, err := b.component(ctx, typ, name)
+			if err != nil {
+				return nil, err
+			}
+			result = append(result, c)
+		}
+	}
+	return result, nil
+}
+
 // Specialize a given component. This is specifically used for
 // Ruby based legacy Vagrant components.
 //
 // TODO: Since legacy Vagrant is no longer directly connecting
-// to the Vagrant server, this shoudl probably be removed.
+// to the Vagrant server, this should probably be removed.
 func (b *Basis) specializeComponent(
 	c *Component, // component to specialize
 ) (cmp plugin.PluginMetadata, err error) {
@@ -598,16 +627,25 @@ func (b *Basis) callDynamicFunc(
 	args = append(args,
 		argmapper.Typed(b, b.ui, ctx, log.Named("plugin-call")),
 		argmapper.Named("basis", b),
+		argmapper.Logger(dynamic.Logger),
 	)
 
 	return dynamic.CallFunc(f, expectedType, b.mappers, args...)
 }
 
-func (b *Basis) execHook(ctx context.Context, log hclog.Logger, h *config.Hook) error {
+func (b *Basis) execHook(
+	ctx context.Context,
+	log hclog.Logger,
+	h *config.Hook,
+) error {
 	return execHook(ctx, b, log, h)
 }
 
-func (b *Basis) doOperation(ctx context.Context, log hclog.Logger, op operation) (interface{}, proto.Message, error) {
+func (b *Basis) doOperation(
+	ctx context.Context,
+	log hclog.Logger,
+	op operation,
+) (interface{}, proto.Message, error) {
 	return doOperation(ctx, log, b, op)
 }
 
@@ -743,8 +781,10 @@ func WithBasisResourceId(rid string) BasisOption {
 			return
 		}
 		if !result.Found {
-			b.logger.Error("failed to locate basis during setup", "resource-id", rid)
-			return fmt.Errorf("requested basis is not found")
+			b.logger.Error("failed to locate basis during setup",
+				"resource-id", rid)
+
+			return fmt.Errorf("requested basis is not found (resource-id: %s", rid)
 		}
 		b.basis = result.Basis
 		return

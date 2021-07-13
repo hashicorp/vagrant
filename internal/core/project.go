@@ -11,9 +11,6 @@ import (
 	"github.com/hashicorp/go-hclog"
 	"github.com/hashicorp/go-multierror"
 
-	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/status"
-
 	"github.com/hashicorp/vagrant-plugin-sdk/component"
 	"github.com/hashicorp/vagrant-plugin-sdk/core"
 	"github.com/hashicorp/vagrant-plugin-sdk/datadir"
@@ -57,68 +54,64 @@ type Project struct {
 	ui terminal.UI
 }
 
-// Start required core.Project interface functions
+// UI implements core.Project
 func (p *Project) UI() (terminal.UI, error) {
 	return p.ui, nil
 }
 
+// CWD implements core.Project
 func (p *Project) CWD() (path string, err error) {
 	// TODO: implement
 	return
 }
 
+// DataDir implements core.Project
 func (p *Project) DataDir() (*datadir.Project, error) {
 	return p.dir, nil
 }
 
+// VagrantfileName implements core.Project
 func (p *Project) VagrantfileName() (name string, err error) {
 	// TODO: implement
 	return "VagrantFile", nil
 }
 
+// Home implements core.Project
 func (p *Project) Home() (path string, err error) {
 	// TODO: implement
 	return "/home", nil
 }
 
+// LocalData implements core.Project
 func (p *Project) LocalData() (path string, err error) {
 	// TODO: implement
 	return "/local/data", nil
 }
 
+// Tmp implements core.Project
 func (p *Project) Tmp() (path string, err error) {
 	// TODO: implement
 	return
 }
 
+// DefaultPrivateKey implements core.Project
 func (p *Project) DefaultPrivateKey() (path string, err error) {
 	// TODO: implement
 	return "/key/path", nil
 }
 
+// Host implements core.Project
 func (p *Project) Host() (host core.Host, err error) {
 	return p.basis.Host()
 }
 
+// MachineNames implements core.Project
 func (p *Project) MachineNames() (names []string, err error) {
 	// TODO: implement
 	return []string{"test"}, nil
 }
 
-// End required core.Project interface functions
-
-func (p *Project) Name() string {
-	return p.project.Name
-}
-
-func (p *Project) ResourceId() string {
-	return p.project.ResourceId
-}
-
-func (p *Project) JobInfo() *component.JobInfo {
-	return p.jobInfo
-}
-
+// Target implements core.Project
 func (p *Project) Target(nameOrId string) (core.Target, error) {
 	if t, ok := p.targets[nameOrId]; ok {
 		return t, nil
@@ -131,6 +124,7 @@ func (p *Project) Target(nameOrId string) (core.Target, error) {
 	return nil, errors.New("requested target does not exist")
 }
 
+// TargetNames implements core.Project
 func (p *Project) TargetNames() ([]string, error) {
 	var names []string
 	for _, t := range p.project.Targets {
@@ -139,6 +133,7 @@ func (p *Project) TargetNames() ([]string, error) {
 	return names, nil
 }
 
+// TargetIds implements core.Project
 func (p *Project) TargetIds() ([]string, error) {
 	var ids []string
 	for _, t := range p.project.Targets {
@@ -147,6 +142,23 @@ func (p *Project) TargetIds() ([]string, error) {
 	return ids, nil
 }
 
+// Custom name defined for this project
+func (p *Project) Name() string {
+	return p.project.Name
+}
+
+// Resource ID for this project
+func (p *Project) ResourceId() string {
+	return p.project.ResourceId
+}
+
+// Returns the job info if currently set
+func (p *Project) JobInfo() *component.JobInfo {
+	return p.jobInfo
+}
+
+// Load a project within the current basis. If the project is not found, it
+// will be created.
 func (p *Project) LoadTarget(topts ...TargetOption) (t *Target, err error) {
 	// Create our target
 	t = &Target{
@@ -206,43 +218,16 @@ func (p *Project) Ref() interface{} {
 	}
 }
 
-func (p *Project) Components(ctx context.Context) (results []*Component, err error) {
-	if results, err = p.basis.Components(ctx); err != nil {
-		return
-	}
-
-	for _, cc := range componentCreatorMap {
-		c, err := cc.Create(ctx, p, "")
-		if status.Code(err) == codes.Unimplemented {
-			c = nil
-			err = nil
-		}
-		if err != nil {
-			// Make sure we clean ourselves up in an error case.
-			for _, r := range results {
-				r.Close()
-			}
-
-			return nil, err
-		}
-
-		if c != nil {
-			results = append(results, c)
-		}
-	}
-
-	return results, nil
-}
-
 func (p *Project) Run(ctx context.Context, task *vagrant_server.Task) (err error) {
-	p.logger.Debug("running new task", "project", p, "task", task)
+	p.logger.Debug("running new task",
+		"project", p,
+		"task", task)
 
-	cmd, err := p.basis.component(ctx, component.CommandType, task.Component.Name)
-
+	cmd, err := p.basis.component(
+		ctx, component.CommandType, task.Component.Name)
 	if err != nil {
 		return err
 	}
-	defer cmd.Close()
 
 	if _, err = p.specializeComponent(cmd); err != nil {
 		return
@@ -250,17 +235,34 @@ func (p *Project) Run(ctx context.Context, task *vagrant_server.Task) (err error
 
 	fn := cmd.Value.(component.Command).ExecuteFunc(
 		strings.Split(task.CommandName, " "))
-	result, err := p.callDynamicFunc(ctx, p.logger, fn, (*int64)(nil),
+	result, err := p.callDynamicFunc(ctx, p.logger, fn, (*int32)(nil),
 		argmapper.Typed(task.CliArgs, p.jobInfo, p.dir),
 	)
-	if err != nil || result == nil || result.(int64) != 0 {
-		p.logger.Error("failed to execute command", "type", component.CommandType, "name", task.Component.Name, "result", result, "error", err)
-		return err
+
+	p.logger.Warn("completed running command from project", "result", result)
+
+	if err != nil || result == nil || result.(int32) != 0 {
+		p.logger.Error("failed to execute command",
+			"type", component.CommandType,
+			"name", task.Component.Name,
+			"result", result,
+			"error", err)
+
+		cmdErr := &runError{}
+		if err != nil {
+			cmdErr.err = err
+		}
+		if result != nil {
+			cmdErr.exitCode = result.(int32)
+		}
+
+		return cmdErr
 	}
 
 	return
 }
 
+// Register functions to be called when closing this project
 func (p *Project) Closer(c func() error) {
 	p.closers = append(p.closers, c)
 }
@@ -271,21 +273,28 @@ func (p *Project) Close() (err error) {
 	defer p.lock.Unlock()
 	p.lock.Lock()
 
-	p.logger.Debug("closing project", "project", p)
+	p.logger.Debug("closing project",
+		"project", p)
 
 	// close all the loaded targets
 	for name, m := range p.targets {
-		p.logger.Trace("closing target", "target", name)
+		p.logger.Trace("closing target",
+			"target", name)
+
 		if cerr := m.Close(); cerr != nil {
-			p.logger.Warn("error closing target", "target", name,
+			p.logger.Warn("error closing target",
+				"target", name,
 				"err", cerr)
+
 			err = multierror.Append(err, cerr)
 		}
 	}
 
 	for _, f := range p.closers {
 		if cerr := f(); cerr != nil {
-			p.logger.Warn("error executing closer", "error", cerr)
+			p.logger.Warn("error executing closer",
+				"error", cerr)
+
 			err = multierror.Append(err, cerr)
 		}
 	}
@@ -296,22 +305,36 @@ func (p *Project) Close() (err error) {
 
 // Saves the project to the db
 func (p *Project) Save() (err error) {
-	p.logger.Trace("saving project to db", "project", p.ResourceId())
-	_, err = p.Client().UpsertProject(p.ctx, &vagrant_server.UpsertProjectRequest{
-		Project: p.project})
+	p.logger.Trace("saving project to db",
+		"project", p.ResourceId())
+
+	_, err = p.Client().UpsertProject(p.ctx,
+		&vagrant_server.UpsertProjectRequest{
+			Project: p.project,
+		},
+	)
 	if err != nil {
-		p.logger.Trace("failed to save project", "project", p.ResourceId())
+		p.logger.Trace("failed to save project",
+			"project", p.ResourceId())
 	}
 	return
 }
 
 // Saves the project to the db as well as any targets that have been loaded
 func (p *Project) SaveFull() (err error) {
-	p.logger.Debug("performing full save", "project", p.project.ResourceId)
+	p.logger.Debug("performing full save",
+		"project", p.project.ResourceId)
+
 	for _, t := range p.targets {
-		p.logger.Trace("saving target", "project", p.project.ResourceId, "target", t.target.ResourceId)
+		p.logger.Trace("saving target",
+			"project", p.project.ResourceId,
+			"target", t.target.ResourceId)
+
 		if terr := t.Save(); terr != nil {
-			p.logger.Trace("error while saving target", "target", t.target.ResourceId, "error", err)
+			p.logger.Trace("error while saving target",
+				"target", t.target.ResourceId,
+				"error", err)
+
 			err = multierror.Append(err, terr)
 		}
 	}
@@ -319,6 +342,10 @@ func (p *Project) SaveFull() (err error) {
 		err = multierror.Append(err, perr)
 	}
 	return
+}
+
+func (p *Project) Components(ctx context.Context) ([]*Component, error) {
+	return p.basis.components(ctx)
 }
 
 // Calls the function provided and converts the
@@ -351,7 +378,14 @@ func (p *Project) callDynamicFunc(
 	return p.basis.callDynamicFunc(ctx, log, f, expectedType, args...)
 }
 
-func (p *Project) specializeComponent(c *Component) (cmp plugin.PluginMetadata, err error) {
+// Specialize a given component. This is specifically used for
+// Ruby based legacy Vagrant components.
+//
+// TODO: Since legacy Vagrant is no longer directly connecting
+// to the Vagrant server, this should probably be removed.
+func (p *Project) specializeComponent(
+	c *Component, // component to specialize
+) (cmp plugin.PluginMetadata, err error) {
 	if cmp, err = p.basis.specializeComponent(c); err != nil {
 		return
 	}
@@ -359,11 +393,19 @@ func (p *Project) specializeComponent(c *Component) (cmp plugin.PluginMetadata, 
 	return
 }
 
-func (p *Project) execHook(ctx context.Context, log hclog.Logger, h *config.Hook) error {
+func (p *Project) execHook(
+	ctx context.Context,
+	log hclog.Logger,
+	h *config.Hook,
+) error {
 	return execHook(ctx, p, log, h)
 }
 
-func (p *Project) doOperation(ctx context.Context, log hclog.Logger, op operation) (interface{}, proto.Message, error) {
+func (p *Project) doOperation(
+	ctx context.Context,
+	log hclog.Logger,
+	op operation,
+) (interface{}, proto.Message, error) {
 	return doOperation(ctx, log, p, op)
 }
 
@@ -429,6 +471,7 @@ func WithProjectName(name string) ProjectOption {
 	}
 }
 
+// WithBasisRef is used to load or initialize the basis
 func WithProjectRef(r *vagrant_plugin_sdk.Ref_Project) ProjectOption {
 	return func(p *Project) (err error) {
 		// Basis must be set before we continue

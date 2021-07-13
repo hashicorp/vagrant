@@ -2,7 +2,7 @@ package core
 
 import (
 	"context"
-	"errors"
+	"fmt"
 	"strings"
 	"sync"
 	"time"
@@ -53,66 +53,82 @@ func (t *Target) Ref() interface{} {
 	}
 }
 
+// Name implements core.Target
 func (t *Target) Name() (string, error) {
 	return t.target.Name, nil
 }
 
+// SetName implements core.Target
 func (t *Target) SetName(value string) (err error) {
 	return
 }
 
+// Provider implements core.Target
 func (t *Target) Provider() (p core.Provider, err error) {
 	return
 }
 
+// VagrantfileName implements core.Target
 func (t *Target) VagrantfileName() (name string, err error) {
 	return
 }
 
+// VagrantfilePath implements core.Target
 func (t *Target) VagrantfilePath() (p path.Path, err error) {
 	return
 }
 
+// Communicate implements core.Target
 func (t *Target) Communicate() (c core.Communicator, err error) {
 	return
 }
 
+// UpdatedAt implements core.Target
 func (t *Target) UpdatedAt() (tm *time.Time, err error) {
 	return
 }
 
-func (t *Target) ResourceId() (string, error) {
-	return t.target.ResourceId, nil
-}
-
+// Project implements core.Target
 func (t *Target) Project() (core.Project, error) {
 	return t.project, nil
 }
 
+// Metadata implements core.Target
 func (t *Target) Metadata() (map[string]string, error) {
 	return t.target.Metadata.Metadata, nil
 }
 
+// DataDir implements core.Target
 func (t *Target) DataDir() (*datadir.Target, error) {
 	return t.dir, nil
 }
 
+// State implements core.Target
 func (t *Target) State() (core.State, error) {
 	return core.UNKNOWN, nil
 }
 
+// Record implements core.Target
 func (t *Target) Record() (*anypb.Any, error) {
 	return t.target.Record, nil
 }
 
+// Specialize implements core.Target
 func (t *Target) Specialize(_ interface{}) (core.Machine, error) {
 	return t.Machine(), nil
 }
 
+// Resource ID for this target
+func (t *Target) ResourceId() (string, error) {
+	return t.target.ResourceId, nil
+}
+
+// Returns the job info if currently set
 func (t *Target) JobInfo() *component.JobInfo {
 	return t.jobInfo
 }
 
+// Client returns the API client for the backend server.
 func (t *Target) Client() *serverclient.VagrantClient {
 	return t.project.basis.client
 }
@@ -121,15 +137,20 @@ func (t *Target) Closer(c func() error) {
 	t.closers = append(t.closers, c)
 }
 
+// Close is called to clean up resources allocated by the target.
+// This should be called and blocked on to gracefully stop the target.
 func (t *Target) Close() (err error) {
 	defer t.lock.Unlock()
 	t.lock.Lock()
 
-	t.logger.Debug("closing target", "target", t)
+	t.logger.Debug("closing target",
+		"target", t)
 
 	for _, c := range t.closers {
 		if cerr := c(); cerr != nil {
-			t.logger.Warn("error executing closer", "error", cerr)
+			t.logger.Warn("error executing closer",
+				"error", cerr)
+
 			err = multierror.Append(err, cerr)
 		}
 	}
@@ -138,46 +159,76 @@ func (t *Target) Close() (err error) {
 	return
 }
 
+// Saves the target to the db
 func (t *Target) Save() (err error) {
-	t.logger.Debug("saving target to db", "target", t.target.ResourceId)
+	t.logger.Debug("saving target to db",
+		"target", t.target.ResourceId)
+
 	_, err = t.Client().UpsertTarget(t.ctx, &vagrant_server.UpsertTargetRequest{
 		Target: t.target})
 	if err != nil {
-		t.logger.Trace("failed to save target", "target", t.target.ResourceId, "error", err)
+		t.logger.Trace("failed to save target",
+			"target", t.target.ResourceId,
+			"error", err)
 	}
 	return
 }
 
 func (t *Target) Run(ctx context.Context, task *vagrant_server.Task) (err error) {
-	t.logger.Debug("running new task", "target", t, "task", task)
+	t.logger.Debug("running new task",
+		"target", t,
+		"task", task)
 
 	cmd, err := t.project.basis.component(
 		ctx, component.CommandType, task.Component.Name)
 
 	if err != nil {
-		t.logger.Error("failed to build requested component", "type", component.CommandType,
-			"name", task.Component.Name, "error", err)
+		t.logger.Error("failed to build requested component",
+			"type", component.CommandType,
+			"name", task.Component.Name,
+			"error", err)
 		return
 	}
 
 	if _, err = t.specializeComponent(cmd); err != nil {
-		t.logger.Error("failed to specialize component", "type", component.CommandType,
-			"name", task.Component.Name, "error", err)
+		t.logger.Error("failed to specialize component",
+			"type", component.CommandType,
+			"name", task.Component.Name,
+			"error", err)
 		return
 	}
 
 	fn := cmd.Value.(component.Command).ExecuteFunc(
 		strings.Split(task.CommandName, " "))
-	result, err := t.callDynamicFunc(ctx, t.logger, fn, (*int64)(nil),
+	result, err := t.callDynamicFunc(ctx, t.logger, fn, (*int32)(nil),
 		argmapper.Typed(task.CliArgs, t.jobInfo, t.dir),
 	)
 
-	if err != nil || result == nil || result.(int64) != 0 {
-		t.logger.Error("failed to execute command", "type", component.CommandType,
-			"name", task.Component.Name, "error", err)
+	if err != nil || result == nil || result.(int32) != 0 {
+		t.logger.Error("failed to execute command",
+			"type", component.CommandType,
+			"name", task.Component.Name,
+			"error", err)
+
+		cmdErr := &runError{}
+		if err != nil {
+			cmdErr.err = err
+		}
+		if result != nil {
+			cmdErr.exitCode = result.(int32)
+		}
+
+		return cmdErr
 	}
 
 	return
+}
+
+// Specializes target into a machine
+func (t *Target) Machine() core.Machine {
+	return &Machine{
+		Target: t,
+	}
 }
 
 // Calls the function provided and converts the
@@ -209,6 +260,11 @@ func (t *Target) callDynamicFunc(
 	return t.project.callDynamicFunc(ctx, log, f, expectedType, args...)
 }
 
+// Specialize a given component. This is specifically used for
+// Ruby based legacy Vagrant components.
+//
+// TODO: Since legacy Vagrant is no longer directly connecting
+// to the Vagrant server, this should probably be removed.
 func (t *Target) specializeComponent(c *Component) (cmp plugin.PluginMetadata, err error) {
 	if cmp, err = t.project.specializeComponent(c); err != nil {
 		return
@@ -217,18 +273,20 @@ func (t *Target) specializeComponent(c *Component) (cmp plugin.PluginMetadata, e
 	return
 }
 
-func (t *Target) execHook(ctx context.Context, log hclog.Logger, h *config.Hook) error {
+func (t *Target) execHook(
+	ctx context.Context,
+	log hclog.Logger,
+	h *config.Hook,
+) error {
 	return execHook(ctx, t, log, h)
 }
 
-func (t *Target) doOperation(ctx context.Context, log hclog.Logger, op operation) (interface{}, proto.Message, error) {
+func (t *Target) doOperation(
+	ctx context.Context,
+	log hclog.Logger,
+	op operation,
+) (interface{}, proto.Message, error) {
 	return doOperation(ctx, log, t, op)
-}
-
-func (t *Target) Machine() core.Machine {
-	return &Machine{
-		Target: t,
-	}
 }
 
 type TargetOption func(*Target) error
@@ -247,7 +305,8 @@ func WithTargetName(name string) TargetOption {
 			}
 			var result *vagrant_server.GetTargetResponse
 			result, err = t.Client().GetTarget(t.ctx,
-				&vagrant_server.GetTargetRequest{Target: target.Ref().(*vagrant_plugin_sdk.Ref_Target)})
+				&vagrant_server.GetTargetRequest{
+					Target: target.Ref().(*vagrant_plugin_sdk.Ref_Target)})
 			if err != nil {
 				return
 			}
@@ -255,7 +314,7 @@ func WithTargetName(name string) TargetOption {
 			t.project.targets[t.target.Name] = t
 			return
 		}
-		return errors.New("target is not registered in project")
+		return fmt.Errorf("target `%s' is not registered in project", name)
 	}
 }
 
@@ -263,7 +322,7 @@ func WithTargetRef(r *vagrant_plugin_sdk.Ref_Target) TargetOption {
 	return func(t *Target) (err error) {
 		// Project must be set before we continue
 		if t.project == nil {
-			return errors.New("project must be set before loading target")
+			return fmt.Errorf("project must be set before loading target")
 		}
 
 		var target *vagrant_server.Target
@@ -302,9 +361,11 @@ func WithTargetRef(r *vagrant_plugin_sdk.Ref_Target) TargetOption {
 			target = result.Target
 		}
 		if target.Project.ResourceId != r.Project.ResourceId {
-			t.logger.Error("invalid project for target", "request-project", r.Project,
+			t.logger.Error("invalid project for target",
+				"request-project", r.Project,
 				"target-project", target.Project)
-			return errors.New("target project configuration is invalid")
+
+			return fmt.Errorf("target project configuration is invalid")
 		}
 		t.target = target
 		t.project.targets[t.target.Name] = t
