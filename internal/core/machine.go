@@ -21,7 +21,7 @@ func (m *Machine) ID() (id string, err error) {
 // SetID implements core.Machine
 func (m *Machine) SetID(value string) (err error) {
 	m.target.Uuid = value
-	return
+	return m.Save()
 }
 
 // Box implements core.Machine
@@ -31,17 +31,18 @@ func (m *Machine) Box() (b core.Box, err error) {
 
 // Guest implements core.Machine
 func (m *Machine) Guest() (g core.Guest, err error) {
+	// TODO: need Vagrantfile + communicator
 	return
 }
 
-// IndexUUID implements core.Machine
-func (m *Machine) IndexUUID() (id string, err error) {
-	return
+func (m *Machine) GetUUID() (id string, err error) {
+	return m.target.Uuid, nil
 }
 
 // SetUUID implements core.Machine
 func (m *Machine) SetUUID(id string) (err error) {
-	return
+	m.target.Uuid = id
+	return m.Save()
 }
 
 // Inspect implements core.Machine

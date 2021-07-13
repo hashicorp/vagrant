@@ -81,6 +81,7 @@ func (t *Target) VagrantfilePath() (p path.Path, err error) {
 
 // Communicate implements core.Target
 func (t *Target) Communicate() (c core.Communicator, err error) {
+	// TODO: need vagrantfile info
 	return
 }
 
