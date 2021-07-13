@@ -375,7 +375,7 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
       optional :command_info, :message, 1, "hashicorp.vagrant.sdk.Command.CommandInfo"
     end
     add_message "hashicorp.vagrant.sdk.Command.ExecuteResp" do
-      optional :exit_code, :int64, 1
+      optional :exit_code, :int32, 1
     end
     add_message "hashicorp.vagrant.sdk.Command.ExecuteReq" do
       optional :spec, :message, 1, "hashicorp.vagrant.sdk.FuncSpec.Args"

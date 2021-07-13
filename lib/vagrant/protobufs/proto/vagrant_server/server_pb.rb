@@ -277,6 +277,7 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
       optional :task, :message, 1, "hashicorp.vagrant.Task"
       optional :run_result, :bool, 2
       optional :run_error, :message, 3, "google.rpc.Status"
+      optional :exit_code, :sint32, 4
     end
     add_message "hashicorp.vagrant.Job.AuthOp" do
       optional :check_only, :bool, 1
