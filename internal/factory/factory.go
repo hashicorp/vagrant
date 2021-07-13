@@ -10,6 +10,7 @@ import (
 	"reflect"
 
 	"github.com/hashicorp/go-argmapper"
+	"github.com/hashicorp/vagrant-plugin-sdk/internal-shared/dynamic"
 )
 
 // Factory keeps track of named dependency-injected factory functions to
@@ -48,7 +49,8 @@ func New(iface interface{}) (*Factory, error) {
 // fn may take any number and types of inputs. It is the callers responsibilty
 // when using Func and Call to pass in the required parameters.
 func (f *Factory) Register(name string, fn interface{}) error {
-	ff, err := argmapper.NewFunc(fn)
+	ff, err := argmapper.NewFunc(fn,
+		argmapper.Logger(dynamic.Logger))
 	if err != nil {
 		return err
 	}
