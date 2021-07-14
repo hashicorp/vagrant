@@ -70,8 +70,7 @@ func (m *Machine) SetMachineState(state *core.MachineState) (err error) {
 	return
 }
 
-// UID implements core.Machine
-func (m *Machine) UID() (userId int, err error) {
+func (m *Machine) UID() (userId int32, err error) {
 	return
 }
 
