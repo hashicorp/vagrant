@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/golang/protobuf/proto"
+	"github.com/golang/protobuf/ptypes"
 	"github.com/hashicorp/go-argmapper"
 	"github.com/hashicorp/go-hclog"
 	"github.com/hashicorp/go-multierror"
@@ -40,6 +41,15 @@ type Target struct {
 	jobInfo    *component.JobInfo
 	closers    []func() error
 	ui         terminal.UI
+}
+
+func (t *Target) GetUUID() (id string, err error) {
+	return t.target.Uuid, nil
+}
+
+func (t *Target) SetUUID(id string) (err error) {
+	t.target.Uuid = id
+	return t.Save()
 }
 
 func (t *Target) UI() (terminal.UI, error) {
@@ -300,6 +310,16 @@ func (t *Target) doOperation(
 	op operation,
 ) (interface{}, proto.Message, error) {
 	return doOperation(ctx, log, t, op)
+}
+
+func (t *Target) Machine() core.Machine {
+	targetMachine := &vagrant_server.Target_Machine{}
+	ptypes.UnmarshalAny(t.target.Record, targetMachine)
+	return &Machine{
+		Target:  t,
+		logger:  t.logger,
+		machine: targetMachine,
+	}
 }
 
 type TargetOption func(*Target) error

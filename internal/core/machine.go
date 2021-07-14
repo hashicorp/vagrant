@@ -4,9 +4,11 @@ import (
 	"reflect"
 
 	"github.com/golang/protobuf/ptypes"
+	"github.com/mitchellh/mapstructure"
 
 	"github.com/hashicorp/go-hclog"
 	"github.com/hashicorp/vagrant-plugin-sdk/core"
+	"github.com/hashicorp/vagrant-plugin-sdk/proto/vagrant_plugin_sdk"
 	"github.com/hashicorp/vagrant/internal/server/proto/vagrant_server"
 )
 
@@ -34,7 +36,7 @@ func (m *Machine) SetID(value string) (err error) {
 
 // Box implements core.Machine
 func (m *Machine) Box() (b core.Box, err error) {
-	// TODO: need Vagrantfile
+	// TODO
 	return
 }
 
@@ -44,17 +46,6 @@ func (m *Machine) Guest() (g core.Guest, err error) {
 	return
 }
 
-func (m *Machine) GetUUID() (id string, err error) {
-	return m.target.Uuid, nil
-}
-
-// SetUUID implements core.Machine
-func (m *Machine) SetUUID(id string) (err error) {
-	m.target.Uuid = id
-	return m.SaveMachine()
-}
-
-// Inspect implements core.Machine
 func (m *Machine) Inspect() (printable string, err error) {
 	name, err := m.Name()
 	provider, err := m.Provider()
@@ -76,15 +67,15 @@ func (m *Machine) ConnectionInfo() (info *core.ConnectionInfo, err error) {
 
 // MachineState implements core.Machine
 func (m *Machine) MachineState() (state *core.MachineState, err error) {
-	// TODO: need provider
-	return
+	var result core.MachineState
+	return &result, mapstructure.Decode(m.machine.State, &result)
 }
 
 // SetMachineState implements core.Machine
 func (m *Machine) SetMachineState(state *core.MachineState) (err error) {
-	// TODO: maybe this should come from the machine
-	s := vagrant_server.Operation_PhysicalState_value[state.ID]
-	m.target.State = vagrant_server.Operation_PhysicalState(s)
+	var st *vagrant_plugin_sdk.Args_Target_Machine_State
+	mapstructure.Decode(state, &st)
+	m.machine.State = st
 	return m.SaveMachine()
 }
 
@@ -94,6 +85,7 @@ func (m *Machine) UID() (userId string, err error) {
 
 // SyncedFolders implements core.Machine
 func (m *Machine) SyncedFolders() (folders []core.SyncedFolder, err error) {
+	// TODO: need Vagrantfile
 	return
 }
 
