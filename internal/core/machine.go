@@ -34,10 +34,9 @@ func (m *Machine) SetID(value string) (err error) {
 	return m.SaveMachine()
 }
 
-// Box implements core.Machine
-func (m *Machine) Box() (b core.Box, err error) {
-	// TODO
-	return
+func (m *Machine) Box() (b *core.Box, err error) {
+	var result core.Box
+	return &result, mapstructure.Decode(m.machine.Box, &result)
 }
 
 // Guest implements core.Machine
