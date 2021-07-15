@@ -249,8 +249,12 @@ func (t *Target) Run(ctx context.Context, task *vagrant_server.Task) (err error)
 
 // Specializes target into a machine
 func (t *Target) Machine() core.Machine {
+	targetMachine := &vagrant_server.Target_Machine{}
+	ptypes.UnmarshalAny(t.target.Record, targetMachine)
 	return &Machine{
-		Target: t,
+		Target:  t,
+		logger:  t.logger,
+		machine: targetMachine,
 	}
 }
 
@@ -310,16 +314,6 @@ func (t *Target) doOperation(
 	op operation,
 ) (interface{}, proto.Message, error) {
 	return doOperation(ctx, log, t, op)
-}
-
-func (t *Target) Machine() core.Machine {
-	targetMachine := &vagrant_server.Target_Machine{}
-	ptypes.UnmarshalAny(t.target.Record, targetMachine)
-	return &Machine{
-		Target:  t,
-		logger:  t.logger,
-		machine: targetMachine,
-	}
 }
 
 type TargetOption func(*Target) error
