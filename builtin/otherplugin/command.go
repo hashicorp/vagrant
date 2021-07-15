@@ -139,7 +139,7 @@ func (c *Command) ExecuteInfo(trm terminal.UI, p plugincore.Project, t plugincor
 		return 1
 	}
 
-	machine := m
+	machine := m.(plugincore.Machine)
 	trm.Output("successfully specialized to machine")
 	id, err := machine.ID()
 	if err != nil {

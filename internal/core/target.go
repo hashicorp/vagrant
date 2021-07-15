@@ -137,8 +137,12 @@ func (t *Target) Record() (*anypb.Any, error) {
 }
 
 // Specialize implements core.Target
-func (t *Target) Specialize(_ interface{}) (core.Machine, error) {
-	return t.Machine(), nil
+func (t *Target) Specialize(typ interface{}) (specialized interface{}, err error) {
+	switch typ.(type) {
+	case *core.Machine:
+		specialized = t.Machine()
+	}
+	return
 }
 
 // Resource ID for this target

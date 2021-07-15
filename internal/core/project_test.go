@@ -1,35 +1,35 @@
 package core
 
-import (
-	"testing"
+// import (
+// 	"testing"
 
-	"github.com/stretchr/testify/require"
+// 	"github.com/stretchr/testify/require"
 
-	"github.com/hashicorp/vagrant/internal/config"
-)
+// 	"github.com/hashicorp/vagrant/internal/config"
+// )
 
-func TestNewProject(t *testing.T) {
-	require := require.New(t)
+// func TestNewProject(t *testing.T) {
+// 	require := require.New(t)
 
-	p := TestProject(t,
-		WithConfig(config.TestConfig(t, testNewProjectConfig)),
-	)
+// 	p := TestProject(t,
+// 		WithConfig(config.TestConfig(t, testNewProjectConfig)),
+// 	)
 
-	app, err := p.App("test")
-	require.NoError(err)
-	require.NotNil(app)
-}
+// 	app, err := p.App("test")
+// 	require.NoError(err)
+// 	require.NotNil(app)
+// }
 
-const testNewProjectConfig = `
-project = "test"
+// const testNewProjectConfig = `
+// project = "test"
 
-app "test" {
-	build {
-		use "test" {}
-	}
+// app "test" {
+// 	build {
+// 		use "test" {}
+// 	}
 
-	deploy {
-		use "test" {}
-	}
-}
-`
+// 	deploy {
+// 		use "test" {}
+// 	}
+// }
+// `
