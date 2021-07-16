@@ -10,11 +10,12 @@ import (
 
 	"github.com/hashicorp/vagrant/internal/protocolversion"
 	"github.com/hashicorp/vagrant/internal/server/proto/vagrant_server"
+	"github.com/hashicorp/vagrant/internal/serverclient"
 )
 
 // TestServer starts a server and returns a gRPC client to that server.
 // We use t.Cleanup to ensure resources are automatically cleaned up.
-func TestServer(t testing.T, impl vagrant_server.VagrantServer, opts ...TestOption) vagrant_server.VagrantClient {
+func TestServer(t testing.T, impl vagrant_server.VagrantServer, opts ...TestOption) *serverclient.VagrantClient {
 	require := require.New(t)
 
 	c := testConfig{
@@ -87,7 +88,7 @@ func TestServer(t testing.T, impl vagrant_server.VagrantServer, opts ...TestOpti
 	require.NoError(err)
 	t.Cleanup(func() { conn.Close() })
 
-	return vagrant_server.NewVagrantClient(conn)
+	return serverclient.WrapVagrantClient(conn)
 }
 
 // TestOption is used with TestServer to configure test behavior.

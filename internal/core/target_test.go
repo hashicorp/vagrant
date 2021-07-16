@@ -3,6 +3,7 @@ package core
 import (
 	"testing"
 
+	"github.com/hashicorp/go-hclog"
 	"github.com/hashicorp/vagrant-plugin-sdk/core"
 	"github.com/hashicorp/vagrant/internal/server/proto/vagrant_server"
 )
@@ -10,6 +11,7 @@ import (
 func targetInstance() *Target {
 	return &Target{
 		target: &vagrant_server.Target{},
+		logger: hclog.New(&hclog.LoggerOptions{Name: "test"}),
 	}
 }
 
@@ -37,4 +39,18 @@ func TestTargetSpecializeBad(t *testing.T) {
 	if specialized != nil {
 		t.Errorf("Should not specialize to an unsupported type")
 	}
+}
+
+func TestRun(t *testing.T) {
+	// TODO: needs
+	// - to be able to create a Target with a project
+	// - to be able to create a Task
+	// tt := targetInstance()
+	// ctx := context.Background()
+	// tk := &vagrant_server.Task{}
+
+	// err := tt.Run(ctx, tk)
+	// if err != nil {
+	// 	t.Errorf("Run returned an error")
+	// }
 }

@@ -1,47 +1,35 @@
 package singleprocess
 
-import ()
+import (
+	"io/ioutil"
+	"os"
+	"path/filepath"
 
-// 	"context"
-// 	"fmt"
-// 	"io/ioutil"
-// 	"os"
-// 	"path/filepath"
+	"github.com/boltdb/bolt"
+	"github.com/mitchellh/go-testing-interface"
+	"github.com/stretchr/testify/require"
 
-// 	"github.com/boltdb/bolt"
-// 	"github.com/hashicorp/go-hclog"
-// 	hznhub "github.com/hashicorp/horizon/pkg/hub"
-// 	hznpb "github.com/hashicorp/horizon/pkg/pb"
-// 	hzntest "github.com/hashicorp/horizon/pkg/testutils/central"
-// 	hzntoken "github.com/hashicorp/horizon/pkg/token"
-// 	wphznpb "github.com/hashicorp/waypoint-hzn/pkg/pb"
-// 	wphzn "github.com/hashicorp/waypoint-hzn/pkg/server"
-// 	"github.com/imdario/mergo"
-// 	"github.com/mitchellh/go-testing-interface"
-// 	"github.com/stretchr/testify/require"
+	"github.com/hashicorp/vagrant/internal/server"
+	pb "github.com/hashicorp/vagrant/internal/server/proto/vagrant_server"
+	"github.com/hashicorp/vagrant/internal/serverclient"
+)
 
-// 	"github.com/hashicorp/vagrant/internal/server"
-// 	pb "github.com/hashicorp/vagrant/internal/server/gen"
-// 	serverptypes "github.com/hashicorp/vagrant/internal/server/ptypes"
-// 	"github.com/hashicorp/vagrant/internal/serverconfig"
-// )
+// TestServer starts a singleprocess server and returns the connected client.
+// We use t.Cleanup to ensure resources are automatically cleaned up.
+func TestServer(t testing.T, opts ...Option) *serverclient.VagrantClient {
+	return server.TestServer(t, TestImpl(t, opts...))
+}
 
-// // TestServer starts a singleprocess server and returns the connected client.
-// // We use t.Cleanup to ensure resources are automatically cleaned up.
-// func TestServer(t testing.T, opts ...Option) pb.VagrantClient {
-// 	return server.TestServer(t, TestImpl(t, opts...))
-// }
-
-// // TestImpl returns the vagrant server implementation. This can be used
-// // with server.TestServer. It is easier to just use TestServer directly.
-// func TestImpl(t testing.T, opts ...Option) pb.VagrantServer {
-// 	impl, err := New(append(
-// 		[]Option{WithDB(testDB(t))},
-// 		opts...,
-// 	)...)
-// 	require.NoError(t, err)
-// 	return impl
-// }
+// TestImpl returns the vagrant server implementation. This can be used
+// with server.TestServer. It is easier to just use TestServer directly.
+func TestImpl(t testing.T, opts ...Option) pb.VagrantServer {
+	impl, err := New(append(
+		[]Option{WithDB(testDB(t))},
+		opts...,
+	)...)
+	require.NoError(t, err)
+	return impl
+}
 
 // // TestWithURLService is an Option for testing only that creates an
 // // in-memory URL service server. This requires access to an external
@@ -199,18 +187,18 @@ import ()
 // 	}
 // }
 
-// func testDB(t testing.T) *bolt.DB {
-// 	t.Helper()
+func testDB(t testing.T) *bolt.DB {
+	t.Helper()
 
-// 	// Temporary directory for the database
-// 	td, err := ioutil.TempDir("", "test")
-// 	require.NoError(t, err)
-// 	t.Cleanup(func() { os.RemoveAll(td) })
+	// Temporary directory for the database
+	td, err := ioutil.TempDir("", "test")
+	require.NoError(t, err)
+	t.Cleanup(func() { os.RemoveAll(td) })
 
-// 	// Create the DB
-// 	db, err := bolt.Open(filepath.Join(td, "test.db"), 0600, nil)
-// 	require.NoError(t, err)
-// 	t.Cleanup(func() { db.Close() })
+	// Create the DB
+	db, err := bolt.Open(filepath.Join(td, "test.db"), 0600, nil)
+	require.NoError(t, err)
+	t.Cleanup(func() { db.Close() })
 
-// 	return db
-// }
+	return db
+}
