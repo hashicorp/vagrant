@@ -3,20 +3,11 @@ package core
 import (
 	"testing"
 
-	"github.com/hashicorp/go-hclog"
 	"github.com/hashicorp/vagrant-plugin-sdk/core"
-	"github.com/hashicorp/vagrant/internal/server/proto/vagrant_server"
 )
 
-func targetInstance() *Target {
-	return &Target{
-		target: &vagrant_server.Target{},
-		logger: hclog.New(&hclog.LoggerOptions{Name: "test"}),
-	}
-}
-
 func TestTargetSpecializeMachine(t *testing.T) {
-	tt := targetInstance()
+	tt, _ := TestTarget(t)
 	specialized, err := tt.Specialize((*core.Machine)(nil))
 
 	if err != nil {
@@ -29,7 +20,7 @@ func TestTargetSpecializeMachine(t *testing.T) {
 }
 
 func TestTargetSpecializeBad(t *testing.T) {
-	tt := targetInstance()
+	tt, _ := TestTarget(t)
 	specialized, err := tt.Specialize((*core.Project)(nil))
 
 	if err != nil {
@@ -43,9 +34,8 @@ func TestTargetSpecializeBad(t *testing.T) {
 
 func TestRun(t *testing.T) {
 	// TODO: needs
-	// - to be able to create a Target with a project
 	// - to be able to create a Task
-	// tt := targetInstance()
+	// tt, _ := TestTarget(t)
 	// ctx := context.Background()
 	// tk := &vagrant_server.Task{}
 

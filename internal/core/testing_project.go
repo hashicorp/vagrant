@@ -14,6 +14,7 @@ import (
 	"github.com/hashicorp/vagrant-plugin-sdk/datadir"
 	"github.com/hashicorp/vagrant-plugin-sdk/proto/vagrant_plugin_sdk"
 	"github.com/hashicorp/vagrant/internal/factory"
+	"github.com/hashicorp/vagrant/internal/server/proto/vagrant_server"
 	"github.com/hashicorp/vagrant/internal/server/singleprocess"
 )
 
@@ -29,6 +30,34 @@ var TestingTypeMap = map[component.Type]interface{}{
 	component.ProviderType:      (*component.Provider)(nil),
 	component.ProvisionerType:   (*component.Provisioner)(nil),
 	component.SyncedFolderType:  (*component.SyncedFolder)(nil),
+}
+
+// TestTarget returns a fully in-memory and side-effect free Target that
+// can be used for testing. Additional options can be given to provide your own
+// factories, configuration, etc.
+func TestTarget(t testing.T, opts ...BasisOption) (target *Target, err error) {
+	tp := TestProject(t, opts...)
+	// vagrantServerTarget, err :=
+	tp.basis.client.UpsertTarget(
+		context.Background(),
+		&vagrant_server.UpsertTargetRequest{
+			Project: tp.Ref().(*vagrant_plugin_sdk.Ref_Project),
+			Target: &vagrant_server.Target{
+				Name:    "test-target",
+				Project: tp.Ref().(*vagrant_plugin_sdk.Ref_Project),
+			},
+		},
+	)
+	target, err = tp.LoadTarget([]TargetOption{
+		WithTargetRef(&vagrant_plugin_sdk.Ref_Target{Project: tp.Ref().(*vagrant_plugin_sdk.Ref_Project), Name: "test-target"}),
+	}...)
+
+	// return &Target{
+	// 	target: &vagrant_server.Target{},
+	// 	logger: hclog.New(&hclog.LoggerOptions{Name: "test"}),
+	// }
+
+	return
 }
 
 // TestProject returns a fully in-memory and side-effect free Project that
