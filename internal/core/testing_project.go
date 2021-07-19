@@ -37,7 +37,6 @@ var TestingTypeMap = map[component.Type]interface{}{
 // factories, configuration, etc.
 func TestTarget(t testing.T, opts ...BasisOption) (target *Target, err error) {
 	tp := TestProject(t, opts...)
-	// vagrantServerTarget, err :=
 	tp.basis.client.UpsertTarget(
 		context.Background(),
 		&vagrant_server.UpsertTargetRequest{
@@ -52,11 +51,6 @@ func TestTarget(t testing.T, opts ...BasisOption) (target *Target, err error) {
 		WithTargetRef(&vagrant_plugin_sdk.Ref_Target{Project: tp.Ref().(*vagrant_plugin_sdk.Ref_Project), Name: "test-target"}),
 	}...)
 
-	// return &Target{
-	// 	target: &vagrant_server.Target{},
-	// 	logger: hclog.New(&hclog.LoggerOptions{Name: "test"}),
-	// }
-
 	return
 }
 
@@ -64,6 +58,15 @@ func TestTarget(t testing.T, opts ...BasisOption) (target *Target, err error) {
 // can be used for testing. Additional options can be given to provide your own
 // factories, configuration, etc.
 func TestProject(t testing.T, opts ...BasisOption) *Project {
+	b := TestBasis(t, opts...)
+
+	p, _ := b.LoadProject([]ProjectOption{
+		WithProjectRef(&vagrant_plugin_sdk.Ref_Project{Basis: b.Ref().(*vagrant_plugin_sdk.Ref_Basis), Name: "test-project"}),
+	}...)
+	return p
+}
+
+func TestBasis(t testing.T, opts ...BasisOption) (b *Basis) {
 	td, err := ioutil.TempDir("", "core")
 	require.NoError(t, err)
 	t.Cleanup(func() { os.RemoveAll(td) })
@@ -83,15 +86,8 @@ func TestProject(t testing.T, opts ...BasisOption) *Project {
 		defaultOpts = append(defaultOpts, WithFactory(typ, f))
 	}
 
-	// p, err := NewProject(context.Background(), append(defaultOpts, opts...)...)
-	// require.NoError(t, err)
-	// t.Cleanup(func() { p.Close() })
-	b, err := NewBasis(context.Background(), append(defaultOpts, opts...)...)
-
-	p, err := b.LoadProject([]ProjectOption{
-		WithProjectRef(&vagrant_plugin_sdk.Ref_Project{Basis: b.Ref().(*vagrant_plugin_sdk.Ref_Basis), Name: "test-project"}),
-	}...)
-	return p
+	b, _ = NewBasis(context.Background(), append(defaultOpts, opts...)...)
+	return
 }
 
 // TestFactorySingle creates a factory for the given component type and

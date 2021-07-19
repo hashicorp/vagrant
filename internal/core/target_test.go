@@ -31,16 +31,3 @@ func TestTargetSpecializeBad(t *testing.T) {
 		t.Errorf("Should not specialize to an unsupported type")
 	}
 }
-
-func TestRun(t *testing.T) {
-	// TODO: needs
-	// - to be able to create a Task
-	// tt, _ := TestTarget(t)
-	// ctx := context.Background()
-	// tk := &vagrant_server.Task{}
-
-	// err := tt.Run(ctx, tk)
-	// if err != nil {
-	// 	t.Errorf("Run returned an error")
-	// }
-}
