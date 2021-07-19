@@ -27,8 +27,7 @@ describe VagrantPlugins::CommunicatorSSH::Communicator do
   let(:config) { double("config", ssh: ssh) }
   # Provider mock
   let(:provider) { double("provider") }
-  # UI mock
-  let(:ui) { double("ui") }
+  let(:ui) { Vagrant::UI::Silent.new }
   # Machine mock built with previously defined
   let(:machine) do
     double("machine",
@@ -99,10 +98,6 @@ describe VagrantPlugins::CommunicatorSSH::Communicator do
   describe ".wait_for_ready" do
     before(&connection_setup)
     context "with no static config (default scenario)" do
-      before do
-        allow(ui).to receive(:detail)
-      end
-
       context "when ssh_info requires a multiple tries before it is ready" do
         before do
           expect(machine).to receive(:ssh_info).
@@ -123,18 +118,19 @@ describe VagrantPlugins::CommunicatorSSH::Communicator do
             and_return(host: '10.1.2.3', port: 22)
           allow(communicator).to receive(:connect)
           allow(communicator).to receive(:ready?).and_return(true)
+          allow(ui).to receive(:detail).and_call_original
         end
 
         it "should print message" do
           expect(communicator).to receive(:connect).and_raise(Vagrant::Errors::SSHConnectionTimeout)
-          expect(ui).to receive(:detail).with(/timeout/)
+          expect(ui).to receive(:detail).with(/timeout/).and_call_original
           communicator.wait_for_ready(0.5)
         end
 
         it "should not print the same message twice" do
           expect(communicator).to receive(:connect).and_raise(Vagrant::Errors::SSHConnectionTimeout)
           expect(communicator).to receive(:connect).and_raise(Vagrant::Errors::SSHConnectionTimeout)
-          expect(ui).to receive(:detail).with(/timeout/)
+          expect(ui).to receive(:detail).with(/timeout/).and_call_original
           expect(ui).not_to receive(:detail).with(/timeout/)
           communicator.wait_for_ready(0.5)
         end
@@ -142,8 +138,8 @@ describe VagrantPlugins::CommunicatorSSH::Communicator do
         it "should print different messages" do
           expect(communicator).to receive(:connect).and_raise(Vagrant::Errors::SSHConnectionTimeout)
           expect(communicator).to receive(:connect).and_raise(Vagrant::Errors::SSHDisconnected)
-          expect(ui).to receive(:detail).with(/timeout/)
-          expect(ui).to receive(:detail).with(/disconnect/)
+          expect(ui).to receive(:detail).with(/timeout/).and_call_original
+          expect(ui).to receive(:detail).with(/disconnect/).and_call_original
           communicator.wait_for_ready(0.5)
         end
 
@@ -152,8 +148,8 @@ describe VagrantPlugins::CommunicatorSSH::Communicator do
           expect(communicator).to receive(:connect).and_raise(Vagrant::Errors::SSHDisconnected)
           expect(communicator).to receive(:connect).and_raise(Vagrant::Errors::SSHConnectionTimeout)
           expect(communicator).to receive(:connect).and_raise(Vagrant::Errors::SSHDisconnected)
-          expect(ui).to receive(:detail).with(/timeout/)
-          expect(ui).to receive(:detail).with(/disconnect/)
+          expect(ui).to receive(:detail).with(/timeout/).and_call_original
+          expect(ui).to receive(:detail).with(/disconnect/).and_call_original
           expect(ui).not_to receive(:detail).with(/timeout/)
           expect(ui).not_to receive(:detail).with(/disconnect/)
           communicator.wait_for_ready(0.5)
@@ -206,7 +202,6 @@ describe VagrantPlugins::CommunicatorSSH::Communicator do
         allow(guest).to receive(:capability?).with(:remove_public_key).
           and_return(has_remove_cap)
         allow(communicator).to receive(:insecure_key?).with("KEY_PATH").and_return(true)
-        allow(ui).to receive(:detail)
       end
 
       let(:insert_ssh_key){ true }
@@ -249,7 +244,6 @@ describe VagrantPlugins::CommunicatorSSH::Communicator do
         let(:path_joiner){ double("path_joiner") }
 
         before do
-          allow(ui).to receive(:info)
           allow(Vagrant::Util::Keypair).to receive(:create).
             and_return([new_public_key, new_private_key, openssh])
           allow(private_key_file).to receive(:open).and_yield(private_key_file)

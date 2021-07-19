@@ -325,6 +325,7 @@ VF
         "2.5.0.0-rc1": VagrantPlugins::Ansible::COMPATIBILITY_MODE_V2_0,
         "2.x.y.z": VagrantPlugins::Ansible::COMPATIBILITY_MODE_V2_0,
         "4.3.2.1": VagrantPlugins::Ansible::COMPATIBILITY_MODE_V2_0,
+        "[core 2.11.0]": VagrantPlugins::Ansible::COMPATIBILITY_MODE_V2_0,
       }
       valid_versions.each_pair do |ansible_version, mode|
         describe "and ansible version #{ansible_version}" do
@@ -979,6 +980,16 @@ VF
         end
 
         it "executes ansible-playbook command" do
+          expect(Vagrant::Util::Subprocess).to receive(:execute).with('ansible-playbook', any_args).and_return(default_execute_result)
+        end
+      end
+
+      describe "whitespace in version string" do
+        before do
+          allow(subject).to receive(:gather_ansible_version).and_return("ansible #{config.version}  \n...\n")
+        end
+
+        it "sets the correct gathered_version" do
           expect(Vagrant::Util::Subprocess).to receive(:execute).with('ansible-playbook', any_args).and_return(default_execute_result)
         end
       end

@@ -22,19 +22,19 @@ describe "VagrantPlugins::GuestSUSE::Cap::Halt" do
     let(:cap) { caps.get(:halt) }
 
     it "runs the shutdown command" do
-      comm.expect_command("/sbin/shutdown -h now")
+      comm.expect_command("/usr/bin/systemctl poweroff &")
       cap.halt(machine)
     end
 
     it "does not raise an IOError" do
-      comm.stub_command("shutdown -h now", raise: IOError)
+      comm.stub_command("/usr/bin/systemctl poweroff &", raise: IOError)
       expect {
         cap.halt(machine)
       }.to_not raise_error
     end
 
     it "ignores a Vagrant::Errors::SSHDisconnected" do
-      comm.stub_command("shutdown -h now", raise: Vagrant::Errors::SSHDisconnected)
+      comm.stub_command("/usr/bin/systemctl poweroff &", raise: Vagrant::Errors::SSHDisconnected)
       expect {
         cap.halt(machine)
       }.to_not raise_error

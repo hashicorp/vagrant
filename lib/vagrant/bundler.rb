@@ -189,8 +189,11 @@ module Vagrant
     attr_reader :env_plugin_gem_path
     # @return [Pathname] Vagrant environment data path
     attr_reader :environment_data_path
+    # @return [Array<Gem::Specification>, nil] List of builtin specs
+    attr_accessor :builtin_specs
 
     def initialize
+      @builtin_specs = []
       @plugin_gem_path = Vagrant.user_data_path.join("gems", RUBY_VERSION).freeze
       @logger = Log4r::Logger.new("vagrant::bundler")
     end
@@ -287,7 +290,6 @@ module Vagrant
         # Never allow dependencies to be remotely satisfied during init
         request_set.remote = false
 
-        repair_result = nil
         begin
           @logger.debug("resolving solution from available specification set")
           # Resolve the request set to ensure proper activation order
@@ -514,6 +516,9 @@ module Vagrant
         @logger.debug("Enabling strict dependency enforcement")
         plugin_deps += vagrant_internal_specs.map do |spec|
           next if system_plugins.include?(spec.name)
+          # If this spec is for a default plugin included in
+          # the ruby stdlib, ignore it
+          next if spec.default_gem?
           # If we are not running within the installer and
           # we are not within a bundler environment then we
           # only want activated specs
@@ -647,7 +652,6 @@ module Vagrant
         self_spec.activate
         @logger.info("Activated vagrant specification version - #{self_spec.version}")
       end
-      self_spec.runtime_dependencies.each { |d| gem d.name, *d.requirement.as_list }
       # discover all the gems we have available
       list = {}
       if Gem.respond_to?(:default_specifications_dir)
@@ -656,10 +660,16 @@ module Vagrant
         spec_dir = Gem::Specification.default_specifications_dir
       end
       directories = [spec_dir]
-      Gem::Specification.find_all{true}.each do |spec|
-        list[spec.full_name] = spec
+      if Vagrant.in_bundler?
+        Gem::Specification.find_all{true}.each do |spec|
+          list[spec.full_name] = spec
+        end
+      else
+        builtin_specs.each do |spec|
+          list[spec.full_name] = spec
+        end
       end
-      if(!Object.const_defined?(:Bundler))
+      if Vagrant.in_installer?
         directories += Gem::Specification.dirs.find_all do |path|
           !path.start_with?(Gem.user_dir)
         end

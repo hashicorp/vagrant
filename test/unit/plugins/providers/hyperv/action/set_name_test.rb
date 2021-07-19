@@ -5,7 +5,7 @@ require Vagrant.source_root.join("plugins/providers/hyperv/action/set_name")
 describe VagrantPlugins::HyperV::Action::SetName do
   let(:app){ double("app") }
   let(:env){ {ui: ui, machine: machine, root_path: Pathname.new("path")} }
-  let(:ui){ double("ui") }
+  let(:ui){ Vagrant::UI::Silent.new }
   let(:provider){ double("provider", driver: driver) }
   let(:driver){ double("driver") }
   let(:machine){ double("machine", provider: provider, provider_config: provider_config, data_dir: data_dir, name: "machname") }
@@ -17,7 +17,6 @@ describe VagrantPlugins::HyperV::Action::SetName do
   let(:subject){ described_class.new(app, env) }
 
   before do
-    allow(ui).to receive(:info)
     allow(driver).to receive(:set_name)
     allow(app).to receive(:call)
     allow(data_dir).to receive(:join).and_return(sentinel)

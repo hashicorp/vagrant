@@ -1,7 +1,6 @@
 ---
 layout: docs
 page_title: Public Networks - Networking
-sidebar_title: Public Network
 description: |-
   Vagrant public networks are less private than private networks, and the exact
   meaning actually varies from provider to provider, hence the ambiguous
@@ -153,5 +152,18 @@ Vagrant.configure("2") do |config|
 end
 ```
 
-Note the above is fairly complex and may be guest OS specific, but we
+Or, an alternative, simpler version, assuming you get DHCP from your public network:
+
+```ruby
+Vagrant.configure("2") do |config|
+  config.vm.network "public_network"
+
+  # default router
+  config.vm.provision "shell",
+    run: "always",
+    inline: "ip route del default via 10.0.2.2 || true"
+end
+```
+
+Note the above are fairly complex and will be guest OS specific, but we
 document the rough idea of how to do it because it is a common question.

@@ -14,28 +14,45 @@ module Vagrant
       MINIMUM_REQUIRED_VERSION = 3
       # Number of seconds to wait while attempting to get powershell version
       DEFAULT_VERSION_DETECTION_TIMEOUT = 30
+      # Names of the powershell executable
+      POWERSHELL_NAMES = ["powershell", "pwsh"].map(&:freeze).freeze
+      # Paths to powershell executable
+      POWERSHELL_PATHS = [
+        "%SYSTEMROOT%/System32/WindowsPowerShell/v1.0",
+        "%WINDIR%/System32/WindowsPowerShell/v1.0",
+        "%PROGRAMFILES%/PowerShell/7",
+        "%PROGRAMFILES%/PowerShell/6"
+      ].map(&:freeze).freeze
+
       LOGGER = Log4r::Logger.new("vagrant::util::powershell")
 
       # @return [String|nil] a powershell executable, depending on environment
       def self.executable
         if !defined?(@_powershell_executable)
-          @_powershell_executable = "powershell"
+          # First start with detecting executable on configured path
+          POWERSHELL_NAMES.detect do |psh|
+            return @_powershell_executable = psh if Which.which(psh)
+            psh += ".exe"
+            return @_powershell_executable = psh if Which.which(psh)
+          end
 
-          if Which.which(@_powershell_executable).nil?
-            # Try to use WSL interoperability if PowerShell is not symlinked to
-            # the container.
-            if Platform.wsl?
-              @_powershell_executable += ".exe"
+          # Now attempt with paths
+          paths = POWERSHELL_PATHS.map do |ppath|
+            result = Util::Subprocess.execute("cmd.exe", "/c", "echo #{ppath}")
+            result.stdout.gsub("\"", "").strip if result.exit_code == 0
+          end.compact
 
-              if Which.which(@_powershell_executable).nil?
-                @_powershell_executable = "/mnt/c/Windows/System32/WindowsPowerShell/v1.0/powershell.exe"
+          paths.each do |psh_path|
+            POWERSHELL_NAMES.each do |psh|
+              path = File.join(psh_path, psh)
+              return @_powershell_executable = path if Which.which(path)
 
-                if Which.which(@_powershell_executable).nil?
-                  @_powershell_executable = nil
-                end
-              end
-            else
-              @_powershell_executable = nil
+              path += ".exe"
+              return @_powershell_executable = path if Which.which(path)
+
+              # Finally test the msys2 style path
+              path = path.sub(/^([A-Za-z]):/, "/mnt/\\1")
+              return @_powershell_executable = path if Which.which(path)
             end
           end
         end

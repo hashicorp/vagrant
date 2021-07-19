@@ -255,9 +255,17 @@ module VagrantPlugins
 
           # Make sure the type is a symbol
           options[:type] = options[:type].to_sym
-
-          # Default IP is in the 20-bit private network block for DHCP based networks
-          options[:ip] = "172.28.128.1" if options[:type] == :dhcp && !options[:ip]
+         
+          if options[:type] == :dhcp && !options[:ip]
+            # Try to find a matching device to set the config ip to
+            matching_device = hostonly_find_matching_network(options)
+            if matching_device
+              options[:ip] = matching_device[:ip]
+            else
+              # Default IP is in the 20-bit private network block for DHCP based networks
+              options[:ip] = "172.28.128.1"
+            end
+          end
 
           begin
             ip = IPAddr.new(options[:ip])
@@ -469,7 +477,7 @@ module VagrantPlugins
 
         # This finds a matching host only network for the given configuration.
         def hostonly_find_matching_network(config)
-          this_netaddr = network_address(config[:ip], config[:netmask])
+          this_netaddr = network_address(config[:ip], config[:netmask])  if config[:ip]
 
           @env[:machine].provider.driver.read_host_only_interfaces.each do |interface|
             return interface if config[:name] && config[:name] == interface[:name]
@@ -515,7 +523,6 @@ module VagrantPlugins
         # @param [Hash<String>] config hash as returned from hostonly_config
         def create_dhcp_server_if_necessary(interface, config)
           existing_dhcp_server = find_matching_dhcp_server(interface)
-
           if existing_dhcp_server
             if dhcp_server_matches_config?(existing_dhcp_server, config)
               @logger.debug("DHCP server already properly configured")

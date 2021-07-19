@@ -15,7 +15,7 @@ describe Vagrant::Action::Builtin::CloudInitSetup do
   let(:machine_env) { double("machine_env", root_path: "root", host: host) }
   let(:env) { { ui: ui, machine: machine, env: machine_env} }
 
-  let(:ui)  { double("ui", info: true, warn: true) }
+  let(:ui)  { Vagrant::UI::Silent.new }
 
   let(:cfg) { double("cfg", type: :user_data, content_type: "text/cloud-config",
                      content_disposition_filename: nil, path: "my/path",

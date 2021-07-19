@@ -5,9 +5,31 @@ require Vagrant.source_root.join("plugins/providers/docker/driver")
 describe VagrantPlugins::DockerProvider::Driver do
   let(:cmd_executed) { @cmd }
   let(:cid)          { 'side-1-song-10' }
+  let(:execute_result) {
+    double("execute_result",
+      exit_code: exit_code,
+      stderr: stderr,
+      stdout: stdout
+    )
+  }
+  let(:exit_code) { 0 }
+  let(:stderr) { "" }
+  let(:stdout) { "" }
 
   before do
-    allow(subject).to receive(:execute) { |*args| @cmd = args.join(' ') }
+    allow(Vagrant::Util::Subprocess).to receive(:execute) { |*args|
+      if args.last.is_a?(Hash)
+        args = args[0, args.size - 1]
+      end
+      invalid = args.detect { |a| !a.is_a?(String) }
+      if invalid
+        raise TypeError,
+          "Vagrant::Util::Subprocess#execute only accepts signle option Hash and String arguments, received `#{invalid.class}'"
+      end
+      @cmd = args.join(" ")
+    }.and_return(execute_result)
+    allow_any_instance_of(Vagrant::Errors::VagrantError).
+      to receive(:translate_error) { |*args| args.join(" ") }
   end
 
   let(:docker_network_struct) {
@@ -153,51 +175,62 @@ describe VagrantPlugins::DockerProvider::Driver do
 
 
   describe '#build' do
-    let(:result) { "Successfully built other_package\nSuccessfully built 1a2b3c4d" }
-    let(:buildkit_result) { "writing image sha256:1a2b3c4d done" }
-    let(:podman_result) { "1a2b3c4d5e6f7g8h9i10j11k12l13m14n16o17p18q19r20s21t22u23v24w25x2" }
+    let(:stdout) { "Successfully built other_package\nSuccessfully built 1a2b3c4d" }
     let(:cid) { "1a2b3c4d" }
 
     it "builds a container with standard docker" do
-      allow(subject).to receive(:execute).and_return(result)
-
       container_id = subject.build("/tmp/fakedir")
 
       expect(container_id).to eq(cid)
     end
 
-    it "builds a container with buildkit docker" do
-      allow(subject).to receive(:execute).and_return(buildkit_result)
+    context "using buildkit" do
+      let(:stdout) { "writing image sha256:1a2b3c4d 0.0s done" }
 
-      container_id = subject.build("/tmp/fakedir")
+      it "builds a container with buildkit docker" do
+        container_id = subject.build("/tmp/fakedir")
 
-      expect(container_id).to eq(cid)
+        expect(container_id).to eq(cid)
+      end
     end
 
-    it "builds a container with podman emulating docker CLI" do
-      allow(subject).to receive(:execute).and_return(podman_result)
-      allow(subject).to receive(:podman?).and_return(true)
+    context "using buildkit with old output" do
+      let(:stdout) { "writing image sha256:1a2b3c4d done" }
 
-      container_id = subject.build("/tmp/fakedir")
+      it "builds a container with buildkit docker (old output)" do
+        container_id = subject.build("/tmp/fakedir")
 
-      expect(container_id).to eq(cid)
+        expect(container_id).to eq(cid)
+      end
+    end
+
+    context "using podman emulating docker CLI" do
+      let(:stdout) { "1a2b3c4d5e6f7g8h9i10j11k12l13m14n16o17p18q19r20s21t22u23v24w25x2" }
+
+      it "builds a container with podman emulating docker CLI" do
+        allow(subject).to receive(:podman?).and_return(true)
+
+        container_id = subject.build("/tmp/fakedir")
+
+        expect(container_id).to eq(cid)
+      end
     end
   end
 
   describe '#podman?' do
-    let(:emulating_docker_output) { "podman version 1.7.1-dev" }
-    let(:real_docker_output) { "Docker version 1.8.1, build d12ea79" }
+    context "when docker is used" do
+      let(:stdout) { "Docker version 1.8.1, build d12ea79" }
 
-    it 'returns false when docker is used' do
-      allow(subject).to receive(:execute).and_return(real_docker_output)
-
-      expect(subject.podman?).to be false
+      it 'returns false' do
+        expect(subject.podman?).to be false
+      end
     end
+    context "when podman is used" do
+      let(:stdout) { "podman version 1.7.1-dev" }
 
-    it 'returns true when podman is used' do
-      allow(subject).to receive(:execute).and_return(emulating_docker_output)
-
-      expect(subject.podman?).to be true
+      it 'returns true' do
+        expect(subject.podman?).to be true
+      end
     end
   end
 
@@ -292,20 +325,22 @@ describe VagrantPlugins::DockerProvider::Driver do
     end
 
     context 'when container exists' do
-      before { allow(subject).to receive(:execute).and_return("foo\n#{cid}\nbar") }
+      let(:stdout) { "foo\n#{cid}\nbar" }
+
       it { expect(result).to be_truthy }
     end
 
     context 'when container does not exist' do
-      before { allow(subject).to receive(:execute).and_return("foo\n#{cid}extra\nbar") }
+      let(:stdout) { "foo\n#{cid}extra\nbar" }
+
       it { expect(result).to be_falsey }
     end
   end
 
   describe '#pull' do
     it 'should pull images' do
-      expect(subject).to receive(:execute).with('docker', 'pull', 'foo')
       subject.pull('foo')
+      expect(cmd_executed).to match(/docker pull foo/)
     end
   end
 
@@ -346,12 +381,12 @@ describe VagrantPlugins::DockerProvider::Driver do
     end
 
     context 'when container exists' do
-      before { allow(subject).to receive(:execute).and_return("foo\n#{cid}\nbar") }
+      let(:stdout) { "foo\n#{cid}\nbar" }
       it { expect(result).to be_truthy }
     end
 
     context 'when container does not exist' do
-      before { allow(subject).to receive(:execute).and_return("foo\n#{cid}extra\nbar") }
+      let(:stdout) { "foo\n#{cid}extra\nbar" }
       it { expect(result).to be_falsey }
     end
   end
@@ -373,8 +408,8 @@ describe VagrantPlugins::DockerProvider::Driver do
       before { allow(subject).to receive(:running?).and_return(true) }
 
       it 'does not start the container' do
-        expect(subject).to_not receive(:execute).with('docker', 'start', cid)
         subject.start(cid)
+        expect(cmd_executed).to be_nil
       end
     end
 
@@ -382,8 +417,8 @@ describe VagrantPlugins::DockerProvider::Driver do
       before { allow(subject).to receive(:running?).and_return(false) }
 
       it 'starts the container' do
-        expect(subject).to receive(:execute).with('docker', 'start', cid)
         subject.start(cid)
+        expect(cmd_executed).to eq("docker start #{cid}")
       end
     end
   end
@@ -393,13 +428,13 @@ describe VagrantPlugins::DockerProvider::Driver do
       before { allow(subject).to receive(:running?).and_return(true) }
 
       it 'stops the container' do
-        expect(subject).to receive(:execute).with('docker', 'stop', '-t', '1', cid)
         subject.stop(cid, 1)
+        expect(cmd_executed).to eq("docker stop -t 1 #{cid}")
       end
 
       it "stops the container with the set timeout" do
-        expect(subject).to receive(:execute).with('docker', 'stop', '-t', '5', cid)
         subject.stop(cid, 5)
+        expect(cmd_executed).to eq("docker stop -t 5 #{cid}")
       end
     end
 
@@ -407,8 +442,8 @@ describe VagrantPlugins::DockerProvider::Driver do
       before { allow(subject).to receive(:running?).and_return(false) }
 
       it 'does not stop container' do
-        expect(subject).to_not receive(:execute).with('docker', 'stop', '-t', '1', cid)
         subject.stop(cid, 1)
+        expect(cmd_executed).to be_nil
       end
     end
   end
@@ -418,8 +453,8 @@ describe VagrantPlugins::DockerProvider::Driver do
       before { allow(subject).to receive(:created?).and_return(true) }
 
       it 'removes the container' do
-        expect(subject).to receive(:execute).with('docker', 'rm', '-f', '-v', cid)
         subject.rm(cid)
+        expect(cmd_executed).to eq("docker rm -f -v #{cid}")
       end
     end
 
@@ -427,8 +462,8 @@ describe VagrantPlugins::DockerProvider::Driver do
       before { allow(subject).to receive(:created?).and_return(false) }
 
       it 'does not attempt to remove the container' do
-        expect(subject).to_not receive(:execute).with('docker', 'rm', '-f', '-v', cid)
         subject.rm(cid)
+        expect(cmd_executed).to be_nil
       end
     end
   end
@@ -438,8 +473,8 @@ describe VagrantPlugins::DockerProvider::Driver do
 
     context 'image exists' do
       it "removes the image" do
-        expect(subject).to receive(:execute).with('docker', 'rmi', id)
         subject.rmi(id)
+        expect(cmd_executed).to eq("docker rmi #{id}")
       end
     end
 
@@ -481,13 +516,11 @@ describe VagrantPlugins::DockerProvider::Driver do
   end
 
   describe '#inspect_container' do
-    let(:data) { '[{"json": "value"}]' }
-
-    before { allow(subject).to receive(:execute).and_return(data) }
+    let(:stdout) { '[{"json": "value"}]' }
 
     it 'inspects the container' do
-      expect(subject).to receive(:execute).with('docker', 'inspect', cid)
       subject.inspect_container(cid)
+      expect(cmd_executed).to eq("docker inspect #{cid}")
     end
 
     it 'parses the json output' do
@@ -496,68 +529,66 @@ describe VagrantPlugins::DockerProvider::Driver do
   end
 
   describe '#all_containers' do
-    let(:containers) { "container1\ncontainer2" }
-
-    before { allow(subject).to receive(:execute).and_return(containers) }
+    let(:stdout) { "container1\ncontainer2" }
 
     it 'returns an array of all known containers' do
-      expect(subject).to receive(:execute).with('docker', 'ps', '-a', '-q', '--no-trunc')
       expect(subject.all_containers).to eq(['container1', 'container2'])
+      expect(cmd_executed).to eq("docker ps -a -q --no-trunc")
     end
   end
 
   describe '#docker_bridge_ip' do
-    let(:containers) { " inet 123.456.789.012/16 " }
-
-    before { allow(subject).to receive(:execute).and_return(containers) }
+    let(:stdout) { " inet 123.456.789.012/16 " }
 
     it 'returns an array of all known containers' do
-      expect(subject).to receive(:execute).with('/sbin/ip', '-4', 'addr', 'show', 'scope', 'global', 'docker0')
       expect(subject.docker_bridge_ip).to eq('123.456.789.012')
+      expect(cmd_executed).to eq("/sbin/ip -4 addr show scope global docker0")
     end
   end
 
   describe '#docker_connect_network' do
     let(:opts) { ["--ip", "172.20.128.2"] }
+
     it 'connects a network to a container' do
-      expect(subject).to receive(:execute).with("docker", "network", "connect", "vagrant_network", cid, "--ip", "172.20.128.2")
       subject.connect_network("vagrant_network", cid, opts)
+      expect(cmd_executed).to eq("docker network connect vagrant_network #{cid} --ip 172.20.128.2")
     end
   end
 
   describe '#docker_create_network' do
     let(:opts) { ["--subnet", "172.20.0.0/16"] }
+
     it 'creates a network' do
-      expect(subject).to receive(:execute).with("docker", "network", "create", "vagrant_network", "--subnet", "172.20.0.0/16")
       subject.create_network("vagrant_network", opts)
+      expect(cmd_executed).to eq("docker network create vagrant_network --subnet 172.20.0.0/16")
     end
   end
 
   describe '#docker_disconnet_network' do
     it 'disconnects a network from a container' do
-      expect(subject).to receive(:execute).with("docker", "network", "disconnect", "vagrant_network", cid, "--force")
       subject.disconnect_network("vagrant_network", cid)
+      expect(cmd_executed).to eq("docker network disconnect vagrant_network #{cid} --force")
     end
   end
 
   describe '#docker_inspect_network' do
     it 'gets info about a network' do
-      expect(subject).to receive(:execute).with("docker", "network", "inspect", "vagrant_network")
       subject.inspect_network("vagrant_network")
+      expect(cmd_executed).to eq("docker network inspect vagrant_network")
     end
   end
 
   describe '#docker_list_network' do
     it 'lists docker networks' do
-      expect(subject).to receive(:execute).with("docker", "network", "ls")
       subject.list_network()
+      expect(cmd_executed).to eq("docker network ls")
     end
   end
 
   describe '#docker_rm_network' do
     it 'deletes a docker network' do
-      expect(subject).to receive(:execute).with("docker", "network", "rm", "vagrant_network")
       subject.rm_network("vagrant_network")
+      expect(cmd_executed).to eq("docker network rm vagrant_network")
     end
   end
 

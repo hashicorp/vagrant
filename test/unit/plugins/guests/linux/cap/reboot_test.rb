@@ -7,10 +7,10 @@ describe "VagrantPlugins::GuestLinux::Cap::Reboot" do
     VagrantPlugins::GuestLinux::Plugin.components.guest_capabilities[:linux].get(:wait_for_reboot)
   end
 
-  let(:machine) { double("machine") }
+  let(:machine) { double("machine", guest: guest) }
   let(:guest) { double("guest") }
   let(:communicator) { VagrantTests::DummyCommunicator::Communicator.new(machine) }
-  let(:ui) { double("ui") }
+  let(:ui) { Vagrant::UI::Silent.new }
 
   context "systemd not enabled" do
     before do
@@ -18,7 +18,6 @@ describe "VagrantPlugins::GuestLinux::Cap::Reboot" do
       allow(machine).to receive(:guest).and_return(guest)
       allow(machine.guest).to receive(:ready?).and_return(true)
       allow(machine).to receive(:ui).and_return(ui)
-      allow(ui).to receive(:info)
       allow(communicator).to receive(:test).and_return(false)
     end
 
@@ -45,7 +44,7 @@ describe "VagrantPlugins::GuestLinux::Cap::Reboot" do
         after { described_class.reboot(machine) }
 
         it "sends message to user that guest is rebooting" do
-          expect(ui).to receive(:info)
+          expect(ui).to receive(:info).and_call_original
         end
       end
     end
@@ -56,7 +55,6 @@ describe "VagrantPlugins::GuestLinux::Cap::Reboot" do
         allow(machine).to receive(:guest).and_return(guest)
         allow(machine.guest).to receive(:ready?).and_return(true)
         allow(machine).to receive(:ui).and_return(ui)
-        allow(ui).to receive(:info)
         allow(communicator).to receive(:test).and_return(true)
       end
 
@@ -103,6 +101,64 @@ describe "VagrantPlugins::GuestLinux::Cap::Reboot" do
           expect(described_class).to receive(:wait_for_reboot).exactly(max_retries).times
           expect { described_class.reboot(machine) }.to raise_error(Vagrant::Errors::MachineGuestNotReady)
         end
+      end
+    end
+  end
+
+  describe ".wait_for_reboot" do
+    before do
+      allow(machine).to receive(:communicate).and_return(communicator)
+      allow(communicator).to receive(:execute).and_return(0)
+      allow(guest).to receive(:ready?).and_return(false)
+    end
+
+    context "when guest is ready" do
+      before { expect(guest).to receive(:ready?).and_return(true) }
+
+      it "should sleep" do
+        expect(described_class).to receive(:sleep).with(10)
+        described_class.wait_for_reboot(machine)
+      end
+
+      context "when check script fails" do
+        before { expect(communicator).to receive(:execute).with(/grep/, any_args).and_return(1) }
+
+        it "should not sleep" do
+          expect(described_class).not_to receive(:sleep)
+          described_class.wait_for_reboot(machine)
+        end
+      end
+
+      context "when communicator raises an error" do
+        let(:error) { Class.new(StandardError) }
+
+        before do
+          expect(communicator).to receive(:execute).with(/grep/, any_args).and_raise(error)
+          expect(guest).to receive(:ready?).and_return(true)
+        end
+
+        it "should sleep once for exception and once for the guest being ready" do
+          expect(described_class).to receive(:sleep).with(10).twice
+          described_class.wait_for_reboot(machine)
+        end
+
+        context "when communicator raises error more than once" do
+          before { expect(communicator).to receive(:execute).with(/grep/, any_args).and_raise(error) }
+
+          it "should sleep once and raise error" do
+            expect(described_class).to receive(:sleep).with(10)
+            expect { described_class.wait_for_reboot(machine) }.to raise_error(error)
+          end
+        end
+      end
+    end
+
+    context "when guest is not ready" do
+      before { expect(guest).to receive(:ready?).and_return(false) }
+
+      it "should not sleep" do
+        expect(described_class).not_to receive(:sleep)
+        described_class.wait_for_reboot(machine)
       end
     end
   end

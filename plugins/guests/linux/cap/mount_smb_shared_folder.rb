@@ -20,7 +20,7 @@ module VagrantPlugins
             :shell_expand_guest_path, guestpath)
           options[:smb_id] ||= name
 
-          mount_device = options[:plugin].capability(:mount_name, options)
+          mount_device = options[:plugin].capability(:mount_name, name, options)
           mount_options, _, _ = options[:plugin].capability(
             :mount_options, name, expanded_guest_path, options)
           mount_type = options[:plugin].capability(:mount_type)

@@ -1,7 +1,6 @@
 ---
 layout: docs
 page_title: Usage - Disks Hyper-V Provider
-sidebar_title: Usage
 description: |-
   The Vagrant Hyper-V provider is used just like any other provider. Please
   read the general basic usage page for providers.
@@ -13,7 +12,7 @@ description: |-
 change in between releases. Use at your own risk. It currently is not officially
 supported.
 
-This feature currently reqiures the experimental flag to be used. To explicitly enable this feature, you can set the experimental flag to:
+This feature currently requires the experimental flag to be used. To explicitly enable this feature, you can set the experimental flag to:
 
 ```
 VAGRANT_EXPERIMENTAL="disks"
@@ -64,7 +63,7 @@ For more information about each option, please visit the [Add-VMHardDiskDrive Hy
 Generally, these options do not need to be set or handled by most users. Only
 use these options if you are sure you know what you are doing. Vagrant will
 be able to attach disks for you without these options, but they are available
-if it is required that you specificy a specific location for a disk.
+if it is required that you specify a specific location for a disk.
 
 - `ControllerLocation` (int) - The location that the disk should be attached to on the controller
 - `ControllerNumber` (int) - The controller to use for attaching the disk

@@ -16,14 +16,10 @@ describe VagrantPlugins::CloudCommand::VersionCommand::Command::Revoke do
   describe "#revoke_version" do
     let(:options) { {} }
     let(:env) { double("env", ui: ui) }
-    let(:ui) { double("ui") }
+    let(:ui) { Vagrant::UI::Silent.new }
     let(:argv) { [] }
 
     before do
-      allow(ui).to receive(:info)
-      allow(ui).to receive(:warn)
-      allow(ui).to receive(:success)
-      allow(ui).to receive(:error)
       allow(env).to receive(:ui).and_return(ui)
       allow(VagrantCloud::Account).to receive(:new).
         with(custom_server: anything, access_token: access_token).

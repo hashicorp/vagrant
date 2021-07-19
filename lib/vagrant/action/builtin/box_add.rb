@@ -108,6 +108,14 @@ module Vagrant
             end
           end
 
+          is_error = is_metadata_results.find do |b|
+            b.is_a?(Errors::DownloaderError)
+          end
+          if is_error
+            raise Errors::BoxMetadataDownloadError,  
+              message: is_error.extra_data[:message]
+          end
+
           is_metadata = is_metadata_results.any? { |b| b === true }
           if is_metadata && url.length > 1
             raise Errors::BoxAddMetadataMultiURL,
@@ -118,7 +126,7 @@ module Vagrant
             url = [url.first, authed_urls.first]
             add_from_metadata(url, env, expanded)
           else
-            add_direct(url, env)
+            add_direct(authed_urls, env)
           end
 
           @app.call(env)
@@ -538,11 +546,13 @@ module Vagrant
           !!(match.last.chomp =~ /application\/json/)
         end
 
-        def validate_checksum(checksum_type, checksum, path)
+        def validate_checksum(checksum_type, _checksum, path)
+          checksum = _checksum.strip()
           @logger.info("Validating checksum with #{checksum_type}")
           @logger.info("Expected checksum: #{checksum}")
 
-          actual = FileChecksum.new(path, checksum_type).checksum
+          _actual = FileChecksum.new(path, checksum_type).checksum
+          actual = _actual.strip()
           @logger.info("Actual checksum: #{actual}")
           if actual.casecmp(checksum) != 0
             raise Errors::BoxChecksumMismatch,

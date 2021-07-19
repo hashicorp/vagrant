@@ -5,7 +5,7 @@ require Vagrant.source_root.join("plugins/providers/hyperv/action/configure")
 describe VagrantPlugins::HyperV::Action::Configure do
   let(:app){ double("app") }
   let(:env){ {ui: ui, machine: machine} }
-  let(:ui){ double("ui") }
+  let(:ui){ Vagrant::UI::Silent.new }
   let(:provider){ double("provider", driver: driver) }
   let(:driver){ double("driver") }
   let(:machine){ double("machine", provider: provider, config: config, provider_config: provider_config, data_dir: data_dir, id: "machineID") }
@@ -41,8 +41,6 @@ describe VagrantPlugins::HyperV::Action::Configure do
     allow(driver).to receive(:execute)
     allow(app).to receive(:call)
     expect(driver).to receive(:execute).with(:get_switches).and_return(switches)
-    allow(ui).to receive(:detail)
-    allow(ui).to receive(:output)
     allow(ui).to receive(:ask).and_return("1")
     allow(data_dir).to receive(:join).and_return(sentinel)
     allow(sentinel).to receive(:file?).and_return(false)
@@ -126,7 +124,7 @@ describe VagrantPlugins::HyperV::Action::Configure do
     end
   end
 
-  context "with enhanced session transport type" do    
+  context "with enhanced session transport type" do
     let(:enable_enhanced_session_mode) { true }
 
     it "should call the driver to set enhanced session transport type" do

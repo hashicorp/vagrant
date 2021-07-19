@@ -4,7 +4,7 @@ require_relative "../../../../../../plugins/hosts/windows/cap/smb"
 
 describe VagrantPlugins::HostWindows::Cap::SMB do
   let(:subject){ VagrantPlugins::HostWindows::Cap::SMB }
-  let(:machine){ double(:machine, env: double(:machine_env, ui: double(:ui))) }
+  let(:machine){ double(:machine, env: double(:machine_env, ui: Vagrant::UI::Silent.new)) }
   let(:env){ double(:env) }
   let(:options){ {} }
   let(:result){ Vagrant::Util::Subprocess::Result }
@@ -62,7 +62,6 @@ Remark     Not Vagrant Owned
     allow(subject).to receive(:machine_id).and_return("CUSTOM_ID")
     allow(Vagrant::Util::PowerShell).to receive(:version).and_return(powershell_version)
     allow(Vagrant::Util::PowerShell).to receive(:execute_cmd).and_return("")
-    allow(machine.env.ui).to receive(:warn)
     allow(subject).to receive(:sleep)
   end
 
@@ -103,7 +102,7 @@ Remark     Not Vagrant Owned
     after{ subject.smb_cleanup(env, machine, options) }
 
     it "should pause after warning user" do
-      expect(machine.env.ui).to receive(:warn)
+      expect(machine.env.ui).to receive(:warn).and_call_original
       expect(subject).to receive(:sleep)
     end
 
@@ -184,7 +183,7 @@ Remark     Not Vagrant Owned
     end
 
     it "should pause after warning user" do
-      expect(machine.env.ui).to receive(:warn)
+      expect(machine.env.ui).to receive(:warn).and_call_original
       expect(subject).to receive(:sleep)
       subject.smb_prepare(env, machine, folders, options)
     end

@@ -67,16 +67,12 @@ describe VagrantPlugins::CommandBox::Command::Prune do
 
         iso_vagrant_env.machine_index.set(new_entry("foo", "foobox", "virtualbox", 1))
 
-        output = ""
-        allow(iso_vagrant_env.ui).to receive(:info) do |data|
-          output << data
-        end
+        allow(iso_vagrant_env.ui).to receive(:info).and_call_original
+        expect(iso_vagrant_env.ui).to receive(:info).with(/No old versions of boxes/).
+          and_call_original
         expect(iso_vagrant_env.boxes.all.count).to eq(2)
         expect(subject.execute).to eq(0)
         expect(iso_vagrant_env.boxes.all.count).to eq(2)
-
-        expect(output).to include("No old versions of boxes to remove...")
-
       end
     end
 

@@ -5,13 +5,11 @@ require Vagrant.source_root.join("plugins/providers/hyperv/action/check_enabled"
 describe VagrantPlugins::HyperV::Action::CheckEnabled do
   let(:app){ double("app") }
   let(:env){ {ui: ui, machine: machine} }
-  let(:ui){ double("ui") }
+  let(:ui){ Vagrant::UI::Silent.new }
   let(:provider){ double("provider", driver: driver) }
   let(:driver){ double("driver") }
   let(:machine){ double("machine", provider: provider) }
   let(:subject){ described_class.new(app, env) }
-
-  before{ allow(ui).to receive(:output) }
 
   it "should continue when Hyper-V is enabled" do
     expect(driver).to receive(:execute).and_return("result" => true)

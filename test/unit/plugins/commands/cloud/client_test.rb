@@ -101,7 +101,7 @@ describe VagrantPlugins::CloudCommand::Client do
     end
 
     it "should create a new internal client" do
-      expect(VagrantCloud::Client).to receive(:new).with(access_token: new_token)
+      expect(VagrantCloud::Client).to receive(:new).with(access_token: new_token, url_base: anything)
       subject.login
     end
 
@@ -174,7 +174,7 @@ describe VagrantPlugins::CloudCommand::Client do
     end
 
     it "should create a new internal client with token" do
-      expect(VagrantCloud::Client).to receive(:new).with(access_token: new_token)
+      expect(VagrantCloud::Client).to receive(:new).with(access_token: new_token, url_base: anything)
       subject.store_token(new_token)
     end
 

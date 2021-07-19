@@ -9,7 +9,7 @@ describe Vagrant::Action::General::Package do
   }
   let(:environment) { double("environment") }
   let(:machine) { double("machine") }
-  let(:ui) { double("ui") }
+  let(:ui) { Vagrant::UI::Silent.new }
 
   let(:subject) { described_class.new(app, env) }
 
@@ -87,7 +87,6 @@ describe Vagrant::Action::General::Package do
     let(:path) { double("path") }
 
     before do
-      allow(ui).to receive(:info)
       allow(FileUtils).to receive(:mkdir_p)
       subject.instance_variable_set(:@env, env)
     end
@@ -158,8 +157,6 @@ describe Vagrant::Action::General::Package do
       env["package.files"] = package_files
       env["package.directory"] = package_directory
       subject.instance_variable_set(:@env, env)
-
-      allow(ui).to receive(:info)
     end
 
     after do
@@ -178,8 +175,36 @@ describe Vagrant::Action::General::Package do
     end
 
     it "should notify user of copy" do
-      expect(ui).to receive(:info)
+      expect(ui).to receive(:info).at_least(1).and_call_original
       subject.copy_include_files
+    end
+  end
+
+  describe "#copy_info" do
+    let(:package_directory) { @package_directory }
+    let(:package_info) { File.join(@package_info_directory, "info.json") }
+
+    before do
+      @package_directory = Dir.mktmpdir
+      @package_info_directory = Dir.mktmpdir
+      FileUtils.touch(File.join(@package_info_directory, "info.json"))
+      env["package.info"] = package_info
+      env["package.directory"] = package_directory
+      subject.instance_variable_set(:@env, env)
+
+      allow(ui).to receive(:info)
+    end
+
+    after do
+      FileUtils.rm_rf(@package_directory)
+      FileUtils.rm_rf(@package_info_directory)
+    end
+
+    it "should copy the specified info.json to package directory" do
+      subject.copy_info
+      expected_info = File.join(package_directory, "info.json")
+
+      expect(File.file? expected_info).to be_truthy
     end
   end
 
@@ -333,8 +358,6 @@ describe Vagrant::Action::General::Package do
     let(:fullpath) { "FULLPATH" }
 
     before do
-      allow(ui).to receive(:info)
-
       allow(described_class).to receive(:validate!)
       allow(subject).to receive(:fullpath).and_return(fullpath)
       allow(subject).to receive(:package_with_folder_path)
@@ -362,7 +385,7 @@ describe Vagrant::Action::General::Package do
     end
 
     it "should notify of package compressing" do
-      expect(ui).to receive(:info)
+      expect(ui).to receive(:info).and_call_original
       subject.call(env)
     end
 

@@ -13,6 +13,7 @@ module Vagrant
       #
       #   * package.output - The filename of the outputted package.
       #   * package.include - An array of files to include in the package.
+      #   * package.info - Path of desired info.json file to include
       #   * package.directory - The directory which contains the contents to
       #       compress into the package.
       #
@@ -63,6 +64,7 @@ module Vagrant
           @app = app
 
           env["package.files"]  ||= {}
+          env["package.info"]   ||= ""
           env["package.output"] ||= "package.box"
 
           @fullpath = self.class.fullpath(env["package.output"])
@@ -77,11 +79,14 @@ module Vagrant
 
           raise Errors::PackageOutputDirectory if File.directory?(fullpath)
 
+          raise Errors::PackageInvalidInfo if invalid_info?
+
           @app.call(env)
 
           @env[:ui].info I18n.t("vagrant.actions.general.package.compressing", fullpath: fullpath)
 
           copy_include_files
+          copy_info
           setup_private_key
           write_metadata_json
           compress
@@ -135,6 +140,16 @@ module Vagrant
 
           # The directory contains symlinks. Show a nicer error.
           raise Errors::PackageIncludeSymlink
+        end
+
+        # This method copies the specified info.json file to the temporary directory
+        # so that it is accessible via the 'box list -i' command
+        def copy_info
+          info_path = Pathname.new(@env["package.info"])
+
+          if info_path.file?
+            FileUtils.cp(info_path, @env["package.directory"], preserve: true)
+          end
         end
 
         # Compress the exported file into a package
@@ -214,6 +229,15 @@ module Vagrant
             f.puts %Q[Vagrant.configure("2") do |config|]
             f.puts %Q[  config.ssh.private_key_path = File.expand_path("../vagrant_private_key", __FILE__)]
             f.puts %Q[end]
+          end
+        end
+
+        # Check to see if package.info is a valid file and titled info.json
+        def invalid_info?
+          if @env["package.info"] != ""
+            info_path = Pathname.new(@env["package.info"])
+
+            return !info_path.file? || File.basename(info_path) != "info.json"
           end
         end
       end

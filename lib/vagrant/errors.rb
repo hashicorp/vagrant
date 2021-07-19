@@ -592,6 +592,10 @@ module Vagrant
       error_key(:requires_directory, "vagrant.actions.general.package")
     end
 
+    class PackageInvalidInfo < VagrantError
+      error_key(:package_invalid_info)
+    end
+
     class PowerShellNotFound < VagrantError
       error_key(:powershell_not_found)
     end
@@ -634,6 +638,18 @@ module Vagrant
 
     class ProvisionerWinRMUnsupported < VagrantError
       error_key(:provisioner_winrm_unsupported)
+    end
+
+    class PluginNeedsDeveloperTools < VagrantError
+      error_key(:plugin_needs_developer_tools)
+    end
+
+    class PluginMissingLibrary < VagrantError
+      error_key(:plugin_missing_library)
+    end
+
+    class PluginMissingRubyDev < VagrantError
+      error_key(:plugin_missing_ruby_dev)
     end
 
     class PluginGemNotFound < VagrantError

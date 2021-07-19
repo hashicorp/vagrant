@@ -23,9 +23,9 @@ if idx = argv.index("--")
   argv = argv.slice(0, idx)
 end
 
+require_relative "../lib/vagrant/version"
 # Fast path the version of Vagrant
 if argv.include?("-v") || argv.include?("--version")
-  require_relative "../lib/vagrant/version"
   puts "Vagrant #{Vagrant::VERSION}"
   exit 0
 end
@@ -82,6 +82,29 @@ end
 $stdout.sync = true
 $stderr.sync = true
 
+# Before we start activate all our dependencies
+# so we can provide correct resolutions later
+builtin_specs = []
+
+vagrant_spec = Gem::Specification.find_all_by_name("vagrant").detect do |spec|
+  spec.version == Gem::Version.new(Vagrant::VERSION)
+end
+
+dep_activator = proc do |spec|
+  spec.runtime_dependencies.each do |dep|
+    gem(dep.name, *dep.requirement.as_list)
+    dep_spec = Gem::Specification.find_all_by_name(dep.name).detect(&:activated?)
+    if dep_spec
+      builtin_specs << dep_spec
+      dep_activator.call(dep_spec)
+    end
+  end
+end
+
+if vagrant_spec
+  dep_activator.call(vagrant_spec)
+end
+
 env = nil
 begin
   require 'log4r'
@@ -90,6 +113,9 @@ begin
   require 'vagrant/cli'
   require 'vagrant/util/platform'
   require 'vagrant/util/experimental'
+
+  # Set our list of builtin specs
+  Vagrant::Bundler.instance.builtin_specs = builtin_specs
 
   # Schedule the cleanup of things
   at_exit(&Vagrant::Bundler.instance.method(:deinit))
@@ -225,7 +251,7 @@ rescue Exception => e
 
   if env
     opts = { prefix: false }
-    env.ui.error e.message, opts if e.message
+    env.ui.error(e.message, **opts) if e.message
     env.ui.machine("error-exit", e.class.to_s, e.message.to_s)
   else
     $stderr.puts "Vagrant failed to initialize at a very early stage:\n\n"

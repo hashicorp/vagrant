@@ -81,7 +81,7 @@ describe VagrantPlugins::Puppet::Provisioner::Puppet do
     let(:environment_paths) { ["/etc/puppet/environment"] }
 
     it "builds structured facts if set" do
-      allow(machine).to receive(:guest).and_return(true)
+      allow(machine).to receive(:guest).and_return(double("guest"))
       allow(machine.guest).to receive(:capability?).and_return(false)
       allow(config).to receive(:environment_path).and_return(environment_paths)
       allow(config).to receive(:environment).and_return("production")
@@ -105,7 +105,7 @@ describe VagrantPlugins::Puppet::Provisioner::Puppet do
     end
 
     it "does not build structured facts if not set" do
-      allow(machine).to receive(:guest).and_return(true)
+      allow(machine).to receive(:guest).and_return(double("guest"))
       allow(machine.guest).to receive(:capability?).and_return(false)
       allow(config).to receive(:environment_path).and_return(environment_paths)
       allow(config).to receive(:environment).and_return("production")

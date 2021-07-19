@@ -1,7 +1,6 @@
 ---
 layout: docs
 page_title: Vagrant Cloud-Init Usage
-sidebar_title: Usage
 description: Various Vagrant Cloud-Init examples
 ---
 
@@ -11,10 +10,10 @@ description: Various Vagrant Cloud-Init examples
 change in between releases. Use at your own risk. It currently is not officially
 supported or functional.
 
-This feature currently reqiures the experimental flag to be used. To explicitly enable this feature, you can set the experimental flag to:
+This feature currently requires the experimental flag to be used. To explicitly enable this feature, you can set the experimental flag to:
 
 ```
-VAGRANT_EXPERIMENTAL="cloud_init"
+VAGRANT_EXPERIMENTAL="cloud_init,disks"
 ```
 
 Please note that `VAGRANT_EXPERIMENTAL` is an environment variable. For more

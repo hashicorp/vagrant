@@ -14,4 +14,4 @@ for each item will be kept below.
   starting machines.
 * `vim` - Contains a `.vim` file for enabling Ruby syntax highlighting
   for `Vagrantfile`s in `vim`.
-  * `zsh` - Contains a zsh script for improving autocompletion with zsh.
+* `zsh` - Contains a zsh script for improving autocompletion with zsh.

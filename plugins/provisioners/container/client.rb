@@ -10,7 +10,7 @@ module VagrantPlugins
 
       # Build an image given a path to a Dockerfile
       #
-      # @param [String] - Path to the Dockerfile to pass to
+      # @param [Array<Array<String, Hash>>] - Path and options to the Dockerfile to pass to
       #   container build command
       def build_images(images)
         @machine.communicate.tap do |comm|
@@ -195,7 +195,7 @@ module VagrantPlugins
           options = {}
           #options[:color] = color if !config.keep_color
 
-          @machine.ui.info(data.chomp, options)
+          @machine.ui.info(data.chomp, **options)
         end
       end
     end

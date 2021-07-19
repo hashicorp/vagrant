@@ -129,6 +129,16 @@ module VagrantPlugins
         def upload_box_file(provider, box_file, options={})
           box_file = File.absolute_path(box_file)
           @env.ui.info(I18n.t("cloud_command.publish.upload_provider", file: box_file))
+          # Include size check on file and disable direct if over 5G
+          if options[:direct_upload]
+            fsize = File.stat(box_file).size
+            if fsize > (5 * Vagrant::Util::Numeric::GIGABYTE)
+              box_size = Vagrant::Util::Numeric.bytes_to_string(fsize)
+              @env.ui.warn(I18n.t("cloud_command.provider.direct_disable", size: box_size))
+              options[:direct_upload] = false
+            end
+          end
+
           provider.upload(direct: options[:direct_upload]) do |upload_url|
             Vagrant::Util::Uploader.new(upload_url, box_file, ui: @env.ui, method: :put).upload!
           end

@@ -45,7 +45,7 @@ module Vagrant
       end
 
       [:ask, :detail, :warn, :error, :info, :output, :success].each do |method|
-        define_method(method) do |message, *opts|
+        define_method(method) do |message, **opts|
           # Log normal console messages
           begin
             @logger.info { "#{method}: #{message}" }
@@ -86,7 +86,7 @@ module Vagrant
 
     # This is a UI implementation that does nothing.
     class Silent < Interface
-      def ask(*args)
+      def ask(*args, **opts)
         super
 
         # Silent can't do this, obviously.
@@ -103,7 +103,7 @@ module Vagrant
         @lock = Mutex.new
       end
 
-      def ask(*args)
+      def ask(*args, **opts)
         super
 
         # Machine-readable can't ask for input
@@ -111,8 +111,8 @@ module Vagrant
       end
 
       [:detail, :warn, :error, :info, :output, :success].each do |method|
-        define_method(method) do |message, *args, **opts|
-          machine("ui", method.to_s, message, *args, **opts)
+        define_method(method) do |message, **opts|
+          machine("ui", method.to_s, message, **opts)
         end
       end
 
@@ -155,14 +155,14 @@ module Vagrant
       # to `say`.
       [:detail, :info, :warn, :error, :output, :success].each do |method|
         class_eval <<-CODE
-          def #{method}(message, *args)
+          def #{method}(message, **opts)
             super(message)
-            say(#{method.inspect}, message, *args)
+            say(#{method.inspect}, message, **opts)
           end
         CODE
       end
 
-      def ask(message, opts=nil)
+      def ask(message, **opts)
         super(message)
 
         # We can't ask questions when the output isn't a TTY.
@@ -192,7 +192,7 @@ module Vagrant
             say(:info, "\n#{I18n.t("vagrant.stdin_cant_hide_input")}\n ", opts)
 
             # Ask again, with echo enabled
-            input = ask(message, opts.merge(echo: true))
+            input = ask(message, **opts.merge(echo: true))
           end
         end
 
@@ -278,7 +278,7 @@ module Vagrant
         say(:info, "\n", opts)
       end
 
-      def ask(*args)
+      def ask(*args, **opts)
         # Non interactive can't ask for input
         raise Errors::UIExpectsTTY
       end
@@ -306,7 +306,7 @@ module Vagrant
       # to `say`.
       [:ask, :detail, :info, :warn, :error, :output, :success].each do |method|
         class_eval <<-CODE
-          def #{method}(message, *args, **opts)
+          def #{method}(message, **opts)
             super(message)
             if !@ui.opts.key?(:bold) && !opts.key?(:bold)
               opts[:bold] = #{method.inspect} != :detail && \
@@ -315,7 +315,7 @@ module Vagrant
             if !opts.key?(:target)
               opts[:target] = @prefix
             end
-            @ui.#{method}(format_message(#{method.inspect}, message, **opts), *args, **opts)
+            @ui.#{method}(format_message(#{method.inspect}, message, **opts), **opts)
           end
         CODE
       end

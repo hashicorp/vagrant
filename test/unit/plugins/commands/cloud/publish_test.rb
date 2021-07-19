@@ -10,21 +10,20 @@ describe VagrantPlugins::CloudCommand::Command::Publish do
   let(:account) { double("account") }
   let(:organization) { double("organization") }
   let(:box) { double("box") }
+  let(:box_size) { 1 }
   let(:version) { double("version") }
   let(:provider) { double("provider") }
   let(:uploader) { double("uploader") }
-  let(:ui) { double("ui") }
+  let(:ui) { Vagrant::UI::Silent.new }
   let(:upload_url) { double("upload_url") }
   let(:access_token) { double("access_token") }
 
   subject { described_class.new(argv, iso_env) }
 
   before do
-    allow(ui).to receive(:info)
-    allow(ui).to receive(:warn)
-    allow(ui).to receive(:success)
-    allow(ui).to receive(:error)
     allow(iso_env).to receive(:ui).and_return(ui)
+    allow(File).to receive(:stat).with(box).
+      and_return(double("box_stat", size: box_size))
     allow(VagrantCloud::Account).to receive(:new).
       with(custom_server: anything, access_token: anything).
       and_return(account)
@@ -60,10 +59,30 @@ describe VagrantPlugins::CloudCommand::Command::Publish do
       subject.upload_box_file(provider, box)
     end
 
-    it "should upload with PUT method when direct upload option set" do
-      expect(Vagrant::Util::Uploader).to receive(:new).
-        with(upload_url, anything, hash_including(method: :put)).and_return(uploader)
-      subject.upload_box_file(provider, box, direct_upload: true)
+    context "with direct upload option enabled" do
+      it "should upload with PUT method when direct upload option set" do
+        expect(Vagrant::Util::Uploader).to receive(:new).
+          with(upload_url, anything, hash_including(method: :put)).and_return(uploader)
+        subject.upload_box_file(provider, box, direct_upload: true)
+      end
+
+      context "with box size of 5GB" do
+        let(:box_size) { 5368709120 }
+
+        it "should upload using direct to storage option" do
+          expect(provider).to receive(:upload).with(direct: true)
+          subject.upload_box_file(provider, box, direct_upload: true)
+        end
+      end
+
+      context "with box size greater than 5GB" do
+        let(:box_size) { 5368709121 }
+
+        it "should disable direct to storage upload" do
+          expect(provider).to receive(:upload).with(direct: false)
+          subject.upload_box_file(provider, box, direct_upload: true)
+        end
+      end
     end
   end
 
@@ -148,7 +167,7 @@ describe VagrantPlugins::CloudCommand::Command::Publish do
   describe "load_box_version" do
     let(:box_version) { "1.0.0" }
 
-    context "when vesion exists" do
+    context "when version exists" do
       before do
         allow(box).to receive(:versions).and_return([version])
         allow(version).to receive(:version).and_return(box_version)
@@ -220,6 +239,8 @@ describe VagrantPlugins::CloudCommand::Command::Publish do
     let(:client) { double("client", token: "1234token1234") }
     let(:action_runner) { double("action_runner") }
     let(:box_path) { "path/to/the/virtualbox.box" }
+    let(:full_box_path) { "/full/#{box_path}" }
+    let(:box) { full_box_path }
 
     before do
       allow(iso_env).to receive(:action_runner).
@@ -229,8 +250,10 @@ describe VagrantPlugins::CloudCommand::Command::Publish do
       allow(subject).to receive(:format_box_results)
 
       allow(iso_env.ui).to receive(:ask).and_return("y")
-      allow(File).to receive(:absolute_path).and_return("/full/#{box_path}")
-      allow(File).to receive(:file?).and_return(true)
+      allow(File).to receive(:absolute_path).with(box_path)
+        .and_return("/full/#{box_path}")
+      allow(File).to receive(:file?).with(box_path)
+        .and_return(true)
     end
 
     context "with no arguments" do

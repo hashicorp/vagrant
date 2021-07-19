@@ -78,6 +78,11 @@ module VagrantPlugins
         require_relative "cap/mount_options"
         Cap::MountOptions
       end
+
+      synced_folder_capability(:virtualbox, "mount_name") do
+        require_relative "cap/mount_options"
+        Cap::MountOptions
+      end
     end
 
     autoload :Action, File.expand_path("../action", __FILE__)

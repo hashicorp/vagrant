@@ -79,8 +79,9 @@ describe "VagrantPlugins::GuestDebian::Cap::ConfigureNetworks" do
       expect(comm.received_commands[0]).to match("/sbin/ip addr flush dev 'eth1'")
       expect(comm.received_commands[0]).to match("/sbin/ifdown 'eth2' || true")
       expect(comm.received_commands[0]).to match("/sbin/ip addr flush dev 'eth2'")
-      expect(comm.received_commands[0]).to match("/sbin/ifup 'eth1'")
-      expect(comm.received_commands[0]).to match("/sbin/ifup 'eth2'")
+      expect(comm.received_commands[1]).to match("/sbin/ifup 'eth1'")
+      expect(comm.received_commands[1]).to match("/sbin/ifup 'eth2'")
+
     end
 
     context "with systemd" do
@@ -96,8 +97,8 @@ describe "VagrantPlugins::GuestDebian::Cap::ConfigureNetworks" do
         expect(comm.received_commands[0]).to match("/sbin/ip addr flush dev 'eth1'")
         expect(comm.received_commands[0]).to match("/sbin/ifdown 'eth2' || true")
         expect(comm.received_commands[0]).to match("/sbin/ip addr flush dev 'eth2'")
-        expect(comm.received_commands[0]).to match("/sbin/ifup 'eth1'")
-        expect(comm.received_commands[0]).to match("/sbin/ifup 'eth2'")
+        expect(comm.received_commands[1]).to match("/sbin/ifup 'eth1'")
+        expect(comm.received_commands[1]).to match("/sbin/ifup 'eth2'")
       end
 
       context "with systemd-networkd" do

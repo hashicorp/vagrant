@@ -6,11 +6,88 @@ IMPROVEMENTS:
 
 BUG FIXES:
 
+- core: Fix of plugin manager kwargs [GH-12452]
+- providers/docker: Pass in docker command opts as a map [GH-12449]
+
+## 2.2.17 (July 7, 2021)
+
+FEATURES:
+
+- guest/rocky: Add guest support for Rocky Linux [GH-12440]
+
+IMPROVEMENTS:
+
+- command/package: Add --info flag to package command [GH-12304]
+- guest/debian: Retry network setup on debain [GH-12421]
+- guest/suse: Use systemctl poweroff in the background instead of shutdown [GH-12439]
+- guest/windows: Get powershell path in %WINDIR%/System32 [GH-12436]
+- host/windows: Check Domain and Application Directory contexts for credentials when validating SMB creds [GH-12428]
+- providers/hyper-v: Fix IP detection when multiple devices are attached [GH-12232]
+- provisioner/ansible: Detects new versions of ansible-4.0.0+ [GH-12391]
+- provisioner/ansible: Strip whitespace from ansible version [GH-12420]
+- provisioner/salt: Always use upstream Salt bootstrap script on Windows [GH-12127]
+- provisioner/salt: Use more conservative TLS settings to work on older .NET versions [GH-12413]
+- provisioner/shell: Buffer output to display full lines [GH-12437]
+- vagrant: Updates to support Ruby 3.0 [GH-12427]
+
+BUG FIXES:
+
+- command/cloud: Fix authentication middleware to prevent breaking local paths [GH-12419]
+- communicator/ssh: Fix net-ssh patches for RSA signatures [GH-12415]
+- core: Add box directly with authed urls [GH-12278]
+
+## 2.2.16 (April 29, 2021)
+
+IMPROVEMENTS:
+
+- guest/linux: Detect in process shutdown in reboot capability [GH-12302]
+- util/powershell: Support `pwsh` executable in new versions of powershell [GH-12335]
+
+BUG FIXES:
+
+- communicator/ssh: Properly handle authentication with RSA keys [GH-12298]
+- guest/fedora: Import guest detection module [GH-12275]
+- guest/linux: Fix SMB folder mount name capability call [GH-12281]
+- provider/docker: Properly handle updated buildkit build output [GH-12300]
+
+## 2.2.15 (March 30, 2021)
+
+IMPROVEMENTS:
+
+- command/cloud: Remove access token URL parameter by default [GH-12234]
+- command/cloud: Add VAGRANT_SERVER_ACCESS_TOKEN_BY_URL to revert access token behavior [GH-12252]
+- core: Bump vagrant_cloud dependency to 3.0.3 [GH-12200]
+- core: Bump listen gem version and remove ruby_dep [GH-12148]
+- core: Bump vagrant_cloud dependency to 3.0.4 [GH-12242]
+- core/bundler: Update resolution handling when outside of installer and bundler [GH-12225]
+- core/plugin: Provide friendlier error messages on install fail when possible [GH-12225]
+- guest/openwrt: Add support for OpenWrt guests [GH-11791]
+- guest/freebsd: FreeBSD updated ansible to py37-ansible [GH-12201]
+- provider/virtualbox: Get default dhcp ip from a matching host ip [GH-12211]
+- util/downloader: Prevent redirect notification for default store [GH-12235]
+
+BUG FIXES:
+
+- command/cloud: Automatically disable direct uploads when file is too large [GH-12250]
+- core: Make shell script for loop shell agnostic [GH-12205]
+- core: Raise error if downloading box metadata fails [GH-12189]
+- core: Apply download options to metadata requests [GH-12177]
+- core: Don't try to find "" by prefix in the machine index [GH-12188]
+- core: Don't count not created machines as declined when destroying [GH-12186]
+- core: Bump bcrypt_pbkdf version [GH-12216]
+- core: Remove all space from checksums [GH-12168]
+- core/bundler: Do not include default gems as pinned constraints [GH-12253]
+- core/synced_folders: Extract os friendly mount name for vbox shared folders [GH-12184]
+- guest/alpine: Check if interface exists before shutting it down [GH-12181]
+- guest/nixos: Fix network config for recent NixOS releases [GH-12152]
+- guest/fedora: Detect fedora using os-releases id [GH-12230]
+
 ## 2.2.14 (November 20, 2020)
 
 IMPROVEMENTS:
 
 - host/windows: Update filesystem type matching on WSL2 [GH-12056]
+- provisioner/salt: Modernize Salt bootstrap script [GH-12135]
 
 BUG FIXES:
 
@@ -3371,6 +3448,10 @@ BACKWARDS INCOMPATIBILITIES:
     format, but this is _opt-in_. Old Vagrantfile format continues to be supported,
     as promised. To use the new features that will be introduced throughout
     the 1.x series, you'll have to upgrade at some point.
+  - The .vagrant file is no longer supported and has been replaced by
+    a .vagrant directory. Running vagrant will automatically upgrade
+    to the new style directory format, after which old versions of
+    Vagrant will not be able to see or control your VM.
 
 FEATURES:
 

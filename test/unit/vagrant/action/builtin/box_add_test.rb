@@ -209,6 +209,25 @@ describe Vagrant::Action::Builtin::BoxAdd, :skip_windows, :bsdtar do
         to raise_error(Vagrant::Errors::BoxChecksumMismatch)
     end
 
+    it "strips space if checksum specified ends or begins with blank space" do
+      box_path = iso_env.box2_file(:virtualbox)
+
+      box = double(
+        name: "foo",
+        version: "1.2.3",
+        provider: "virtualbox",
+      )
+
+      env[:box_name] = "foo"
+      env[:box_url] = box_path.to_s
+      env[:box_checksum] = " #{checksum(box_path)} "
+      env[:box_checksum_type] = "sha1"
+
+      expect(box_collection).to receive(:add).and_return(box)
+
+      expect { subject.call(env) }.to_not raise_error
+    end
+
     it "ignores checksums if empty string" do
       box_path = iso_env.box2_file(:virtualbox)
       with_web_server(box_path) do |port|
@@ -320,7 +339,7 @@ describe Vagrant::Action::Builtin::BoxAdd, :skip_windows, :bsdtar do
 
         expect(app).to receive(:call).with(env)
 
-        expect(env[:ui]).to receive(:warn)
+        expect(env[:ui]).to receive(:warn).and_call_original
           .with(/It looks like you attempted to add a box with a URL for the name/)
 
         subject.call(env)
@@ -364,8 +383,9 @@ describe Vagrant::Action::Builtin::BoxAdd, :skip_windows, :bsdtar do
             true
           }.and_return(box)
 
-          allow(env[:ui]).to receive(:detail)
-          expect(env[:ui]).to receive(:detail).with(%r{.*http://(?!#{username}).+?:(?!#{password}).+?@127\.0\.0\.1:#{port}/#{box_path.basename}.*})
+          allow(env[:ui]).to receive(:detail).and_call_original
+          expect(env[:ui]).to receive(:detail).with(%r{.*http://(?!#{username}).+?:(?!#{password}).+?@127\.0\.0\.1:#{port}/#{box_path.basename}.*}).
+            and_call_original
           expect(app).to receive(:call).with(env)
 
           subject.call(env)
@@ -622,6 +642,41 @@ describe Vagrant::Action::Builtin::BoxAdd, :skip_windows, :bsdtar do
       end
     end
 
+    it "authenticates HTTP URLs and adds them directly" do
+      box_path = iso_env.box2_file(:virtualbox)
+      tf = Tempfile.new(["vagrant-test-http", ".box"]).tap do |f|
+        f.write()
+        f.close
+      end
+
+      md_path = Pathname.new(tf.path)
+      with_web_server(md_path) do |port|
+        real_url = "http://127.0.0.1:#{port}/#{md_path.basename}"
+
+        # Set the box URL to something fake so we can modify it in place
+        env[:box_url] = "foo"
+        env[:hook] = double("hook")
+        env[:box_name] = "foo/bar"
+        env[:box_provider] = "virtualbox"
+        env[:box_checksum] = checksum(box_path)
+
+        expect(env[:hook]).to receive(:call).with(:authenticate_box_downloader, any_args).at_least(:once)
+
+        allow(env[:hook]).to receive(:call).with(:authenticate_box_url, any_args).at_least(:once) do |name, opts|
+          if opts[:box_urls] == ["foo"]
+            next { box_urls: [real_url] }
+          else
+            raise "UNKNOWN: #{opts[:box_urls].inspect}"
+          end
+        end
+
+        expect(subject).to receive(:add_direct).with([real_url], anything)
+        expect(app).to receive(:call).with(env)
+
+        subject.call(env)
+      end
+    end
+
     it "adds from HTTP URL with a checksum" do
       box_path = iso_env.box2_file(:virtualbox)
       tf = Tempfile.new(["vagrant-test-http-checksum", ".json"]).tap do |f|
@@ -732,6 +787,20 @@ describe Vagrant::Action::Builtin::BoxAdd, :skip_windows, :bsdtar do
           expect { subject.call(env) }.
             to raise_error(Vagrant::Errors::BoxAddShortNotFound)
         end
+      end
+    end
+
+    it "raises an error if downloading metadata fails" do
+      path = Dir::Tmpname.create("vagrant-shorthand-invalid") {}
+
+      with_web_server(Pathname.new(path)) do |port|
+        env[:box_url] = "http://127.0.0.1:#{port}/bad"
+
+        expect(box_collection).to receive(:add).never
+        expect(app).to receive(:call).never
+
+        expect { subject.call(env) }.
+          to raise_error(Vagrant::Errors::BoxMetadataDownloadError)
       end
     end
 

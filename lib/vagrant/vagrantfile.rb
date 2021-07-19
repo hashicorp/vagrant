@@ -241,7 +241,7 @@ module Vagrant
       #       configuration and attempt to load that
       if box.nil?
         @logger.warn("Failed to locate #{config.vm.box} with version #{config.vm.box_version}")
-        @logger.warn("Performing lookup with inital values #{initial_box} with version #{initial_version}")
+        @logger.warn("Performing lookup with initial values #{initial_box} with version #{initial_version}")
         config.vm.box = original_box = initial_box
         config.vm.box_version = original_box = initial_version
         load_box_proc.call

@@ -1,0 +1,97 @@
+[
+  {
+    "title": "Back to Vagrant Documentation",
+    "href": "/docs"
+  },
+  {
+    "title": "Boxes",
+    "routes": [
+      {
+        "title": "Overview",
+        "path": "boxes"
+      },
+      {
+        "title": "Catalog",
+        "path": "boxes/catalog"
+      },
+      {
+        "title": "Creating a New Box",
+        "path": "boxes/create"
+      },
+      {
+        "title": "Creating a New Version",
+        "path": "boxes/create-version"
+      },
+      {
+        "title": "Distributing",
+        "path": "boxes/distributing"
+      },
+      {
+        "title": "Lifecycle",
+        "path": "boxes/lifecycle"
+      },
+      {
+        "title": "Private Boxes",
+        "path": "boxes/private"
+      },
+      {
+        "title": "Release Workflow",
+        "path": "boxes/release-workflow"
+      },
+      {
+        "title": "Finding & Using Boxes",
+        "path": "boxes/using"
+      }
+    ]
+  },
+  {
+    "title": "Organizations",
+    "routes": [
+      {
+        "title": "Overview",
+        "path": "organizations"
+      },
+      {
+        "title": "Create an Organization",
+        "path": "organizations/create"
+      },
+      {
+        "title": "Migrate User to Organization",
+        "path": "organizations/migrate"
+      },
+      {
+        "title": "Authentication Policy",
+        "path": "organizations/authentication-policy"
+      }
+    ]
+  },
+  {
+    "title": "Users",
+    "routes": [
+      {
+        "title": "Overview",
+        "path": "users"
+      },
+      {
+        "title": "Authentication",
+        "path": "users/authentication"
+      },
+      {
+        "title": "Account Recovery",
+        "path": "users/recovery"
+      }
+    ]
+  },
+  {
+    "title": "Request Limits",
+    "path": "request-limits"
+  },
+  {
+    "title": "Support",
+    "path": "support"
+  },
+  {
+    "title": "API",
+    "path": "api"
+  }
+]

@@ -97,7 +97,7 @@ describe VagrantPlugins::DockerProvider::Action::ConnectNetworks do
       expect(called).to eq(true)
     end
 
-    it "connects all of the avaiable networks to a container" do
+    it "connects all of the available networks to a container" do
       expect(driver).to receive(:connect_network).with("vagrant_network_172.20.0.0/16", "12345", ["--ip", "172.20.128.2", "--alias", "mynetwork"])
       expect(driver).to receive(:connect_network).with("vagrant_network_public_wlp4s0", "12345", ["--ip", "172.30.130.2"])
       expect(driver).to receive(:connect_network).with("vagrant_network_2a02:6b8:b010:9020:1::/80", "12345", [])

@@ -129,7 +129,7 @@ describe Vagrant::Action::Builtin::BoxCheckOutdated do
 
       expect(box).to receive(:has_update?).with(machine.config.vm.box_version,
           {download_options:
-            {automatic_check: true, ca_cert: nil, ca_path: nil, client_cert: nil, insecure: false}}).
+            {automatic_check: true, ca_cert: nil, ca_path: nil, client_cert: nil, insecure: false, box_extra_download_options: []}}).
         and_return([md, md.version("1.1"), md.version("1.1").provider("virtualbox")])
 
       expect(app).to receive(:call).with(env).once
@@ -172,10 +172,13 @@ describe Vagrant::Action::Builtin::BoxCheckOutdated do
         }
         RAW
 
-        expect(box).to receive(:has_update?).with(machine.config.vm.box_version,
-            {download_options:
-              {automatic_check: true, ca_cert: nil, ca_path: nil, client_cert: nil, insecure: false}}).
-          and_return([md, md.version("1.2"), md.version("1.2").provider("virtualbox")])
+        expect(box).to receive(:has_update?).with(
+          machine.config.vm.box_version,
+          { download_options: { automatic_check: true, ca_cert: nil, ca_path: nil,
+            client_cert: nil, insecure: false, box_extra_download_options: []
+          }}).and_return(
+            [md, md.version("1.2"), md.version("1.2").provider("virtualbox")]
+          )
 
         allow(I18n).to receive(:t) { :ok }
         expect(I18n).to receive(:t).with(/box_outdated_single/, hash_including(latest: "1.2")).once
@@ -245,12 +248,15 @@ describe Vagrant::Action::Builtin::BoxCheckOutdated do
         machine.config.vm.box_download_ca_path = "bar"
         machine.config.vm.box_download_client_cert = "baz"
         machine.config.vm.box_download_insecure = true
+        machine.config.vm.box_download_options = {"opt": "val"}
+        machine.config.vm.finalize!
       end
 
       it "uses download options from machine" do
         expect(box).to receive(:has_update?).with(machine.config.vm.box_version,
-          {download_options:
-            {automatic_check: true, ca_cert: "foo", ca_path: "bar", client_cert: "baz", insecure: true}})
+          { download_options: {
+            automatic_check: true, ca_cert: "foo", ca_path: "bar", client_cert: "baz", 
+            insecure: true, box_extra_download_options: ["--opt", "val"]}})
 
         expect(app).to receive(:call).with(env).once
 
@@ -258,14 +264,17 @@ describe Vagrant::Action::Builtin::BoxCheckOutdated do
       end
 
       it "overrides download options from machine with options from env" do
-        expect(box).to receive(:has_update?).with(machine.config.vm.box_version,
-          {download_options:
-            {automatic_check: true, ca_cert: "oof", ca_path: "rab", client_cert: "zab", insecure: false}})
+        expect(box).to receive(:has_update?).with(
+          machine.config.vm.box_version,
+          { download_options: {automatic_check: true, ca_cert: "oof", ca_path: "rab", client_cert: "zab", 
+            insecure: false, box_extra_download_options: ["--tpo"],
+          }})
 
         env[:ca_cert] = "oof"
         env[:ca_path] = "rab"
         env[:client_cert] = "zab"
         env[:insecure] = false
+        env[:box_extra_download_options] = ["--tpo"]
         expect(app).to receive(:call).with(env).once
 
         subject.call(env)

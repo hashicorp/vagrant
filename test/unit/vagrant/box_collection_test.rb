@@ -16,7 +16,7 @@ describe Vagrant::BoxCollection, :skip_windows do
   end
 
   describe "#all" do
-    let(:ui) { double("ui", warn: true) }
+    let(:ui) { Vagrant::UI::Silent.new }
 
     it "should return an empty array when no boxes are there" do
       expect(subject.all).to eq([])
@@ -49,7 +49,7 @@ describe Vagrant::BoxCollection, :skip_windows do
       environment.box3("foo-VAGRANTSLASH-bar", "1.0", :virtualbox)
       environment.box3("foo-VAGRANTCOLON-colon", "1.0", :virtualbox)
 
-      expect(ui).to receive(:warn).once
+      expect(ui).to receive(:warn).once.and_call_original
 
       # Verify some output
       results = subject.all

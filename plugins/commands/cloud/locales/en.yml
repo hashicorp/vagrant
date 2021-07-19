@@ -75,6 +75,10 @@ en:
         Updated provider %{provider} on %{org}/%{box_name} for version %{version}
       not_found: |-
         Failed to locate %{provider_name} provider for %{org}/%{box_name} on version %{version}
+      direct_disable: |-
+        Vagrant is automatically disabling direct upload to backend storage.
+        Uploads directly to backend storage are currently only supported for
+        files 5G in size or smaller. Box file to upload is: %{size}
     version:
       create_success: |-
         Created version %{version} on %{org}/%{box_name} for version %{version}
@@ -112,7 +116,7 @@ en:
           Failed to update box %{org}/%{box_name}
       whoami:
         read_error: |-
-          Failed to read organization %{org}
+          Failed to locate account information
       provider:
         create_fail: |-
           Failed to create provider %{provider} on box %{org}/%{box_name} for version %{version}

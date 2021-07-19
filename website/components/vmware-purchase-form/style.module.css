@@ -11,7 +11,7 @@
   }
 
   & button {
-    background: #1563ff;
+    background: var(--brand, #2e71e5);
     border: none;
     border-radius: 0;
     box-shadow: 3px 4px 0 rgba(0, 0, 0, 0.1);

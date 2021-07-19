@@ -10,11 +10,6 @@ export default [
     type: 'inbound',
   },
   {
-    text: 'VMware',
-    url: '/vmware',
-    type: 'inbound',
-  },
-  {
     text: 'Community',
     url: '/community',
     type: 'inbound',

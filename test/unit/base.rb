@@ -3,7 +3,6 @@ require "rubygems"
 
 # Gems
 require "checkpoint"
-require "webmock/rspec"
 require "rspec/its"
 
 # Require Vagrant itself so we can reference the proper
@@ -33,7 +32,8 @@ VAGRANT_TEST_CWD = Dir.mktmpdir("vagrant-test-cwd")
 
 # Configure RSpec
 RSpec.configure do |c|
-  c.formatter = :documentation
+  #c.formatter = :progress
+  c.color_mode = :on
 
   if Vagrant::Util::Platform.windows?
     c.filter_run_excluding :skip_windows

@@ -1,7 +1,6 @@
 ---
 layout: docs
 page_title: Podman - Provisioning
-sidebar_title: Podman
 description: >-
   The Vagrant Podman provisioner can automatically install Podman, and run it as
   a drop in replacement for Docker.
@@ -61,6 +60,7 @@ Building an image is easy:
 
 ```ruby
 Vagrant.configure("2") do |config|
+  config.vm.box = "centos/7"
   config.vm.provision "podman" do |d|
     d.build_image "/vagrant/app"
   end
@@ -85,6 +85,7 @@ pull. The first is as an array using `images`:
 
 ```ruby
 Vagrant.configure("2") do |config|
+  config.vm.box = "centos/7"
   config.vm.provision "podman",
     images: ["ubuntu"]
 end
@@ -102,6 +103,7 @@ simple configuration method for provisioners (specifying it all in one line).
 
 ```ruby
 Vagrant.configure("2") do |config|
+  config.vm.box = "centos/7"
   config.vm.provision "podman" do |d|
     d.pull_images "ubuntu"
     d.pull_images "vagrant"
@@ -120,6 +122,7 @@ the `do...end` blocks. An example of running a container is shown below:
 
 ```ruby
 Vagrant.configure("2") do |config|
+  config.vm.box = "centos/7"
   config.vm.provision "podman" do |d|
     d.run "rabbitmq"
   end
@@ -139,9 +142,9 @@ In addition to the name, the `run` method accepts a set of options, all optional
 
 - `cmd` (string) - The command to start within the container. If not specified,
   then the container's default command will be used, such as the
-  "CMD" command [specified in the `Dockerfile`](https:/docs.docker.io/en/latest/use/builder/#cmd).
+  "CMD" command [specified in the `Dockerfile`](https://docs.docker.io/en/latest/use/builder/#cmd).
 
-- `args` (string) - Extra arguments for `podman run` (same as the extra arguments that can be specified for [`docker run`](https:/docs.docker.io/en/latest/commandline/cli/#run))
+- `args` (string) - Extra arguments for `podman run` (same as the extra arguments that can be specified for [`docker run`](https://docs.docker.io/en/latest/commandline/cli/#run))
   on the command line. These are raw arguments that are passed directly to Podman.
 
 - `auto_assign_name` (boolean) - If true, the `--name` of the container will
@@ -161,6 +164,7 @@ with the Vagrant shared directory mounted inside of it:
 
 ```ruby
 Vagrant.configure("2") do |config|
+  config.vm.box = "centos/7"
   config.vm.provision "podman" do |d|
     d.run "ubuntu",
       cmd: "bash -l",
@@ -174,6 +178,7 @@ so by providing different names and specifying the `image` parameter to it:
 
 ```ruby
 Vagrant.configure("2") do |config|
+  config.vm.box = "centos/7"
   config.vm.provision "podman" do |d|
     d.run "db-1", image: "user/mysql"
     d.run "db-2", image: "user/mysql"

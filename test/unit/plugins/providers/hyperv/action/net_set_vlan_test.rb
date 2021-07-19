@@ -5,7 +5,7 @@ require Vagrant.source_root.join("plugins/providers/hyperv/action/net_set_vlan")
 describe VagrantPlugins::HyperV::Action::NetSetVLan do
   let(:app){ double("app") }
   let(:env){ {ui: ui, machine: machine} }
-  let(:ui){ double("ui") }
+  let(:ui){ Vagrant::UI::Silent.new }
   let(:provider){ double("provider", driver: driver) }
   let(:driver){ double("driver") }
   let(:machine){ double("machine", provider: provider, provider_config: provider_config) }
@@ -14,7 +14,6 @@ describe VagrantPlugins::HyperV::Action::NetSetVLan do
   let(:subject){ described_class.new(app, env) }
 
   before do
-    allow(ui).to receive(:info)
     allow(driver).to receive(:net_set_vlan)
     allow(app).to receive(:call)
   end

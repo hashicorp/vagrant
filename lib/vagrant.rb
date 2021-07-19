@@ -9,6 +9,8 @@ class Log4r::BasicFormatter
   end
 end
 
+# Add our patches to net-ssh
+require "vagrant/patches/net-ssh"
 
 require "optparse"
 
@@ -79,7 +81,7 @@ if ENV["VAGRANT_LOG"] && ENV["VAGRANT_LOG"] != ""
     # See https://github.com/rest-client/rest-client/issues/34#issuecomment-290858
     # for more information
     class VagrantLogger < Log4r::Logger
-      def << (msg)
+      def << msg
         debug(msg.strip)
       end
     end
@@ -128,25 +130,29 @@ require "vagrant/plugin"
 require "vagrant/registry"
 
 module Vagrant
-  autoload :Action,        'vagrant/action'
-  autoload :Alias,         'vagrant/alias'
-  autoload :BatchAction,   'vagrant/batch_action'
-  autoload :Box,           'vagrant/box'
-  autoload :BoxCollection, 'vagrant/box_collection'
-  autoload :CLI,           'vagrant/cli'
-  autoload :Command,       'vagrant/command'
-  autoload :Config,        'vagrant/config'
-  autoload :Driver,        'vagrant/driver'
-  autoload :Environment,   'vagrant/environment'
-  autoload :Errors,        'vagrant/errors'
-  autoload :Guest,         'vagrant/guest'
-  autoload :Host,          'vagrant/host'
-  autoload :Machine,       'vagrant/machine'
-  autoload :MachineIndex,  'vagrant/machine_index'
-  autoload :MachineState,  'vagrant/machine_state'
-  autoload :Plugin,        'vagrant/plugin'
-  autoload :UI,            'vagrant/ui'
-  autoload :Util,          'vagrant/util'
+  autoload :Action,         'vagrant/action'
+  autoload :Alias,          'vagrant/alias'
+  autoload :BatchAction,    'vagrant/batch_action'
+  autoload :Box,            'vagrant/box'
+  autoload :BoxCollection,  'vagrant/box_collection'
+  autoload :BoxMetadata,    'vagrant/box_metadata'
+  autoload :Bundler,        'vagrant/bundler'
+  autoload :CLI,            'vagrant/cli'
+  autoload :CapabilityHost, 'vagrant/capability_host'
+  autoload :Config,         'vagrant/config'
+  autoload :Environment,    'vagrant/environment'
+  autoload :Errors,         'vagrant/errors'
+  autoload :Guest,          'vagrant/guest'
+  autoload :Host,           'vagrant/host'
+  autoload :Machine,        'vagrant/machine'
+  autoload :MachineIndex,   'vagrant/machine_index'
+  autoload :MachineState,   'vagrant/machine_state'
+  autoload :Plugin,         'vagrant/plugin'
+  autoload :Registry,       'vagrant/registry'
+  autoload :UI,             'vagrant/ui'
+  autoload :Util,           'vagrant/util'
+  autoload :Vagrantfile,    'vagrant/vagrantfile'
+  autoload :VERSION,        'vagrant/version'
 
   # These are the various plugin versions and their components in
   # a lazy loaded Hash-like structure.

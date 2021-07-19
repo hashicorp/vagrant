@@ -5,7 +5,7 @@ require Vagrant.source_root.join("plugins/providers/hyperv/action/import")
 describe VagrantPlugins::HyperV::Action::Import do
   let(:app){ double("app") }
   let(:env){ {ui: ui, machine: machine} }
-  let(:ui){ double("ui") }
+  let(:ui){ Vagrant::UI::Silent.new }
   let(:provider){ double("provider", driver: driver) }
   let(:driver){ double("driver") }
   let(:machine){ double("machine", provider: provider, provider_config: provider_config, box: box, data_dir: data_dir, name: "machname") }
@@ -36,8 +36,6 @@ describe VagrantPlugins::HyperV::Action::Import do
     allow(data_dir).to receive(:to_s).and_return("DATA_DIR_PATH")
     allow(driver).to receive(:import).and_return("id" => "VMID")
     allow(machine).to receive(:id=)
-    allow(ui).to receive(:output)
-    allow(ui).to receive(:detail)
   end
 
   context "with missing virtual machines directory" do

@@ -1,6 +1,7 @@
 .root {
   display: flex;
   flex-direction: row;
+  justify-content: space-between;
 
   @media (max-width: 1000px) {
     flex-direction: column;
@@ -37,7 +38,7 @@
 }
 
 .content {
-  width: 50%;
+  width: 46%;
   display: flex;
   align-items: center;
   justify-content: center;

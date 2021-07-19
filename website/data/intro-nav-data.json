@@ -1,0 +1,35 @@
+[
+  {
+    "title": "What is Vagrant?",
+    "path": "index"
+  },
+  {
+    "title": "Vagrant vs. Other Software",
+    "routes": [
+      {
+        "title": "Overview",
+        "path": "vs"
+      },
+      {
+        "title": "CLI Tools",
+        "path": "vs/cli-tools"
+      },
+      {
+        "title": "Docker",
+        "path": "vs/docker"
+      },
+      {
+        "title": "Terraform",
+        "path": "vs/terraform"
+      }
+    ]
+  },
+  {
+    "title": "Getting Started",
+    "href": "https://learn.hashicorp.com/collections/vagrant/getting-started"
+  },
+  {
+    "title": "Contributing",
+    "path": "contributing-guide"
+  }
+]
