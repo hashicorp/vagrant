@@ -12,9 +12,24 @@ import (
 	"github.com/hashicorp/vagrant-plugin-sdk/component"
 	componentmocks "github.com/hashicorp/vagrant-plugin-sdk/component/mocks"
 	"github.com/hashicorp/vagrant-plugin-sdk/datadir"
+	"github.com/hashicorp/vagrant-plugin-sdk/proto/vagrant_plugin_sdk"
 	"github.com/hashicorp/vagrant/internal/factory"
 	"github.com/hashicorp/vagrant/internal/server/singleprocess"
 )
+
+var TestingTypeMap = map[component.Type]interface{}{
+	component.AuthenticatorType: (*component.Authenticator)(nil),
+	component.CommandType:       (*component.Command)(nil),
+	component.CommunicatorType:  (*component.Communicator)(nil),
+	component.ConfigType:        (*component.Config)(nil),
+	component.GuestType:         (*component.Guest)(nil),
+	component.HostType:          (*component.Host)(nil),
+	component.LogPlatformType:   (*component.LogPlatform)(nil),
+	component.LogViewerType:     (*component.LogViewer)(nil),
+	component.ProviderType:      (*component.Provider)(nil),
+	component.ProvisionerType:   (*component.Provisioner)(nil),
+	component.SyncedFolderType:  (*component.SyncedFolder)(nil),
+}
 
 // TestProject returns a fully in-memory and side-effect free Project that
 // can be used for testing. Additional options can be given to provide your own
@@ -30,12 +45,12 @@ func TestProject(t testing.T, opts ...BasisOption) *Project {
 	defaultOpts := []BasisOption{
 		WithClient(singleprocess.TestServer(t)),
 		WithBasisDataDir(projDir),
-		// WithBasisConfig
+		WithBasisRef(&vagrant_plugin_sdk.Ref_Basis{Name: "test-basis"}),
 	}
 
 	// Create the default factory for all component types
-	for typ := range component.TypeMap {
-		f, _ := TestFactorySingle(t, typ, "test")
+	for typ := range TestingTypeMap {
+		f, _ := TestFactorySingle(t, typ, "test-basis")
 		defaultOpts = append(defaultOpts, WithFactory(typ, f))
 	}
 
@@ -44,7 +59,9 @@ func TestProject(t testing.T, opts ...BasisOption) *Project {
 	// t.Cleanup(func() { p.Close() })
 	b, err := NewBasis(context.Background(), append(defaultOpts, opts...)...)
 
-	p, err := b.LoadProject()
+	p, err := b.LoadProject([]ProjectOption{
+		WithProjectRef(&vagrant_plugin_sdk.Ref_Project{Basis: b.Ref().(*vagrant_plugin_sdk.Ref_Basis), Name: "test-project"}),
+	}...)
 	return p
 }
 

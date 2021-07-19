@@ -471,7 +471,7 @@ func WithProjectName(name string) ProjectOption {
 	}
 }
 
-// WithBasisRef is used to load or initialize the basis
+// WithBasisRef is used to load or initialize the project
 func WithProjectRef(r *vagrant_plugin_sdk.Ref_Project) ProjectOption {
 	return func(p *Project) (err error) {
 		// Basis must be set before we continue
@@ -495,11 +495,6 @@ func WithProjectRef(r *vagrant_plugin_sdk.Ref_Project) ProjectOption {
 			},
 		)
 		if err != nil {
-			return err
-		}
-		if result.Found {
-			project = result.Project
-		} else {
 			var result *vagrant_server.UpsertProjectResponse
 			result, err = p.Client().UpsertProject(p.ctx,
 				&vagrant_server.UpsertProjectRequest{
@@ -514,7 +509,10 @@ func WithProjectRef(r *vagrant_plugin_sdk.Ref_Project) ProjectOption {
 				return
 			}
 			project = result.Project
+		} else {
+			project = result.Project
 		}
+
 		// Before we init, validate basis is consistent
 		if project.Basis.ResourceId != r.Basis.ResourceId {
 			p.logger.Error("invalid basis for project", "request-basis", r.Basis,
