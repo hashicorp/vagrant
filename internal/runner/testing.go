@@ -1,54 +1,92 @@
 package runner
 
-// import (
-// 	"io/ioutil"
-// 	"os"
+import (
+	"io/ioutil"
+	"os"
+	"os/exec"
+	"path/filepath"
+	"runtime"
 
-// 	"github.com/mitchellh/go-testing-interface"
-// 	"github.com/stretchr/testify/require"
+	"github.com/mitchellh/go-testing-interface"
+	"github.com/stretchr/testify/require"
 
-// 	configpkg "github.com/hashicorp/vagrant/internal/config"
-// 	"github.com/hashicorp/vagrant/internal/server/singleprocess"
-// )
+	"github.com/hashicorp/go-hclog"
+	"github.com/hashicorp/go-plugin"
+	configpkg "github.com/hashicorp/vagrant/internal/config"
+	"github.com/hashicorp/vagrant/internal/server/singleprocess"
+	"github.com/hashicorp/vagrant/internal/serverclient"
+)
 
-// // TestRunner returns an initialized runner pointing to an in-memory test
-// // server. This will close automatically on test completion.
-// //
-// // This will also change the working directory to a temporary directory
-// // so that any side effect file creation doesn't impact the real working
-// // directory. If you need to use your working directory, query it before
-// // calling this.
-// func TestRunner(t testing.T, opts ...Option) *Runner {
-// 	require := require.New(t)
-// 	client := singleprocess.TestServer(t)
+// TestRunner returns an initialized runner pointing to an in-memory test
+// server. This will close automatically on test completion.
+//
+// This will also change the working directory to a temporary directory
+// so that any side effect file creation doesn't impact the real working
+// directory. If you need to use your working directory, query it before
+// calling this.
+func TestRunner(t testing.T, opts ...Option) *Runner {
+	require := require.New(t)
+	client := singleprocess.TestServer(t)
+	rubyRunTime, err := TestRunnerVagrantRubyRuntime()
 
-// 	// Initialize our runner
-// 	runner, err := New(append([]Option{
-// 		WithClient(client),
-// 	}, opts...)...)
-// 	require.NoError(err)
-// 	t.Cleanup(func() { runner.Close() })
+	// Initialize our runner
+	runner, err := New(append([]Option{
+		WithClient(client),
+		WithVagrantRubyRuntime(rubyRunTime),
+	}, opts...)...)
+	require.NoError(err)
+	t.Cleanup(func() { runner.Close() })
 
-// 	// Move into a temporary directory
-// 	td := testTempDir(t)
-// 	testChdir(t, td)
+	// Move into a temporary directory
+	td := testTempDir(t)
+	testChdir(t, td)
 
-// 	// Create a valid vagrant configuration file
-// 	configpkg.TestConfigFile(t, configpkg.TestSource(t))
+	// Create a valid vagrant configuration file
+	configpkg.TestConfigFile(t, configpkg.TestSource(t))
 
-// 	return runner
-// }
+	return runner
+}
 
-// func testChdir(t testing.T, dir string) {
-// 	pwd, err := os.Getwd()
-// 	require.NoError(t, err)
-// 	require.NoError(t, os.Chdir(dir))
-// 	t.Cleanup(func() { require.NoError(t, os.Chdir(pwd)) })
-// }
+func TestRunnerVagrantRubyRuntime() (rubyRuntime plugin.ClientProtocol, err error) {
+	// TODO: Update for actual release usage. This is dev only now.
+	// TODO: We should also locate a free port on startup and use that port
+	_, this_dir, _, _ := runtime.Caller(0)
+	cmd := exec.Command(
+		"bundle", "exec", "vagrant", "serve",
+	)
+	cmd.Env = []string{
+		"BUNDLE_GEMFILE=" + filepath.Join(this_dir, "../../..", "Gemfile"),
+		"VAGRANT_I_KNOW_WHAT_IM_DOING_PLEASE_BE_QUIET=true",
+		"VAGRANT_LOG=debug",
+		"VAGRANT_LOG_FILE=/tmp/vagrant.log",
+	}
 
-// func testTempDir(t testing.T) string {
-// 	dir, err := ioutil.TempDir("", "vagrant-test")
-// 	require.NoError(t, err)
-// 	t.Cleanup(func() { os.RemoveAll(dir) })
-// 	return dir
-// }
+	config := serverclient.RubyVagrantPluginConfig(hclog.New(&hclog.LoggerOptions{Level: hclog.Trace}))
+	config.Cmd = cmd
+	c := plugin.NewClient(config)
+	if _, err = c.Start(); err != nil {
+		return
+	}
+	if rubyRuntime, err = c.Client(); err != nil {
+		return
+	}
+
+	// Ensure the plugin is halted when the basis is cleaned up
+	// b.cleanup(func() { rubyRuntime.Close() })
+
+	return
+}
+
+func testChdir(t testing.T, dir string) {
+	pwd, err := os.Getwd()
+	require.NoError(t, err)
+	require.NoError(t, os.Chdir(dir))
+	t.Cleanup(func() { require.NoError(t, os.Chdir(pwd)) })
+}
+
+func testTempDir(t testing.T) string {
+	dir, err := ioutil.TempDir("", "vagrant-test")
+	require.NoError(t, err)
+	t.Cleanup(func() { os.RemoveAll(dir) })
+	return dir
+}

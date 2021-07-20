@@ -99,7 +99,8 @@ func (r *Runner) executeJob(
 
 	// Determine the evaluation context we'll be using
 	log.Trace("reading configuration", "path", path)
-	cfg, err := configpkg.Load(path, filepath.Dir(path))
+	pppp := filepath.Dir(path)
+	cfg, err := configpkg.Load(path, pppp)
 	if err != nil {
 		log.Warn("failed here trying to read configuration", "path", path)
 		cfg = &configpkg.Config{}

@@ -10,6 +10,7 @@ import (
 
 	"github.com/stretchr/testify/require"
 
+	"github.com/hashicorp/vagrant/internal/core"
 	"github.com/hashicorp/vagrant/internal/server/proto/vagrant_server"
 	serverptypes "github.com/hashicorp/vagrant/internal/server/ptypes"
 	"github.com/hashicorp/vagrant/internal/server/singleprocess"
@@ -32,8 +33,8 @@ func TestRunnerAccept(t *testing.T) {
 	runner := TestRunner(t, WithClient(client))
 	require.NoError(runner.Start())
 
-	// Initialize our app
-	singleprocess.TestApp(t, client, serverptypes.TestJobNew(t, nil).Application)
+	// Initialize our basis
+	core.TestBasis(t)
 
 	// Queue a job
 	queueResp, err := client.QueueJob(ctx, &vagrant_server.QueueJobRequest{
@@ -60,8 +61,8 @@ func TestRunnerAccept_cancelContext(t *testing.T) {
 	runner := TestRunner(t, WithClient(client))
 	require.NoError(runner.Start())
 
-	// Initialize our app
-	singleprocess.TestApp(t, client, serverptypes.TestJobNew(t, nil).Application)
+	// Initialize our basis
+	core.TestBasis(t)
 
 	// Set a blocker
 	noopCh := make(chan struct{})
@@ -98,8 +99,8 @@ func TestRunnerAccept_cancelJob(t *testing.T) {
 	runner := TestRunner(t, WithClient(client))
 	require.NoError(runner.Start())
 
-	// Initialize our app
-	singleprocess.TestApp(t, client, serverptypes.TestJobNew(t, nil).Application)
+	// Initialize our basis
+	core.TestBasis(t)
 
 	// Set a blocker
 	noopCh := make(chan struct{})
@@ -149,8 +150,8 @@ func TestRunnerAccept_gitData(t *testing.T) {
 	runner := TestRunner(t, WithClient(client))
 	require.NoError(runner.Start())
 
-	// Initialize our app
-	singleprocess.TestApp(t, client, serverptypes.TestJobNew(t, nil).Application)
+	// Initialize our basis
+	core.TestBasis(t)
 
 	// Queue a job
 	queueResp, err := client.QueueJob(ctx, &vagrant_server.QueueJobRequest{
