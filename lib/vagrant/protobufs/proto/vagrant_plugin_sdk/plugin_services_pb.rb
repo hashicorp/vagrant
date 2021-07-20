@@ -71,11 +71,21 @@ module Hashicorp
 
         Stub = Service.rpc_stub_class
       end
+      module PluginInfoService
+        class Service
+
+          include ::GRPC::GenericService
+
+          self.marshal_class_method = :encode
+          self.unmarshal_class_method = :decode
+          self.service_name = 'hashicorp.vagrant.sdk.PluginInfoService'
+
+          rpc :ComponentTypes, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::PluginInfo::ComponentList
+        end
+
+        Stub = Service.rpc_stub_class
+      end
       module ProviderService
-        # service CommunicatorService {
-        #   rpc Match(Communicator.MatchRequest) returns (Communicator);
-        # }
-        #
         # *******************************************************************
         # Provider Plugin Service
         # ******************************************************************
@@ -257,12 +267,14 @@ module Hashicorp
           rpc :ConfigStruct, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::Config::StructResp
           rpc :Configure, ::Hashicorp::Vagrant::Sdk::Config::ConfigureRequest, ::Google::Protobuf::Empty
           rpc :Documentation, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::Config::Documentation
+          rpc :Capability, ::Hashicorp::Vagrant::Sdk::Host::Capability::NamedRequest, ::Hashicorp::Vagrant::Sdk::Host::Capability::Resp
+          rpc :CapabilitySpec, ::Hashicorp::Vagrant::Sdk::Host::Capability::NamedRequest, ::Hashicorp::Vagrant::Sdk::FuncSpec
           rpc :Detect, ::Hashicorp::Vagrant::Sdk::FuncSpec::Args, ::Hashicorp::Vagrant::Sdk::Host::DetectResp
           rpc :DetectSpec, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::FuncSpec
           rpc :HasCapability, ::Hashicorp::Vagrant::Sdk::FuncSpec::Args, ::Hashicorp::Vagrant::Sdk::Host::Capability::CheckResp
           rpc :HasCapabilitySpec, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::FuncSpec
-          rpc :Capability, ::Hashicorp::Vagrant::Sdk::Host::Capability::NamedRequest, ::Hashicorp::Vagrant::Sdk::Host::Capability::Resp
-          rpc :CapabilitySpec, ::Hashicorp::Vagrant::Sdk::Host::Capability::NamedRequest, ::Hashicorp::Vagrant::Sdk::FuncSpec
+          rpc :Parents, ::Hashicorp::Vagrant::Sdk::FuncSpec::Args, ::Hashicorp::Vagrant::Sdk::Host::ParentsResp
+          rpc :ParentsSpec, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::FuncSpec
         end
 
         Stub = Service.rpc_stub_class

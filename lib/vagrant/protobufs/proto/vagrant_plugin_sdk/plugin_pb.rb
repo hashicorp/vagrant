@@ -337,6 +337,11 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
     end
     add_message "hashicorp.vagrant.sdk.StateBag.RemoveResponse" do
     end
+    add_message "hashicorp.vagrant.sdk.PluginInfo" do
+    end
+    add_message "hashicorp.vagrant.sdk.PluginInfo.ComponentList" do
+      repeated :component, :uint32, 1
+    end
     add_message "hashicorp.vagrant.sdk.Provider" do
     end
     add_message "hashicorp.vagrant.sdk.Provider.UsableResp" do
@@ -446,6 +451,9 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
     end
     add_message "hashicorp.vagrant.sdk.Host.DetectResp" do
       optional :detected, :bool, 1
+    end
+    add_message "hashicorp.vagrant.sdk.Host.ParentsResp" do
+      repeated :parents, :string, 1
     end
     add_message "hashicorp.vagrant.sdk.Host.Capability" do
     end
@@ -641,6 +649,8 @@ module Hashicorp
       StateBag::PutResponse = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.StateBag.PutResponse").msgclass
       StateBag::RemoveRequest = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.StateBag.RemoveRequest").msgclass
       StateBag::RemoveResponse = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.StateBag.RemoveResponse").msgclass
+      PluginInfo = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.PluginInfo").msgclass
+      PluginInfo::ComponentList = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.PluginInfo.ComponentList").msgclass
       Provider = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Provider").msgclass
       Provider::UsableResp = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Provider.UsableResp").msgclass
       Provider::InstalledResp = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Provider.InstalledResp").msgclass
@@ -673,6 +683,7 @@ module Hashicorp
       Guest::Capability::Resp = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Guest.Capability.Resp").msgclass
       Host = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Host").msgclass
       Host::DetectResp = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Host.DetectResp").msgclass
+      Host::ParentsResp = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Host.ParentsResp").msgclass
       Host::Capability = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Host.Capability").msgclass
       Host::Capability::NamedRequest = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Host.Capability.NamedRequest").msgclass
       Host::Capability::CheckResp = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Host.Capability.CheckResp").msgclass
