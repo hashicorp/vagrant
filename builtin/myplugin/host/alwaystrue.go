@@ -4,7 +4,6 @@ import (
 	"errors"
 
 	"github.com/hashicorp/vagrant-plugin-sdk/component"
-	//	"github.com/hashicorp/vagrant-plugin-sdk/core"
 	"github.com/hashicorp/vagrant-plugin-sdk/terminal"
 	"github.com/hashicorp/vagrant/builtin/myplugin/host/cap"
 )
@@ -26,6 +25,16 @@ func (h *AlwaysTrueHost) Detect() bool {
 	return true
 }
 
+// ParentsFunc implements component.Host
+func (h *AlwaysTrueHost) ParentsFunc() interface{} {
+	return h.Parents
+}
+
+func (h *AlwaysTrueHost) Parents() []string {
+	return []string{"force", "host", "platform", "match"} // We just need to have this be the most of all matches
+}
+
+// HasCapabilityFunc implements component.Host
 func (h *AlwaysTrueHost) HasCapabilityFunc() interface{} {
 	return h.CheckCapability
 }
@@ -37,6 +46,7 @@ func (h *AlwaysTrueHost) CheckCapability(n *component.NamedCapability) bool {
 	return false
 }
 
+// CapabilityFunc implements component.Host
 func (h *AlwaysTrueHost) CapabilityFunc(name string) interface{} {
 	if name == "write_hello" {
 		return h.WriteHelloCap
@@ -46,10 +56,6 @@ func (h *AlwaysTrueHost) CapabilityFunc(name string) interface{} {
 
 func (h *AlwaysTrueHost) WriteHelloCap(ui terminal.UI) error {
 	return cap.WriteHello(ui)
-}
-
-func (h *AlwaysTrueHost) WriteHelloCapNoUI() error {
-	return cap.WriteHelloNoUI()
 }
 
 var (
