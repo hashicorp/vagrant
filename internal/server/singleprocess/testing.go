@@ -138,6 +138,14 @@ func TestRunner(t testing.T, client pb.VagrantClient, r *pb.Runner) (string, fun
 
 // TestBasis creates the basis in the DB.
 func TestBasis(t testing.T, client pb.VagrantClient, ref *pb.Basis) {
+	td := testTempDir(t)
+	defaultBasis := &pb.Basis{
+		Name: "test",
+		Path: td,
+	}
+
+	require.NoError(t, mergo.Merge(ref, defaultBasis))
+
 	_, err := client.UpsertBasis(context.Background(), &pb.UpsertBasisRequest{
 		Basis: ref,
 	})
@@ -158,4 +166,11 @@ func testDB(t testing.T) *bolt.DB {
 	t.Cleanup(func() { db.Close() })
 
 	return db
+}
+
+func testTempDir(t testing.T) string {
+	dir, err := ioutil.TempDir("", "vagrant-test")
+	require.NoError(t, err)
+	t.Cleanup(func() { os.RemoveAll(dir) })
+	return dir
 }
