@@ -9,7 +9,13 @@ module VagrantPlugins
 
         def self.load(raw_terminal, broker:)
           t = SDK::Args::TerminalUI.decode(raw_terminal)
-          conn = broker.dial(t.stream_id)
+          if(t.target.to_s.empty?)
+            conn = broker.dial(t.stream_id)
+          else
+            conn = t.target.to_s.start_with?('/') ?
+              "unix:#{t.target}" :
+              t.target.to_s
+          end
           self.new(conn.to_s)
         end
 
