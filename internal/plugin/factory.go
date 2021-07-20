@@ -1,7 +1,7 @@
 package plugin
 
 import (
-	"errors"
+	"fmt"
 	"os"
 	"os/exec"
 	"runtime"
@@ -43,13 +43,17 @@ func Factory(cmd *exec.Cmd, typ component.Type) interface{} {
 		config.Logger = log
 
 		// Log that we're going to launch this
-		log.Info("launching plugin", "type", typ, "path", cmd.Path, "args", cmd.Args)
+		log.Info("launching plugin",
+			"type", typ,
+			"path", cmd.Path,
+			"args", cmd.Args)
 
 		// Connect to the plugin
 		client := plugin.NewClient(config)
 		rpcClient, err := client.Client()
 		if err != nil {
-			log.Error("error creating plugin client", "err", err)
+			log.Error("error creating plugin client",
+				"error", err)
 			client.Kill()
 			return nil, err
 		}
@@ -60,7 +64,10 @@ func Factory(cmd *exec.Cmd, typ component.Type) interface{} {
 		if typ != component.MapperType {
 			raw, err = rpcClient.Dispense(strings.ToLower(typ.String()))
 			if err != nil {
-				log.Error("error requesting plugin", "type", typ, "err", err)
+				log.Error("error requesting plugin",
+					"type", typ,
+					"error", err)
+
 				client.Kill()
 				return nil, err
 			}
@@ -70,13 +77,14 @@ func Factory(cmd *exec.Cmd, typ component.Type) interface{} {
 		if !ok {
 			log.Error("cannot extract grpc broker from plugin client")
 			client.Kill()
-			return nil, errors.New("unable to extract broker from plugin client")
+			return nil, fmt.Errorf("unable to extract broker from plugin client")
 		}
 
 		// Request the mappers
 		mappers, err := pluginclient.Mappers(client)
 		if err != nil {
-			log.Error("error requesting plugin mappers", "err", err)
+			log.Error("error requesting plugin mappers",
+				"error", err)
 			client.Kill()
 			return nil, err
 		}
@@ -112,20 +120,32 @@ func BuiltinRubyFactory(rubyClient plugin.ClientProtocol, name string, typ compo
 	return func(log hclog.Logger) (interface{}, error) {
 		raw, err := rubyClient.Dispense(strings.ToLower(typ.String()))
 		if err != nil {
-			log.Error("error requesting the ruby plugin", "type", typ, "err", err)
+			log.Error("error requesting the ruby plugin",
+				"type", typ,
+				"name", name,
+				"error", err)
+
 			return nil, err
 		}
 
 		setter, ok := raw.(PluginMetadata)
 		if !ok {
-			return nil, errors.New("ruby runtime plugin does not support name setting")
+			return nil, fmt.Errorf("ruby runtime plugin does not support name setting (%s - %s)",
+				typ.String(), name)
 		}
 		setter.SetRequestMetadata("plugin_name", name)
+		log.Trace("set plugin name on legacy ruby plugin",
+			"type", typ.String(),
+			"name", name,
+			"plugin", hclog.Fmt("%T", raw))
 
 		b, ok := raw.(hasGRPCBroker)
 		if !ok {
-			log.Error("cannot extract grpc broker from plugin client", "type", typ, "name", name)
-			return nil, errors.New("unable to extract broker from builtin ruby plugin client")
+			log.Error("cannot extract grpc broker from plugin client",
+				"type", typ,
+				"name", name)
+
+			return nil, fmt.Errorf("unable to extract broker from builtin ruby plugin client")
 		}
 
 		return &Instance{
