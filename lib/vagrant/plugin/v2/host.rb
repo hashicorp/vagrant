@@ -13,6 +13,25 @@ module Vagrant
         def detect?(env)
           false
         end
+
+        # Returns list of parents for
+        # this host
+        #
+        # @return [Array<Symbol>]
+        def parents
+          hosts = Vagrant.plugin("2").manager.hosts.to_hash
+          ancestors = []
+          n, entry = hosts.detect { |_, v| v.first == self.class }
+          while n
+            n = nil
+            if entry.last
+              ancestors << entry.last
+              entry = hosts[entry.last]
+              n = entry.last
+            end
+          end
+          ancestors
+        end
       end
     end
   end
