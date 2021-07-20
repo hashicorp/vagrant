@@ -20,6 +20,7 @@ func TestProject(t testing.T, src *vagrant_server.Project) *vagrant_server.Proje
 
 	require.NoError(t, mergo.Merge(src, &vagrant_server.Project{
 		Name: "test",
+		Basis: &vagrant_plugin_sdk.Ref_Basis{},
 	}))
 
 	return src

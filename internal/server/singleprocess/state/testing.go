@@ -7,6 +7,9 @@ import (
 
 	"github.com/boltdb/bolt"
 	"github.com/hashicorp/go-hclog"
+	"github.com/hashicorp/vagrant-plugin-sdk/proto/vagrant_plugin_sdk"
+	"github.com/hashicorp/vagrant/internal/server/proto/vagrant_server"
+	serverptypes "github.com/hashicorp/vagrant/internal/server/ptypes"
 	"github.com/mitchellh/go-testing-interface"
 	"github.com/stretchr/testify/require"
 )
@@ -77,4 +80,26 @@ func testDB(t testing.T) *bolt.DB {
 	t.Cleanup(func() { db.Close() })
 
 	return db
+}
+
+// TestBasis creates the basis in the DB.
+func testBasis(t testing.T, s *State) *vagrant_plugin_sdk.Ref_Basis {
+	td := testTempDir(t)
+	s.BasisPut(serverptypes.TestBasis(t, &vagrant_server.Basis{
+		ResourceId: "test-basis",
+		Path:       td,
+		Name:       "test-basis",
+	}))
+	return &vagrant_plugin_sdk.Ref_Basis{
+		ResourceId: "test-basis",
+		Path:       td,
+		Name:       "test-basis",
+	}
+}
+
+func testTempDir(t testing.T) string {
+	dir, err := ioutil.TempDir("", "vagrant-test")
+	require.NoError(t, err)
+	t.Cleanup(func() { os.RemoveAll(dir) })
+	return dir
 }
