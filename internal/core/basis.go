@@ -196,22 +196,75 @@ func (b *Basis) Client() *serverclient.VagrantClient {
 
 // Returns the detected host for the current platform
 func (b *Basis) Host() (host core.Host, err error) {
+	var hostName string
 	hosts, err := b.typeComponents(b.ctx, component.HostType)
 	if err != nil {
 		return nil, err
 	}
-	for _, h := range hosts {
-		host := h.Value.(component.Host)
-		fn := host.DetectFunc()
-		detected, err := b.callDynamicFunc(b.ctx, b.logger, fn, (*bool)(nil))
+	var valid core.Host
+	for n, h := range hosts {
+		b.logger.Trace("running host check",
+			"plugin", hclog.Fmt("%T", h.Value),
+			"name", n,
+		)
+		host := h.Value.(core.Host)
+		detected, err := host.Detect()
+		b.logger.Trace("completed host check",
+			"plugin", hclog.Fmt("%T", host),
+			"name", n,
+			"detected", detected)
+
+		if err != nil {
+			b.logger.Error("host check failure",
+				"plugin", hclog.Fmt("%T", host),
+				"name", n,
+				"error", err)
+
+			continue
+		}
+
+		if !detected {
+			continue
+		}
+
+		if valid == nil {
+			b.logger.Trace("setting valid host",
+				"plugin", hclog.Fmt("%T", host),
+				"name", n,
+			)
+			hostName = n
+			valid = host
+			continue
+		}
+
+		vp, err := valid.Parents()
 		if err != nil {
 			return nil, err
 		}
-		if detected.(bool) {
-			return host.(core.Host), nil
+		hp, err := host.Parents()
+		if err != nil {
+			return nil, err
+		}
+		if len(hp) > len(vp) {
+			b.logger.Trace("updating valid host",
+				"plugin", hclog.Fmt("%T", host),
+				"name", n,
+			)
+			valid = host
+			hostName = n
 		}
 	}
-	return nil, fmt.Errorf("failed to detect host plugin for current platform")
+
+	if valid == nil {
+		return nil, fmt.Errorf("failed to detect host plugin for current platform")
+	}
+
+	b.logger.Info("host detection complete",
+		"plugin", hclog.Fmt("%T", valid),
+		"host", hostName,
+	)
+	return valid, nil
+
 }
 
 // Initializes the basis for running a command. This will inspect
@@ -497,6 +550,7 @@ func (b *Basis) component(
 	if err != nil {
 		return nil, err
 	}
+
 	b.componentCache[typ][name] = c
 	b.Closer(func() error { return c.Close() })
 	return c, nil
@@ -506,16 +560,16 @@ func (b *Basis) component(
 func (b *Basis) typeComponents(
 	ctx context.Context, // context for the plugins,
 	typ component.Type, // type of the components,
-) ([]*Component, error) {
+) (map[string]*Component, error) {
 	f := b.factories[typ]
-	result := []*Component{}
+	result := map[string]*Component{}
 
 	for _, name := range f.Registered() {
 		c, err := b.component(ctx, typ, name)
 		if err != nil {
 			return nil, err
 		}
-		result = append(result, c)
+		result[name] = c
 	}
 	return result, nil
 }
