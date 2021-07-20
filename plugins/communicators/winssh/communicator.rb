@@ -96,6 +96,9 @@ module VagrantPlugins
               # probably done. This fixes up issues with hanging.
               ch.close
             end
+            
+            # Send eof to let server know we're done
+            ch2.eof!
 
           end
         end
