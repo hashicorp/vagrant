@@ -93,7 +93,7 @@ func DefaultPaths(pwd string) ([]string, error) {
 		pwd,
 		filepath.Join(pwd, ".vagrant", "plugins"),
 		filepath.Dir(xdgPath),
-		filepath.Join(hd, ".config", ".vagrant", "plugins"),
+		filepath.Join(hd, ".config", "vagrant", "plugins"),
 	}, nil
 }
 
