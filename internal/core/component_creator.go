@@ -73,9 +73,7 @@ func (cc *componentCreator) Create(
 	scope interface{},
 	pluginName string,
 ) (*Component, error) {
-	s, ok := scope.(interface {
-		startPlugin(context.Context, component.Type, string) (*plugin.Instance, error)
-	})
+	s, ok := scope.(pluginer)
 	if !ok {
 		panic("the scope provided is invalid")
 	}
