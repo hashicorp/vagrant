@@ -1,0 +1,37 @@
+on:
+  push:
+    branches:
+      - main
+      - 'test-*'
+    paths:
+      - 'builtin/**'
+      - 'cmd/**'
+      - 'internal/**'
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'builtin/**'
+      - 'cmd/**'
+      - 'internal/**'
+
+jobs:
+  unit-tests:
+    runs-on: ubuntu-18.04
+    strategy:
+      matrix:
+        go: ['^1.15']
+    name: Vagrant unit tests on Go 
+    steps:
+      - name: Code Checkout
+        uses: actions/checkout@v2
+      - name: Setup Go
+        uses: actions/setup-go@v2
+        with:
+          go-version: ${{matrix.go}}
+      - name: Get dependencies
+        run: go get -v -t -d ./...
+      - name: Vet
+        run: go vet ./...
+      - name: Test
+        run: go test ./...
