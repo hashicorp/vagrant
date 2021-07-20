@@ -27,19 +27,9 @@ func TestBasis(t testing.T, opts ...Option) *Basis {
 	basis, err := New(ctx, WithClient(client), WithLocal())
 	require.NoError(err)
 
-	// // Initialize our client
-	// result, err := New(ctx, append([]Option{
-	// 	WithBasis(basis),
-	// 	WithProjectRef(&pb.Ref_Project{Project: "test_p"}),
-	// }, opts...)...)
-	// require.NoError(err)
-
 	// Move into a temporary directory
 	td := testTempDir(t)
 	testChdir(t, td)
-
-	// Create a valid vagrant configuration file
-	// configpkg.TestConfigFile(t, configpkg.TestSource(t))
 
 	return basis
 }
