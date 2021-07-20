@@ -139,5 +139,4 @@ func (s *service) GetLogStream(
 	// 	return err
 	// }
 	//	}
-	return nil
 }
