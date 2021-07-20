@@ -23,8 +23,8 @@ func TestServiceQueueJob(t *testing.T) {
 	require.NoError(t, err)
 	client := server.TestServer(t, impl)
 
-	// Initialize our app
-	TestApp(t, client, serverptypes.TestJobNew(t, nil).Application)
+	// Initialize our basis
+	TestBasis(t, client, serverptypes.TestBasis(t, nil))
 
 	// Simplify writing tests
 	type Req = vagrant_server.QueueJobRequest
@@ -116,8 +116,8 @@ func TestServiceGetJobStream_complete(t *testing.T) {
 	require.NoError(err)
 	client := server.TestServer(t, impl)
 
-	// Initialize our app
-	TestApp(t, client, serverptypes.TestJobNew(t, nil).Application)
+	// Initialize our basis
+	TestBasis(t, client, serverptypes.TestBasis(t, nil))
 
 	// Create a job
 	queueResp, err := client.QueueJob(ctx, &vagrant_server.QueueJobRequest{Job: serverptypes.TestJobNew(t, nil)})
@@ -242,8 +242,8 @@ func TestServiceGetJobStream_bufferedData(t *testing.T) {
 	require.NoError(err)
 	client := server.TestServer(t, impl)
 
-	// Initialize our app
-	TestApp(t, client, serverptypes.TestJobNew(t, nil).Application)
+	// Initialize our basis
+	TestBasis(t, client, serverptypes.TestBasis(t, nil))
 
 	// Create a job
 	queueResp, err := client.QueueJob(ctx, &vagrant_server.QueueJobRequest{Job: serverptypes.TestJobNew(t, nil)})
@@ -356,8 +356,8 @@ func TestServiceGetJobStream_expired(t *testing.T) {
 	require.NoError(err)
 	client := server.TestServer(t, impl)
 
-	// Initialize our app
-	TestApp(t, client, serverptypes.TestJobNew(t, nil).Application)
+	// Initialize our basis
+	TestBasis(t, client, serverptypes.TestBasis(t, nil))
 
 	// Create a job
 	queueResp, err := client.QueueJob(ctx, &vagrant_server.QueueJobRequest{Job: serverptypes.TestJobNew(t, nil), ExpiresIn: "10ms"})

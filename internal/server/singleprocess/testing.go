@@ -1,11 +1,13 @@
 package singleprocess
 
 import (
+	"context"
 	"io/ioutil"
 	"os"
 	"path/filepath"
 
 	"github.com/boltdb/bolt"
+	"github.com/imdario/mergo"
 	"github.com/mitchellh/go-testing-interface"
 	"github.com/stretchr/testify/require"
 
@@ -97,95 +99,50 @@ func TestImpl(t testing.T, opts ...Option) pb.VagrantServer {
 // 	}
 // }
 
-// func TestEntrypoint(t testing.T, client pb.VagrantClient) (string, string, func()) {
-// 	instanceId, err := server.Id()
-// 	require.NoError(t, err)
+// TestRunner registers a runner and returns the ID and a function to
+// deregister the runner. This uses t.Cleanup so that the runner will always
+// be deregistered on test completion.
+func TestRunner(t testing.T, client pb.VagrantClient, r *pb.Runner) (string, func()) {
+	require := require.New(t)
+	ctx := context.Background()
 
-// 	ctx := context.Background()
+	// Get the runner
+	if r == nil {
+		r = &pb.Runner{}
+	}
+	id, err := server.Id()
+	require.NoError(err)
+	require.NoError(mergo.Merge(r, &pb.Runner{Id: id}))
 
-// 	resp, err := client.UpsertDeployment(ctx, &pb.UpsertDeploymentRequest{
-// 		Deployment: serverptypes.TestValidDeployment(t, &pb.Deployment{
-// 			Component: &pb.Component{
-// 				Name: "testapp",
-// 			},
-// 		}),
-// 	})
-// 	require.NoError(t, err)
+	// Open the config stream
+	stream, err := client.RunnerConfig(ctx)
+	require.NoError(err)
+	t.Cleanup(func() { stream.CloseSend() })
 
-// 	dep := resp.Deployment
+	// Register
+	require.NoError(err)
+	require.NoError(stream.Send(&pb.RunnerConfigRequest{
+		Event: &pb.RunnerConfigRequest_Open_{
+			Open: &pb.RunnerConfigRequest_Open{
+				Runner: r,
+			},
+		},
+	}))
 
-// 	// Create the config
-// 	stream, err := client.EntrypointConfig(ctx, &pb.EntrypointConfigRequest{
-// 		InstanceId:   instanceId,
-// 		DeploymentId: dep.Id,
-// 	})
-// 	require.NoError(t, err)
+	// Wait for first message to confirm we're registered
+	_, err = stream.Recv()
+	require.NoError(err)
 
-// 	// Wait for the first config so that we know we're registered
-// 	_, err = stream.Recv()
-// 	require.NoError(t, err)
+	return id, func() { stream.CloseSend() }
+}
 
-// 	return instanceId, dep.Id, func() {
-// 		stream.CloseSend()
-// 	}
-// }
-
-// // TestRunner registers a runner and returns the ID and a function to
-// // deregister the runner. This uses t.Cleanup so that the runner will always
-// // be deregistered on test completion.
-// func TestRunner(t testing.T, client pb.VagrantClient, r *pb.Runner) (string, func()) {
-// 	require := require.New(t)
-// 	ctx := context.Background()
-
-// 	// Get the runner
-// 	if r == nil {
-// 		r = &pb.Runner{}
-// 	}
-// 	id, err := server.Id()
-// 	require.NoError(err)
-// 	require.NoError(mergo.Merge(r, &pb.Runner{Id: id}))
-
-// 	// Open the config stream
-// 	stream, err := client.RunnerConfig(ctx)
-// 	require.NoError(err)
-// 	t.Cleanup(func() { stream.CloseSend() })
-
-// 	// Register
-// 	require.NoError(err)
-// 	require.NoError(stream.Send(&pb.RunnerConfigRequest{
-// 		Event: &pb.RunnerConfigRequest_Open_{
-// 			Open: &pb.RunnerConfigRequest_Open{
-// 				Runner: r,
-// 			},
-// 		},
-// 	}))
-
-// 	// Wait for first message to confirm we're registered
-// 	_, err = stream.Recv()
-// 	require.NoError(err)
-
-// 	return id, func() { stream.CloseSend() }
-// }
-
-// // TestApp creates the app in the DB.
-// func TestApp(t testing.T, client pb.VagrantClient, ref *pb.Ref_Application) {
-// 	{
-// 		_, err := client.UpsertProject(context.Background(), &pb.UpsertProjectRequest{
-// 			Project: &pb.Project{
-// 				Name: ref.Project,
-// 			},
-// 		})
-// 		require.NoError(t, err)
-// 	}
-
-// 	{
-// 		_, err := client.UpsertApplication(context.Background(), &pb.UpsertApplicationRequest{
-// 			Project: &pb.Ref_Project{Project: ref.Project},
-// 			Name:    ref.Application,
-// 		})
-// 		require.NoError(t, err)
-// 	}
-// }
+// TestBasis creates the basis in the DB.
+func TestBasis(t testing.T, client pb.VagrantClient, ref *pb.Basis) {
+	_, err := client.UpsertBasis(context.Background(), &pb.UpsertBasisRequest{
+		Basis: ref,
+	})
+	require.NoError(t, err)
+}
 
 func testDB(t testing.T) *bolt.DB {
 	t.Helper()

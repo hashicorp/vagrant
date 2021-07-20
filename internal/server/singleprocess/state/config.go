@@ -146,20 +146,6 @@ func (s *State) configGetExact(
 	var iter memdb.ResultIterator
 	switch ref := ref.(type) {
 
-	// TODO(spox)
-	// case *vagrant_server.Ref_Application:
-	// 	var err error
-	// 	iter, err = memTxn.Get(
-	// 		configIndexTableName,
-	// 		configIndexApplicationIndexName+"_prefix",
-	// 		ref.Project,
-	// 		ref.Application,
-	// 		prefix,
-	// 	)
-	// 	if err != nil {
-	// 		return nil, err
-	// 	}
-
 	case *vagrant_plugin_sdk.Ref_Project:
 		var err error
 		iter, err = memTxn.Get(

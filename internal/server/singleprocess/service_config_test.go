@@ -7,6 +7,7 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/hashicorp/go-hclog"
+	"github.com/hashicorp/vagrant-plugin-sdk/proto/vagrant_plugin_sdk"
 	"github.com/hashicorp/vagrant/internal/server"
 	"github.com/hashicorp/vagrant/internal/server/proto/vagrant_server"
 	"github.com/hashicorp/vagrant/internal/server/singleprocess/state"
@@ -28,10 +29,10 @@ func TestServiceConfig(t *testing.T) {
 	)
 
 	Var := &vagrant_server.ConfigVar{
-		Scope: &vagrant_server.ConfigVar_Application{
-			Application: &vagrant_server.Ref_Application{
-				Application: "foo",
-				Project:     "bar",
+		Scope: &vagrant_server.ConfigVar_Project{
+			Project: &vagrant_plugin_sdk.Ref_Project{
+				ResourceId: "test",
+				Name:       "bar",
 			},
 		},
 
@@ -50,10 +51,10 @@ func TestServiceConfig(t *testing.T) {
 		// Let's write some data
 
 		grep, err := client.GetConfig(ctx, &GReq{
-			Scope: &vagrant_server.ConfigGetRequest_Application{
-				Application: &vagrant_server.Ref_Application{
-					Application: "foo",
-					Project:     "bar",
+			Scope: &vagrant_server.ConfigGetRequest_Project{
+				Project: &vagrant_plugin_sdk.Ref_Project{
+					ResourceId: "test",
+					Name:       "bar",
 				},
 			},
 		})
