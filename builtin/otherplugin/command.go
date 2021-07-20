@@ -157,22 +157,23 @@ func (c *Command) ExecuteOfni(trm terminal.UI) int32 {
 }
 
 func (c *Command) ExecuteUseHostPlugin(trm terminal.UI, basis plugincore.Basis) int32 {
-	trm.Output("I'm going to use a the host plugin to do something!\n\n")
+	trm.Output("Requesting host plugin...")
 	host, err := basis.Host()
 	if err != nil {
-		trm.Output("Error: Failed to receive host plugin - " + err.Error() + "\n\n")
+		trm.Output("Error: Failed to receive host plugin - " + err.Error())
 		return 1
 	}
+	trm.Output("Host plugin received. Checking for `write_hello` capability...")
 	ok, err := host.HasCapability("write_hello")
 	if err != nil {
-		trm.Output("ERROR: " + err.Error() + "\n\n")
+		trm.Output("ERROR: " + err.Error())
 		//	return 1
 	}
 	if ok {
-		trm.Output("Writing to file using `write_hello` capability\n\n")
+		trm.Output("Found `write_hello` capability for host plugin, calling...")
 		_, err = host.Capability("write_hello", trm)
 		if err != nil {
-			trm.Output("Error executing capability - " + err.Error() + "\n\n")
+			trm.Output("Error executing capability - " + err.Error())
 			return 1
 		}
 	} else {
