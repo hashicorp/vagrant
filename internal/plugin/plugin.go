@@ -38,6 +38,7 @@ var (
 		component.ProviderType:     mustFactory(factory.New(component.TypeMap[component.ProviderType])),
 		component.ProvisionerType:  mustFactory(factory.New(component.TypeMap[component.ProvisionerType])),
 		component.SyncedFolderType: mustFactory(factory.New(component.TypeMap[component.SyncedFolderType])),
+		component.PluginInfoType:   mustFactory(factory.New(component.TypeMap[component.PluginInfoType])),
 	}
 )
 
