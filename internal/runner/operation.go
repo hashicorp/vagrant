@@ -5,12 +5,14 @@ import (
 	"fmt"
 	"path/filepath"
 
+	"github.com/hashicorp/go-argmapper"
 	"github.com/hashicorp/go-hclog"
 	"github.com/hashicorp/go-multierror"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
 	"github.com/hashicorp/vagrant-plugin-sdk/component"
+	"github.com/hashicorp/vagrant-plugin-sdk/internal-shared/dynamic"
 	"github.com/hashicorp/vagrant-plugin-sdk/proto/vagrant_plugin_sdk"
 	"github.com/hashicorp/vagrant-plugin-sdk/terminal"
 	configpkg "github.com/hashicorp/vagrant/internal/config"
@@ -32,13 +34,26 @@ func (r *Runner) LoadPlugins(cfg *configpkg.Config) error {
 		cfg.TrackRubyPlugin(p.Name, []interface{}{p.Type})
 	}
 
-	components := []interface{}{}
-	for typ, _ := range plugin.BaseFactories {
-		components = append(components, typ)
-	}
 	// Now lets load builtin plugins
 	for name, options := range plugin.Builtins {
 		r.logger.Info("loading builtin plugin " + name)
+		f := plugin.BuiltinFactory(name, component.PluginInfoType)
+		bp, err := dynamic.CallFunc(f, (**plugin.Instance)(nil), []*argmapper.Func{},
+			argmapper.Typed(r.logger))
+		if err != nil {
+			panic(err)
+		}
+		defer bp.(*plugin.Instance).Close()
+		p, ok := bp.(*plugin.Instance).Component.(component.PluginInfo)
+		if !ok {
+			panic("failed to convert instance to plugin info component")
+		}
+		typs := p.ComponentTypes()
+		r.logger.Info("valid component types for builtin plugin", "name", name, "types", typs)
+		cmps := []interface{}{}
+		for _, t := range typs {
+			cmps = append(cmps, t)
+		}
 
 		if plugin.IN_PROCESS_PLUGINS {
 			if err := r.builtinPlugins.Add(name, options...); err != nil {
@@ -46,8 +61,13 @@ func (r *Runner) LoadPlugins(cfg *configpkg.Config) error {
 			}
 		}
 
-		cfg.TrackBuiltinPlugin(name, components)
+		cfg.TrackBuiltinPlugin(name, cmps)
 	}
+
+	// TODO(spox): fix this loading
+	// if err == nil {
+	// 	cfg.TrackPlugin("custom-host", []interface{}{component.HostType})
+	// }
 
 	return nil
 }
