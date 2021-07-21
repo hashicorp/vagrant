@@ -32,6 +32,7 @@ func TestRunnerAccept(t *testing.T) {
 	// Setup our runner
 	client := singleprocess.TestServer(t)
 	runner := TestRunner(t, WithClient(client))
+	defer runner.Close()
 	require.NoError(runner.Start())
 
 	// Initialize our basis
@@ -68,6 +69,7 @@ func TestRunnerAccept_cancelContext(t *testing.T) {
 	// Setup our runner
 	client := singleprocess.TestServer(t)
 	runner := TestRunner(t, WithClient(client))
+	defer runner.Close()
 	require.NoError(runner.Start())
 
 	// Initialize our basis
