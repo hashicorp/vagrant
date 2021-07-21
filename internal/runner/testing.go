@@ -31,7 +31,7 @@ import (
 func TestRunner(t testing.T, opts ...Option) *Runner {
 	require := require.New(t)
 	client := singleprocess.TestServer(t)
-	rubyRunTime, err := TestRunnerVagrantRubyRuntime()
+	rubyRunTime, err := TestRunnerVagrantRubyRuntime(t)
 
 	// Initialize our runner
 	runner, err := New(append([]Option{
@@ -51,7 +51,7 @@ func TestRunner(t testing.T, opts ...Option) *Runner {
 	return runner
 }
 
-func TestRunnerVagrantRubyRuntime() (rubyRuntime plugin.ClientProtocol, err error) {
+func TestRunnerVagrantRubyRuntime(t testing.T) (rubyRuntime plugin.ClientProtocol, err error) {
 	// TODO: Update for actual release usage. This is dev only now.
 	// TODO: We should also locate a free port on startup and use that port
 	_, this_dir, _, _ := runtime.Caller(0)
@@ -71,13 +71,8 @@ func TestRunnerVagrantRubyRuntime() (rubyRuntime plugin.ClientProtocol, err erro
 	if _, err = c.Start(); err != nil {
 		return
 	}
-	if rubyRuntime, err = c.Client(); err != nil {
-		return
-	}
-
-	// Ensure the plugin is halted when the basis is cleaned up
-	// b.cleanup(func() { rubyRuntime.Close() })
-
+	rubyRuntime, err = c.Client()
+	t.Cleanup(func() { c.Kill() })
 	return
 }
 
@@ -117,5 +112,6 @@ func TestBasis(t testing.T, opts ...core.BasisOption) (b *vagrant_plugin_sdk.Ref
 	basis, err := core.NewBasis(context.Background(), append(opts, defaultOpts...)...)
 	require.NoError(t, err)
 	b = basis.Ref().(*vagrant_plugin_sdk.Ref_Basis)
+	t.Cleanup(func() { basis.Close() })
 	return
 }

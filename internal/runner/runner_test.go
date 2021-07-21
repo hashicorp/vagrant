@@ -18,7 +18,8 @@ func TestRunnerStart(t *testing.T) {
 	require := require.New(t)
 	ctx := context.Background()
 	client := singleprocess.TestServer(t)
-	rubyRunTime, err := TestRunnerVagrantRubyRuntime()
+	rubyRunTime, err := TestRunnerVagrantRubyRuntime(t)
+	defer rubyRunTime.Close()
 
 	// Initialize our runner
 	runner, err := New(

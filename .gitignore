@@ -57,3 +57,4 @@ doc/
 test/vagrant-spec/boxes/*.box
 
 simple_speed.py
+cover.out
