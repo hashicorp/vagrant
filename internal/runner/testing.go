@@ -1,6 +1,7 @@
 package runner
 
 import (
+	"context"
 	"io/ioutil"
 	"os"
 	"os/exec"
@@ -12,7 +13,10 @@ import (
 
 	"github.com/hashicorp/go-hclog"
 	"github.com/hashicorp/go-plugin"
+	"github.com/hashicorp/vagrant-plugin-sdk/datadir"
+	"github.com/hashicorp/vagrant-plugin-sdk/proto/vagrant_plugin_sdk"
 	configpkg "github.com/hashicorp/vagrant/internal/config"
+	"github.com/hashicorp/vagrant/internal/core"
 	"github.com/hashicorp/vagrant/internal/server/singleprocess"
 	"github.com/hashicorp/vagrant/internal/serverclient"
 )
@@ -89,4 +93,29 @@ func testTempDir(t testing.T) string {
 	require.NoError(t, err)
 	t.Cleanup(func() { os.RemoveAll(dir) })
 	return dir
+}
+
+func TestBasis(t testing.T, opts ...core.BasisOption) (b *vagrant_plugin_sdk.Ref_Basis) {
+	td, err := ioutil.TempDir("", "core")
+	require.NoError(t, err)
+	t.Cleanup(func() { os.RemoveAll(td) })
+
+	projDir, err := datadir.NewBasis(td)
+	require.NoError(t, err)
+
+	defaultOpts := []core.BasisOption{
+		core.WithBasisDataDir(projDir),
+		core.WithBasisRef(&vagrant_plugin_sdk.Ref_Basis{Name: "TESTBAS"}),
+	}
+
+	// Create the default factory for all component types
+	for typ := range core.TestingTypeMap {
+		f, _ := core.TestFactorySingle(t, typ, "TESTBAS")
+		defaultOpts = append(defaultOpts, core.WithFactory(typ, f))
+	}
+
+	basis, err := core.NewBasis(context.Background(), append(opts, defaultOpts...)...)
+	require.NoError(t, err)
+	b = basis.Ref().(*vagrant_plugin_sdk.Ref_Basis)
+	return
 }

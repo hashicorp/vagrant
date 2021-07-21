@@ -39,8 +39,4 @@ func TestConfigFile(t testing.T, src string) {
 	require.NoError(t, ioutil.WriteFile(Filename, []byte(src), 0644))
 }
 
-const testSourceVal = `
-Vagrant.configure("2") do |config|
-  config.vm.box = "hashicorp/bionic64"
-end
-`
+const testSourceVal = ``
