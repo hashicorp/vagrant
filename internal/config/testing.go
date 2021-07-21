@@ -40,5 +40,7 @@ func TestConfigFile(t testing.T, src string) {
 }
 
 const testSourceVal = `
-project = "test"
+Vagrant.configure("2") do |config|
+  config.vm.box = "hashicorp/bionic64"
+end
 `
