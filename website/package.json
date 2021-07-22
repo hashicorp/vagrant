@@ -5,7 +5,6 @@
   "author": "HashiCorp",
   "dependencies": {
     "@hashicorp/mktg-global-styles": "^3.1.0",
-    "@hashicorp/nextjs-scripts": "^19.0.3",
     "@hashicorp/platform-code-highlighting": "^0.1.1",
     "@hashicorp/platform-runtime-error-monitoring": "^0.1.0",
     "@hashicorp/platform-util": "^0.1.0",
@@ -16,7 +15,8 @@
     "@hashicorp/react-docs-page": "^13.5.1",
     "@hashicorp/react-hashi-stack-menu": "^2.0.6",
     "@hashicorp/react-head": "^3.1.1",
-    "@hashicorp/react-product-downloader": "^8.0.0",
+    "@hashicorp/react-inline-svg": "^6.0.2",
+    "@hashicorp/react-product-downloader": "^4.1.5",
     "@hashicorp/react-product-downloads-page": "^2.3.1",
     "@hashicorp/react-search": "^5.1.1",
     "@hashicorp/react-section-header": "^5.0.3",
@@ -32,10 +32,12 @@
   "devDependencies": {
     "@hashicorp/platform-cli": "^0.2.0",
     "@hashicorp/platform-nextjs-plugin": "^0.1.0",
+    "@hashicorp/platform-types": "^0.1.0",
     "@types/react": "^17.0.3",
     "dart-linkcheck": "2.0.15",
     "husky": "4.3.6",
-    "prettier": "2.2.1"
+    "prettier": "2.2.1",
+    "typescript": "^4.3.5"
   },
   "husky": {
     "hooks": {
