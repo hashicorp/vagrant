@@ -91,6 +91,50 @@ module VagrantPlugins
           INVALID_PLUGIN_FORMAT
         end
       end
+
+      def to_proto(cfg_cls)
+        config_proto = cfg_cls.new()
+        self.instance_variables_hash.each do |k, v|
+          # Skip config that has not be set
+          next if v.class == Object 
+
+          # Skip all variables that are internal
+          next if k.start_with?("_")
+
+          if v.nil? 
+            # If v is nil, set it to the default value defined by the proto
+            v = config_proto.send(k)
+          end
+
+          if v.is_a?(Range)
+            v = v.to_a
+          end
+
+          if v.is_a?(Hash)
+            m = config_proto.send(k)
+            v.each do |k2,v2|
+              m[k2] = v2
+            end 
+            v = m
+          end
+
+          if v.is_a?(Array)
+            m = config_proto.send(k)
+            v.each do |v2|
+              m << v2
+            end 
+            v = m
+          end
+
+          begin
+            config_proto.send("#{k}=", v)
+          rescue NoMethodError
+            # Reach here when Hashicorp::Vagrant::VagrantfileComponents::ConfigVM does not
+            # have a config variable for one of the instance methods. This is ok.
+          end
+        end
+        config_proto
+      end
     end
   end
 end

@@ -137,6 +137,49 @@ module Vagrant
         def _finalize!
           @__finalized = true
         end
+
+        def stringify_symbols(m)
+          m.each do |k,v|
+            if v.is_a?(Hash)
+              # All keys need to be strings
+              v.transform_keys!{|sk| sk.to_s}
+              stringify_symbols(v)
+              next
+            end
+            if v.is_a?(Array)
+              v.map!{|sk| sk.is_a?(Symbol) ? sk.to_s : sk}
+              stringify_symbols(v)
+              next
+            end
+            k = k.to_s if k.is_a?(Symbol)
+            m[k] = v.to_s if v.is_a?(Symbol)
+          end
+        end
+        
+        def clean_up_config_object(config)
+          protoize = config
+          stringify_symbols(protoize)
+          # Remote variables that are internal
+          protoize.delete_if{|k,v| k.start_with?("_") }
+          protoize
+        end
+
+
+        def to_proto(cfg_cls, type)
+          protoize = self.instance_variables_hash
+          protoize.map do |k,v|
+            # Get embedded default struct
+            if v.is_a?(Vagrant.plugin("2", :config))
+              hashed_config = v.instance_variables_hash
+              hashed_config.delete_if{|k,v| k.start_with?("_") }
+              protoize[k] = hashed_config
+            end
+          end
+          protoize = clean_up_config_object(protoize)
+          config_struct = Google::Protobuf::Struct.from_hash(protoize)
+          config_any = Google::Protobuf::Any.pack(config_struct)
+          cfg_cls.new(type: type, config: config_any)
+        end
       end
     end
   end

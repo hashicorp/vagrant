@@ -128,6 +128,10 @@ module VagrantPlugins
       def to_s
         "cloud_init config"
       end
+
+      def to_proto
+        #TODO
+      end
     end
   end
 end

@@ -44,6 +44,8 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
     end
     add_message "hashicorp.vagrant.sdk.Args.TerminalUI" do
       optional :stream_id, :uint32, 1
+      optional :network, :string, 2
+      optional :target, :string, 3
     end
     add_message "hashicorp.vagrant.sdk.Args.Logger" do
       optional :name, :string, 1
@@ -61,15 +63,23 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
     end
     add_message "hashicorp.vagrant.sdk.Args.Basis" do
       optional :stream_id, :uint32, 1
+      optional :network, :string, 2
+      optional :target, :string, 3
     end
     add_message "hashicorp.vagrant.sdk.Args.Project" do
       optional :stream_id, :uint32, 1
+      optional :network, :string, 2
+      optional :target, :string, 3
     end
     add_message "hashicorp.vagrant.sdk.Args.Provider" do
       optional :stream_id, :uint32, 1
+      optional :network, :string, 2
+      optional :target, :string, 3
     end
     add_message "hashicorp.vagrant.sdk.Args.Target" do
       optional :stream_id, :uint32, 1
+      optional :network, :string, 2
+      optional :target, :string, 3
     end
     add_message "hashicorp.vagrant.sdk.Args.Target.State" do
       optional :state, :enum, 1, "hashicorp.vagrant.sdk.Args.Target.State.State"
@@ -82,6 +92,8 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
     end
     add_message "hashicorp.vagrant.sdk.Args.Target.Machine" do
       optional :stream_id, :uint32, 1
+      optional :network, :string, 2
+      optional :target, :string, 3
     end
     add_message "hashicorp.vagrant.sdk.Args.Target.Machine.Box" do
       optional :name, :string, 1
@@ -98,9 +110,16 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
     end
     add_message "hashicorp.vagrant.sdk.Args.StateBag" do
       optional :stream_id, :uint32, 1
+      optional :network, :string, 2
+      optional :target, :string, 3
     end
     add_message "hashicorp.vagrant.sdk.Args.Host" do
       optional :stream_id, :uint32, 1
+      optional :network, :string, 2
+      optional :target, :string, 3
+    end
+    add_message "hashicorp.vagrant.sdk.Args.NamedCapability" do
+      optional :Capability, :string, 1
     end
     add_message "hashicorp.vagrant.sdk.TargetIndex" do
     end
@@ -710,6 +729,7 @@ module Hashicorp
       Args::Target::Machine::State = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Args.Target.Machine.State").msgclass
       Args::StateBag = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Args.StateBag").msgclass
       Args::Host = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Args.Host").msgclass
+      Args::NamedCapability = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Args.NamedCapability").msgclass
       TargetIndex = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.TargetIndex").msgclass
       TargetIndex::Entry = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.TargetIndex.Entry").msgclass
       BoxCollection = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.BoxCollection").msgclass
