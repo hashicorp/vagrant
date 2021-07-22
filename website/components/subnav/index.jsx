@@ -18,6 +18,7 @@ export default function VagrantSubnav() {
       menuItemsAlign="right"
       menuItems={subnavItems}
       constrainWidth
+      matchOnBasePath
     />
   )
 }
