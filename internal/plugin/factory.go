@@ -5,7 +5,7 @@ import (
 	"os"
 	"os/exec"
 	"runtime"
-	"strings"
+	//	"strings"
 
 	"github.com/hashicorp/go-argmapper"
 	"github.com/hashicorp/go-hclog"
@@ -27,13 +27,10 @@ func init() {
 	}
 }
 
-// Factory returns the factory function for a plugin that is already
-// represented by an *exec.Cmd. This returns an *Instance and NOT the component
-// interface value directly. This instance lets you more carefully manage the
-// lifecycle of the plugin as well as get additional information about the
-// plugin.
-func Factory(cmd *exec.Cmd, typ component.Type) interface{} {
-	return func(log hclog.Logger) (interface{}, error) {
+func Factory(
+	cmd *exec.Cmd, // Plugin command to run
+) func(hclog.Logger) (p *Plugin, err error) {
+	return func(log hclog.Logger) (p *Plugin, err error) {
 		// We have to copy the command because go-plugin will set some
 		// fields on it.
 		cmdCopy := *cmd
@@ -44,63 +41,70 @@ func Factory(cmd *exec.Cmd, typ component.Type) interface{} {
 
 		// Log that we're going to launch this
 		log.Info("launching plugin",
-			"type", typ,
 			"path", cmd.Path,
 			"args", cmd.Args)
 
 		// Connect to the plugin
 		client := plugin.NewClient(config)
+		defer func() {
+			if err != nil {
+				client.Kill()
+			}
+		}()
+
 		rpcClient, err := client.Client()
 		if err != nil {
 			log.Error("error creating plugin client",
 				"error", err)
-			client.Kill()
-			return nil, err
+
+			return
 		}
 
-		// Request the plugin. We don't request the mapper type because
-		// we handle that below.
-		var raw interface{}
-		if typ != component.MapperType {
-			raw, err = rpcClient.Dispense(strings.ToLower(typ.String()))
-			if err != nil {
-				log.Error("error requesting plugin",
-					"type", typ,
-					"error", err)
-
-				client.Kill()
-				return nil, err
-			}
-		}
-
-		b, ok := raw.(hasGRPCBroker)
-		if !ok {
-			log.Error("cannot extract grpc broker from plugin client")
-			client.Kill()
-			return nil, fmt.Errorf("unable to extract broker from plugin client")
-		}
-
-		// Request the mappers
-		mappers, err := pluginclient.Mappers(client)
+		raw, err := rpcClient.Dispense("plugininfo")
 		if err != nil {
-			log.Error("error requesting plugin mappers",
+			log.Error("error requesting plugin information interface",
+				"plugin", cmd.Path,
 				"error", err)
-			client.Kill()
-			return nil, err
+
+			return
+		}
+		info, ok := raw.(component.PluginInfo)
+		if !ok {
+			return nil, fmt.Errorf("failed to load plugin information interface",
+				"plugin", cmd.Path)
 		}
 
-		log.Debug("plugin successfully launched and connected")
-		return &Instance{
-			Component: raw,
-			Broker:    b.GRPCBroker(),
-			Mappers:   mappers,
-			Close:     func() { client.Kill() },
-		}, nil
+		p = &Plugin{
+			Builtin:    false,
+			Client:     rpcClient,
+			Location:   cmd.Path,
+			Name:       info.Name(),
+			Types:      info.ComponentTypes(),
+			components: map[component.Type]*Instance{},
+			logger:     log,
+			src:        client,
+		}
+
+		// Close the rpcClient when plugin is closed
+		p.Closer(func() error {
+			return rpcClient.Close()
+		})
+
+		return
 	}
 }
 
+// Request the mappers
+// mappers, err := pluginclient.Mappers(client)
+// if err != nil {
+// 	log.Error("error requesting plugin mappers",
+// 		"error", err)
+// 	client.Kill()
+// 	return nil, err
+// }
+
 // BuiltinFactory creates a factory for a built-in plugin type.
-func BuiltinFactory(name string, typ component.Type) interface{} {
+func BuiltinFactory(name string) func(hclog.Logger) (p *Plugin, err error) {
 	cmd := exec.Command(exePath, "plugin-run", name)
 
 	// For non-windows systems, we attach stdout/stderr as extra fds
@@ -109,50 +113,23 @@ func BuiltinFactory(name string, typ component.Type) interface{} {
 		cmd.ExtraFiles = []*os.File{os.Stdout, os.Stderr}
 	}
 
-	return Factory(cmd, typ)
+	return Factory(cmd)
 }
 
-type PluginMetadata interface {
-	SetRequestMetadata(k, v string)
-}
-
-func BuiltinRubyFactory(rubyClient plugin.ClientProtocol, name string, typ component.Type) interface{} {
-	return func(log hclog.Logger) (interface{}, error) {
-		raw, err := rubyClient.Dispense(strings.ToLower(typ.String()))
-		if err != nil {
-			log.Error("error requesting the ruby plugin",
-				"type", typ,
-				"name", name,
-				"error", err)
-
-			return nil, err
-		}
-
-		setter, ok := raw.(PluginMetadata)
-		if !ok {
-			return nil, fmt.Errorf("ruby runtime plugin does not support name setting (%s - %s)",
-				typ.String(), name)
-		}
-		setter.SetRequestMetadata("plugin_name", name)
-		log.Trace("set plugin name on legacy ruby plugin",
-			"type", typ.String(),
-			"name", name,
-			"plugin", hclog.Fmt("%T", raw))
-
-		b, ok := raw.(hasGRPCBroker)
-		if !ok {
-			log.Error("cannot extract grpc broker from plugin client",
-				"type", typ,
-				"name", name)
-
-			return nil, fmt.Errorf("unable to extract broker from builtin ruby plugin client")
-		}
-
-		return &Instance{
-			Component: raw,
-			Broker:    b.GRPCBroker(),
-			Mappers:   nil,
-			Close:     func() {},
+func RubyFactory(
+	rubyClient plugin.ClientProtocol,
+	name string,
+	typ component.Type,
+) func(hclog.Logger) (p *Plugin, err error) {
+	return func(log hclog.Logger) (*Plugin, error) {
+		return &Plugin{
+			Builtin:    false,
+			Client:     rubyClient,
+			Location:   "ruby-runtime",
+			Name:       name,
+			Types:      []component.Type{typ},
+			components: map[component.Type]*Instance{},
+			logger:     log,
 		}, nil
 	}
 }
@@ -172,6 +149,10 @@ type Instance struct {
 	// Closer is a function that should be called to clean up resources
 	// associated with this plugin.
 	Close func()
+}
+
+type PluginMetadata interface {
+	SetRequestMetadata(k, v string)
 }
 
 type hasGRPCBroker interface {
