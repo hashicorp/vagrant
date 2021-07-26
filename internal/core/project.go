@@ -19,7 +19,6 @@ import (
 
 	"github.com/hashicorp/vagrant/internal/config"
 	"github.com/hashicorp/vagrant/internal/factory"
-	"github.com/hashicorp/vagrant/internal/plugin"
 	"github.com/hashicorp/vagrant/internal/server/proto/vagrant_server"
 	"github.com/hashicorp/vagrant/internal/serverclient"
 )
@@ -229,10 +228,6 @@ func (p *Project) Run(ctx context.Context, task *vagrant_server.Task) (err error
 		return err
 	}
 
-	if _, err = p.specializeComponent(cmd); err != nil {
-		return
-	}
-
 	fn := cmd.Value.(component.Command).ExecuteFunc(
 		strings.Split(task.CommandName, " "))
 	result, err := p.callDynamicFunc(ctx, p.logger, fn, (*int32)(nil),
@@ -376,21 +371,6 @@ func (p *Project) callDynamicFunc(
 	)
 
 	return p.basis.callDynamicFunc(ctx, log, f, expectedType, args...)
-}
-
-// Specialize a given component. This is specifically used for
-// Ruby based legacy Vagrant components.
-//
-// TODO: Since legacy Vagrant is no longer directly connecting
-// to the Vagrant server, this should probably be removed.
-func (p *Project) specializeComponent(
-	c *Component, // component to specialize
-) (cmp plugin.PluginMetadata, err error) {
-	if cmp, err = p.basis.specializeComponent(c); err != nil {
-		return
-	}
-	cmp.SetRequestMetadata("project_resource_id", p.ResourceId())
-	return
 }
 
 func (p *Project) execHook(

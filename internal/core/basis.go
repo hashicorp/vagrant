@@ -10,8 +10,6 @@ import (
 	"github.com/hashicorp/go-argmapper"
 	"github.com/hashicorp/go-hclog"
 	"github.com/hashicorp/go-multierror"
-	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/status"
 
 	"github.com/hashicorp/vagrant-plugin-sdk/component"
 	"github.com/hashicorp/vagrant-plugin-sdk/core"
@@ -22,7 +20,6 @@ import (
 	"github.com/hashicorp/vagrant-plugin-sdk/terminal"
 
 	"github.com/hashicorp/vagrant/internal/config"
-	"github.com/hashicorp/vagrant/internal/factory"
 	"github.com/hashicorp/vagrant/internal/plugin"
 	"github.com/hashicorp/vagrant/internal/server/proto/vagrant_server"
 	"github.com/hashicorp/vagrant/internal/serverclient"
@@ -35,15 +32,14 @@ import (
 // finished with the basis to properly clean
 // up any open resources.
 type Basis struct {
-	basis          *vagrant_server.Basis
-	logger         hclog.Logger
-	config         *config.Config
-	componentCache map[component.Type]map[string]*Component
-	projects       map[string]*Project
-	factories      map[component.Type]*factory.Factory
-	mappers        []*argmapper.Func
-	dir            *datadir.Basis
-	ctx            context.Context
+	basis    *vagrant_server.Basis
+	logger   hclog.Logger
+	config   *config.Config
+	plugins  *plugin.Manager
+	projects map[string]*Project
+	mappers  []*argmapper.Func
+	dir      *datadir.Basis
+	ctx      context.Context
 
 	lock   sync.Mutex
 	client *serverclient.VagrantClient
@@ -56,11 +52,10 @@ type Basis struct {
 // NewBasis creates a new Basis with the given options.
 func NewBasis(ctx context.Context, opts ...BasisOption) (b *Basis, err error) {
 	b = &Basis{
-		ctx:       ctx,
-		logger:    hclog.L(),
-		jobInfo:   &component.JobInfo{},
-		factories: plugin.BaseFactories,
-		projects:  map[string]*Project{},
+		ctx:      ctx,
+		logger:   hclog.L(),
+		jobInfo:  &component.JobInfo{},
+		projects: map[string]*Project{},
 	}
 
 	for _, opt := range opts {
@@ -109,9 +104,6 @@ func NewBasis(ctx context.Context, opts ...BasisOption) (b *Basis, err error) {
 			return
 		}
 	}
-	commandArgMapper, _ := argmapper.NewFunc(CommandArgToMap,
-		argmapper.Logger(dynamic.Logger))
-	b.mappers = append(b.mappers, commandArgMapper)
 
 	// TODO(spox): After fixing up datadir, use that to do
 	// configuration loading
@@ -126,12 +118,6 @@ func NewBasis(ctx context.Context, opts ...BasisOption) (b *Basis, err error) {
 
 	// Ensure any modifications to the basis are persisted
 	b.Closer(func() error { return b.Save() })
-
-	// Setup our caching area for components
-	b.componentCache = map[component.Type]map[string]*Component{}
-	for t, _ := range component.TypeMap {
-		b.componentCache[t] = map[string]*Component{}
-	}
 
 	// Add in our local mappers
 	for _, fn := range Mappers {
@@ -196,75 +182,66 @@ func (b *Basis) Client() *serverclient.VagrantClient {
 
 // Returns the detected host for the current platform
 func (b *Basis) Host() (host core.Host, err error) {
-	var hostName string
 	hosts, err := b.typeComponents(b.ctx, component.HostType)
 	if err != nil {
 		return nil, err
 	}
-	var valid core.Host
-	for n, h := range hosts {
-		b.logger.Trace("running host check",
-			"plugin", hclog.Fmt("%T", h.Value),
-			"name", n,
-		)
+	var result core.Host
+	var result_name string
+
+	for name, h := range hosts {
 		host := h.Value.(core.Host)
 		detected, err := host.Detect()
-		b.logger.Trace("completed host check",
-			"plugin", hclog.Fmt("%T", host),
-			"name", n,
-			"detected", detected)
-
 		if err != nil {
-			b.logger.Error("host check failure",
-				"plugin", hclog.Fmt("%T", host),
-				"name", n,
+			b.logger.Error("host error on detection check",
+				"plugin", name,
+				"type", "Host",
+				"error", err)
+
+			continue
+		}
+		if result == nil {
+			if detected {
+				result = host
+				result_name = name
+			}
+			continue
+		}
+
+		hp, err := host.Parents()
+		if err != nil {
+			b.logger.Error("failed to get parents from host",
+				"plugin", name,
+				"type", "Host",
 				"error", err)
 
 			continue
 		}
 
-		if !detected {
+		rp, err := result.Parents()
+		if err != nil {
+			b.logger.Error("failed to get parents from host",
+				"plugin", result_name,
+				"type", "Host",
+				"error", err)
+
 			continue
 		}
 
-		if valid == nil {
-			b.logger.Trace("setting valid host",
-				"plugin", hclog.Fmt("%T", host),
-				"name", n,
-			)
-			hostName = n
-			valid = host
-			continue
-		}
-
-		vp, err := valid.Parents()
-		if err != nil {
-			return nil, err
-		}
-		hp, err := host.Parents()
-		if err != nil {
-			return nil, err
-		}
-		if len(hp) > len(vp) {
-			b.logger.Trace("updating valid host",
-				"plugin", hclog.Fmt("%T", host),
-				"name", n,
-			)
-			valid = host
-			hostName = n
+		if len(hp) > len(rp) {
+			result = host
+			result_name = name
 		}
 	}
 
-	if valid == nil {
+	if result == nil {
 		return nil, fmt.Errorf("failed to detect host plugin for current platform")
 	}
 
 	b.logger.Info("host detection complete",
-		"plugin", hclog.Fmt("%T", valid),
-		"host", hostName,
-	)
-	return valid, nil
+		"name", result_name)
 
+	return result, nil
 }
 
 // Initializes the basis for running a command. This will inspect
@@ -272,24 +249,18 @@ func (b *Basis) Host() (host core.Host, err error) {
 // information before an actual command is run
 func (b *Basis) Init() (result *vagrant_server.Job_InitResult, err error) {
 	b.logger.Debug("running init for basis")
-	f := b.factories[component.CommandType]
 	result = &vagrant_server.Job_InitResult{
 		Commands: []*vagrant_server.Job_Command{},
 	}
 	ctx := context.Background()
 
-	for _, name := range f.Registered() {
-		var cmd *Component
-		cmd, err = b.component(ctx, component.CommandType, name)
-		if err != nil {
-			return
-		}
+	cmds, err := b.typeComponents(ctx, component.CommandType)
+	if err != nil {
+		return nil, err
+	}
 
-		if _, err = b.specializeComponent(cmd); err != nil {
-			return
-		}
-
-		fn := cmd.Value.(component.Command).CommandInfoFunc()
+	for _, c := range cmds {
+		fn := c.Value.(component.Command).CommandInfoFunc()
 		raw, err := b.callDynamicFunc(ctx, b.logger, fn,
 			(*[]*vagrant_server.Job_Command)(nil))
 
@@ -328,13 +299,12 @@ func (b *Basis) Project(nameOrId string) *Project {
 func (b *Basis) LoadProject(popts ...ProjectOption) (p *Project, err error) {
 	// Create our project
 	p = &Project{
-		ctx:       b.ctx,
-		basis:     b,
-		logger:    b.logger,
-		mappers:   b.mappers,
-		factories: b.factories,
-		targets:   map[string]*Target{},
-		ui:        b.ui,
+		ctx:     b.ctx,
+		basis:   b,
+		logger:  b.logger,
+		mappers: b.mappers,
+		targets: map[string]*Target{},
+		ui:      b.ui,
 	}
 
 	// Apply any options provided
@@ -465,28 +435,7 @@ func (b *Basis) SaveFull() (err error) {
 
 // Returns the list of all known components
 func (b *Basis) Components(ctx context.Context) ([]*Component, error) {
-	var results []*Component
-	for _, cc := range componentCreatorMap {
-		c, err := cc.Create(ctx, b, "")
-		if status.Code(err) == codes.Unimplemented {
-			c = nil
-			err = nil
-		}
-		if err != nil {
-			// Make sure we clean ourselves up in an error case.
-			for _, r := range results {
-				r.Close()
-			}
-
-			return nil, err
-		}
-
-		if c != nil {
-			results = append(results, c)
-		}
-	}
-
-	return results, nil
+	return b.components(b.ctx)
 }
 
 // Runs a specific task via component which matches the task's
@@ -500,11 +449,6 @@ func (b *Basis) Run(ctx context.Context, task *vagrant_server.Task) (err error) 
 	cmd, err := b.component(ctx, component.CommandType, task.Component.Name)
 	if err != nil {
 		return err
-	}
-
-	// Specialize it if required
-	if _, err = b.specializeComponent(cmd); err != nil {
-		return
 	}
 
 	fn := cmd.Value.(component.Command).ExecuteFunc(
@@ -543,17 +487,29 @@ func (b *Basis) component(
 	if typ == component.CommandType {
 		name = strings.Split(name, " ")[0]
 	}
-	if c, ok := b.componentCache[typ][name]; ok {
-		return c, nil
+	p, err := b.plugins.ByName(name, typ)
+	if err != nil {
+		return nil, err
 	}
-	c, err := componentCreatorMap[typ].Create(ctx, b, name)
+	c, err := p.InstanceOf(typ)
 	if err != nil {
 		return nil, err
 	}
 
-	b.componentCache[typ][name] = c
-	b.Closer(func() error { return c.Close() })
-	return c, nil
+	// TODO(spox): we need to add hooks
+
+	hooks := map[string][]*config.Hook{}
+	return &Component{
+		Value: c.Component,
+		Info: &vagrant_server.Component{
+			Type:       vagrant_server.Component_Type(typ),
+			Name:       p.Name,
+			ServerAddr: b.Client().ServerTarget(),
+		},
+		hooks:   hooks,
+		mappers: b.mappers,
+		plugin:  c,
+	}, nil
 }
 
 // Load all components of a specific type
@@ -561,15 +517,18 @@ func (b *Basis) typeComponents(
 	ctx context.Context, // context for the plugins,
 	typ component.Type, // type of the components,
 ) (map[string]*Component, error) {
-	f := b.factories[typ]
 	result := map[string]*Component{}
+	plugins, err := b.plugins.ByType(typ)
+	if err != nil {
+		return nil, err
+	}
 
-	for _, name := range f.Registered() {
-		c, err := b.component(ctx, typ, name)
+	for _, p := range plugins {
+		c, err := b.component(ctx, typ, p.Name)
 		if err != nil {
 			return nil, err
 		}
-		result[name] = c
+		result[p.Name] = c
 	}
 	return result, nil
 }
@@ -580,9 +539,9 @@ func (b *Basis) components(
 ) ([]*Component, error) {
 	result := []*Component{}
 
-	for typ, f := range b.factories {
-		for _, name := range f.Registered() {
-			c, err := b.component(ctx, typ, name)
+	for _, p := range b.plugins.Plugins {
+		for _, t := range p.Types {
+			c, err := b.component(ctx, t, p.Name)
 			if err != nil {
 				return nil, err
 			}
@@ -590,72 +549,6 @@ func (b *Basis) components(
 		}
 	}
 	return result, nil
-}
-
-// Specialize a given component. This is specifically used for
-// Ruby based legacy Vagrant components.
-//
-// TODO: Since legacy Vagrant is no longer directly connecting
-// to the Vagrant server, this should probably be removed.
-func (b *Basis) specializeComponent(
-	c *Component, // component to specialize
-) (cmp plugin.PluginMetadata, err error) {
-	var ok bool
-	if cmp, ok = c.Value.(plugin.PluginMetadata); !ok {
-		return nil, fmt.Errorf("component does not support specialization")
-	}
-	cmp.SetRequestMetadata("basis_resource_id", b.ResourceId())
-	cmp.SetRequestMetadata("vagrant_service_endpoint", b.client.ServerTarget())
-
-	return
-}
-
-// startPlugin starts a plugin with the given type and name. The returned
-// value must be closed to clean up the plugin properly.
-func (b *Basis) startPlugin(
-	ctx context.Context, // context used for the plugin
-	typ component.Type, // type of component plugin to start
-	n string, // name of component plugin to start
-) (*plugin.Instance, error) {
-	log := b.logger.ResetNamed(
-		fmt.Sprintf("vagrant.plugin.%s.%s", strings.ToLower(typ.String()), n))
-
-	f, ok := b.factories[typ]
-	if !ok {
-		return nil, fmt.Errorf("unknown factory: %T", typ)
-	}
-
-	// Get the factory function for this type
-	fn := f.Func(n)
-	if fn == nil {
-		return nil, fmt.Errorf("unknown type: %q", n)
-	}
-
-	// Call the factory to get our raw value (interface{} type)
-	fnResult := fn.Call(argmapper.Typed(ctx, log),
-		argmapper.Logger(dynamic.Logger))
-
-	if err := fnResult.Err(); err != nil {
-		return nil, err
-	}
-	log.Info("initialized component", "type",
-		typ.String(),
-		"name", n)
-
-	raw := fnResult.Out(0)
-
-	// If we have a plugin.Instance then we can extract other information
-	// from this plugin. We accept pure factories too that don't return
-	// this so we type-check here.
-	pinst, ok := raw.(*plugin.Instance)
-	if !ok {
-		pinst = &plugin.Instance{
-			Component: raw,
-			Close:     func() {},
-		}
-	}
-
-	return pinst, nil
 }
 
 // Calls the function provided and converts the
@@ -723,11 +616,9 @@ func WithLogger(log hclog.Logger) BasisOption {
 	}
 }
 
-// WithFactory sets a factory for a component type. If this isn't set for
-// any component type, then the builtin mapper will be used.
-func WithFactory(t component.Type, f *factory.Factory) BasisOption {
+func WithPluginManager(m *plugin.Manager) BasisOption {
 	return func(b *Basis) (err error) {
-		b.factories[t] = f
+		b.plugins = m
 		return
 	}
 }
@@ -735,14 +626,6 @@ func WithFactory(t component.Type, f *factory.Factory) BasisOption {
 func WithBasisConfig(c *config.Config) BasisOption {
 	return func(b *Basis) (err error) {
 		b.config = c
-		return
-	}
-}
-
-// WithComponents sets the factories for components.
-func WithComponents(fs map[component.Type]*factory.Factory) BasisOption {
-	return func(b *Basis) (err error) {
-		b.factories = fs
 		return
 	}
 }

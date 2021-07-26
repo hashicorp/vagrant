@@ -13,7 +13,6 @@ import (
 	"github.com/hashicorp/go-hclog"
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/vagrant/internal/config"
-	"github.com/hashicorp/vagrant/internal/plugin"
 	"github.com/hashicorp/vagrant/internal/serverclient"
 	"google.golang.org/grpc"
 	"google.golang.org/protobuf/types/known/anypb"
@@ -217,14 +216,6 @@ func (t *Target) Run(ctx context.Context, task *vagrant_server.Task) (err error)
 		return
 	}
 
-	if _, err = t.specializeComponent(cmd); err != nil {
-		t.logger.Error("failed to specialize component",
-			"type", component.CommandType,
-			"name", task.Component.Name,
-			"error", err)
-		return
-	}
-
 	fn := cmd.Value.(component.Command).ExecuteFunc(
 		strings.Split(task.CommandName, " "))
 	result, err := t.callDynamicFunc(ctx, t.logger, fn, (*int32)(nil),
@@ -289,19 +280,6 @@ func (t *Target) callDynamicFunc(
 	)
 
 	return t.project.callDynamicFunc(ctx, log, f, expectedType, args...)
-}
-
-// Specialize a given component. This is specifically used for
-// Ruby based legacy Vagrant components.
-//
-// TODO: Since legacy Vagrant is no longer directly connecting
-// to the Vagrant server, this should probably be removed.
-func (t *Target) specializeComponent(c *Component) (cmp plugin.PluginMetadata, err error) {
-	if cmp, err = t.project.specializeComponent(c); err != nil {
-		return
-	}
-	cmp.SetRequestMetadata("target_resource_id", t.target.ResourceId)
-	return
 }
 
 func (t *Target) execHook(
