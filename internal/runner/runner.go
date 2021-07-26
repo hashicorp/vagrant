@@ -11,10 +11,8 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
-	"github.com/hashicorp/vagrant-plugin-sdk/component"
 	"github.com/hashicorp/vagrant-plugin-sdk/terminal"
 	intcfg "github.com/hashicorp/vagrant/internal/config"
-	"github.com/hashicorp/vagrant/internal/factory"
 	"github.com/hashicorp/vagrant/internal/plugin"
 
 	"github.com/hashicorp/vagrant/internal/server"
@@ -54,13 +52,14 @@ type Runner struct {
 	ctx                context.Context
 	cleanupFunc        func()
 	runner             *vagrant_server.Runner
-	factories          map[component.Type]*factory.Factory
 	ui                 terminal.UI
 	local              bool
 	tempDir            string
 
 	closedVal int32
 	acceptWg  sync.WaitGroup
+
+	plugins *plugin.Manager
 
 	// config is the current runner config.
 	config      *vagrant_server.RunnerConfig
@@ -89,12 +88,11 @@ func New(opts ...Option) (*Runner, error) {
 
 	// Our default runner
 	runner := &Runner{
-		id:        id,
-		logger:    hclog.L(),
-		ctx:       context.Background(),
-		runner:    &vagrant_server.Runner{Id: id},
-		opConfig:  &intcfg.Config{},
-		factories: plugin.BaseFactories,
+		id:       id,
+		logger:   hclog.L(),
+		ctx:      context.Background(),
+		runner:   &vagrant_server.Runner{Id: id},
+		opConfig: &intcfg.Config{},
 	}
 
 	// Build our config
@@ -107,13 +105,17 @@ func New(opts ...Option) (*Runner, error) {
 	}
 
 	runner.logger = runner.logger.ResetNamed("vagrant.runner")
+	runner.plugins = plugin.NewManager(runner.logger.Named("plugin-manager"))
+
 	// Setup our runner components list
-	for t, f := range runner.factories {
-		for _, n := range f.Registered() {
-			runner.runner.Components = append(runner.runner.Components, &vagrant_server.Component{
-				Type: vagrant_server.Component_Type(t),
-				Name: n,
-			})
+	for _, p := range runner.plugins.Plugins {
+		for _, t := range p.Types {
+			runner.runner.Components = append(runner.runner.Components,
+				&vagrant_server.Component{
+					Type: vagrant_server.Component_Type(t),
+					Name: t.String(),
+				},
+			)
 		}
 	}
 
@@ -173,26 +175,22 @@ func (r *Runner) Start() error {
 
 	log.Info("runner registered with server")
 
-	if plugin.IN_PROCESS_PLUGINS {
-		r.builtinPlugins = plugin.NewBuiltins(context.Background(), log)
-	}
+	// if plugin.IN_PROCESS_PLUGINS {
+	// 	r.builtinPlugins = plugin.NewBuiltins(context.Background(), log)
+	// }
 
 	// track plugins
 	err = r.LoadPlugins(r.opConfig)
 	if err != nil {
-		r.logger.Error("failed to load ruby runtime plugins", "error", err)
+		r.logger.Error("unexpected failure while loading plugins",
+			"error", err)
+
 		return err
 	}
 
-	r.factories, err = r.pluginFactories(r.logger, r.opConfig.Plugins(), ".")
-	if err != nil {
-		r.logger.Error("failed to load plugin factories", "error", err)
-		return err
-	}
-
-	if r.builtinPlugins != nil {
-		r.builtinPlugins.Start()
-	}
+	// if r.builtinPlugins != nil {
+	// 	r.builtinPlugins.Start()
+	// }
 
 	return nil
 }
@@ -251,15 +249,6 @@ func WithVagrantRubyRuntime(vrr plg.ClientProtocol) Option {
 			panic("failed to dispense RubyVagrantClient")
 		}
 		r.vagrantRubyClient = &rvc
-		return nil
-	}
-}
-
-// WithComponentFactory sets a factory for a component type. If this isn't set for
-// a component type, then the builtins will be used.
-func WithComponentFactory(t component.Type, f *factory.Factory) Option {
-	return func(r *Runner, cfg *config) error {
-		r.factories[t] = f
 		return nil
 	}
 }

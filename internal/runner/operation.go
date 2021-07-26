@@ -5,19 +5,15 @@ import (
 	"fmt"
 	"path/filepath"
 
-	"github.com/hashicorp/go-argmapper"
 	"github.com/hashicorp/go-hclog"
-	"github.com/hashicorp/go-multierror"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
 	"github.com/hashicorp/vagrant-plugin-sdk/component"
-	"github.com/hashicorp/vagrant-plugin-sdk/internal-shared/dynamic"
 	"github.com/hashicorp/vagrant-plugin-sdk/proto/vagrant_plugin_sdk"
 	"github.com/hashicorp/vagrant-plugin-sdk/terminal"
 	configpkg "github.com/hashicorp/vagrant/internal/config"
 	"github.com/hashicorp/vagrant/internal/core"
-	"github.com/hashicorp/vagrant/internal/factory"
 	"github.com/hashicorp/vagrant/internal/plugin"
 	"github.com/hashicorp/vagrant/internal/server/proto/vagrant_server"
 )
@@ -30,39 +26,59 @@ func (r *Runner) LoadPlugins(cfg *configpkg.Config) error {
 	}
 
 	for _, p := range plugins {
-		r.logger.Info("loading ruby plugin", "name", p.Name, "type", p.Type)
-		cfg.TrackRubyPlugin(p.Name, []interface{}{p.Type})
+		r.logger.Info("loading ruby plugin",
+			"name", p.Name,
+			"type", p.Type)
+
+		err = r.plugins.Register(
+			plugin.RubyFactory(r.vagrantRubyRuntime, p.Name, component.Type(p.Type)))
+		if err != nil {
+			return err
+		}
 	}
 
 	// Now lets load builtin plugins
-	for name, options := range plugin.Builtins {
-		r.logger.Info("loading builtin plugin " + name)
-		f := plugin.BuiltinFactory(name, component.PluginInfoType)
-		bp, err := dynamic.CallFunc(f, (**plugin.Instance)(nil), []*argmapper.Func{},
-			argmapper.Typed(r.logger))
+	for name, _ := range plugin.Builtins {
+		r.logger.Info("loading builtin plugin",
+			"name", name)
+
+		err = r.plugins.Register(
+			plugin.BuiltinFactory(name))
 		if err != nil {
-			panic(err)
+			return err
 		}
-		defer bp.(*plugin.Instance).Close()
-		p, ok := bp.(*plugin.Instance).Component.(component.PluginInfo)
-		if !ok {
-			panic("failed to convert instance to plugin info component")
-		}
-		typs := p.ComponentTypes()
-		r.logger.Info("valid component types for builtin plugin", "name", name, "types", typs)
-		cmps := []interface{}{}
-		for _, t := range typs {
-			cmps = append(cmps, t)
-		}
-
-		if plugin.IN_PROCESS_PLUGINS {
-			if err := r.builtinPlugins.Add(name, options...); err != nil {
-				return err
-			}
-		}
-
-		cfg.TrackBuiltinPlugin(name, cmps)
 	}
+
+	// NOTE: basis/project plugins loaded in core
+
+	// for name, options := range plugin.Builtins {
+	// 	r.logger.Info("loading builtin plugin " + name)
+	// 	f := plugin.BuiltinFactory(name, component.PluginInfoType)
+	// 	bp, err := dynamic.CallFunc(f, (**plugin.Instance)(nil), []*argmapper.Func{},
+	// 		argmapper.Typed(r.logger))
+	// 	if err != nil {
+	// 		panic(err)
+	// 	}
+	// 	defer bp.(*plugin.Instance).Close()
+	// 	p, ok := bp.(*plugin.Instance).Component.(component.PluginInfo)
+	// 	if !ok {
+	// 		panic("failed to convert instance to plugin info component")
+	// 	}
+	// 	typs := p.ComponentTypes()
+	// 	r.logger.Info("valid component types for builtin plugin", "name", name, "types", typs)
+	// 	cmps := []interface{}{}
+	// 	for _, t := range typs {
+	// 		cmps = append(cmps, t)
+	// 	}
+
+	// 	if plugin.IN_PROCESS_PLUGINS {
+	// 		if err := r.builtinPlugins.Add(name, options...); err != nil {
+	// 			return err
+	// 		}
+	// 	}
+
+	//		cfg.TrackBuiltinPlugin(name, cmps)
+	//	}
 
 	// TODO(spox): fix this loading
 	// if err == nil {
@@ -120,7 +136,7 @@ func (r *Runner) executeJob(
 	opts := []core.BasisOption{
 		core.WithLogger(log),
 		core.WithUI(ui),
-		core.WithComponents(r.factories),
+		core.WithPluginManager(r.plugins),
 		core.WithClient(r.client),
 		core.WithJobInfo(jobInfo),
 	}
@@ -205,113 +221,4 @@ func (r *Runner) executeJob(
 	default:
 		return nil, status.Errorf(codes.Aborted, "unknown operation %T", job.Operation)
 	}
-}
-
-func (r *Runner) pluginFactories(
-	log hclog.Logger,
-	plugins []*configpkg.Plugin,
-	wd string,
-) (map[component.Type]*factory.Factory, error) {
-	// Copy all our base factories first
-	result := map[component.Type]*factory.Factory{}
-	for k, f := range r.factories {
-		result[k] = f.Copy()
-	}
-
-	// Get our plugin search paths
-	pluginPaths, err := plugin.DefaultPaths(wd)
-	if err != nil {
-		return nil, err
-	}
-	log.Debug("plugin search path", "path", pluginPaths)
-
-	// Search for all of our plugins
-	var perr error
-	for _, pluginCfg := range plugins {
-		plog := log.With("plugin_name", pluginCfg.Name)
-
-		// If this is a ruby plugin, register it using the ruby factory
-		if pluginCfg.Type.Ruby {
-			for _, t := range pluginCfg.Types() {
-				plog.Debug("registering ruby plugin", "name", pluginCfg.Name, "type", t)
-				result[t].Register(
-					pluginCfg.Name,
-					plugin.BuiltinRubyFactory(
-						r.vagrantRubyRuntime,
-						pluginCfg.Name,
-						t,
-					),
-				)
-			}
-			continue
-		}
-
-		// If this a builtin plugin, register it using the builtin factory
-		if pluginCfg.Type.Builtin {
-			for _, t := range pluginCfg.Types() {
-				plog.Debug("registering builtin plugin", "name", pluginCfg.Name, "type", t)
-				if plugin.IN_PROCESS_PLUGINS {
-					result[t].Register(
-						pluginCfg.Name,
-						r.builtinPlugins.Factory(
-							pluginCfg.Name,
-							t,
-						),
-					)
-				} else {
-					result[t].Register(
-						pluginCfg.Name,
-						plugin.BuiltinFactory(
-							pluginCfg.Name,
-							t,
-						),
-					)
-				}
-			}
-			continue
-		}
-
-		// Now we can search for the plugin outside of vagrant
-		plog.Debug("searching for plugin")
-
-		// Find our plugin.
-		cmd, err := plugin.Discover(pluginCfg, pluginPaths)
-		if err != nil {
-			plog.Warn("error searching for plugin", "err", err)
-			perr = multierror.Append(perr, err)
-			continue
-		}
-
-		// If the plugin was not found, it is only an error if
-		// we don't have it already registered.
-		if cmd == nil {
-			if _, ok := plugin.Builtins[pluginCfg.Name]; !ok {
-				perr = multierror.Append(perr, fmt.Errorf(
-					"plugin %q not found",
-					pluginCfg.Name))
-				plog.Warn("plugin not found")
-			} else {
-				plog.Debug("plugin found as builtin")
-				for _, t := range pluginCfg.Types() {
-					result[t].Register(
-						pluginCfg.Name,
-						plugin.BuiltinFactory(
-							pluginCfg.Name,
-							t,
-						),
-					)
-				}
-			}
-
-			continue
-		}
-
-		// Register the command
-		plog.Debug("plugin found as external binary", "path", cmd.Path)
-		for _, t := range pluginCfg.Types() {
-			result[t].Register(pluginCfg.Name, plugin.Factory(cmd, t))
-		}
-	}
-
-	return result, perr
 }
