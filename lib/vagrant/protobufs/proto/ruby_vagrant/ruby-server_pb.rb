@@ -16,13 +16,20 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
       optional :type, :enum, 2, "hashicorp.vagrant.Plugin.Type"
     end
     add_enum "hashicorp.vagrant.Plugin.Type" do
-      value :COMMAND, 0
-      value :COMMUNICATOR, 1
-      value :GUEST, 2
-      value :HOST, 3
-      value :PROVIDER, 4
-      value :PROVISIONER, 5
-      value :SYNCED_FOLDER, 6
+      value :UNKNOWN, 0
+      value :COMMAND, 1
+      value :COMMUNICATOR, 2
+      value :GUEST, 3
+      value :HOST, 4
+      value :PROVIDER, 5
+      value :PROVISIONER, 6
+      value :SYNCEDFOLDER, 7
+      value :AUTHENTICATOR, 8
+      value :LOGPLATFORM, 9
+      value :LOGVIEWER, 10
+      value :MAPPER, 11
+      value :CONFIG, 12
+      value :PLUGININFO, 13
     end
     add_message "hashicorp.vagrant.ParseVagrantfileRequest" do
       optional :path, :string, 1

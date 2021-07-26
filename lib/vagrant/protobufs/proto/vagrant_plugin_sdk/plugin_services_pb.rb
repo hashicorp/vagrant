@@ -81,6 +81,7 @@ module Hashicorp
           self.service_name = 'hashicorp.vagrant.sdk.PluginInfoService'
 
           rpc :ComponentTypes, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::PluginInfo::ComponentList
+          rpc :Name, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::PluginInfo::Name
         end
 
         Stub = Service.rpc_stub_class

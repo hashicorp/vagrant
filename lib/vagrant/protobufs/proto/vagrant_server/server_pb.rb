@@ -126,6 +126,12 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
       value :PROVIDER, 5
       value :PROVISIONER, 6
       value :SYNCEDFOLDER, 7
+      value :AUTHENTICATOR, 8
+      value :LOGPLATFORM, 9
+      value :LOGVIEWER, 10
+      value :MAPPER, 11
+      value :CONFIG, 12
+      value :PLUGININFO, 13
     end
     add_message "hashicorp.vagrant.Status" do
       optional :state, :enum, 1, "hashicorp.vagrant.Status.State"

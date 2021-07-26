@@ -35,13 +35,20 @@ message Plugin {
   // in the Go sdk/component package exactly. A test in internal/server
   // validates this.
   enum Type {
-    COMMAND = 0;
-    COMMUNICATOR = 1;
-    GUEST = 2;
-    HOST = 3;
-    PROVIDER = 4;
-    PROVISIONER = 5;
-    SYNCED_FOLDER = 6;
+    UNKNOWN = 0;
+    COMMAND = 1;
+    COMMUNICATOR = 2;
+    GUEST = 3;
+    HOST = 4;
+    PROVIDER = 5;
+    PROVISIONER = 6;
+    SYNCEDFOLDER = 7;
+    AUTHENTICATOR = 8;
+    LOGPLATFORM = 9;
+    LOGVIEWER = 10;
+    MAPPER = 11;
+    CONFIG = 12;
+    PLUGININFO = 13;
   }
 }
 
