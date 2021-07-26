@@ -59,18 +59,27 @@ func (b *Basis) doJob(ctx context.Context, job *vagrant_server.Job, ui terminal.
 
 	// In local mode we have to start a runner.
 	if b.local {
-		log.Info("local mode, starting local runner")
-		r, err := b.startRunner()
-		if err != nil {
-			return nil, err
+
+		if b.localRunner == nil {
+			log.Info("local mode, starting local runner")
+			r, err := b.startRunner()
+			if err != nil {
+				return nil, err
+			}
+
+			b.localRunner = r
+			b.cleanup(func() { r.Close() })
 		}
 
-		log.Info("runner started", "runner_id", r.Id())
+		r := b.localRunner
+
+		log.Info("using local runner", "runner_id", r.Id())
 
 		// We defer the close so that we clean up resources. Local mode
 		// always blocks and streams the full output so when doJob exits
 		// the job is complete.
-		defer r.Close()
+
+		// defer r.Close()
 
 		var jobCh chan struct{}
 

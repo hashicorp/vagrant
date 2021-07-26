@@ -13,6 +13,7 @@ import (
 	"github.com/hashicorp/vagrant-plugin-sdk/proto/vagrant_plugin_sdk"
 	"github.com/hashicorp/vagrant-plugin-sdk/terminal"
 	configpkg "github.com/hashicorp/vagrant/internal/config"
+	"github.com/hashicorp/vagrant/internal/runner"
 	"github.com/hashicorp/vagrant/internal/server/proto/vagrant_server"
 	"github.com/hashicorp/vagrant/internal/serverclient"
 )
@@ -36,6 +37,7 @@ type Basis struct {
 
 	local       bool
 	localServer bool // True when a local server is created
+	localRunner *runner.Runner
 }
 
 func New(ctx context.Context, opts ...Option) (basis *Basis, err error) {
