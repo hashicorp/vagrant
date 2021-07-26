@@ -8,4 +8,5 @@ var CommandOptions = []sdk.Option{
 	sdk.WithComponents(
 		&Command{},
 	),
+	sdk.WithName("otherplugin"),
 }

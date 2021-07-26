@@ -15,4 +15,5 @@ var CommandOptions = []sdk.Option{
 		&command.Command{},
 		&host.AlwaysTrueHost{},
 	),
+	sdk.WithName("myplugin"),
 }
