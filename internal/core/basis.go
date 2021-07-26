@@ -487,7 +487,7 @@ func (b *Basis) component(
 	if typ == component.CommandType {
 		name = strings.Split(name, " ")[0]
 	}
-	p, err := b.plugins.ByName(name, typ)
+	p, err := b.plugins.Find(name, typ)
 	if err != nil {
 		return nil, err
 	}
@@ -518,7 +518,7 @@ func (b *Basis) typeComponents(
 	typ component.Type, // type of the components,
 ) (map[string]*Component, error) {
 	result := map[string]*Component{}
-	plugins, err := b.plugins.ByType(typ)
+	plugins, err := b.plugins.Typed(typ)
 	if err != nil {
 		return nil, err
 	}
