@@ -411,7 +411,7 @@ message Ref {
 }
 
 // Component represents metadata about a component. A component is the
-// generic name for a builder, registry, platform, etc.
+// generic name for a plugin type
 message Component {
   // type of the component
   Type type = 1;
@@ -433,6 +433,12 @@ message Component {
     PROVIDER = 5;
     PROVISIONER = 6;
     SYNCEDFOLDER = 7;
+    AUTHENTICATOR = 8;
+    LOGPLATFORM = 9;
+    LOGVIEWER = 10;
+    MAPPER = 11;
+    CONFIG = 12;
+    PLUGININFO = 13;
   }
 }
 
