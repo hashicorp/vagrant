@@ -668,15 +668,6 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
       repeated :provisioners, :message, 32, "hashicorp.vagrant.sdk.Vagrantfile.Provisioner"
       repeated :synced_folders, :message, 33, "hashicorp.vagrant.sdk.Vagrantfile.SyncedFolder"
     end
-    add_message "hashicorp.vagrant.sdk.Vagrantfile.ConfigSSH" do
-      optional :config, :message, 1, "google.protobuf.Any"
-    end
-    add_message "hashicorp.vagrant.sdk.Vagrantfile.ConfigWinRM" do
-      optional :config, :message, 1, "google.protobuf.Any"
-    end
-    add_message "hashicorp.vagrant.sdk.Vagrantfile.ConfigWinssh" do
-      optional :config, :message, 1, "google.protobuf.Any"
-    end
     add_message "hashicorp.vagrant.sdk.Vagrantfile.ConfigVagrant" do
       optional :host, :string, 1
       repeated :plugins, :string, 2
@@ -689,11 +680,8 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
     add_message "hashicorp.vagrant.sdk.Vagrantfile.MachineConfig" do
       optional :name, :string, 1
       optional :config_vm, :message, 2, "hashicorp.vagrant.sdk.Vagrantfile.ConfigVM"
-      optional :config_ssh, :message, 3, "hashicorp.vagrant.sdk.Vagrantfile.ConfigSSH"
-      optional :config_winrm, :message, 4, "hashicorp.vagrant.sdk.Vagrantfile.ConfigWinRM"
-      optional :config_winssh, :message, 5, "hashicorp.vagrant.sdk.Vagrantfile.ConfigWinssh"
-      optional :config_vagrant, :message, 6, "hashicorp.vagrant.sdk.Vagrantfile.ConfigVagrant"
-      repeated :plugin_configs, :message, 7, "hashicorp.vagrant.sdk.Vagrantfile.GeneralConfig"
+      optional :config_vagrant, :message, 3, "hashicorp.vagrant.sdk.Vagrantfile.ConfigVagrant"
+      repeated :plugin_configs, :message, 4, "hashicorp.vagrant.sdk.Vagrantfile.GeneralConfig"
     end
     add_message "hashicorp.vagrant.sdk.Vagrantfile.Provisioner" do
       optional :name, :string, 1
@@ -895,9 +883,6 @@ module Hashicorp
       Vagrantfile::TargetNamesResponse = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Vagrantfile.TargetNamesResponse").msgclass
       Vagrantfile::PrimaryTargetNameResponse = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Vagrantfile.PrimaryTargetNameResponse").msgclass
       Vagrantfile::ConfigVM = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Vagrantfile.ConfigVM").msgclass
-      Vagrantfile::ConfigSSH = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Vagrantfile.ConfigSSH").msgclass
-      Vagrantfile::ConfigWinRM = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Vagrantfile.ConfigWinRM").msgclass
-      Vagrantfile::ConfigWinssh = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Vagrantfile.ConfigWinssh").msgclass
       Vagrantfile::ConfigVagrant = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Vagrantfile.ConfigVagrant").msgclass
       Vagrantfile::GeneralConfig = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Vagrantfile.GeneralConfig").msgclass
       Vagrantfile::MachineConfig = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Vagrantfile.MachineConfig").msgclass
