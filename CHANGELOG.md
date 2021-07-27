@@ -8,6 +8,7 @@ BUG FIXES:
 
 - core: Fix of plugin manager kwargs [GH-12452]
 - providers/docker: Pass in docker command opts as a map [GH-12449]
+- providers/hyperv: Fix network address detection [GH-12472]
 
 ## 2.2.17 (July 7, 2021)
 
