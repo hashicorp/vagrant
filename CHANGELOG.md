@@ -1,3 +1,11 @@
+## Next version (Unreleased)
+
+FEATURES:
+
+IMPROVEMENTS:
+
+BUG FIXES
+
 ## 2.2.18 (July 27, 2021)
 
 BUG FIXES:
