@@ -104,7 +104,6 @@ require (
 // replace github.com/hashicorp/horizon => ../horizon
 
 replace github.com/hashicorp/vagrant-plugin-sdk => ../vagrant-plugin-sdk
-replace github.com/hashicorp/go-argmapper => ../go-argmapper
 
 replace (
 	// v0.3.11 panics for some reason on our tests
