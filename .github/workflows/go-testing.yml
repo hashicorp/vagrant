@@ -7,6 +7,7 @@ on:
       - 'builtin/**'
       - 'cmd/**'
       - 'internal/**'
+      - '.github/workflows**'
   pull_request:
     branches:
       - main
@@ -21,17 +22,36 @@ jobs:
     strategy:
       matrix:
         go: ['^1.15']
+        ruby: ['2.7', '3.0']
     name: Vagrant unit tests on Go 
     steps:
       - name: Code Checkout
         uses: actions/checkout@v2
+        with:
+          path: main
+      - name: Get vagrant-plugin-sdk
+        uses: actions/checkout@v2
+        with:
+          repository: hashicorp/vagrant-plugin-sdk
+          path: vagrant-plugin-sdk
+          ref: main
+          token: ${{ secrets.HASHIBOT_TOKEN }}
       - name: Setup Go
         uses: actions/setup-go@v2
         with:
           go-version: ${{matrix.go}}
+      - name: Setup Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: ${{matrix.ruby}}
+          architecture: 'x64'
+      - name: Setup ruby vagrant
+        run: |
+          gem install --no-document bundler
+          cd main && bundle install
       - name: Get dependencies
-        run: go get -v -t -d ./...
+        run: cd main && go get -v -t -d ./...
       - name: Vet
-        run: go vet ./...
+        run: cd main && go vet ./...
       - name: Test
-        run: go test ./...
+        run: cd main && go test ./...
