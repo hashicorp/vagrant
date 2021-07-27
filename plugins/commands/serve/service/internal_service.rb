@@ -13,8 +13,6 @@ module VagrantPlugins
         prepend Util::HasBroker
         prepend Util::ExceptionLogger
 
-        CONFIG_VAGRANT_CLS = Hashicorp::Vagrant::Sdk::Vagrantfile::ConfigVagrant
-        GENERAL_CONFIG_CLS = Hashicorp::Vagrant::Sdk::Vagrantfile::GeneralConfig
         LOG = Log4r::Logger.new("vagrant::command::serve::service::internal")
 
         def get_plugins(req, _unused_call)
@@ -45,12 +43,10 @@ module VagrantPlugins
             Vagrant::Config::VERSIONS, Vagrant::Config::VERSIONS_ORDER)
           config_loader.set(:root, path)
           v = Vagrant::Vagrantfile.new(config_loader, [:root])
-          LOG.debug("loaded vagrantfile")
 
           machine_configs = []
           # Get the config for each machine
           v.machine_names.each do |mach|
-            LOG.debug("loading machine config for #{mach}")
             machine_info = v.machine_config(mach, nil, nil, false)
             root_config = machine_info[:config]
             vm_config = root_config.vm
@@ -60,16 +56,16 @@ module VagrantPlugins
               # A builtin plugin
               # TODO: find a better way to check the module
               next if config.class.to_s.split("::")[0] == "VagrantPlugins"
-              plugin_configs << config.to_proto(GENERAL_CONFIG_CLS,name)
+              plugin_configs << config.to_proto(name)
             end
+            plugin_configs << root_config.ssh.to_proto("ssh")
+            plugin_configs << root_config.winrm.to_proto("winrm")
+            plugin_configs << root_config.winssh.to_proto("winssh")
 
             machine_configs << Hashicorp::Vagrant::Sdk::Vagrantfile::MachineConfig.new(
               name: mach.to_s,
               config_vm: vm_config.to_proto,
-              config_vagrant: root_config.vagrant.to_proto(CONFIG_VAGRANT_CLS),
-              config_ssh: root_config.ssh.to_proto(GENERAL_CONFIG_CLS,"ssh"),
-              config_winrm: root_config.winrm.to_proto(GENERAL_CONFIG_CLS,"winrm"),
-              config_winssh: root_config.winssh.to_proto(GENERAL_CONFIG_CLS,"winssh"),
+              config_vagrant: root_config.vagrant.to_proto(),
               plugin_configs: plugin_configs
             )
           end
@@ -80,7 +76,6 @@ module VagrantPlugins
             current_version: Vagrant::Config::CURRENT_VERSION,
             machine_configs: machine_configs,
           )
-          LOG.debug("vagrantfile parsed!")
           Hashicorp::Vagrant::ParseVagrantfileResponse.new(
             vagrantfile: vagrantfile
           )

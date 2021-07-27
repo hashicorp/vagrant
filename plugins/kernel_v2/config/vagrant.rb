@@ -1,5 +1,11 @@
 require "vagrant"
 
+$LOAD_PATH << Vagrant.source_root.join("lib/vagrant/protobufs/proto").to_s
+
+require "vagrant/protobufs/proto/protostructure_pb"
+require "vagrant/protobufs/proto/vagrant_plugin_sdk/plugin_pb"
+require "vagrant/protobufs/proto/vagrant_plugin_sdk/plugin_services_pb"
+
 module VagrantPlugins
   module Kernel_V2
     class VagrantConfig < Vagrant.plugin("2", :config)
@@ -9,6 +15,7 @@ module VagrantPlugins
 
       VALID_PLUGIN_KEYS = ["sources", "version", "entry_point"].map(&:freeze).freeze
       INVALID_PLUGIN_FORMAT = :invalid_plugin_format
+      CONFIG_VAGRANT_CLS = Hashicorp::Vagrant::Sdk::Vagrantfile::ConfigVagrant
 
       def initialize
         @host = UNSET_VALUE
@@ -92,8 +99,8 @@ module VagrantPlugins
         end
       end
 
-      def to_proto(cfg_cls)
-        config_proto = cfg_cls.new()
+      def to_proto()
+        config_proto = CONFIG_VAGRANT_CLS.new()
         self.instance_variables_hash.each do |k, v|
           # Skip config that has not be set
           next if v.class == Object 

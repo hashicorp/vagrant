@@ -1,4 +1,7 @@
 require "set"
+require "vagrant/protobufs/proto/protostructure_pb"
+require "vagrant/protobufs/proto/vagrant_plugin_sdk/plugin_pb"
+require "vagrant/protobufs/proto/vagrant_plugin_sdk/plugin_services_pb"
 
 module Vagrant
   module Plugin
@@ -13,6 +16,8 @@ module Vagrant
         # is to initialize all variables to this value, then the {#merge}
         # method below will "just work" in many cases.
         UNSET_VALUE = Object.new
+
+        GENERAL_CONFIG_CLS = Hashicorp::Vagrant::Sdk::Vagrantfile::GeneralConfig
 
         # This is called as a last-minute hook that allows the configuration
         # object to finalize itself before it will be put into use. This is
@@ -165,7 +170,7 @@ module Vagrant
         end
 
 
-        def to_proto(cfg_cls, type)
+        def to_proto(type)
           protoize = self.instance_variables_hash
           protoize.map do |k,v|
             # Get embedded default struct
@@ -178,7 +183,7 @@ module Vagrant
           protoize = clean_up_config_object(protoize)
           config_struct = Google::Protobuf::Struct.from_hash(protoize)
           config_any = Google::Protobuf::Any.pack(config_struct)
-          cfg_cls.new(type: type, config: config_any)
+          GENERAL_CONFIG_CLS.new(type: type, config: config_any)
         end
       end
     end
