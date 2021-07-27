@@ -74,7 +74,7 @@ module Hashicorp
       module PluginInfoService
         class Service
 
-          include ::GRPC::GenericService
+          include GRPC::GenericService
 
           self.marshal_class_method = :encode
           self.unmarshal_class_method = :decode
@@ -337,6 +337,7 @@ module Hashicorp
           rpc :VagrantfileName, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::Target::VagrantfileNameResponse
           rpc :VagrantfilePath, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::Target::VagrantfilePathResponse
           rpc :UpdatedAt, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::Target::UpdatedAtResponse
+          rpc :Communicate, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::Args::Communicator
         end
 
         Stub = Service.rpc_stub_class
@@ -365,6 +366,7 @@ module Hashicorp
           rpc :VagrantfileName, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::Target::VagrantfileNameResponse
           rpc :VagrantfilePath, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::Target::VagrantfilePathResponse
           rpc :UpdatedAt, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::Target::UpdatedAtResponse
+          rpc :Communicate, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::Args::Communicator
           # Machine specific
           rpc :SetID, ::Hashicorp::Vagrant::Sdk::Target::Machine::SetIDRequest, ::Google::Protobuf::Empty
           rpc :GetID, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::Target::Machine::GetIDResponse
@@ -373,6 +375,11 @@ module Hashicorp
           rpc :SetUUID, ::Hashicorp::Vagrant::Sdk::Target::Machine::SetUUIDRequest, ::Google::Protobuf::Empty
           rpc :GetUUID, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::Target::Machine::GetUUIDResponse
           rpc :Box, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::Args::Target::Machine::Box
+          rpc :Guest, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::Args::Guest
+          rpc :Reload, ::Google::Protobuf::Empty, ::Google::Protobuf::Empty
+          rpc :ConnectionInfo, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::Target::Machine::ConnectionInfoResponse
+          rpc :UID, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::Target::Machine::UIDResponse
+          rpc :SyncedFolders, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::Target::Machine::SyncedFoldersResponse
         end
 
         Stub = Service.rpc_stub_class
