@@ -104,6 +104,16 @@ func (p *Project) Host() (host core.Host, err error) {
 	return p.basis.Host()
 }
 
+// MachineIndex implements core.Project
+func (p *Project) MachineIndex() (index core.MachineIndex, err error) {
+	index = &MachineIndex{
+		ctx:    p.ctx,
+		logger: p.logger,
+		client: p.Client(),
+	}
+	return index, nil
+}
+
 // MachineNames implements core.Project
 func (p *Project) MachineNames() (names []string, err error) {
 	// TODO: implement
