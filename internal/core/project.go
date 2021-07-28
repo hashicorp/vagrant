@@ -105,13 +105,13 @@ func (p *Project) Host() (host core.Host, err error) {
 }
 
 // MachineIndex implements core.Project
-func (p *Project) MachineIndex() (index core.MachineIndex, err error) {
-	index = &MachineIndex{
+func (p *Project) TargetIndex() (index core.TargetIndex, err error) {
+	index = &TargetIndex{
 		ctx:    p.ctx,
 		logger: p.logger,
 		client: p.Client(),
 	}
-	return index, nil
+	return
 }
 
 // MachineNames implements core.Project
