@@ -1,14 +1,26 @@
 package plugin
 
 import (
-	sdk "github.com/hashicorp/vagrant-plugin-sdk"
+	"fmt"
+	"strings"
+	"sync"
+
+	"github.com/hashicorp/go-hclog"
+	"github.com/hashicorp/go-multierror"
+	"github.com/hashicorp/go-plugin"
+
+	"github.com/hashicorp/vagrant-plugin-sdk"
 	"github.com/hashicorp/vagrant-plugin-sdk/component"
 	"github.com/hashicorp/vagrant/builtin/myplugin"
 	"github.com/hashicorp/vagrant/builtin/otherplugin"
-	"github.com/hashicorp/vagrant/internal/factory"
 )
 
-// disable in process plugins by default for now
+// Setting this value to `true` will run builtin plugins
+// in the existing process. This mode of plugin execution
+// is not a "supported" mode of the go-plugin library and
+// currently should only be used during testing in development
+// for determining impact of a large number of builtin
+// plugins
 const IN_PROCESS_PLUGINS = false
 
 var (
@@ -18,37 +30,137 @@ var (
 		"myplugin":    myplugin.CommandOptions,
 		"otherplugin": otherplugin.CommandOptions,
 	}
-
-	// Rubies is a map of all available plugins accessible via the
-	// Ruby runtime plugin to legacy Vagrant.
-	Rubies = map[string][]sdk.Option{}
-
-	// BaseFactories is the set of base plugin factories. This will include any
-	// built-in or well-known plugins by default. This should be used as the base
-	// for building any set of factories.
-	BaseFactories = map[component.Type]*factory.Factory{
-		component.MapperType:       mustFactory(factory.New((*interface{})(nil))),
-		component.CommandType:      mustFactory(factory.New(component.TypeMap[component.CommandType])),
-		component.CommunicatorType: mustFactory(factory.New(component.TypeMap[component.CommunicatorType])),
-		component.ConfigType:       mustFactory(factory.New(component.TypeMap[component.ConfigType])),
-		component.GuestType:        mustFactory(factory.New(component.TypeMap[component.GuestType])),
-		component.HostType:         mustFactory(factory.New(component.TypeMap[component.HostType])),
-		component.LogPlatformType:  mustFactory(factory.New(component.TypeMap[component.LogPlatformType])),
-		component.LogViewerType:    mustFactory(factory.New(component.TypeMap[component.LogViewerType])),
-		component.ProviderType:     mustFactory(factory.New(component.TypeMap[component.ProviderType])),
-		component.ProvisionerType:  mustFactory(factory.New(component.TypeMap[component.ProvisionerType])),
-		component.SyncedFolderType: mustFactory(factory.New(component.TypeMap[component.SyncedFolderType])),
-		component.PluginInfoType:   mustFactory(factory.New(component.TypeMap[component.PluginInfoType])),
-	}
 )
 
-func must(err error) {
-	if err != nil {
-		panic(err)
-	}
+type Plugin struct {
+	Builtin  bool                  // Flags if this plugin is a builtin plugin
+	Client   plugin.ClientProtocol // Client connection to plugin
+	Location string                // Location of the plugin (generally path to binary)
+	Name     string                // Name of the plugin
+	Types    []component.Type      // Component types supported by this plugin
+
+	closers    []func() error
+	components map[component.Type]*Instance
+	logger     hclog.Logger
+	m          sync.Mutex
+	src        *plugin.Client
 }
 
-func mustFactory(f *factory.Factory, err error) *factory.Factory {
-	must(err)
-	return f
+// Check if plugin implements specific component type
+func (p *Plugin) HasType(
+	t component.Type,
+) bool {
+	for _, pt := range p.Types {
+		if pt == t {
+			return true
+		}
+	}
+	return false
+}
+
+// Add a callback to execute when plugin is closed
+func (p *Plugin) Closer(c func() error) {
+	p.closers = append(p.closers, c)
+}
+
+// Calls all registered close callbacks
+func (p *Plugin) Close() (err error) {
+	p.m.Lock()
+	defer p.m.Unlock()
+
+	for _, c := range p.closers {
+		if e := c(); e != nil {
+			multierror.Append(err, e)
+		}
+	}
+	return
+}
+
+// Get specific component type from plugin
+func (p *Plugin) InstanceOf(
+	c component.Type,
+) (i *Instance, err error) {
+	p.m.Lock()
+	defer p.m.Unlock()
+
+	p.logger.Trace("loading component from plugin",
+		"name", p.Name,
+		"type", c.String())
+
+	ok := false
+	// Validate this plugin supports the requested component
+	for _, t := range p.Types {
+		if t == c {
+			ok = true
+		}
+	}
+	if !ok {
+		p.logger.Error("unsupported component type requested",
+			"name", p.Name,
+			"type", c.String(),
+			"valid", p.types())
+
+		return nil, fmt.Errorf("plugin does not support %s component type", c.String())
+	}
+
+	// If it's cached, return that
+	if i, ok = p.components[c]; ok {
+		p.logger.Trace("using cached component",
+			"name", p.Name,
+			"type", c.String())
+
+		return
+	}
+
+	// Build the instance
+	raw, err := p.Client.Dispense(strings.ToLower(c.String()))
+	if err != nil {
+		p.logger.Error("failed to dispense component from plugin",
+			"name", p.Name,
+			"type", c.String())
+
+		return
+	}
+	setter, ok := raw.(PluginMetadata)
+	if !ok {
+		p.logger.Warn("plugin does not support name metadata, skipping",
+			"component", c.String(),
+			"name", p.Name)
+
+	} else {
+		p.logger.Info("setting plugin name metadata",
+			"component", c.String(),
+			"name", p.Name)
+
+		setter.SetRequestMetadata("plugin_name", p.Name)
+	}
+
+	b, ok := raw.(hasGRPCBroker)
+	if !ok {
+		p.logger.Error("cannot extract grpc broker from plugin client",
+			"component", c.String(),
+			"name", p.Name)
+
+		return nil, fmt.Errorf("unable to extract broker from plugin client")
+	}
+
+	i = &Instance{
+		Component: raw,
+		Broker:    b.GRPCBroker(),
+		Mappers:   nil,
+	}
+
+	// Store the instance for later usage
+	p.components[c] = i
+
+	return
+}
+
+// Helper that returns supported types as strings
+func (p *Plugin) types() []string {
+	result := []string{}
+	for _, t := range p.Types {
+		result = append(result, t.String())
+	}
+	return result
 }
