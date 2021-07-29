@@ -141,7 +141,7 @@ func BaseCommand(ctx context.Context, log hclog.Logger, logOutput io.Writer, opt
 	}
 
 	// Setup our basis path
-	homeConfigPath, err := paths.VagrantHome()
+	homeConfigPath, err := paths.VagrantConfig()
 	if err != nil {
 		bc.ui.Output(clierrors.Humanize(err), terminal.WithErrorStyle())
 		return nil, err
@@ -181,12 +181,12 @@ func BaseCommand(ctx context.Context, log hclog.Logger, logOutput io.Writer, opt
 	basisOpts := []clientpkg.Option{
 		clientpkg.WithLogger(bc.Log.ResetNamed("vagrant.client")),
 		clientpkg.WithClientConnect(connectOpts...),
-		clientpkg.WithBasis(
-			&vagrant_server.Basis{
-				Name: homeConfigPath.String(),
-				Path: homeConfigPath.String(),
-			},
-		),
+		// clientpkg.WithBasis(
+		// 	&vagrant_server.Basis{
+		// 		Name: homeConfigPath.String(),
+		// 		Path: homeConfigPath.String(),
+		// 	},
+		// ),
 	}
 	if !bc.flagRemote {
 		basisOpts = append(basisOpts, clientpkg.WithLocal())
@@ -199,6 +199,24 @@ func BaseCommand(ctx context.Context, log hclog.Logger, logOutput io.Writer, opt
 	basis, err := clientpkg.New(context.Background(), basisOpts...)
 	if err != nil {
 		return nil, err
+	}
+
+	// Determine if we are in a project and setup if so
+	cwd, err := path.NewPath(".").Abs()
+	if err != nil {
+		panic("cannot setup local directory")
+	}
+	if true { //} _, err := config.FindPath("", ""); err == nil {
+		bc.project, err = basis.LoadProject(
+			&vagrant_server.Project{
+				Name:  cwd.Base().String(),
+				Path:  cwd.String(),
+				Basis: basis.Ref(),
+			},
+		)
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	bc.basis = basis
@@ -252,24 +270,6 @@ func (c *baseCommand) Init(opts ...Option) error {
 	// if c.flagBasis != "" {
 	// 	c.basis.SetRef(&vagrant_server.Ref_Basis{Name: c.flagBasis})
 	// }
-
-	// Determine if we are in a project and setup if so
-	cwd, err := path.NewPath(".").Abs()
-	if err != nil {
-		panic("cannot setup local directory")
-	}
-	if _, err := config.FindPath("", ""); err == nil {
-		c.project, err = c.basis.LoadProject(
-			&vagrant_server.Project{
-				Name:  cwd.String(),
-				Path:  cwd.String(),
-				Basis: c.basis.Ref(),
-			},
-		)
-		if err != nil {
-			return err
-		}
-	}
 
 	// Parse the configuration
 	c.cfg = &config.Config{}
