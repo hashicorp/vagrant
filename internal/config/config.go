@@ -22,7 +22,6 @@ type Config struct {
 	Basis   *Basis
 	Project *Project
 
-	Plugin   []*Plugin
 	pathData map[string]string
 	ctx      *hcl.EvalContext
 }
