@@ -21,21 +21,12 @@ jobs:
     runs-on: ubuntu-18.04
     strategy:
       matrix:
-        go: ['^1.15']
+        go: ['^1.13']
         ruby: ['2.7', '3.0']
     name: Vagrant unit tests on Go 
     steps:
       - name: Code Checkout
         uses: actions/checkout@v2
-        with:
-          path: main
-      - name: Get vagrant-plugin-sdk
-        uses: actions/checkout@v2
-        with:
-          repository: hashicorp/vagrant-plugin-sdk
-          path: vagrant-plugin-sdk
-          ref: main
-          token: ${{ secrets.HASHIBOT_TOKEN }}
       - name: Setup Go
         uses: actions/setup-go@v2
         with:
@@ -48,10 +39,15 @@ jobs:
       - name: Setup ruby vagrant
         run: |
           gem install --no-document bundler
-          cd main && bundle install
+          bundle install
       - name: Get dependencies
-        run: cd main && go get -v -t -d ./...
+        run:  |
+          git config --global url."https://${HASHIBOT_USERNAME}:${HASHIBOT_TOKEN}@github.com".insteadOf "https://github.com"
+          go get -v -t -d ./...
+        env:
+          HASHIBOT_USERNAME: ${{ secrets.HASHIBOT_USERNAME }}
+          HASHIBOT_TOKEN: ${{ secrets.HASHIBOT_TOKEN }}
       - name: Vet
-        run: cd main && go vet ./...
+        run:  go vet ./...
       - name: Test
-        run: cd main && go test ./...
+        run:  go test ./...

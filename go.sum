@@ -747,6 +747,9 @@ github.com/hashicorp/nomad/api v0.0.0-20200814140818-42de70466a9d h1:afuZ/KNbxwU
 github.com/hashicorp/nomad/api v0.0.0-20200814140818-42de70466a9d/go.mod h1:DCi2k47yuUDzf2qWAK8E1RVmWgz/lc0jZQeEnICTxmY=
 github.com/hashicorp/serf v0.9.3 h1:AVF6JDQQens6nMHT9OGERBvK0f8rPrAGILnsKLr6lzM=
 github.com/hashicorp/serf v0.9.3/go.mod h1:UWDWwZeL5cuWDJdl0C6wrvrUwEqtQ4ZKBKKENpqIUyk=
+github.com/hashicorp/vagrant-plugin-sdk v0.0.0-20201216193437-46ae3967665b/go.mod h1:T4hDzTIAVZCMFjyP4Rzic6ulCxLED6dXPglyFxQ3/z0=
+github.com/hashicorp/vagrant-plugin-sdk v0.0.0-20210727222230-38e4cf3fc18d h1:exOxgHaLn0OyZ0780S77c6z7l8skF7l3nsqjqaIm+v8=
+github.com/hashicorp/vagrant-plugin-sdk v0.0.0-20210727222230-38e4cf3fc18d/go.mod h1:tW5T9WQXv2xoNxLRD7EY9LmVPwuwXITYYk7/+xTccaw=
 github.com/hashicorp/vault/api v1.0.5-0.20190909201928-35325e2c3262 h1:En9ph/axtiRQX8mt4+fVBOgNfEmndq5c+K0fUBviFTQ=
 github.com/hashicorp/vault/api v1.0.5-0.20190909201928-35325e2c3262/go.mod h1:LGTA4eiQKhPGTBgi6fCuAT5n0S3CJBHa7cpUotrLxjw=
 github.com/hashicorp/vault/sdk v0.1.14-0.20190909201848-e0fbf9b652e2 h1:b65cSyZqljnCPzzsUXvR4P0eXypo1xahQyG809+IySk=
