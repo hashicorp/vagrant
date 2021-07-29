@@ -21,6 +21,14 @@ func (s *service) UpsertTarget(
 	return &vagrant_server.UpsertTargetResponse{Target: m}, nil
 }
 
+func (s *service) DeleteTarget(
+	ctx context.Context,
+	req *vagrant_server.DeleteTargetRequest,
+) (empt *empty.Empty, err error) {
+	err = s.state.TargetDelete(req.Target)
+	return
+}
+
 // TODO: test
 func (s *service) GetTarget(
 	ctx context.Context,
