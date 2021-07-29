@@ -8,7 +8,7 @@ import (
 
 	"github.com/hashicorp/go-hclog"
 
-	"github.com/hashicorp/vagrant-plugin-sdk/helper/paths"
+	"github.com/hashicorp/vagrant-plugin-sdk/datadir"
 	vagrant_plugin_sdk "github.com/hashicorp/vagrant-plugin-sdk/proto/vagrant_plugin_sdk"
 	"github.com/hashicorp/vagrant-plugin-sdk/terminal"
 	configpkg "github.com/hashicorp/vagrant/internal/config"
@@ -26,6 +26,7 @@ type Project struct {
 	Targets []*Target
 
 	basis   *Basis
+	datadir *datadir.Project
 	project *vagrant_server.Project
 	logger  hclog.Logger
 }
@@ -114,6 +115,11 @@ func (p *Project) LoadTarget(t *vagrant_server.Target) (*Target, error) {
 		return target, nil
 	}
 
+	d, err := p.datadir.Target(t.Name)
+	if err != nil {
+		return nil, err
+	}
+
 	// Ensure the machine is set to this project
 	t.Project = p.Ref()
 
@@ -129,6 +135,7 @@ func (p *Project) LoadTarget(t *vagrant_server.Target) (*Target, error) {
 			project: p,
 			target:  result.Target,
 			logger:  p.logger.Named("target"),
+			datadir: d,
 		}
 		p.Targets = append(p.Targets, target)
 
@@ -137,12 +144,6 @@ func (p *Project) LoadTarget(t *vagrant_server.Target) (*Target, error) {
 
 	p.logger.Trace("failed to locate existing target", "target", t,
 		"result", result, "error", err)
-
-	// TODO: set machine box from vagrant file
-
-	if t.Datadir == nil {
-		t.Datadir = p.GetDataDir()
-	}
 
 	// TODO: this is specialized
 	// if t.Provider == "" {
@@ -164,6 +165,7 @@ func (p *Project) LoadTarget(t *vagrant_server.Target) (*Target, error) {
 		project: p,
 		target:  uresult.Target,
 		logger:  p.logger.Named("target"),
+		datadir: d,
 	}
 
 	p.Targets = append(p.Targets, target)
@@ -185,21 +187,21 @@ func (p *Project) GetDefaultProvider(exclude []string, forceDefault bool, checkU
 	return "virtualbox", nil
 }
 
-func (p *Project) GetDataDir() *vagrant_plugin_sdk.Args_DataDir_Target {
-	// TODO: probably need to get datadir from the projet + basis
+// func (p *Project) GetDataDir() *vagrant_plugin_sdk.Args_DataDir_Target {
+// 	// TODO: probably need to get datadir from the projet + basis
 
-	root, _ := paths.VagrantHome()
-	cacheDir := root.Join("cache")
-	dataDir := root.Join("data")
-	tmpDir := root.Join("tmp")
+// 	root, _ := paths.VagrantHome()
+// 	cacheDir := root.Join("cache")
+// 	dataDir := root.Join("data")
+// 	tmpDir := root.Join("tmp")
 
-	return &vagrant_plugin_sdk.Args_DataDir_Target{
-		CacheDir: cacheDir.String(),
-		DataDir:  dataDir.String(),
-		RootDir:  root.String(),
-		TempDir:  tmpDir.String(),
-	}
-}
+// 	return &vagrant_plugin_sdk.Args_DataDir_Target{
+// 		CacheDir: cacheDir.String(),
+// 		DataDir:  dataDir.String(),
+// 		RootDir:  root.String(),
+// 		TempDir:  tmpDir.String(),
+// 	}
+// }
 
 func (p *Project) GetTarget(name string) (t *Target, err error) {
 	for _, t = range p.Targets {
@@ -236,7 +238,11 @@ func (p *Project) job() *vagrant_server.Job {
 	return job
 }
 
-func (p *Project) doJob(ctx context.Context, job *vagrant_server.Job, ui terminal.UI) (*vagrant_server.Job_Result, error) {
+func (p *Project) doJob(
+	ctx context.Context,
+	job *vagrant_server.Job,
+	ui terminal.UI,
+) (*vagrant_server.Job_Result, error) {
 	if ui == nil {
 		ui = p.ui
 	}

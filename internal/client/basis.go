@@ -9,7 +9,7 @@ import (
 	"github.com/hashicorp/go-hclog"
 	"github.com/hashicorp/go-plugin"
 
-	"github.com/hashicorp/vagrant-plugin-sdk/helper/paths"
+	"github.com/hashicorp/vagrant-plugin-sdk/datadir"
 	"github.com/hashicorp/vagrant-plugin-sdk/proto/vagrant_plugin_sdk"
 	"github.com/hashicorp/vagrant-plugin-sdk/terminal"
 	configpkg "github.com/hashicorp/vagrant/internal/config"
@@ -35,6 +35,7 @@ type Basis struct {
 	labels              map[string]string
 	dataSourceOverrides map[string]string
 
+	datadir     *datadir.Basis
 	local       bool
 	localServer bool // True when a local server is created
 	localRunner *runner.Runner
@@ -63,14 +64,16 @@ func New(ctx context.Context, opts ...Option) (basis *Basis, err error) {
 
 	// If no internal basis was provided, set it up now
 	if basis.basis == nil {
-		vh, err := paths.VagrantHome()
+		dir, err := datadir.NewBasis("default")
 		if err != nil {
-			basis.logger.Error("failed to determine vagrant home", "error", err)
+			basis.logger.Error("failed to determine vagrant home",
+				"error", err)
+
 			return nil, err
 		}
 		basis.basis = &vagrant_server.Basis{
 			Name: "default",
-			Path: vh.String(),
+			Path: dir.ConfigDir().String(),
 		}
 	}
 
@@ -132,12 +135,15 @@ func New(ctx context.Context, opts ...Option) (basis *Basis, err error) {
 	}
 
 	basis.basis = uresult.Basis
+
 	// Find and load Vagrantfiles for the basis
 	if err = basis.LoadVagrantfiles(); err != nil {
 		return nil, err
 	}
 
-	return basis, nil
+	basis.datadir, err = datadir.NewBasis(basis.basis.Name)
+
+	return basis, err
 }
 
 func (b *Basis) LoadProject(p *vagrant_server.Project) (*Project, error) {
@@ -147,12 +153,18 @@ func (b *Basis) LoadProject(p *vagrant_server.Project) (*Project, error) {
 			Project: p,
 		},
 	)
+	// d, err := b.datadir.Project(result.Project.Name)
+	// if err != nil {
+	// 	return nil, err
+	// }
+
 	if err == nil && result.Found {
 		b.Project = &Project{
 			ui:      b.ui,
 			basis:   b,
 			project: result.Project,
 			logger:  b.logger.Named("project"),
+			//			datadir: d,
 		}
 		if err = b.Project.LoadVagrantfiles(); err != nil {
 			return nil, err
@@ -178,6 +190,7 @@ func (b *Basis) LoadProject(p *vagrant_server.Project) (*Project, error) {
 		project: uresult.Project,
 		basis:   b,
 		logger:  b.logger.Named("project"),
+		//datadir: d,
 	}
 
 	if err = b.Project.LoadVagrantfiles(); err != nil {

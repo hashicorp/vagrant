@@ -34,6 +34,9 @@ func (b *Basis) job() *vagrant_server.Job {
 	}
 
 	job.Basis = b.Ref()
+	if b.Project != nil {
+		job.Project = b.Project.Ref()
+	}
 
 	// If we're not local, we set a nil data source so it defaults to
 	// whatever the project has remotely.
@@ -46,7 +49,11 @@ func (b *Basis) job() *vagrant_server.Job {
 
 // doJob will queue and execute the job. If the client is configured for
 // local mode, this will start and target the proper runner.
-func (b *Basis) doJob(ctx context.Context, job *vagrant_server.Job, ui terminal.UI) (*vagrant_server.Job_Result, error) {
+func (b *Basis) doJob(
+	ctx context.Context,
+	job *vagrant_server.Job,
+	ui terminal.UI,
+) (*vagrant_server.Job_Result, error) {
 	log := b.logger
 
 	if ui == nil {

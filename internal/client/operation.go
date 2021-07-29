@@ -8,7 +8,10 @@ import (
 	"github.com/hashicorp/vagrant/internal/server/proto/vagrant_server"
 )
 
-func (b *Basis) Validate(ctx context.Context, op *vagrant_server.Job_ValidateOp) (*vagrant_server.Job_ValidateResult, error) {
+func (b *Basis) Validate(
+	ctx context.Context,
+	op *vagrant_server.Job_ValidateOp,
+) (*vagrant_server.Job_ValidateResult, error) {
 	if op == nil {
 		op = &vagrant_server.Job_ValidateOp{}
 	}
@@ -28,7 +31,10 @@ func (b *Basis) Validate(ctx context.Context, op *vagrant_server.Job_ValidateOp)
 	return result.Validate, nil
 }
 
-func (b *Basis) Commands(ctx context.Context, op *vagrant_server.Job_InitOp) (*vagrant_server.Job_InitResult, error) {
+func (b *Basis) Commands(
+	ctx context.Context,
+	op *vagrant_server.Job_InitOp,
+) (*vagrant_server.Job_InitResult, error) {
 	if op == nil {
 		op = &vagrant_server.Job_InitOp{}
 	}
@@ -47,7 +53,32 @@ func (b *Basis) Commands(ctx context.Context, op *vagrant_server.Job_InitOp) (*v
 	return result.Init, nil
 }
 
-func (b *Basis) Task(ctx context.Context, op *vagrant_server.Job_RunOp) (*vagrant_server.Job_RunResult, error) {
+func (p *Project) Commands(
+	ctx context.Context,
+	op *vagrant_server.Job_InitOp,
+) (*vagrant_server.Job_InitResult, error) {
+	if op == nil {
+		op = &vagrant_server.Job_InitOp{}
+	}
+
+	job := p.job()
+	job.Operation = &vagrant_server.Job_Init{
+		Init: op,
+	}
+
+	result, err := p.doJob(ctx, job, nil)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return result.Init, nil
+}
+
+func (b *Basis) Task(
+	ctx context.Context,
+	op *vagrant_server.Job_RunOp,
+) (*vagrant_server.Job_RunResult, error) {
 	if op == nil {
 		op = &vagrant_server.Job_RunOp{}
 	}
@@ -62,7 +93,10 @@ func (b *Basis) Task(ctx context.Context, op *vagrant_server.Job_RunOp) (*vagran
 	return result.Run, err
 }
 
-func (p *Project) Task(ctx context.Context, op *vagrant_server.Job_RunOp) (*vagrant_server.Job_RunResult, error) {
+func (p *Project) Task(
+	ctx context.Context,
+	op *vagrant_server.Job_RunOp,
+) (*vagrant_server.Job_RunResult, error) {
 	if op == nil {
 		op = &vagrant_server.Job_RunOp{}
 	}
@@ -77,7 +111,10 @@ func (p *Project) Task(ctx context.Context, op *vagrant_server.Job_RunOp) (*vagr
 	return result.Run, err
 }
 
-func (m *Target) Task(ctx context.Context, op *vagrant_server.Job_RunOp) (*vagrant_server.Job_RunResult, error) {
+func (m *Target) Task(
+	ctx context.Context,
+	op *vagrant_server.Job_RunOp,
+) (*vagrant_server.Job_RunResult, error) {
 	if op == nil {
 		op = &vagrant_server.Job_RunOp{}
 	}
@@ -95,7 +132,10 @@ func (m *Target) Task(ctx context.Context, op *vagrant_server.Job_RunOp) (*vagra
 	return result.Run, err
 }
 
-func (b *Basis) Auth(ctx context.Context, op *vagrant_server.Job_AuthOp) (*vagrant_server.Job_AuthResult, error) {
+func (b *Basis) Auth(
+	ctx context.Context,
+	op *vagrant_server.Job_AuthOp,
+) (*vagrant_server.Job_AuthResult, error) {
 	if op == nil {
 		op = &vagrant_server.Job_AuthOp{}
 	}
@@ -115,7 +155,10 @@ func (b *Basis) Auth(ctx context.Context, op *vagrant_server.Job_AuthOp) (*vagra
 	return result.Auth, nil
 }
 
-func (b *Basis) Docs(ctx context.Context, op *vagrant_server.Job_DocsOp) (*vagrant_server.Job_DocsResult, error) {
+func (b *Basis) Docs(
+	ctx context.Context,
+	op *vagrant_server.Job_DocsOp,
+) (*vagrant_server.Job_DocsResult, error) {
 	if op == nil {
 		op = &vagrant_server.Job_DocsOp{}
 	}

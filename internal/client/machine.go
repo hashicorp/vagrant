@@ -5,6 +5,7 @@ import (
 
 	"github.com/hashicorp/go-hclog"
 
+	"github.com/hashicorp/vagrant-plugin-sdk/datadir"
 	"github.com/hashicorp/vagrant-plugin-sdk/proto/vagrant_plugin_sdk"
 	"github.com/hashicorp/vagrant-plugin-sdk/terminal"
 	"github.com/hashicorp/vagrant/internal/server/proto/vagrant_server"
@@ -16,6 +17,7 @@ type Target struct {
 	project *Project
 	target  *vagrant_server.Target
 	logger  hclog.Logger
+	datadir *datadir.Target
 }
 
 func (m *Target) UI() terminal.UI {
