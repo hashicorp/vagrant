@@ -14,79 +14,8 @@ import (
 	"github.com/hashicorp/vagrant-plugin-sdk/terminal"
 	configpkg "github.com/hashicorp/vagrant/internal/config"
 	"github.com/hashicorp/vagrant/internal/core"
-	"github.com/hashicorp/vagrant/internal/plugin"
 	"github.com/hashicorp/vagrant/internal/server/proto/vagrant_server"
 )
-
-func (r *Runner) LoadPlugins(cfg *configpkg.Config) error {
-	// Start with loading plugins from the Ruby runtime
-	plugins, err := r.vagrantRubyClient.GetPlugins()
-	if err != nil {
-		return err
-	}
-
-	for _, p := range plugins {
-		r.logger.Info("loading ruby plugin",
-			"name", p.Name,
-			"type", p.Type)
-
-		err = r.plugins.Register(
-			plugin.RubyFactory(r.vagrantRubyRuntime, p.Name, component.Type(p.Type)))
-		if err != nil {
-			return err
-		}
-	}
-
-	// Now lets load builtin plugins
-	for name, _ := range plugin.Builtins {
-		r.logger.Info("loading builtin plugin",
-			"name", name)
-
-		err = r.plugins.Register(
-			plugin.BuiltinFactory(name))
-		if err != nil {
-			return err
-		}
-	}
-
-	// NOTE: basis/project plugins loaded in core
-
-	// for name, options := range plugin.Builtins {
-	// 	r.logger.Info("loading builtin plugin " + name)
-	// 	f := plugin.BuiltinFactory(name, component.PluginInfoType)
-	// 	bp, err := dynamic.CallFunc(f, (**plugin.Instance)(nil), []*argmapper.Func{},
-	// 		argmapper.Typed(r.logger))
-	// 	if err != nil {
-	// 		panic(err)
-	// 	}
-	// 	defer bp.(*plugin.Instance).Close()
-	// 	p, ok := bp.(*plugin.Instance).Component.(component.PluginInfo)
-	// 	if !ok {
-	// 		panic("failed to convert instance to plugin info component")
-	// 	}
-	// 	typs := p.ComponentTypes()
-	// 	r.logger.Info("valid component types for builtin plugin", "name", name, "types", typs)
-	// 	cmps := []interface{}{}
-	// 	for _, t := range typs {
-	// 		cmps = append(cmps, t)
-	// 	}
-
-	// 	if plugin.IN_PROCESS_PLUGINS {
-	// 		if err := r.builtinPlugins.Add(name, options...); err != nil {
-	// 			return err
-	// 		}
-	// 	}
-
-	//		cfg.TrackBuiltinPlugin(name, cmps)
-	//	}
-
-	// TODO(spox): fix this loading
-	// if err == nil {
-	// 	cfg.TrackPlugin("custom-host", []interface{}{component.HostType})
-	// }
-
-	return nil
-}
 
 // executeJob executes an assigned job. This will source the data (if necessary),
 // setup the project, execute the job, and return the outcome.

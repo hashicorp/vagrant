@@ -105,7 +105,20 @@ func New(opts ...Option) (*Runner, error) {
 	}
 
 	runner.logger = runner.logger.ResetNamed("vagrant.runner")
-	runner.plugins = plugin.NewManager(runner.logger.Named("plugin-manager"))
+	if runner.plugins == nil {
+		runner.plugins = plugin.NewManager(
+			runner.ctx,
+			runner.logger.Named("plugin-manager"),
+		)
+	}
+
+	if err := runner.plugins.LoadBuiltins(); err != nil {
+		return nil, err
+	}
+
+	if err := runner.plugins.LoadLegacyPlugins(runner.vagrantRubyClient, runner.vagrantRubyRuntime); err != nil {
+		return nil, err
+	}
 
 	// Setup our runner components list
 	for _, p := range runner.plugins.Plugins {
@@ -174,23 +187,6 @@ func (r *Runner) Start() error {
 	go r.recvConfig(r.ctx, client, ch)
 
 	log.Info("runner registered with server")
-
-	// if plugin.IN_PROCESS_PLUGINS {
-	// 	r.builtinPlugins = plugin.NewBuiltins(context.Background(), log)
-	// }
-
-	// track plugins
-	err = r.LoadPlugins(r.opConfig)
-	if err != nil {
-		r.logger.Error("unexpected failure while loading plugins",
-			"error", err)
-
-		return err
-	}
-
-	// if r.builtinPlugins != nil {
-	// 	r.builtinPlugins.Start()
-	// }
 
 	return nil
 }
