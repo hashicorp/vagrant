@@ -1,67 +1,211 @@
 package plugin
 
 import (
+	"context"
 	"fmt"
+	"io/fs"
+	"os"
+	"os/exec"
+	"runtime"
 	"strings"
 	"sync"
 
 	"github.com/hashicorp/go-hclog"
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/go-plugin"
+	"github.com/hashicorp/vagrant/internal/serverclient"
 
 	"github.com/hashicorp/vagrant-plugin-sdk/component"
+	"github.com/hashicorp/vagrant-plugin-sdk/helper/path"
 )
+
+type PluginRegistration func(hclog.Logger) (*Plugin, error)
 
 type Manager struct {
 	Plugins []*Plugin
 
-	logger hclog.Logger
-	m      sync.Mutex
+	builtins        *Builtin
+	builtinsLoaded  bool
+	legacyLoaded    bool
+	discoveredPaths []path.Path
+	logger          hclog.Logger
+	m               sync.Mutex
 }
 
 // Create a new plugin manager
-func NewManager(l hclog.Logger) *Manager {
+func NewManager(ctx context.Context, l hclog.Logger) *Manager {
 	return &Manager{
-		Plugins: []*Plugin{},
-		logger:  l,
+		Plugins:  []*Plugin{},
+		builtins: NewBuiltins(ctx, l),
+		logger:   l,
 	}
 }
 
-type Plugin struct {
-	Builtin  bool                  // Flags if this plugin is a builtin plugin
-	Client   plugin.ClientProtocol // Client connection to plugin
-	Location string                // Location of the plugin (generally path to binary)
-	Name     string                // Name of the plugin
-	Types    []component.Type      // Component types supported by this plugin
-
-	closers    []func() error
-	components map[component.Type]*Instance
-	logger     hclog.Logger
-	m          sync.Mutex
-	src        *plugin.Client
-}
-
-// Register a new plugin into the manager
-func (m *Manager) Register(
-	factory func(hclog.Logger) (*Plugin, error), // Function to generate plugin
+// Load legacy Ruby based Vagrant plugins using a
+// running Vagrant runtime
+func (m *Manager) LoadLegacyPlugins(
+	c *serverclient.RubyVagrantClient, // Client connection to the Legacy Ruby Vagrant server
+	r plugin.ClientProtocol, // go-plugin client connection to Ruby plugin server
 ) (err error) {
 	m.m.Lock()
 	defer m.m.Unlock()
 
-	plg, err := factory(m.logger)
+	if m.legacyLoaded {
+		m.logger.Warn("ruby based legacy vagrant plugins already loaded, skipping")
+		return nil
+	}
+
+	m.logger.Trace("loading ruby based legacy vagrant plugins")
+
+	plugins, err := c.GetPlugins()
 	if err != nil {
+		m.logger.Trace("failed to fetch ruby based legacy vagrant plugin information",
+			"error", err,
+		)
+
 		return
 	}
 
-	for _, t := range plg.Types {
-		m.logger.Info("registering plugin",
-			"type", t.String(),
-			"name", plg.Name,
+	for _, p := range plugins {
+		m.logger.Info("loading ruby based legacy vagrant plugin",
+			"name", p.Name,
+			"type", p.Type,
 		)
+
+		if err = m.register(RubyFactory(r, p.Name, component.Type(p.Type))); err != nil {
+			return
+		}
 	}
 
-	m.Plugins = append(m.Plugins, plg)
+	m.legacyLoaded = true
+
 	return
+}
+
+// Load all known builtin plugins
+func (m *Manager) LoadBuiltins() (err error) {
+	m.m.Lock()
+	defer m.m.Unlock()
+
+	if m.builtinsLoaded {
+		m.logger.Warn("builing plugins have already been loaded, skipping")
+		return nil
+	}
+
+	if IN_PROCESS_PLUGINS {
+		return m.loadInProcessBuiltins()
+	}
+
+	m.logger.Info("loading builtin plugins")
+	for name, _ := range Builtins {
+		if e := m.register(BuiltinFactory(name)); e != nil {
+			err = multierror.Append(err, e)
+		}
+	}
+
+	m.builtinsLoaded = true
+
+	return
+}
+
+// Finds any executable files in provided directory paths and
+// registers them as plugins.
+func (m *Manager) Discover(
+	paths ...path.Path, // List of paths to search for plugins
+) error {
+	m.m.Lock()
+	defer m.m.Unlock()
+
+	for i := 0; i < len(paths); i++ {
+		dir := paths[i]
+		m.logger.Trace("starting plugin discovery process",
+			"path", dir.String())
+
+		for _, p := range m.discoveredPaths {
+			if p.String() == dir.String() {
+				m.logger.Warn("plugin discovery already processed, skipping",
+					"path", dir.String())
+
+				return nil
+			}
+		}
+
+		files, err := fs.ReadDir(os.DirFS(dir.String()), ".")
+		if err != nil {
+			m.logger.Warn("failed to read requested directory for discovery, skipping",
+				"path", dir.String(),
+				"error", err,
+			)
+
+			return nil
+		}
+
+		for _, entry := range files {
+			fullPath := dir.Join(entry.Name())
+			i, err := os.Stat(fullPath.String())
+			if err != nil {
+				m.logger.Error("failed to stat file",
+					"path", fullPath,
+					"error", err,
+				)
+
+				continue
+			}
+
+			m.logger.Trace("processing discovered path",
+				"path", fullPath,
+				"perms", i.Mode().Perm(),
+			)
+
+			if entry.Type().IsDir() {
+				m.logger.Trace("discovered path is directory, skipping",
+					"path", fullPath)
+
+				continue
+			}
+
+			if i.Mode().Perm()&0111 == 0 {
+				m.logger.Warn("discovered file is not executable, skipping",
+					"path", fullPath,
+					"perms", i.Mode().Perm(),
+				)
+
+				continue
+			}
+
+			if runtime.GOOS == "windows" &&
+				!strings.HasSuffix(entry.Name(), ".exe") &&
+				!strings.HasSuffix(entry.Name(), ".bat") {
+				m.logger.Warn("discovered file is not windows executable, skipping",
+					"path", fullPath)
+
+				continue
+			}
+
+			cmd := exec.Command(fullPath.String())
+			if err := m.register(Factory(cmd)); err != nil {
+				m.logger.Error("failed to register discovered plugin",
+					"path", fullPath,
+					"error", err,
+				)
+
+				return err
+			}
+		}
+		m.discoveredPaths = append(m.discoveredPaths, dir)
+	}
+
+	return nil
+}
+
+// Register a new plugin into the manager
+func (m *Manager) Register(
+	factory PluginRegistration, // Function to generate plugin
+) (err error) {
+	m.m.Lock()
+	defer m.m.Unlock()
+
+	return m.register(factory)
 }
 
 // Find a specific plugin by name and component type
@@ -111,121 +255,53 @@ func (m *Manager) Close() (err error) {
 	return
 }
 
-// Check if plugin implements specific component type
-func (p *Plugin) HasType(
-	t component.Type,
-) bool {
-	for _, pt := range p.Types {
-		if pt == t {
-			return true
+// Loads builtin plugins using in process strategy
+// instead of isolated processes
+func (m *Manager) loadInProcessBuiltins() (err error) {
+	f := []PluginRegistration{}
+	m.logger.Warn("loading builtin plugins for in process execution")
+	for name, opts := range Builtins {
+		r, e := m.builtins.Add(name, opts...)
+		if e != nil {
+			err = multierror.Append(err, e)
+			continue
 		}
-	}
-	return false
-}
-
-// Add a callback to execute when plugin is closed
-func (p *Plugin) Closer(c func() error) {
-	p.closers = append(p.closers, c)
-}
-
-// Calls all registered close callbacks
-func (p *Plugin) Close() (err error) {
-	p.m.Lock()
-	defer p.m.Unlock()
-
-	for _, c := range p.closers {
-		if e := c(); e != nil {
-			multierror.Append(err, e)
-		}
-	}
-	return
-}
-
-// Get specific component type from plugin
-func (p *Plugin) InstanceOf(
-	c component.Type,
-) (i *Instance, err error) {
-	p.m.Lock()
-	defer p.m.Unlock()
-
-	p.logger.Trace("loading component from plugin",
-		"name", p.Name,
-		"type", c.String())
-
-	ok := false
-	// Validate this plugin supports the requested component
-	for _, t := range p.Types {
-		if t == c {
-			ok = true
-		}
-	}
-	if !ok {
-		p.logger.Error("unsupported component type requested",
-			"name", p.Name,
-			"type", c.String(),
-			"valid", p.types())
-
-		return nil, fmt.Errorf("plugin does not support %s component type", c.String())
+		f = append(f, r)
 	}
 
-	// If it's cached, return that
-	if i, ok = p.components[c]; ok {
-		p.logger.Trace("using cached component",
-			"name", p.Name,
-			"type", c.String())
-
-		return
-	}
-
-	// Build the instance
-	raw, err := p.Client.Dispense(strings.ToLower(c.String()))
 	if err != nil {
-		p.logger.Error("failed to dispense component from plugin",
-			"name", p.Name,
-			"type", c.String())
-
 		return
 	}
-	setter, ok := raw.(PluginMetadata)
-	if !ok {
-		p.logger.Warn("plugin does not support name metadata, skipping",
-			"component", c.String(),
-			"name", p.Name)
 
-	} else {
-		p.logger.Info("setting plugin name metadata",
-			"component", c.String(),
-			"name", p.Name)
+	m.logger.Debug("starting in process builtin plugins")
+	m.builtins.Start()
 
-		setter.SetRequestMetadata("plugin_name", p.Name)
+	m.logger.Trace("registering in process builtin plugins")
+	for _, b := range f {
+		if e := m.Register(b); e != nil {
+			err = multierror.Append(err, e)
+		}
 	}
-
-	b, ok := raw.(hasGRPCBroker)
-	if !ok {
-		p.logger.Error("cannot extract grpc broker from plugin client",
-			"component", c.String(),
-			"name", p.Name)
-
-		return nil, fmt.Errorf("unable to extract broker from plugin client")
-	}
-
-	i = &Instance{
-		Component: raw,
-		Broker:    b.GRPCBroker(),
-		Mappers:   nil,
-	}
-
-	// Store the instance for later usage
-	p.components[c] = i
 
 	return
 }
 
-// Helper that returns supported types as strings
-func (p *Plugin) types() []string {
-	result := []string{}
-	for _, t := range p.Types {
-		result = append(result, t.String())
+// Registers plugin
+func (m *Manager) register(
+	factory PluginRegistration, // Function to generate plugin
+) (err error) {
+	plg, err := factory(m.logger)
+	if err != nil {
+		return
 	}
-	return result
+
+	for _, t := range plg.Types {
+		m.logger.Info("registering plugin",
+			"type", t.String(),
+			"name", plg.Name,
+		)
+	}
+
+	m.Plugins = append(m.Plugins, plg)
+	return
 }
