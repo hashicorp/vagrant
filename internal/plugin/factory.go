@@ -29,7 +29,7 @@ func init() {
 
 func Factory(
 	cmd *exec.Cmd, // Plugin command to run
-) func(hclog.Logger) (p *Plugin, err error) {
+) PluginRegistration {
 	return func(log hclog.Logger) (p *Plugin, err error) {
 		// We have to copy the command because go-plugin will set some
 		// fields on it.
@@ -46,6 +46,9 @@ func Factory(
 
 		// Connect to the plugin
 		client := plugin.NewClient(config)
+
+		// If we encounter any errors during setup, automatically
+		// kill the client
 		defer func() {
 			if err != nil {
 				client.Kill()
@@ -68,10 +71,13 @@ func Factory(
 
 			return
 		}
+
 		info, ok := raw.(component.PluginInfo)
 		if !ok {
-			return nil, fmt.Errorf("failed to load plugin information interface",
+			log.Error("cannot load plugin info component",
 				"plugin", cmd.Path)
+
+			return nil, fmt.Errorf("failed to load plugin information interface")
 		}
 
 		p = &Plugin{
@@ -104,7 +110,7 @@ func Factory(
 // }
 
 // BuiltinFactory creates a factory for a built-in plugin type.
-func BuiltinFactory(name string) func(hclog.Logger) (p *Plugin, err error) {
+func BuiltinFactory(name string) PluginRegistration {
 	cmd := exec.Command(exePath, "plugin-run", name)
 
 	// For non-windows systems, we attach stdout/stderr as extra fds
@@ -120,7 +126,7 @@ func RubyFactory(
 	rubyClient plugin.ClientProtocol,
 	name string,
 	typ component.Type,
-) func(hclog.Logger) (p *Plugin, err error) {
+) PluginRegistration {
 	return func(log hclog.Logger) (*Plugin, error) {
 		return &Plugin{
 			Builtin:    false,
