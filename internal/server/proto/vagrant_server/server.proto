@@ -57,6 +57,8 @@ service Vagrant {
   // is already registered this does nothing.
   rpc UpsertTarget(UpsertTargetRequest) returns (UpsertTargetResponse);
 
+  rpc DeleteTarget(DeleteTargetRequest) returns (google.protobuf.Empty);
+
   rpc GetTarget(GetTargetRequest) returns (GetTargetResponse);
 
   rpc FindTarget(FindTargetRequest) returns (FindTargetResponse);
@@ -1237,6 +1239,11 @@ message UpsertTargetRequest {
 
 message UpsertTargetResponse {
   Target target = 1;
+}
+
+message DeleteTargetRequest {
+  sdk.Ref.Project project = 1;
+  sdk.Ref.Target target = 2;
 }
 
 message GetTargetRequest {

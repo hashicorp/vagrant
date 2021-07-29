@@ -48,6 +48,7 @@ type VagrantClient interface {
 	// UpsertTarget upserts a target with a project. If the target
 	// is already registered this does nothing.
 	UpsertTarget(ctx context.Context, in *UpsertTargetRequest, opts ...grpc.CallOption) (*UpsertTargetResponse, error)
+	DeleteTarget(ctx context.Context, in *DeleteTargetRequest, opts ...grpc.CallOption) (*empty.Empty, error)
 	GetTarget(ctx context.Context, in *GetTargetRequest, opts ...grpc.CallOption) (*GetTargetResponse, error)
 	FindTarget(ctx context.Context, in *FindTargetRequest, opts ...grpc.CallOption) (*FindTargetResponse, error)
 	ListTargets(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*ListTargetsResponse, error)
@@ -246,6 +247,15 @@ func (c *vagrantClient) ListProjects(ctx context.Context, in *emptypb.Empty, opt
 func (c *vagrantClient) UpsertTarget(ctx context.Context, in *UpsertTargetRequest, opts ...grpc.CallOption) (*UpsertTargetResponse, error) {
 	out := new(UpsertTargetResponse)
 	err := c.cc.Invoke(ctx, "/hashicorp.vagrant.Vagrant/UpsertTarget", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *vagrantClient) DeleteTarget(ctx context.Context, in *DeleteTargetRequest, opts ...grpc.CallOption) (*empty.Empty, error) {
+	out := new(empty.Empty)
+	err := c.cc.Invoke(ctx, "/hashicorp.vagrant.Vagrant/DeleteTarget", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -630,6 +640,7 @@ type VagrantServer interface {
 	// UpsertTarget upserts a target with a project. If the target
 	// is already registered this does nothing.
 	UpsertTarget(context.Context, *UpsertTargetRequest) (*UpsertTargetResponse, error)
+	DeleteTarget(context.Context, *DeleteTargetRequest) (*empty.Empty, error)
 	GetTarget(context.Context, *GetTargetRequest) (*GetTargetResponse, error)
 	FindTarget(context.Context, *FindTargetRequest) (*FindTargetResponse, error)
 	ListTargets(context.Context, *emptypb.Empty) (*ListTargetsResponse, error)
@@ -745,6 +756,9 @@ func (UnimplementedVagrantServer) ListProjects(context.Context, *emptypb.Empty) 
 }
 func (UnimplementedVagrantServer) UpsertTarget(context.Context, *UpsertTargetRequest) (*UpsertTargetResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UpsertTarget not implemented")
+}
+func (UnimplementedVagrantServer) DeleteTarget(context.Context, *DeleteTargetRequest) (*empty.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DeleteTarget not implemented")
 }
 func (UnimplementedVagrantServer) GetTarget(context.Context, *GetTargetRequest) (*GetTargetResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetTarget not implemented")
@@ -1075,6 +1089,24 @@ func _Vagrant_UpsertTarget_Handler(srv interface{}, ctx context.Context, dec fun
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(VagrantServer).UpsertTarget(ctx, req.(*UpsertTargetRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Vagrant_DeleteTarget_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DeleteTargetRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(VagrantServer).DeleteTarget(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/hashicorp.vagrant.Vagrant/DeleteTarget",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(VagrantServer).DeleteTarget(ctx, req.(*DeleteTargetRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -1588,6 +1620,10 @@ var Vagrant_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "UpsertTarget",
 			Handler:    _Vagrant_UpsertTarget_Handler,
+		},
+		{
+			MethodName: "DeleteTarget",
+			Handler:    _Vagrant_DeleteTarget_Handler,
 		},
 		{
 			MethodName: "GetTarget",

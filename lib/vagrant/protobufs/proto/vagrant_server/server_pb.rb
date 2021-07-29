@@ -568,6 +568,10 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
     add_message "hashicorp.vagrant.UpsertTargetResponse" do
       optional :target, :message, 1, "hashicorp.vagrant.Target"
     end
+    add_message "hashicorp.vagrant.DeleteTargetRequest" do
+      optional :project, :message, 1, "hashicorp.vagrant.sdk.Ref.Project"
+      optional :target, :message, 2, "hashicorp.vagrant.sdk.Ref.Target"
+    end
     add_message "hashicorp.vagrant.GetTargetRequest" do
       optional :project, :message, 1, "hashicorp.vagrant.sdk.Ref.Project"
       optional :target, :message, 2, "hashicorp.vagrant.sdk.Ref.Target"
@@ -973,6 +977,7 @@ module Hashicorp
     ListProjectsResponse = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.ListProjectsResponse").msgclass
     UpsertTargetRequest = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.UpsertTargetRequest").msgclass
     UpsertTargetResponse = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.UpsertTargetResponse").msgclass
+    DeleteTargetRequest = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.DeleteTargetRequest").msgclass
     GetTargetRequest = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.GetTargetRequest").msgclass
     GetTargetResponse = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.GetTargetResponse").msgclass
     FindTargetRequest = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.FindTargetRequest").msgclass

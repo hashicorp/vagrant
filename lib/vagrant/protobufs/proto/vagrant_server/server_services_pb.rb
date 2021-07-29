@@ -45,6 +45,7 @@ module Hashicorp
         # UpsertTarget upserts a target with a project. If the target
         # is already registered this does nothing.
         rpc :UpsertTarget, ::Hashicorp::Vagrant::UpsertTargetRequest, ::Hashicorp::Vagrant::UpsertTargetResponse
+        rpc :DeleteTarget, ::Hashicorp::Vagrant::DeleteTargetRequest, ::Google::Protobuf::Empty
         rpc :GetTarget, ::Hashicorp::Vagrant::GetTargetRequest, ::Hashicorp::Vagrant::GetTargetResponse
         rpc :FindTarget, ::Hashicorp::Vagrant::FindTargetRequest, ::Hashicorp::Vagrant::FindTargetResponse
         rpc :ListTargets, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::ListTargetsResponse

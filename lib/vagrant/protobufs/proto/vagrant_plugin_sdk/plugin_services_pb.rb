@@ -420,9 +420,9 @@ module Hashicorp
 
         Stub = Service.rpc_stub_class
       end
-      module VagrantfileService
+      module TargetIndexService
         # *******************************************************************
-        # Vagrantfile services
+        # TargetIndex services
         # ******************************************************************
         class Service
 
@@ -430,13 +430,13 @@ module Hashicorp
 
           self.marshal_class_method = :encode
           self.unmarshal_class_method = :decode
-          self.service_name = 'hashicorp.vagrant.sdk.VagrantfileService'
+          self.service_name = 'hashicorp.vagrant.sdk.TargetIndexService'
 
-          rpc :GetVagrantfile, ::Hashicorp::Vagrant::Sdk::Vagrantfile::GetVagrantfileRequest, ::Hashicorp::Vagrant::Sdk::Vagrantfile::GetVagrantfileResponse
-          rpc :Target, ::Hashicorp::Vagrant::Sdk::Vagrantfile::TargetRequest, ::Hashicorp::Vagrant::Sdk::Vagrantfile::TargetResponse
-          rpc :TargetConfig, ::Hashicorp::Vagrant::Sdk::Vagrantfile::TargetConfigRequest, ::Hashicorp::Vagrant::Sdk::Vagrantfile::TargetConfigResponse
-          rpc :TargetNames, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::Vagrantfile::TargetNamesResponse
-          rpc :PrimaryTargetName, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::Vagrantfile::PrimaryTargetNameResponse
+          rpc :Delete, ::Hashicorp::Vagrant::Sdk::Args::Target, ::Google::Protobuf::Empty
+          rpc :Get, ::Hashicorp::Vagrant::Sdk::TargetIndex::GetRequest, ::Hashicorp::Vagrant::Sdk::Args::Target
+          rpc :Includes, ::Hashicorp::Vagrant::Sdk::TargetIndex::IncludesRequest, ::Hashicorp::Vagrant::Sdk::TargetIndex::IncludesResponse
+          rpc :Set, ::Hashicorp::Vagrant::Sdk::Args::Target, ::Hashicorp::Vagrant::Sdk::Args::Target
+          rpc :Recover, ::Hashicorp::Vagrant::Sdk::Args::Target, ::Hashicorp::Vagrant::Sdk::Args::Target
         end
 
         Stub = Service.rpc_stub_class
