@@ -14,6 +14,7 @@ import (
 	"github.com/hashicorp/vagrant-plugin-sdk/component"
 	"github.com/hashicorp/vagrant-plugin-sdk/core"
 	"github.com/hashicorp/vagrant-plugin-sdk/datadir"
+	"github.com/hashicorp/vagrant-plugin-sdk/helper/path"
 	"github.com/hashicorp/vagrant-plugin-sdk/internal-shared/dynamic"
 	"github.com/hashicorp/vagrant-plugin-sdk/internal-shared/protomappers"
 	"github.com/hashicorp/vagrant-plugin-sdk/proto/vagrant_plugin_sdk"
@@ -129,6 +130,14 @@ func NewBasis(ctx context.Context, opts ...BasisOption) (b *Basis, err error) {
 		}
 		b.mappers = append(b.mappers, f)
 	}
+
+	// TODO(spox): If no plugin manager was provided, should we
+	// error here, or just initialize a new one?
+	if b.plugins == nil {
+		return nil, fmt.Errorf("no plugin manager provided")
+	}
+
+	err = b.plugins.Discover(b.dir.ConfigDir().Join("plugins"))
 
 	b.logger.Info("basis initialized")
 	return
@@ -348,6 +357,9 @@ func (b *Basis) LoadProject(popts ...ProjectOption) (p *Project, err error) {
 
 	// Ensure any modifications to the project are persisted
 	p.Closer(func() error { return p.Save() })
+
+	// Load any plugins that may be installed locally to the project
+	err = b.plugins.Discover(path.NewPath(p.project.Path).Join(".vagrant").Join("plugins"))
 
 	return
 }
@@ -674,7 +686,6 @@ func WithBasisRef(r *vagrant_plugin_sdk.Ref_Basis) BasisOption {
 				&vagrant_server.UpsertBasisRequest{
 					Basis: &vagrant_server.Basis{
 						Name: r.Name,
-						Path: r.Name,
 					},
 				},
 			)
@@ -698,7 +709,7 @@ func WithBasisRef(r *vagrant_plugin_sdk.Ref_Basis) BasisOption {
 		b.basis = basis
 		// if the datadir isn't set, do that now
 		if b.dir == nil {
-			b.dir, err = datadir.NewBasis(basis.Path)
+			b.dir, err = datadir.NewBasis(basis.Name)
 			if err != nil {
 				return
 			}
