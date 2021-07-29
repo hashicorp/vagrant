@@ -16,25 +16,25 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
     add_message "hashicorp.vagrant.sdk.Args.DataDir" do
     end
     add_message "hashicorp.vagrant.sdk.Args.DataDir.Basis" do
-      optional :root_dir, :string, 1
+      optional :config_dir, :string, 1
       optional :cache_dir, :string, 2
       optional :data_dir, :string, 3
       optional :temp_dir, :string, 4
     end
     add_message "hashicorp.vagrant.sdk.Args.DataDir.Project" do
-      optional :root_dir, :string, 1
+      optional :config_dir, :string, 1
       optional :cache_dir, :string, 2
       optional :data_dir, :string, 3
       optional :temp_dir, :string, 4
     end
     add_message "hashicorp.vagrant.sdk.Args.DataDir.Target" do
-      optional :root_dir, :string, 1
+      optional :config_dir, :string, 1
       optional :cache_dir, :string, 2
       optional :data_dir, :string, 3
       optional :temp_dir, :string, 4
     end
     add_message "hashicorp.vagrant.sdk.Args.DataDir.Component" do
-      optional :root_dir, :string, 1
+      optional :config_dir, :string, 1
       optional :cache_dir, :string, 2
       optional :data_dir, :string, 3
       optional :temp_dir, :string, 4
