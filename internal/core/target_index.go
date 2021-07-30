@@ -21,50 +21,70 @@ type TargetIndex struct {
 }
 
 func (t *TargetIndex) Delete(target core.Target) (err error) {
-	// This is not going to work since no deleting requires
-	// also having a project to delete a target from.
-	// Doesn't seem possible to get a project id from a core component
-	tid, err := target.ResourceId()
-	if err != nil {
-		return err
-	}
-	tname, err := target.Name()
-	if err != nil {
-		return err
-	}
 	_, err = t.client.DeleteTarget(
 		t.ctx,
 		&vagrant_server.DeleteTargetRequest{
-			Target: &vagrant_plugin_sdk.Ref_Target{
-				ResourceId: tid,
-				Name:       tname,
-				// Project: &vagrant_plugin_sdk.Ref_Project{}
-			},
+			Target: target.Ref().(*vagrant_plugin_sdk.Ref_Target),
 		},
 	)
 	return
 }
 
-func (m *TargetIndex) Get(uuid string) (entry core.Target, err error) {
-	return nil, nil
-}
-
-func (m *TargetIndex) Includes(uuid string) (exists bool, err error) {
-	return false, nil
-}
-
-func (t *TargetIndex) Set(entry core.Target) (updatedEntry core.Target, err error) {
-	// updatedTarget, err = t.client.UpsertTarget(
-	// 	t.ctx,
-	// 	&vagrant_server.UpsertTargetRequest{
-	// 		Target: &vagrant_server.Target{},
-	// 	},
-	// )
+func (t *TargetIndex) Get(uuid string) (entry core.Target, err error) {
+	target, err := t.client.GetTarget(
+		t.ctx,
+		&vagrant_server.GetTargetRequest{
+			Target: &vagrant_plugin_sdk.Ref_Target{ResourceId: uuid},
+		},
+	)
+	refTarget := &vagrant_plugin_sdk.Ref_Target{
+		ResourceId: target.Target.ResourceId,
+		Project:    target.Target.Project,
+		Name:       target.Target.Name,
+	}
+	// TODO: check if this actually gets back a full target
+	entry, err = NewTarget(
+		t.ctx,
+		WithTargetRef(refTarget),
+	)
 	return
 }
 
-func (m *TargetIndex) Recover(entry core.Target) (updatedEntry core.Target, err error) {
-	return nil, nil
+func (t *TargetIndex) Includes(uuid string) (exists bool, err error) {
+	resp, err := t.client.GetTarget(
+		t.ctx,
+		&vagrant_server.GetTargetRequest{
+			Target: &vagrant_plugin_sdk.Ref_Target{ResourceId: uuid},
+		},
+	)
+	if err != nil {
+		return false, err
+	}
+	// TODO: Not sure what should  be returned by the api
+	// if there is not Target found. For now assuming that
+	// if a target is not found, no error is returned,
+	// and the resp is nil
+	if resp == nil {
+		exists = false
+	} else {
+		exists = true
+	}
+	return
+}
+
+func (t *TargetIndex) Set(entry core.Target) (updatedEntry core.Target, err error) {
+	updatedTarget, err := t.client.UpsertTarget(
+		t.ctx,
+		&vagrant_server.UpsertTargetRequest{
+			Target: &vagrant_server.Target{},
+		},
+	)
+	// TODO: check if this actually gets back a full target
+	updatedEntry, err = NewTarget(
+		t.ctx,
+		WithTargetName(updatedTarget.Target.Name),
+	)
+	return
 }
 
 var _ core.TargetIndex = (*TargetIndex)(nil)

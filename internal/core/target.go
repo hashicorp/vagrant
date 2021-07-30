@@ -298,6 +298,20 @@ func (t *Target) doOperation(
 	return doOperation(ctx, log, t, op)
 }
 
+func NewTarget(ctx context.Context, opts ...TargetOption) (target *Target, err error) {
+	target = &Target{
+		ctx: ctx,
+	}
+	// Apply any options
+	for _, opt := range opts {
+		err := opt(target)
+		if err != nil {
+			return nil, err
+		}
+	}
+	return
+}
+
 type TargetOption func(*Target) error
 
 func WithTargetName(name string) TargetOption {
