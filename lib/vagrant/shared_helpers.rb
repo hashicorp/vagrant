@@ -243,5 +243,6 @@ module Vagrant
   SERVER_MODE_CALLBACKS = [
     ->{ Vagrant::Machine.prepend(Vagrant::Machine::Remote) },
     ->{ Vagrant::Environment.prepend(Vagrant::Environment::Remote) },
+    ->{ Vagrant::MachineIndex.prepend(Vagrant::MachineIndex::Remote) },
   ].freeze
 end

@@ -11,7 +11,7 @@ module VagrantPlugins
         end
 
         def initialize(conn)
-          @logger = Log4r::Logger.new("vagrant::command::serve::client::machine")
+          @logger = Log4r::Logger.new("vagrant::command::serve::client::machineindex")
           @logger.debug("connecting to target index service on #{conn}")
           if !conn.nil?
             @client = SDK::TargetIndexService::Stub.new(conn, :this_channel_is_insecure)

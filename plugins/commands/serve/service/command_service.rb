@@ -7,7 +7,7 @@ module VagrantPlugins
 
         prepend Util::HasBroker
         prepend Util::ExceptionLogger
-        LOG  = Log4r::Logger.new("vagrant::command::serve::command")
+        LOGGER  = Log4r::Logger.new("vagrant::command::serve::command")
 
         def command_info_spec(*args)
           SDK::FuncSpec.new
@@ -81,7 +81,6 @@ module VagrantPlugins
             cmd = cmd_klass.new(cmd_args, env)
             result = cmd.execute
 
-            LOGGER.debug(result)
             if !result.is_a?(Integer)
               result = 1
             end

@@ -11,13 +11,13 @@ module Vagrant
       end
 
       def initialize(opts={})
-        @client = opts[:client]
         super
         @client = opts[:client]
         if @client.nil?
           raise ArgumentError,
             "Remote client is required for `#{self.class.name}'"
         end
+        @logger = Log4r::Logger.new("vagrant::environment")
       end
 
       # Gets a target (machine) by name
@@ -34,7 +34,8 @@ module Vagrant
       def machine_index
         if !@client.nil?
           machine_index_client = @client.machine_index
-          @machine_index ||= Vagrant::MachineIndex.new(client: machine_index_client)
+          @machine_index ||= Vagrant::MachineIndex.new()
+          @machine_index.set_client(machine_index_client)
         end
         @machine_index
       end
