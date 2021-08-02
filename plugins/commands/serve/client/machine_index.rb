@@ -18,20 +18,39 @@ module VagrantPlugins
           end
         end
 
-        def delete(machine)
-          @logger.debug("deleting machine #{machine} from index")
+        # @param [Hashicorp::Vagrant::Sdk::Args::Target]
+        # @return [Boolean] true if delete is successful
+        def delete(target)
+          @logger.debug("deleting machine #{target} from index")
+          @client.delete(target)
+          true
         end
 
+        # @param [String] uuid UUID for the machine to access.
+        # @return [Hashicorp::Vagrant::Sdk::Args::Target]
         def get(uuid)
           @logger.debug("getting machine with uuid #{uuid} from index")
+          req = TargetIndex::GetRequest.new(
+            uuid: uuid
+          )
+          @client.get(req)
         end
 
+        # @param [String] uuid
+        # @return [Boolean]
         def include?(uuid)
           @logger.debug("checking for machine with uuid #{uuid} in index")
+          req = TargetIndex::IncludesRequest.new(
+            uuid: uuid
+          )
+          @client.includes(req).exists
         end
 
-        def set(entry)
+        # @param [Hashicorp::Vagrant::Sdk::Args::Target] target
+        # @return [Hashicorp::Vagrant::Sdk::Args::Target]  
+        def set(target)
           @logger.debug("setting machine #{entry} in index")
+          @client.set(target)
         end
       end
     end
