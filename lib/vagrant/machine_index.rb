@@ -36,6 +36,8 @@ module Vagrant
   #   }
   #
   class MachineIndex
+    autoload :Remote, "vagrant/machine_index/remote"
+
     include Enumerable
 
     # Initializes a MachineIndex at the given file location.

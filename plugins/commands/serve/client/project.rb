@@ -40,6 +40,25 @@ module VagrantPlugins
           conn = @broker.dial(m.stream_id)
           return Machine.new(conn.to_s)
         end
+
+        # return [VagrantPlugins::CommandServe::Client::MachineIndex]
+        def machine_index
+          @logger.debug("connecting to machine index")
+          req = Google::Protobuf::Empty.new
+          begin
+            raw_target_index = @client.target_index(req)
+          rescue => error
+            @logger.debug("target index unreachable")
+            @logger.debug(error.message)
+          end
+          @logger.debug("got response #{raw_target_index}")
+          # ti = SDK::Args::TargetIndex.decode(raw_target_index)
+          # @logger.debug("decoded: #{ti}")
+          @logger.debug("at stream id: #{raw_target_index.stream_id}")
+          m = MachineIndex.load(raw_target_index, broker: @broker)
+          @logger.debug("got machine index #{m}")
+          m
+        end
       end
     end
   end

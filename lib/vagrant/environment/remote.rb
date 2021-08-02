@@ -1,3 +1,5 @@
+require 'vagrant/machine_index/remote'
+
 module Vagrant
   class Environment
     module Remote
@@ -9,6 +11,7 @@ module Vagrant
       end
 
       def initialize(opts={})
+        @client = opts[:client]
         super
         @client = opts[:client]
         if @client.nil?
@@ -23,6 +26,17 @@ module Vagrant
       # return [VagrantPlugins::CommandServe::Client::Machine]
       def get_target(name)
         client.target(name)
+      end
+
+      # The {MachineIndex} to store information about the machines.
+      #
+      # @return [MachineIndex]
+      def machine_index
+        if !@client.nil?
+          machine_index_client = @client.machine_index
+          @machine_index ||= Vagrant::MachineIndex.new(client: machine_index_client)
+        end
+        @machine_index
       end
     end
   end
