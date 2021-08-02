@@ -24,25 +24,41 @@ module Vagrant
 
       # Deletes a machine by UUID.
       #
-      # The machine being deleted with this UUID must either be locked
-      # by this index or must be unlocked.
-      #
       # @param [Entry] entry The entry to delete.
       # @return [Boolean] true if delete is successful
       def delete(entry)
+        machine = entry_to_machine(entry)
+        @client.delete(machine)
       end
 
+      # Accesses a machine by UUID
+      #
+      # @param [String] uuid UUID for the machine to access.
+      # @return [MachineIndex::Entry]
       def get(uuid)
+        @client.get(machine)
       end
       
+      # Tests if the index has the given UUID.
+      #
+      # @param [String] uuid
+      # @return [Boolean]
       def include?(uuid)
+        @client.include?(uuid)
       end
 
       def release(entry)
         #no-op
       end
 
+      # Creates/updates an entry object and returns the resulting entry.
+      #
+      # @param [Entry] entry
+      # @return [Entry]
       def set(entry)
+        machine_in = entry_to_machine(entry)
+        machine_out = @client.set(machine_in)
+        machine_to_entry(machine_out)
       end
 
       def recover(entry)
