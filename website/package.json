@@ -11,7 +11,7 @@
     "@hashicorp/react-alert-banner": "^6.1.2",
     "@hashicorp/react-button": "^5.2.1",
     "@hashicorp/react-code-block": "^4.1.4",
-    "@hashicorp/react-consent-manager": "^5.3.2",
+    "@hashicorp/react-consent-manager": "6.0.0",
     "@hashicorp/react-docs-page": "^13.5.1",
     "@hashicorp/react-hashi-stack-menu": "^2.0.6",
     "@hashicorp/react-head": "^3.1.1",
