@@ -31,7 +31,7 @@ module VagrantPlugins
         def get(ref)
           @logger.debug("getting machine with ref #{ref} from index")
           resp = @client.get(ref)
-          return resp.target
+          return resp
         end
 
         # @param [Hashicorp::Vagrant::Sdk::Ref::Target]

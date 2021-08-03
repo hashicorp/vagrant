@@ -59,6 +59,7 @@ func (t *Target) Ref() interface{} {
 	return &vagrant_plugin_sdk.Ref_Target{
 		ResourceId: t.target.ResourceId,
 		Project:    t.target.Project,
+		Name:       t.target.Name,
 	}
 }
 

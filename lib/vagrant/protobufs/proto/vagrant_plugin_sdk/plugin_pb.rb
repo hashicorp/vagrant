@@ -697,6 +697,7 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
     end
     add_message "hashicorp.vagrant.sdk.TargetIndex.GetResponse" do
       optional :target, :message, 1, "hashicorp.vagrant.sdk.Ref.Target"
+      optional :provider, :string, 2
     end
     add_message "hashicorp.vagrant.sdk.TargetIndex.IncludesResponse" do
       optional :exists, :bool, 1

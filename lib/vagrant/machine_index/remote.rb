@@ -39,7 +39,11 @@ module Vagrant
           name: name,
           project: @project_ref
         )
-        @client.get(ref)
+        get_response = @client.get(ref)
+        @logger.debug("got machine #{get_response} for #{name}")
+        entry = machine_to_entry(get_response.target, get_response.provider)
+        @logger.debug("entry: #{entry.to_json_struct}")
+        entry
       end
       
       # Tests if the index has the given UUID.
@@ -85,7 +89,17 @@ module Vagrant
       #
       # @param [Hashicorp::Vagrant::Sdk::Args::Target]
       # @return [Vagrant::MachineIndex::Entry] 
-      def machine_to_entry(machine)
+      def machine_to_entry(machine, provider)
+        @logger.debug("machine name: #{machine.name}")
+        raw = {
+          "name" => machine.name,
+          "vagrantfile_path" => machine.project.path,
+          "provider" => provider,
+        }
+        entry = Vagrant::MachineIndex::Entry.new(
+          id=machine.name, raw=raw
+        )
+        return entry
       end
     end
   end
