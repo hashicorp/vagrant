@@ -142,7 +142,7 @@ module Vagrant
               # constantly (heh) get "already initialized constant" warnings.
               begin
                 env = entry.vagrant_env(
-                  @env.home_path, ui_class: @env.ui_class)
+                  @env.home_path, ui_class: @env.ui_class, client: @env.client)
               rescue Vagrant::Errors::EnvironmentNonExistentCWD
                 # This means that this environment working directory
                 # no longer exists, so delete this entry.
