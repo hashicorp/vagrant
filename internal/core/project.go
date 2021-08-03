@@ -107,9 +107,10 @@ func (p *Project) Host() (host core.Host, err error) {
 // MachineIndex implements core.Project
 func (p *Project) TargetIndex() (index core.TargetIndex, err error) {
 	index = &TargetIndex{
-		ctx:    p.ctx,
-		logger: p.logger,
-		client: p.Client(),
+		ctx:     p.ctx,
+		logger:  p.logger,
+		client:  p.Client(),
+		project: p,
 	}
 	return
 }
@@ -125,7 +126,11 @@ func (p *Project) Target(nameOrId string) (core.Target, error) {
 	if t, ok := p.targets[nameOrId]; ok {
 		return t, nil
 	}
+	// Check for name or id
 	for _, t := range p.targets {
+		if t.target.Name == nameOrId {
+			return t, nil
+		}
 		if t.target.ResourceId == nameOrId {
 			return t, nil
 		}

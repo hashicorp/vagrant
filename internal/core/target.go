@@ -391,7 +391,7 @@ func WithTargetRef(r *vagrant_plugin_sdk.Ref_Target) TargetOption {
 			return fmt.Errorf("target project configuration is invalid")
 		}
 		t.target = target
-		t.project.targets[t.target.Name] = t
+		t.project.targets[t.target.ResourceId] = t
 		return
 	}
 }

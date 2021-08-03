@@ -15,7 +15,8 @@ type TargetIndex struct {
 	ctx    context.Context
 	logger hclog.Logger
 
-	client *serverclient.VagrantClient
+	client  *serverclient.VagrantClient
+	project *Project
 	// The below are resources we need to close when Close is called, if non-nil
 	closers []func() error
 }
@@ -31,12 +32,7 @@ func (t *TargetIndex) Delete(target core.Target) (err error) {
 }
 
 func (t *TargetIndex) Get(ref *vagrant_plugin_sdk.Ref_Target) (entry core.Target, err error) {
-	// TODO: check if this actually gets back a full target
-	entry, err = NewTarget(
-		t.ctx,
-		WithTargetRef(ref),
-	)
-	return
+	return t.project.Target(ref.Name)
 }
 
 func (t *TargetIndex) Includes(ref *vagrant_plugin_sdk.Ref_Target) (exists bool, err error) {
