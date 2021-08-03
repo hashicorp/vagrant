@@ -416,6 +416,7 @@ module Hashicorp
           rpc :Target, ::Hashicorp::Vagrant::Sdk::Project::TargetRequest, ::Hashicorp::Vagrant::Sdk::Args::Target
           rpc :TargetNames, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::Project::TargetNamesResponse
           rpc :TargetIds, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::Project::TargetIdsResponse
+          rpc :Ref, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::Ref::Project
         end
 
         Stub = Service.rpc_stub_class
@@ -453,11 +454,10 @@ module Hashicorp
           self.unmarshal_class_method = :decode
           self.service_name = 'hashicorp.vagrant.sdk.TargetIndexService'
 
-          rpc :Delete, ::Hashicorp::Vagrant::Sdk::Args::Target, ::Google::Protobuf::Empty
-          rpc :Get, ::Hashicorp::Vagrant::Sdk::TargetIndex::GetRequest, ::Hashicorp::Vagrant::Sdk::Args::Target
-          rpc :Includes, ::Hashicorp::Vagrant::Sdk::TargetIndex::IncludesRequest, ::Hashicorp::Vagrant::Sdk::TargetIndex::IncludesResponse
-          rpc :Set, ::Hashicorp::Vagrant::Sdk::Args::Target, ::Hashicorp::Vagrant::Sdk::Args::Target
-          rpc :Recover, ::Hashicorp::Vagrant::Sdk::Args::Target, ::Hashicorp::Vagrant::Sdk::Args::Target
+          rpc :Delete, ::Hashicorp::Vagrant::Sdk::Ref::Target, ::Google::Protobuf::Empty
+          rpc :Get, ::Hashicorp::Vagrant::Sdk::Ref::Target, ::Hashicorp::Vagrant::Sdk::TargetIndex::GetResponse
+          rpc :Includes, ::Hashicorp::Vagrant::Sdk::Ref::Target, ::Hashicorp::Vagrant::Sdk::TargetIndex::IncludesResponse
+          rpc :Set, ::Hashicorp::Vagrant::Sdk::Args::Target, ::Hashicorp::Vagrant::Sdk::Ref::Target
         end
 
         Stub = Service.rpc_stub_class
