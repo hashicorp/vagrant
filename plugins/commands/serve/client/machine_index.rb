@@ -26,24 +26,19 @@ module VagrantPlugins
           true
         end
 
-        # @param [String] uuid UUID for the machine to access.
-        # @return [Hashicorp::Vagrant::Sdk::Args::Target]
-        def get(uuid)
-          @logger.debug("getting machine with uuid #{uuid} from index")
-          req = TargetIndex::GetRequest.new(
-            uuid: uuid
-          )
-          @client.get(req)
+        # @param [Hashicorp::Vagrant::Sdk::Ref::Target] a ref for the machine to access.
+        # @return [Hashicorp::Vagrant::Sdk::Ref::Target]
+        def get(ref)
+          @logger.debug("getting machine with ref #{ref} from index")
+          resp = @client.get(ref)
+          return resp.target
         end
 
-        # @param [String] uuid
+        # @param [Hashicorp::Vagrant::Sdk::Ref::Target]
         # @return [Boolean]
-        def include?(uuid)
-          @logger.debug("checking for machine with uuid #{uuid} in index")
-          req = TargetIndex::IncludesRequest.new(
-            uuid: uuid
-          )
-          @client.includes(req).exists
+        def include?(ref)
+          @logger.debug("checking for machine with ref #{ref} in index")
+          @client.includes(red).exists
         end
 
         # @param [Hashicorp::Vagrant::Sdk::Args::Target] target

@@ -76,10 +76,16 @@ module VagrantPlugins
               raise "Failed to locate command plugin for: #{plugin_name}"
             end
 
-            cmd_klass = plugin.call
-            cmd_args = req.command_args.to_a[1..] + arguments.args.to_a
-            cmd = cmd_klass.new(cmd_args, env)
-            result = cmd.execute
+            begin
+              cmd_klass = plugin.call
+              cmd_args = req.command_args.to_a[1..] + arguments.args.to_a
+              cmd = cmd_klass.new(cmd_args, env)
+              result = cmd.execute
+            rescue => err
+              LOGGER.error(err)
+              LOGGER.debug("#{err.class}: #{err}\n#{err.backtrace.join("\n")}")
+              raise
+            end
 
             if !result.is_a?(Integer)
               result = 1

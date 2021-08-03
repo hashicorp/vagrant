@@ -30,31 +30,20 @@ func (t *TargetIndex) Delete(target core.Target) (err error) {
 	return
 }
 
-func (t *TargetIndex) Get(uuid string) (entry core.Target, err error) {
-	target, err := t.client.GetTarget(
-		t.ctx,
-		&vagrant_server.GetTargetRequest{
-			Target: &vagrant_plugin_sdk.Ref_Target{ResourceId: uuid},
-		},
-	)
-	refTarget := &vagrant_plugin_sdk.Ref_Target{
-		ResourceId: target.Target.ResourceId,
-		Project:    target.Target.Project,
-		Name:       target.Target.Name,
-	}
+func (t *TargetIndex) Get(ref *vagrant_plugin_sdk.Ref_Target) (entry core.Target, err error) {
 	// TODO: check if this actually gets back a full target
 	entry, err = NewTarget(
 		t.ctx,
-		WithTargetRef(refTarget),
+		WithTargetRef(ref),
 	)
 	return
 }
 
-func (t *TargetIndex) Includes(uuid string) (exists bool, err error) {
+func (t *TargetIndex) Includes(ref *vagrant_plugin_sdk.Ref_Target) (exists bool, err error) {
 	resp, err := t.client.GetTarget(
 		t.ctx,
 		&vagrant_server.GetTargetRequest{
-			Target: &vagrant_plugin_sdk.Ref_Target{ResourceId: uuid},
+			Target: ref,
 		},
 	)
 	if err != nil {

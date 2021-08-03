@@ -4,6 +4,7 @@ module VagrantPlugins
       class Project
 
         attr_reader :client
+        attr_reader :resource_id
 
         def initialize(conn, broker=nil)
           @logger = Log4r::Logger.new("vagrant::command::serve::client::project")
@@ -15,6 +16,10 @@ module VagrantPlugins
           p = SDK::Args::Project.decode(raw_project)
           conn = broker.dial(p.stream_id)
           self.new(conn.to_s, broker)
+        end
+
+        def ref
+          SDK::Ref::Project.new(resource_id: resource_id)
         end
 
         # Returns a machine client for the given name

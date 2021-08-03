@@ -3,6 +3,10 @@ module Vagrant
     # This module enables the MachineIndex for server mode
     module Remote
 
+      attr_accessor :client
+
+      attr_accessor :project_ref
+
       # Add an attribute reader for the client
       # when applied to the MachineIndex class
       def self.prepended(klass)
@@ -17,11 +21,6 @@ module Vagrant
         @machines  = {}
       end
 
-      def set_client(client)
-        @logger.debug("setting machine index client")
-        @client = client
-      end
-
       # Deletes a machine by UUID.
       #
       # @param [Entry] entry The entry to delete.
@@ -33,18 +32,26 @@ module Vagrant
 
       # Accesses a machine by UUID
       #
-      # @param [String] uuid UUID for the machine to access.
+      # @param [String] name for the machine to access.
       # @return [MachineIndex::Entry]
-      def get(uuid)
-        @client.get(machine)
+      def get(name)
+        ref = Hashicorp::Vagrant::Sdk::Ref::Target.new(
+          name: name,
+          project: @project_ref
+        )
+        @client.get(ref)
       end
       
       # Tests if the index has the given UUID.
       #
-      # @param [String] uuid
+      # @param [String] name
       # @return [Boolean]
-      def include?(uuid)
-        @client.include?(uuid)
+      def include?(name)
+        ref = Hashicorp::Vagrant::Sdk::Ref::Target.new(
+          name: name,
+          project: @project_ref
+        )
+        @client.include?(ref)
       end
 
       def release(entry)

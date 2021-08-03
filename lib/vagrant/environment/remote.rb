@@ -35,7 +35,10 @@ module Vagrant
         if !@client.nil?
           machine_index_client = @client.machine_index
           @machine_index ||= Vagrant::MachineIndex.new()
-          @machine_index.set_client(machine_index_client)
+          @logger.debug("setting machine index client")
+          @machine_index.client = machine_index_client
+          @logger.debug("setting machine index project ref")
+          @machine_index.project_ref = @client.ref
         end
         @machine_index
       end
