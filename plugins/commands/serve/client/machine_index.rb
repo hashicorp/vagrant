@@ -38,7 +38,7 @@ module VagrantPlugins
         # @return [Boolean]
         def include?(ref)
           @logger.debug("checking for machine with ref #{ref} in index")
-          @client.includes(red).exists
+          @client.includes(ref).exists
         end
 
         # @param [Hashicorp::Vagrant::Sdk::Args::Target] target

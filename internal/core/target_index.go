@@ -8,6 +8,7 @@ import (
 	"github.com/hashicorp/vagrant-plugin-sdk/proto/vagrant_plugin_sdk"
 	"github.com/hashicorp/vagrant/internal/server/proto/vagrant_server"
 	"github.com/hashicorp/vagrant/internal/serverclient"
+	"github.com/mitchellh/mapstructure"
 )
 
 // TargetIndex represents
@@ -36,10 +37,12 @@ func (t *TargetIndex) Get(ref *vagrant_plugin_sdk.Ref_Target) (entry core.Target
 }
 
 func (t *TargetIndex) Includes(ref *vagrant_plugin_sdk.Ref_Target) (exists bool, err error) {
-	resp, err := t.client.GetTarget(
+	var req *vagrant_server.Target
+	mapstructure.Decode(ref, &req)
+	resp, err := t.client.FindTarget(
 		t.ctx,
-		&vagrant_server.GetTargetRequest{
-			Target: ref,
+		&vagrant_server.FindTargetRequest{
+			Target: req,
 		},
 	)
 	if err != nil {
