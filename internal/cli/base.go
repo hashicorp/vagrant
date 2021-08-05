@@ -3,6 +3,7 @@ package cli
 import (
 	"context"
 	"errors"
+	"fmt"
 	"io"
 	"regexp"
 	"strings"
@@ -11,10 +12,10 @@ import (
 	"github.com/hashicorp/go-hclog"
 	"github.com/hashicorp/go-multierror"
 
-	"github.com/hashicorp/vagrant-plugin-sdk/helper/path"
 	"github.com/hashicorp/vagrant-plugin-sdk/helper/paths"
 	"github.com/hashicorp/vagrant-plugin-sdk/terminal"
 	"github.com/hashicorp/vagrant/internal/clicontext"
+	"github.com/hashicorp/vagrant/internal/client"
 	clientpkg "github.com/hashicorp/vagrant/internal/client"
 	"github.com/hashicorp/vagrant/internal/clierrors"
 	"github.com/hashicorp/vagrant/internal/config"
@@ -50,9 +51,13 @@ type baseCommand struct {
 	ui terminal.UI
 
 	// client for performing operations
-	basis   *clientpkg.Basis
+	client *clientpkg.Client
+	// basis to root these operations within
+	basis *clientpkg.Basis
+	// optional project to run operations within
 	project *clientpkg.Project
-	targets []*clientpkg.Target
+	// optional target to run operations against
+	target *clientpkg.Target
 
 	// clientContext is set to the context information for the current
 	// connection. This might not exist in the contextStorage yet if this
@@ -68,20 +73,17 @@ type baseCommand struct {
 	// flagPlain is whether the output should be in plain mode.
 	flagPlain bool
 
-	// flagLabels are set via -label if flagSetOperation is set.
-	flagLabels map[string]string
-
 	// flagRemote is whether to execute using a remote runner or use
 	// a local runner.
 	flagRemote bool
 
-	// flagRemoteSource are the remote data source overrides for jobs.
-	flagRemoteSource map[string]string
-
 	// flagBasis is the basis to work within.
 	flagBasis string
 
-	// flagMachine is the machine to target.
+	// flagProject is the project to work within.
+	flagProject string
+
+	// flagTarget is the machine to target.
 	flagTarget string
 
 	// flagConnection contains manual flag-based connection info.
@@ -96,16 +98,23 @@ type baseCommand struct {
 
 // Close cleans up any resources that the command created. This should be
 // defered by any CLI command that embeds baseCommand in the Run command.
-func (c *baseCommand) Close() error {
+func (c *baseCommand) Close() (err error) {
+	c.Log.Trace("starting command closing")
 	if closer, ok := c.ui.(io.Closer); ok && closer != nil {
-		closer.Close()
+		c.Log.Trace("closing command ui")
+		if e := closer.Close(); e != nil {
+			err = multierror.Append(err, e)
+		}
 	}
 
-	if c.basis != nil {
-		c.basis.Close()
+	if c.client != nil {
+		c.Log.Trace("closing command client")
+		if e := c.client.Close(); e != nil {
+			err = multierror.Append(err, e)
+		}
 	}
 
-	return nil
+	return
 }
 
 func BaseCommand(ctx context.Context, log hclog.Logger, logOutput io.Writer, opts ...Option) (*baseCommand, error) {
@@ -140,19 +149,23 @@ func BaseCommand(ctx context.Context, log hclog.Logger, logOutput io.Writer, opt
 		return nil, err
 	}
 
-	// Setup our basis path
-	homeConfigPath, err := paths.VagrantConfig()
+	// From the command side, the basis is simply where an extra Vagrantfile can
+	// live, as well as our storage context
+	if bc.flagBasis == "" {
+		bc.flagBasis = "default"
+	}
+
+	homeConfigPath, err := paths.NamedVagrantConfig(bc.flagBasis)
 	if err != nil {
-		bc.ui.Output(clierrors.Humanize(err), terminal.WithErrorStyle())
 		return nil, err
 	}
-	bc.Log.Debug("home configuration directory", "path", homeConfigPath.String())
+	bc.Log.Info("vagrant home directory defined",
+		"path", homeConfigPath)
 
-	// Setup our base directory for context management
+	// Setup our directory for context storage
 	contextStorage, err := clicontext.NewStorage(
 		clicontext.WithDir(homeConfigPath.Join("context")))
 	if err != nil {
-		bc.ui.Output(clierrors.Humanize(err), terminal.WithErrorStyle())
 		return nil, err
 	}
 	bc.contextStorage = contextStorage
@@ -178,48 +191,66 @@ func BaseCommand(ctx context.Context, log hclog.Logger, logOutput io.Writer, opt
 	}
 
 	// Start building our client options
-	basisOpts := []clientpkg.Option{
+	clientOpts := []clientpkg.Option{
 		clientpkg.WithLogger(bc.Log.ResetNamed("vagrant.client")),
 		clientpkg.WithClientConnect(connectOpts...),
-		// clientpkg.WithBasis(
-		// 	&vagrant_server.Basis{
-		// 		Name: homeConfigPath.String(),
-		// 		Path: homeConfigPath.String(),
-		// 	},
-		// ),
 	}
 	if !bc.flagRemote {
-		basisOpts = append(basisOpts, clientpkg.WithLocal())
+		clientOpts = append(clientOpts, clientpkg.WithLocal())
 	}
 
 	if bc.ui != nil {
-		basisOpts = append(basisOpts, clientpkg.WithUI(bc.ui))
+		clientOpts = append(clientOpts, clientpkg.WithUI(bc.ui))
 	}
 
-	basis, err := clientpkg.New(context.Background(), basisOpts...)
+	// And build our client
+	bc.client, err = clientpkg.New(ctx, clientOpts...)
 	if err != nil {
 		return nil, err
 	}
 
-	// Determine if we are in a project and setup if so
-	cwd, err := path.NewPath(".").Abs()
-	if err != nil {
-		panic("cannot setup local directory")
+	// We always have a basis, so load that
+	if bc.basis, err = bc.client.LoadBasis(bc.flagBasis); err != nil {
+		return nil, err
 	}
-	if true { //} _, err := config.FindPath("", ""); err == nil {
-		bc.project, err = basis.LoadProject(
-			&vagrant_server.Project{
-				Name:  cwd.Base().String(),
-				Path:  cwd.String(),
-				Basis: basis.Ref(),
-			},
-		)
-		if err != nil {
+
+	// A project is optional (though generally needed) and there are
+	// two possibilites for how we load the project.
+	if bc.flagProject != "" {
+		// The first is that we are given a specific project that should be
+		// used within the defined basis. So lets load that.
+		if bc.project, err = bc.basis.LoadProject(bc.flagProject); err != nil {
+			return nil, err
+		}
+	} else {
+		if bc.project, err = bc.basis.DetectProject(); err != nil {
 			return nil, err
 		}
 	}
 
-	bc.basis = basis
+	// Load in basis vagrantfile if there is one
+	if err = bc.basis.LoadVagrantfile(); err != nil {
+		return nil, err
+	}
+
+	// And if we have a project, load that vagrantfile too
+	if bc.project != nil {
+		if err = bc.project.LoadVagrantfile(); err != nil {
+			return nil, err
+		}
+	}
+
+	// There's also a chance we are supposed to be focused on
+	// a specific target, so load that if so
+	if bc.flagTarget != "" {
+		if bc.project == nil {
+			return nil, fmt.Errorf("cannot load target without valid project")
+		}
+
+		if bc.target, err = bc.project.LoadTarget(bc.flagTarget); err != nil {
+			return nil, err
+		}
+	}
 
 	return bc, err
 }
@@ -265,98 +296,65 @@ func (c *baseCommand) Init(opts ...Option) error {
 		c.ui = terminal.NonInteractiveUI(c.Ctx)
 	}
 
-	// TODO(spox): re-enable custom basis
-	// Set our basis reference if provided
-	// if c.flagBasis != "" {
-	// 	c.basis.SetRef(&vagrant_server.Ref_Basis{Name: c.flagBasis})
-	// }
-
 	// Parse the configuration
 	c.cfg = &config.Config{}
 
 	// If we have an app target requirement, we have to get it from the args
 	// or the config.
-	if baseCfg.TargetRequired && c.project != nil {
-		// If we have args, attempt to extract there first.
-		if len(c.args) > 0 {
-			match := reTarget.FindStringSubmatch(c.args[0])
-			if match != nil {
-				// Set our machine
-				t, err := c.project.LoadTarget(&vagrant_server.Target{
-					Name:    match[1],
-					Project: c.project.Ref(),
-				})
-				if err != nil {
-					return err
-				}
-				c.targets = append(c.targets, t)
+	// if baseCfg.TargetRequired && c.project != nil {
+	// 	// If we have args, attempt to extract there first.
+	// 	if len(c.args) > 0 {
+	// 		match := reTarget.FindStringSubmatch(c.args[0])
+	// 		if match != nil {
+	// 			// Set our target
+	// 			t, err := c.project.LoadTarget(match[1])
+	// 			if err != nil {
+	// 				return err
+	// 			}
+	// 			c.target = t
 
-				// Shift the args
-				c.args = c.args[1:]
+	// 			// Shift the args
+	// 			c.args = c.args[1:]
 
-				// Explicitly set remote
-				c.flagRemote = true
-			}
-		}
+	// 			// Explicitly set remote (TODO: why?)
+	// 			c.flagRemote = true
+	// 		}
+	// 	}
 
-		// If we didn't get our ref, then we need to load config
-		if len(c.targets) == 0 {
-			baseCfg.Config = true
-		}
-	}
+	// 	// If we didn't get our ref, then we need to load config
+	// 	if c.target == nil {
+	// 		baseCfg.Config = true
+	// 	}
+	// }
 
-	// If we're loading the config, then get it.
-	if baseCfg.Config {
-		cfg, err := c.initConfig(baseCfg.ConfigOptional)
-		if err != nil {
-			c.logError(c.Log, "failed to load configuration", err)
-			return err
-		}
-		// vagrantfile, err := c.basis.ParseVagrantfile()
-		// if err != nil {
-		// 	c.logError(c.Log, "failed to parse vagrantfile", err)
-		// 	return err
-		// }
-		// cfg.Project, err = cfg.LoadProject(vagrantfile, c.project.Ref())
-		// if err != nil {
-		// 	c.logError(c.Log, "failed to load project", err)
-		// 	return err
-		// }
-
-		c.cfg = cfg
-		if cfg != nil {
-			// If we require an app target and we still haven't set it,
-			// and the user provided it via the CLI, set it now. This code
-			// path is only reached if it wasn't set via the args either
-			// above.
-			if c.flagTarget == "" {
-				c.flagTarget = "default"
-			}
-			t, err := c.project.LoadTarget(&vagrant_server.Target{
-				Name:    c.flagTarget,
-				Project: c.project.Ref(),
-			})
-
-			if err != nil {
-				return err
-			}
-
-			c.targets = append(c.targets, t)
-		}
-	}
-
-	// Create our client
-	// if baseCfg.Client {
-	// 	var err error
-	// 	c.basis, err = c.initClient()
+	// // If we're loading the config, then get it.
+	// if baseCfg.Config {
+	// 	cfg, err := c.initConfig(baseCfg.ConfigOptional)
 	// 	if err != nil {
-	// 		c.logError(c.Log, "failed to create client", err)
+	// 		c.logError(c.Log, "failed to load configuration", err)
 	// 		return err
+	// 	}
+	// 	c.cfg = cfg
+	// 	if cfg != nil {
+	// 		// If we require an app target and we still haven't set it,
+	// 		// and the user provided it via the CLI, set it now. This code
+	// 		// path is only reached if it wasn't set via the args either
+	// 		// above.
+	// 		if c.flagTarget == "" {
+	// 			c.flagTarget = "default"
+	// 		}
+	// 		t, err := c.project.LoadTarget(c.flagTarget)
+
+	// 		if err != nil {
+	// 			return err
+	// 		}
+
+	// 		c.target = t
 	// 	}
 	// }
 
 	// Validate remote vs. local operations.
-	if c.flagRemote && len(c.targets) == 0 {
+	if c.flagRemote && c.target == nil {
 		if c.cfg == nil || c.cfg.Runner == nil || !c.cfg.Runner.Enabled {
 			err := errors.New(
 				"The `-remote` flag was specified but remote operations are not supported\n" +
@@ -369,38 +367,20 @@ func (c *baseCommand) Init(opts ...Option) error {
 		}
 	}
 
-	// If this is a single app mode then make sure that we only have
-	// one app or that we have an app target.
-	if false && baseCfg.TargetRequired {
-		if len(c.targets) == 0 {
+	if baseCfg.TargetRequired && c.project != nil {
+		if c.target == nil {
 			if len(c.cfg.Project.Targets) != 1 {
 				c.ui.Output(errTargetModeSingle, terminal.WithErrorStyle())
 				return ErrSentinel
 			}
 
-			if c.project == nil {
-				c.project, err = c.basis.LoadProject(
-					&vagrant_server.Project{
-						Name:  c.cfg.Project.Location,
-						Path:  c.cfg.Project.Location,
-						Basis: c.basis.Ref(),
-					},
-				)
-				if err != nil {
-					return err
-				}
-			}
-
-			target, err := c.project.LoadTarget(&vagrant_server.Target{
-				Name:    c.cfg.Project.Targets[0].Name,
-				Project: c.project.Ref(),
-			})
+			target, err := c.project.LoadTarget(c.cfg.Project.Targets[0].Name)
 
 			if err != nil {
 				return err
 			}
 
-			c.targets = append(c.targets, target)
+			c.target = target
 		}
 	}
 
@@ -409,7 +389,7 @@ func (c *baseCommand) Init(opts ...Option) error {
 
 type Tasker interface {
 	UI() terminal.UI
-	Task(context.Context, *vagrant_server.Job_RunOp) (*vagrant_server.Job_RunResult, error)
+	Task(context.Context, *vagrant_server.Job_RunOp, client.JobModifier) (*vagrant_server.Job_RunResult, error)
 	//CreateTask() *vagrant_server.Task
 }
 
@@ -427,33 +407,22 @@ type Tasker interface {
 // If you want to early exit all the running functions, you should use
 // the callback closure properties to cancel the passed in context. This
 // will stop any remaining callbacks and exit early.
-func (c *baseCommand) Do(ctx context.Context, f func(context.Context, Tasker) error) (finalErr error) {
-	// Start with checking if we are running in a machine based scope
-	if len(c.targets) > 0 {
-		for _, m := range c.targets {
-			c.Log.Debug("running command on target", "target", m)
-			// If the context has been canceled, then bail
-			if err := ctx.Err(); err != nil {
-				return err
-			}
+func (c *baseCommand) Do(ctx context.Context, f func(context.Context, *client.Client, client.JobModifier) error) (finalErr error) {
+	return f(ctx, c.client, c.Modifier())
+}
 
-			if err := f(ctx, m); err != nil {
-				if err != ErrSentinel {
-					finalErr = multierror.Append(finalErr, err)
-				}
-			}
+func (c *baseCommand) Modifier() client.JobModifier {
+	return func(j *vagrant_server.Job) {
+		if c.basis != nil {
+			j.Basis = c.basis.Ref()
 		}
-		return
+		if c.project != nil {
+			j.Project = c.project.Ref()
+		}
+		if c.target != nil {
+			j.Target = c.target.Ref()
+		}
 	}
-
-	// Now we can check if this is project scoped
-	if c.project != nil {
-		finalErr = f(ctx, c.project)
-		return
-	}
-
-	// And if we're still here, it's gotta be basis scoped
-	return f(ctx, c.basis)
 }
 
 // logError logs an error and outputs it to the UI.
@@ -498,14 +467,6 @@ func (c *baseCommand) flagSet(bit flagSetBit, f func(*getoptions.GetOpt)) *getop
 	)
 
 	if bit&flagSetOperation != 0 {
-		set.StringMapVar(
-			&c.flagLabels,
-			"label",
-			1,
-			MaxStringMapArgs,
-			set.Description("Labels to set for this operation. Can be specified multiple times."),
-		)
-
 		set.BoolVar(
 			&c.flagRemote,
 			"remote",
@@ -514,15 +475,15 @@ func (c *baseCommand) flagSet(bit flagSetBit, f func(*getoptions.GetOpt)) *getop
 				"unless 'runner.default' is set in your configuration."),
 		)
 
-		set.StringMapVar(
-			&c.flagRemoteSource,
-			"remote-source",
-			1,
-			MaxStringMapArgs,
-			set.Description("Override configurations for how remote runners source data. "+
-				"This is specified to the data source type being used in your configuration. "+
-				"This is used for example to set a specific Git ref to run against."),
-		)
+		// set.StringMapVar(
+		// 	&c.flagRemoteSource,
+		// 	"remote-source",
+		// 	1,
+		// 	MaxStringMapArgs,
+		// 	set.Description("Override configurations for how remote runners source data. "+
+		// 		"This is specified to the data source type being used in your configuration. "+
+		// 		"This is used for example to set a specific Git ref to run against."),
+		// )
 	}
 
 	if bit&flagSetConnection != 0 {
