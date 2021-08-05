@@ -37,12 +37,12 @@ func (c *baseCommand) initConfig(optional bool) (*configpkg.Config, error) {
 // initConfigPath returns the configuration path to load.
 func (c *baseCommand) initConfigPath() (string, error) {
 	// This configuarion is for the Vagrant process, not the same as a Vagrantfile
-	path, err := configpkg.FindPath("", "vagrant-config.hcl")
+	path, err := configpkg.FindPath(nil, "vagrant-config.hcl")
 	if err != nil {
 		return "", fmt.Errorf("Error looking for a Vagrant configuration: %s", err)
 	}
 
-	return path, nil
+	return path.String(), nil
 }
 
 // initConfigLoad loads the configuration at the given path.
@@ -61,11 +61,9 @@ func (c *baseCommand) initConfigLoad(path string) (*configpkg.Config, error) {
 }
 
 // initClient initializes the client.
-func (c *baseCommand) initClient() (*clientpkg.Basis, error) {
+func (c *baseCommand) initClient() (*clientpkg.Client, error) {
 	// Start building our client options
 	opts := []clientpkg.Option{
-		clientpkg.WithLabels(c.flagLabels),
-		clientpkg.WithSourceOverrides(c.flagRemoteSource),
 		clientpkg.WithConfig(c.cfg),
 	}
 
