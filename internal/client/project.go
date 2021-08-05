@@ -2,16 +2,14 @@ package client
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"os"
 
 	"github.com/hashicorp/go-hclog"
 
-	"github.com/hashicorp/vagrant-plugin-sdk/datadir"
+	"github.com/hashicorp/vagrant-plugin-sdk/helper/path"
 	vagrant_plugin_sdk "github.com/hashicorp/vagrant-plugin-sdk/proto/vagrant_plugin_sdk"
 	"github.com/hashicorp/vagrant-plugin-sdk/terminal"
-	configpkg "github.com/hashicorp/vagrant/internal/config"
 	"github.com/hashicorp/vagrant/internal/server/proto/vagrant_server"
 	"github.com/hashicorp/vagrant/internal/serverclient"
 )
@@ -21,156 +19,135 @@ import (
 // abstraction over the server API for performing operations locally and
 // remotely.
 type Project struct {
-	ui terminal.UI
-
-	Targets []*Target
-
-	basis   *Basis
-	datadir *datadir.Project
-	project *vagrant_server.Project
-	logger  hclog.Logger
+	basis       *Basis
+	client      *Client
+	ctx         context.Context
+	logger      hclog.Logger
+	path        path.Path
+	project     *vagrant_server.Project
+	ui          terminal.UI
+	vagrant     *serverclient.VagrantClient
+	vagrantfile path.Path
 }
 
 // Finds the Vagrantfile associated with the project
-func (p *Project) LoadVagrantfiles() error {
-	vagrantfilePath, err := configpkg.FindPath(p.project.Path, configpkg.GetVagrantfileName())
-	if err != nil {
-		return err
-	}
-	// If the path does not exist, no Vagrantfile was found
-	if _, err := os.Stat(vagrantfilePath); os.IsNotExist(err) {
+func (p *Project) LoadVagrantfile() error {
+	l := p.logger.With(
+		"basis", p.basis.basis.Name,
+		"project", p.project.Name,
+		"path", p.vagrantfile,
+	)
+	l.Trace("attempting to load project vagrantfile")
+	if p.vagrantfile == nil {
+		l.Warn("project vagrantfile has not been set")
 		return nil
 	}
 
-	raw, err := p.basis.vagrantRubyRuntime.Dispense("vagrantrubyruntime")
+	// If the path does not exist, no Vagrantfile was found
+	if _, err := os.Stat(p.vagrantfile.String()); os.IsNotExist(err) {
+		l.Warn("project vagrantfile does not exist")
+		return nil
+	}
+
+	raw, err := p.client.rubyRuntime.Dispense("vagrantrubyruntime")
 	if err != nil {
+		l.Warn("failed to load ruby runtime for vagrantfile parsing",
+			"error", err,
+		)
+
 		return err
 	}
 	rvc, ok := raw.(serverclient.RubyVagrantClient)
 	if !ok {
+		l.Warn("failed to attach to ruby runtime for vagrantfile parsing")
+
 		return fmt.Errorf("Couldn't attach to Ruby runtime")
 	}
-	vagrantfile, err := rvc.ParseVagrantfile(vagrantfilePath)
+
+	vagrantfile, err := rvc.ParseVagrantfile(p.vagrantfile.String())
 	if err != nil {
+		l.Error("failed to parse project vagrantfile",
+			"error", err,
+		)
+
 		return err
 	}
+
+	l.Trace("storaing updated project configuration",
+		"configuration", vagrantfile,
+	)
+
 	p.project.Configuration = vagrantfile
 	// Push Vagrantfile updates to project
-	projectRef, err := p.basis.client.UpsertProject(
-		context.Background(),
+	result, err := p.vagrant.UpsertProject(
+		p.ctx,
 		&vagrant_server.UpsertProjectRequest{
 			Project: p.project,
 		},
 	)
+
 	if err != nil {
+		l.Error("failed to store project updates",
+			"error", err,
+		)
+
 		return err
 	}
+	p.project = result.Project
 
-	for _, machineConfig := range vagrantfile.MachineConfigs {
-		refProject := &vagrant_plugin_sdk.Ref_Project{ResourceId: projectRef.Project.ResourceId}
-
-		vagrantServerTarget, err := p.basis.client.FindTarget(
-			context.Background(),
-			&vagrant_server.FindTargetRequest{
-				Target: &vagrant_server.Target{Name: machineConfig.Name},
-			},
-		)
-		if err != nil {
-			p.logger.Trace("Target not found, upserting target to Vagrant server")
-		}
-		if vagrantServerTarget == nil {
-			vagrantServerTarget, err := p.basis.client.UpsertTarget(
-				context.Background(),
-				&vagrant_server.UpsertTargetRequest{
-					Project: refProject,
-					Target: &vagrant_server.Target{
-						Configuration: machineConfig,
-						Name:          machineConfig.Name,
-						Project:       refProject,
-					},
-				},
-			)
-			if err != nil {
-				return err
-			}
-			p.Targets = append(p.Targets, &Target{
-				ui:      p.ui,
-				project: p,
-				target:  vagrantServerTarget.Target,
-			})
-		} else {
-			p.Targets = append(p.Targets, &Target{
-				ui:      p.ui,
-				project: p,
-				target:  vagrantServerTarget.Target,
-			})
-		}
-	}
 	return nil
 }
 
-func (p *Project) LoadTarget(t *vagrant_server.Target) (*Target, error) {
-	target, err := p.GetTarget(t.Name)
-	if err == nil {
-		return target, nil
-	}
-
-	d, err := p.datadir.Target(t.Name)
+func (p *Project) LoadTarget(n string) (*Target, error) {
+	result, err := p.vagrant.FindTarget(
+		p.ctx,
+		&vagrant_server.FindTargetRequest{
+			Target: &vagrant_server.Target{
+				Name:    n,
+				Project: p.Ref(),
+			},
+		},
+	)
 	if err != nil {
 		return nil, err
 	}
 
-	// Ensure the machine is set to this project
-	t.Project = p.Ref()
-
-	result, err := p.basis.client.FindTarget(
-		context.Background(),
-		&vagrant_server.FindTargetRequest{
-			Target: t,
-		},
-	)
-	if err == nil && result.Found {
-		target := &Target{
-			ui:      p.UI(),
+	// If the target exists, load and return
+	if result.Found {
+		return &Target{
+			client:  p.client,
+			ctx:     p.ctx,
+			logger:  p.logger.Named("target"),
 			project: p,
 			target:  result.Target,
-			logger:  p.logger.Named("target"),
-			datadir: d,
-		}
-		p.Targets = append(p.Targets, target)
-
-		return target, nil
+			ui:      p.ui,
+			vagrant: p.vagrant,
+		}, nil
 	}
 
-	p.logger.Trace("failed to locate existing target", "target", t,
-		"result", result, "error", err)
+	// Doesn't exist so lets create it
+	// TODO(spox): do we actually want to create these?
 
-	// TODO: this is specialized
-	// if t.Provider == "" {
-	// 	t.Provider, err = p.GetDefaultProvider([]string{}, false, true)
-	// }
-
-	uresult, err := p.basis.client.UpsertTarget(
-		context.Background(),
+	uresult, err := p.vagrant.UpsertTarget(p.ctx,
 		&vagrant_server.UpsertTargetRequest{
-			Target: t,
+			Target: &vagrant_server.Target{
+				Name:    n,
+				Project: p.Ref(),
+			},
 		},
 	)
 	if err != nil {
 		return nil, err
 	}
 
-	target = &Target{
-		ui:      p.UI(),
-		project: p,
+	return &Target{
+		client:  p.client,
+		ctx:     p.ctx,
+		logger:  p.logger.Named("project"),
 		target:  uresult.Target,
-		logger:  p.logger.Named("target"),
-		datadir: d,
-	}
-
-	p.Targets = append(p.Targets, target)
-
-	return target, nil
+		ui:      p.ui,
+		vagrant: p.vagrant,
+	}, nil
 }
 
 // TODO: Determine default provider by implementing algorithm from
@@ -185,31 +162,6 @@ func (p *Project) GetDefaultProvider(exclude []string, forceDefault bool, checkU
 
 	// HACK: This should throw an error if no default provider is found
 	return "virtualbox", nil
-}
-
-// func (p *Project) GetDataDir() *vagrant_plugin_sdk.Args_DataDir_Target {
-// 	// TODO: probably need to get datadir from the projet + basis
-
-// 	root, _ := paths.VagrantHome()
-// 	cacheDir := root.Join("cache")
-// 	dataDir := root.Join("data")
-// 	tmpDir := root.Join("tmp")
-
-// 	return &vagrant_plugin_sdk.Args_DataDir_Target{
-// 		CacheDir: cacheDir.String(),
-// 		DataDir:  dataDir.String(),
-// 		RootDir:  root.String(),
-// 		TempDir:  tmpDir.String(),
-// 	}
-// }
-
-func (p *Project) GetTarget(name string) (t *Target, err error) {
-	for _, t = range p.Targets {
-		if t.Ref().Name == name {
-			return
-		}
-	}
-	return nil, errors.New("failed to locate requested target")
 }
 
 func (p *Project) UI() terminal.UI {
@@ -227,24 +179,4 @@ func (p *Project) Ref() *vagrant_plugin_sdk.Ref_Project {
 		ResourceId: p.project.ResourceId,
 		Basis:      p.basis.Ref(),
 	}
-}
-
-// job is the same as Project.job except this also sets the application
-// reference.
-func (p *Project) job() *vagrant_server.Job {
-	job := p.basis.job()
-	job.Project = p.Ref()
-
-	return job
-}
-
-func (p *Project) doJob(
-	ctx context.Context,
-	job *vagrant_server.Job,
-	ui terminal.UI,
-) (*vagrant_server.Job_Result, error) {
-	if ui == nil {
-		ui = p.ui
-	}
-	return p.basis.doJob(ctx, job, ui)
 }
