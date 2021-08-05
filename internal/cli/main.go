@@ -101,6 +101,7 @@ func Main(args []string) int {
 	// Run the CLI
 	exitCode, err := cli.Run()
 	if err != nil {
+		log.Error("cli run failed", "error", err)
 		panic(err)
 	}
 
@@ -141,15 +142,10 @@ func Commands(
 		return nil, nil, err
 	}
 
-	basis := baseCommand.basis
-
-	// // Using a custom UI here to prevent weird output behavior
-	// // TODO(spox): make this better (like respecting noninteractive, etc)
-	ui := terminal.ConsoleUI(ctx)
-	s := ui.Status()
+	s := baseCommand.client.UI().Status()
 	s.Update("Loading Vagrant...")
 
-	result, err := basis.Commands(ctx, nil)
+	result, err := baseCommand.client.Commands(ctx, nil, baseCommand.Modifier())
 	if err != nil {
 		s.Step(terminal.StatusError, "Failed to load Vagrant!")
 		return nil, nil, err
@@ -157,10 +153,6 @@ func Commands(
 
 	s.Step(terminal.StatusOK, "Vagrant loaded!")
 	s.Close()
-
-	if closer, ok := ui.(io.Closer); ok {
-		closer.Close()
-	}
 
 	// Set plain mode if set
 	if os.Getenv(EnvPlain) != "" {
@@ -227,6 +219,7 @@ func Commands(
 // determined based on environment variables if set.
 func logger(args []string) ([]string, hclog.Logger, io.Writer, error) {
 	app := args[0]
+	verbose := false
 
 	// Determine our log level if we have any. First override we check is env var
 	level := hclog.NoLevel
@@ -259,6 +252,11 @@ func logger(args []string) ([]string, hclog.Logger, io.Writer, error) {
 			if level == hclog.NoLevel || level > hclog.Trace {
 				level = hclog.Trace
 			}
+		case "-vvvv":
+			if level == hclog.NoLevel || level > hclog.Trace {
+				level = hclog.Trace
+			}
+			verbose = true
 		default:
 			outArgs = append(outArgs, arg)
 		}
@@ -272,11 +270,28 @@ func logger(args []string) ([]string, hclog.Logger, io.Writer, error) {
 		color = hclog.AutoColor
 	}
 
+	// Since some log line can get extremely verbose depending on what
+	// fields are included, this will suppress overly long trace lines
+	// unless we are in verbose mode.
+	exclude := func(level hclog.Level, msg string, args ...interface{}) bool {
+		if level != hclog.Trace || verbose {
+			return false
+		}
+
+		for _, a := range args {
+			if len(fmt.Sprintf("%v", a)) > 150 {
+				return true
+			}
+		}
+		return false
+	}
+
 	logger := hclog.New(&hclog.LoggerOptions{
-		Name:   app,
-		Level:  level,
-		Color:  color,
-		Output: output,
+		Name:    app,
+		Level:   level,
+		Color:   color,
+		Output:  output,
+		Exclude: exclude,
 	})
 
 	return outArgs, logger, output, nil
