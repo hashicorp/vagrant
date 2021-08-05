@@ -5,19 +5,20 @@ import (
 
 	"github.com/hashicorp/go-hclog"
 
-	"github.com/hashicorp/vagrant-plugin-sdk/datadir"
 	"github.com/hashicorp/vagrant-plugin-sdk/proto/vagrant_plugin_sdk"
 	"github.com/hashicorp/vagrant-plugin-sdk/terminal"
 	"github.com/hashicorp/vagrant/internal/server/proto/vagrant_server"
+	"github.com/hashicorp/vagrant/internal/serverclient"
 )
 
 type Target struct {
-	ui terminal.UI
-
+	client  *Client
+	ctx     context.Context
+	logger  hclog.Logger
 	project *Project
 	target  *vagrant_server.Target
-	logger  hclog.Logger
-	datadir *datadir.Target
+	ui      terminal.UI
+	vagrant *serverclient.VagrantClient
 }
 
 func (m *Target) UI() terminal.UI {
@@ -30,18 +31,4 @@ func (m *Target) Ref() *vagrant_plugin_sdk.Ref_Target {
 		Name:       m.target.Name,
 		Project:    m.project.Ref(),
 	}
-}
-
-func (m *Target) job() *vagrant_server.Job {
-	job := m.project.job()
-	job.Target = m.Ref()
-	return job
-}
-
-func (m *Target) Close() error {
-	return m.project.Close()
-}
-
-func (m *Target) doJob(ctx context.Context, job *vagrant_server.Job) (*vagrant_server.Job_Result, error) {
-	return m.project.doJob(ctx, job, m.ui)
 }
