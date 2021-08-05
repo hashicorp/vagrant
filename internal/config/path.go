@@ -2,15 +2,16 @@ package config
 
 import (
 	"os"
-	"path/filepath"
+
+	"github.com/hashicorp/vagrant-plugin-sdk/helper/path"
 )
 
 // Filename is the default filename for the Vagrant configuration.
 const Filename = "Vagrantfile"
 
 func GetVagrantfileName() string {
-	if os.Getenv("VAGRANT_VAGRANTFILE") != "" {
-		return os.Getenv("VAGRANT_VAGRANTFILE")
+	if f := os.Getenv("VAGRANT_VAGRANTFILE"); f != "" {
+		return f
 	}
 	return Filename
 }
@@ -22,32 +23,27 @@ func GetVagrantfileName() string {
 //
 // If start is empty, start will be the current working directory. If
 // filename is empty, it will default to the Filename constant.
-func FindPath(start, filename string) (string, error) {
-	var err error
-	if start == "" {
-		start, err = os.Getwd()
+func FindPath(dir path.Path, filename string) (p path.Path, err error) {
+	if dir == nil {
+		cwd, err := os.Getwd()
 		if err != nil {
-			return "", err
+			return nil, err
 		}
+		dir = path.NewPath(cwd)
 	}
 
 	if filename == "" {
-		filename = Filename
+		filename = GetVagrantfileName()
 	}
 
 	for {
-		path := filepath.Join(start, filename)
-		if _, err := os.Stat(path); err == nil {
-			return path, nil
-		} else if !os.IsNotExist(err) {
-			return "", err
+		p = dir.Join(filename)
+		if _, err = os.Stat(p.String()); err == nil || !os.IsNotExist(err) {
+			return
 		}
-
-		next := filepath.Dir(start)
-		if next == start {
-			return "", nil
+		if p.String() == p.Parent().String() {
+			return nil, nil
 		}
-
-		start = next
+		p = p.Parent()
 	}
 }
