@@ -277,3 +277,10 @@ func ByIdOnly() Option {
 		return nil
 	}
 }
+
+func WithContext(ctx context.Context) Option {
+	return func(r *Runner, cfg *config) error {
+		r.ctx = ctx
+		return nil
+	}
+}
