@@ -28,9 +28,10 @@ func (c *UICommand) Run(args []string) int {
 		return 1
 	}
 
-	if c.basis.Local() {
-		c.basis.UI().Output("Vagrant must be configured in server mode to access the UI", terminal.WithWarningStyle())
-	}
+	// TODO(spox): comment this out until local configuration is updated
+	// if c.client.Local() {
+	// 	c.client.UI().Output("Vagrant must be configured in server mode to access the UI", terminal.WithWarningStyle())
+	// }
 
 	// Get our API client
 	client := c.basis.Client()
