@@ -15,12 +15,14 @@ import (
 	"github.com/hashicorp/vagrant/internal/server/proto/vagrant_server"
 )
 
+type JobModifier func(*vagrant_server.Job)
+
 // job returns the basic job skeleton prepoulated with the correct
 // defaults based on how the client is configured. For example, for local
 // operations, this will already have the targeting for the local runner.
-func (b *Basis) job() *vagrant_server.Job {
+func (c *Client) job() *vagrant_server.Job {
 	job := &vagrant_server.Job{
-		TargetRunner: b.runner,
+		TargetRunner: c.runnerRef,
 
 		DataSource: &vagrant_server.Job_DataSource{
 			Source: &vagrant_server.Job_DataSource_Local{
@@ -33,61 +35,28 @@ func (b *Basis) job() *vagrant_server.Job {
 		},
 	}
 
-	job.Basis = b.Ref()
-	if b.Project != nil {
-		job.Project = b.Project.Ref()
-	}
-
-	// If we're not local, we set a nil data source so it defaults to
-	// whatever the project has remotely.
-	if !b.local {
-		job.DataSource = nil
-	}
-
 	return job
 }
 
 // doJob will queue and execute the job. If the client is configured for
 // local mode, this will start and target the proper runner.
-func (b *Basis) doJob(
+func (c *Client) doJob(
 	ctx context.Context,
 	job *vagrant_server.Job,
 	ui terminal.UI,
 ) (*vagrant_server.Job_Result, error) {
-	log := b.logger
+	log := c.logger
 
 	if ui == nil {
-		ui = b.UI()
+		ui = c.ui
 	}
 
 	// cb is used in local mode only to get a callback of the job ID
 	// so we can tell our runner what ID to expect.
 	var cb func(string)
 
-	// In local mode we have to start a runner.
-	if b.local {
-
-		if b.localRunner == nil {
-			log.Info("local mode, starting local runner")
-			r, err := b.startRunner()
-			if err != nil {
-				return nil, err
-			}
-
-			b.localRunner = r
-			b.cleanup(func() { r.Close() })
-		}
-
-		r := b.localRunner
-
-		log.Info("using local runner", "runner_id", r.Id())
-
-		// We defer the close so that we clean up resources. Local mode
-		// always blocks and streams the full output so when doJob exits
-		// the job is complete.
-
-		// defer r.Close()
-
+	// In local mode we need to setup our callback
+	if c.localRunner {
 		var jobCh chan struct{}
 
 		defer func() {
@@ -104,46 +73,37 @@ func (b *Basis) doJob(
 			jobCh = make(chan struct{})
 			go func() {
 				defer close(jobCh)
-				if err := r.AcceptExact(ctx, id); err != nil {
+				if err := c.runner.AcceptExact(ctx, id); err != nil {
 					log.Error("runner job accept error", "err", err)
 				}
 			}()
 		}
-
-		// Modify the job to target this runner and use the local data source.
-		job.TargetRunner = &vagrant_server.Ref_Runner{
-			Target: &vagrant_server.Ref_Runner_Id{
-				Id: &vagrant_server.Ref_RunnerId{
-					Id: r.Id(),
-				},
-			},
-		}
 	}
 
-	return b.queueAndStreamJob(ctx, job, ui, cb)
+	return c.queueAndStreamJob(ctx, job, ui, cb)
 }
 
 // queueAndStreamJob will queue the job. If the client is configured to watch the job,
 // it'll also stream the output to the configured UI.
-func (b *Basis) queueAndStreamJob(
+func (c *Client) queueAndStreamJob(
 	ctx context.Context,
 	job *vagrant_server.Job,
 	ui terminal.UI,
 	jobIdCallback func(string),
 ) (*vagrant_server.Job_Result, error) {
-	log := b.logger
+	log := c.logger
 
 	// When local, we set an expiration here in case we can't gracefully
 	// cancel in the event of an error. This will ensure that the jobs don't
 	// remain queued forever. This is only for local ops.
 	expiration := ""
-	if b.local {
+	if c.localRunner {
 		expiration = "30s"
 	}
 
 	// Queue the job
 	log.Debug("queueing job", "operation", fmt.Sprintf("%T", job.Operation))
-	queueResp, err := b.client.QueueJob(ctx, &vagrant_server.QueueJobRequest{
+	queueResp, err := c.client.QueueJob(ctx, &vagrant_server.QueueJobRequest{
 		Job:       job,
 		ExpiresIn: expiration,
 	})
@@ -159,7 +119,7 @@ func (b *Basis) queueAndStreamJob(
 
 	// Get the stream
 	log.Debug("opening job stream")
-	stream, err := b.client.GetJobStream(ctx, &vagrant_server.GetJobStreamRequest{
+	stream, err := c.client.GetJobStream(ctx, &vagrant_server.GetJobStreamRequest{
 		JobId: queueResp.JobId,
 	})
 	if err != nil {
@@ -196,7 +156,7 @@ func (b *Basis) queueAndStreamJob(
 		steps = map[int32]*stepData{}
 	)
 
-	if b.local {
+	if c.localRunner {
 		defer func() {
 			// If we completed then do nothing, or if the context is still
 			// active since this means that we're not cancelled.
@@ -208,7 +168,7 @@ func (b *Basis) queueAndStreamJob(
 			defer cancel()
 
 			log.Warn("canceling job")
-			_, err := b.client.CancelJob(ctx, &vagrant_server.CancelJobRequest{
+			_, err := c.client.CancelJob(ctx, &vagrant_server.CancelJobRequest{
 				JobId: queueResp.JobId,
 			})
 			if err != nil {
@@ -252,7 +212,7 @@ func (b *Basis) queueAndStreamJob(
 
 		case *vagrant_server.GetJobStreamResponse_Terminal_:
 			// Ignore this for local jobs since we're using our UI directly.
-			if b.local {
+			if c.localRunner {
 				continue
 			}
 
@@ -359,7 +319,7 @@ func (b *Basis) queueAndStreamJob(
 						step.Done()
 					}
 				default:
-					b.logger.Error("Unknown terminal event seen", "type", hclog.Fmt("%T", ev))
+					c.logger.Error("Unknown terminal event seen", "type", hclog.Fmt("%T", ev))
 				}
 			}
 		case *vagrant_server.GetJobStreamResponse_State_:

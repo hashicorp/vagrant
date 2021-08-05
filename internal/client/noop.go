@@ -13,14 +13,14 @@ import (
 // A noop operation will exercise the full logic of queueing a job,
 // assigning it to a runner, dequeueing as a runner, executing, etc. It will
 // use real remote runners if the client is configured to do so.
-func (b *Basis) Noop(ctx context.Context) error {
+func (c *Client) Noop(ctx context.Context) error {
 	// Build our job
-	job := b.job()
+	job := c.job()
 	job.Operation = &vagrant_server.Job_Noop_{
 		Noop: &vagrant_server.Job_Noop{},
 	}
 
 	// Execute it
-	_, err := b.doJob(ctx, job, nil)
+	_, err := c.doJob(ctx, job, c.ui)
 	return err
 }
