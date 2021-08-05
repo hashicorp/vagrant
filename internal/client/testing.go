@@ -18,7 +18,7 @@ import (
 // so that any side effect file creation doesn't impact the real working
 // directory. If you need to use your working directory, query it before
 // calling this.
-func TestBasis(t testing.T, opts ...Option) *Basis {
+func TestBasis(t testing.T, opts ...Option) *Client {
 	require := require.New(t)
 	client := singleprocess.TestServer(t)
 

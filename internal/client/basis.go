@@ -8,228 +8,175 @@ import (
 
 	"github.com/hashicorp/go-hclog"
 	"github.com/hashicorp/go-plugin"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 
-	"github.com/hashicorp/vagrant-plugin-sdk/datadir"
+	"github.com/hashicorp/vagrant-plugin-sdk/helper/path"
 	"github.com/hashicorp/vagrant-plugin-sdk/proto/vagrant_plugin_sdk"
 	"github.com/hashicorp/vagrant-plugin-sdk/terminal"
 	configpkg "github.com/hashicorp/vagrant/internal/config"
-	"github.com/hashicorp/vagrant/internal/runner"
 	"github.com/hashicorp/vagrant/internal/server/proto/vagrant_server"
 	"github.com/hashicorp/vagrant/internal/serverclient"
 )
 
 type Basis struct {
-	ui terminal.UI
-
-	basis   *vagrant_server.Basis
-	Project *Project
-
-	client             *serverclient.VagrantClient
-	vagrantRubyRuntime plugin.ClientProtocol
-	logger             hclog.Logger
-	runner             *vagrant_server.Ref_Runner
-	cleanupFuncs       []func()
-
-	config *configpkg.Config
-
-	labels              map[string]string
-	dataSourceOverrides map[string]string
-
-	datadir     *datadir.Basis
-	local       bool
-	localServer bool // True when a local server is created
-	localRunner *runner.Runner
+	basis        *vagrant_server.Basis
+	cleanupFuncs []func() error
+	client       *Client
+	ctx          context.Context
+	logger       hclog.Logger
+	path         path.Path
+	ui           terminal.UI
+	vagrant      *serverclient.VagrantClient
 }
 
-func New(ctx context.Context, opts ...Option) (basis *Basis, err error) {
-	basis = &Basis{
-		logger: hclog.L(),
-		runner: &vagrant_server.Ref_Runner{
-			Target: &vagrant_server.Ref_Runner_Any{
-				Any: &vagrant_server.Ref_RunnerAny{},
+func (b *Basis) DetectProject() (p *Project, err error) {
+	// look for a vagrantfile!
+	v, err := configpkg.FindPath(nil, "")
+	// if an error was encountered, or no path was found, we return
+	if err != nil || v == nil {
+		return
+	}
+
+	// we did find a path, so use the directory name as project name
+	// TODO(spox): we'll need to do better than just dir name
+	_, n := v.Dir().Base().Split()
+	p, err = b.LoadProject(n)
+	if err != nil && status.Code(err) != codes.NotFound {
+		return
+	}
+
+	if err == nil {
+		p.vagrantfile = v
+		return
+	}
+
+	result, err := b.vagrant.UpsertProject(
+		b.ctx,
+		&vagrant_server.UpsertProjectRequest{
+			Project: &vagrant_server.Project{
+				Name:  n,
+				Basis: b.Ref(),
+				Path:  v.Dir().String(),
 			},
 		},
-	}
-
-	// Apply any options
-	var cfg config
-	for _, opt := range opts {
-		err := opt(basis, &cfg)
-		if err != nil {
-			return nil, err
-		}
-	}
-
-	basis.logger = basis.logger.Named("basis")
-
-	// If no internal basis was provided, set it up now
-	if basis.basis == nil {
-		dir, err := datadir.NewBasis("default")
-		if err != nil {
-			basis.logger.Error("failed to determine vagrant home",
-				"error", err)
-
-			return nil, err
-		}
-		basis.basis = &vagrant_server.Basis{
-			Name: "default",
-			Path: dir.ConfigDir().String(),
-		}
-	}
-
-	// If no UI was provided, create a default
-	if basis.ui == nil {
-		basis.ui = terminal.ConsoleUI(ctx)
-	}
-
-	// If a client was not provided, establish a new connection through
-	// the serverclient package, or by spinning up an in-process server
-	if basis.client == nil {
-		basis.logger.Trace("no API client provided, initializing connection if possible")
-		conn, err := basis.initServerClient(context.Background(), &cfg)
-		if err != nil {
-			return nil, err
-		}
-		basis.client = serverclient.WrapVagrantClient(conn)
-	}
-
-	// If the ruby runtime isn't provided, set it up
-	if basis.vagrantRubyRuntime == nil {
-		if basis.vagrantRubyRuntime, err = basis.initVagrantRubyRuntime(); err != nil {
-			return nil, err
-		}
-	}
-
-	// Negotiate the version
-	if err := basis.negotiateApiVersion(ctx); err != nil {
-		return nil, err
-	}
-
-	// Setup our basis within the database
-	result, err := basis.client.FindBasis(
-		context.Background(),
-		&vagrant_server.FindBasisRequest{
-			Basis: basis.basis,
-		},
 	)
-	if err == nil && result.Found {
-		basis.basis = result.Basis
-		if err = basis.LoadVagrantfiles(); err != nil {
-			return nil, err
-		}
-		return basis, nil
-	}
-
-	basis.logger.Trace("failed to locate existing basis", "basis", basis.basis,
-		"result", result, "error", err)
-
-	uresult, err := basis.client.UpsertBasis(
-		context.Background(),
-		&vagrant_server.UpsertBasisRequest{
-			Basis: basis.basis,
-		},
-	)
-
 	if err != nil {
-		return nil, err
+		return
 	}
 
-	basis.basis = uresult.Basis
-
-	// Find and load Vagrantfiles for the basis
-	if err = basis.LoadVagrantfiles(); err != nil {
-		return nil, err
-	}
-
-	basis.datadir, err = datadir.NewBasis(basis.basis.Name)
-
-	return basis, err
+	return &Project{
+		basis:       b,
+		client:      b.client,
+		ctx:         b.ctx,
+		logger:      b.logger.Named("project"),
+		project:     result.Project,
+		ui:          b.ui,
+		vagrant:     b.vagrant,
+		vagrantfile: v,
+	}, nil
 }
 
-func (b *Basis) LoadProject(p *vagrant_server.Project) (*Project, error) {
-	result, err := b.client.FindProject(
-		context.Background(),
+func (b *Basis) LoadProject(n string) (*Project, error) {
+	result, err := b.vagrant.FindProject(
+		b.ctx,
 		&vagrant_server.FindProjectRequest{
-			Project: p,
-		},
-	)
-	// d, err := b.datadir.Project(result.Project.Name)
-	// if err != nil {
-	// 	return nil, err
-	// }
-
-	if err == nil && result.Found {
-		b.Project = &Project{
-			ui:      b.ui,
-			basis:   b,
-			project: result.Project,
-			logger:  b.logger.Named("project"),
-			//			datadir: d,
-		}
-		if err = b.Project.LoadVagrantfiles(); err != nil {
-			return nil, err
-		}
-		return b.Project, nil
-	}
-
-	b.logger.Trace("failed to locate existing project", "project", p,
-		"result", result, "error", err)
-
-	uresult, err := b.client.UpsertProject(
-		context.Background(),
-		&vagrant_server.UpsertProjectRequest{
-			Project: p,
+			Project: &vagrant_server.Project{
+				Name:  n,
+				Basis: b.Ref(),
+			},
 		},
 	)
 	if err != nil {
 		return nil, err
 	}
 
-	b.Project = &Project{
-		ui:      b.ui,
-		project: uresult.Project,
-		basis:   b,
-		logger:  b.logger.Named("project"),
-		//datadir: d,
+	if !result.Found {
+		return nil, NotFoundErr
 	}
 
-	if err = b.Project.LoadVagrantfiles(); err != nil {
-		return nil, err
-	}
-	return b.Project, nil
+	return &Project{
+		basis:   b,
+		client:  b.client,
+		ctx:     b.ctx,
+		logger:  b.logger.Named("project"),
+		project: result.Project,
+		ui:      b.ui,
+		vagrant: b.vagrant,
+	}, nil
 }
 
 // Finds the Vagrantfile associated with the basis
-func (b *Basis) LoadVagrantfiles() error {
-	vagrantfilePath, err := configpkg.FindPath(b.basis.Path, configpkg.GetVagrantfileName())
-	if err != nil {
+func (b *Basis) LoadVagrantfile() error {
+	vpath := b.path.Join(configpkg.GetVagrantfileName())
+	l := b.logger.With(
+		"basis", b.basis.Name,
+		"path", vpath,
+	)
+
+	l.Trace("attempting to load basis vagrantfile")
+
+	// If the path does not exist, no Vagrantfile was found
+	if _, err := os.Stat(vpath.String()); os.IsNotExist(err) {
+		l.Warn("basis vagrantfile does not exist")
+
+		return nil
+	} else if err != nil {
+		l.Error("failed to load basis vagrantfile",
+			"error", err,
+		)
+
 		return err
 	}
-	// If the path does not exist, no Vagrantfile was found
-	if _, err := os.Stat(vagrantfilePath); os.IsNotExist(err) {
-		return nil
-	}
 
-	raw, err := b.vagrantRubyRuntime.Dispense("vagrantrubyruntime")
+	raw, err := b.client.rubyRuntime.Dispense("vagrantrubyruntime")
 	if err != nil {
+		l.Warn("failed to load ruby runtime for vagrantfile parsing",
+			"error", err,
+		)
+
 		return err
 	}
 	rvc, ok := raw.(serverclient.RubyVagrantClient)
 	if !ok {
+		l.Warn("failed to attach to ruby runtime for vagrantfile parsing",
+			"error", err,
+		)
+
 		return fmt.Errorf("Couldn't attach to Ruby runtime")
 	}
-	vagrantfile, err := rvc.ParseVagrantfile(vagrantfilePath)
+
+	vagrantfile, err := rvc.ParseVagrantfile(vpath.String())
 	if err != nil {
+		l.Error("failed to parse basis vagrantfile",
+			"error", err,
+		)
+
 		return err
 	}
+
+	l.Trace("storing updated basis configuration",
+		"configuration", vagrantfile,
+	)
+
 	b.basis.Configuration = vagrantfile
 	// Push Vagrantfile updates to basis
-	b.client.UpsertBasis(
-		context.Background(),
+	result, err := b.vagrant.UpsertBasis(
+		b.ctx,
 		&vagrant_server.UpsertBasisRequest{
 			Basis: b.basis,
 		},
 	)
+
+	if err != nil {
+		l.Error("failed to store basis updates",
+			"error", err,
+		)
+
+		return err
+	}
+
+	b.basis = result.Basis
 	return nil
 }
 
@@ -253,123 +200,13 @@ func (b *Basis) Close() error {
 
 // Client returns the raw Vagrant server API client.
 func (b *Basis) Client() *serverclient.VagrantClient {
-	return b.client
+	return b.vagrant
 }
 
 func (b *Basis) VagrantRubyRuntime() plugin.ClientProtocol {
-	return b.vagrantRubyRuntime
-}
-
-// Local is true if the server is an in-process just-in-time server.
-func (b *Basis) Local() bool {
-	return b.localServer
+	return b.client.rubyRuntime
 }
 
 func (b *Basis) UI() terminal.UI {
 	return b.ui
-}
-
-func (b *Basis) cleanup(f func()) {
-	b.cleanupFuncs = append(b.cleanupFuncs, f)
-}
-
-type config struct {
-	connectOpts []serverclient.ConnectOption
-}
-
-type Option func(*Basis, *config) error
-
-func WithBasis(pbb *vagrant_server.Basis) Option {
-	return func(b *Basis, cfg *config) error {
-		b.basis = pbb
-		return nil
-	}
-}
-
-func WithProject(p *Project) Option {
-	return func(b *Basis, cfg *config) error {
-		p.basis = b
-		b.Project = p
-		return nil
-	}
-}
-
-// WithClient sets the client directly. In this case, the runner won't
-// attempt any connection at all regardless of other configuration (env
-// vars or vagrant config file). This will be used.
-func WithClient(client *serverclient.VagrantClient) Option {
-	return func(b *Basis, cfg *config) error {
-		if client != nil {
-			b.client = client
-		}
-		return nil
-	}
-}
-
-// WithClientConnect specifies the options for connecting to a client.
-// If WithClient is specified, that client is always used.
-//
-// If WithLocal is set and no client is specified and no server creds
-// can be found, then an in-process server will be created.
-func WithClientConnect(opts ...serverclient.ConnectOption) Option {
-	return func(b *Basis, cfg *config) error {
-		cfg.connectOpts = opts
-		return nil
-	}
-}
-
-// WithLocal puts the client in local exec mode. In this mode, the client
-// will spin up a per-operation runner locally and reference the local on-disk
-// data for all operations.
-func WithLocal() Option {
-	return func(b *Basis, cfg *config) error {
-		b.local = true
-		return nil
-	}
-}
-
-// WithLogger sets the logger for the client.
-func WithLogger(log hclog.Logger) Option {
-	return func(b *Basis, cfg *config) error {
-		b.logger = log
-		return nil
-	}
-}
-
-// WithUI sets the UI to use for the client.
-func WithUI(ui terminal.UI) Option {
-	return func(b *Basis, cfg *config) error {
-		b.ui = ui
-		return nil
-	}
-}
-
-func WithCleanup(f func()) Option {
-	return func(b *Basis, cfg *config) error {
-		b.cleanup(f)
-		return nil
-	}
-}
-
-// WithSourceOverrides sets the data source overrides for queued jobs.
-func WithSourceOverrides(m map[string]string) Option {
-	return func(b *Basis, cfg *config) error {
-		b.dataSourceOverrides = m
-		return nil
-	}
-}
-
-// WithLabels sets the labels or any operations.
-func WithLabels(m map[string]string) Option {
-	return func(b *Basis, cfg *config) error {
-		b.labels = m
-		return nil
-	}
-}
-
-func WithConfig(c *configpkg.Config) Option {
-	return func(b *Basis, cfg *config) error {
-		b.config = c
-		return nil
-	}
 }
