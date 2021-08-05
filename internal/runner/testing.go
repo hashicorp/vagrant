@@ -103,12 +103,6 @@ func TestBasis(t testing.T, opts ...core.BasisOption) (b *vagrant_plugin_sdk.Ref
 		core.WithBasisRef(&vagrant_plugin_sdk.Ref_Basis{Name: "TESTBAS"}),
 	}
 
-	// Create the default factory for all component types
-	for typ := range core.TestingTypeMap {
-		f, _ := core.TestFactorySingle(t, typ, "TESTBAS")
-		defaultOpts = append(defaultOpts, core.WithFactory(typ, f))
-	}
-
 	basis, err := core.NewBasis(context.Background(), append(opts, defaultOpts...)...)
 	require.NoError(t, err)
 	b = basis.Ref().(*vagrant_plugin_sdk.Ref_Basis)
