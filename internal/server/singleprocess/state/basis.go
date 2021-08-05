@@ -275,7 +275,7 @@ func basisIndexSchema() *memdb.TableSchema {
 			},
 			basisIndexPathIndexName: {
 				Name:         basisIndexPathIndexName,
-				AllowMissing: false,
+				AllowMissing: true,
 				Unique:       true,
 				Indexer: &memdb.StringFieldIndex{
 					Field:     "Path",

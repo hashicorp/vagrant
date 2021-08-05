@@ -347,7 +347,7 @@ func projectIndexSchema() *memdb.TableSchema {
 			},
 			projectIndexPathIndexName: {
 				Name:         projectIndexPathIndexName,
-				AllowMissing: false,
+				AllowMissing: true,
 				Unique:       true,
 				Indexer: &memdb.StringFieldIndex{
 					Field:     "Path",
