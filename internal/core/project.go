@@ -343,6 +343,89 @@ func (p *Project) Components(ctx context.Context) ([]*Component, error) {
 	return p.basis.components(ctx)
 }
 
+func (p *Project) InitTargets() (err error) {
+	p.logger.Trace("initializing targets defined within project",
+		"project", p.Name())
+
+	if p.project.Configuration == nil || p.project.Configuration.MachineConfigs == nil {
+		p.logger.Trace("no targets defined within current project",
+			"project", p.Name())
+
+		return
+	}
+
+	// Get list of all currently known targets for project
+	var existingTargets []string
+	for _, t := range p.project.Targets {
+		existingTargets = append(existingTargets, t.Name)
+	}
+	p.logger.Trace("known targets within project",
+		"project", p.Name(),
+		"targets", existingTargets,
+	)
+
+	updated := false
+	for _, t := range p.project.Configuration.MachineConfigs {
+		for _, et := range existingTargets {
+			if t.Name == et {
+				p.logger.Trace("target already exists within project",
+					"project", p.Name(),
+					"target", t.Name,
+				)
+
+				t = nil
+				break
+			}
+		}
+		if t == nil {
+			continue
+		}
+		_, err = p.Client().UpsertTarget(p.ctx,
+			&vagrant_server.UpsertTargetRequest{
+				Target: &vagrant_server.Target{
+					Name:          t.Name,
+					Project:       p.Ref().(*vagrant_plugin_sdk.Ref_Project),
+					Configuration: t,
+				},
+			},
+		)
+		if err != nil {
+			p.logger.Error("failed to initialize target with project",
+				"project", p.Name(),
+				"target", t.Name,
+				"error", err,
+			)
+
+			return
+		}
+		updated = true
+	}
+
+	if !updated {
+		return
+	}
+
+	result, err := p.Client().FindProject(p.ctx,
+		&vagrant_server.FindProjectRequest{
+			Project: &vagrant_server.Project{
+				ResourceId: p.project.ResourceId,
+			},
+		},
+	)
+	if err != nil {
+		p.logger.Error("failed to refresh project data",
+			"project", p.Name(),
+			"error", err,
+		)
+
+		return
+	}
+
+	p.project = result.Project
+
+	return
+}
+
 // Calls the function provided and converts the
 // result to an expected type. If no type conversion
 // is required, a `false` value for the expectedType
@@ -469,8 +552,9 @@ func WithProjectRef(r *vagrant_plugin_sdk.Ref_Project) ProjectOption {
 		result, err := p.Client().FindProject(p.ctx,
 			&vagrant_server.FindProjectRequest{
 				Project: &vagrant_server.Project{
-					Name: r.Name,
-					Path: r.Path,
+					Basis: r.Basis,
+					Name:  r.Name,
+					Path:  r.Path,
 				},
 			},
 		)
