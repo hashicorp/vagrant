@@ -41,7 +41,7 @@ require (
 	github.com/golang/protobuf v1.5.2
 	github.com/google/shlex v0.0.0-20191202100458-e7afc7fbc510 // indirect
 	github.com/gorilla/handlers v1.4.2
-	github.com/hashicorp/go-argmapper v0.0.0-20200721221215-04ae500ede3b
+	github.com/hashicorp/go-argmapper v0.2.1
 	github.com/hashicorp/go-getter v1.4.1 // indirect
 	github.com/hashicorp/go-hclog v0.14.1
 	github.com/hashicorp/go-memdb v1.2.0

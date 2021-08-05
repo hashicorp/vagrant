@@ -677,6 +677,8 @@ github.com/hashicorp/errwrap v1.0.0 h1:hLrqtEDnRye3+sgx6z4qVLNuviH3MR5aQ0ykNJa/U
 github.com/hashicorp/errwrap v1.0.0/go.mod h1:YH+1FKiLXxHSkmPseP+kNlulaMuP3n2brvKWEqk/Jc4=
 github.com/hashicorp/go-argmapper v0.0.0-20200721221215-04ae500ede3b h1:vyQw3gLt8Dcz2XZRlNOoUKXEFbNln5+SEUIvVc8MZjI=
 github.com/hashicorp/go-argmapper v0.0.0-20200721221215-04ae500ede3b/go.mod h1:WA3PocIo+40wf4ko3dRdL3DEgxIQB4qaqp+jVccLV1I=
+github.com/hashicorp/go-argmapper v0.2.1 h1:692fiW17bQvRrdLHMyxiYg8BjwbfNjZ9/fmYY3UXtaE=
+github.com/hashicorp/go-argmapper v0.2.1/go.mod h1:WA3PocIo+40wf4ko3dRdL3DEgxIQB4qaqp+jVccLV1I=
 github.com/hashicorp/go-cleanhttp v0.5.0/go.mod h1:JpRdi6/HCYpAwUzNwuwqhbovhLtngrth3wmdIIUrZ80=
 github.com/hashicorp/go-cleanhttp v0.5.1 h1:dH3aiDG9Jvb5r5+bYHsikaOUIpcM0xvgMXVoDkXMzJM=
 github.com/hashicorp/go-cleanhttp v0.5.1/go.mod h1:JpRdi6/HCYpAwUzNwuwqhbovhLtngrth3wmdIIUrZ80=
