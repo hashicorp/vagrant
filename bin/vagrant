@@ -197,6 +197,12 @@ begin
   # Check if we are running the server
   if sub_cmd == "serve"
     Vagrant.enable_server_mode!
+    # NOTE: We stub the client option to allow the environment to
+    #       be initialized for startup since it will raise an
+    #       exception if it is unset. We don't care about the
+    #       initially created environment, we just need it long
+    #       enough for our serve command to get executed.
+    opts[:client] = :stub
   end
 
   # Create the environment, which is the cwd of wherever the

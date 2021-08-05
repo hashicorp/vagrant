@@ -11,6 +11,10 @@ module Vagrant
       def initialize(opts={})
         super
         @client = opts[:client]
+        if @client.nil?
+          raise ArgumentError,
+            "Remote client is required for `#{self.class.name}'"
+        end
       end
 
       # Gets a target (machine) by name
@@ -18,7 +22,7 @@ module Vagrant
       # @param [String] machine name
       # return [VagrantPlugins::CommandServe::Client::Machine]
       def get_target(name)
-        return @client.target(name)
+        client.target(name)
       end
     end
   end
