@@ -26,7 +26,7 @@ module VagrantPlugins
             raw_target = @client.target(req)
           rescue
             @logger.debug("no target found for #{name}")
-            return Machine.new(nil)
+            raise "Failed to locate requested machine `#{name}'"
           end
           @logger.debug("got target #{raw_target}")
           conn = @broker.dial(raw_target.stream_id)
