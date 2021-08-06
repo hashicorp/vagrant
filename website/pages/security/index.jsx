@@ -14,7 +14,7 @@ export default function SecurityPage() {
         />
       </Head>
       <main className={s.root}>
-        <h1>Security</h1>
+        <h1 className="g-type-display-1">Security</h1>
         <p>
           We understand that many users place a high level of trust in HashiCorp
           and the tools we build. We apply best practices and focus on security

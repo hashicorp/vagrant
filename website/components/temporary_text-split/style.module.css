@@ -25,6 +25,7 @@
 }
 
 .headline {
+  composes: g-type-display-2 from global;
   margin: 20px 0 10px 0;
 }
 

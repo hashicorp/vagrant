@@ -13,24 +13,11 @@
     padding-inline: 24px;
   }
 
-  & h1 {
-    font-size: 1.5rem;
-    letter-spacing: -0.004em;
-    line-height: 1.375em;
-
-    @media (--medium-up) {
-      font-size: 1.75rem;
-      line-height: 1.321em;
-    }
-
-    @media (--large) {
-      font-size: 2rem;
-      letter-spacing: -0.006em;
-      line-height: 1.313em;
-    }
-  }
-
   & a {
     color: var(--highlight-color);
   }
+}
+
+.heading {
+  composes: g-type-display-3 from global;
 }

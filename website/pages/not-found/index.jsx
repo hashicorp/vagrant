@@ -18,7 +18,7 @@ export default function NotFound() {
 
   return (
     <div className={s.root}>
-      <h1>Page Not Found</h1>
+      <h1 className={s.heading}>Page Not Found</h1>
       <p>
         We&lsquo;re sorry but we can&lsquo;t find the page you&lsquo;re looking
         for.
