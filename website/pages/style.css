@@ -1,7 +1,5 @@
 /* Global Component Styles */
 @import '~@hashicorp/mktg-global-styles/style.css';
-@import '~@hashicorp/mktg-global-styles/_temporary-to-remove/layout.css';
-@import '~@hashicorp/mktg-global-styles/_temporary-to-remove/tables.css';
 
 :root {
   --highlight-color: var(--vagrant);
@@ -10,8 +8,6 @@
 @import '~@hashicorp/react-alert-banner/style.css';
 @import '~@hashicorp/react-button/styles/index.css';
 @import '~@hashicorp/react-consent-manager/style.css';
-@import '~@hashicorp/react-content/style.css';
-@import '~@hashicorp/react-docs-page/style.css';
 @import '~@hashicorp/react-search/style.css';
 @import '~@hashicorp/react-subnav/style.css';
 @import '~@hashicorp/react-tabs/style.css';
