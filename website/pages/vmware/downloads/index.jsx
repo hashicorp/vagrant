@@ -25,13 +25,7 @@ export default function DownloadsPage(staticProps) {
             href: 'https://learn.hashicorp.com/vagrant',
           },
         ]}
-        logo={
-          <img
-            className={s.logo}
-            alt="Vagrant vmware Utility"
-            src={require('./img/vagrant-vmware-utility-logo.svg')}
-          />
-        }
+        logo={<p className={s.notALogo}>Vagrant vmware Utility</p>}
         tutorialLink={{
           href: 'https://learn.hashicorp.com/vagrant',
           label: 'View Tutorials at HashiCorp Learn',
