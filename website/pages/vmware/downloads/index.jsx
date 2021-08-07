@@ -1,42 +1,84 @@
 import s from './style.module.css'
-import { VMWARE_UTILITY_VERSION } from 'data/version.json'
-import ProductDownloader from '@hashicorp/react-product-downloader'
+import { VMWARE_UTILITY_VERSION } from 'data/version'
+import ProductDownloadsPage from '@hashicorp/react-product-downloads-page'
+import { generateStaticProps } from '@hashicorp/react-product-downloads-page/server'
 import Head from 'next/head'
 import HashiHead from '@hashicorp/react-head'
 
-export default function DownloadsPage({ releaseData }) {
+export default function DownloadsPage(staticProps) {
   return (
-    <div className={s.root}>
+    <>
+      <ProductDownloadsPage
+        getStartedDescription="Follow step-by-step tutorials on the essentials of Vagrant VMWare Utility."
+        getStartedLinks={[
+          {
+            label: 'Installation Instructions',
+            href:
+              'https://www.vagrantup.com/docs/providers/vmware/installation',
+          },
+          {
+            label: 'Community Resources',
+            href: 'https://www.vagrantup.com/community',
+          },
+          {
+            label: 'View all Vagrant tutorials',
+            href: 'https://learn.hashicorp.com/vagrant',
+          },
+        ]}
+        logo={
+          <img
+            className={s.logo}
+            alt="Vagrant vmware Utility"
+            src={require('./img/vagrant-vmware-utility-logo.svg')}
+          />
+        }
+        tutorialLink={{
+          href: 'https://learn.hashicorp.com/vagrant',
+          label: 'View Tutorials at HashiCorp Learn',
+        }}
+        packageManagerOverrides={[
+          // Note: Duplicate Homebrew entries target
+          // both macOS and Linux. If one is removed,
+          // then Homebrew will show up under the Linux tab.
+          {
+            label: 'Homebrew',
+            os: 'NONE--IGNORE',
+          },
+          {
+            label: 'Homebrew',
+            os: 'NONE--IGNORE',
+          },
+          {
+            label: 'Amazon Linux',
+            os: 'NONE--IGNORE',
+          },
+          {
+            label: 'Fedora',
+            os: 'NONE--IGNORE',
+          },
+          {
+            label: 'Ubuntu/Debian',
+            os: 'NONE--IGNORE',
+          },
+          {
+            label: 'CentOS/RHEL',
+            os: 'NONE--IGNORE',
+          },
+        ]}
+        {...staticProps}
+      />
+      {/* Override default ProductDownloader title */}
       <HashiHead
         is={Head}
         title="VMware Utility Downloads | Vagrant by HashiCorp"
       />
-      <ProductDownloader
-        product="Vagrant VMware Utility"
-        baseProduct="Vagrant"
-        version={VMWARE_UTILITY_VERSION}
-        releaseData={releaseData}
-        changelog={false}
-      />
-    </div>
+    </>
   )
 }
 
 export async function getStaticProps() {
-  return fetch(
-    `https://releases.hashicorp.com/vagrant-vmware-utility/${VMWARE_UTILITY_VERSION}/index.json`
-  )
-    .then((res) => res.json())
-    .then((releaseData) => ({ props: { releaseData } }))
-    .catch(() => {
-      throw new Error(
-        `--------------------------------------------------------
-        Unable to resolve version ${VMWARE_UTILITY_VERSION} on releases.hashicorp.com from link
-        <https://releases.hashicorp.com/vagrant-vmware-utility/${VMWARE_UTILITY_VERSION}/index.json>. Usually this
-        means that the specified version has not yet been released. The downloads page
-        version can only be updated after the new version has been released, to ensure
-        that it works for all users.
-        ----------------------------------------------------------`
-      )
-    })
+  return await generateStaticProps({
+    product: 'vagrant-vmware-utility',
+    latestVersion: VMWARE_UTILITY_VERSION,
+  })
 }
