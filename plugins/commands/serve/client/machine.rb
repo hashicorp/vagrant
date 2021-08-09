@@ -24,6 +24,11 @@ module VagrantPlugins
           SDK::Ref::Machine.new(resource_id: resource_id)
         end
 
+        def save
+          req = Google::Protobuf::Empty.new
+          @client.save(req)
+        end
+
         # @return [String] machine name
         def get_name
           req = Google::Protobuf::Empty.new

@@ -67,7 +67,8 @@ module Vagrant
       # @param [Entry] entry
       # @return [Entry]
       def set(entry)
-        entry.remote_machine.save
+        entry.remote_machine.client.save
+        entry
       end
 
       def recover(entry)
@@ -75,13 +76,6 @@ module Vagrant
       end
 
       protected
-
-      # Converts a machine index entry to a machine
-      #
-      # @param [Vagrant::MachineIndex::Entry] 
-      # @return [Hashicorp::Vagrant::Sdk::Args::Target]
-      def entry_to_machine(entry)
-      end
 
       # Converts a machine to a machine index entry
       #
