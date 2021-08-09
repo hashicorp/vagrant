@@ -36,10 +36,6 @@ module VagrantPlugins
                 name: "",
               ),
               SDK::FuncSpec::Value.new(
-                type: "hashicorp.vagrant.sdk.Args.Target",
-                name: "",
-              ),
-              SDK::FuncSpec::Value.new(
                 type: "hashicorp.vagrant.sdk.Command.Arguments",
                 name: "",
               )
