@@ -44,7 +44,7 @@ module VagrantPlugins
         # @param [Hashicorp::Vagrant::Sdk::Args::Target] target
         # @return [Hashicorp::Vagrant::Sdk::Args::Target]  
         def set(target)
-          @logger.debug("setting machine #{entry} in index")
+          @logger.debug("setting machine #{target} in index")
           @client.set(target)
         end
       end
