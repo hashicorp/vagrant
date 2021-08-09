@@ -21,9 +21,9 @@ jobs:
     runs-on: ubuntu-18.04
     strategy:
       matrix:
-        go: ['^1.13']
+        go: ['^1.16']
         ruby: ['2.7', '3.0']
-    name: Vagrant unit tests on Go 
+    name: Vagrant unit tests on Go
     steps:
       - name: Code Checkout
         uses: actions/checkout@v2
