@@ -402,6 +402,8 @@ module Vagrant
       # @return [Hash]
       attr_accessor :extra_data
 
+      attr_accessor :remote_machine
+
       # Initializes an entry.
       #
       # The parameter given should be nil if this is being created
@@ -412,11 +414,10 @@ module Vagrant
         @logger.debug("got raw: #{raw}")
 
         @extra_data = {}
-
+        @id = id
         # Do nothing if we aren't given a raw value. Otherwise, parse it.
         return if !raw
 
-        @id               = id
         @local_data_path  = raw["local_data_path"]
         @name             = raw["name"]
         @provider         = raw["provider"]
@@ -426,6 +427,7 @@ module Vagrant
         # TODO(mitchellh): parse into a proper datetime
         @updated_at       = raw["updated_at"]
         @extra_data       = raw["extra_data"] || {}
+        @remote_machine   = raw["remote_machine"]
 
         # Be careful with the paths
         @local_data_path = nil  if @local_data_path == ""

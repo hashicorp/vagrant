@@ -61,10 +61,11 @@ func (t *TargetIndex) Includes(ref *vagrant_plugin_sdk.Ref_Target) (exists bool,
 }
 
 func (t *TargetIndex) Set(entry core.Target) (updatedEntry core.Target, err error) {
+	target := entry.(*Target)
 	updatedTarget, err := t.client.UpsertTarget(
 		t.ctx,
 		&vagrant_server.UpsertTargetRequest{
-			Target: &vagrant_server.Target{},
+			Target: target.target,
 		},
 	)
 	// TODO: check if this actually gets back a full target

@@ -26,7 +26,7 @@ module Vagrant
       # @param [Entry] entry The entry to delete.
       # @return [Boolean] true if delete is successful
       def delete(entry)
-        machine = entry_to_machine(entry)
+        machine = entry.remote_machine.client.ref
         @client.delete(machine)
       end
 
@@ -67,13 +67,11 @@ module Vagrant
       # @param [Entry] entry
       # @return [Entry]
       def set(entry)
-        machine_in = entry_to_machine(entry)
-        machine_out = @client.set(machine_in)
-        machine_to_entry(machine_out)
+        entry.remote_machine.save
       end
 
       def recover(entry)
-        #TODO
+        #no-op
       end
 
       protected

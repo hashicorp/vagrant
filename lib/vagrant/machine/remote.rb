@@ -124,6 +124,10 @@ module Vagrant
         "<Vagrant::Machine:resource_id=#{client.resource_id}>"
       end
 
+      def save 
+        # TODO
+      end
+
 
       ### HACKS
 
@@ -219,89 +223,9 @@ module Vagrant
 
       def id=(value)
         @logger.info("New machine ID: #{value.inspect}")
-
         client.set_id(value.to_s)
-
-        id_file = nil
-        if @data_dir
-          # The file that will store the id if we have one. This allows the
-          # ID to persist across Vagrant runs. Also, store the UUID for the
-          # machine index.
-          id_file = @data_dir.join("id")
-        end
-
-        if value
-          if id_file
-            # Write the "id" file with the id given.
-            id_file.open("w+") do |f|
-              f.write(value)
-            end
-          end
-
-          if uid_file
-            # Write the user id that created this machine
-            uid_file.open("w+") do |f|
-              f.write(Process.uid.to_s)
-            end
-          end
-
-          # If we don't have a UUID, then create one
-          if index_uuid.nil?
-            # Create the index entry and save it
-            entry = MachineIndex::Entry.new
-            entry.local_data_path = @env.local_data_path
-            entry.name = @name.to_s
-            entry.provider = @provider_name.to_s
-            entry.state = "preparing"
-            entry.vagrantfile_path = @env.root_path
-            entry.vagrantfile_name = @env.vagrantfile_name
-
-            if @box
-              entry.extra_data["box"] = {
-                "name"     => @box.name,
-                "provider" => @box.provider.to_s,
-                "version"  => @box.version.to_s,
-              }
-            end
-
-            entry = @env.machine_index.set(entry)
-            @env.machine_index.release(entry)
-
-            # Store our UUID so we can access it later
-            if @index_uuid_file
-              @index_uuid_file.open("w+") do |f|
-                f.write(entry.id)
-              end
-            end
-          end
-        else
-          # Delete the file, since the machine is now destroyed
-          id_file.delete if id_file && id_file.file?
-          uid_file.delete if uid_file && uid_file.file?
-
-          # If we have a UUID associated with the index, remove it
-          uuid = index_uuid
-          if uuid
-            entry = @env.machine_index.get(uuid)
-            @env.machine_index.delete(entry) if entry
-          end
-
-          if @data_dir
-            # Delete the entire data directory contents since all state
-            # associated with the VM is now gone.
-            @data_dir.children.each do |child|
-              begin
-                child.rmtree
-              rescue Errno::EACCES
-                @logger.info("EACCESS deleting file: #{child}")
-              end
-            end
-          end
-        end
-
         # Store the ID locally
         @id = value.nil? ? nil : value.to_s
-
         # Notify the provider that the ID changed in case it needs to do
         # any accounting from it.
         @provider.machine_id_changed
@@ -404,33 +328,7 @@ module Vagrant
       end
 
       def recover_machine(state)
-        entry = @env.machine_index.get(index_uuid)
-        if entry
-          @env.machine_index.release(entry)
-          return entry
-        end
-
-        entry = MachineIndex::Entry.new(id=index_uuid, {})
-        entry.local_data_path = @env.local_data_path
-        entry.name = @name.to_s
-        entry.provider = @provider_name.to_s
-        entry.state = state
-        entry.vagrantfile_path = @env.root_path
-        entry.vagrantfile_name = @env.vagrantfile_name
-
-        if @box
-          entry.extra_data["box"] = {
-            "name"     => @box.name,
-            "provider" => @box.provider.to_s,
-            "version"  => @box.version.to_s,
-          }
-        end
-
-        @state_mutex.synchronize do
-          entry = @env.machine_index.recover(entry)
-          @env.machine_index.release(entry)
-        end
-        return entry
+        # no-op
       end
 
       def uid
