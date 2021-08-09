@@ -16,25 +16,25 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
     add_message "hashicorp.vagrant.sdk.Args.DataDir" do
     end
     add_message "hashicorp.vagrant.sdk.Args.DataDir.Basis" do
-      optional :root_dir, :string, 1
+      optional :config_dir, :string, 1
       optional :cache_dir, :string, 2
       optional :data_dir, :string, 3
       optional :temp_dir, :string, 4
     end
     add_message "hashicorp.vagrant.sdk.Args.DataDir.Project" do
-      optional :root_dir, :string, 1
+      optional :config_dir, :string, 1
       optional :cache_dir, :string, 2
       optional :data_dir, :string, 3
       optional :temp_dir, :string, 4
     end
     add_message "hashicorp.vagrant.sdk.Args.DataDir.Target" do
-      optional :root_dir, :string, 1
+      optional :config_dir, :string, 1
       optional :cache_dir, :string, 2
       optional :data_dir, :string, 3
       optional :temp_dir, :string, 4
     end
     add_message "hashicorp.vagrant.sdk.Args.DataDir.Component" do
-      optional :root_dir, :string, 1
+      optional :config_dir, :string, 1
       optional :cache_dir, :string, 2
       optional :data_dir, :string, 3
       optional :temp_dir, :string, 4
@@ -348,6 +348,9 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
     end
     add_message "hashicorp.vagrant.sdk.PluginInfo.ComponentList" do
       repeated :component, :uint32, 1
+    end
+    add_message "hashicorp.vagrant.sdk.PluginInfo.Name" do
+      optional :name, :string, 1
     end
     add_message "hashicorp.vagrant.sdk.Provider" do
     end
@@ -782,6 +785,7 @@ module Hashicorp
       StateBag::RemoveResponse = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.StateBag.RemoveResponse").msgclass
       PluginInfo = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.PluginInfo").msgclass
       PluginInfo::ComponentList = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.PluginInfo.ComponentList").msgclass
+      PluginInfo::Name = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.PluginInfo.Name").msgclass
       Provider = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Provider").msgclass
       Provider::UsableResp = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Provider.UsableResp").msgclass
       Provider::InstalledResp = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Provider.InstalledResp").msgclass
