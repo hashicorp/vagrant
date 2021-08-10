@@ -76,16 +76,21 @@ module Vagrant
       end
 
       # Iterate over every machine in the index
-      def each(reload=false)
+      def each(reload=true)
         if reload
           arg_machines = @client.all()
+          @logger.debug("machines args: #{arg_machines}")
+
           arg_machines.each do |m|
-            @machines << machine_to_entry(m)
+            e = machine_to_entry(m)
+            @machines[e.id] = e
           end
         end
 
+        @logger.debug("machines: #{@machines.keys}")
+
         @machines.each do |uuid, data|
-          yield Entry.new(uuid, data.merge("id" => uuid))
+          yield data
         end
       end
 
@@ -108,13 +113,15 @@ module Vagrant
           "local_data_path" => machine_client.get_local_data_path(),
           # TODO: get the provider!
           "provider" => "virtualbox",
-          "state" => machine_client.get_state(),
+          "state" => machine_client.get_state().id,
           "vagrantfile_name" => machine_client.get_vagrantfile_name(),
           "vagrantfile_path" => machine_client.get_vagrantfile_path(),
           "machine_client" => machine_client,
         }
+        id = machine_client.get_id()
+        @logger.debug("machine id: #{id}")
         entry = Vagrant::MachineIndex::Entry.new(
-          id=machine_client.resource_id, raw=raw
+          id=id, raw=raw
         )
         return entry
       end

@@ -68,7 +68,6 @@ func (t *TargetIndex) Set(entry core.Target) (updatedEntry core.Target, err erro
 			Target: target.target,
 		},
 	)
-	// TODO: check if this actually gets back a full target
 	updatedEntry, err = NewTarget(
 		t.ctx,
 		WithTargetName(updatedTarget.Target.Name),
