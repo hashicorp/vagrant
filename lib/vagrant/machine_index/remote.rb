@@ -26,6 +26,7 @@ module Vagrant
       # @param [Entry] entry The entry to delete.
       # @return [Boolean] true if delete is successful
       def delete(entry)
+        @machines.delete(entry.id)
         machine = entry.remote_machine.client.ref
         @client.delete(machine)
       end
@@ -65,12 +66,24 @@ module Vagrant
       # @param [Entry] entry
       # @return [Entry]
       def set(entry)
+        @machines[entry.id] = entry
         entry.remote_machine.client.save
         entry
       end
 
       def recover(entry)
         #no-op
+      end
+
+      # Iterate over every machine in the index
+      def each(reload=false)
+        if reload
+          
+        end
+
+        @machines.each do |uuid, data|
+          yield Entry.new(uuid, data.merge("id" => uuid))
+        end
       end
 
       protected
