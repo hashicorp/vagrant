@@ -56,12 +56,8 @@ module VagrantPlugins
             @logger.debug("target index unreachable")
             @logger.debug(error.message)
           end
-          @logger.debug("got response #{raw_target_index}")
-          # ti = SDK::Args::TargetIndex.decode(raw_target_index)
-          # @logger.debug("decoded: #{ti}")
-          @logger.debug("at stream id: #{raw_target_index.stream_id}")
+          @logger.debug("got machine index at stream id: #{raw_target_index.stream_id}")
           m = MachineIndex.load(raw_target_index, broker: @broker)
-          @logger.debug("got machine index #{m}")
           m
         end
       end

@@ -124,11 +124,6 @@ module Vagrant
         "<Vagrant::Machine:resource_id=#{client.resource_id}>"
       end
 
-      def save 
-        # TODO
-      end
-
-
       ### HACKS
 
       def action(name, opts=nil)
@@ -377,11 +372,9 @@ module Vagrant
         end
       end
 
-
       def synced_folders
         self.class.synced_folders(self)
       end
-
     end
   end
 end

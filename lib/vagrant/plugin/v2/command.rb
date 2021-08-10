@@ -123,16 +123,12 @@ module Vagrant
           #     provider if it exists, otherwise use the default provider.
           #
           get_machine = lambda do |name|
-            @logger.debug("getting machine #{name}")
-
             # Check for an active machine with the same name
             provider_to_use = options[:provider]
             provider_to_use = provider_to_use.to_sym if provider_to_use
 
             # If we have this machine in our index, load that.
             entry = @env.machine_index.get(name.to_s)
-            @logger.debug("initial entry get #{entry.to_json_struct}")
-
             if entry
               @env.machine_index.release(entry)
 
@@ -151,7 +147,6 @@ module Vagrant
                 raise
               end
 
-              @logger.debug("command: entry #{entry.to_json_struct}")
               next env.machine(entry.name.to_sym, entry.provider.to_sym)
             end
 

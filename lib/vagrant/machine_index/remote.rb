@@ -40,9 +40,7 @@ module Vagrant
           project: @project_ref
         )
         get_response = @client.get(ref)
-        @logger.debug("got machine #{get_response} for #{name}")
         entry = machine_to_entry(get_response.target, get_response.provider)
-        @logger.debug("entry: #{entry.to_json_struct}")
         entry
       end
       

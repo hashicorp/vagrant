@@ -410,8 +410,6 @@ module Vagrant
       # publicly.
       def initialize(id=nil, raw=nil)
         @logger = Log4r::Logger.new("vagrant::machine_index::entry")
-        @logger.debug("got id: #{id}")
-        @logger.debug("got raw: #{raw}")
 
         @extra_data = {}
         @id = id
