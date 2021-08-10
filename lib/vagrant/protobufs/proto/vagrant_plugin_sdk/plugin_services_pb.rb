@@ -457,9 +457,10 @@ module Hashicorp
           self.service_name = 'hashicorp.vagrant.sdk.TargetIndexService'
 
           rpc :Delete, ::Hashicorp::Vagrant::Sdk::Ref::Target, ::Google::Protobuf::Empty
-          rpc :Get, ::Hashicorp::Vagrant::Sdk::Ref::Target, ::Hashicorp::Vagrant::Sdk::TargetIndex::GetResponse
+          rpc :Get, ::Hashicorp::Vagrant::Sdk::Ref::Target, ::Hashicorp::Vagrant::Sdk::Args::Target
           rpc :Includes, ::Hashicorp::Vagrant::Sdk::Ref::Target, ::Hashicorp::Vagrant::Sdk::TargetIndex::IncludesResponse
-          rpc :Set, ::Hashicorp::Vagrant::Sdk::Args::Target, ::Hashicorp::Vagrant::Sdk::Ref::Target
+          rpc :Set, ::Hashicorp::Vagrant::Sdk::Args::Target, ::Hashicorp::Vagrant::Sdk::Args::Target
+          rpc :All, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::TargetIndex::AllResponse
         end
 
         Stub = Service.rpc_stub_class

@@ -156,6 +156,15 @@ func (p *Project) TargetIds() ([]string, error) {
 	return ids, nil
 }
 
+// Targets
+func (p *Project) Targets() ([]core.Target, error) {
+	var targets []core.Target
+	for _, t := range p.targets {
+		targets = append(targets, t)
+	}
+	return targets, nil
+}
+
 // Custom name defined for this project
 func (p *Project) Name() string {
 	return p.project.Name

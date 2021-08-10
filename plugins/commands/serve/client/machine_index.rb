@@ -47,6 +47,15 @@ module VagrantPlugins
           @logger.debug("setting machine #{target} in index")
           @client.set(target)
         end
+
+        # Get all targets
+        # @return [Array<Hashicorp::Vagrant::Sdk::Args::Target>]  
+        def all()
+          @logger.debug("getting all machines")
+          req = Google::Protobuf::Empty.new
+          resp = @client.all(req)
+          resp.targets
+        end
       end
     end
   end

@@ -76,4 +76,8 @@ func (t *TargetIndex) Set(entry core.Target) (updatedEntry core.Target, err erro
 	return
 }
 
+func (t *TargetIndex) All() (targets []core.Target, err error) {
+	return t.project.Targets()
+}
+
 var _ core.TargetIndex = (*TargetIndex)(nil)

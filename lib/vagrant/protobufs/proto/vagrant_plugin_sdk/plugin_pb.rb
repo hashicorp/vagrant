@@ -698,9 +698,8 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
     end
     add_message "hashicorp.vagrant.sdk.TargetIndex" do
     end
-    add_message "hashicorp.vagrant.sdk.TargetIndex.GetResponse" do
-      optional :target, :message, 1, "hashicorp.vagrant.sdk.Ref.Target"
-      optional :provider, :string, 2
+    add_message "hashicorp.vagrant.sdk.TargetIndex.AllResponse" do
+      repeated :targets, :message, 1, "hashicorp.vagrant.sdk.Args.Target"
     end
     add_message "hashicorp.vagrant.sdk.TargetIndex.IncludesResponse" do
       optional :exists, :bool, 1
@@ -873,7 +872,7 @@ module Hashicorp
       Vagrantfile::SyncedFolder = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Vagrantfile.SyncedFolder").msgclass
       Vagrantfile::Vagrantfile = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Vagrantfile.Vagrantfile").msgclass
       TargetIndex = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.TargetIndex").msgclass
-      TargetIndex::GetResponse = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.TargetIndex.GetResponse").msgclass
+      TargetIndex::AllResponse = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.TargetIndex.AllResponse").msgclass
       TargetIndex::IncludesResponse = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.TargetIndex.IncludesResponse").msgclass
     end
   end

@@ -41,7 +41,7 @@ module Vagrant
           project: @project_ref
         )
         get_response = @client.get(ref)
-        entry = machine_to_entry(get_response.target, get_response.provider)
+        entry = machine_to_entry(get_response)
         entry
       end
       
@@ -78,7 +78,10 @@ module Vagrant
       # Iterate over every machine in the index
       def each(reload=false)
         if reload
-          
+          arg_machines = @client.all()
+          arg_machines.each do |m|
+            @machines << machine_to_entry(m)
+          end
         end
 
         @machines.each do |uuid, data|
@@ -92,7 +95,7 @@ module Vagrant
       #
       # @param [Hashicorp::Vagrant::Sdk::Args::Target]
       # @return [Vagrant::MachineIndex::Entry] 
-      def machine_to_entry(machine, provider)
+      def machine_to_entry(machine)
         @logger.debug("machine name: #{machine.name}")
         raw = {
           "name" => machine.name,
