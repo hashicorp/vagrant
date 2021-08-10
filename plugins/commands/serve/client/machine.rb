@@ -6,12 +6,13 @@ module VagrantPlugins
         attr_reader :client
         attr_reader :resource_id
 
-        def initialize(conn)
+        def initialize(conn, broker=nil)
           @logger = Log4r::Logger.new("vagrant::command::serve::client::machine")
           @logger.debug("connecting to target machine service on #{conn}")
           if !conn.nil?
             @client = SDK::TargetMachineService::Stub.new(conn, :this_channel_is_insecure)
           end
+          @broker = broker
         end
 
         def self.load(raw_machine, broker:)
@@ -77,10 +78,7 @@ module VagrantPlugins
 
         # TODO: local data path comes from the project
         def get_local_data_path
-          req = SDK::Machine::LocalDataPathRequest.new(
-            machine: ref
-          )
-          @client.localdatapath(req).path
+          #TODO
         end
 
         def get_provider
@@ -111,9 +109,9 @@ module VagrantPlugins
           resp = @client.get_state(req)
           @logger.debug("Got state #{resp}")
           Vagrant::MachineState.new(
-            resp.state.id.to_sym,
-            resp.state.short_description,
-            resp.state.long_description
+            resp.id.to_sym,
+            resp.short_description,
+            resp.long_description
           )
         end
 

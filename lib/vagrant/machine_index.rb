@@ -402,7 +402,7 @@ module Vagrant
       # @return [Hash]
       attr_accessor :extra_data
 
-      attr_accessor :remote_machine
+      attr_accessor :machine_client
 
       # Initializes an entry.
       #
@@ -425,7 +425,7 @@ module Vagrant
         # TODO(mitchellh): parse into a proper datetime
         @updated_at       = raw["updated_at"]
         @extra_data       = raw["extra_data"] || {}
-        @remote_machine   = raw["remote_machine"]
+        @machine_client   = raw["machine_client"]
 
         # Be careful with the paths
         @local_data_path = nil  if @local_data_path == ""

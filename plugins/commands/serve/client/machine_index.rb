@@ -4,18 +4,20 @@ module VagrantPlugins
       class MachineIndex
 
         attr_reader :client
+        attr_reader :broker
 
         def self.load(raw, broker:)
           conn = broker.dial(raw.stream_id)
-          self.new(conn.to_s)
+          self.new(conn.to_s, broker)
         end
 
-        def initialize(conn)
+        def initialize(conn, broker=nil)
           @logger = Log4r::Logger.new("vagrant::command::serve::client::machineindex")
           @logger.debug("connecting to target index service on #{conn}")
           if !conn.nil?
             @client = SDK::TargetIndexService::Stub.new(conn, :this_channel_is_insecure)
           end
+          @broker = broker
         end
 
         # @param [Hashicorp::Vagrant::Sdk::Args::Target]

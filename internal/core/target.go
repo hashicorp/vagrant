@@ -3,6 +3,7 @@ package core
 import (
 	"context"
 	"fmt"
+	"os"
 	"strings"
 	"sync"
 	"time"
@@ -81,12 +82,15 @@ func (t *Target) Provider() (p core.Provider, err error) {
 
 // VagrantfileName implements core.Target
 func (t *Target) VagrantfileName() (name string, err error) {
-	return
+	// TODO: store and retrieve Vagrantfile name
+	return "Vagrantfile", nil
 }
 
 // VagrantfilePath implements core.Target
 func (t *Target) VagrantfilePath() (p path.Path, err error) {
-	return
+	// TODO: store and retrieve Vagrantfile path
+	cwd, err := os.Getwd()
+	return path.NewPath(cwd), err
 }
 
 // Communicate implements core.Target

@@ -18,6 +18,7 @@ test/vagrant-spec/.vagrant/
 /pkg
 data.db
 vagrant-restore.db.lock
+cmd/vagrant/Vagrantfile
 
 # Bundler/Rubygems
 *.gem

@@ -27,7 +27,7 @@ module Vagrant
       # @return [Boolean] true if delete is successful
       def delete(entry)
         @machines.delete(entry.id)
-        machine = entry.remote_machine.client.ref
+        machine = entry.machine_client.ref
         @client.delete(machine)
       end
 
@@ -67,7 +67,7 @@ module Vagrant
       # @return [Entry]
       def set(entry)
         @machines[entry.id] = entry
-        entry.remote_machine.client.save
+        entry.machine_client.save
         entry
       end
 
@@ -96,14 +96,25 @@ module Vagrant
       # @param [Hashicorp::Vagrant::Sdk::Args::Target]
       # @return [Vagrant::MachineIndex::Entry] 
       def machine_to_entry(machine)
-        @logger.debug("machine name: #{machine.name}")
+        @logger.debug("transforming machine #{machine}")
+        conn = @client.broker.dial(machine.stream_id)
+        target_service = Hashicorp::Vagrant::Sdk::TargetService::Stub.new(conn.to_s, :this_channel_is_insecure)
+        machine = target_service.specialize(Google::Protobuf::Any.new)
+        m = Hashicorp::Vagrant::Sdk::Args::Target::Machine.decode(machine.value)
+        conn = @client.broker.dial(m.stream_id)
+        machine_client = VagrantPlugins::CommandServe::Client::Machine.new(conn.to_s)
         raw = {
-          "name" => machine.name,
-          "vagrantfile_path" => machine.project.path,
-          "provider" => provider,
+          "name" => machine_client.get_name(),
+          "local_data_path" => machine_client.get_local_data_path(),
+          # TODO: get the provider!
+          "provider" => "virtualbox",
+          "state" => machine_client.get_state(),
+          "vagrantfile_name" => machine_client.get_vagrantfile_name(),
+          "vagrantfile_path" => machine_client.get_vagrantfile_path(),
+          "machine_client" => machine_client,
         }
         entry = Vagrant::MachineIndex::Entry.new(
-          id=machine.name, raw=raw
+          id=machine_client.resource_id, raw=raw
         )
         return entry
       end

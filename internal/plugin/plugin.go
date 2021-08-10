@@ -9,7 +9,7 @@ import (
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/go-plugin"
 
-	"github.com/hashicorp/vagrant-plugin-sdk"
+	sdk "github.com/hashicorp/vagrant-plugin-sdk"
 	"github.com/hashicorp/vagrant-plugin-sdk/component"
 	"github.com/hashicorp/vagrant/builtin/myplugin"
 	"github.com/hashicorp/vagrant/builtin/otherplugin"
