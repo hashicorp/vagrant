@@ -17,6 +17,14 @@ module VagrantPlugins
           self.new(conn.to_s, broker)
         end
 
+        # Gets the local data path
+        # return [String]
+        def get_local_data_path
+          req = Google::Protobuf::Empty.new
+          resp = @client.local_data(req)
+          return resp.path
+        end
+
         # Returns a machine client for the given name
         # return [VagrantPlugins::CommandServe::Client::Machine]
         def target(name)

@@ -76,11 +76,6 @@ module VagrantPlugins
           Pathname.new(@client.data_dir(req).data_dir)
         end
 
-        # TODO: local data path comes from the project
-        def get_local_data_path
-          #TODO
-        end
-
         def get_provider
           req = Google::Protobuf::Empty.new
           @client.provider(req)
