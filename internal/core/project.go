@@ -14,6 +14,7 @@ import (
 	"github.com/hashicorp/vagrant-plugin-sdk/component"
 	"github.com/hashicorp/vagrant-plugin-sdk/core"
 	"github.com/hashicorp/vagrant-plugin-sdk/datadir"
+	"github.com/hashicorp/vagrant-plugin-sdk/helper/path"
 	"github.com/hashicorp/vagrant-plugin-sdk/proto/vagrant_plugin_sdk"
 	"github.com/hashicorp/vagrant-plugin-sdk/terminal"
 
@@ -71,8 +72,14 @@ func (p *Project) DataDir() (*datadir.Project, error) {
 
 // VagrantfileName implements core.Project
 func (p *Project) VagrantfileName() (name string, err error) {
-	// TODO: implement
-	return "VagrantFile", nil
+	fullPath := path.NewPath(p.project.Configuration.Path)
+	return fullPath.Base().String(), nil
+}
+
+// VagrantfilePath implements core.Project
+func (p *Project) VagrantfilePath() (pp path.Path, err error) {
+	pp = path.NewPath(p.project.Configuration.Path)
+	return
 }
 
 // Home implements core.Project
