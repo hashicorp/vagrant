@@ -191,13 +191,14 @@ func (t *Target) Save() (err error) {
 	t.logger.Debug("saving target to db",
 		"target", t.target.ResourceId)
 
-	_, err = t.Client().UpsertTarget(t.ctx, &vagrant_server.UpsertTargetRequest{
+	result, err := t.Client().UpsertTarget(t.ctx, &vagrant_server.UpsertTargetRequest{
 		Target: t.target})
 	if err != nil {
 		t.logger.Trace("failed to save target",
 			"target", t.target.ResourceId,
 			"error", err)
 	}
+	t.target = result.Target
 	return
 }
 
