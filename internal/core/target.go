@@ -346,8 +346,9 @@ func WithTargetRef(r *vagrant_plugin_sdk.Ref_Target) TargetOption {
 		result, err := t.Client().FindTarget(t.ctx,
 			&vagrant_server.FindTargetRequest{
 				Target: &vagrant_server.Target{
-					Name:    r.Name,
-					Project: r.Project,
+					ResourceId: r.ResourceId,
+					Name:       r.Name,
+					Project:    r.Project,
 				},
 			},
 		)
@@ -361,8 +362,9 @@ func WithTargetRef(r *vagrant_plugin_sdk.Ref_Target) TargetOption {
 			result, err = t.Client().UpsertTarget(t.ctx,
 				&vagrant_server.UpsertTargetRequest{
 					Target: &vagrant_server.Target{
-						Name:    r.Name,
-						Project: r.Project,
+						ResourceId: r.ResourceId,
+						Name:       r.Name,
+						Project:    r.Project,
 					},
 				},
 			)
