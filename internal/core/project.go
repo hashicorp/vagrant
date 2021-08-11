@@ -174,7 +174,11 @@ func (p *Project) TargetIds() ([]string, error) {
 // Targets
 func (p *Project) Targets() ([]core.Target, error) {
 	var targets []core.Target
-	for _, t := range p.targets {
+	for _, ref := range p.project.Targets {
+		t, err := p.LoadTarget(WithTargetRef(ref))
+		if err != nil {
+			return nil, err
+		}
 		targets = append(targets, t)
 	}
 	return targets, nil
