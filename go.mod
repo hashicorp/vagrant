@@ -30,7 +30,7 @@ require (
 	github.com/docker/libtrust v0.0.0-20160708172513-aabc10ec26b7 // indirect
 	github.com/dustin/go-humanize v1.0.0 // indirect
 	github.com/elazarl/go-bindata-assetfs v1.0.1 // indirect
-	github.com/fatih/color v1.9.0
+	github.com/fatih/color v1.12.0
 	github.com/go-git/go-git/v5 v5.1.0
 	github.com/go-openapi/runtime v0.19.15 // indirect
 	github.com/go-openapi/strfmt v0.19.5 // indirect
@@ -41,11 +41,12 @@ require (
 	github.com/golang/protobuf v1.5.2
 	github.com/google/shlex v0.0.0-20191202100458-e7afc7fbc510 // indirect
 	github.com/gorilla/handlers v1.4.2
-	github.com/hashicorp/go-argmapper v0.2.1
+	github.com/hashicorp/errwrap v1.1.0 // indirect
+	github.com/hashicorp/go-argmapper v0.2.2-0.20210810211021-b2c94a138ec3
 	github.com/hashicorp/go-getter v1.4.1 // indirect
-	github.com/hashicorp/go-hclog v0.14.1
+	github.com/hashicorp/go-hclog v0.16.2
 	github.com/hashicorp/go-memdb v1.2.0
-	github.com/hashicorp/go-multierror v1.1.0
+	github.com/hashicorp/go-multierror v1.1.1
 	github.com/hashicorp/go-plugin v1.3.0
 	github.com/hashicorp/go-version v1.2.0 // indirect
 	github.com/hashicorp/golang-lru v0.5.4 // indirect
@@ -60,6 +61,7 @@ require (
 	github.com/improbable-eng/grpc-web v0.13.0
 	github.com/kr/text v0.2.0
 	github.com/leodido/go-urn v1.2.0 // indirect
+	github.com/mattn/go-isatty v0.0.13 // indirect
 	github.com/mitchellh/cli v1.1.2
 	github.com/mitchellh/copystructure v1.0.0 // indirect
 	github.com/mitchellh/go-glint v0.0.0-20201015034436-f80573c636de
@@ -86,7 +88,7 @@ require (
 	github.com/zclconf/go-cty-yaml v1.0.2
 	golang.org/x/crypto v0.0.0-20201002170205-7f63de1d35b0
 	golang.org/x/net v0.0.0-20210520170846-37e1c6afe023 // indirect
-	golang.org/x/sys v0.0.0-20210514084401-e8d321eab015
+	golang.org/x/sys v0.0.0-20210809222454-d867a43fc93e
 	google.golang.org/api v0.20.0 // indirect
 	google.golang.org/genproto v0.0.0-20210520160233-290a1ae68a05
 	google.golang.org/grpc v1.38.0
