@@ -341,7 +341,6 @@ module Hashicorp
           rpc :VagrantfilePath, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::Target::VagrantfilePathResponse
           rpc :UpdatedAt, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::Target::UpdatedAtResponse
           rpc :Communicate, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::Args::Communicator
-          rpc :Ref, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::Ref::Target
           rpc :Save, ::Google::Protobuf::Empty, ::Google::Protobuf::Empty
         end
 
@@ -372,7 +371,6 @@ module Hashicorp
           rpc :VagrantfilePath, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::Target::VagrantfilePathResponse
           rpc :UpdatedAt, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::Target::UpdatedAtResponse
           rpc :Communicate, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::Args::Communicator
-          rpc :Ref, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::Ref::Target
           rpc :Save, ::Google::Protobuf::Empty, ::Google::Protobuf::Empty
           # Machine specific
           rpc :SetID, ::Hashicorp::Vagrant::Sdk::Target::Machine::SetIDRequest, ::Google::Protobuf::Empty
@@ -418,7 +416,6 @@ module Hashicorp
           rpc :Target, ::Hashicorp::Vagrant::Sdk::Project::TargetRequest, ::Hashicorp::Vagrant::Sdk::Args::Target
           rpc :TargetNames, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::Project::TargetNamesResponse
           rpc :TargetIds, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::Project::TargetIdsResponse
-          rpc :Ref, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::Ref::Project
         end
 
         Stub = Service.rpc_stub_class

@@ -5,9 +5,9 @@ import (
 
 	"github.com/hashicorp/go-hclog"
 	"github.com/hashicorp/vagrant-plugin-sdk/core"
+	"github.com/hashicorp/vagrant-plugin-sdk/proto/vagrant_plugin_sdk"
 	"github.com/hashicorp/vagrant/internal/server/proto/vagrant_server"
 	"github.com/hashicorp/vagrant/internal/serverclient"
-	"github.com/mitchellh/mapstructure"
 )
 
 // TargetIndex represents
@@ -21,43 +21,26 @@ type TargetIndex struct {
 	closers []func() error
 }
 
-func (t *TargetIndex) Delete(ref *core.TargetRef) (err error) {
+func (t *TargetIndex) Delete(uuid string) (err error) {
 	_, err = t.client.DeleteTarget(
 		t.ctx,
 		&vagrant_server.DeleteTargetRequest{
-			Target: ref.Ref(),
+			Target: &vagrant_plugin_sdk.Ref_Target{ResourceId: uuid},
 		},
 	)
 	return
 }
 
-func (t *TargetIndex) Get(ref *core.TargetRef) (entry core.Target, err error) {
-	entry, err = t.project.Target(ref.Name)
-	if err != nil {
-		entry, err = t.project.Target(ref.ResourceId)
-		return
-	}
-	return
+func (t *TargetIndex) Get(uuid string) (entry core.Target, err error) {
+	return t.project.Target(uuid)
 }
 
-func (t *TargetIndex) Includes(ref *core.TargetRef) (exists bool, err error) {
-	var req *vagrant_server.Target
-	mapstructure.Decode(ref, &req)
-	// TODO: Not sure if this interface is going to change,
-	// would be neat if FindTarget accepted a Ref_Target
-	_, err = t.client.FindTarget(
-		t.ctx,
-		&vagrant_server.FindTargetRequest{
-			Target: req,
-		},
-	)
-	// TODO: Not sure what should  be returned by the api
-	// if there is not Target found. For now assuming that
-	// if a target is not found an error is returned
-	if err != nil {
-		return false, err
+func (t *TargetIndex) Includes(uuid string) (exists bool, err error) {
+	_, err = t.project.Target(uuid)
+	if err == nil {
+		return true, nil
 	}
-	return true, err
+	return false, nil
 }
 
 func (t *TargetIndex) Set(entry core.Target) (updatedEntry core.Target, err error) {
