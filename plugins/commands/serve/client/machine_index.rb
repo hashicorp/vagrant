@@ -20,7 +20,7 @@ module VagrantPlugins
           @broker = broker
         end
 
-        # @param [Hashicorp::Vagrant::Sdk::Args::Target]
+        # @param [Hashicorp::Vagrant::Sdk::TargetIndex::TargetIdentifier]
         # @return [Boolean] true if delete is successful
         def delete(target)
           @logger.debug("deleting machine #{target} from index")
@@ -28,7 +28,7 @@ module VagrantPlugins
           true
         end
 
-        # @param [Hashicorp::Vagrant::Sdk::Ref::Target] a ref for the machine to access.
+        # @param [Hashicorp::Vagrant::Sdk::TargetIndex::TargetIdentifier]
         # @return [Hashicorp::Vagrant::Sdk::Ref::Target]
         def get(ref)
           @logger.debug("getting machine with ref #{ref} from index")
@@ -36,7 +36,7 @@ module VagrantPlugins
           return resp
         end
 
-        # @param [Hashicorp::Vagrant::Sdk::Ref::Target]
+        # @param [Hashicorp::Vagrant::Sdk::TargetIndex::TargetIdentifier]
         # @return [Boolean]
         def include?(ref)
           @logger.debug("checking for machine with ref #{ref} in index")

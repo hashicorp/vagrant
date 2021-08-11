@@ -36,7 +36,6 @@ module Vagrant
           machine_index_client = @client.machine_index
           @machine_index ||= Vagrant::MachineIndex.new()
           @machine_index.client = machine_index_client
-          @machine_index.project_ref = @client.ref
         end
         @machine_index
       end

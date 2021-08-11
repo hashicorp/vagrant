@@ -5,8 +5,6 @@ module Vagrant
 
       attr_accessor :client
 
-      attr_accessor :project_ref
-
       # Add an attribute reader for the client
       # when applied to the MachineIndex class
       def self.prepended(klass)
@@ -23,22 +21,23 @@ module Vagrant
 
       # Deletes a machine by UUID.
       #
-      # @param [Entry] entry The entry to delete.
+      # @param [Stinrg] The uuid for the entry to delete.
       # @return [Boolean] true if delete is successful
-      def delete(entry)
-        @machines.delete(entry.id)
-        machine = entry.machine_client.ref
-        @client.delete(machine)
+      def delete(uuid)
+        @machines.delete(uuid)
+        ref = Hashicorp::Vagrant::Sdk::TargetIndex::TargetIdentifier.new(
+          id: uuid
+        )
+        @client.delete(ref)
       end
 
       # Accesses a machine by UUID
       #
-      # @param [String] name for the machine to access.
+      # @param [String] uuid for the machine to access.
       # @return [MachineIndex::Entry]
-      def get(name)
-        ref = Hashicorp::Vagrant::Sdk::Ref::Target.new(
-          name: name,
-          project: @project_ref
+      def get(uuid)
+        ref = Hashicorp::Vagrant::Sdk::TargetIndex::TargetIdentifier.new(
+          id: uuid
         )
         get_response = @client.get(ref)
         entry = machine_to_entry(get_response)
@@ -47,12 +46,11 @@ module Vagrant
       
       # Tests if the index has the given UUID.
       #
-      # @param [String] name
+      # @param [String] uuid
       # @return [Boolean]
-      def include?(name)
-        ref = Hashicorp::Vagrant::Sdk::Ref::Target.new(
-          name: name,
-          project: @project_ref
+      def include?(uuid)
+        ref = Hashicorp::Vagrant::Sdk::TargetIndex::TargetIdentifier.new(
+          id: uuid
         )
         @client.include?(ref)
       end

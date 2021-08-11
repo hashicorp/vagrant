@@ -17,11 +17,6 @@ module VagrantPlugins
           self.new(conn.to_s, broker)
         end
 
-        def ref
-          req = Google::Protobuf::Empty.new
-          @client.ref(req)
-        end
-
         # Returns a machine client for the given name
         # return [VagrantPlugins::CommandServe::Client::Machine]
         def target(name)
