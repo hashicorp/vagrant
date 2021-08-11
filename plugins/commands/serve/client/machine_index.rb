@@ -29,11 +29,11 @@ module VagrantPlugins
         end
 
         # @param [Hashicorp::Vagrant::Sdk::TargetIndex::TargetIdentifier]
-        # @return [Hashicorp::Vagrant::Sdk::Ref::Target]
+        # @return [MachineIndex::Entry]
         def get(ref)
           @logger.debug("getting machine with ref #{ref} from index")
           resp = @client.get(ref)
-          return resp
+          return machine_to_entry(resp)
         end
 
         # @param [Hashicorp::Vagrant::Sdk::TargetIndex::TargetIdentifier]
@@ -43,20 +43,84 @@ module VagrantPlugins
           @client.includes(ref).exists
         end
 
-        # @param [Hashicorp::Vagrant::Sdk::Args::Target] target
-        # @return [Hashicorp::Vagrant::Sdk::Args::Target]  
-        def set(target)
-          @logger.debug("setting machine #{target} in index")
-          @client.set(target)
+        ## @param [Hashicorp::Vagrant::Sdk::Args::Target] target
+        #
+        # @param [MachineIndex::Entry]
+        # @return [MachineIndex::Entry]
+        def set(entry)
+          @logger.debug("setting machine #{entry} in index")
+          ref = Hashicorp::Vagrant::Sdk::TargetIndex::TargetIdentifier.new(
+            id: entry.id
+          )
+          if entry.id.nil? 
+            raise "Entry id should not be nil!"
+          end
+          machine = machine_arg_to_machine_client(@client.get(ref))
+          machine.set_name(entry.name)
+          machine.set_state(entry.full_state)
+          machine_client_to_entry(machine)
         end
 
         # Get all targets
-        # @return [Array<Hashicorp::Vagrant::Sdk::Args::Target>]  
+        # @return [Array<MachineIndex::Entry>]  
         def all()
           @logger.debug("getting all machines")
           req = Google::Protobuf::Empty.new
           resp = @client.all(req)
-          resp.targets
+          arg_machines = resp.targets
+          machine_entries = []
+          arg_machines.each do |m|
+            machine_entries << machine_to_entry(m)
+          end
+          machine_entries
+        end
+
+        protected 
+
+        # Converts a Args::Target to a machine client
+        #
+        # @param [Hashicorp::Vagrant::Sdk::Args::Target]
+        # @return [VagrantPlugins::CommandServe::Client::Machine] 
+        def machine_arg_to_machine_client(machine)
+          @logger.debug("transforming machine #{machine}")
+          conn = @broker.dial(machine.stream_id)
+          target_service = Hashicorp::Vagrant::Sdk::TargetService::Stub.new(conn.to_s, :this_channel_is_insecure)
+          machine = target_service.specialize(Google::Protobuf::Any.new)
+          m = Hashicorp::Vagrant::Sdk::Args::Target::Machine.decode(machine.value)
+          conn = @broker.dial(m.stream_id)
+          VagrantPlugins::CommandServe::Client::Machine.new(conn.to_s)
+        end
+
+        # Converts a machine client to a machine index entry
+        #
+        # @param [VagrantPlugins::CommandServe::Client::Machine] 
+        # @return [Vagrant::MachineIndex::Entry] 
+        def machine_client_to_entry(machine_client)
+          state = machine_client.get_state()
+          raw = {
+            "name" => machine_client.get_name(),
+            "local_data_path" => machine_client.get_local_data_path(),
+            # TODO: get the provider!
+            "provider" => "virtualbox",
+            "full_state" => state,
+            "state" => state.id,
+            "vagrantfile_name" => machine_client.get_vagrantfile_name(),
+            "vagrantfile_path" => machine_client.get_vagrantfile_path(),
+          }
+          id = machine_client.get_id()
+          @logger.debug("machine id: #{id}")
+          Vagrant::MachineIndex::Entry.new(
+            id=id, raw=raw
+          )
+        end
+
+        # Converts a machine to a machine index entry
+        #
+        # @param [Hashicorp::Vagrant::Sdk::Args::Target]
+        # @return [Vagrant::MachineIndex::Entry] 
+        def machine_to_entry(machine)
+          machine_client = machine_arg_to_machine_client(machine)
+          machine_client_to_entry(machine_client)
         end
       end
     end

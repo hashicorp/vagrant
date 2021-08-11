@@ -11,12 +11,12 @@ module Vagrant
       end
 
       def initialize(opts={})
-        super
         @client = opts[:client]
         if @client.nil?
           raise ArgumentError,
             "Remote client is required for `#{self.class.name}'"
         end
+        super
         @logger = Log4r::Logger.new("vagrant::environment")
       end
 
@@ -32,10 +32,14 @@ module Vagrant
       #
       # @return [MachineIndex]
       def machine_index
-        if !@client.nil?
+        # When starting up in server mode, Vagrant will set the environment
+        # client to the value `:stub`. So, check that we have an actual
+        # CommandServe::Client::Project by checking for a client
+        if @client.class != Symbol
           machine_index_client = @client.machine_index
           @machine_index ||= Vagrant::MachineIndex.new()
           @machine_index.client = machine_index_client
+          @machine_index
         end
         @machine_index
       end

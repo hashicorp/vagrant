@@ -117,7 +117,7 @@ module VagrantPlugins
 
         alias state get_state
 
-        # @param [SRV::Operation::PhysicalState] state of the machine
+        # @param [Vagrant::MachineState] state of the machine
         def set_state(state)
           req = SDK::Target::Machine::SetStateRequest.new(
             state: SDK::Args::Target::Machine::State.new(

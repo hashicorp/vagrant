@@ -381,6 +381,11 @@ module Vagrant
       # @return [String]
       attr_accessor :state
 
+      # The last known state of this machine.
+      #
+      # @return [MachineState]
+      attr_accessor :full_state
+
       # The valid Vagrantfile filenames for this environment.
       #
       # @return [Array<String>]
@@ -402,8 +407,6 @@ module Vagrant
       # @return [Hash]
       attr_accessor :extra_data
 
-      attr_accessor :machine_client
-
       # Initializes an entry.
       #
       # The parameter given should be nil if this is being created
@@ -420,12 +423,12 @@ module Vagrant
         @name             = raw["name"]
         @provider         = raw["provider"]
         @state            = raw["state"]
+        @full_state       = raw["full_state"]
         @vagrantfile_name = raw["vagrantfile_name"]
         @vagrantfile_path = raw["vagrantfile_path"]
         # TODO(mitchellh): parse into a proper datetime
         @updated_at       = raw["updated_at"]
         @extra_data       = raw["extra_data"] || {}
-        @machine_client   = raw["machine_client"]
 
         # Be careful with the paths
         @local_data_path = nil  if @local_data_path == ""
