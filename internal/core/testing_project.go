@@ -5,6 +5,7 @@ import (
 	"io/ioutil"
 	"os"
 
+	"github.com/hashicorp/go-hclog"
 	"github.com/mitchellh/go-testing-interface"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
@@ -14,6 +15,7 @@ import (
 	"github.com/hashicorp/vagrant-plugin-sdk/datadir"
 	"github.com/hashicorp/vagrant-plugin-sdk/proto/vagrant_plugin_sdk"
 	"github.com/hashicorp/vagrant/internal/factory"
+	"github.com/hashicorp/vagrant/internal/plugin"
 	"github.com/hashicorp/vagrant/internal/server/proto/vagrant_server"
 	"github.com/hashicorp/vagrant/internal/server/singleprocess"
 )
@@ -57,10 +59,19 @@ func TestTarget(t testing.T, opts ...BasisOption) (target *Target, err error) {
 // can be used for testing. Additional options can be given to provide your own
 // factories, configuration, etc.
 func TestProject(t testing.T, opts ...BasisOption) *Project {
+	pluginManager := plugin.NewManager(
+		context.Background(),
+		hclog.New(&hclog.LoggerOptions{}),
+	)
+
+	opts = append(opts, WithPluginManager(pluginManager))
 	b := TestBasis(t, opts...)
 
 	p, _ := b.LoadProject([]ProjectOption{
-		WithProjectRef(&vagrant_plugin_sdk.Ref_Project{Basis: b.Ref().(*vagrant_plugin_sdk.Ref_Basis), Name: "test-project"}),
+		WithProjectRef(&vagrant_plugin_sdk.Ref_Project{
+			Basis: b.Ref().(*vagrant_plugin_sdk.Ref_Basis),
+			Name:  "test-project"},
+		),
 	}...)
 	return p
 }
