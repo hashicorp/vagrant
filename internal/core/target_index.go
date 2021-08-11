@@ -44,14 +44,9 @@ func (t *TargetIndex) Includes(uuid string) (exists bool, err error) {
 }
 
 func (t *TargetIndex) Set(entry core.Target) (updatedEntry core.Target, err error) {
-	target := entry.(*Target)
-	_, err = t.client.UpsertTarget(
-		t.ctx,
-		&vagrant_server.UpsertTargetRequest{
-			Target: target.target,
-		},
-	)
-	return target, err
+	updatedEntry = entry.(*Target)
+	err = updatedEntry.Save()
+	return
 }
 
 func (t *TargetIndex) All() (targets []core.Target, err error) {
