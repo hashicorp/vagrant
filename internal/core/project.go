@@ -78,7 +78,7 @@ func (p *Project) VagrantfileName() (name string, err error) {
 
 // VagrantfilePath implements core.Project
 func (p *Project) VagrantfilePath() (pp path.Path, err error) {
-	pp = path.NewPath(p.project.Configuration.Path)
+	pp = path.NewPath(p.project.Configuration.Path).Parent()
 	return
 }
 
