@@ -5,7 +5,6 @@ import (
 
 	"github.com/hashicorp/go-hclog"
 	"github.com/hashicorp/vagrant-plugin-sdk/core"
-	"github.com/hashicorp/vagrant-plugin-sdk/proto/vagrant_plugin_sdk"
 	"github.com/hashicorp/vagrant/internal/server/proto/vagrant_server"
 	"github.com/hashicorp/vagrant/internal/serverclient"
 	"github.com/mitchellh/mapstructure"
@@ -22,42 +21,43 @@ type TargetIndex struct {
 	closers []func() error
 }
 
-func (t *TargetIndex) Delete(target core.Target) (err error) {
+func (t *TargetIndex) Delete(ref *core.TargetRef) (err error) {
 	_, err = t.client.DeleteTarget(
 		t.ctx,
 		&vagrant_server.DeleteTargetRequest{
-			Target: target.Ref().(*vagrant_plugin_sdk.Ref_Target),
+			Target: ref.Ref(),
 		},
 	)
 	return
 }
 
-func (t *TargetIndex) Get(ref *vagrant_plugin_sdk.Ref_Target) (entry core.Target, err error) {
-	return t.project.Target(ref.Name)
+func (t *TargetIndex) Get(ref *core.TargetRef) (entry core.Target, err error) {
+	entry, err = t.project.Target(ref.Name)
+	if err != nil {
+		entry, err = t.project.Target(ref.ResourceId)
+		return
+	}
+	return
 }
 
-func (t *TargetIndex) Includes(ref *vagrant_plugin_sdk.Ref_Target) (exists bool, err error) {
+func (t *TargetIndex) Includes(ref *core.TargetRef) (exists bool, err error) {
 	var req *vagrant_server.Target
 	mapstructure.Decode(ref, &req)
-	resp, err := t.client.FindTarget(
+	// TODO: Not sure if this interface is going to change,
+	// would be neat if FindTarget accepted a Ref_Target
+	_, err = t.client.FindTarget(
 		t.ctx,
 		&vagrant_server.FindTargetRequest{
 			Target: req,
 		},
 	)
+	// TODO: Not sure what should  be returned by the api
+	// if there is not Target found. For now assuming that
+	// if a target is not found an error is returned
 	if err != nil {
 		return false, err
 	}
-	// TODO: Not sure what should  be returned by the api
-	// if there is not Target found. For now assuming that
-	// if a target is not found, no error is returned,
-	// and the resp is nil
-	if resp == nil {
-		exists = false
-	} else {
-		exists = true
-	}
-	return
+	return true, err
 }
 
 func (t *TargetIndex) Set(entry core.Target) (updatedEntry core.Target, err error) {
