@@ -20,26 +20,35 @@ module VagrantPlugins
           @broker = broker
         end
 
-        # @param [Hashicorp::Vagrant::Sdk::TargetIndex::TargetIdentifier]
+        # @param [string]
         # @return [Boolean] true if delete is successful
-        def delete(target)
-          @logger.debug("deleting machine #{target} from index")
-          @client.delete(target)
+        def delete(uuid)
+          @logger.debug("deleting machine with id #{uuid} from index")
+          ref = Hashicorp::Vagrant::Sdk::TargetIndex::TargetIdentifier.new(
+            id: uuid
+          )
+          @client.delete(ref)
           true
         end
 
-        # @param [Hashicorp::Vagrant::Sdk::TargetIndex::TargetIdentifier]
+        # @param [string]
         # @return [MachineIndex::Entry]
-        def get(ref)
-          @logger.debug("getting machine with ref #{ref} from index")
+        def get(uuid)
+          @logger.debug("getting machine with id #{uuid} from index")
+          ref = Hashicorp::Vagrant::Sdk::TargetIndex::TargetIdentifier.new(
+            id: uuid
+          )
           resp = @client.get(ref)
           return machine_to_entry(resp)
         end
 
-        # @param [Hashicorp::Vagrant::Sdk::TargetIndex::TargetIdentifier]
+        # @param [string]
         # @return [Boolean]
-        def include?(ref)
-          @logger.debug("checking for machine with ref #{ref} in index")
+        def include?(uuid)
+          @logger.debug("checking for machine with id #{uuid} in index")
+          ref = Hashicorp::Vagrant::Sdk::TargetIndex::TargetIdentifier.new(
+            id: uuid
+          )
           @client.includes(ref).exists
         end
 

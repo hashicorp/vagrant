@@ -137,6 +137,8 @@ module Vagrant
               # Vagrantfiles often have constants, so people would otherwise
               # constantly (heh) get "already initialized constant" warnings.
               begin
+                # TODO: Remove reference to client here. This won't work
+                # running legacy vagrant directly.
                 env = entry.vagrant_env(
                   @env.home_path, ui_class: @env.ui_class, client: @env.client)
               rescue Vagrant::Errors::EnvironmentNonExistentCWD

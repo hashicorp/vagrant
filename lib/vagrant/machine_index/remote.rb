@@ -25,10 +25,7 @@ module Vagrant
       # @return [Boolean] true if delete is successful
       def delete(uuid)
         @machines.delete(uuid)
-        ref = Hashicorp::Vagrant::Sdk::TargetIndex::TargetIdentifier.new(
-          id: uuid
-        )
-        @client.delete(ref)
+        @client.delete(uuid)
       end
 
       # Accesses a machine by UUID
@@ -36,10 +33,7 @@ module Vagrant
       # @param [String] uuid for the machine to access.
       # @return [MachineIndex::Entry]
       def get(uuid)
-        ref = Hashicorp::Vagrant::Sdk::TargetIndex::TargetIdentifier.new(
-          id: uuid
-        )
-        @client.get(ref)
+        @client.get(uuid)
       end
       
       # Tests if the index has the given UUID.
@@ -47,10 +41,7 @@ module Vagrant
       # @param [String] uuid
       # @return [Boolean]
       def include?(uuid)
-        ref = Hashicorp::Vagrant::Sdk::TargetIndex::TargetIdentifier.new(
-          id: uuid
-        )
-        @client.include?(ref)
+        @client.include?(uuid)
       end
 
       def release(entry)
