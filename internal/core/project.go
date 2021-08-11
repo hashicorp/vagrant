@@ -141,7 +141,16 @@ func (p *Project) Target(nameOrId string) (core.Target, error) {
 			return t, nil
 		}
 	}
-	return nil, errors.New("requested target does not exist")
+	// Finally try loading it
+	return p.LoadTarget(
+		WithTargetRef(
+			&vagrant_plugin_sdk.Ref_Target{
+				Project:    p.Ref().(*vagrant_plugin_sdk.Ref_Project),
+				Name:       nameOrId,
+				ResourceId: nameOrId,
+			},
+		),
+	)
 }
 
 // TargetNames implements core.Project
