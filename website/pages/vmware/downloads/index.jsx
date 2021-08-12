@@ -9,6 +9,7 @@ export default function DownloadsPage(staticProps) {
   return (
     <>
       <ProductDownloadsPage
+        pageTitle="Download Vagrant vmware Utility"
         getStartedDescription="Follow step-by-step tutorials on the essentials of Vagrant VMWare Utility."
         getStartedLinks={[
           {
