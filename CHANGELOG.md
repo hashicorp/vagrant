@@ -4,6 +4,8 @@ FEATURES:
 
 IMPROVEMENTS:
 
+- guest/suse: Add fallback shutdown for versions without systemd (GH-12489)
+
 BUG FIXES
 
 ## 2.2.18 (July 27, 2021)
