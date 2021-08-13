@@ -13,6 +13,7 @@ import (
 
 	"github.com/hashicorp/vagrant-plugin-sdk/terminal"
 	intcfg "github.com/hashicorp/vagrant/internal/config"
+	"github.com/hashicorp/vagrant/internal/core"
 	"github.com/hashicorp/vagrant/internal/plugin"
 
 	"github.com/hashicorp/vagrant/internal/server"
@@ -44,6 +45,7 @@ var ErrClosed = errors.New("runner is closed")
 //
 type Runner struct {
 	id                 string
+	factory            *core.Factory
 	logger             hclog.Logger
 	client             *serverclient.VagrantClient
 	vagrantRubyRuntime plg.ClientProtocol
@@ -116,7 +118,8 @@ func New(opts ...Option) (*Runner, error) {
 		return nil, err
 	}
 
-	if err := runner.plugins.LoadLegacyPlugins(runner.vagrantRubyClient, runner.vagrantRubyRuntime); err != nil {
+	if err := runner.plugins.LoadLegacyPlugins(
+		runner.vagrantRubyClient, runner.vagrantRubyRuntime); err != nil {
 		return nil, err
 	}
 
@@ -131,6 +134,15 @@ func New(opts ...Option) (*Runner, error) {
 			)
 		}
 	}
+
+	// Add a core factory
+	runner.factory = core.NewFactory(
+		runner.ctx,
+		runner.client,
+		runner.logger,
+		runner.plugins,
+		runner.ui,
+	)
 
 	return runner, nil
 }

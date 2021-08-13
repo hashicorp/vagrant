@@ -84,7 +84,7 @@ func (r *Runner) executeJob(
 	opts = append(opts, core.WithBasisRef(ref))
 
 	// Load our basis
-	b, err := core.NewBasis(ctx, opts...)
+	b, err := r.factory.New("", opts...)
 	if err != nil {
 		return
 	}
