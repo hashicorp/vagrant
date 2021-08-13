@@ -42,12 +42,14 @@ type Basis struct {
 	dir      *datadir.Basis
 	ctx      context.Context
 
-	lock   sync.Mutex
+	m      sync.Mutex
 	client *serverclient.VagrantClient
 
 	jobInfo *component.JobInfo
 	closers []func() error
 	ui      terminal.UI
+
+	factory *Factory
 }
 
 // NewBasis creates a new Basis with the given options.
@@ -306,6 +308,9 @@ func (b *Basis) Project(nameOrId string) *Project {
 // Load a project within the current basis. If the project is not found, it
 // will be created.
 func (b *Basis) LoadProject(popts ...ProjectOption) (p *Project, err error) {
+	b.m.Lock()
+	defer b.m.Unlock()
+
 	// Create our project
 	p = &Project{
 		ctx:     b.ctx,
@@ -363,8 +368,18 @@ func (b *Basis) LoadProject(popts ...ProjectOption) (p *Project, err error) {
 	// Ensure any modifications to the project are persisted
 	p.Closer(func() error { return p.Save() })
 
+	// Remove ourself from cached projects
+	p.Closer(func() error {
+		b.m.Lock()
+		defer b.m.Unlock()
+		delete(b.projects, p.ResourceId())
+		delete(b.projects, p.Name())
+		return nil
+	})
+
 	// Load any plugins that may be installed locally to the project
-	err = b.plugins.Discover(path.NewPath(p.project.Path).Join(".vagrant").Join("plugins"))
+	err = b.plugins.Discover(path.NewPath(p.project.Path).
+		Join(".vagrant").Join("plugins"))
 
 	return
 }
@@ -377,9 +392,6 @@ func (b *Basis) Closer(c func() error) {
 // Close is called to clean up resources allocated by the basis.
 // This should be called and blocked on to gracefully stop the basis.
 func (b *Basis) Close() (err error) {
-	defer b.lock.Unlock()
-	b.lock.Lock()
-
 	b.logger.Debug("closing basis",
 		"basis", b.ResourceId())
 
@@ -409,10 +421,13 @@ func (b *Basis) Close() (err error) {
 
 // Saves the basis to the db
 func (b *Basis) Save() (err error) {
+	b.m.Lock()
+	defer b.m.Unlock()
+
 	b.logger.Debug("saving basis to db",
 		"basis", b.ResourceId())
 
-	_, err = b.Client().UpsertBasis(b.ctx,
+	result, err := b.Client().UpsertBasis(b.ctx,
 		&vagrant_server.UpsertBasisRequest{
 			Basis: b.basis})
 
@@ -421,6 +436,8 @@ func (b *Basis) Save() (err error) {
 			"basis", b.ResourceId(),
 			"error", err)
 	}
+
+	b.basis = result.Basis
 	return
 }
 
@@ -447,6 +464,18 @@ func (b *Basis) SaveFull() (err error) {
 	if berr := b.Save(); berr != nil {
 		err = multierror.Append(err, berr)
 	}
+	return
+}
+
+func (b *Basis) TargetIndex() (index core.TargetIndex, err error) {
+	index = &TargetIndex{
+		ctx:     b.ctx,
+		logger:  b.logger,
+		client:  b.client,
+		factory: b.factory,
+	}
+	b.Closer(func() error { return index.(*TargetIndex).Close() })
+
 	return
 }
 
@@ -740,6 +769,24 @@ func WithBasisResourceId(rid string) BasisOption {
 			return fmt.Errorf("requested basis is not found (resource-id: %s", rid)
 		}
 		b.basis = result.Basis
+		return
+	}
+}
+
+func WithFactory(f *Factory) BasisOption {
+	return func(b *Basis) (err error) {
+		b.factory = f
+		return
+	}
+}
+
+func FromBasis(basis *Basis) BasisOption {
+	return func(b *Basis) (err error) {
+		b.logger = basis.logger
+		b.plugins = basis.plugins // TODO(spox): we need stacked managers
+		b.ctx = basis.ctx
+		b.client = basis.client
+		b.ui = basis.ui
 		return
 	}
 }
