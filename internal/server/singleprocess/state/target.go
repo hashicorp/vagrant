@@ -110,6 +110,16 @@ func (s *State) targetFind(
 			match = raw.(*targetIndexRecord)
 		}
 	}
+	// Finally try the uuid
+	if match == nil && req.Uuid != "" {
+		if raw, err := memTxn.First(
+			targetIndexTableName,
+			targetIndexUuidName,
+			req.Uuid,
+		); raw != nil && err == nil {
+			match = raw.(*targetIndexRecord)
+		}
+	}
 
 	if match == nil {
 		return nil, status.Errorf(codes.NotFound, "record not found for Target")
@@ -274,6 +284,15 @@ func targetIndexSchema() *memdb.TableSchema {
 					Lowercase: true,
 				},
 			},
+			targetIndexUuidName: {
+				Name:         targetIndexUuidName,
+				AllowMissing: true,
+				Unique:       true,
+				Indexer: &memdb.StringFieldIndex{
+					Field:     "Uuid",
+					Lowercase: true,
+				},
+			},
 		},
 	}
 }
@@ -281,6 +300,7 @@ func targetIndexSchema() *memdb.TableSchema {
 const (
 	targetIndexIdIndexName   = "id"
 	targetIndexNameIndexName = "name"
+	targetIndexUuidName      = "uuid"
 	targetIndexTableName     = "target-index"
 )
 
@@ -288,6 +308,7 @@ type targetIndexRecord struct {
 	Id        string // Resource ID
 	Name      string // Target Name
 	ProjectId string // Project Resource ID
+	Uuid      string // Target UUID
 }
 
 func (s *State) newTargetIndexRecord(m *vagrant_server.Target) *targetIndexRecord {
@@ -299,6 +320,7 @@ func (s *State) newTargetIndexRecord(m *vagrant_server.Target) *targetIndexRecor
 		Id:        m.ResourceId,
 		Name:      m.Name,
 		ProjectId: projectResourceId,
+		Uuid:      m.Uuid,
 	}
 	return i
 }
