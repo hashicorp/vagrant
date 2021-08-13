@@ -38,13 +38,7 @@ module Vagrant
         # When starting up in server mode, Vagrant will set the environment
         # client to the value `:stub`. So, check that we have an actual
         # CommandServe::Client::Project by checking for a client
-        if @client.class != Symbol
-          machine_index_client = @client.machine_index
-          @machine_index ||= Vagrant::MachineIndex.new()
-          @machine_index.client = machine_index_client
-          @machine_index
-        end
-        @machine_index
+        @machine_index ||= Vagrant::MachineIndex.new(client: client.target_index)
       end
     end
   end

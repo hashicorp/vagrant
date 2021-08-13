@@ -42,7 +42,7 @@ module Vagrant
         #TODO: get box from @client.get_box()
         @box             = box
         @config          = config
-        @data_dir        = @client.get_data_dir()
+        @data_dir        = @client.data_dir
         @vagrantfile     = vagrantfile
         @guest           = Guest.new(
           self,
