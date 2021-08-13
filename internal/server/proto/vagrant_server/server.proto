@@ -294,6 +294,9 @@ message Target {
   // Specialized target information (from provider)
   google.protobuf.Any record = 11;
 
+  // Provider name backing machine
+  string provider = 12;
+
   // Specialized target (machine)
   message Machine {
     // ID of machine as assigned by provider
@@ -307,11 +310,6 @@ message Target {
 
     // State of the machine (Vagrant representation)
     sdk.Args.Target.Machine.State state = 10;
-
-    // Provider name backing machine
-    string provider = 11;
-
-    Operation.PhysicalState physical_state = 50;
   }
 
   // TODO(spox): look back over these options and see if we
