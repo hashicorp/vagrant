@@ -1,7 +1,14 @@
+# TODO(spox): why do we need this?!
+require_relative "../util.rb"
+
 module VagrantPlugins
   module CommandServe
     module Client
       class Terminal
+        extend Util::Connector
+
+        attr_reader :client
+
         # @params [String] endpoint for the core service
         def initialize(server_endpoint)
           @client = SDK::TerminalUIService::Stub.new(server_endpoint, :this_channel_is_insecure)
@@ -9,14 +16,7 @@ module VagrantPlugins
 
         def self.load(raw_terminal, broker:)
           t = SDK::Args::TerminalUI.decode(raw_terminal)
-          if(t.target.to_s.empty?)
-            conn = broker.dial(t.stream_id)
-          else
-            conn = t.target.to_s.start_with?('/') ?
-              "unix:#{t.target}" :
-              t.target.to_s
-          end
-          self.new(conn.to_s)
+          self.new(connect(proto: t, broker: broker))
         end
 
         # @params [Array] the content to print
@@ -24,7 +24,7 @@ module VagrantPlugins
           req = SDK::TerminalUI::OutputRequest.new(
             lines: content
           )
-          @client.output(req)
+          client.output(req)
         end
       end
     end

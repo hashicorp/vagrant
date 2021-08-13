@@ -2,19 +2,21 @@ module VagrantPlugins
   module CommandServe
     module Client
       class Project
+        extend Util::Connector
 
+        attr_reader :broker
         attr_reader :client
 
         def initialize(conn, broker=nil)
           @logger = Log4r::Logger.new("vagrant::command::serve::client::project")
+          @logger.debug("connecting to project service on #{conn}")
           @client = SDK::ProjectService::Stub.new(conn, :this_channel_is_insecure)
           @broker = broker
         end
 
         def self.load(raw_project, broker:)
           p = SDK::Args::Project.decode(raw_project)
-          conn = broker.dial(p.stream_id)
-          self.new(conn.to_s, broker)
+          self.new(connect(proto: p, broker: broker), broker)
         end
 
         # Gets the local data path
@@ -29,39 +31,20 @@ module VagrantPlugins
         # return [VagrantPlugins::CommandServe::Client::Machine]
         def target(name)
           @logger.debug("searching for target #{name}")
-          req = SDK::Project::TargetRequest.new(name: name)
-          begin
-            raw_target = @client.target(req)
-          rescue
-            @logger.debug("no target found for #{name}")
-            raise "Failed to locate requested machine `#{name}'"
-          end
-          @logger.debug("got target #{raw_target}")
-          conn = @broker.dial(raw_target.stream_id)
-          target_service = SDK::TargetService::Stub.new(conn.to_s, :this_channel_is_insecure)
-          @logger.debug("specializing target")
-
-          machine = target_service.specialize(Google::Protobuf::Any.new)
-          @logger.debug("got machine #{machine}")
-
-          m = SDK::Args::Target::Machine.decode(machine.value)
-          conn = @broker.dial(m.stream_id)
-          return Machine.new(conn.to_s)
+          target = Target.load(
+            client.target(SDK::Project::TargetRequest.new(name: name)),
+            broker: @broker
+          )
+          target.to_machine
         end
 
-        # return [VagrantPlugins::CommandServe::Client::MachineIndex]
-        def machine_index
-          @logger.debug("connecting to machine index")
-          req = Google::Protobuf::Empty.new
-          begin
-            raw_target_index = @client.target_index(req)
-          rescue => error
-            @logger.debug("target index unreachable")
-            @logger.debug(error.message)
-          end
-          @logger.debug("got machine index at stream id: #{raw_target_index.stream_id}")
-          m = MachineIndex.load(raw_target_index, broker: @broker)
-          m
+        # return [VagrantPlugins::CommandServe::Client::TargetIndex]
+        def target_index
+          @logger.debug("connecting to target index")
+          TargetIndex.load(
+            client.target_index(Empty.new),
+            broker: broker
+          )
         end
       end
     end
