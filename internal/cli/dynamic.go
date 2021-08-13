@@ -104,7 +104,7 @@ func (c *DynamicCommand) Run(args []string) int {
 	})
 
 	if err != nil {
-		return int(r.ExitCode)
+		return int(-1)
 	}
 
 	return int(r.ExitCode)

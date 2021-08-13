@@ -80,8 +80,11 @@ func (c *Client) Task(
 	}
 
 	result, err := c.doJob(ctx, job, c.ui)
+	if err != nil {
+		return nil, err
+	}
 
-	return result.Run, err
+	return result.Run, nil
 }
 
 func (c *Client) Auth(
