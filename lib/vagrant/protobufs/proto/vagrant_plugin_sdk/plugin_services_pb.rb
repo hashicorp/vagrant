@@ -17,7 +17,7 @@ module Hashicorp
         # interact with it indirectly via a terminal.UI implementation.
         class Service
 
-          include GRPC::GenericService
+          include ::GRPC::GenericService
 
           self.marshal_class_method = :encode
           self.unmarshal_class_method = :decode
@@ -35,7 +35,7 @@ module Hashicorp
         # to convert to/from various types.
         class Service
 
-          include GRPC::GenericService
+          include ::GRPC::GenericService
 
           self.marshal_class_method = :encode
           self.unmarshal_class_method = :decode
@@ -57,7 +57,7 @@ module Hashicorp
         #
         class Service
 
-          include GRPC::GenericService
+          include ::GRPC::GenericService
 
           self.marshal_class_method = :encode
           self.unmarshal_class_method = :decode
@@ -74,7 +74,7 @@ module Hashicorp
       module PluginInfoService
         class Service
 
-          include GRPC::GenericService
+          include ::GRPC::GenericService
 
           self.marshal_class_method = :encode
           self.unmarshal_class_method = :decode
@@ -95,7 +95,7 @@ module Hashicorp
         # the state of a machine
         class Service
 
-          include GRPC::GenericService
+          include ::GRPC::GenericService
 
           self.marshal_class_method = :encode
           self.unmarshal_class_method = :decode
@@ -149,7 +149,7 @@ module Hashicorp
         # A Provisioner runs actions against a VM
         class Service
 
-          include GRPC::GenericService
+          include ::GRPC::GenericService
 
           self.marshal_class_method = :encode
           self.unmarshal_class_method = :decode
@@ -165,7 +165,7 @@ module Hashicorp
       module CommandService
         class Service
 
-          include GRPC::GenericService
+          include ::GRPC::GenericService
 
           self.marshal_class_method = :encode
           self.unmarshal_class_method = :decode
@@ -185,7 +185,7 @@ module Hashicorp
       module CommunicatorService
         class Service
 
-          include GRPC::GenericService
+          include ::GRPC::GenericService
 
           self.marshal_class_method = :encode
           self.unmarshal_class_method = :decode
@@ -221,7 +221,7 @@ module Hashicorp
       module ConfigService
         class Service
 
-          include GRPC::GenericService
+          include ::GRPC::GenericService
 
           self.marshal_class_method = :encode
           self.unmarshal_class_method = :decode
@@ -237,7 +237,7 @@ module Hashicorp
       module HostService
         class Service
 
-          include GRPC::GenericService
+          include ::GRPC::GenericService
 
           self.marshal_class_method = :encode
           self.unmarshal_class_method = :decode
@@ -261,7 +261,7 @@ module Hashicorp
       module GuestService
         class Service
 
-          include GRPC::GenericService
+          include ::GRPC::GenericService
 
           self.marshal_class_method = :encode
           self.unmarshal_class_method = :decode
@@ -285,7 +285,7 @@ module Hashicorp
       module SyncedFolderService
         class Service
 
-          include GRPC::GenericService
+          include ::GRPC::GenericService
 
           self.marshal_class_method = :encode
           self.unmarshal_class_method = :decode
@@ -301,7 +301,7 @@ module Hashicorp
       module BasisService
         class Service
 
-          include GRPC::GenericService
+          include ::GRPC::GenericService
 
           self.marshal_class_method = :encode
           self.unmarshal_class_method = :decode
@@ -320,7 +320,7 @@ module Hashicorp
         # ******************************************************************
         class Service
 
-          include GRPC::GenericService
+          include ::GRPC::GenericService
 
           self.marshal_class_method = :encode
           self.unmarshal_class_method = :decode
@@ -337,11 +337,12 @@ module Hashicorp
           rpc :UI, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::Args::TerminalUI
           rpc :Specialize, ::Google::Protobuf::Any, ::Google::Protobuf::Any
           rpc :Provider, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::Args::Provider
-          rpc :VagrantfileName, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::Target::VagrantfileNameResponse
-          rpc :VagrantfilePath, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::Target::VagrantfilePathResponse
           rpc :UpdatedAt, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::Target::UpdatedAtResponse
           rpc :Communicate, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::Args::Communicator
           rpc :Save, ::Google::Protobuf::Empty, ::Google::Protobuf::Empty
+          rpc :SetUUID, ::Hashicorp::Vagrant::Sdk::Target::SetUUIDRequest, ::Google::Protobuf::Empty
+          rpc :GetUUID, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::Target::GetUUIDResponse
+          rpc :Destroy, ::Google::Protobuf::Empty, ::Google::Protobuf::Empty
         end
 
         Stub = Service.rpc_stub_class
@@ -349,7 +350,7 @@ module Hashicorp
       module TargetMachineService
         class Service
 
-          include GRPC::GenericService
+          include ::GRPC::GenericService
 
           self.marshal_class_method = :encode
           self.unmarshal_class_method = :decode
@@ -367,18 +368,17 @@ module Hashicorp
           rpc :UI, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::Args::TerminalUI
           rpc :Specialize, ::Google::Protobuf::Any, ::Google::Protobuf::Any
           rpc :Provider, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::Args::Provider
-          rpc :VagrantfileName, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::Target::VagrantfileNameResponse
-          rpc :VagrantfilePath, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::Target::VagrantfilePathResponse
           rpc :UpdatedAt, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::Target::UpdatedAtResponse
           rpc :Communicate, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::Args::Communicator
           rpc :Save, ::Google::Protobuf::Empty, ::Google::Protobuf::Empty
+          rpc :SetUUID, ::Hashicorp::Vagrant::Sdk::Target::SetUUIDRequest, ::Google::Protobuf::Empty
+          rpc :GetUUID, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::Target::GetUUIDResponse
+          rpc :Destroy, ::Google::Protobuf::Empty, ::Google::Protobuf::Empty
           # Machine specific
           rpc :SetID, ::Hashicorp::Vagrant::Sdk::Target::Machine::SetIDRequest, ::Google::Protobuf::Empty
           rpc :GetID, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::Target::Machine::GetIDResponse
           rpc :SetState, ::Hashicorp::Vagrant::Sdk::Target::Machine::SetStateRequest, ::Google::Protobuf::Empty
           rpc :GetState, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::Args::Target::Machine::State
-          rpc :SetUUID, ::Hashicorp::Vagrant::Sdk::Target::Machine::SetUUIDRequest, ::Google::Protobuf::Empty
-          rpc :GetUUID, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::Target::Machine::GetUUIDResponse
           rpc :Box, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::Args::Target::Machine::Box
           rpc :Guest, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::Args::Guest
           rpc :Reload, ::Google::Protobuf::Empty, ::Google::Protobuf::Empty
@@ -395,7 +395,7 @@ module Hashicorp
         # ******************************************************************
         class Service
 
-          include GRPC::GenericService
+          include ::GRPC::GenericService
 
           self.marshal_class_method = :encode
           self.unmarshal_class_method = :decode
@@ -407,6 +407,7 @@ module Hashicorp
           rpc :CWD, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::Project::CwdResponse
           rpc :DataDir, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::Args::DataDir::Project
           rpc :VagrantfileName, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::Project::VagrantfileNameResponse
+          rpc :VagrantfilePath, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::Project::VagrantfilePathResponse
           rpc :UI, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::Args::TerminalUI
           rpc :Home, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::Project::HomeResponse
           rpc :LocalData, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::Project::LocalDataResponse
@@ -426,7 +427,7 @@ module Hashicorp
         # ******************************************************************
         class Service
 
-          include GRPC::GenericService
+          include ::GRPC::GenericService
 
           self.marshal_class_method = :encode
           self.unmarshal_class_method = :decode
@@ -447,7 +448,7 @@ module Hashicorp
         # ******************************************************************
         class Service
 
-          include GRPC::GenericService
+          include ::GRPC::GenericService
 
           self.marshal_class_method = :encode
           self.unmarshal_class_method = :decode

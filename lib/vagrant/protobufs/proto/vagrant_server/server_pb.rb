@@ -56,6 +56,7 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
       optional :metadata, :message, 9, "hashicorp.vagrant.sdk.Args.MetadataSet"
       optional :configuration, :message, 10, "hashicorp.vagrant.sdk.Vagrantfile.MachineConfig"
       optional :record, :message, 11, "google.protobuf.Any"
+      optional :provider, :string, 12
       optional :remote_enabled, :bool, 100
       optional :data_source, :message, 101, "hashicorp.vagrant.Job.DataSource"
     end
@@ -64,8 +65,6 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
       optional :box, :message, 7, "hashicorp.vagrant.sdk.Args.Target.Machine.Box"
       optional :uid, :string, 9
       optional :state, :message, 10, "hashicorp.vagrant.sdk.Args.Target.Machine.State"
-      optional :provider, :string, 11
-      optional :physical_state, :enum, 50, "hashicorp.vagrant.Operation.PhysicalState"
     end
     add_message "hashicorp.vagrant.Vagrantfile" do
       optional :resource_id, :string, 1
