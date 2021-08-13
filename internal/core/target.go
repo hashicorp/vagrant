@@ -20,7 +20,6 @@ import (
 	"github.com/hashicorp/vagrant-plugin-sdk/component"
 	"github.com/hashicorp/vagrant-plugin-sdk/core"
 	"github.com/hashicorp/vagrant-plugin-sdk/datadir"
-	"github.com/hashicorp/vagrant-plugin-sdk/helper/path"
 	"github.com/hashicorp/vagrant-plugin-sdk/proto/vagrant_plugin_sdk"
 	"github.com/hashicorp/vagrant-plugin-sdk/terminal"
 
@@ -36,7 +35,7 @@ type Target struct {
 	dir     *datadir.Target
 
 	grpcServer *grpc.Server
-	lock       sync.Mutex
+	m          sync.Mutex
 	jobInfo    *component.JobInfo
 	closers    []func() error
 	ui         terminal.UI
@@ -77,16 +76,6 @@ func (t *Target) SetName(value string) (err error) {
 // Provider implements core.Target
 func (t *Target) Provider() (p core.Provider, err error) {
 	return
-}
-
-// VagrantfileName implements core.Target
-func (t *Target) VagrantfileName() (name string, err error) {
-	return t.project.VagrantfileName()
-}
-
-// VagrantfilePath implements core.Target
-func (t *Target) VagrantfilePath() (p path.Path, err error) {
-	return t.project.VagrantfilePath()
 }
 
 // Communicate implements core.Target
@@ -167,9 +156,6 @@ func (t *Target) Closer(c func() error) {
 // Close is called to clean up resources allocated by the target.
 // This should be called and blocked on to gracefully stop the target.
 func (t *Target) Close() (err error) {
-	defer t.lock.Unlock()
-	t.lock.Lock()
-
 	t.logger.Debug("closing target",
 		"target", t)
 
@@ -188,6 +174,9 @@ func (t *Target) Close() (err error) {
 
 // Saves the target to the db
 func (t *Target) Save() (err error) {
+	t.m.Lock()
+	defer t.m.Unlock()
+
 	t.logger.Debug("saving target to db",
 		"target", t.target.ResourceId)
 
@@ -199,6 +188,16 @@ func (t *Target) Save() (err error) {
 			"error", err)
 	}
 	t.target = result.Target
+	return
+}
+
+func (t *Target) Destroy() (err error) {
+	t.Close()
+	t.m.Lock()
+	defer t.m.Unlock()
+	_, err = t.Client().DeleteTarget(t.ctx, &vagrant_server.DeleteTargetRequest{
+		Target: t.Ref().(*vagrant_plugin_sdk.Ref_Target),
+	})
 	return
 }
 
@@ -337,12 +336,6 @@ func WithTargetRef(r *vagrant_plugin_sdk.Ref_Target) TargetOption {
 		}
 
 		var target *vagrant_server.Target
-		if ex, _ := t.project.Target(r.Name); ex != nil {
-			if et, ok := ex.(*Target); ok {
-				t.target = et.target
-			}
-			return
-		}
 		result, err := t.Client().FindTarget(t.ctx,
 			&vagrant_server.FindTargetRequest{
 				Target: &vagrant_server.Target{
