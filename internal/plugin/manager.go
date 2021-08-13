@@ -26,10 +26,13 @@ type Manager struct {
 
 	builtins        *Builtin
 	builtinsLoaded  bool
-	legacyLoaded    bool
+	closers         []func() error
+	ctx             context.Context
 	discoveredPaths []path.Path
+	legacyLoaded    bool
 	logger          hclog.Logger
 	m               sync.Mutex
+	parent          *Manager
 }
 
 // Create a new plugin manager
@@ -37,8 +40,28 @@ func NewManager(ctx context.Context, l hclog.Logger) *Manager {
 	return &Manager{
 		Plugins:  []*Plugin{},
 		builtins: NewBuiltins(ctx, l),
+		ctx:      ctx,
 		logger:   l,
 	}
+}
+
+// Create a sub manager based off current manager
+func (m *Manager) Sub(name string) *Manager {
+	if name == "" {
+		name = "submanager"
+	}
+	s := &Manager{
+		builtinsLoaded:  true,
+		closers:         []func() error{},
+		ctx:             m.ctx,
+		discoveredPaths: m.discoveredPaths,
+		legacyLoaded:    true,
+		logger:          m.logger.Named(name),
+		parent:          m,
+	}
+	m.closer(func() error { return s.Close() })
+
+	return m
 }
 
 // Load legacy Ruby based Vagrant plugins using a
@@ -218,6 +241,11 @@ func (m *Manager) Find(
 			return
 		}
 	}
+
+	if m.parent != nil {
+		return m.parent.Find(n, t)
+	}
+
 	return nil, fmt.Errorf("failed to locate plugin `%s`", n)
 }
 
@@ -239,6 +267,14 @@ func (m *Manager) Typed(
 		"type", t.String(),
 		"count", len(result))
 
+	if m.parent != nil {
+		pt, err := m.parent.Typed(t)
+		if err != nil {
+			return nil, err
+		}
+		result = append(result, pt...)
+	}
+
 	return result, nil
 }
 
@@ -246,6 +282,12 @@ func (m *Manager) Typed(
 func (m *Manager) Close() (err error) {
 	m.m.Lock()
 	defer m.m.Unlock()
+
+	for _, c := range m.closers {
+		if e := c(); err != nil {
+			err = multierror.Append(err, e)
+		}
+	}
 
 	for _, p := range m.Plugins {
 		if e := p.Close(); e != nil {
@@ -304,4 +346,8 @@ func (m *Manager) register(
 
 	m.Plugins = append(m.Plugins, plg)
 	return
+}
+
+func (m *Manager) closer(f func() error) {
+	m.closers = append(m.closers, f)
 }
