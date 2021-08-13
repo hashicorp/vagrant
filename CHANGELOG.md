@@ -4,9 +4,11 @@ FEATURES:
 
 IMPROVEMENTS:
 
-- guest/suse: Add fallback shutdown for versions without systemd (GH-12489)
+- guest/suse: Add fallback shutdown for versions without systemd [GH-12489]
 
 BUG FIXES
+
+- host/windows: Properly handle spaces in path to SSH key [GH-12398]
 
 ## 2.2.18 (July 27, 2021)
 
