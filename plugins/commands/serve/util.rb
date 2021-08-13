@@ -1,6 +1,21 @@
 module VagrantPlugins
   module CommandServe
     module Util
+      # Extracts connection information from a proto
+      # and establishes a new connection
+      module Connector
+        def connect(proto:, broker:)
+          if(proto.target.to_s.empty?)
+            conn = broker.dial(proto.stream_id)
+          else
+            conn = proto.target.to_s.start_with?('/') ?
+              "unix:#{proto.target}" :
+              proto.target.to_s
+          end
+          conn.to_s
+        end
+      end
+
       # Requires a broker to be set when initializing an
       # instance and adds an accessor to the broker
       module HasBroker
