@@ -43,7 +43,7 @@ type Project struct {
 	jobInfo *component.JobInfo
 
 	// This lock only needs to be held currently to protect closers.
-	lock sync.Mutex
+	m sync.Mutex
 
 	// The below are resources we need to close when Close is called, if non-nil
 	closers []func() error
@@ -112,13 +112,7 @@ func (p *Project) Host() (host core.Host, err error) {
 
 // MachineIndex implements core.Project
 func (p *Project) TargetIndex() (index core.TargetIndex, err error) {
-	index = &TargetIndex{
-		ctx:     p.ctx,
-		logger:  p.logger,
-		client:  p.Client(),
-		project: p,
-	}
-	return
+	return p.basis.TargetIndex()
 }
 
 // MachineNames implements core.Project
@@ -202,6 +196,9 @@ func (p *Project) JobInfo() *component.JobInfo {
 // Load a project within the current basis. If the project is not found, it
 // will be created.
 func (p *Project) LoadTarget(topts ...TargetOption) (t *Target, err error) {
+	p.m.Lock()
+	p.m.Unlock()
+
 	// Create our target
 	t = &Target{
 		ctx:     p.ctx,
@@ -308,9 +305,6 @@ func (p *Project) Closer(c func() error) {
 // Close is called to clean up resources allocated by the project.
 // This should be called and blocked on to gracefully stop the project.
 func (p *Project) Close() (err error) {
-	defer p.lock.Unlock()
-	p.lock.Lock()
-
 	p.logger.Debug("closing project",
 		"project", p)
 
@@ -343,10 +337,13 @@ func (p *Project) Close() (err error) {
 
 // Saves the project to the db
 func (p *Project) Save() (err error) {
+	p.m.Lock()
+	defer p.m.Unlock()
+
 	p.logger.Trace("saving project to db",
 		"project", p.ResourceId())
 
-	_, err = p.Client().UpsertProject(p.ctx,
+	result, err := p.Client().UpsertProject(p.ctx,
 		&vagrant_server.UpsertProjectRequest{
 			Project: p.project,
 		},
@@ -355,6 +352,9 @@ func (p *Project) Save() (err error) {
 		p.logger.Trace("failed to save project",
 			"project", p.ResourceId())
 	}
+
+	p.project = result.Project
+
 	return
 }
 
@@ -387,6 +387,9 @@ func (p *Project) Components(ctx context.Context) ([]*Component, error) {
 }
 
 func (p *Project) InitTargets() (err error) {
+	p.m.Lock()
+	defer p.m.Unlock()
+
 	p.logger.Trace("initializing targets defined within project",
 		"project", p.Name())
 
