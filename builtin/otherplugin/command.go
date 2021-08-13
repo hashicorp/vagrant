@@ -104,7 +104,7 @@ func (c *Command) ExecuteThing(trm terminal.UI, flags map[string]interface{}) in
 	return 0
 }
 
-func (c *Command) ExecuteInfo(trm terminal.UI, p plugincore.Project, t plugincore.Target) int32 {
+func (c *Command) ExecuteInfo(trm terminal.UI, p plugincore.Project) int32 {
 	mn, _ := p.MachineNames()
 	trm.Output("\nMachines in this project")
 	trm.Output(strings.Join(mn[:], "\n"))
@@ -131,6 +131,12 @@ func (c *Command) ExecuteInfo(trm terminal.UI, p plugincore.Project, t plugincor
 		trm.Output("Failed to get project specific UI! Reason: " + err.Error())
 	} else {
 		ptrm.Output("YAY! This is project specific output!")
+	}
+
+	t, err := p.Target("one")
+	if err != nil {
+		trm.Output("Failed to load `one' target -- " + err.Error())
+		return 1
 	}
 
 	m, err := t.Specialize((*plugincore.Machine)(nil))
