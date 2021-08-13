@@ -1,68 +1,49 @@
 module VagrantPlugins
   module CommandServe
     module Client
-      class Machine
+      # Machine is a specialization of a generic Target
+      # and is how legacy Vagrant willl interact with
+      # targets
+      class Machine < Target
 
-        attr_reader :client
-        attr_reader :resource_id
+        extend Util::Connector
 
         def initialize(conn, broker=nil)
           @logger = Log4r::Logger.new("vagrant::command::serve::client::machine")
           @logger.debug("connecting to target machine service on #{conn}")
-          if !conn.nil?
-            @client = SDK::TargetMachineService::Stub.new(conn, :this_channel_is_insecure)
-          end
+          @client = SDK::TargetMachineService::Stub.new(conn, :this_channel_is_insecure)
           @broker = broker
         end
 
         def self.load(raw_machine, broker:)
-          m = SDK::Args::Target.decode(raw_machine)
-          conn = broker.dial(m.stream_id)
-          self.new(conn.to_s)
+          m = SDK::Args::Target::Machine.decode(raw_machine)
+          self.new(connect(proto: m, broker: broker), broker)
         end
 
+        # @return [String] resource identifier for this target
         def ref
-          SDK::Ref::Machine.new(resource_id: resource_id)
+          SDK::Ref::Target::Machine.new(resource_id: resource_id)
         end
 
-        def save
-          req = Google::Protobuf::Empty.new
-          @client.save(req)
-        end
-
-        # @return [String] machine name
-        def get_name
-          req = Google::Protobuf::Empty.new
-          @client.name(req).name
-        end
-
-        def set_name(name)
-          req = SDK::Target::SetNameRequest.new(
-            name: name
-          )
-          @client.set_name(req)
-        end
-
+        # @return [String] machine identifier
         def get_id
-          req = Google::Protobuf::Empty.new
-          result = @client.get_id(req).id
-          @logger.debug("Got remote machine id: #{result}")
-          if result.nil?
-            raise "Failed to get machine ID. REF: #{ref.inspect} - ID WAS NIL"
-          end
-          result
+          client.get_id(Empty.new).id
         end
 
+        # Set ID for machine
+        #
+        # @param [String] new_id New machine ID
         def set_id(new_id)
-          req = SDK::Target::Machine::SetIDRequest.new(
-            id: new_id
+          client.set_id(
+            SDK::Target::Machine::SetIDRequest.new(
+              id: new_id
+            )
           )
-          @client.set_id(req)
         end
 
-        def get_box
-          req = Google::Protobuf::Empty.new
-          resp = @client.box(req)
+        # @return [Vagrant::Box] box backing machine
+        def box
+          resp = client.box(Empty.new)
           Vagrant::Box.new(
             resp.box.name,
             resp.box.provider.to_sym,
@@ -81,33 +62,9 @@ module VagrantPlugins
           Pathname.new(dir.data_dir)
         end
 
-        def get_provider
-          req = Google::Protobuf::Empty.new
-          @client.provider(req)
-        end
-
-        def get_vagrantfile_name
-          req = Google::Protobuf::Empty.new
-          resp = @client.vagrantfile_name(req)
-          resp.name
-        end
-
-        def get_vagrantfile_path
-          req = Google::Protobuf::Empty.new
-          resp = @client.vagrantfile_path(req)
-          Pathname.new(resp.path)
-        end
-
-        def updated_at
-          req = Google::Protobuf::Empty.new
-          resp = @client.updated_at(req)
-          resp.updated_at
-        end
-
+        # @return [Vagrant::MachineState] current state of machine
         def get_state
-          req = Google::Protobuf::Empty.new
-          resp = @client.get_state(req)
-          @logger.debug("Got state #{resp}")
+          resp = client.get_state(Empty.new)
           Vagrant::MachineState.new(
             resp.id.to_sym,
             resp.short_description,
@@ -115,8 +72,8 @@ module VagrantPlugins
           )
         end
 
-        alias state get_state
-
+        # Set the current state of the machine
+        #
         # @param [Vagrant::MachineState] state of the machine
         def set_state(state)
           req = SDK::Target::Machine::SetStateRequest.new(
@@ -126,12 +83,32 @@ module VagrantPlugins
               long_description: state.long_description,
             )
           )
-          @client.set_state(req)
+          client.set_state(req)
         end
 
-        def get_uuid
-          req = Google::Protobuf::Empty.new
-          @client.get_uuid(req).uuid
+        # @return [Guest] machine guest
+        # TODO: This needs to be loaded properly
+        def guest
+          client.guest(Empty.new)
+        end
+
+        # Force a reload of the machine state
+        def reload
+          client.reload(Empty.new)
+        end
+
+        # @return
+        # TODO: This needs some design adjustments
+        def connection_info
+        end
+
+        # @return [Integer] user ID that owns machine
+        def uid
+          client.uid(Empty.new).uid
+        end
+
+        # TODO: this is setup to return plugins. verify
+        def synced_folders
         end
       end
     end
