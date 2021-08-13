@@ -58,7 +58,7 @@ func (f *Factory) New(name string, opts ...BasisOption) (*Basis, error) {
 				ctx:     f.ctx,
 				client:  f.client,
 				logger:  f.logger,
-				plugins: f.plugins,
+				plugins: f.plugins.Sub(name),
 				ui:      f.ui,
 			},
 		),
