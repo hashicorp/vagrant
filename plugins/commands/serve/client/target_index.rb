@@ -60,8 +60,6 @@ module VagrantPlugins
           ).exists
         end
 
-        ## @param [Hashicorp::Vagrant::Sdk::Args::Target] target
-        #
         # @param [MachineIndex::Entry]
         # @return [MachineIndex::Entry]
         def set(entry)
