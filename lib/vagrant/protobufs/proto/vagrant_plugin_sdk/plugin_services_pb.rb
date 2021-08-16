@@ -337,6 +337,7 @@ module Hashicorp
           rpc :UI, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::Args::TerminalUI
           rpc :Specialize, ::Google::Protobuf::Any, ::Google::Protobuf::Any
           rpc :Provider, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::Args::Provider
+          rpc :ProviderName, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::Target::NameResponse
           rpc :UpdatedAt, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::Target::UpdatedAtResponse
           rpc :Communicate, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::Args::Communicator
           rpc :Save, ::Google::Protobuf::Empty, ::Google::Protobuf::Empty
@@ -368,6 +369,7 @@ module Hashicorp
           rpc :UI, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::Args::TerminalUI
           rpc :Specialize, ::Google::Protobuf::Any, ::Google::Protobuf::Any
           rpc :Provider, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::Args::Provider
+          rpc :ProviderName, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::Target::NameResponse
           rpc :UpdatedAt, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::Target::UpdatedAtResponse
           rpc :Communicate, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::Args::Communicator
           rpc :Save, ::Google::Protobuf::Empty, ::Google::Protobuf::Empty
