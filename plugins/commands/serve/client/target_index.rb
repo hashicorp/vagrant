@@ -43,7 +43,7 @@ module VagrantPlugins
               )
             )
             machine = Target.load(resp.target, broker: broker).to_machine
-            Entry.load(machine)
+            Vagrant::MachineIndex::Entry.load(machine)
           rescue GRPC::NotFound
             nil
           end
@@ -78,7 +78,7 @@ module VagrantPlugins
           machine = Target.load(resp.target, broker: broker).to_machine
           machine.set_name(entry.name)
           machine.set_state(entry.full_state)
-          Entry.load(machine)
+          Vagrant::MachineIndex::Entry.load(machine)
         end
 
         # Get all targets
@@ -87,7 +87,7 @@ module VagrantPlugins
           @logger.debug("getting all machines")
           client.all(Empty.new).targets.map do |t_ref|
             machine = Target.load(t_ref, broker: broker).to_machine
-            Entry.load(machine)
+            Vagrant::MachineIndex::Entry.load(machine)
           end
         end
       end
