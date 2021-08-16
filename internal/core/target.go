@@ -366,7 +366,7 @@ func WithTargetRef(r *vagrant_plugin_sdk.Ref_Target) TargetOption {
 			}
 			target = result.Target
 		}
-		if target.Project.ResourceId != r.Project.ResourceId {
+		if r.Project != nil && target.Project.ResourceId != r.Project.ResourceId {
 			t.logger.Error("invalid project for target",
 				"request-project", r.Project,
 				"target-project", target.Project)

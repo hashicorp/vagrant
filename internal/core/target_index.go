@@ -43,7 +43,9 @@ func (t *TargetIndex) Get(uuid string) (entry core.Target, err error) {
 	if err != nil {
 		return
 	}
-	return t.loadTarget(result.Target)
+	return t.loadTarget(&vagrant_plugin_sdk.Ref_Target{
+		ResourceId: result.Target.ResourceId,
+	})
 }
 
 func (t *TargetIndex) Includes(uuid string) (exists bool, err error) {
@@ -76,9 +78,7 @@ func (t *TargetIndex) All() (targets []core.Target, err error) {
 
 	targets = []core.Target{}
 	for _, tInfo := range list.Targets {
-		nt, err := t.loadTarget(&vagrant_server.Target{
-			ResourceId: tInfo.ResourceId,
-		})
+		nt, err := t.loadTarget(tInfo)
 		if err != nil {
 			return nil, err
 		}
@@ -92,7 +92,14 @@ func (t *TargetIndex) Close() (err error) {
 	return
 }
 
-func (t *TargetIndex) loadTarget(info *vagrant_server.Target) (target *Target, err error) {
+func (t *TargetIndex) loadTarget(tproto *vagrant_plugin_sdk.Ref_Target) (target *Target, err error) {
+	gt, err := t.client.GetTarget(t.ctx, &vagrant_server.GetTargetRequest{
+		Target: tproto,
+	})
+	if err != nil {
+		return
+	}
+	info := gt.Target
 	// Load the basis
 	b, err := t.factory.New(info.Project.Basis.Name,
 		WithBasisRef(info.Project.Basis))
@@ -106,11 +113,7 @@ func (t *TargetIndex) loadTarget(info *vagrant_server.Target) (target *Target, e
 	}
 	// Finally, load the target
 	return p.LoadTarget(
-		WithTargetRef(
-			&vagrant_plugin_sdk.Ref_Target{
-				ResourceId: info.ResourceId,
-			},
-		),
+		WithTargetRef(tproto),
 	)
 }
 
