@@ -78,6 +78,10 @@ func (t *Target) Provider() (p core.Provider, err error) {
 	return
 }
 
+func (t *Target) ProviderName() (string, error) {
+	return t.target.Provider, nil
+}
+
 // Communicate implements core.Target
 func (t *Target) Communicate() (c core.Communicator, err error) {
 	// TODO: need vagrantfile info

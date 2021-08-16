@@ -87,9 +87,8 @@ module VagrantPlugins
           client.provider(Empty.new)
         end
 
-        # TODO: needs to be added
         def provider_name
-          "virtualbox"
+          client.provider_name(Empty.new).name
         end
 
         # @return [Project] project this target is within
