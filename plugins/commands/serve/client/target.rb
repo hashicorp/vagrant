@@ -45,7 +45,7 @@ module VagrantPlugins
         end
 
         # @return [String] name of target
-        def get_name
+        def name
           client.name(Empty.new).name
         end
 
@@ -87,19 +87,14 @@ module VagrantPlugins
           client.provider(Empty.new)
         end
 
+        # TODO: needs to be added
+        def provider_name
+          "virtualbox"
+        end
+
         # @return [Project] project this target is within
         def project
           Project.load(client.project(Empty.new), broker: broker)
-        end
-
-        # @return [String] name of the Vagrantfile for this target
-        def vagrantfile_name
-          client.vagrantfile_name(Empty.new)
-        end
-
-        # @return [Pathname] path to the Vagrnatfile for this target
-        def vagrantfile_path
-          Pathname.new(client.vagrantfile_path(Empty.new.path))
         end
 
         # @return [Time] time target was last updated
@@ -109,7 +104,7 @@ module VagrantPlugins
 
         # @return [Symbol] state of the target
         def state
-          STATES[client.get_state(Empty.new).state]
+          client.state(Empty.new).state
         end
 
         # @return [Machine] specialize target into a machine client
@@ -118,7 +113,6 @@ module VagrantPlugins
             client.specialize(Google::Protobuf::Any.new).value,
             broker: broker
           )
-          # req mechine and load
         end
       end
     end

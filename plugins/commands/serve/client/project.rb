@@ -15,7 +15,7 @@ module VagrantPlugins
         end
 
         def self.load(raw_project, broker:)
-          p = SDK::Args::Project.decode(raw_project)
+          p = raw_project.is_a?(String) ? SDK::Args::Project.decode(raw_project) : raw_project
           self.new(connect(proto: p, broker: broker), broker)
         end
 
@@ -45,6 +45,21 @@ module VagrantPlugins
             client.target_index(Empty.new),
             broker: broker
           )
+        end
+
+        # TODO: fix
+        def local_data_path
+          Pathname.new('.')
+        end
+
+        # @return [String] name of the Vagrantfile for this target
+        def vagrantfile_name
+          client.vagrantfile_name(Empty.new)
+        end
+
+        # @return [Pathname] path to the Vagrnatfile for this target
+        def vagrantfile_path
+          Pathname.new(client.vagrantfile_path(Empty.new).path)
         end
       end
     end
