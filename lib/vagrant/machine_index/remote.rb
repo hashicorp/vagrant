@@ -7,8 +7,8 @@ module Vagrant
             name: machine.name,
             local_data_path: machine.project.local_data_path,
             provider: machine.provider_name,
-            full_state: machine.state,
-            state: machine.state.id,
+            full_state: machine.machine_state,
+            state: machine.machine_state.id,
             vagrantfile_name: machine.project.vagrantfile_name,
             vagrantfile_path: machine.project.vagrantfile_path,
           })
@@ -86,7 +86,7 @@ module Vagrant
       def each(reload=true, &block)
         if reload
           client.all.each do |m|
-            @machines[m.uuid] = m
+            @machines[m.id] = m
           end
         end
 
