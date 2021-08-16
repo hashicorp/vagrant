@@ -6,11 +6,8 @@ import (
 
 func TestNewProject(t *testing.T) {
 	tp := TestProject(t)
-	vn, err := tp.VagrantfileName()
-	if err != nil {
-		t.Errorf("there was an error")
-	}
-	if vn != "VagrantFile" {
-		t.Errorf("idfk")
+	vn := tp.Ref()
+	if vn == nil {
+		t.Errorf("Creating project failed")
 	}
 }
