@@ -17,6 +17,7 @@ import (
 	"github.com/hashicorp/vagrant-plugin-sdk/proto/vagrant_plugin_sdk"
 	configpkg "github.com/hashicorp/vagrant/internal/config"
 	"github.com/hashicorp/vagrant/internal/core"
+	vagrantplugin "github.com/hashicorp/vagrant/internal/plugin"
 	"github.com/hashicorp/vagrant/internal/server/singleprocess"
 	"github.com/hashicorp/vagrant/internal/serverclient"
 )
@@ -102,6 +103,11 @@ func TestBasis(t testing.T, opts ...core.BasisOption) (b *vagrant_plugin_sdk.Ref
 		core.WithBasisDataDir(projDir),
 		core.WithBasisRef(&vagrant_plugin_sdk.Ref_Basis{Name: "TESTBAS"}),
 	}
+	pluginManager := vagrantplugin.NewManager(
+		context.Background(),
+		hclog.New(&hclog.LoggerOptions{}),
+	)
+	opts = append(opts, core.WithPluginManager(pluginManager))
 
 	basis, err := core.NewBasis(context.Background(), append(opts, defaultOpts...)...)
 	require.NoError(t, err)
