@@ -83,7 +83,7 @@ module Vagrant
       # end
 
       def id
-        result = client.get_id
+        result = client.id
         result.to_s.empty? ? nil : result
       end
 
