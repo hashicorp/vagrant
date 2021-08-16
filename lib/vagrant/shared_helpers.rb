@@ -244,6 +244,6 @@ module Vagrant
     ->{ Vagrant::Machine.prepend(Vagrant::Machine::Remote) },
     ->{ Vagrant::Environment.prepend(Vagrant::Environment::Remote) },
     ->{ Vagrant::MachineIndex.prepend(Vagrant::MachineIndex::Remote) },
-    ->{ Vagrant::MachineIndex.extend(Vagrant::MachineIndex::Entry::Remote) },
+    ->{ Vagrant::MachineIndex::Entry.extend(Vagrant::MachineIndex::Entry::Remote) },
   ].freeze
 end
