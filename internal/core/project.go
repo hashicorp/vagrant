@@ -197,7 +197,7 @@ func (p *Project) JobInfo() *component.JobInfo {
 // will be created.
 func (p *Project) LoadTarget(topts ...TargetOption) (t *Target, err error) {
 	p.m.Lock()
-	p.m.Unlock()
+	defer p.m.Unlock()
 
 	// Create our target
 	t = &Target{
