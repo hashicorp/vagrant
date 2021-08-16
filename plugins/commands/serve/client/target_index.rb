@@ -54,7 +54,7 @@ module VagrantPlugins
         def include?(ident)
           @logger.debug("checking for machine with id #{ident} in index")
           client.includes(
-            SDK::TargetIndex::TargetIndexIdentifier.new(
+            SDK::TargetIndex::TargetIdentifier.new(
               id: ident
             )
           ).exists
