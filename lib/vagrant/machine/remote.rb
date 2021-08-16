@@ -88,7 +88,7 @@ module Vagrant
       end
 
       def name
-        client.get_name
+        client.name
       end
 
       # def index_uuid
@@ -113,7 +113,7 @@ module Vagrant
       end
 
       def provider_name
-        @provider_name
+        client.provider_name
       end
 
       def provider_options
