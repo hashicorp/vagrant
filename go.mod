@@ -40,6 +40,7 @@ require (
 	github.com/gofrs/flock v0.8.0
 	github.com/golang/protobuf v1.5.2
 	github.com/google/shlex v0.0.0-20191202100458-e7afc7fbc510 // indirect
+	github.com/google/uuid v1.1.2 // indirect
 	github.com/gorilla/handlers v1.4.2
 	github.com/hashicorp/errwrap v1.1.0 // indirect
 	github.com/hashicorp/go-argmapper v0.2.2-0.20210810211021-b2c94a138ec3
@@ -100,11 +101,8 @@ require (
 	k8s.io/client-go v0.18.0 // indirect
 )
 
-// NOTE(mitchellh): I'm keeping these commented and in here because during
-// development at the moment it is common to be working on these libs too.
-// replace github.com/hashicorp/go-argmapper => ../go-argmapper
-// replace github.com/hashicorp/horizon => ../horizon
-// replace github.com/hashicorp/vagrant-plugin-sdk => ../vagrant-plugin-sdk
+//replace github.com/hashicorp/go-argmapper => ../go-argmapper
+//replace github.com/hashicorp/vagrant-plugin-sdk => ../vagrant-plugin-sdk
 
 replace (
 	// v0.3.11 panics for some reason on our tests

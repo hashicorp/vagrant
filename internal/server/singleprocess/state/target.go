@@ -3,6 +3,7 @@ package state
 import (
 	"github.com/boltdb/bolt"
 	"github.com/golang/protobuf/proto"
+	"github.com/google/uuid"
 	"github.com/hashicorp/go-memdb"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -176,6 +177,15 @@ func (s *State) targetPut(
 				"error", err)
 			return
 		}
+		if value.Uuid == "" {
+			s.log.Trace("target has no uuid assigned, assigning...", "target", value)
+			uID, err := uuid.NewUUID()
+			if err != nil {
+				return err
+			}
+			value.Uuid = uID.String()
+		}
+
 	}
 
 	s.log.Trace("storing target to db", "target", value)
