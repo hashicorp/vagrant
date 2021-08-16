@@ -18,7 +18,9 @@ module Vagrant
         end
         super
         @logger = Log4r::Logger.new("vagrant::environment")
-        @local_data_path = Pathname.new(@client.local_data_path())
+        if @client != :stub
+          @local_data_path = Pathname.new(@client.get_local_data_path())
+        end
       end
 
       # Gets a target (machine) by name

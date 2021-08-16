@@ -108,7 +108,7 @@ module VagrantPlugins
           state = machine_client.get_state()
           raw = {
             "name" => machine_client.get_name(),
-            "local_data_path" => machine_client.get_local_data_path(),
+            "local_data_path" => machine_client.get_data_dir(),
             # TODO: get the provider!
             "provider" => "virtualbox",
             "full_state" => state,

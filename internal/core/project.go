@@ -90,8 +90,7 @@ func (p *Project) Home() (path string, err error) {
 
 // LocalData implements core.Project
 func (p *Project) LocalData() (path string, err error) {
-	// TODO: implement
-	return "/local/data", nil
+	return p.dir.DataDir().String(), nil
 }
 
 // Tmp implements core.Project

@@ -71,9 +71,14 @@ module VagrantPlugins
           )
         end
 
-        def get_data_dir
+        def get_dir
           req = Google::Protobuf::Empty.new
-          Pathname.new(@client.data_dir(req).data_dir)
+          @client.data_dir(req)
+        end
+
+        def get_data_dir
+          dir = get_dir
+          Pathname.new(dir.data_dir)
         end
 
         def get_provider
