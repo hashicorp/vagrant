@@ -15,7 +15,7 @@ module VagrantPlugins
         end
 
         def self.load(raw_terminal, broker:)
-          t = SDK::Args::TerminalUI.decode(raw_terminal)
+          t = raw_terminal.is_a?(String) ? SDK::Args::TerminalUI.decode(raw_terminal) : raw_terminal
           self.new(connect(proto: t, broker: broker))
         end
 

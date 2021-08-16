@@ -16,7 +16,7 @@ module VagrantPlugins
         end
 
         def self.load(raw_machine, broker:)
-          m = SDK::Args::Target::Machine.decode(raw_machine)
+          m = raw_machine.is_a?(String) ? SDK::Args::Target::Machine.decode(raw_machine) : raw_machine
           self.new(connect(proto: m, broker: broker), broker)
         end
 
@@ -26,7 +26,7 @@ module VagrantPlugins
         end
 
         # @return [String] machine identifier
-        def get_id
+        def id
           client.get_id(Empty.new).id
         end
 
@@ -63,7 +63,7 @@ module VagrantPlugins
         end
 
         # @return [Vagrant::MachineState] current state of machine
-        def get_state
+        def machine_state
           resp = client.get_state(Empty.new)
           Vagrant::MachineState.new(
             resp.id.to_sym,
