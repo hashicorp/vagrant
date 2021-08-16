@@ -10,6 +10,8 @@ import (
 	"github.com/hashicorp/vagrant-plugin-sdk/proto/vagrant_plugin_sdk"
 	"github.com/hashicorp/vagrant/internal/server/proto/vagrant_server"
 	"github.com/hashicorp/vagrant/internal/serverclient"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 )
 
 // TargetIndex represents
@@ -51,7 +53,10 @@ func (t *TargetIndex) Get(uuid string) (entry core.Target, err error) {
 func (t *TargetIndex) Includes(uuid string) (exists bool, err error) {
 	_, err = t.Get(uuid)
 	if err != nil {
-		// check if 404 error
+		if codes.NotFound == status.Code(err) {
+			return false, nil
+		}
+
 		return
 	}
 	return true, nil
