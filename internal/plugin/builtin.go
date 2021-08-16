@@ -10,7 +10,7 @@ import (
 	"github.com/hashicorp/go-plugin"
 	"github.com/oklog/run"
 
-	"github.com/hashicorp/vagrant-plugin-sdk"
+	sdk "github.com/hashicorp/vagrant-plugin-sdk"
 	"github.com/hashicorp/vagrant-plugin-sdk/component"
 	"github.com/hashicorp/vagrant-plugin-sdk/internal-shared/pluginclient"
 )
@@ -121,8 +121,7 @@ func (b *Builtin) Factory(name string) PluginRegistration {
 		}
 		info, ok := raw.(component.PluginInfo)
 		if !ok {
-			return nil, fmt.Errorf("failed to load builgin plugin information interface",
-				"plugin", name)
+			return nil, fmt.Errorf("failed to load builgin plugin information interface \nplugin %v", name)
 		}
 
 		p = &Plugin{
