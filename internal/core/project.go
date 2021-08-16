@@ -208,6 +208,12 @@ func (p *Project) LoadTarget(topts ...TargetOption) (t *Target, err error) {
 		return
 	}
 
+	if t.dir == nil {
+		if t.dir, err = p.dir.Target(t.target.Name); err != nil {
+			return
+		}
+	}
+
 	// If the machine is already loaded, return that
 	if target, ok := p.targets[t.target.ResourceId]; ok {
 		return target, nil
@@ -219,12 +225,6 @@ func (p *Project) LoadTarget(topts ...TargetOption) (t *Target, err error) {
 		t.logger = t.logger.Named("target")
 	} else {
 		t.logger = t.logger.ResetNamed("vagrant.core.target")
-	}
-
-	if t.dir == nil {
-		if t.dir, err = p.dir.Target(t.target.Name); err != nil {
-			return
-		}
 	}
 
 	// Ensure any modifications to the target are persisted
