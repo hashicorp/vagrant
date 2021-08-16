@@ -3,7 +3,7 @@ module Vagrant
     class Entry
       module Remote
         def load(machine)
-          self.new(machine.id, {
+          raw = Vagrant::Util::HashWithIndifferentAccess.new({
             name: machine.name,
             local_data_path: machine.project.local_data_path,
             provider: machine.provider_name,
@@ -12,6 +12,7 @@ module Vagrant
             vagrantfile_name: machine.project.vagrantfile_name,
             vagrantfile_path: machine.project.vagrantfile_path,
           })
+          self.new(machine.get_uuid, raw)
         end
       end
     end
