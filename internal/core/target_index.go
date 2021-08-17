@@ -65,9 +65,8 @@ func (t *TargetIndex) Includes(uuid string) (exists bool, err error) {
 func (t *TargetIndex) Set(entry core.Target) (updatedEntry core.Target, err error) {
 	updatedEntry, ok := entry.(*Target)
 	if !ok {
-		return nil, fmt.Errorf("cannot save target, invalid type",
-			"target", entry,
-			"type", hclog.Fmt("%T", entry),
+		return nil, fmt.Errorf("cannot save target, invalid type. Target %v, type %v",
+			entry, hclog.Fmt("%T", entry),
 		)
 	}
 
