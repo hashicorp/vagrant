@@ -8,7 +8,7 @@ Vagrant.configure("2") do |config|
   # config.vbguest.auto_update = false
   # config.vbguest.installer_options = { foo: 1, bar: 2 }
 
-  config.vagrant.host = "linux"
+  # config.vagrant.host = "linux"
 
   config.ssh.connect_timeout = 30
 
