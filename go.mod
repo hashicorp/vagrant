@@ -54,7 +54,7 @@ require (
 	github.com/hashicorp/hcl/v2 v2.7.1-0.20201023000745-3de61ecba298
 	github.com/hashicorp/horizon v0.0.0-20201027182500-45298493f49e // indirect
 	github.com/hashicorp/nomad/api v0.0.0-20200814140818-42de70466a9d
-	github.com/hashicorp/vagrant-plugin-sdk v0.0.0-20210811210849-b182b32850b1
+	github.com/hashicorp/vagrant-plugin-sdk v0.0.0-20210817144512-808abecd0337
 	github.com/hashicorp/waypoint-hzn v0.0.0-20201008221232-97cd4d9120b9 // indirect
 	github.com/hashicorp/waypoint-plugin-sdk v0.0.0-20201107013852-c3b6eb26185d // indirect
 	github.com/hashicorp/yamux v0.0.0-20200609203250-aecfd211c9ce // indirect
