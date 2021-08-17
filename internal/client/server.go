@@ -11,6 +11,7 @@ import (
 	"github.com/boltdb/bolt"
 	"github.com/golang/protobuf/ptypes/empty"
 	"github.com/hashicorp/go-plugin"
+	"github.com/hashicorp/vagrant-plugin-sdk/helper/paths"
 	"google.golang.org/grpc"
 
 	"github.com/hashicorp/vagrant/internal/protocolversion"
@@ -91,8 +92,11 @@ func (c *Client) initLocalServer(ctx context.Context) (_ *grpc.ClientConn, err e
 		}
 	}()
 
-	// TODO(spox): path to this
-	path := filepath.Join("data.db")
+	dataPath, err := paths.VagrantData()
+	if err != nil {
+		return
+	}
+	path := dataPath.Join("data.db").String()
 	log.Debug("opening local mode DB", "path", path)
 
 	// Open our database
