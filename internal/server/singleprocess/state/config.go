@@ -4,10 +4,10 @@ import (
 	"fmt"
 	"sort"
 
-	"github.com/boltdb/bolt"
 	"github.com/golang/protobuf/proto"
 	"github.com/hashicorp/go-memdb"
 	"github.com/hashicorp/vagrant-plugin-sdk/proto/vagrant_plugin_sdk"
+	bolt "go.etcd.io/bbolt"
 
 	"github.com/hashicorp/vagrant/internal/server/proto/vagrant_server"
 	serversort "github.com/hashicorp/vagrant/internal/server/sort"

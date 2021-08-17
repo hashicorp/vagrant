@@ -8,10 +8,10 @@ import (
 	"runtime"
 	"time"
 
-	"github.com/boltdb/bolt"
 	"github.com/golang/protobuf/ptypes/empty"
 	"github.com/hashicorp/go-plugin"
 	"github.com/hashicorp/vagrant-plugin-sdk/helper/paths"
+	bolt "go.etcd.io/bbolt"
 	"google.golang.org/grpc"
 
 	"github.com/hashicorp/vagrant/internal/protocolversion"

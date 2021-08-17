@@ -13,10 +13,10 @@ import (
 	"strings"
 	"time"
 
-	"github.com/boltdb/bolt"
 	"github.com/gofrs/flock"
 	"github.com/hashicorp/go-hclog"
 	"github.com/natefinch/atomic"
+	bolt "go.etcd.io/bbolt"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 

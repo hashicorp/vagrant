@@ -1,9 +1,9 @@
 package state
 
 import (
-	"github.com/boltdb/bolt"
 	"github.com/golang/protobuf/proto"
 	"github.com/hashicorp/go-memdb"
+	bolt "go.etcd.io/bbolt"
 
 	"github.com/hashicorp/vagrant/internal/server/proto/vagrant_server"
 )
