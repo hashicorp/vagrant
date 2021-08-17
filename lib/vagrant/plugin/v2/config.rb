@@ -1,7 +1,4 @@
 require "set"
-require "vagrant/protobufs/proto/protostructure_pb"
-require "vagrant/protobufs/proto/vagrant_plugin_sdk/plugin_pb"
-require "vagrant/protobufs/proto/vagrant_plugin_sdk/plugin_services_pb"
 
 module Vagrant
   module Plugin
@@ -160,7 +157,7 @@ module Vagrant
             m[k] = v.to_s if v.is_a?(Symbol)
           end
         end
-        
+
         def clean_up_config_object(config)
           protoize = config
           stringify_symbols(protoize)
