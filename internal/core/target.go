@@ -78,8 +78,11 @@ func (t *Target) Provider() (p core.Provider, err error) {
 	return
 }
 
+// ProviderName implements core.Target
+// TODO: Use actual value once provider is set on the go side
 func (t *Target) ProviderName() (string, error) {
-	return t.target.Provider, nil
+	// return t.target.Provider, nil
+	return "virtualbox", nil
 }
 
 // Communicate implements core.Target
