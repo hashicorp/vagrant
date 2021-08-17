@@ -2,17 +2,64 @@ module Vagrant
   class MachineIndex
     class Entry
       module Remote
-        def load(machine)
-          raw = Vagrant::Util::HashWithIndifferentAccess.new({
-            name: machine.name,
-            local_data_path: machine.project.local_data_path,
-            provider: machine.provider_name,
-            full_state: machine.machine_state,
-            state: machine.machine_state.id,
-            vagrantfile_name: machine.project.vagrantfile_name,
-            vagrantfile_path: machine.project.vagrantfile_path,
-          })
-          self.new(machine.get_uuid, raw)
+        module ClassMethods
+          def load(machine)
+            raw = Vagrant::Util::HashWithIndifferentAccess.new({
+              name: machine.name,
+              local_data_path: machine.project.local_data_path,
+              provider: machine.provider_name,
+              full_state: machine.machine_state,
+              state: machine.machine_state.id,
+              vagrantfile_name: machine.project.vagrantfile_name,
+              vagrantfile_path: machine.project.vagrantfile_path,
+              machine: machine
+            })
+            self.new(machine.get_uuid, raw)
+          end
+        end
+
+        module InstanceMethods
+          def initialize(id, raw=nil)
+            @logger = Log4r::Logger.new("vagrant::machine_index::entry")
+
+            @extra_data = {}
+            @id = id
+            # Do nothing if we aren't given a raw value. Otherwise, parse it.
+            return if !raw
+
+            @local_data_path  = raw["local_data_path"]
+            @name             = raw["name"]
+            @provider         = raw["provider"]
+            @state            = raw["state"]
+            @full_state       = raw["full_state"]
+            @vagrantfile_name = raw["vagrantfile_name"]
+            @vagrantfile_path = raw["vagrantfile_path"]
+            # TODO(mitchellh): parse into a proper datetime
+            @updated_at       = raw["updated_at"]
+            @extra_data       = raw["extra_data"] || {}
+
+            @machine_client = raw["machine_client"]
+
+            # Be careful with the paths
+            @local_data_path = nil  if @local_data_path == ""
+            @vagrantfile_path = nil if @vagrantfile_path == ""
+
+            # Convert to proper types
+            @local_data_path = Pathname.new(@local_data_path) if @local_data_path
+            @vagrantfile_path = Pathname.new(@vagrantfile_path) if @vagrantfile_path
+          end
+
+          def vagrant_env(home_path, opts={})
+            Vagrant::Util::SilenceWarnings.silence! do
+              Environment.new({
+                cwd: @vagrantfile_path,
+                home_path: home_path,
+                local_data_path: @local_data_path,
+                vagrantfile_name: @vagrantfile_name,
+                client: @machine_client&.project,
+              }.merge(opts))
+            end
+          end
         end
       end
     end
