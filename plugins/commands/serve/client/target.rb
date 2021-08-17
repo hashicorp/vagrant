@@ -29,24 +29,67 @@ module VagrantPlugins
           self.new(connect(proto: t, broker: broker), broker)
         end
 
-        # @return [String] resource identifier for this target
-        def resource_id
-          client.resource_id(Empty.new).resource_id
-        end
-
         # @return [SDK::Ref::Target] proto reference for this target
         def ref
           SDK::Ref::Target.new(resource_id: resource_id)
         end
 
-        # Save the state of the target
-        def save
-          client.save(Empty.new)
+        # @return [Communicator]
+        # TODO: Implement
+        def communicate
+        end
+
+        # @return [Pathname] target specific data directory
+        def data_dir
+          Pathname.new(client.data_dir(Empty.new).data_dir)
+        end
+
+        # @return [Boolean] destroy the traget
+        def destroy
+          client.destroy(Empty.new)
+          true
+        end
+
+        # @return [String] Unique identifier of machine
+        def get_uuid
+          client.get_uuid(Empty.new).uuid
+        end
+
+        # @return [Hash] freeform key/value data for target
+        def metadata
+          kv = client.metadata(Empty.new).metadata
+          Vagrant::Util::HashWithIndifferentAccess.new(kv.to_h)
         end
 
         # @return [String] name of target
         def name
           client.name(Empty.new).name
+        end
+
+        # @return [Project] project this target is within
+        def project
+          Project.load(client.project(Empty.new), broker: broker)
+        end
+
+        # @return [Provider] provider for target
+        # TODO: This needs to be loaded proeprly
+        def provider
+          client.provider(Empty.new)
+        end
+
+        # @return [String] name of provider for target
+        def provider_name
+          client.provider_name(Empty.new).name
+        end
+
+        # @return [String] resource identifier for this target
+        def resource_id
+          client.resource_id(Empty.new).resource_id
+        end
+
+        # Save the state of the target
+        def save
+          client.save(Empty.new)
         end
 
         # Set name of target
@@ -60,11 +103,6 @@ module VagrantPlugins
           )
         end
 
-        # @return [String] Unique identifier of machine
-        def get_uuid
-          client.get_uuid(Empty.new).uuid
-        end
-
         # Set the unique identifier fo the machine
         #
         # @param [String] uuid Uniqe identifier
@@ -76,34 +114,14 @@ module VagrantPlugins
           )
         end
 
-        # @return [Pathname] target specific data directory
-        def data_dir
-          Pathname.new(client.data_dir(Empty.new).data_dir)
-        end
-
-        # @return [Provider] provider for target
-        # TODO: This needs to be loaded proeprly
-        def provider
-          client.provider(Empty.new)
-        end
-
-        def provider_name
-          client.provider_name(Empty.new).name
-        end
-
-        # @return [Project] project this target is within
-        def project
-          Project.load(client.project(Empty.new), broker: broker)
+        # @return [Symbol] state of the target
+        def state
+          client.state(Empty.new).state
         end
 
         # @return [Time] time target was last updated
         def updated_at
           Time.parse(client.updated_at(Empty.new).updated_at)
-        end
-
-        # @return [Symbol] state of the target
-        def state
-          client.state(Empty.new).state
         end
 
         # @return [Machine] specialize target into a machine client
