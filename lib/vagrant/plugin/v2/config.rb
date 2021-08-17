@@ -14,7 +14,9 @@ module Vagrant
         # method below will "just work" in many cases.
         UNSET_VALUE = Object.new
 
-        GENERAL_CONFIG_CLS = Hashicorp::Vagrant::Sdk::Vagrantfile::GeneralConfig
+        if Vagrant.server_mode?
+          GENERAL_CONFIG_CLS = Hashicorp::Vagrant::Sdk::Vagrantfile::GeneralConfig
+        end
 
         # This is called as a last-minute hook that allows the configuration
         # object to finalize itself before it will be put into use. This is
