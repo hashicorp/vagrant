@@ -102,7 +102,7 @@ module Vagrant
       def state
         s = @provider.state
         if s != @_cached_state
-          client.set_state(s) unless s.nil?
+          client.set_machine_state(s) unless s.nil?
           @_cached_state = s
         end
         s
