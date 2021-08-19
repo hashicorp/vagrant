@@ -17,7 +17,7 @@ type AlwaysTrueHost struct {
 }
 
 // DetectFunc implements component.Host
-func (h *AlwaysTrueHost) DetectFunc() interface{} {
+func (h *AlwaysTrueHost) HostDetectFunc() interface{} {
 	return h.Detect
 }
 
