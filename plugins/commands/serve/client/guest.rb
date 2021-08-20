@@ -21,6 +21,17 @@ module VagrantPlugins
           self.new(connect(proto: g, broker: broker), broker)
         end
 
+        # @return [<String>] parents
+        def parents
+          @logger.debug("getting parents")
+          req = SDK::FuncSpec::Args.new(
+            args: []
+          )
+          res = client.parents(req)
+          @logger.debug("got parents #{res}")
+          res.parents
+        end
+
         # @param [Symbol] cap_name Capability name
         # @return [Boolean]
         def capability?(cap_name)
@@ -34,7 +45,7 @@ module VagrantPlugins
             )]
           )
           res = client.has_capability(req)
-          @logger.debug("got resutl #{res}")
+          @logger.debug("got result #{res}")
 
           res.has_capability
         end
