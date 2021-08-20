@@ -6,7 +6,7 @@ module VagrantPlugins
       class GuestService < Hashicorp::Vagrant::Sdk::GuestService::Service
         prepend Util::HasBroker
         prepend Util::ExceptionLogger
-        LOGGER  = Log4r::Logger.new("vagrant::command::serve::command")
+        LOGGER  = Log4r::Logger.new("vagrant::command::serve::guest")
 
         def detect_spec(*_)
           SDK::FuncSpec.new(
@@ -34,8 +34,8 @@ module VagrantPlugins
             }&.value&.value
             target = Client::Target.load(raw_target, broker: broker)
             machine_client = target.to_machine
-            # TODO: this machine should be a Remote::Machine
-            machine = machine_client
+            machine = Vagrant::Machine.new(
+              nil, nil, nil, nil, nil, nil, nil, nil, nil, nil,  base=false, client=machine_client)
 
             plugin = Vagrant.plugin("2").manager.guests[plugin_name.to_s.to_sym].to_a.first
             if !plugin
@@ -48,11 +48,10 @@ module VagrantPlugins
             rescue => err
               LOGGER.debug("error detecting guest plugin!")
               LOGGER.error(err)
-              LOGGER.debug("#{err.class}: #{err}\n#{err.backtrace.join("\n")}")
               detected = false
             end
 
-            LOGGER.debug("detected? #{detected}")
+            LOGGER.debug("detected #{detected} for guest #{plugin_name}")
             SDK::Platform::DetectResp.new(
               detected: detected,
             )
@@ -72,7 +71,7 @@ module VagrantPlugins
         def parents(req, ctx)
           ServiceInfo.with_info(ctx) do |info|
             plugin_name = info.plugin_name
-            plugin = Vagrant.plugin("2").manager.guest[plugin_name.to_s.to_sym].to_a.first
+            plugin = Vagrant.plugin("2").manager.guests[plugin_name.to_s.to_sym].to_a.first
             if !plugin
               raise "Failed to locate guest plugin for: #{plugin_name.inspect}"
             end

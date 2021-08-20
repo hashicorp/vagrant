@@ -26,46 +26,51 @@ module Vagrant
       # @param [Box] box The box that is backing this virtual machine.
       # @param [Environment] env The environment that this machine is a
       #   part of.
-      def initialize(name, provider_name, provider_cls, provider_config, provider_options, config, data_dir, box, env, vagrantfile, base=false)
+      def initialize(name, provider_name, provider_cls, provider_config, provider_options, config, data_dir, box, env, vagrantfile, base=false, client=nil)
         @logger = Log4r::Logger.new("vagrant::machine")
-        @client = env.get_target(name)
-        @env = env
-        @ui = Vagrant::UI::Prefixed.new(@env.ui, name)
+        @logger.debug("building machine (remote) with client #{client}")
+        if !client.nil? 
+          @client = client
+        else 
+          @client = env.get_target(name)
+          @env = env
+          @ui = Vagrant::UI::Prefixed.new(@env.ui, name)
 
-        # TODO: Get provider info from client
-        @provider_name = provider_name
-        @provider = provider_cls.new(self)
-        @provider._initialize(provider_name, self)
-        @provider_options = provider_options
-        @provider_config = provider_config
+          # TODO: Get provider info from client
+          @provider_name = provider_name
+          @provider = provider_cls.new(self)
+          @provider._initialize(provider_name, self)
+          @provider_options = provider_options
+          @provider_config = provider_config
 
-        #TODO: get box from @client.get_box()
-        @box             = box
-        @config          = config
-        @data_dir        = @client.data_dir
-        @vagrantfile     = vagrantfile
-        @guest           = Guest.new(
-          self,
-          Vagrant.plugin("2").manager.guests,
-          Vagrant.plugin("2").manager.guest_capabilities)
-        @name            = name
-        @ui_mutex        = Mutex.new
-        @state_mutex     = Mutex.new
-        @triggers        = Vagrant::Plugin::V2::Trigger.new(@env, @config.trigger, self, @ui)
+          #TODO: get box from @client.get_box()
+          @box             = box
+          @config          = config
+          @data_dir        = @client.data_dir
+          @vagrantfile     = vagrantfile
+          @guest           = Guest.new(
+            self,
+            Vagrant.plugin("2").manager.guests,
+            Vagrant.plugin("2").manager.guest_capabilities)
+          @name            = name
+          @ui_mutex        = Mutex.new
+          @state_mutex     = Mutex.new
+          @triggers        = Vagrant::Plugin::V2::Trigger.new(@env, @config.trigger, self, @ui)
 
-        # Keep track of where our UUID should be placed
-        @index_uuid_file = nil
-        @index_uuid_file = @data_dir.join("index_uuid") if @data_dir
+          # Keep track of where our UUID should be placed
+          @index_uuid_file = nil
+          @index_uuid_file = @data_dir.join("index_uuid") if @data_dir
 
-        # If the ID is the special not created ID, then set our ID to
-        # nil so that we destroy all our data.
-        # if state.id == MachineState::NOT_CREATED_ID
-        #   self.id = nil
-        # end
+          # If the ID is the special not created ID, then set our ID to
+          # nil so that we destroy all our data.
+          # if state.id == MachineState::NOT_CREATED_ID
+          #   self.id = nil
+          # end
 
-        # Output a bunch of information about this machine in
-        # machine-readable format in case someone is listening.
-        @ui.machine("metadata", "provider", provider_name)
+          # Output a bunch of information about this machine in
+          # machine-readable format in case someone is listening.
+          @ui.machine("metadata", "provider", provider_name)
+        end
       end
 
       # @return [Box]
