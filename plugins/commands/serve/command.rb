@@ -88,7 +88,7 @@ module VagrantPlugins
         health_checker = Grpc::Health::Checker.new
         broker = Broker.new(bind: bind_addr, ports: ports)
 
-        [Service::InternalService, Service::ProviderService,
+        [Service::InternalService, Service::ProviderService, Service::GuestService,
           Service::HostService, Service::CommandService, Broker::Streamer].each do |service_klass|
           service = service_klass.new(broker: broker)
           s.handle(service)
