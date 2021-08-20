@@ -118,7 +118,7 @@ module VagrantPlugins
                 a.type == "hashicorp.vagrant.sdk.Args.TerminalUI"
               }&.value&.value
               ui_client = Client::Terminal.load(raw_terminal, broker: broker)
-              ui = Vagrant::UI::RemoteUI.new(ui_client)
+              ui = Vagrant::UI::Remote.new(ui_client)
 
               p = Vagrant::Host.new(
                 plugin_name.to_sym,

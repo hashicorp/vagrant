@@ -66,7 +66,7 @@ module VagrantPlugins
             ui_client = Client::Terminal.load(raw_terminal, broker: broker)
             env_client = Client::Project.load(raw_project, broker: broker)
 
-            ui = Vagrant::UI::RemoteUI.new(ui_client)
+            ui = Vagrant::UI::Remote.new(ui_client)
             env = Vagrant::Environment.new(
               {ui: ui, client: env_client}
             )
@@ -80,7 +80,7 @@ module VagrantPlugins
             cmd_args = req.command_args.to_a[1..] + arguments.args.to_a
             cmd = cmd_klass.new(cmd_args, env)
             result = cmd.execute
-            
+
             if !result.is_a?(Integer)
               result = 1
             end
