@@ -46,7 +46,7 @@ func (u *runnerUI) Interactive() bool {
 // arguments should be interpolations for the format string. After the
 // interpolations you may add Options.
 func (u *runnerUI) Output(msg string, raw ...interface{}) {
-	msg, style, _ := terminal.Interpret(msg, raw...)
+	msg, style, disableNewline, _ := terminal.Interpret(msg, raw...)
 
 	// Extreme java looking code alert!
 	ev := &vagrant_server.RunnerJobStreamRequest{
@@ -56,8 +56,9 @@ func (u *runnerUI) Output(msg string, raw ...interface{}) {
 					{
 						Event: &vagrant_server.GetJobStreamResponse_Terminal_Event_Line_{
 							Line: &vagrant_server.GetJobStreamResponse_Terminal_Event_Line{
-								Msg:   msg,
-								Style: style,
+								Msg:            msg,
+								Style:          style,
+								DisableNewLine: disableNewline,
 							},
 						},
 					},
