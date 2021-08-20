@@ -32,7 +32,13 @@ export default function DownloadsPage(staticProps) {
           label: 'View Tutorials at HashiCorp Learn',
         }}
         packageManagerOverrides={[
-          // Note: Duplicate Homebrew entries target
+          // Note: These NONE--IGNORE entries prevent
+          // package manager download commands from appearing.
+          // If they are removed, then the page will show
+          // package downloader commands, which are not
+          // known to be support for the vmware utility.
+          //
+          // Related note: Duplicate Homebrew entries target
           // both macOS and Linux. If one is removed,
           // then Homebrew will show up under the Linux tab.
           {
