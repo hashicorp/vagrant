@@ -1,6 +1,6 @@
 module Vagrant
   module UI
-    class RemoteUI < Basic
+    class Remote < Basic
       def initialize(client)
         super()
         @client = client
