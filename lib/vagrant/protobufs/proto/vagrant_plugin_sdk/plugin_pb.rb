@@ -241,6 +241,18 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
     end
     add_message "hashicorp.vagrant.sdk.TerminalUI.OutputRequest" do
       repeated :lines, :string, 1
+      optional :style, :enum, 2, "hashicorp.vagrant.sdk.TerminalUI.OutputRequest.Style"
+      optional :disable_new_line, :bool, 3
+    end
+    add_enum "hashicorp.vagrant.sdk.TerminalUI.OutputRequest.Style" do
+      value :HEADER, 0
+      value :ERROR, 1
+      value :ERROR_BOLD, 2
+      value :WARNING, 3
+      value :WARNING_BOLD, 4
+      value :INFO, 5
+      value :SUCCESS, 6
+      value :SUCCESS_BOLD, 7
     end
     add_message "hashicorp.vagrant.sdk.TerminalUI.Response" do
       oneof :event do
@@ -276,6 +288,7 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
     add_message "hashicorp.vagrant.sdk.TerminalUI.Event.Line" do
       optional :msg, :string, 1
       optional :style, :string, 2
+      optional :disable_new_line, :bool, 3
     end
     add_message "hashicorp.vagrant.sdk.TerminalUI.Event.Raw" do
       optional :data, :bytes, 1
@@ -762,6 +775,7 @@ module Hashicorp
       TerminalUI = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.TerminalUI").msgclass
       TerminalUI::IsInteractiveResponse = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.TerminalUI.IsInteractiveResponse").msgclass
       TerminalUI::OutputRequest = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.TerminalUI.OutputRequest").msgclass
+      TerminalUI::OutputRequest::Style = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.TerminalUI.OutputRequest.Style").enummodule
       TerminalUI::Response = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.TerminalUI.Response").msgclass
       TerminalUI::Event = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.TerminalUI.Event").msgclass
       TerminalUI::Event::Input = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.TerminalUI.Event.Input").msgclass
