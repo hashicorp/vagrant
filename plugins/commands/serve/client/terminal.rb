@@ -19,12 +19,25 @@ module VagrantPlugins
           self.new(connect(proto: t, broker: broker))
         end
 
-        # @params [Array] the content to print
-        def output(content)
-          req = SDK::TerminalUI::OutputRequest.new(
-            lines: content
-          )
-          client.output(req)
+        # @param [Array] lines Lines to print
+        def output(lines, **opts)
+          args = {
+            lines: lines,
+            disable_new_line: !opts[:new_line],
+            style: :error,
+          }
+          case opts[:style]
+          when :detail, :info, :output
+            args[:style] = SDK::TerminalUI::OutputRequest::Style::INFO
+          when :warn
+            args[:style] = SDK::TerminalUI::OutputRequest::Style::WARNING
+          when :error
+            args[:style] = SDK::TerminalUI::OutputRequest::Style::ERROR
+          when :success
+            args[:style] = SDK::TerminalUI::OutputRequest::Style::SUCCESS
+          end
+
+          client.output(req = SDK::TerminalUI::OutputRequest.new(**args))
         end
       end
     end
