@@ -44,7 +44,9 @@ module VagrantPlugins
         # @return [Guest] machine guest
         # TODO: This needs to be loaded properly
         def guest
-          client.guest(Empty.new)
+          @logger.debug("Getting guest from remote machine")
+          g = client.guest(Empty.new)
+          Guest.load(g, broker: @broker)
         end
 
         # @return [String] machine identifier

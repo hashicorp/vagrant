@@ -22,6 +22,11 @@ module Vagrant
         # no-op
       end
 
+      def ready?
+        # TODO: check if a guest is ready. For now guests are born ready
+        true
+      end
+
       def detect!
         # no-op
         # This operation not happen in Ruby, instead rely

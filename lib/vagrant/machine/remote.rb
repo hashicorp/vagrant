@@ -216,9 +216,14 @@ module Vagrant
       end
 
       def guest
-        raise Errors::MachineGuestNotReady if !communicate.ready?
-        @guest.detect! if !@guest.ready?
-        @guest
+        # raise Errors::MachineGuestNotReady if !communicate.ready?
+        if @guest.client.nil?
+          @logger.debug("setting client guest")
+          g = client.guest
+          @logger.debug("got client guest #{g}")
+          @guest.client = g
+          @logger.debug("Guest name #{@guest.name}")
+        end
       end
 
       def id=(value)
