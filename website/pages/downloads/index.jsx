@@ -49,12 +49,12 @@ export default function DownloadsPage(staticProps) {
       packageManagerOverrides={[
         {
           label: 'Homebrew',
-          commands: [`brew tap hashicorp/tap`, `brew install ${productSlug}`],
+          commands: [`brew install ${productSlug}`],
           os: 'darwin',
         },
         {
           label: 'Homebrew',
-          commands: [`brew tap hashicorp/tap`, `brew install ${productSlug}`],
+          commands: [`brew install ${productSlug}`],
           os: 'linux',
         },
       ]}
