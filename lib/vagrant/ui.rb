@@ -9,6 +9,7 @@ require "vagrant/util/safe_puts"
 
 module Vagrant
   module UI
+    autoload :Remote, "vagrant/ui/remote"
     # Vagrant UIs handle communication with the outside world (typically
     # through a shell). They must respond to the following methods:
     #
@@ -280,31 +281,6 @@ module Vagrant
       def ask(*args, **opts)
         # Non interactive can't ask for input
         raise Errors::UIExpectsTTY
-      end
-    end
-
-    class RemoteUI < Basic 
-      def initialize(client)
-        super()
-        @client = client
-      end
-
-      def clear_line
-        # no-op
-      end
-
-      # This method handles actually outputting a message of a given type
-      # to the console.
-      def say(type, message, opts={})
-        @client.output([message.gsub("%", "%%")])
-      end
-
-      [:detail, :info, :warn, :error, :output, :success].each do |method|
-        class_eval <<-CODE
-          def #{method}(message, *args)
-            say(#{method.inspect}, message, *args)
-          end
-        CODE
       end
     end
 
