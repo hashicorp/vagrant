@@ -8,16 +8,19 @@ module VagrantPlugins
 
         extend Util::Connector
 
-        def initialize(conn, broker=nil)
+        attr_reader :proto
+
+        def initialize(conn, proto, broker=nil)
           @logger = Log4r::Logger.new("vagrant::command::serve::client::machine")
           @logger.debug("connecting to target machine service on #{conn}")
           @client = SDK::TargetMachineService::Stub.new(conn, :this_channel_is_insecure)
+          @proto = proto
           @broker = broker
         end
 
         def self.load(raw_machine, broker:)
           m = raw_machine.is_a?(String) ? SDK::Args::Target::Machine.decode(raw_machine) : raw_machine
-          self.new(connect(proto: m, broker: broker), broker)
+          self.new(connect(proto: m, broker: broker), m, broker)
         end
 
         # @return [String] resource identifier for this target

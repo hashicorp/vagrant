@@ -216,14 +216,11 @@ module Vagrant
       end
 
       def guest
-        # raise Errors::MachineGuestNotReady if !communicate.ready?
+        raise Errors::MachineGuestNotReady if !communicate.ready?
         if @guest.client.nil?
-          @logger.debug("setting client guest")
-          g = client.guest
-          @logger.debug("got client guest #{g}")
-          @guest.client = g
-          @logger.debug("Guest name #{@guest.name}")
+          @guest.client = client.guest
         end
+        @guest
       end
 
       def id=(value)
@@ -384,6 +381,10 @@ module Vagrant
 
       def synced_folders
         self.class.synced_folders(self)
+      end
+
+      def to_proto
+        client.proto
       end
     end
   end
