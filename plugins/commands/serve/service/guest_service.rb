@@ -72,7 +72,7 @@ module VagrantPlugins
               raise "Failed to locate guest plugin for: #{plugin_name.inspect}"
             end
             SDK::Platform::ParentsResp.new(
-              parents: plugin.new.parents
+              parents: plugin.new.cap_host_chain
             )
           end
         end
@@ -96,7 +96,21 @@ module VagrantPlugins
         end
 
         def has_capability(req, ctx)
-          # TODO
+          ServiceInfo.with_info(ctx) do |info|
+            cap_name = req.args.detect { |a|
+              a.type == "hashicorp.vagrant.sdk.Args.NamedCapability"
+            }&.value&.value.strip.gsub("\b", "")
+            plugin_name = info.plugin_name
+            LOGGER.debug("checking for #{cap_name} capability in #{plugin_name}")
+
+            caps_registry = Vagrant.plugin("2").manager.guest_capabilities[plugin_name.to_sym]
+            LOGGER.debug("guest capabilities for #{plugin_name}: #{caps_registry.keys}")
+            has_cap = caps_registry.key?(cap_name.to_sym)
+
+            SDK::Platform::Capability::CheckResp.new(
+              has_capability: has_cap
+            )
+          end
         end
 
         # TODO: Need to be able to specify all the arguments that are required
