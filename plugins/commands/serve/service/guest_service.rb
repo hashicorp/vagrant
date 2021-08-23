@@ -115,7 +115,19 @@ module VagrantPlugins
 
         # TODO: Need to be able to specify all the arguments that are required
         #       for the capability
-        def capability_spec(*_)
+        def capability_spec(req, ctx)
+          ServiceInfo.with_info(ctx) do |info|
+            cap_name = req.name.to_sym
+            plugin_name = info.plugin_name.to_sym
+            LOGGER.debug("generating capabillity spec for #{cap_name} capability in #{plugin_name}")
+            caps_registry = Vagrant.plugin("2").manager.guest_capabilities[plugin_name]
+
+            target_cap = caps_registry.get(cap_name)
+            LOGGER.debug("got target cap #{target_cap}")
+            args = target_cap.method(cap_name).parameters
+            LOGGER.debug("#{cap_name} requires #{args}")
+
+          end
           SDK::FuncSpec.new(
             name: "has_capability_spec",
             args: [
