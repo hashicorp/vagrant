@@ -40,7 +40,7 @@ module Vagrant
       # @param [Symbol] cap_name Name of the capability
       def capability(cap_name, *args)
         @logger.debug("running remote guest capability #{cap_name} with args #{args}")
-        if !client.capability?(cap_name)
+        if !client.has_capability?(cap_name)
           raise Errors::GuestCapabilityNotFound,
           cap:  cap_name.to_s,
           guest: name
@@ -54,7 +54,7 @@ module Vagrant
       # @return [Boolean]
       def capability?(cap_name)
         @logger.debug("checking for remote guest capability #{cap_name}")
-        client.capability?(cap_name)
+        client.has_capability?(cap_name)
       end
 
       # Returns the specified or detected guest type name.

@@ -37,7 +37,7 @@ module VagrantPlugins
 
         # @param [Symbol] cap_name Capability name
         # @return [Boolean]
-        def capability?(cap_name)
+        def has_capability?(cap_name)
           @logger.debug("checking for capability #{cap_name}")
           val = SDK::Args::NamedCapability.new(Capability: cap_name.to_s)
           req = SDK::FuncSpec::Args.new(
