@@ -104,7 +104,6 @@ module VagrantPlugins
             LOGGER.debug("checking for #{cap_name} capability in #{plugin_name}")
 
             caps_registry = Vagrant.plugin("2").manager.guest_capabilities[plugin_name.to_sym]
-            LOGGER.debug("guest capabilities for #{plugin_name}: #{caps_registry.keys}")
             has_cap = caps_registry.key?(cap_name.to_sym)
 
             SDK::Platform::Capability::CheckResp.new(
@@ -121,9 +120,7 @@ module VagrantPlugins
             caps_registry = Vagrant.plugin("2").manager.guest_capabilities[plugin_name]
 
             target_cap = caps_registry.get(cap_name)
-            LOGGER.debug("got target cap #{target_cap}")
             args = target_cap.method(cap_name).parameters
-            LOGGER.debug("#{cap_name} requires #{args}")
             # The first argument is always a machine, drop it
             args.shift
 
@@ -135,12 +132,8 @@ module VagrantPlugins
               ),
             ]
 
-            args.each do |a|
-              cap_args << SDK::FuncSpec::Value.new(
-                type: "google.protobuf.Any",
-                name: "",
-              )
-            end
+            # TODO: take the rest of `args` and create entries for them in 
+            # `cap_args`
 
             return SDK::FuncSpec.new(
               name: "has_capability_spec",
@@ -157,8 +150,25 @@ module VagrantPlugins
 
         def capability(req, ctx)
           ServiceInfo.with_info(ctx) do |info|
-            LOGGER.debug("executing capability, got args #{req.args}")
-            plugin_name = info.plugin_name
+            LOGGER.debug("executing capability, got req #{req}")
+            cap_name = req.name.to_sym
+            plugin_name = info.plugin_name.to_sym
+            caps_registry = Vagrant.plugin("2").manager.guest_capabilities[plugin_name]
+            target_cap = caps_registry.get(cap_name)
+
+            # A machine should always be provided to a guest capability
+            raw_target = req.func_args.args.detect { |a|
+              a.type == "hashicorp.vagrant.sdk.Args.Target"
+            }&.value&.value
+            target = Client::Target.load(raw_target, broker: broker)
+            project = target.project
+            env = Vagrant::Environment.new({client: project})
+            machine = env.machine(target.name.to_sym, target.provider_name.to_sym)
+
+            cap_method = target_cap.method(cap_name)
+
+            # TODO: pass in other args too
+            cap_method.call(machine)
           end
         end
       end
