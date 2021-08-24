@@ -32,11 +32,11 @@ module VagrantPlugins
             raw_target = req.args.detect { |a|
               a.type == "hashicorp.vagrant.sdk.Args.Target"
             }&.value&.value
-            target = Client::Target.load(raw_target, broker: broker)
-            machine_client = target.to_machine
-            machine = Vagrant::Machine.new(
-              nil, nil, nil, nil, nil, nil, nil, nil, nil, nil,  base=false, client=machine_client)
 
+            target = Client::Target.load(raw_target, broker: broker)
+            project = target.project
+            env = Vagrant::Environment.new({client: project})
+            machine = env.machine(target.name.to_sym, target.provider_name.to_sym)
             plugin = Vagrant.plugin("2").manager.guests[plugin_name.to_s.to_sym].to_a.first
             if !plugin
               LOGGER.debug("Failed to locate guest plugin for: #{plugin_name}")
@@ -46,11 +46,9 @@ module VagrantPlugins
             begin
               detected = guest.detect?(machine)
             rescue => err
-              LOGGER.debug("error detecting guest plugin!")
-              LOGGER.error(err)
+              LOGGER.debug("error detecting")
               detected = false
             end
-
             LOGGER.debug("detected #{detected} for guest #{plugin_name}")
             SDK::Platform::DetectResp.new(
               detected: detected,

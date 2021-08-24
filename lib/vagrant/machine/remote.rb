@@ -195,6 +195,7 @@ module Vagrant
       end
 
       def communicate
+        # TODO: this should be communicating with the client.communicate
         if !@communicator
           requested  = @config.vm.communicator
           requested ||= :ssh
