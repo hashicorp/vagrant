@@ -12,9 +12,8 @@ module Vagrant
       end
 
       def initialize(machine, guests, capabilities)
-        @capabilities = capabilities
-        @guests       = guests
-        @machine      = machine
+        @machine = machine
+        @client = machine.client.guest
         @logger = Log4r::Logger.new("vagrant::guest")
       end
 

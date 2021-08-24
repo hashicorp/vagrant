@@ -48,10 +48,6 @@ module Vagrant
           @config          = config
           @data_dir        = @client.data_dir
           @vagrantfile     = vagrantfile
-          @guest           = Guest.new(
-            self,
-            Vagrant.plugin("2").manager.guests,
-            Vagrant.plugin("2").manager.guest_capabilities)
           @name            = name
           @ui_mutex        = Mutex.new
           @state_mutex     = Mutex.new
@@ -217,8 +213,8 @@ module Vagrant
 
       def guest
         raise Errors::MachineGuestNotReady if !communicate.ready?
-        if @guest.client.nil?
-          @guest.client = client.guest
+        if !@guest
+          @guest = Guest.new(self, nil, nil)
         end
         @guest
       end
