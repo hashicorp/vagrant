@@ -113,8 +113,6 @@ module VagrantPlugins
           end
         end
 
-        # TODO: Need to be able to specify all the arguments that are required
-        #       for the capability
         def capability_spec(req, ctx)
           ServiceInfo.with_info(ctx) do |info|
             cap_name = req.name.to_sym
@@ -126,33 +124,42 @@ module VagrantPlugins
             LOGGER.debug("got target cap #{target_cap}")
             args = target_cap.method(cap_name).parameters
             LOGGER.debug("#{cap_name} requires #{args}")
+            # The first argument is always a machine, drop it
+            args.shift
 
-          end
-          SDK::FuncSpec.new(
-            name: "has_capability_spec",
-            args: [
-              SDK::FuncSpec::Value.new(
-                type: "hashicorp.vagrant.sdk.Args.NamedCapability",
-                name: "",
-              ),
+            cap_args = [
+              # Always get a target to pass the guest capability
               SDK::FuncSpec::Value.new(
                 type: "hashicorp.vagrant.sdk.Args.Target",
                 name: "",
               ),
-            ],
-            result: [
-              SDK::FuncSpec::Value.new(
-                type: "hashicorp.vagrant.sdk.Platform.Capability.CheckResp",
+            ]
+
+            args.each do |a|
+              cap_args << SDK::FuncSpec::Value.new(
+                type: "google.protobuf.Any",
                 name: "",
-              ),
-            ],
-          )
+              )
+            end
+
+            return SDK::FuncSpec.new(
+              name: "has_capability_spec",
+              args: cap_args,
+              result: [
+                SDK::FuncSpec::Value.new(
+                  type: "hashicorp.vagrant.sdk.Platform.Capability.Resp",
+                  name: "",
+                ),
+              ],
+            )
+          end
         end
 
-        # TODO: Need to be able to specify all the arguments that are required
-        #       for the capability
         def capability(req, ctx)
-          # TODO
+          ServiceInfo.with_info(ctx) do |info|
+            LOGGER.debug("executing capability, got args #{req.args}")
+            plugin_name = info.plugin_name
+          end
         end
       end
     end
