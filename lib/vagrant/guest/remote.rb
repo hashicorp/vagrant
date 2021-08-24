@@ -63,6 +63,10 @@ module Vagrant
       def name
         client.parents[0]
       end
+
+      def to_proto
+        client.proto
+      end
     end
   end
 end

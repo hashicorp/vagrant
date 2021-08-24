@@ -141,6 +141,10 @@ module Vagrant
         @logger.debug("machines: #{@machines.keys}")
         @machines.each_value(&block)
       end
+
+      def to_proto
+        client.proto
+      end
     end
   end
 end

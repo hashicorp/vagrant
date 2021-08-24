@@ -5,19 +5,21 @@ module VagrantPlugins
 
         extend Util::Connector
 
-        attr_reader :client
         attr_reader :broker
+        attr_reader :client
+        attr_reader :proto
 
-        def initialize(conn, broker=nil)
+        def initialize(conn, proto, broker=nil)
           @logger = Log4r::Logger.new("vagrant::command::serve::client::targetindex")
           @logger.debug("connecting to target index service on #{conn}")
           @client = SDK::TargetIndexService::Stub.new(conn, :this_channel_is_insecure)
           @broker = broker
+          @proto = proto
         end
 
         def self.load(raw_index, broker:)
           m = raw_index.is_a?(String) ? SDK::Args::TargetIndex.decode(raw_index) : raw_index
-          self.new(connect(proto: m, broker: broker), broker)
+          self.new(connect(proto: m, broker: broker), m, broker)
         end
 
         # @param [string]

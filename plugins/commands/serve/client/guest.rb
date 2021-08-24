@@ -7,18 +7,21 @@ module VagrantPlugins
 
         extend Util::Connector
 
+        attr_reader :broker
         attr_reader :client
+        attr_reader :proto
 
-        def initialize(conn, broker=nil)
+        def initialize(conn, proto, broker=nil)
           @logger = Log4r::Logger.new("vagrant::command::serve::client::guest")
           @logger.debug("connecting to guest service on #{conn}")
           @client = SDK::GuestService::Stub.new(conn, :this_channel_is_insecure)
           @broker = broker
+          @proto = proto
         end
 
         def self.load(raw_guest, broker:)
           g = raw_guest.is_a?(String) ? SDK::Args::Guest.decode(raw_guest) : raw_guest
-          self.new(connect(proto: g, broker: broker), broker)
+          self.new(connect(proto: g, broker: broker), g, broker)
         end
 
         # @return [<String>] parents

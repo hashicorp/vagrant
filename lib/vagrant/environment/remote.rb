@@ -99,6 +99,10 @@ module Vagrant
         end
         @vagrantfile
       end
+      
+      def to_proto
+        client.proto
+      end
     end
   end
 end

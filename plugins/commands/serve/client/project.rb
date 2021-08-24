@@ -6,17 +6,19 @@ module VagrantPlugins
 
         attr_reader :broker
         attr_reader :client
+        attr_reader :proto
 
-        def initialize(conn, broker=nil)
+        def initialize(conn, proto, broker=nil)
           @logger = Log4r::Logger.new("vagrant::command::serve::client::project")
           @logger.debug("connecting to project service on #{conn}")
           @client = SDK::ProjectService::Stub.new(conn, :this_channel_is_insecure)
           @broker = broker
+          @proto = proto
         end
 
         def self.load(raw_project, broker:)
           p = raw_project.is_a?(String) ? SDK::Args::Project.decode(raw_project) : raw_project
-          self.new(connect(proto: p, broker: broker), broker)
+          self.new(connect(proto: p, broker: broker), p, broker)
         end
 
         # return [String]
