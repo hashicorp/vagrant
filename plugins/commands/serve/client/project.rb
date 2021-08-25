@@ -19,12 +19,76 @@ module VagrantPlugins
           self.new(connect(proto: p, broker: broker), broker)
         end
 
-        # Gets the local data path
         # return [String]
-        def get_local_data_path
-          req = Google::Protobuf::Empty.new
-          resp = @client.local_data(req)
-          return resp.path
+        def cache_dir
+          data_dirs.cache_dir
+        end
+
+        # return [String]
+        def config_dir
+          data_dirs.config_dir
+        end
+
+        # return [String]
+        def cwd
+          resp = @client.cwd(Google::Protobuf::Empty.new)
+          resp.path
+        end
+
+        # return [Sdk::Args::DataDir::Project]
+        def data_dirs
+          resp = @client.data_dir(Google::Protobuf::Empty.new)
+          resp
+        end
+
+        # return [String]
+        def data_dir 
+          data_dirs.data_dir
+        end
+
+        # return [String]
+        def default_private_key
+          resp = @client.default_private_key(Google::Protobuf::Empty.new)
+          resp.key
+        end
+
+        # return [String]
+        def local_data
+          resp = @client.local_data(Google::Protobuf::Empty.new)
+          resp.path
+        end
+
+        # return [String]
+        def home
+          resp = @client.home(Google::Protobuf::Empty.new)
+          resp.path
+        end
+
+        # TODO
+        def host
+          @client.host(Google::Protobuf::Empty.new)
+          # TODO load the remote host plugin.
+          nil
+        end
+
+        # return [<String>]
+        def target_names
+          resp = @client.target_names(Google::Protobuf::Empty.new)
+          resp.names
+        end
+
+        # return [VagrantPlugins::CommandServe::Client::TargetIndex]
+        def target_index
+          TargetIndex.load(
+            @client.target_index(Empty.new),
+            broker: broker
+          )
+        end
+
+        # return [<String>]
+        def target_ids
+          resp = @client.target_ids(Google::Protobuf::Empty.new)
+          resp.ids
         end
 
         # Returns a machine client for the given name
@@ -38,18 +102,15 @@ module VagrantPlugins
           target.to_machine
         end
 
-        # return [VagrantPlugins::CommandServe::Client::TargetIndex]
-        def target_index
-          @logger.debug("connecting to target index")
-          TargetIndex.load(
-            client.target_index(Empty.new),
-            broker: broker
-          )
+        # return [String]
+        def temp_dir
+          data_dirs.temp_dir
         end
 
-        # TODO: fix
-        def local_data_path
-          Pathname.new('.')
+        # return [String]
+        def tmp
+          resp = @client.tmp(Google::Protobuf::Empty.new)
+          resp.path
         end
 
         # @return [String] name of the Vagrantfile for this target
