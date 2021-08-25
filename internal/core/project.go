@@ -122,12 +122,6 @@ func (p *Project) TargetIndex() (index core.TargetIndex, err error) {
 	return p.basis.TargetIndex()
 }
 
-// MachineNames implements core.Project
-func (p *Project) MachineNames() (names []string, err error) {
-	// TODO: remove in favor or TargetNames()?
-	return []string{"test"}, nil
-}
-
 // Target implements core.Project
 func (p *Project) Target(nameOrId string) (core.Target, error) {
 	if t, ok := p.targets[nameOrId]; ok {

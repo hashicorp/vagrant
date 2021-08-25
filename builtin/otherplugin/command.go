@@ -105,7 +105,7 @@ func (c *Command) ExecuteThing(trm terminal.UI, flags map[string]interface{}) in
 }
 
 func (c *Command) ExecuteInfo(trm terminal.UI, p plugincore.Project) int32 {
-	mn, _ := p.MachineNames()
+	mn, _ := p.TargetNames()
 	trm.Output("\nMachines in this project")
 	trm.Output(strings.Join(mn[:], "\n"))
 

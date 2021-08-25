@@ -68,7 +68,7 @@ func (c *Info) Flags() []*option.Option {
 }
 
 func (c *Info) Execute(trm terminal.UI, p plugincore.Project) int32 {
-	mn, _ := p.MachineNames()
+	mn, _ := p.TargetNames()
 	trm.Output("\nMachines in this project")
 	trm.Output(strings.Join(mn[:], "\n"))
 
