@@ -85,6 +85,20 @@ module Vagrant
         # CommandServe::Client::Project by checking for a client
         @machine_index ||= Vagrant::MachineIndex.new(client: client.target_index)
       end
+
+      def vagrantfile
+        if @vagrantfile.nil?
+          path = client.vagrantfile_path
+          name = client.vagrantfile_name
+          full_path = path.join(name).to_s
+
+          config_loader = Vagrant::Config::Loader.new(
+            Vagrant::Config::VERSIONS, Vagrant::Config::VERSIONS_ORDER)
+          config_loader.set(:root, full_path)
+          @vagrantfile = Vagrant::Vagrantfile.new(config_loader, [:root])
+        end
+        @vagrantfile
+      end
     end
   end
 end
