@@ -3,6 +3,7 @@ package core
 import (
 	"context"
 	"errors"
+	"os"
 	"strings"
 	"sync"
 
@@ -61,8 +62,16 @@ func (p *Project) UI() (terminal.UI, error) {
 
 // CWD implements core.Project
 func (p *Project) CWD() (path string, err error) {
-	// TODO: implement
-	return
+	cwd, ok := os.LookupEnv("VAGRANT_CWD")
+	if ok {
+		if _, err := os.Stat(cwd); !os.IsNotExist(err) {
+			// cwd exists
+			return cwd, nil
+		} else {
+			return "", errors.New("VAGRANT_CWD set to path that does not exist")
+		}
+	}
+	return os.Getwd()
 }
 
 // DataDir implements core.Project
@@ -84,8 +93,7 @@ func (p *Project) VagrantfilePath() (pp path.Path, err error) {
 
 // Home implements core.Project
 func (p *Project) Home() (path string, err error) {
-	// TODO: implement
-	return "/home", nil
+	return p.project.Path, nil
 }
 
 // LocalData implements core.Project
@@ -95,14 +103,13 @@ func (p *Project) LocalData() (path string, err error) {
 
 // Tmp implements core.Project
 func (p *Project) Tmp() (path string, err error) {
-	// TODO: implement
-	return
+	return p.dir.TempDir().String(), nil
 }
 
 // DefaultPrivateKey implements core.Project
 func (p *Project) DefaultPrivateKey() (path string, err error) {
-	// TODO: implement
-	return "/key/path", nil
+	defaultPrivateKeyPath := p.dir.DataDir().Join("insecure_private_key")
+	return defaultPrivateKeyPath.String(), nil
 }
 
 // Host implements core.Project
@@ -117,7 +124,7 @@ func (p *Project) TargetIndex() (index core.TargetIndex, err error) {
 
 // MachineNames implements core.Project
 func (p *Project) MachineNames() (names []string, err error) {
-	// TODO: implement
+	// TODO: remove in favor or TargetNames()?
 	return []string{"test"}, nil
 }
 

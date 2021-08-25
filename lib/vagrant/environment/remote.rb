@@ -19,7 +19,7 @@ module Vagrant
         super
         @logger = Log4r::Logger.new("vagrant::environment")
         if @client != :stub
-          @local_data_path = Pathname.new(@client.get_local_data_path())
+          @local_data_path = Pathname.new(@client.local_data)
         end
       end
 
