@@ -76,13 +76,20 @@ module Vagrant
         client.target(name)
       end
 
+      def setup_home_path
+        # no-op
+        # Don't setup a home path in ruby
+      end
+
+      def setup_local_data_path(force=false)
+        # no-op
+        # Don't setup a home path in ruby
+      end
+
       # The {MachineIndex} to store information about the machines.
       #
       # @return [MachineIndex]
       def machine_index
-        # When starting up in server mode, Vagrant will set the environment
-        # client to the value `:stub`. So, check that we have an actual
-        # CommandServe::Client::Project by checking for a client
         @machine_index ||= Vagrant::MachineIndex.new(client: client.target_index)
       end
 
