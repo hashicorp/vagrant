@@ -115,7 +115,7 @@ module VagrantPlugins
 
         # @return [String] name of the Vagrantfile for this target
         def vagrantfile_name
-          client.vagrantfile_name(Empty.new)
+          client.vagrantfile_name(Empty.new).name
         end
 
         # @return [Pathname] path to the Vagrnatfile for this target

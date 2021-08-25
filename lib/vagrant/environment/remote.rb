@@ -16,11 +16,56 @@ module Vagrant
           raise ArgumentError,
             "Remote client is required for `#{self.class.name}'"
         end
-        super
+
         @logger = Log4r::Logger.new("vagrant::environment")
-        if @client != :stub
-          @local_data_path = Pathname.new(@client.local_data)
-        end
+
+        # Set the default ui class
+        opts[:ui_class] ||= UI::Silent
+
+        @cwd = Pathname.new(@client.cwd)
+        @home_path = Pathname.new(@client.home)
+        @vagrantfile_name = [@client.vagrantfile_name]
+        @ui = opts.fetch(:ui, opts[:ui_class].new)
+        @local_data_path = Pathname.new(@client.local_data)
+        @boxes_path = @home_path.join("boxes")
+        @data_dir = Pathname.new(@client.data_dir)
+        @gems_path = Vagrant::Bundler.instance.plugin_gem_path
+        @tmp_path = Pathname.new(@client.temp_dir)
+
+        # This is the batch lock, that enforces that only one {BatchAction}
+        # runs at a time from {#batch}.
+        @batch_lock = Mutex.new
+        @locks = {}
+
+        @logger.info("Environment initialized (#{self})")
+        @logger.info("  - cwd: #{cwd}")
+        @logger.info("  - home path: #{home_path}")
+
+        # TODO: aliases
+        @aliases_path = Pathname.new(ENV["VAGRANT_ALIAS_FILE"]).expand_path if ENV.key?("VAGRANT_ALIAS_FILE")
+        @aliases_path ||= @home_path.join("aliases")
+
+        @default_private_key_path = Pathname.new(@client.default_private_key)
+        copy_insecure_private_key
+
+        # Initialize localized plugins
+        plugins = Vagrant::Plugin::Manager.instance.localize!(self)
+        # Load any environment local plugins
+        Vagrant::Plugin::Manager.instance.load_plugins(plugins)
+
+        # Initialize globalize plugins
+        plugins = Vagrant::Plugin::Manager.instance.globalize!
+        # Load any global plugins
+        Vagrant::Plugin::Manager.instance.load_plugins(plugins)
+
+        plugins = process_configured_plugins
+
+        # Call the hooks that does not require configurations to be loaded
+        # by using a "clean" action runner
+        hook(:environment_plugins_loaded, runner: Action::Runner.new(env: self))
+
+        # Call the environment load hooks
+        hook(:environment_load, runner: Action::Runner.new(env: self))
       end
 
       # Gets a target (machine) by name
