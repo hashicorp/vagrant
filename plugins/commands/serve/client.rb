@@ -1,12 +1,6 @@
 module VagrantPlugins
   module CommandServe
     module Client
-      # Simple alias
-      Empty = Google::Protobuf::Empty
-      SDK = Service::SDK
-      SRV = Service::SRV
-      ServiceInfo = Service::ServiceInfo
-
       autoload :Guest, Vagrant.source_root.join("plugins/commands/serve/client/guest").to_s
       autoload :Machine, Vagrant.source_root.join("plugins/commands/serve/client/machine").to_s
       autoload :TargetIndex, Vagrant.source_root.join("plugins/commands/serve/client/target_index").to_s

@@ -18,9 +18,14 @@ require 'grpc/health/v1/health_services_pb'
 
 module VagrantPlugins
   module CommandServe
+    # Simple constant aliases to reduce namespace typing
+    SDK = Hashicorp::Vagrant::Sdk
+    SRV = Hashicorp::Vagrant
+    Empty = Google::Protobuf::Empty
 
     autoload :Broker, Vagrant.source_root.join("plugins/commands/serve/broker").to_s
     autoload :Client, Vagrant.source_root.join("plugins/commands/serve/client").to_s
+    autoload :Mappers, Vagrant.source_root.join("plugins/commands/serve/mappers").to_s
     autoload :Service, Vagrant.source_root.join("plugins/commands/serve/service").to_s
     autoload :Util, Vagrant.source_root.join("plugins/commands/serve/util").to_s
 
