@@ -16,6 +16,8 @@ describe VagrantPlugins::CommandServe::Service::GuestService do
     VagrantPlugins::CommandServe::Broker.new(bind: "bind_addr", ports: ["1234"])
   }
 
+  let(:machine){ double("machine") }
+
   let(:machine_arg){ 
     Hashicorp::Vagrant::Sdk::FuncSpec::Args.new(
       args: [
@@ -23,13 +25,8 @@ describe VagrantPlugins::CommandServe::Service::GuestService do
           name: "", 
           type: "hashicorp.vagrant.sdk.Args.Target", 
           value: Google::Protobuf::Any.pack(
-            Hashicorp::Vagrant::Sdk::Args::Target.new(
-              stream_id: 1,
-              network: "here:101",
-              target: "unix://here"
-            )
-          )
-        )
+            Hashicorp::Vagrant::Sdk::Args::Target.new(stream_id: 1, network: "here:101", target: "unix://here"
+        )))
       ]
     )
   }
@@ -55,4 +52,30 @@ describe VagrantPlugins::CommandServe::Service::GuestService do
     end
   end
 
+  context "requesting detect" do
+    before do
+      allow(machine).to receive(:communicate).and_return(false)
+    end
+    
+    it "generates a spec" do
+      spec = subject.detect_spec
+      expect(spec).not_to be_nil
+    end
+
+    it "raises an error for unknown plugins" do
+      ctx = DummyContext.new("idontexisthahaha")
+      expect { subject.detect("", ctx) }.to raise_error
+    end
+
+    it "detects from plugins" do
+      VagrantPlugins::CommandServe::Client::Target.any_instance.stub(:project).and_return("")
+      VagrantPlugins::CommandServe::Client::Target.any_instance.stub(:name).and_return("dummy")
+      VagrantPlugins::CommandServe::Client::Target.any_instance.stub(:provider_name).and_return("virtualbox")
+      Vagrant::Environment.any_instance.stub(:machine).and_return(machine)
+
+      ctx = DummyContext.new("linux")
+      d = subject.detect(machine_arg, ctx)
+      expect(d.detected).to be false
+    end
+  end
 end
