@@ -31,6 +31,17 @@ module VagrantPlugins
         end
       end
 
+      module HasMapper
+        def mapper
+          @mapper
+        end
+
+        def initialize(*args, **opts, &block)
+          @mapper = Mappers.new(broker) if respond_to?(:broker)
+          super
+        end
+      end
+
       # Adds exception logging to all public instance methods
       module ExceptionLogger
         def self.prepended(klass)
