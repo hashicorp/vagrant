@@ -33,6 +33,18 @@ describe VagrantPlugins::CommandServe::Service::GuestService do
 
   subject { described_class.new(broker: broker) }
 
+  before(:each) do
+    test_guest = Class.new(Vagrant.plugin("2", :guest)) do
+      def detect?(machine)
+        true
+      end
+    end
+
+    register_plugin do |p|
+      p.guest(:test, :parent_test) { test_guest }
+    end
+  end
+
   context "requesting parents" do
     it "generates a spec" do
       spec = subject.parents_spec
@@ -45,18 +57,33 @@ describe VagrantPlugins::CommandServe::Service::GuestService do
     end
 
     it "requests parents from plugins" do
-      ctx = DummyContext.new("ubuntu")
+      ctx = DummyContext.new("test")
       parents = subject.parents("", ctx)
       expect(parents).not_to be_nil
-      expect(parents.parents).to include("ubuntu")
+      expect(parents.parents).to include("test")
+      expect(parents.parents).to include("parent_test")
+
     end
   end
 
   context "requesting detect" do
     before do
-      allow(machine).to receive(:communicate).and_return(false)
+      test_false_guest = Class.new(Vagrant.plugin("2", :guest)) do
+        def detect?(machine)
+          false
+        end
+      end
+  
+      register_plugin do |p|
+        p.guest(:test_false) { test_false_guest }
+      end
+
+      VagrantPlugins::CommandServe::Client::Target.any_instance.stub(:project).and_return("")
+      VagrantPlugins::CommandServe::Client::Target.any_instance.stub(:name).and_return("dummy")
+      VagrantPlugins::CommandServe::Client::Target.any_instance.stub(:provider_name).and_return("virtualbox")
+      Vagrant::Environment.any_instance.stub(:machine).and_return(machine)
     end
-    
+
     it "generates a spec" do
       spec = subject.detect_spec
       expect(spec).not_to be_nil
@@ -67,13 +94,14 @@ describe VagrantPlugins::CommandServe::Service::GuestService do
       expect { subject.detect("", ctx) }.to raise_error
     end
 
-    it "detects from plugins" do
-      VagrantPlugins::CommandServe::Client::Target.any_instance.stub(:project).and_return("")
-      VagrantPlugins::CommandServe::Client::Target.any_instance.stub(:name).and_return("dummy")
-      VagrantPlugins::CommandServe::Client::Target.any_instance.stub(:provider_name).and_return("virtualbox")
-      Vagrant::Environment.any_instance.stub(:machine).and_return(machine)
+    it "detects true plugins" do
+      ctx = DummyContext.new("test")
+      d = subject.detect(machine_arg, ctx)
+      expect(d.detected).to be true
+    end
 
-      ctx = DummyContext.new("linux")
+    it "detects false plugins" do
+      ctx = DummyContext.new("test_false")
       d = subject.detect(machine_arg, ctx)
       expect(d.detected).to be false
     end
