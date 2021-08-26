@@ -6,7 +6,7 @@ module Vagrant
           def load(machine)
             raw = Vagrant::Util::HashWithIndifferentAccess.new({
               name: machine.name,
-              local_data_path: machine.project.local_data_path,
+              local_data_path: machine.project.local_data,
               provider: machine.provider_name,
               full_state: machine.machine_state,
               state: machine.machine_state.id,
