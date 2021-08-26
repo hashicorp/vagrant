@@ -6,6 +6,7 @@ module VagrantPlugins
   module CommandServe
     module Service
       class ProviderService < SDK::ProviderService::Service
+        prepend Util::HasMapper
         prepend Util::HasBroker
         prepend Util::ExceptionLogger
 
@@ -36,13 +37,8 @@ module VagrantPlugins
         def action_up(req, ctx)
           ServiceInfo.with_info(ctx) do |info|
             plugin_name = info.plugin_name
-            raw_terminal = req.args.detect { |a|
-              a.type == "hashicorp.vagrant.sdk.Args.TerminalUI"
-            }&.value&.value
-            raw_machine = req.args.detect { |a|
-              a.type == "hashicorp.vagrant.sdk.Args.Machine"
-            }&.value&.value
-            ui = Client::Terminal.load(raw_terminal, broker: broker)
+            ui, machine = mapper.funcspec_map(req.spec)
+
             machine = Client::Machine.load(raw_machine, ui)
             machine.ui.warn("hello from vagrant")
             SDK::Provider::ActionResp.new(success: true)

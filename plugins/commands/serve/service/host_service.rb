@@ -4,6 +4,7 @@ module VagrantPlugins
   module CommandServe
     module Service
       class HostService < Hashicorp::Vagrant::Sdk::HostService::Service
+        prepend Util::HasMapper
         prepend Util::HasBroker
         prepend Util::ExceptionLogger
 
@@ -110,14 +111,11 @@ module VagrantPlugins
         def capability(req, ctx)
           ServiceInfo.with_info(ctx) do |info|
             begin
-
               res = nil
               plugin_name = info.plugin_name
               n_cap = req.name
-              raw_terminal = req.func_args.args.detect { |a|
-                a.type == "hashicorp.vagrant.sdk.Args.TerminalUI"
-              }&.value&.value
-              ui_client = Client::Terminal.load(raw_terminal, broker: broker)
+
+              ui_client = mapper.funcspec_map(req.spec)
               ui = Vagrant::UI::Remote.new(ui_client)
 
               p = Vagrant::Host.new(

@@ -4,6 +4,7 @@ module VagrantPlugins
   module CommandServe
     module Service
       class GuestService < Hashicorp::Vagrant::Sdk::GuestService::Service
+        prepend Util::HasMapper
         prepend Util::HasBroker
         prepend Util::ExceptionLogger
         LOGGER  = Log4r::Logger.new("vagrant::command::serve::guest")
@@ -29,11 +30,8 @@ module VagrantPlugins
         def detect(req, ctx)
           ServiceInfo.with_info(ctx) do |info|
             plugin_name = info.plugin_name
-            raw_target = req.args.detect { |a|
-              a.type == "hashicorp.vagrant.sdk.Args.Target"
-            }&.value&.value
+            target = mapper.funcspec_map(req.args)
 
-            target = Client::Target.load(raw_target, broker: broker)
             project = target.project
             env = Vagrant::Environment.new({client: project})
             machine = env.machine(target.name.to_sym, target.provider_name.to_sym)
@@ -46,7 +44,7 @@ module VagrantPlugins
             begin
               detected = guest.detect?(machine)
             rescue => err
-              LOGGER.debug("error detecting")
+              LOGGER.debug("error encountered detecting guest: #{err.class} - #{err}")
               detected = false
             end
             LOGGER.debug("detected #{detected} for guest #{plugin_name}")

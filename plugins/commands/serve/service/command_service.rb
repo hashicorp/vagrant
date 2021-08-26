@@ -5,6 +5,7 @@ module VagrantPlugins
     module Service
       class CommandService < SDK::CommandService::Service
 
+        prepend Util::HasMapper
         prepend Util::HasBroker
         prepend Util::ExceptionLogger
         LOGGER  = Log4r::Logger.new("vagrant::command::serve::command")
@@ -52,19 +53,8 @@ module VagrantPlugins
         def execute(req, ctx)
           ServiceInfo.with_info(ctx) do |info|
             plugin_name = info.plugin_name
-            raw_terminal = req.spec.args.detect { |a|
-              a.type == "hashicorp.vagrant.sdk.Args.TerminalUI"
-            }&.value&.value
-            raw_args = req.spec.args.detect { |a|
-              a.type == "hashicorp.vagrant.sdk.Command.Arguments"
-            }&.value&.value
-            raw_project = req.spec.args.detect { |a|
-              a.type == "hashicorp.vagrant.sdk.Args.Project"
-            }&.value&.value
 
-            arguments = SDK::Command::Arguments.decode(raw_args)
-            ui_client = Client::Terminal.load(raw_terminal, broker: broker)
-            env_client = Client::Project.load(raw_project, broker: broker)
+            ui_client, env_client, arguments = mapper.funcspec_map(req.spec)
 
             ui = Vagrant::UI::Remote.new(ui_client)
             env = Vagrant::Environment.new(
