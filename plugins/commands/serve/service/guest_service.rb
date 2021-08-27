@@ -64,26 +64,15 @@ module VagrantPlugins
           )
         end
 
-        def get_parent_chain(plugin_name)
-          chain = [plugin_name]
-          plugins = Vagrant.plugin("2").manager.guests[plugin_name.to_s.to_sym].to_a
-          if plugins.last.nil?
-            return chain
-          else
-            chain + get_parent_chain(plugins.last)
-          end
-        end
-
         def parents(req, ctx)
           ServiceInfo.with_info(ctx) do |info|
             plugin_name = info.plugin_name
-            plugin = Vagrant.plugin("2").manager.guests[plugin_name.to_s.to_sym].to_a
-            if !plugin.first
+            plugin = Vagrant.plugin("2").manager.guests[plugin_name.to_s.to_sym].to_a.first
+            if !plugin
               raise "Failed to locate guest plugin for: #{plugin_name.inspect}"
             end
-            guest_chain = get_parent_chain(plugin_name.to_s.to_sym)
             SDK::Platform::ParentsResp.new(
-              parents: guest_chain
+              parents: plugin.new.parents
             )
           end
         end

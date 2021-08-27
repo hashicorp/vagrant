@@ -1,6 +1,7 @@
 require File.expand_path("../../../../../base", __FILE__)
 
 require Vagrant.source_root.join("plugins/commands/serve/command")
+require Vagrant.source_root.join("plugins/commands/serve/broker").to_s
 
 class DummyContext
   attr_reader :metadata
@@ -34,6 +35,12 @@ describe VagrantPlugins::CommandServe::Service::GuestService do
   subject { described_class.new(broker: broker) }
 
   before(:each) do
+    parent_test_guest = Class.new(Vagrant.plugin("2", :guest)) do
+      def detect?(machine)
+        true
+      end
+    end
+
     test_guest = Class.new(Vagrant.plugin("2", :guest)) do
       def detect?(machine)
         true
@@ -41,6 +48,7 @@ describe VagrantPlugins::CommandServe::Service::GuestService do
     end
 
     register_plugin do |p|
+      p.guest(:parent_test) { parent_test_guest }
       p.guest(:test, :parent_test) { test_guest }
     end
   end
@@ -60,9 +68,7 @@ describe VagrantPlugins::CommandServe::Service::GuestService do
       ctx = DummyContext.new("test")
       parents = subject.parents("", ctx)
       expect(parents).not_to be_nil
-      expect(parents.parents).to include("test")
       expect(parents.parents).to include("parent_test")
-
     end
   end
 

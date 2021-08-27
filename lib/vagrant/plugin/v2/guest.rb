@@ -17,6 +17,25 @@ module Vagrant
         def detect?(machine)
           false
         end
+
+        # Returns list of parents for
+        # this guest
+        #
+        # @return [Array<Symbol>]
+        def parents
+          guests = Vagrant.plugin("2").manager.guests.to_hash
+          ancestors = []
+          n, entry = guests.detect { |_, v| v.first == self.class }
+          while n
+            n = nil
+            if entry.last
+              ancestors << entry.last
+              entry = guests[entry.last]
+              n = entry.last
+            end
+          end
+          ancestors
+        end
       end
     end
   end

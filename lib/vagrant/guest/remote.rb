@@ -60,6 +60,7 @@ module Vagrant
       #
       # @return [Symbol]
       def name
+        # TODO: this can probably be deleted
         client.parents[0]
       end
 
