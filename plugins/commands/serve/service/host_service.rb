@@ -4,9 +4,25 @@ module VagrantPlugins
   module CommandServe
     module Service
       class HostService < Hashicorp::Vagrant::Sdk::HostService::Service
+
+        include CapabilityPlatformService
+
         prepend Util::HasMapper
         prepend Util::HasBroker
         prepend Util::ExceptionLogger
+
+        def initialize(*args, **opts, &block)
+          caps = Vagrant.plugin("2").manager.host_capabilities
+          default_args = [
+            # Always get a target to pass the guest capability
+            SDK::FuncSpec::Value.new(
+              type: "hashicorp.vagrant.sdk.Args.Project",
+              name: "",
+            ),
+          ]
+          initialize_capability_platform!(caps, default_args)
+          super(*args, **opts, &block)
+        end
 
         def detect_spec(*_)
           SDK::FuncSpec.new(
@@ -52,88 +68,6 @@ module VagrantPlugins
             SDK::Host::ParentsResp.new(
               parents: plugin.new.parents
             )
-          end
-        end
-
-        def has_capability_spec(*_)
-          SDK::FuncSpec.new(
-            name: "has_capability_spec",
-            args: [
-              SDK::FuncSpec::Value.new(
-                type: "hashicorp.vagrant.sdk.Args.NamedCapability",
-                name: "",
-              )
-            ],
-            result: [
-              SDK::FuncSpec::Value.new(
-                type: "hashicorp.vagrant.sdk.Host.Capability.CheckResp",
-                name: "",
-              ),
-            ],
-          )
-        end
-
-        def has_capability(req, ctx)
-          ServiceInfo.with_info(ctx) do |info|
-            plugin_name = info.plugin_name
-            n_cap = req.args.detect { |a|
-              a.type == 'hashicorp.vagrant.sdk.Args.NamedCapability'
-            }&.value&.value
-            p = Vagrant::Host.new(
-              plugin_name.to_sym,
-              Vagrant.plugin("2").manager.hosts,
-              Vagrant.plugin("2").manager.host_capabilities,
-              nil,
-            )
-            SDK::Host::Capability::CheckResp.new(
-              has_capability: p.capability?(n_cap.strip.to_s.to_sym)
-            )
-          end
-        end
-
-        def capability_spec(*_)
-          SDK::FuncSpec.new(
-            name: "capability_spec",
-            args: [
-              SDK::FuncSpec::Value.new(
-                type: "hashicorp.vagrant.sdk.Args.TerminalUI",
-                name: "",
-              ),
-            ],
-            result: [
-              SDK::FuncSpec::Value.new(
-                type: "hashicorp.vagrant.sdk.Host.Capability.Resp"
-              )
-            ]
-          )
-        end
-
-        def capability(req, ctx)
-          ServiceInfo.with_info(ctx) do |info|
-            begin
-              res = nil
-              plugin_name = info.plugin_name
-              n_cap = req.name
-
-              ui_client = mapper.funcspec_map(req.spec)
-              ui = Vagrant::UI::Remote.new(ui_client)
-
-              p = Vagrant::Host.new(
-                plugin_name.to_sym,
-                Vagrant.plugin("2").manager.hosts,
-                Vagrant.plugin("2").manager.host_capabilities,
-                nil,
-              )
-              res = p.capability(n_cap.to_s.strip.to_sym, ui) # TODO(spox): first arg needs to be env / statebag
-              vres = Google::Protobuf::Value.new
-              vres.from_ruby(res)
-
-              SDK::Host::Capability::Resp.new(
-                result: Google::Protobuf::Any.pack(vres)
-              )
-            rescue => err
-              raise "#{err.class}: #{err}\n#{err.backtrace.join("\n")}"
-            end
           end
         end
       end

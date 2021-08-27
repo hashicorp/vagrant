@@ -1,6 +1,7 @@
 module VagrantPlugins
   module CommandServe
     module Service
+      autoload :CapabilityPlatformService, Vagrant.source_root.join("plugins/commands/serve/service/capability_platform_service").to_s
       autoload :CommandService, Vagrant.source_root.join("plugins/commands/serve/service/command_service").to_s
       autoload :GuestService, Vagrant.source_root.join("plugins/commands/serve/service/guest_service").to_s
       autoload :HostService, Vagrant.source_root.join("plugins/commands/serve/service/host_service").to_s
