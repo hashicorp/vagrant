@@ -102,7 +102,7 @@ module VagrantPlugins
           ServiceInfo.with_info(ctx) do |info|
             cap_name = req.args.detect { |a|
               a.type == "hashicorp.vagrant.sdk.Args.NamedCapability"
-            }&.value&.value.strip.gsub("\b", "")
+            }&.value&.value.strip.gsub("\b", "").gsub("\x05", "")
             plugin_name = info.plugin_name
             LOGGER.debug("checking for #{cap_name} capability in #{plugin_name}")
 
