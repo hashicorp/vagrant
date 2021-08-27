@@ -4,7 +4,7 @@ import Link from 'next/link'
 export default function Footer({ openConsentManager }) {
   return (
     <footer className={s.root}>
-      <div className="g-container">
+      <div className="g-grid-container">
         <Link href="/intro">
           <a>Intro</a>
         </Link>

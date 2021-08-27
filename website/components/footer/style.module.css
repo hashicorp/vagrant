@@ -3,7 +3,7 @@
   flex-shrink: 0;
   display: flex;
 
-  & :global(.g-container) {
+  & :global(.g-grid-container) {
     display: flex;
     flex-wrap: wrap;
   }
