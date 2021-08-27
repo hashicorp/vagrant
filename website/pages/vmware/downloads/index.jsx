@@ -31,41 +31,7 @@ export default function DownloadsPage(staticProps) {
           href: 'https://learn.hashicorp.com/vagrant',
           label: 'View Tutorials at HashiCorp Learn',
         }}
-        packageManagerOverrides={[
-          // Note: These NONE--IGNORE entries prevent
-          // package manager download commands from appearing.
-          // If they are removed, then the page will show
-          // package downloader commands, which are not
-          // known to be support for the vmware utility.
-          //
-          // Related note: Duplicate Homebrew entries target
-          // both macOS and Linux. If one is removed,
-          // then Homebrew will show up under the Linux tab.
-          {
-            label: 'Homebrew',
-            os: 'NONE--IGNORE',
-          },
-          {
-            label: 'Homebrew',
-            os: 'NONE--IGNORE',
-          },
-          {
-            label: 'Amazon Linux',
-            os: 'NONE--IGNORE',
-          },
-          {
-            label: 'Fedora',
-            os: 'NONE--IGNORE',
-          },
-          {
-            label: 'Ubuntu/Debian',
-            os: 'NONE--IGNORE',
-          },
-          {
-            label: 'CentOS/RHEL',
-            os: 'NONE--IGNORE',
-          },
-        ]}
+        showPackageManagers={false}
         {...staticProps}
       />
       {/* Override default ProductDownloader title */}
