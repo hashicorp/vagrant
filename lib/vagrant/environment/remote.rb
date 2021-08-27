@@ -68,6 +68,14 @@ module Vagrant
         hook(:environment_load, runner: Action::Runner.new(env: self))
       end
 
+      # Returns the host object associated with this environment.
+      #
+      # @return [Class]
+      def host
+        h = @client.host
+        Vagrant::Host.new(h, nil, nil, self)
+      end
+
       # Gets a target (machine) by name
       #
       # @param [String] machine name
