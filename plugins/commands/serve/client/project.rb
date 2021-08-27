@@ -68,9 +68,8 @@ module VagrantPlugins
 
         # TODO
         def host
-          @client.host(Google::Protobuf::Empty.new)
-          # TODO load the remote host plugin.
-          nil
+          h = @client.host(Google::Protobuf::Empty.new)
+          Host.load(h, broker: @broker)
         end
 
         # return [<String>]
