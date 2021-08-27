@@ -27,6 +27,10 @@ module Vagrant
           end
         CODE
       end
+
+      def to_proto
+        @client.proto
+      end
     end
   end
 end
