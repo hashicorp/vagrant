@@ -22,7 +22,7 @@ func (h *AlwaysTrueHost) HostDetectFunc() interface{} {
 }
 
 func (h *AlwaysTrueHost) Detect() bool {
-	return true
+	return false
 }
 
 // ParentsFunc implements component.Host

@@ -10,6 +10,7 @@ module VagrantPlugins
         prepend Util::HasMapper
         prepend Util::HasBroker
         prepend Util::ExceptionLogger
+        LOGGER  = Log4r::Logger.new("vagrant::command::serve::host")
 
         def initialize(*args, **opts, &block)
           caps = Vagrant.plugin("2").manager.host_capabilities
@@ -28,7 +29,7 @@ module VagrantPlugins
           SDK::FuncSpec.new(
             name: "detect_spec",
             result: [
-              type: "hashicorp.vagrant.sdk.Host.DetectResp",
+              type: "hashicorp.vagrant.sdk.Platform.DetectResp",
               name: "",
             ]
           )
@@ -42,8 +43,15 @@ module VagrantPlugins
               raise "Failed to locate host plugin for: #{plugin_name.inspect}"
             end
             host = plugin.new
-            SDK::Host::DetectResp.new(
-              detected: host.detect?({}), # TODO(spox): argument should be env/state bag
+            begin
+              detected = host.detect?({}) # TODO(spox): argument should be env/state bag
+            rescue => err
+              LOGGER.debug("error encountered detecting host: #{err.class} - #{err}")
+              detected = false
+            end
+            LOGGER.debug("detected #{detected} for host #{plugin_name}")
+            SDK::Platform::DetectResp.new(
+              detected: detected,
             )
           end
         end
@@ -65,8 +73,9 @@ module VagrantPlugins
             if !plugin
               raise "Failed to locate host plugin for: #{plugin_name.inspect}"
             end
-            SDK::Host::ParentsResp.new(
-              parents: plugin.new.parents
+            p = plugin.new.parents
+            SDK::Platform::ParentsResp.new(
+              parents: p
             )
           end
         end
