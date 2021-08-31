@@ -224,29 +224,31 @@ func (b *Basis) Host() (host core.Host, err error) {
 			continue
 		}
 
-		hp, err := host.Parents()
-		if err != nil {
-			b.logger.Error("failed to get parents from host",
-				"plugin", name,
-				"type", "Host",
-				"error", err)
+		if detected {
+			hp, err := host.Parents()
+			if err != nil {
+				b.logger.Error("failed to get parents from host",
+					"plugin", name,
+					"type", "Host",
+					"error", err)
 
-			continue
-		}
+				continue
+			}
 
-		rp, err := result.Parents()
-		if err != nil {
-			b.logger.Error("failed to get parents from host",
-				"plugin", result_name,
-				"type", "Host",
-				"error", err)
+			rp, err := result.Parents()
+			if err != nil {
+				b.logger.Error("failed to get parents from host",
+					"plugin", result_name,
+					"type", "Host",
+					"error", err)
 
-			continue
-		}
+				continue
+			}
 
-		if len(hp) > len(rp) {
-			result = host
-			result_name = name
+			if len(hp) > len(rp) {
+				result = host
+				result_name = name
+			}
 		}
 	}
 
