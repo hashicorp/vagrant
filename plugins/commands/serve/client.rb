@@ -9,6 +9,7 @@ module VagrantPlugins
       autoload :Project, Vagrant.source_root.join("plugins/commands/serve/client/project").to_s
       autoload :Target, Vagrant.source_root.join("plugins/commands/serve/client/target").to_s
       autoload :Terminal, Vagrant.source_root.join("plugins/commands/serve/client/terminal").to_s
+      autoload :StateBag, Vagrant.source_root.join("plugins/commands/serve/client/state_bag").to_s
     end
   end
 end
