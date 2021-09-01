@@ -100,9 +100,8 @@ module VagrantPlugins
 
         def has_capability(req, ctx)
           ServiceInfo.with_info(ctx) do |info|
-            cap_name = req.args.detect { |a|
-              a.type == "hashicorp.vagrant.sdk.Args.NamedCapability"
-            }&.value&.value.strip.gsub("\b", "").gsub("\x05", "")
+            cap_name = mapper.funcspec_map(req).to_sym
+
             plugin_name = info.plugin_name
             LOGGER.debug("checking for #{cap_name} capability in #{plugin_name}")
 
