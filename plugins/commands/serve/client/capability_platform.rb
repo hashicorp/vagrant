@@ -19,7 +19,8 @@ module VagrantPlugins
                 value: Google::Protobuf::Any.pack(val)
             )]
           )
-          res = client.has_capability(req)
+
+          res = @client.has_capability(req)
           @logger.debug("got result #{res}")
 
           res.has_capability

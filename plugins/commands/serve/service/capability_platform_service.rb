@@ -101,7 +101,13 @@ module VagrantPlugins
             cap_method = target_cap.method(cap_name)
 
             # TODO: pass in other args too
-            cap_method.call(machine)
+            resp =  cap_method.call({})
+            
+            val = Google::Protobuf::Value.new
+            val.from_ruby(resp)
+            SDK::Platform::Capability::Resp.new(
+              result: Google::Protobuf::Any.pack(val)
+            )
           end
         end
       end
