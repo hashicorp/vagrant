@@ -8,9 +8,7 @@ module VagrantPlugins
 
         def self.rsync_install(machine)
           install_output = {:stderr => '', :stdout => ''}
-          command = 'PKG_PATH="http://ftp.openbsd.org/pub/OpenBSD/' \
-            '`uname -r`/packages/`arch -s`/" ' \
-            'pkg_add -I rsync--'
+          command = 'pkg_add -I rsync--'
           machine.communicate.sudo(command) do |type, data|
             install_output[type] << data if install_output.key?(type)
           end
