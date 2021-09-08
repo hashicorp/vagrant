@@ -533,7 +533,6 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
       optional :basis, :message, 1, "hashicorp.vagrant.Basis"
     end
     add_message "hashicorp.vagrant.FindBasisResponse" do
-      optional :found, :bool, 1
       optional :basis, :message, 2, "hashicorp.vagrant.Basis"
     end
     add_message "hashicorp.vagrant.ListBasisResponse" do
@@ -555,7 +554,6 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
       optional :project, :message, 1, "hashicorp.vagrant.Project"
     end
     add_message "hashicorp.vagrant.FindProjectResponse" do
-      optional :found, :bool, 1
       optional :project, :message, 2, "hashicorp.vagrant.Project"
     end
     add_message "hashicorp.vagrant.ListProjectsResponse" do
@@ -583,7 +581,6 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
       optional :target, :message, 1, "hashicorp.vagrant.Target"
     end
     add_message "hashicorp.vagrant.FindTargetResponse" do
-      optional :found, :bool, 1
       optional :target, :message, 2, "hashicorp.vagrant.Target"
     end
     add_message "hashicorp.vagrant.ListTargetsResponse" do

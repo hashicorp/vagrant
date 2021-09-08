@@ -1191,7 +1191,6 @@ message FindBasisRequest {
 }
 
 message FindBasisResponse {
-  bool found = 1;
   Basis basis = 2;
 }
 
@@ -1221,7 +1220,6 @@ message FindProjectRequest {
 }
 
 message FindProjectResponse {
-  bool found = 1;
   Project project = 2;
 }
 
@@ -1259,7 +1257,6 @@ message FindTargetRequest {
 }
 
 message FindTargetResponse {
-  bool found = 1;
   Target target = 2;
 }
 
