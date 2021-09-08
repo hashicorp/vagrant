@@ -97,6 +97,22 @@ func testBasis(t testing.T, s *State) *vagrant_plugin_sdk.Ref_Basis {
 	}
 }
 
+func testProject(t testing.T, s *State) *vagrant_plugin_sdk.Ref_Project {
+	basisRef := testBasis(t, s)
+	s.ProjectPut(serverptypes.TestProject(t, &vagrant_server.Project{
+		ResourceId: "test-project",
+		Basis:      basisRef,
+		Path:       "idontexist",
+		Name:       "test-project",
+	}))
+	return &vagrant_plugin_sdk.Ref_Project{
+		ResourceId: "test-project",
+		Path:       "idontexist",
+		Name:       "test-project",
+		Basis:      basisRef,
+	}
+}
+
 func testTempDir(t testing.T) string {
 	dir, err := ioutil.TempDir("", "vagrant-test")
 	require.NoError(t, err)

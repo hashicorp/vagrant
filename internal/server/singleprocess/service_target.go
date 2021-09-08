@@ -13,12 +13,12 @@ func (s *service) UpsertTarget(
 	ctx context.Context,
 	req *vagrant_server.UpsertTargetRequest,
 ) (*vagrant_server.UpsertTargetResponse, error) {
-	m, err := s.state.TargetPut(req.Target)
+	err := s.state.TargetPut(req.Target)
 	if err != nil {
 		return nil, err
 	}
 
-	return &vagrant_server.UpsertTargetResponse{Target: m}, nil
+	return &vagrant_server.UpsertTargetResponse{Target: req.Target}, nil
 }
 
 func (s *service) DeleteTarget(

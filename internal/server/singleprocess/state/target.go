@@ -35,7 +35,7 @@ func (s *State) TargetFind(m *vagrant_server.Target) (*vagrant_server.Target, er
 	return result, err
 }
 
-func (s *State) TargetPut(target *vagrant_server.Target) (*vagrant_server.Target, error) {
+func (s *State) TargetPut(target *vagrant_server.Target) error {
 	memTxn := s.inmem.Txn(true)
 	defer memTxn.Abort()
 
@@ -45,7 +45,7 @@ func (s *State) TargetPut(target *vagrant_server.Target) (*vagrant_server.Target
 	if err == nil {
 		memTxn.Commit()
 	}
-	return target, err
+	return err
 }
 
 func (s *State) TargetDelete(ref *vagrant_plugin_sdk.Ref_Target) error {
