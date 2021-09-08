@@ -91,7 +91,7 @@ func (b *Basis) LoadProject(n string) (*Project, error) {
 		return nil, err
 	}
 
-	if !result.Found {
+	if result == nil {
 		return nil, NotFoundErr
 	}
 

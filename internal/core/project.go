@@ -570,7 +570,7 @@ func WithProjectName(name string) ProjectOption {
 		if err != nil {
 			return
 		}
-		if !result.Found {
+		if result == nil {
 			p.logger.Error("failed to locate project during setup", "project", name,
 				"basis", p.basis.Ref())
 			return errors.New("failed to load project")

@@ -355,7 +355,7 @@ func WithTargetRef(r *vagrant_plugin_sdk.Ref_Target) TargetOption {
 		if err != nil {
 			return err
 		}
-		if result.Found {
+		if result != nil {
 			target = result.Target
 		} else {
 			var result *vagrant_server.UpsertTargetResponse

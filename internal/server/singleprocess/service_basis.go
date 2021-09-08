@@ -43,7 +43,7 @@ func (s *service) FindBasis(
 		return nil, err
 	}
 
-	return &vagrant_server.FindBasisResponse{Basis: result, Found: true}, nil
+	return &vagrant_server.FindBasisResponse{Basis: result}, nil
 }
 
 // TODO: test

@@ -762,7 +762,7 @@ func WithBasisResourceId(rid string) BasisOption {
 		if err != nil {
 			return
 		}
-		if !result.Found {
+		if result == nil {
 			b.logger.Error("failed to locate basis during setup",
 				"resource-id", rid)
 

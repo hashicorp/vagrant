@@ -50,7 +50,7 @@ func (s *service) FindTarget(
 	if err != nil {
 		return nil, err
 	}
-	return &vagrant_server.FindTargetResponse{Target: result, Found: true}, nil
+	return &vagrant_server.FindTargetResponse{Target: result}, nil
 }
 
 // TODO: test

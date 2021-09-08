@@ -113,7 +113,7 @@ func (p *Project) LoadTarget(n string) (*Target, error) {
 	}
 
 	// If the target exists, load and return
-	if result.Found {
+	if result != nil {
 		return &Target{
 			client:  p.client,
 			ctx:     p.ctx,

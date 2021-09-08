@@ -42,7 +42,7 @@ func (s *service) FindProject(
 	if err != nil {
 		return nil, err
 	}
-	return &vagrant_server.FindProjectResponse{Project: result, Found: true}, nil
+	return &vagrant_server.FindProjectResponse{Project: result}, nil
 }
 
 // TODO: test
