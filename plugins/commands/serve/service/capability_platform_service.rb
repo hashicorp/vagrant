@@ -61,7 +61,7 @@ module VagrantPlugins
             # The first argument is always a machine, drop it
             args.shift
 
-            cap_args = default_args
+            cap_args = @default_args
 
             # TODO: take the rest of `args` and create entries for them in 
             # `cap_args`
@@ -87,20 +87,11 @@ module VagrantPlugins
             caps_registry = @capabilities[plugin_name]
             target_cap = caps_registry.get(cap_name)
 
-            # TODO: how to get this Target out of the args
+            # TODO: how to all the args to pass into the cap method
             
-            # A machine should always be provided to a guest capability
-            raw_target = req.func_args.args.detect { |a|
-              a.type == "hashicorp.vagrant.sdk.Args.Target"
-            }&.value&.value
-            target = Client::Target.load(raw_target, broker: broker)
-            project = target.project
-            env = Vagrant::Environment.new({client: project})
-            machine = env.machine(target.name.to_sym, target.provider_name.to_sym)
-
             cap_method = target_cap.method(cap_name)
 
-            # TODO: pass in other args too
+            # TODO: pass in args too
             resp =  cap_method.call({})
             
             val = Google::Protobuf::Value.new

@@ -26,6 +26,7 @@ module VagrantPlugins
         end
 
         def detect_spec(*_)
+          # TODO: Add statebad as an arg
           SDK::FuncSpec.new(
             name: "detect_spec",
             result: [
@@ -38,6 +39,9 @@ module VagrantPlugins
         def detect(req, ctx)
           ServiceInfo.with_info(ctx) do |info|
             plugin_name = info.plugin_name
+
+            # TODO: get statebag from args
+
             plugin = Vagrant.plugin("2").manager.hosts[plugin_name.to_s.to_sym].to_a.first
             if !plugin
               raise "Failed to locate host plugin for: #{plugin_name.inspect}"

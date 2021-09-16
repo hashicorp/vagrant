@@ -27,7 +27,7 @@ module VagrantPlugins
           @broker = opts.delete(:broker)
           raise ArgumentError,
             "Expected `Broker' to be provided" if @broker.nil?
-          super
+          super()
         end
       end
 
@@ -38,7 +38,7 @@ module VagrantPlugins
 
         def initialize(*args, **opts, &block)
           @mapper = Mappers.new(broker) if respond_to?(:broker)
-          super
+          super()
         end
       end
 
