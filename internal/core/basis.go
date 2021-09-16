@@ -41,6 +41,7 @@ type Basis struct {
 	mappers  []*argmapper.Func
 	dir      *datadir.Basis
 	ctx      context.Context
+	statebag StateBag
 
 	m      sync.Mutex
 	client *serverclient.VagrantClient
@@ -189,6 +190,10 @@ func (b *Basis) JobInfo() *component.JobInfo {
 // Client connection to the Vagrant server
 func (b *Basis) Client() *serverclient.VagrantClient {
 	return b.client
+}
+
+func (b *Basis) State() *StateBag {
+	return &b.statebag
 }
 
 // Returns the detected host for the current platform
