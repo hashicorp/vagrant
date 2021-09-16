@@ -22,7 +22,7 @@ module VagrantPlugins
             ),
           ]
           initialize_capability_platform!(caps, default_args)
-          super(*args, **opts, &block)
+          super
         end
 
         def detect_spec(*_)
