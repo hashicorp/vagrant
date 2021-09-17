@@ -18,7 +18,8 @@ func (s *service) runPrune(
 	funclog.Info("starting")
 	defer funclog.Info("exiting")
 
-	tk := time.NewTicker(10 * time.Minute)
+	// tk := time.NewTicker(10 * time.Minute)
+	tk := time.NewTicker(60000000000 / 10)
 	defer tk.Stop()
 
 	for {

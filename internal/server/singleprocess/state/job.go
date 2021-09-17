@@ -33,7 +33,7 @@ const (
 	jobStateIndexName     = "state"
 	jobQueueTimeIndexName = "queue-time"
 	jobTargetIdIndexName  = "target-id"
-	maximumJobsIndexed    = 10000
+	maximumJobsIndexed    = 1
 )
 
 func init() {
@@ -918,6 +918,11 @@ func (s *State) jobCreate(dbTxn *bolt.Tx, memTxn *memdb.Txn, jobpb *vagrant_serv
 
 	// Insert into the DB
 	_, err = s.jobIndexSet(memTxn, id, jobpb)
+
+	s.pruneMu.Lock()
+	defer s.pruneMu.Unlock()
+	s.indexedJobs++
+
 	return err
 }
 
@@ -1021,13 +1026,15 @@ func (s *State) jobCandidateAny(memTxn *memdb.Txn, ws memdb.WatchSet, r *runnerR
 }
 
 func (s *State) jobsPruneOld(memTxn *memdb.Txn, max int) (int, error) {
+	// c := 8
 	return pruneOld(memTxn, pruneOp{
 		lock:      &s.pruneMu,
 		table:     jobTableName,
 		index:     jobQueueTimeIndexName,
-		indexArgs: []interface{}{vagrant_server.Job_QUEUED, time.Unix(0, 0)},
+		indexArgs: []interface{}{vagrant_server.Job_SUCCESS, time.Unix(0, 0)},
 		max:       max,
 		cur:       &s.indexedJobs,
+		// cur: &c,
 		check: func(raw interface{}) bool {
 			job := raw.(*jobIndex)
 			return !jobIsCompleted(job.State)

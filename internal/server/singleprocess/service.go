@@ -1,6 +1,9 @@
 package singleprocess
 
 import (
+	"context"
+	"sync"
+
 	bolt "go.etcd.io/bbolt"
 
 	"github.com/hashicorp/go-hclog"
@@ -20,6 +23,16 @@ type service struct {
 
 	// id is our unique server ID.
 	id string
+
+	// bgCtx is used for background tasks within the service. This is
+	// cancelled when Close is called.
+	bgCtx       context.Context
+	bgCtxCancel context.CancelFunc
+
+	// bgWg is incremented for every background goroutine that the
+	// service starts up. When Close is called, we wait on this to ensure
+	// that we fully shut down before returning.
+	bgWg sync.WaitGroup
 
 	vagrant_server.UnimplementedVagrantServer
 	vagrant_plugin_sdk.UnimplementedTargetServiceServer
@@ -85,6 +98,14 @@ func New(opts ...Option) (vagrant_server.VagrantServer, error) {
 			return nil, err
 		}
 	}
+
+	// Setup the background context that is used for internal tasks
+	s.bgCtx, s.bgCtxCancel = context.WithCancel(context.Background())
+
+	// Start out state pruning background goroutine. This calls
+	// Prune on the state every 10 minutes.
+	s.bgWg.Add(1)
+	go s.runPrune(s.bgCtx, &s.bgWg, log.Named("prune"))
 
 	return &s, nil
 }
