@@ -140,6 +140,17 @@ type jobIndex struct {
 	OutputBuffer *logbuffer.Buffer
 }
 
+// A helper, pulled out rather than on a value to allow it to be used against
+// vagrant_server.Job,s and jobIndex's alike.
+func jobIsCompleted(state vagrant_server.Job_State) bool {
+	switch state {
+	case vagrant_server.Job_ERROR, vagrant_server.Job_SUCCESS:
+		return true
+	default:
+		return false
+	}
+}
+
 // Job is the exported structure that is returned for most state APIs
 // and gives callers access to more information than the pure job structure.
 type Job struct {
@@ -1007,6 +1018,21 @@ func (s *State) jobCandidateAny(memTxn *memdb.Txn, ws memdb.WatchSet, r *runnerR
 	}
 
 	return nil, nil
+}
+
+func (s *State) jobsPruneOld(memTxn *memdb.Txn, max int) (int, error) {
+	return pruneOld(memTxn, pruneOp{
+		lock:      &s.pruneMu,
+		table:     jobTableName,
+		index:     jobQueueTimeIndexName,
+		indexArgs: []interface{}{vagrant_server.Job_QUEUED, time.Unix(0, 0)},
+		max:       max,
+		cur:       &s.indexedJobs,
+		check: func(raw interface{}) bool {
+			job := raw.(*jobIndex)
+			return !jobIsCompleted(job.State)
+		},
+	})
 }
 
 // Job returns the Job for an index.
