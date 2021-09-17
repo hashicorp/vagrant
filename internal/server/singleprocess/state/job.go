@@ -33,6 +33,7 @@ const (
 	jobStateIndexName     = "state"
 	jobQueueTimeIndexName = "queue-time"
 	jobTargetIdIndexName  = "target-id"
+	maximumJobsIndexed    = 10000
 )
 
 func init() {

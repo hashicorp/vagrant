@@ -130,6 +130,25 @@ func (s *State) Close() error {
 	return s.db.Close()
 }
 
+// Prune should be called in a on a regular interval to allow State
+// to prune out old data.
+func (s *State) Prune() error {
+	memTxn := s.inmem.Txn(true)
+	defer memTxn.Abort()
+
+	jobs, err := s.jobsPruneOld(memTxn, maximumJobsIndexed)
+	if err != nil {
+		return err
+	}
+	s.log.Debug("Finished pruning data",
+		"removed-jobs", jobs,
+	)
+
+	memTxn.Commit()
+
+	return nil
+}
+
 // schemaFn is an interface function used to create and return new memdb schema
 // structs for constructing an in-memory db.
 type schemaFn func() *memdb.TableSchema
