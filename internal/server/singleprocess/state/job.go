@@ -921,7 +921,6 @@ func (s *State) jobCreate(dbTxn *bolt.Tx, memTxn *memdb.Txn, jobpb *vagrant_serv
 
 	s.pruneMu.Lock()
 	defer s.pruneMu.Unlock()
-	s.indexedJobs++
 
 	return err
 }
@@ -1026,15 +1025,15 @@ func (s *State) jobCandidateAny(memTxn *memdb.Txn, ws memdb.WatchSet, r *runnerR
 }
 
 func (s *State) jobsPruneOld(memTxn *memdb.Txn, max int) (int, error) {
-	// c := 8
+	cur := dbCount(s.db, jobTableName)
 	return pruneOld(memTxn, pruneOp{
 		lock:      &s.pruneMu,
 		table:     jobTableName,
 		index:     jobQueueTimeIndexName,
 		indexArgs: []interface{}{vagrant_server.Job_SUCCESS, time.Unix(0, 0)},
 		max:       max,
-		cur:       &s.indexedJobs,
-		// cur: &c,
+		// cur:       &s.indexedJobs,
+		cur: &cur,
 		check: func(raw interface{}) bool {
 			job := raw.(*jobIndex)
 			return !jobIsCompleted(job.State)

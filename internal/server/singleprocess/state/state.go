@@ -59,10 +59,7 @@ type State struct {
 	// Where to log to
 	log hclog.Logger
 
-	// indexedJobs indicates how many job records we are tracking in memory
-	indexedJobs int
-
-	// Used to track indexedJobs and prune records
+	// Used to track prune records
 	pruneMu sync.Mutex
 }
 

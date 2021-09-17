@@ -86,7 +86,7 @@ pruning:
 		}
 	}
 
-	// Grab the lock and update indexedJobs value
+	// Grab the lock and update cur value
 	op.lock.Lock()
 	defer op.lock.Unlock()
 

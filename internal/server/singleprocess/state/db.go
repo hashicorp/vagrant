@@ -126,3 +126,16 @@ func dbUpsert(b *bolt.Bucket, update bool, id []byte, msg proto.Message) error {
 	// Insert
 	return dbPut(b, id, msg)
 }
+
+func dbCount(b *bolt.DB, tableName string) int {
+	count := 0
+	b.View(func(tx *bolt.Tx) error {
+		bucket := tx.Bucket([]byte(tableName))
+		bucket.ForEach(func(k, v []byte) error {
+			count++
+			return nil
+		})
+		return nil
+	})
+	return count
+}
