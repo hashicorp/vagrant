@@ -59,6 +59,9 @@ type State struct {
 	// Where to log to
 	log hclog.Logger
 
+	// indexedJobs indicates how many job records we are tracking in memory
+	indexedJobs int
+
 	// Used to track prune records
 	pruneMu sync.Mutex
 }
@@ -140,7 +143,8 @@ func (s *State) Prune() error {
 	memTxn := s.inmem.Txn(true)
 	defer memTxn.Abort()
 
-	jobs, err := s.jobsPruneOld(memTxn, maximumJobsIndexed)
+	// Prune jobs from memdb
+	jobs, err := s.jobsPruneOld(memTxn, maximumJobsInMem)
 	if err != nil {
 		return err
 	}
@@ -149,7 +153,6 @@ func (s *State) Prune() error {
 	)
 
 	memTxn.Commit()
-
 	return nil
 }
 

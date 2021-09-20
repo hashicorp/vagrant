@@ -33,7 +33,8 @@ const (
 	jobStateIndexName     = "state"
 	jobQueueTimeIndexName = "queue-time"
 	jobTargetIdIndexName  = "target-id"
-	maximumJobsIndexed    = 1
+	maximumJobsInMem      = 10000
+	maximumJobsIndexed    = 10
 )
 
 func init() {
@@ -921,6 +922,7 @@ func (s *State) jobCreate(dbTxn *bolt.Tx, memTxn *memdb.Txn, jobpb *vagrant_serv
 
 	s.pruneMu.Lock()
 	defer s.pruneMu.Unlock()
+	s.indexedJobs++
 
 	return err
 }
@@ -1025,20 +1027,53 @@ func (s *State) jobCandidateAny(memTxn *memdb.Txn, ws memdb.WatchSet, r *runnerR
 }
 
 func (s *State) jobsPruneOld(memTxn *memdb.Txn, max int) (int, error) {
-	cur := dbCount(s.db, jobTableName)
+	// Prune from memdb
 	return pruneOld(memTxn, pruneOp{
 		lock:      &s.pruneMu,
 		table:     jobTableName,
 		index:     jobQueueTimeIndexName,
-		indexArgs: []interface{}{vagrant_server.Job_SUCCESS, time.Unix(0, 0)},
+		indexArgs: []interface{}{vagrant_server.Job_QUEUED, time.Unix(0, 0)},
 		max:       max,
-		// cur:       &s.indexedJobs,
-		cur: &cur,
+		cur:       &s.indexedJobs,
 		check: func(raw interface{}) bool {
 			job := raw.(*jobIndex)
 			return !jobIsCompleted(job.State)
 		},
 	})
+}
+
+func (s *State) jobsDBPruneOld(max int) (int, error) {
+	cnt := dbCount(s.db, jobTableName)
+	toDelete := cnt - max
+	var deleted int
+
+	// Prune jobs from boltDB
+	s.db.Update(func(tx *bolt.Tx) error {
+		bucket := tx.Bucket([]byte(jobTableName))
+		cur := bucket.Cursor()
+		key, _ := cur.First()
+		for {
+			if key == nil {
+				break
+			}
+			// otherwise, prune this job! Once we've pruned enough jobs to get back
+			// to the maximum, we stop pruning.
+			toDelete--
+
+			err := bucket.Delete(key)
+			if err != nil {
+				return err
+			}
+
+			deleted++
+			if toDelete <= 0 {
+				break
+			}
+			key, _ = cur.Next()
+		}
+		return nil
+	})
+	return deleted, nil
 }
 
 // Job returns the Job for an index.

@@ -8,7 +8,6 @@ import (
 
 	"github.com/hashicorp/go-hclog"
 
-	"github.com/hashicorp/vagrant-plugin-sdk/proto/vagrant_plugin_sdk"
 	"github.com/hashicorp/vagrant/internal/server"
 	"github.com/hashicorp/vagrant/internal/server/proto/vagrant_server"
 	"github.com/hashicorp/vagrant/internal/server/singleprocess/state"
@@ -35,9 +34,6 @@ type service struct {
 	bgWg sync.WaitGroup
 
 	vagrant_server.UnimplementedVagrantServer
-	vagrant_plugin_sdk.UnimplementedTargetServiceServer
-	vagrant_plugin_sdk.UnimplementedProjectServiceServer
-	vagrant_plugin_sdk.UnimplementedVagrantfileServiceServer
 }
 
 // New returns a Vagrant server implementation that uses BoltDB plus
