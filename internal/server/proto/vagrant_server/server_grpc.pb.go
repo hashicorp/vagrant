@@ -87,6 +87,8 @@ type VagrantClient interface {
 	// used to listen for terminal output and other events of a running job.
 	// Multiple listeners can open a job stream.
 	GetJobStream(ctx context.Context, in *GetJobStreamRequest, opts ...grpc.CallOption) (Vagrant_GetJobStreamClient, error)
+	// Clean out old jobs from the job database
+	PruneOldJobs(ctx context.Context, in *empty.Empty, opts ...grpc.CallOption) (*empty.Empty, error)
 	// GetRunner gets information about a single runner.
 	GetRunner(ctx context.Context, in *GetRunnerRequest, opts ...grpc.CallOption) (*Runner, error)
 	// GetServerConfig sets configuration for the Vagrant server.
@@ -416,6 +418,15 @@ func (x *vagrantGetJobStreamClient) Recv() (*GetJobStreamResponse, error) {
 	return m, nil
 }
 
+func (c *vagrantClient) PruneOldJobs(ctx context.Context, in *empty.Empty, opts ...grpc.CallOption) (*empty.Empty, error) {
+	out := new(empty.Empty)
+	err := c.cc.Invoke(ctx, "/hashicorp.vagrant.Vagrant/PruneOldJobs", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *vagrantClient) GetRunner(ctx context.Context, in *GetRunnerRequest, opts ...grpc.CallOption) (*Runner, error) {
 	out := new(Runner)
 	err := c.cc.Invoke(ctx, "/hashicorp.vagrant.Vagrant/GetRunner", in, out, opts...)
@@ -679,6 +690,8 @@ type VagrantServer interface {
 	// used to listen for terminal output and other events of a running job.
 	// Multiple listeners can open a job stream.
 	GetJobStream(*GetJobStreamRequest, Vagrant_GetJobStreamServer) error
+	// Clean out old jobs from the job database
+	PruneOldJobs(context.Context, *empty.Empty) (*empty.Empty, error)
 	// GetRunner gets information about a single runner.
 	GetRunner(context.Context, *GetRunnerRequest) (*Runner, error)
 	// GetServerConfig sets configuration for the Vagrant server.
@@ -795,6 +808,9 @@ func (UnimplementedVagrantServer) ValidateJob(context.Context, *ValidateJobReque
 }
 func (UnimplementedVagrantServer) GetJobStream(*GetJobStreamRequest, Vagrant_GetJobStreamServer) error {
 	return status.Errorf(codes.Unimplemented, "method GetJobStream not implemented")
+}
+func (UnimplementedVagrantServer) PruneOldJobs(context.Context, *empty.Empty) (*empty.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method PruneOldJobs not implemented")
 }
 func (UnimplementedVagrantServer) GetRunner(context.Context, *GetRunnerRequest) (*Runner, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetRunner not implemented")
@@ -1333,6 +1349,24 @@ func (x *vagrantGetJobStreamServer) Send(m *GetJobStreamResponse) error {
 	return x.ServerStream.SendMsg(m)
 }
 
+func _Vagrant_PruneOldJobs_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(empty.Empty)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(VagrantServer).PruneOldJobs(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/hashicorp.vagrant.Vagrant/PruneOldJobs",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(VagrantServer).PruneOldJobs(ctx, req.(*empty.Empty))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _Vagrant_GetRunner_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(GetRunnerRequest)
 	if err := dec(in); err != nil {
@@ -1664,6 +1698,10 @@ var Vagrant_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "ValidateJob",
 			Handler:    _Vagrant_ValidateJob_Handler,
+		},
+		{
+			MethodName: "PruneOldJobs",
+			Handler:    _Vagrant_PruneOldJobs_Handler,
 		},
 		{
 			MethodName: "GetRunner",

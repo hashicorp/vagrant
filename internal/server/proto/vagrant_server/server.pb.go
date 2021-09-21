@@ -12867,7 +12867,7 @@ var file_proto_vagrant_server_server_proto_rawDesc = []byte{
 	0x65, 0x79, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x03, 0x6b, 0x65, 0x79, 0x12, 0x14, 0x0a,
 	0x05, 0x76, 0x61, 0x6c, 0x75, 0x65, 0x18, 0x02, 0x20, 0x01, 0x28, 0x09, 0x52, 0x05, 0x76, 0x61,
 	0x6c, 0x75, 0x65, 0x3a, 0x02, 0x38, 0x01, 0x42, 0x07, 0x0a, 0x05, 0x73, 0x63, 0x6f, 0x70, 0x65,
-	0x32, 0x8d, 0x1a, 0x0a, 0x07, 0x56, 0x61, 0x67, 0x72, 0x61, 0x6e, 0x74, 0x12, 0x53, 0x0a, 0x0e,
+	0x32, 0xcd, 0x1a, 0x0a, 0x07, 0x56, 0x61, 0x67, 0x72, 0x61, 0x6e, 0x74, 0x12, 0x53, 0x0a, 0x0e,
 	0x47, 0x65, 0x74, 0x56, 0x65, 0x72, 0x73, 0x69, 0x6f, 0x6e, 0x49, 0x6e, 0x66, 0x6f, 0x12, 0x16,
 	0x2e, 0x67, 0x6f, 0x6f, 0x67, 0x6c, 0x65, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x62, 0x75, 0x66,
 	0x2e, 0x45, 0x6d, 0x70, 0x74, 0x79, 0x1a, 0x29, 0x2e, 0x68, 0x61, 0x73, 0x68, 0x69, 0x63, 0x6f,
@@ -13013,7 +13013,11 @@ var file_proto_vagrant_server_server_proto_rawDesc = []byte{
 	0x72, 0x65, 0x61, 0x6d, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x27, 0x2e, 0x68, 0x61,
 	0x73, 0x68, 0x69, 0x63, 0x6f, 0x72, 0x70, 0x2e, 0x76, 0x61, 0x67, 0x72, 0x61, 0x6e, 0x74, 0x2e,
 	0x47, 0x65, 0x74, 0x4a, 0x6f, 0x62, 0x53, 0x74, 0x72, 0x65, 0x61, 0x6d, 0x52, 0x65, 0x73, 0x70,
-	0x6f, 0x6e, 0x73, 0x65, 0x30, 0x01, 0x12, 0x4b, 0x0a, 0x09, 0x47, 0x65, 0x74, 0x52, 0x75, 0x6e,
+	0x6f, 0x6e, 0x73, 0x65, 0x30, 0x01, 0x12, 0x3e, 0x0a, 0x0c, 0x50, 0x72, 0x75, 0x6e, 0x65, 0x4f,
+	0x6c, 0x64, 0x4a, 0x6f, 0x62, 0x73, 0x12, 0x16, 0x2e, 0x67, 0x6f, 0x6f, 0x67, 0x6c, 0x65, 0x2e,
+	0x70, 0x72, 0x6f, 0x74, 0x6f, 0x62, 0x75, 0x66, 0x2e, 0x45, 0x6d, 0x70, 0x74, 0x79, 0x1a, 0x16,
+	0x2e, 0x67, 0x6f, 0x6f, 0x67, 0x6c, 0x65, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x62, 0x75, 0x66,
+	0x2e, 0x45, 0x6d, 0x70, 0x74, 0x79, 0x12, 0x4b, 0x0a, 0x09, 0x47, 0x65, 0x74, 0x52, 0x75, 0x6e,
 	0x6e, 0x65, 0x72, 0x12, 0x23, 0x2e, 0x68, 0x61, 0x73, 0x68, 0x69, 0x63, 0x6f, 0x72, 0x70, 0x2e,
 	0x76, 0x61, 0x67, 0x72, 0x61, 0x6e, 0x74, 0x2e, 0x47, 0x65, 0x74, 0x52, 0x75, 0x6e, 0x6e, 0x65,
 	0x72, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x19, 0x2e, 0x68, 0x61, 0x73, 0x68, 0x69,
@@ -13555,57 +13559,59 @@ var file_proto_vagrant_server_server_proto_depIdxs = []int32{
 	30,  // 253: hashicorp.vagrant.Vagrant._ListJobs:input_type -> hashicorp.vagrant.ListJobsRequest
 	25,  // 254: hashicorp.vagrant.Vagrant.ValidateJob:input_type -> hashicorp.vagrant.ValidateJobRequest
 	32,  // 255: hashicorp.vagrant.Vagrant.GetJobStream:input_type -> hashicorp.vagrant.GetJobStreamRequest
-	42,  // 256: hashicorp.vagrant.Vagrant.GetRunner:input_type -> hashicorp.vagrant.GetRunnerRequest
-	198, // 257: hashicorp.vagrant.Vagrant.GetServerConfig:input_type -> google.protobuf.Empty
-	43,  // 258: hashicorp.vagrant.Vagrant.SetServerConfig:input_type -> hashicorp.vagrant.SetServerConfigRequest
-	198, // 259: hashicorp.vagrant.Vagrant.CreateSnapshot:input_type -> google.protobuf.Empty
-	90,  // 260: hashicorp.vagrant.Vagrant.RestoreSnapshot:input_type -> hashicorp.vagrant.RestoreSnapshotRequest
-	198, // 261: hashicorp.vagrant.Vagrant.BootstrapToken:input_type -> google.protobuf.Empty
-	86,  // 262: hashicorp.vagrant.Vagrant.GenerateInviteToken:input_type -> hashicorp.vagrant.InviteTokenRequest
-	198, // 263: hashicorp.vagrant.Vagrant.GenerateLoginToken:input_type -> google.protobuf.Empty
-	88,  // 264: hashicorp.vagrant.Vagrant.ConvertInviteToken:input_type -> hashicorp.vagrant.ConvertInviteTokenRequest
-	35,  // 265: hashicorp.vagrant.Vagrant.RunnerConfig:input_type -> hashicorp.vagrant.RunnerConfigRequest
-	38,  // 266: hashicorp.vagrant.Vagrant.RunnerJobStream:input_type -> hashicorp.vagrant.RunnerJobStreamRequest
-	10,  // 267: hashicorp.vagrant.Vagrant.GetVersionInfo:output_type -> hashicorp.vagrant.GetVersionInfoResponse
-	47,  // 268: hashicorp.vagrant.Vagrant.UpsertBasis:output_type -> hashicorp.vagrant.UpsertBasisResponse
-	49,  // 269: hashicorp.vagrant.Vagrant.GetBasis:output_type -> hashicorp.vagrant.GetBasisResponse
-	51,  // 270: hashicorp.vagrant.Vagrant.FindBasis:output_type -> hashicorp.vagrant.FindBasisResponse
-	52,  // 271: hashicorp.vagrant.Vagrant.ListBasis:output_type -> hashicorp.vagrant.ListBasisResponse
-	96,  // 272: hashicorp.vagrant.Vagrant.ListTasks:output_type -> hashicorp.vagrant.ListTasksResponse
-	98,  // 273: hashicorp.vagrant.Vagrant.GetTask:output_type -> hashicorp.vagrant.Task
-	98,  // 274: hashicorp.vagrant.Vagrant.GetLatestTask:output_type -> hashicorp.vagrant.Task
-	93,  // 275: hashicorp.vagrant.Vagrant.UpsertTask:output_type -> hashicorp.vagrant.UpsertTaskResponse
-	54,  // 276: hashicorp.vagrant.Vagrant.UpsertProject:output_type -> hashicorp.vagrant.UpsertProjectResponse
-	56,  // 277: hashicorp.vagrant.Vagrant.GetProject:output_type -> hashicorp.vagrant.GetProjectResponse
-	58,  // 278: hashicorp.vagrant.Vagrant.FindProject:output_type -> hashicorp.vagrant.FindProjectResponse
-	59,  // 279: hashicorp.vagrant.Vagrant.ListProjects:output_type -> hashicorp.vagrant.ListProjectsResponse
-	61,  // 280: hashicorp.vagrant.Vagrant.UpsertTarget:output_type -> hashicorp.vagrant.UpsertTargetResponse
-	198, // 281: hashicorp.vagrant.Vagrant.DeleteTarget:output_type -> google.protobuf.Empty
-	64,  // 282: hashicorp.vagrant.Vagrant.GetTarget:output_type -> hashicorp.vagrant.GetTargetResponse
-	66,  // 283: hashicorp.vagrant.Vagrant.FindTarget:output_type -> hashicorp.vagrant.FindTargetResponse
-	67,  // 284: hashicorp.vagrant.Vagrant.ListTargets:output_type -> hashicorp.vagrant.ListTargetsResponse
-	69,  // 285: hashicorp.vagrant.Vagrant.GetLogStream:output_type -> hashicorp.vagrant.LogBatch
-	72,  // 286: hashicorp.vagrant.Vagrant.SetConfig:output_type -> hashicorp.vagrant.ConfigSetResponse
-	74,  // 287: hashicorp.vagrant.Vagrant.GetConfig:output_type -> hashicorp.vagrant.ConfigGetResponse
-	23,  // 288: hashicorp.vagrant.Vagrant.QueueJob:output_type -> hashicorp.vagrant.QueueJobResponse
-	198, // 289: hashicorp.vagrant.Vagrant.CancelJob:output_type -> google.protobuf.Empty
-	27,  // 290: hashicorp.vagrant.Vagrant.GetJob:output_type -> hashicorp.vagrant.Job
-	31,  // 291: hashicorp.vagrant.Vagrant._ListJobs:output_type -> hashicorp.vagrant.ListJobsResponse
-	26,  // 292: hashicorp.vagrant.Vagrant.ValidateJob:output_type -> hashicorp.vagrant.ValidateJobResponse
-	33,  // 293: hashicorp.vagrant.Vagrant.GetJobStream:output_type -> hashicorp.vagrant.GetJobStreamResponse
-	34,  // 294: hashicorp.vagrant.Vagrant.GetRunner:output_type -> hashicorp.vagrant.Runner
-	44,  // 295: hashicorp.vagrant.Vagrant.GetServerConfig:output_type -> hashicorp.vagrant.GetServerConfigResponse
-	198, // 296: hashicorp.vagrant.Vagrant.SetServerConfig:output_type -> google.protobuf.Empty
-	89,  // 297: hashicorp.vagrant.Vagrant.CreateSnapshot:output_type -> hashicorp.vagrant.CreateSnapshotResponse
-	198, // 298: hashicorp.vagrant.Vagrant.RestoreSnapshot:output_type -> google.protobuf.Empty
-	87,  // 299: hashicorp.vagrant.Vagrant.BootstrapToken:output_type -> hashicorp.vagrant.NewTokenResponse
-	87,  // 300: hashicorp.vagrant.Vagrant.GenerateInviteToken:output_type -> hashicorp.vagrant.NewTokenResponse
-	87,  // 301: hashicorp.vagrant.Vagrant.GenerateLoginToken:output_type -> hashicorp.vagrant.NewTokenResponse
-	87,  // 302: hashicorp.vagrant.Vagrant.ConvertInviteToken:output_type -> hashicorp.vagrant.NewTokenResponse
-	36,  // 303: hashicorp.vagrant.Vagrant.RunnerConfig:output_type -> hashicorp.vagrant.RunnerConfigResponse
-	39,  // 304: hashicorp.vagrant.Vagrant.RunnerJobStream:output_type -> hashicorp.vagrant.RunnerJobStreamResponse
-	267, // [267:305] is the sub-list for method output_type
-	229, // [229:267] is the sub-list for method input_type
+	198, // 256: hashicorp.vagrant.Vagrant.PruneOldJobs:input_type -> google.protobuf.Empty
+	42,  // 257: hashicorp.vagrant.Vagrant.GetRunner:input_type -> hashicorp.vagrant.GetRunnerRequest
+	198, // 258: hashicorp.vagrant.Vagrant.GetServerConfig:input_type -> google.protobuf.Empty
+	43,  // 259: hashicorp.vagrant.Vagrant.SetServerConfig:input_type -> hashicorp.vagrant.SetServerConfigRequest
+	198, // 260: hashicorp.vagrant.Vagrant.CreateSnapshot:input_type -> google.protobuf.Empty
+	90,  // 261: hashicorp.vagrant.Vagrant.RestoreSnapshot:input_type -> hashicorp.vagrant.RestoreSnapshotRequest
+	198, // 262: hashicorp.vagrant.Vagrant.BootstrapToken:input_type -> google.protobuf.Empty
+	86,  // 263: hashicorp.vagrant.Vagrant.GenerateInviteToken:input_type -> hashicorp.vagrant.InviteTokenRequest
+	198, // 264: hashicorp.vagrant.Vagrant.GenerateLoginToken:input_type -> google.protobuf.Empty
+	88,  // 265: hashicorp.vagrant.Vagrant.ConvertInviteToken:input_type -> hashicorp.vagrant.ConvertInviteTokenRequest
+	35,  // 266: hashicorp.vagrant.Vagrant.RunnerConfig:input_type -> hashicorp.vagrant.RunnerConfigRequest
+	38,  // 267: hashicorp.vagrant.Vagrant.RunnerJobStream:input_type -> hashicorp.vagrant.RunnerJobStreamRequest
+	10,  // 268: hashicorp.vagrant.Vagrant.GetVersionInfo:output_type -> hashicorp.vagrant.GetVersionInfoResponse
+	47,  // 269: hashicorp.vagrant.Vagrant.UpsertBasis:output_type -> hashicorp.vagrant.UpsertBasisResponse
+	49,  // 270: hashicorp.vagrant.Vagrant.GetBasis:output_type -> hashicorp.vagrant.GetBasisResponse
+	51,  // 271: hashicorp.vagrant.Vagrant.FindBasis:output_type -> hashicorp.vagrant.FindBasisResponse
+	52,  // 272: hashicorp.vagrant.Vagrant.ListBasis:output_type -> hashicorp.vagrant.ListBasisResponse
+	96,  // 273: hashicorp.vagrant.Vagrant.ListTasks:output_type -> hashicorp.vagrant.ListTasksResponse
+	98,  // 274: hashicorp.vagrant.Vagrant.GetTask:output_type -> hashicorp.vagrant.Task
+	98,  // 275: hashicorp.vagrant.Vagrant.GetLatestTask:output_type -> hashicorp.vagrant.Task
+	93,  // 276: hashicorp.vagrant.Vagrant.UpsertTask:output_type -> hashicorp.vagrant.UpsertTaskResponse
+	54,  // 277: hashicorp.vagrant.Vagrant.UpsertProject:output_type -> hashicorp.vagrant.UpsertProjectResponse
+	56,  // 278: hashicorp.vagrant.Vagrant.GetProject:output_type -> hashicorp.vagrant.GetProjectResponse
+	58,  // 279: hashicorp.vagrant.Vagrant.FindProject:output_type -> hashicorp.vagrant.FindProjectResponse
+	59,  // 280: hashicorp.vagrant.Vagrant.ListProjects:output_type -> hashicorp.vagrant.ListProjectsResponse
+	61,  // 281: hashicorp.vagrant.Vagrant.UpsertTarget:output_type -> hashicorp.vagrant.UpsertTargetResponse
+	198, // 282: hashicorp.vagrant.Vagrant.DeleteTarget:output_type -> google.protobuf.Empty
+	64,  // 283: hashicorp.vagrant.Vagrant.GetTarget:output_type -> hashicorp.vagrant.GetTargetResponse
+	66,  // 284: hashicorp.vagrant.Vagrant.FindTarget:output_type -> hashicorp.vagrant.FindTargetResponse
+	67,  // 285: hashicorp.vagrant.Vagrant.ListTargets:output_type -> hashicorp.vagrant.ListTargetsResponse
+	69,  // 286: hashicorp.vagrant.Vagrant.GetLogStream:output_type -> hashicorp.vagrant.LogBatch
+	72,  // 287: hashicorp.vagrant.Vagrant.SetConfig:output_type -> hashicorp.vagrant.ConfigSetResponse
+	74,  // 288: hashicorp.vagrant.Vagrant.GetConfig:output_type -> hashicorp.vagrant.ConfigGetResponse
+	23,  // 289: hashicorp.vagrant.Vagrant.QueueJob:output_type -> hashicorp.vagrant.QueueJobResponse
+	198, // 290: hashicorp.vagrant.Vagrant.CancelJob:output_type -> google.protobuf.Empty
+	27,  // 291: hashicorp.vagrant.Vagrant.GetJob:output_type -> hashicorp.vagrant.Job
+	31,  // 292: hashicorp.vagrant.Vagrant._ListJobs:output_type -> hashicorp.vagrant.ListJobsResponse
+	26,  // 293: hashicorp.vagrant.Vagrant.ValidateJob:output_type -> hashicorp.vagrant.ValidateJobResponse
+	33,  // 294: hashicorp.vagrant.Vagrant.GetJobStream:output_type -> hashicorp.vagrant.GetJobStreamResponse
+	198, // 295: hashicorp.vagrant.Vagrant.PruneOldJobs:output_type -> google.protobuf.Empty
+	34,  // 296: hashicorp.vagrant.Vagrant.GetRunner:output_type -> hashicorp.vagrant.Runner
+	44,  // 297: hashicorp.vagrant.Vagrant.GetServerConfig:output_type -> hashicorp.vagrant.GetServerConfigResponse
+	198, // 298: hashicorp.vagrant.Vagrant.SetServerConfig:output_type -> google.protobuf.Empty
+	89,  // 299: hashicorp.vagrant.Vagrant.CreateSnapshot:output_type -> hashicorp.vagrant.CreateSnapshotResponse
+	198, // 300: hashicorp.vagrant.Vagrant.RestoreSnapshot:output_type -> google.protobuf.Empty
+	87,  // 301: hashicorp.vagrant.Vagrant.BootstrapToken:output_type -> hashicorp.vagrant.NewTokenResponse
+	87,  // 302: hashicorp.vagrant.Vagrant.GenerateInviteToken:output_type -> hashicorp.vagrant.NewTokenResponse
+	87,  // 303: hashicorp.vagrant.Vagrant.GenerateLoginToken:output_type -> hashicorp.vagrant.NewTokenResponse
+	87,  // 304: hashicorp.vagrant.Vagrant.ConvertInviteToken:output_type -> hashicorp.vagrant.NewTokenResponse
+	36,  // 305: hashicorp.vagrant.Vagrant.RunnerConfig:output_type -> hashicorp.vagrant.RunnerConfigResponse
+	39,  // 306: hashicorp.vagrant.Vagrant.RunnerJobStream:output_type -> hashicorp.vagrant.RunnerJobStreamResponse
+	268, // [268:307] is the sub-list for method output_type
+	229, // [229:268] is the sub-list for method input_type
 	229, // [229:229] is the sub-list for extension type_name
 	229, // [229:229] is the sub-list for extension extendee
 	0,   // [0:229] is the sub-list for field type_name

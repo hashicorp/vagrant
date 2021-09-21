@@ -84,6 +84,8 @@ module Hashicorp
         # used to listen for terminal output and other events of a running job.
         # Multiple listeners can open a job stream.
         rpc :GetJobStream, ::Hashicorp::Vagrant::GetJobStreamRequest, stream(::Hashicorp::Vagrant::GetJobStreamResponse)
+        # Clean out old jobs from the job database
+        rpc :PruneOldJobs, ::Google::Protobuf::Empty, ::Google::Protobuf::Empty
         # GetRunner gets information about a single runner.
         rpc :GetRunner, ::Hashicorp::Vagrant::GetRunnerRequest, ::Hashicorp::Vagrant::Runner
         # GetServerConfig sets configuration for the Vagrant server.

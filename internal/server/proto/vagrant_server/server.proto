@@ -109,6 +109,9 @@ service Vagrant {
   // Multiple listeners can open a job stream.
   rpc GetJobStream(GetJobStreamRequest) returns (stream GetJobStreamResponse);
 
+  // Clean out old jobs from the job database
+  rpc PruneOldJobs(google.protobuf.Empty) returns (google.protobuf.Empty);
+
   // GetRunner gets information about a single runner.
   rpc GetRunner(GetRunnerRequest) returns (Runner);
 
