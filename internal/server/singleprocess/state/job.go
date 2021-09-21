@@ -34,7 +34,6 @@ const (
 	jobQueueTimeIndexName = "queue-time"
 	jobTargetIdIndexName  = "target-id"
 	maximumJobsInMem      = 10000
-	maximumJobsIndexed    = 10
 )
 
 func init() {
@@ -1042,7 +1041,7 @@ func (s *State) jobsPruneOld(memTxn *memdb.Txn, max int) (int, error) {
 	})
 }
 
-func (s *State) jobsDBPruneOld(max int) (int, error) {
+func (s *State) JobsDBPruneOld(max int) (int, error) {
 	cnt := dbCount(s.db, jobTableName)
 	toDelete := cnt - max
 	var deleted int

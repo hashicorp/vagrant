@@ -153,15 +153,6 @@ func (s *State) Prune() error {
 	)
 	memTxn.Commit()
 
-	// Prune jobs from bolt
-	dbJobs, err := s.jobsDBPruneOld(maximumJobsIndexed)
-	if err != nil {
-		return err
-	}
-	s.log.Debug("Finished pruning db data",
-		"removed-jobs", dbJobs,
-	)
-
 	return nil
 }
 

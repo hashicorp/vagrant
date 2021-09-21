@@ -106,7 +106,6 @@ func (c *Client) initLocalServer(ctx context.Context) (_ *grpc.ClientConn, err e
 	if err != nil {
 		return
 	}
-	cleanups = append(cleanups, func() error { return db.Close() })
 
 	// Create our server
 	impl, err := singleprocess.New(
@@ -117,6 +116,14 @@ func (c *Client) initLocalServer(ctx context.Context) (_ *grpc.ClientConn, err e
 		log.Trace("failed singleprocess server setup", "error", err)
 		return
 	}
+
+	// Prune old jobs before closing the database
+	cleanups = append(cleanups, func() error {
+		_, err := impl.PruneOldJobs(ctx, nil)
+		return err
+	})
+
+	cleanups = append(cleanups, func() error { return db.Close() })
 
 	// We listen on a random locally bound port
 	// TODO: we should use Unix domain sockets if supported

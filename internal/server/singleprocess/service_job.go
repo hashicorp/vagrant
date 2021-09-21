@@ -18,6 +18,18 @@ import (
 	"github.com/hashicorp/vagrant/internal/server/singleprocess/state"
 )
 
+const (
+	maximumJobsIndexed = 50
+)
+
+func (s *service) PruneOldJobs(
+	ctx context.Context,
+	_ *empty.Empty,
+) (*empty.Empty, error) {
+	_, err := s.state.JobsDBPruneOld(maximumJobsIndexed)
+	return &empty.Empty{}, err
+}
+
 // TODO: test
 func (s *service) GetJob(
 	ctx context.Context,
