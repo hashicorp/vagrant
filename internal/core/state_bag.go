@@ -9,6 +9,12 @@ type StateBag struct {
 	state map[string]interface{}
 }
 
+func NewStateBag() *StateBag {
+	return &StateBag{
+		state: map[string]interface{}{},
+	}
+}
+
 // Get implements core.StateBag
 func (s *StateBag) Get(key string) interface{} {
 	return s.state[key]

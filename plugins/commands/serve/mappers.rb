@@ -224,3 +224,4 @@ require Vagrant.source_root.join("plugins/commands/serve/mappers/target_index.rb
 require Vagrant.source_root.join("plugins/commands/serve/mappers/terminal.rb").to_s
 require Vagrant.source_root.join("plugins/commands/serve/mappers/command.rb").to_s
 require Vagrant.source_root.join("plugins/commands/serve/mappers/capability.rb").to_s
+require Vagrant.source_root.join("plugins/commands/serve/mappers/state_bag.rb").to_s

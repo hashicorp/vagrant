@@ -29,6 +29,12 @@ module VagrantPlugins
           # TODO: Add statebad as an arg
           SDK::FuncSpec.new(
             name: "detect_spec",
+            args: [
+              SDK::FuncSpec::Value.new(
+                type: "hashicorp.vagrant.sdk.Args.StateBag",
+                name: "",
+              )
+            ],
             result: [
               type: "hashicorp.vagrant.sdk.Platform.DetectResp",
               name: "",
@@ -39,16 +45,14 @@ module VagrantPlugins
         def detect(req, ctx)
           ServiceInfo.with_info(ctx) do |info|
             plugin_name = info.plugin_name
-
-            # TODO: get statebag from args
-
+            statebag = mapper.funcspec_map(req)
             plugin = Vagrant.plugin("2").manager.hosts[plugin_name.to_s.to_sym].to_a.first
             if !plugin
               raise "Failed to locate host plugin for: #{plugin_name.inspect}"
             end
             host = plugin.new
             begin
-              detected = host.detect?({}) # TODO(spox): argument should be env/state bag
+              detected = host.detect?(statebag)
             rescue => err
               LOGGER.debug("error encountered detecting host: #{err.class} - #{err}")
               detected = false

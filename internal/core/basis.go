@@ -41,7 +41,7 @@ type Basis struct {
 	mappers  []*argmapper.Func
 	dir      *datadir.Basis
 	ctx      context.Context
-	statebag StateBag
+	statebag core.StateBag
 
 	m      sync.Mutex
 	client *serverclient.VagrantClient
@@ -60,6 +60,7 @@ func NewBasis(ctx context.Context, opts ...BasisOption) (b *Basis, err error) {
 		logger:   hclog.L(),
 		jobInfo:  &component.JobInfo{},
 		projects: map[string]*Project{},
+		statebag: NewStateBag(),
 	}
 
 	for _, opt := range opts {
@@ -193,7 +194,7 @@ func (b *Basis) Client() *serverclient.VagrantClient {
 }
 
 func (b *Basis) State() *StateBag {
-	return &b.statebag
+	return b.statebag.(*StateBag)
 }
 
 // Returns the detected host for the current platform
@@ -207,7 +208,7 @@ func (b *Basis) Host() (host core.Host, err error) {
 
 	for name, h := range hosts {
 		host := h.Value.(core.Host)
-		detected, err := host.Detect()
+		detected, err := host.Detect(b.statebag)
 		if err != nil {
 			b.logger.Error("host error on detection check",
 				"plugin", name,
