@@ -36,6 +36,8 @@ type Target struct {
 	jobInfo *component.JobInfo
 	closers []func() error
 	ui      terminal.UI
+
+	communicator core.Communicator
 }
 
 func (b *Target) Config() *vagrant_plugin_sdk.Vagrantfile_MachineConfig {
@@ -88,8 +90,23 @@ func (t *Target) ProviderName() (string, error) {
 
 // Communicate implements core.Target
 func (t *Target) Communicate() (c core.Communicator, err error) {
-	// TODO: need vagrantfile info
-	return
+	if t.communicator != nil {
+		return t.communicator, nil
+	}
+	// TODO: get the communicator name from the Vagrantfile
+	//       eg. t.target.Configuration.ConfigVm.Communicator
+	communicatorName := "ssh"
+	communicators, err := t.project.basis.typeComponents(t.ctx, component.CommunicatorType)
+	if err != nil {
+		return nil, err
+	}
+	for name, c := range communicators {
+		if name == communicatorName {
+			t.communicator = c.Value.(core.Communicator)
+
+		}
+	}
+	return t.communicator, nil
 }
 
 // UpdatedAt implements core.Target
