@@ -5,11 +5,7 @@ console.log(`Environment: ${process.env.HASHI_ENV}`)
 
 module.exports = withHashicorp({
   defaultLayout: true,
-  transpileModules: [
-    'is-absolute-url',
-    '@hashicorp/react-image',
-    '@hashicorp/versioned-docs',
-  ],
+  nextOptimizedImages: true,
 })({
   svgo: { plugins: [{ removeViewBox: false }] },
   redirects: () => redirects,
