@@ -24,7 +24,7 @@ jobs:
             fi
   algolia-index:
     docker:
-      - image: node:12
+      - image: node:14
     steps:
       - checkout
       - run:
