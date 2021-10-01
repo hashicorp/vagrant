@@ -3,6 +3,7 @@ module VagrantPlugins
     module Util
       module ClientSetup
         def self.prepended(klass)
+          klass.extend(Connector)
           klass.class_eval do
             attr_reader :broker, :client, :proto
           end
