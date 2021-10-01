@@ -5,6 +5,8 @@ module VagrantPlugins
     module Client
       class Target
 
+        autoload :Machine, Vagrant.source_root.join("plugins/commands/serve/client/target/machine").to_s
+
         prepend Util::ClientSetup
         prepend Util::HasLogger
 
