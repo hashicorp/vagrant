@@ -10,14 +10,22 @@ module VagrantPlugins
         end
 
         def initialize(conn, proto, broker=nil)
-          srv = self.class.name.split('::').last
+          n = self.class.respond_to?(:sdk_alias) ? self.class.sdk_alias : self.class.name
+          lookup = n.split("::")
+          idx = lookup.index("Client")
+          if idx
+            lookup.slice!(0, idx+1)
+          end
+
+          srv = "#{lookup.join}Service"
+
           logger.debug("connecting to #{srv.downcase} service on #{conn}")
           @broker = broker
           @proto = proto
-          srv_klass = SDK.const_get("#{srv}Service")&.const_get(:Stub)
+          srv_klass = SDK.const_get(srv)&.const_get(:Stub)
           if !srv_klass
             raise NameError,
-              "failed to locate required protobuf constant `SDK::#{srv}Service'"
+              "failed to locate required protobuf constant `SDK::#{srv}'"
           end
           @client = srv_klass.new(conn, :this_channel_is_insecure)
         end

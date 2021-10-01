@@ -17,11 +17,19 @@ module VagrantPlugins
 
         def load(raw, broker:)
           if raw.is_a?(String)
-            srv = self.class.name.split('::').last
-            klass = SDK::Args.const_get(srv)
+            n = self.respond_to?(:sdk_alias) ? self.sdk_alias : self.name
+            lookup = n.split("::")
+            idx = lookup.index("Client")
+            if idx
+              lookup.slice!(0, idx+1)
+            end
+
+            klass = lookup.inject(SDK::Args) do |const, name|
+              const&.const_get(name)
+            end
             if !klass
               raise NameError,
-                "failed to locate required protobuf constant `SDK::Args::#{srv}'"
+                "failed to locate required protobuf constant `SDK::Args::#{n}'\n\nArgs: #{SDK::Args.constants.inspect}"
             end
             raw = klass.decode(raw)
           end
