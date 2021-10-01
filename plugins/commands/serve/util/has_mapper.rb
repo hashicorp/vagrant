@@ -14,7 +14,12 @@ module VagrantPlugins
           if respond_to?(:broker)
             @mapper.add_argument(broker)
           end
-          super
+
+          if self.method(:initialize).super_method.parameters.empty?
+            super()
+          else
+            super
+          end
         end
       end
     end
