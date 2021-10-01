@@ -9,6 +9,11 @@ module VagrantPlugins
         prepend Util::ClientSetup
         prepend Util::HasLogger
 
+        # @return [String] name of proto class
+        def self.sdk_alias
+          "TerminalUI"
+        end
+
         # @param [Array] lines Lines to print
         def output(lines, **opts)
           args = {
