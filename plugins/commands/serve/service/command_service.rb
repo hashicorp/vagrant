@@ -4,20 +4,21 @@ module VagrantPlugins
   module CommandServe
     module Service
       class CommandService < SDK::CommandService::Service
+        include Util::ServiceInfo
 
         prepend Util::HasMapper
         prepend Util::HasBroker
+        prepend Util::HasLogger
         prepend Util::ExceptionLogger
-        LOGGER  = Log4r::Logger.new("vagrant::command::serve::command")
 
         def command_info_spec(*args)
           SDK::FuncSpec.new
         end
 
         def command_info(req, ctx)
-          ServiceInfo.with_info(ctx) do |info|
+          with_info(ctx) do |info|
             command_info = collect_command_info(info.plugin_name, [])
-            LOGGER.info("command info, #{command_info}")
+            logger.info("command info, #{command_info}")
             SDK::Command::CommandInfoResp.new(
               command_info: command_info,
             )
@@ -51,7 +52,7 @@ module VagrantPlugins
         end
 
         def execute(req, ctx)
-          ServiceInfo.with_info(ctx) do |info|
+          with_info(ctx) do |info|
             plugin_name = info.plugin_name
 
             ui_client, env_client, arguments = mapper.funcspec_map(req.spec)
@@ -84,7 +85,7 @@ module VagrantPlugins
         protected
 
         def collect_command_info(plugin_name, subcommand_names)
-          LOGGER.info("collecting command information for #{plugin_name} #{subcommand_names}")
+          logger.info("collecting command information for #{plugin_name} #{subcommand_names}")
           options = command_options_for(plugin_name, subcommand_names)
           if options.nil?
             hlp_msg = ""
@@ -130,17 +131,17 @@ module VagrantPlugins
         end
 
         def get_subcommands(plugin_name, subcommand_names)
-          LOGGER.info("collecting subcommands for #{plugin_name} #{subcommand_names}")
+          logger.info("collecting subcommands for #{plugin_name} #{subcommand_names}")
           subcommands = []
           cmds = subcommands_for(plugin_name, subcommand_names)
           if !cmds.nil?
-            LOGGER.info("found subcommands #{cmds.keys}")
+            logger.info("found subcommands #{cmds.keys}")
             cmds.keys.each do |subcmd|
               subnms = subcommand_names.dup
               subcommands << collect_command_info(plugin_name, subnms.append(subcmd.to_s))
             end
           else
-            LOGGER.info("no subcommands found")
+            logger.info("no subcommands found")
           end
           return subcommands
         end

@@ -11,9 +11,8 @@ module VagrantPlugins
     module Service
       class InternalService < Hashicorp::Vagrant::RubyVagrant::Service
         prepend Util::HasBroker
+        prepend Util::HasLogger
         prepend Util::ExceptionLogger
-
-        LOG = Log4r::Logger.new("vagrant::command::serve::service::internal")
 
         def get_plugins(req, _unused_call)
           plugins = []

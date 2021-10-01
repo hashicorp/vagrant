@@ -6,9 +6,11 @@ module VagrantPlugins
       class HostService < Hashicorp::Vagrant::Sdk::HostService::Service
 
         include CapabilityPlatformService
+        include Util::ServiceInfo
 
         prepend Util::HasMapper
         prepend Util::HasBroker
+        prepend Util::HasLogger
         prepend Util::ExceptionLogger
         LOGGER  = Log4r::Logger.new("vagrant::command::serve::host")
 
@@ -43,7 +45,7 @@ module VagrantPlugins
         end
 
         def detect(req, ctx)
-          ServiceInfo.with_info(ctx) do |info|
+          with_info(ctx) do |info|
             plugin_name = info.plugin_name
             statebag = mapper.funcspec_map(req)
             plugin = Vagrant.plugin("2").manager.hosts[plugin_name.to_s.to_sym].to_a.first
@@ -54,10 +56,10 @@ module VagrantPlugins
             begin
               detected = host.detect?(statebag)
             rescue => err
-              LOGGER.debug("error encountered detecting host: #{err.class} - #{err}")
+              logger.debug("error encountered detecting host: #{err.class} - #{err}")
               detected = false
             end
-            LOGGER.debug("detected #{detected} for host #{plugin_name}")
+            logger.debug("detected #{detected} for host #{plugin_name}")
             SDK::Platform::DetectResp.new(
               detected: detected,
             )
@@ -75,7 +77,7 @@ module VagrantPlugins
         end
 
         def parents(req, ctx)
-          ServiceInfo.with_info(ctx) do |info|
+          with_info(ctx) do |info|
             plugin_name = info.plugin_name
             plugin = Vagrant.plugin("2").manager.hosts[plugin_name.to_s.to_sym].to_a.first
             if !plugin

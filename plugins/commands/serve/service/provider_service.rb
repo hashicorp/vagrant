@@ -6,8 +6,11 @@ module VagrantPlugins
   module CommandServe
     module Service
       class ProviderService < SDK::ProviderService::Service
+        include Util::ServiceInfo
+
         prepend Util::HasMapper
         prepend Util::HasBroker
+        prepend Util::HasLogger
         prepend Util::ExceptionLogger
 
         def usable(req, _unused_call)
@@ -35,7 +38,7 @@ module VagrantPlugins
         end
 
         def action_up(req, ctx)
-          ServiceInfo.with_info(ctx) do |info|
+          with_info(ctx) do |info|
             plugin_name = info.plugin_name
             ui, machine = mapper.funcspec_map(req.spec)
 

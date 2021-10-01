@@ -6,11 +6,12 @@ module VagrantPlugins
       class GuestService < Hashicorp::Vagrant::Sdk::GuestService::Service
 
         include CapabilityPlatformService
+        include Util::ServiceInfo
 
         prepend Util::HasMapper
         prepend Util::HasBroker
+        prepend Util::HasLogger
         prepend Util::ExceptionLogger
-        LOGGER  = Log4r::Logger.new("vagrant::command::serve::guest")
 
         def initialize(*args, **opts, &block)
           caps = Vagrant.plugin("2").manager.guest_capabilities
@@ -44,7 +45,7 @@ module VagrantPlugins
         end
 
         def detect(req, ctx)
-          ServiceInfo.with_info(ctx) do |info|
+          with_info(ctx) do |info|
             plugin_name = info.plugin_name
             target = mapper.funcspec_map(req)
             project = target.project
@@ -52,17 +53,17 @@ module VagrantPlugins
             machine = env.machine(target.name.to_sym, target.provider_name.to_sym)
             plugin = Vagrant.plugin("2").manager.guests[plugin_name.to_s.to_sym].to_a.first
             if !plugin
-              LOGGER.debug("Failed to locate guest plugin for: #{plugin_name}")
+              logger.debug("Failed to locate guest plugin for: #{plugin_name}")
               raise "Failed to locate guest plugin for: #{plugin_name.inspect}"
             end
             guest = plugin.new
             begin
               detected = guest.detect?(machine)
             rescue => err
-              LOGGER.debug("error encountered detecting guest: #{err.class} - #{err}")
+              logger.debug("error encountered detecting guest: #{err.class} - #{err}")
               detected = false
             end
-            LOGGER.debug("detected #{detected} for guest #{plugin_name}")
+            logger.debug("detected #{detected} for guest #{plugin_name}")
             SDK::Platform::DetectResp.new(
               detected: detected,
             )
@@ -80,7 +81,7 @@ module VagrantPlugins
         end
 
         def parents(req, ctx)
-          ServiceInfo.with_info(ctx) do |info|
+          with_info(ctx) do |info|
             plugin_name = info.plugin_name
             plugin = Vagrant.plugin("2").manager.guests[plugin_name.to_s.to_sym].to_a.first
             if !plugin
