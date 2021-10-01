@@ -6,13 +6,6 @@ module VagrantPlugins
       class HostService < Hashicorp::Vagrant::Sdk::HostService::Service
 
         include CapabilityPlatformService
-        include Util::ServiceInfo
-
-        prepend Util::HasMapper
-        prepend Util::HasBroker
-        prepend Util::HasLogger
-        prepend Util::ExceptionLogger
-        LOGGER  = Log4r::Logger.new("vagrant::command::serve::host")
 
         def initialize(*args, **opts, &block)
           caps = Vagrant.plugin("2").manager.host_capabilities
@@ -24,7 +17,6 @@ module VagrantPlugins
             ),
           ]
           initialize_capability_platform!(caps, default_args)
-          super
         end
 
         def detect_spec(*_)

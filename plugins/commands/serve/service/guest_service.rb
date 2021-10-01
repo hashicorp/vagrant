@@ -6,12 +6,6 @@ module VagrantPlugins
       class GuestService < Hashicorp::Vagrant::Sdk::GuestService::Service
 
         include CapabilityPlatformService
-        include Util::ServiceInfo
-
-        prepend Util::HasMapper
-        prepend Util::HasBroker
-        prepend Util::HasLogger
-        prepend Util::ExceptionLogger
 
         def initialize(*args, **opts, &block)
           caps = Vagrant.plugin("2").manager.guest_capabilities
@@ -23,7 +17,6 @@ module VagrantPlugins
             ),
           ]
           initialize_capability_platform!(caps, default_args)
-          super
         end
 
         def detect_spec(*_)
