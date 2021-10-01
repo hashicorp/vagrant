@@ -11,11 +11,11 @@ module VagrantPlugins
             }
             i << Input.new(type: Broker)
           end
-          super(inputs: inputs, output: Client::Machine, func: method(:converter))
+          super(inputs: inputs, output: Client::Target::Machine, func: method(:converter))
         end
 
         def converter(proto, broker)
-          Client::Machine.load(proto.value.value, broker: broker)
+          Client::Target::Machine.load(proto.value.value, broker: broker)
         end
       end
 
@@ -26,11 +26,11 @@ module VagrantPlugins
             i << Input.new(type: SDK::Args::Target::Machine)
             i << Input.new(type: Broker)
           end
-          super(inputs: inputs, output: Client::Machine, func: method(:converter))
+          super(inputs: inputs, output: Client::Target::Machine, func: method(:converter))
         end
 
         def converter(proto, broker)
-          Client::Machine.load(proto, broker: broker)
+          Client::Target::Machine.load(proto, broker: broker)
         end
       end
 
@@ -41,11 +41,11 @@ module VagrantPlugins
             i << Input.new(type: String)
             i << Input.new(type: Broker)
           end
-          super(inputs: inputs, output: Client::Machine, func: method(:converter))
+          super(inputs: inputs, output: Client::Target::Machine, func: method(:converter))
         end
 
         def converter(proto, broker)
-          Client::Machine.load(proto, broker: broker)
+          Client::Target::Machine.load(proto, broker: broker)
         end
       end
     end

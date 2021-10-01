@@ -77,7 +77,7 @@ module VagrantPlugins
         end
 
         # Returns a machine client for the given name
-        # return [VagrantPlugins::CommandServe::Client::Machine]
+        # return [VagrantPlugins::CommandServe::Client::Target::Machine]
         def target(name)
           logger.debug("searching for target #{name}")
           target = Target.load(

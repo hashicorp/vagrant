@@ -42,7 +42,7 @@ module VagrantPlugins
             plugin_name = info.plugin_name
             ui, machine = mapper.funcspec_map(req.spec)
 
-            machine = Client::Machine.load(raw_machine, ui)
+            machine = Client::Target::Machine.load(raw_machine, ui)
             machine.ui.warn("hello from vagrant")
             SDK::Provider::ActionResp.new(success: true)
           end
