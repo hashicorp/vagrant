@@ -10,7 +10,8 @@ module VagrantPlugins
         def initialize(*args, **opts, &block)
           @cacher = Cacher.new
           @mapper = Mappers.new
-          @mapper.cacher = @cacher
+          # TODO(spox): enable this when future is present
+          # @mapper.cacher = @cacher
           if respond_to?(:broker)
             @mapper.add_argument(broker)
           end
