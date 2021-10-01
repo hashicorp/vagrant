@@ -5,7 +5,8 @@ module VagrantPlugins
     module Client
       class Target
 
-        extend Util::Connector
+        prepend Util::ClientSetup
+        prepend Util::HasLogger
 
         STATES = [
           :UNKNOWN,
@@ -13,23 +14,6 @@ module VagrantPlugins
           :CREATED,
           :DESTROYED,
         ].freeze
-
-        attr_reader :broker
-        attr_reader :client
-        attr_reader :proto
-
-        def initialize(conn, proto, broker=nil)
-          @logger = Log4r::Logger.new("vagrant::command::serve::client::target")
-          @logger.debug("connecting to target on #{conn}")
-          @client = SDK::TargetService::Stub.new(conn, :this_channel_is_insecure)
-          @broker = broker
-          @proto = proto
-        end
-
-        def self.load(raw_target, broker:)
-          t = raw_target.is_a?(String) ? SDK::Args::Target.decode(raw_target) : raw_target
-          self.new(connect(proto: t, broker: broker), t, broker)
-        end
 
         # @return [SDK::Ref::Target] proto reference for this target
         def ref

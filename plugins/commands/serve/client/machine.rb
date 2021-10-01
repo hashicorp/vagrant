@@ -6,24 +6,8 @@ module VagrantPlugins
       # targets
       class Machine < Target
 
-        extend Util::Connector
-
-        attr_reader :broker
-        attr_reader :client
-        attr_reader :proto
-
-        def initialize(conn, proto, broker=nil)
-          @logger = Log4r::Logger.new("vagrant::command::serve::client::machine")
-          @logger.debug("connecting to target machine service on #{conn}")
-          @client = SDK::TargetMachineService::Stub.new(conn, :this_channel_is_insecure)
-          @broker = broker
-          @proto = proto
-        end
-
-        def self.load(raw_machine, broker:)
-          m = raw_machine.is_a?(String) ? SDK::Args::Target::Machine.decode(raw_machine) : raw_machine
-          self.new(connect(proto: m, broker: broker), m, broker)
-        end
+        prepend Util::ClientSetup
+        prepend Util::HasLogger
 
         # @return [String] resource identifier for this target
         def ref
@@ -49,9 +33,9 @@ module VagrantPlugins
         # @return [Guest] machine guest
         # TODO: This needs to be loaded properly
         def guest
-          @logger.debug("Getting guest from remote machine")
+          logger.debug("Getting guest from remote machine")
           g = client.guest(Empty.new)
-          Guest.load(g, broker: @broker)
+          Guest.load(g, broker: broker)
         end
 
         # @return [String] machine identifier

@@ -4,25 +4,8 @@ module VagrantPlugins
   module CommandServe
     module Client
       class StateBag
-
-        extend Util::Connector
-
-        attr_reader :broker
-        attr_reader :client
-        attr_reader :proto
-
-        def initialize(conn, proto, broker=nil)
-          @logger = Log4r::Logger.new("vagrant::command::serve::client::statebag")
-          @logger.debug("connecting to state ba service on #{conn}")
-          @client = SDK::StateBagService::Stub.new(conn, :this_channel_is_insecure)
-          @broker = broker
-          @proto = proto
-        end
-
-        def self.load(raw_statebag, broker:)
-          s = raw_statebag.is_a?(String) ? SDK::Args::StateBag.decode(raw_statebag) : raw_statebag
-          self.new(connect(proto: s, broker: broker), s, broker)
-        end
+        prepend Util::ClientSetup
+        prepend Util::HasLogger
 
         # @param [String]
         # @return [String]
