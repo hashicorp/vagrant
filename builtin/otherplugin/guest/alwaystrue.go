@@ -46,7 +46,7 @@ func (h *AlwaysTrueGuest) ParentsFunc() interface{} {
 }
 
 func (h *AlwaysTrueGuest) Parents() []string {
-	return []string{"otherplugin", "force", "guest", "platform", "match"} // We just need to have this be the most of all matches
+	return []string{"force", "guest", "platform", "match"} // We just need to have this be the most of all matches
 }
 
 // HasCapabilityFunc implements component.Guest
