@@ -1,6 +1,7 @@
 import './style.css'
 import '@hashicorp/platform-util/nprogress/style.css'
 
+import Min100Layout from '@hashicorp/react-min-100-layout'
 import NProgress from '@hashicorp/platform-util/nprogress'
 import createConsentManager from '@hashicorp/react-consent-manager/loader'
 import useAnchorLinkAnalytics from '@hashicorp/platform-util/anchor-link-analytics'
@@ -34,15 +35,16 @@ export default function App({ Component, pageProps }) {
         image="https://www.vagrantup.com/img/og-image.png"
         icon={[{ href: '/favicon.ico' }]}
       />
-      {ALERT_BANNER_ACTIVE && (
-        <AlertBanner {...alertBannerData} product="vagrant" hideOnMobile />
-      )}
-      <HashiStackMenu />
-      <ProductSubnav />
-      <div className="content">
-        <Component {...pageProps} />
-      </div>
-      <Footer openConsentManager={openConsentManager} />
+      <Min100Layout footer={<Footer openConsentManager={openConsentManager} />}>
+        {ALERT_BANNER_ACTIVE && (
+          <AlertBanner {...alertBannerData} product="vagrant" hideOnMobile />
+        )}
+        <HashiStackMenu />
+        <ProductSubnav />
+        <div className="content">
+          <Component {...pageProps} />
+        </div>
+      </Min100Layout>
       <ConsentManager />
     </ErrorBoundary>
   )

@@ -2,7 +2,7 @@ import s from './style.module.css'
 import Button from '@hashicorp/react-button'
 import TextSplit from 'components/temporary_text-split'
 import CodeBlock from '@hashicorp/react-code-block'
-import { VERSION } from 'data/version.json'
+import versions from 'data/version.json'
 
 export default function HomePage() {
   return (
@@ -16,7 +16,7 @@ export default function HomePage() {
           <div className={s.buttons}>
             <Button title="Get Started" url="/intro/index" />
             <Button
-              title={`Download ${VERSION}`}
+              title={`Download ${versions.VERSION}`}
               theme={{ variant: 'secondary' }}
               url="/downloads"
             />
