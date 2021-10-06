@@ -48,6 +48,19 @@ module VagrantPlugins
           Client::Project.load(proto, broker: broker)
         end
       end
+
+      class ProjectFromTarget < Mapper
+        def initialize
+          inputs = [].tap do |i|
+            i << Input.new(type: Client::Target)
+          end
+          super(inputs: inputs, output: Client::Project, func: method(:converter))
+        end
+
+        def converter(target)
+          target.project
+        end
+      end
     end
   end
 end

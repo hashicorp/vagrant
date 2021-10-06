@@ -48,6 +48,20 @@ module VagrantPlugins
           Client::Terminal.load(proto, broker: broker)
         end
       end
+
+      class TerminalFromProject < Mapper
+        def initialize
+          super(
+            inputs: [Input.new(type: Client::Project)],
+            output: Client::Terminal,
+            func: method(:converter)
+          )
+        end
+
+        def converter(project)
+          project.ui
+        end
+      end
     end
   end
 end
