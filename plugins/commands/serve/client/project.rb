@@ -107,6 +107,18 @@ module VagrantPlugins
         def vagrantfile_path
           Pathname.new(client.vagrantfile_path(Empty.new).path)
         end
+
+        # @return [Terminal]
+        def ui
+          begin
+            Terminal.load(
+              client.ui(Google::Protobuf::Empty.new),
+              broker: @broker,
+            )
+          rescue => err
+            raise "Failed to load terminal via project: #{err}"
+          end
+        end
       end
     end
   end
