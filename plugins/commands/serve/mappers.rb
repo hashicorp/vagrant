@@ -91,7 +91,7 @@ module VagrantPlugins
           if matched_mappers.empty?
             raise ArgumentError,
               "Failed to locate valid mapper. (source: #{value ? value.class : 'none'} " \
-              "destination: #{to ? to : 'undefined'} - args: #{args.map(&:class).inspect} )" \
+              "destination: #{to ? to : 'undefined'} - args: #{args.map(&:class).inspect} Value: #{value.inspect})" \
           end
           if matched_mappers.size > 1
             m = matched_mappers.detect do |mp|
@@ -102,7 +102,7 @@ module VagrantPlugins
             if m.nil?
               raise ArgumentError,
                 "Multiple valid mappers found: #{matched_mappers.map(&:class).inspect} (source: #{value ? value.class : 'none'} " \
-                "destination: #{to ? to : 'undefined'} - args: #{args.map(&:class).inspect} )"
+                "destination: #{to ? to : 'undefined'} - args: #{args.map(&:class).inspect} Value: #{value.inspect})"
             end
             matched_mappers = [m]
           end
@@ -133,9 +133,9 @@ module VagrantPlugins
       #
       # @param spec [SDK::FuncSpec::Spec]
       # @return [Array<Object>, Object]
-      def funcspec_map(spec)
+      def funcspec_map(spec, *extra_args)
         result = spec.args.map do |arg|
-          map(arg)
+          map(arg, *extra_args)
         end
         if result.size == 1
           return result.first
@@ -149,14 +149,20 @@ module VagrantPlugins
   end
 end
 
+# NOTE: Always directly load mappers so they are automatically registered and
+#       available. Using autoloading behavior will result in them being unaavailable
+#       until explicitly requested by name
+require Vagrant.source_root.join("plugins/commands/serve/mappers/capabilities.rb").to_s
+require Vagrant.source_root.join("plugins/commands/serve/mappers/command.rb").to_s
+require Vagrant.source_root.join("plugins/commands/serve/mappers/direct.rb").to_s
+require Vagrant.source_root.join("plugins/commands/serve/mappers/environment.rb").to_s
 require Vagrant.source_root.join("plugins/commands/serve/mappers/guest.rb").to_s
+require Vagrant.source_root.join("plugins/commands/serve/mappers/known_types.rb").to_s
 require Vagrant.source_root.join("plugins/commands/serve/mappers/machine.rb").to_s
 require Vagrant.source_root.join("plugins/commands/serve/mappers/project.rb").to_s
+require Vagrant.source_root.join("plugins/commands/serve/mappers/state_bag.rb").to_s
 require Vagrant.source_root.join("plugins/commands/serve/mappers/target.rb").to_s
 require Vagrant.source_root.join("plugins/commands/serve/mappers/target_index.rb").to_s
 require Vagrant.source_root.join("plugins/commands/serve/mappers/terminal.rb").to_s
-require Vagrant.source_root.join("plugins/commands/serve/mappers/command.rb").to_s
-require Vagrant.source_root.join("plugins/commands/serve/mappers/capability.rb").to_s
-require Vagrant.source_root.join("plugins/commands/serve/mappers/state_bag.rb").to_s
 require Vagrant.source_root.join("plugins/commands/serve/mappers/ui.rb").to_s
-require Vagrant.source_root.join("plugins/commands/serve/mappers/environment.rb").to_s
+require Vagrant.source_root.join("plugins/commands/serve/mappers/wrappers.rb").to_s
