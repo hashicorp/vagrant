@@ -1,8 +1,8 @@
 module VagrantPlugins
   module CommandServe
     class Mappers
-      # Extracts a string capability name from a Funcspec value
-      class NamedCapability < Mapper
+      # Build a machine client from a FuncSpec value
+      class NamedCapabilityFromSpec < Mapper
         def initialize
           inputs = [].tap do |i|
             i << Input.new(type: SDK::FuncSpec::Value) { |arg|
@@ -10,11 +10,12 @@ module VagrantPlugins
                 !arg&.value&.value.nil?
             }
           end
-          super(inputs: inputs, output: String, func: method(:converter))
+          super(inputs: inputs, output: Symbol, func: method(:converter))
         end
 
         def converter(proto)
-          SDK::Args::NamedCapability.decode(proto.value.value).capability
+          SDK::Args::NamedCapability.load(proto.value.value).
+            capability.to_s.to_sym
         end
       end
     end
