@@ -14,7 +14,7 @@ module VagrantPlugins
         end
 
         def converter(proto)
-          SDK::Args::NamedCapability.decode(proto.value.value).Capability
+          SDK::Args::NamedCapability.decode(proto.value.value).capability
         end
       end
     end
