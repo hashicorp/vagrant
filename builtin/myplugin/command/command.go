@@ -53,6 +53,8 @@ func (c *Command) ExecuteFunc(cliArgs []string) interface{} {
 		return c.ExecuteDoThing
 	case "interactive":
 		return c.ExecuteInteractive
+	case "host":
+		return c.ExecuteHost
 	}
 
 	return c.Execute
@@ -68,6 +70,10 @@ func (c *Command) ExecuteDoThing(trm terminal.UI, flags map[string]interface{}) 
 
 func (c *Command) ExecuteInteractive(trm terminal.UI, flags map[string]interface{}) int32 {
 	return (&Interactive{Command: c}).Execute(trm)
+}
+
+func (c *Command) ExecuteHost(trm terminal.UI, env plugincore.Project) int32 {
+	return (&Host{Command: c}).Execute(trm, env)
 }
 
 // CommandInfoFunc implements component.Command
@@ -126,6 +132,7 @@ func (c *Command) subcommands() map[string]Subcommand {
 		"info":        &Info{Command: c},
 		"dothing":     &DoThing{Command: c},
 		"interactive": &Interactive{Command: c},
+		"host":        &Host{Command: c},
 	}
 }
 
