@@ -169,8 +169,8 @@ module VagrantPlugins
       # @param value [Object] Value to map
       # @param to [Class] Resultant type (optional)
       # @return [Object]
-      def map(value, to: nil)
-        args = known_arguments + [value]
+      def map(value, *args, to: nil)
+        args = [value] + args + known_arguments
         matched_mappers = mappers.find_all do |m|
           if m.satisfied_by?(*args)
             if to
@@ -202,7 +202,7 @@ module VagrantPlugins
       # @return [Array<Object>, Object]
       def funcspec_map(spec)
         result = spec.args.map do |arg|
-          map(arg)
+          map(arg, self)
         end
         if result.size == 1
           return result.first
@@ -225,3 +225,6 @@ require Vagrant.source_root.join("plugins/commands/serve/mappers/terminal.rb").t
 require Vagrant.source_root.join("plugins/commands/serve/mappers/command.rb").to_s
 require Vagrant.source_root.join("plugins/commands/serve/mappers/capability.rb").to_s
 require Vagrant.source_root.join("plugins/commands/serve/mappers/state_bag.rb").to_s
+require Vagrant.source_root.join("plugins/commands/serve/mappers/direct.rb").to_s
+require Vagrant.source_root.join("plugins/commands/serve/mappers/known_types.rb").to_s
+require Vagrant.source_root.join("plugins/commands/serve/mappers/wrappers.rb").to_s
