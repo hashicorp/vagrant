@@ -78,11 +78,7 @@ module VagrantPlugins
             caps_registry = @capabilities[plugin_name]
             target_cap = caps_registry.get(cap_name)
 
-            # TODO: this needs to be adjusted to only be
-            # provided during mapping
-            mapper.add_argument(broker)
-
-            args = mapper.funcspec_map(req.func_args)
+            args = mapper.funcspec_map(req.func_args, mapper, broker)
             cap_method = target_cap.method(cap_name)
 
             # TODO: pass in args too
@@ -90,8 +86,10 @@ module VagrantPlugins
 
             val = Google::Protobuf::Value.new
             val.from_ruby(resp)
+            any = Google::Protobuf::Any.new
+            any.pack(val)
             SDK::Platform::Capability::Resp.new(
-              result: Google::Protobuf::Any.pack(val)
+              result: any
             )
           end
         end
