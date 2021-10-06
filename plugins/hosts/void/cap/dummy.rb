@@ -3,7 +3,8 @@ module VagrantPlugins
     module Cap
       class Dummy
         def self.dummy(ui, argument)
-          raise "got argument: #{ui.inspect} and #{argument.inspect}"
+          ui.info "Dummy host cap in ruby runtime, sent argument: #{argument}"
+          true
         end
       end
     end
