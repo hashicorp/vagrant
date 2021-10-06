@@ -14,7 +14,7 @@ module VagrantPlugins
         end
 
         def converter(proto)
-          SDK::Args::NamedCapability.load(proto.value.value).
+          SDK::Args::NamedCapability.decode(proto.value.value).
             capability.to_s.to_sym
         end
       end
