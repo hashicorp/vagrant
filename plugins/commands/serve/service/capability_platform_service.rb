@@ -11,6 +11,10 @@ module VagrantPlugins
           klass.prepend(Util::HasBroker)
           klass.prepend(Util::HasLogger)
           klass.prepend(Util::ExceptionLogger)
+
+          klass.class_eval do
+            attr_reader :capabilities, :default_args
+          end
         end
 
         def initialize_capability_platform!(capabilities, default_args)
@@ -55,7 +59,7 @@ module VagrantPlugins
         def capability_spec(req, ctx)
           SDK::FuncSpec.new(
             name: "capability_spec",
-            args: [
+            args: default_args + [
               SDK::FuncSpec::Value.new(
                 type: "hashicorp.vagrant.sdk.Args.Direct",
                 name: "",
@@ -75,21 +79,19 @@ module VagrantPlugins
             logger.debug("executing capability, got req #{req}")
             cap_name = req.name.to_sym
             plugin_name = info.plugin_name.to_sym
-            caps_registry = @capabilities[plugin_name]
+            caps_registry = capabilities[plugin_name]
             target_cap = caps_registry.get(cap_name)
 
             args = mapper.funcspec_map(req.func_args, mapper, broker)
+            args = [args.first] + args.last
             cap_method = target_cap.method(cap_name)
 
-            # TODO: pass in args too
-            resp =  cap_method.call(*args)
+            result = cap_method.call(*args)
 
             val = Google::Protobuf::Value.new
-            val.from_ruby(resp)
-            any = Google::Protobuf::Any.new
-            any.pack(val)
+            val.from_ruby(result)
             SDK::Platform::Capability::Resp.new(
-              result: any
+              result: Google::Protobuf::Any.pack(val)
             )
           end
         end
