@@ -5,3 +5,8 @@ package myplugin;
 option go_package = "vagrant-ruby/builtin/myplugin";
 
 message UpResult {}
+
+message CommunicatorOptions {
+  string keep_alive = 1;
+  int64 timeout = 2;
+}

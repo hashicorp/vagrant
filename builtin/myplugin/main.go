@@ -14,6 +14,7 @@ var CommandOptions = []sdk.Option{
 		&Provider{},
 		&command.Command{},
 		&host.AlwaysTrueHost{},
+		&DummyCommunicator{},
 	),
 	sdk.WithName("myplugin"),
 }
