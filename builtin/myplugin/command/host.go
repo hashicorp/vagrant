@@ -50,12 +50,17 @@ func (c *Host) Execute(trm terminal.UI, project core.Project) int32 {
 	h, err := project.Host()
 	if err != nil {
 		trm.Output("ERROR: %s", err)
+		return 1
 	}
+
+	trm.Output("have host plugin to run against")
 
 	if r, err := h.HasCapability("dummy"); !r {
 		trm.Output("No dummy capability found (%s)", err)
 		return 1
 	}
+
+	trm.Output("host plugin has dummy capability to run")
 
 	result, err := h.Capability("dummy", trm, "test value")
 	if err != nil {

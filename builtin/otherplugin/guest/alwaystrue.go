@@ -16,6 +16,14 @@ type AlwaysTrueGuest struct {
 	config GuestConfig
 }
 
+func (c *AlwaysTrueGuest) Seed(args ...interface{}) error {
+	return nil
+}
+
+func (c *AlwaysTrueGuest) Seeds() ([]interface{}, error) {
+	return nil, nil
+}
+
 // DetectFunc implements component.Guest
 func (h *AlwaysTrueGuest) GuestDetectFunc() interface{} {
 	return h.Detect
