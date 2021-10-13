@@ -100,6 +100,14 @@ func (m *Machine) Guest() (g core.Guest, err error) {
 		return nil, fmt.Errorf("failed to detect guest plugin for current platform")
 	}
 
+	if s, ok := result.(core.Seeder); ok {
+		if err = s.Seed(m); err != nil {
+			return nil, err
+		}
+	} else {
+		return nil, fmt.Errorf("guest plugin does not support seeder interface")
+	}
+
 	m.logger.Info("guest detection complete",
 		"name", result_name)
 
