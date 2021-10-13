@@ -38,6 +38,13 @@ module VagrantPlugins
         "start Vagrant server"
       end
 
+      def logger
+        if !@logger
+          @logger = Log4r::Logger.new(self.class.name.to_s.downcase)
+        end
+        @logger
+      end
+
       def execute
         options = {
           bind: DEFAULT_BIND,
@@ -75,9 +82,7 @@ module VagrantPlugins
       private
 
       def serve(bind_addr = "localhost", ports = DEFAULT_PORT_RANGE)
-        # Set vagrant in server mode
-        Vagrant.enable_server_mode!
-
+        logger.info("Starting Vagrant GRPC service addr=#{bind_addr.inspect} ports=#{ports.inspect}")
         s = GRPC::RpcServer.new
         port = nil
         ports.each do |p|
@@ -92,6 +97,8 @@ module VagrantPlugins
 
         health_checker = Grpc::Health::Checker.new
         broker = Broker.new(bind: bind_addr, ports: ports)
+        logger.debug("vagrant grpc broker started for grpc service addr=#{bind_addr} ports=#{ports.inspect}")
+
 
         [Service::InternalService, Service::ProviderService, Service::GuestService,
           Service::HostService, Service::CommandService, Broker::Streamer].each do |service_klass|
@@ -99,13 +106,18 @@ module VagrantPlugins
           s.handle(service)
           health_checker.add_status(service_klass,
             Grpc::Health::V1::HealthCheckResponse::ServingStatus::SERVING)
+          logger.debug("enabled Vagrant GRPC service: #{service_klass.name.split('::').last}")
         end
 
         s.handle(health_checker)
 
+        logger.debug("writing connection informatation to stdout for go-plugin")
         STDOUT.puts "1|1|tcp|127.0.0.1:#{port}|grpc"
         STDOUT.flush
+        logger.info("Vagrant GRPC service is now running addr=#{bind_addr.inspect} ports=#{ports.inspect}")
         s.run_till_terminated_or_interrupted([1, 'int', 'SIGQUIT', 'SIGINT'])
+      ensure
+        logger.info("Vagrant GRPC service is shutting down")
       end
     end
   end
