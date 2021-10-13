@@ -22,6 +22,16 @@ module VagrantPlugins
           @default_args = default_args
         end
 
+        def seed(req, ctx)
+          logger.info "seeding this service with values from the client"
+          logger.info "values to seed include: #{req.list.inspect}"
+          @seeds = req.list.map{ |x| x }
+          Empty.new
+        end
+
+        def seeds(req, ctx)
+          SDK::Args::Direct.new(list: @seeds)
+        end
 
         def has_capability_spec(*_)
           SDK::FuncSpec.new(
