@@ -9,7 +9,7 @@ module VagrantPlugins
         end
 
         def initialize(*args, **opts, &block)
-          @logger = Log4r::Logger.new(self.class.name.downcase)
+          @logger = Log4r::Logger.new(self.class.name.to_s.downcase)
 
           sup = self.method(:initialize).super_method
           if sup.parameters.empty?
