@@ -10,9 +10,9 @@ module VagrantPlugins
         def initialize(*args, **opts, &block)
           caps = Vagrant.plugin("2").manager.host_capabilities
           default_args = [
-            # Always get a target to pass the guest capability
+            # Always get the state bag for host capabilities
             SDK::FuncSpec::Value.new(
-              type: "hashicorp.vagrant.sdk.Args.Project",
+              type: "hashicorp.vagrant.sdk.Args.StateBag",
               name: "",
             ),
           ]
