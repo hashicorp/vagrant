@@ -139,7 +139,10 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
       optional :target, :string, 3
     end
     add_message "hashicorp.vagrant.sdk.Args.NamedCapability" do
-      optional :Capability, :string, 1
+      optional :capability, :string, 1
+    end
+    add_message "hashicorp.vagrant.sdk.Args.Direct" do
+      repeated :list, :message, 1, "google.protobuf.Any"
     end
     add_message "hashicorp.vagrant.sdk.BoxCollection" do
       optional :directory, :string, 1
@@ -756,6 +759,7 @@ module Hashicorp
       Args::SyncedFolder = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Args.SyncedFolder").msgclass
       Args::TargetIndex = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Args.TargetIndex").msgclass
       Args::NamedCapability = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Args.NamedCapability").msgclass
+      Args::Direct = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Args.Direct").msgclass
       BoxCollection = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.BoxCollection").msgclass
       SSHInfo = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.SSHInfo").msgclass
       WinrmInfo = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.WinrmInfo").msgclass

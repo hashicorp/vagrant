@@ -254,6 +254,8 @@ module Hashicorp
           rpc :HasCapabilitySpec, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::FuncSpec
           rpc :Parents, ::Hashicorp::Vagrant::Sdk::FuncSpec::Args, ::Hashicorp::Vagrant::Sdk::Platform::ParentsResp
           rpc :ParentsSpec, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::FuncSpec
+          rpc :Seed, ::Hashicorp::Vagrant::Sdk::Args::Direct, ::Google::Protobuf::Empty
+          rpc :Seeds, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::Args::Direct
         end
 
         Stub = Service.rpc_stub_class
@@ -278,6 +280,8 @@ module Hashicorp
           rpc :HasCapabilitySpec, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::FuncSpec
           rpc :Parents, ::Hashicorp::Vagrant::Sdk::FuncSpec::Args, ::Hashicorp::Vagrant::Sdk::Platform::ParentsResp
           rpc :ParentsSpec, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::FuncSpec
+          rpc :Seed, ::Hashicorp::Vagrant::Sdk::Args::Direct, ::Google::Protobuf::Empty
+          rpc :Seeds, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::Args::Direct
         end
 
         Stub = Service.rpc_stub_class
