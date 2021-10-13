@@ -1,13 +1,12 @@
 import './style.css'
 import '@hashicorp/platform-util/nprogress/style.css'
 
-import { useEffect } from 'react'
-import * as Fathom from 'fathom-client'
 import Min100Layout from '@hashicorp/react-min-100-layout'
 import NProgress from '@hashicorp/platform-util/nprogress'
 import createConsentManager from '@hashicorp/react-consent-manager/loader'
+import useFathomAnalytics from '@hashicorp/platform-analytics'
 import useAnchorLinkAnalytics from '@hashicorp/platform-util/anchor-link-analytics'
-import Router, { useRouter } from 'next/router'
+import Router from 'next/router'
 import HashiHead from '@hashicorp/react-head'
 import Head from 'next/head'
 import { ErrorBoundary } from '@hashicorp/platform-runtime-error-monitoring'
@@ -24,27 +23,7 @@ const { ConsentManager, openConsentManager } = createConsentManager({
 })
 
 export default function App({ Component, pageProps }) {
-  const router = useRouter()
-
-  useEffect(() => {
-    // Load Fathom analytics
-    Fathom.load('KVKPBTGU', {
-      includedDomains: ['vagrantup.com', 'www.vagrantup.com'],
-    })
-
-    function onRouteChangeComplete() {
-      Fathom.trackPageview()
-    }
-
-    // Record a pageview when route changes
-    router.events.on('routeChangeComplete', onRouteChangeComplete)
-
-    // Unassign event listener
-    return () => {
-      router.events.off('routeChangeComplete', onRouteChangeComplete)
-    }
-  }, [])
-
+ useFathomAnalytics()
   useAnchorLinkAnalytics()
 
   return (
