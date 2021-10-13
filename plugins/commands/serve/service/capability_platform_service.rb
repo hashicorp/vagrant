@@ -23,9 +23,7 @@ module VagrantPlugins
         end
 
         def seed(req, ctx)
-          logger.info "seeding this service with values from the client"
-          logger.info "values to seed include: #{req.list.inspect}"
-          @seeds = req.list.map{ |x| x }
+          @seeds = req.list.to_a
           Empty.new
         end
 
