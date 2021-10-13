@@ -4,6 +4,7 @@ import '@hashicorp/platform-util/nprogress/style.css'
 import Min100Layout from '@hashicorp/react-min-100-layout'
 import NProgress from '@hashicorp/platform-util/nprogress'
 import createConsentManager from '@hashicorp/react-consent-manager/loader'
+import useFathomAnalytics from '@hashicorp/platform-analytics'
 import useAnchorLinkAnalytics from '@hashicorp/platform-util/anchor-link-analytics'
 import Router from 'next/router'
 import HashiHead from '@hashicorp/react-head'
@@ -22,6 +23,7 @@ const { ConsentManager, openConsentManager } = createConsentManager({
 })
 
 export default function App({ Component, pageProps }) {
+ useFathomAnalytics()
   useAnchorLinkAnalytics()
 
   return (
