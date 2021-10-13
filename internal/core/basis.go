@@ -257,6 +257,15 @@ func (b *Basis) Host() (host core.Host, err error) {
 		return nil, fmt.Errorf("failed to detect host plugin for current platform")
 	}
 
+	if bg, ok := result.(component.Host); ok {
+		err := bg.Seed(b.statebag)
+		if err != nil {
+			return nil, err
+		}
+	} else {
+		return nil, fmt.Errorf("host plugin does not support argument seeding")
+	}
+
 	b.logger.Info("host detection complete",
 		"name", result_name)
 
@@ -626,7 +635,7 @@ func (b *Basis) callDynamicFunc(
 
 	// add the default arguments always provided by the basis
 	args = append(args,
-		argmapper.Typed(b, b.ui, ctx, log.Named("plugin-call")),
+		argmapper.Typed(b, b.ui, ctx, log),
 		argmapper.Named("basis", b),
 		argmapper.Logger(dynamic.Logger),
 	)
