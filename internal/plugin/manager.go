@@ -332,7 +332,7 @@ func (m *Manager) loadInProcessBuiltins() (err error) {
 func (m *Manager) register(
 	factory PluginRegistration, // Function to generate plugin
 ) (err error) {
-	plg, err := factory(m.logger)
+	plg, err := factory(m.logger.ResetNamed("vagrant.plugin"))
 	if err != nil {
 		return
 	}

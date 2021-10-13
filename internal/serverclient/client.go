@@ -23,7 +23,7 @@ type VagrantClient struct {
 }
 
 func NewVagrantClient(ctx context.Context, log hclog.Logger, addr string) (*VagrantClient, error) {
-	log = log.Named("vagrant-client")
+	log = log.Named("vagrant.client")
 	conn, err := Connect(ctx,
 		WithAddr(addr),
 	)

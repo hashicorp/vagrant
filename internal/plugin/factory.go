@@ -5,7 +5,7 @@ import (
 	"os"
 	"os/exec"
 	"runtime"
-	//	"strings"
+	"strings"
 
 	"github.com/hashicorp/go-argmapper"
 	"github.com/hashicorp/go-hclog"
@@ -35,9 +35,12 @@ func Factory(
 		// fields on it.
 		cmdCopy := *cmd
 
-		config := pluginclient.ClientConfig(log)
+		log = log.Named("factory")
+
+		nlog := log.ResetNamed("vagrant.plugin")
+		config := pluginclient.ClientConfig(nlog)
 		config.Cmd = &cmdCopy
-		config.Logger = log
+		config.Logger = nlog
 
 		// Log that we're going to launch this
 		log.Info("launching plugin",
@@ -87,7 +90,7 @@ func Factory(
 			Name:       info.Name(),
 			Types:      info.ComponentTypes(),
 			components: map[component.Type]*Instance{},
-			logger:     log,
+			logger:     nlog.Named(info.Name()),
 			src:        client,
 		}
 
@@ -135,7 +138,7 @@ func RubyFactory(
 			Name:       name,
 			Types:      []component.Type{typ},
 			components: map[component.Type]*Instance{},
-			logger:     log,
+			logger:     log.ResetNamed("vagrant.legacy." + strings.ToLower(typ.String())),
 		}, nil
 	}
 }
