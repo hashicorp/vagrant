@@ -240,10 +240,14 @@ module Vagrant
       Log4r::Logger.each_logger do |l|
         l.outputters = Log4r::Outputter.stderr
       end
-      # NOTE: The root logger forces the `#outputters=` method to be a no-op
-      #       so we need to just update the instance variable directly to ensure
-      #       that all subloggers are properly setup with the correct outputter
-      Log4r::Logger.root.instance_variable_set(:@outputters, [Log4r::Outputter.stderr])
+      Log4r::Logger::Repository.class_eval do
+        def self.[]=(n, l)
+          self.synchronize do
+            l.outputters = Log4r::Outputter.stderr
+            instance.loggers[n] = l
+          end
+        end
+      end
     end
     @_server_mode = true
   end
