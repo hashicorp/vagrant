@@ -34,12 +34,13 @@ var (
 )
 
 type Plugin struct {
-	Builtin  bool                  // Flags if this plugin is a builtin plugin
-	Client   plugin.ClientProtocol // Client connection to plugin
-	Location string                // Location of the plugin (generally path to binary)
-	Name     string                // Name of the plugin
-	Types    []component.Type      // Component types supported by this plugin
-	Cache    cacher.Cache
+	Builtin       bool                  // Flags if this plugin is a builtin plugin
+	Client        plugin.ClientProtocol // Client connection to plugin
+	Location      string                // Location of the plugin (generally path to binary)
+	Name          string                // Name of the plugin
+	Types         []component.Type      // Component types supported by this plugin
+	Cache         cacher.Cache
+	ParentPlugins []*Plugin
 
 	closers    []func() error
 	components map[component.Type]*Instance
@@ -76,6 +77,31 @@ func (p *Plugin) Close() (err error) {
 		}
 	}
 	return
+}
+
+func (p *Plugin) SetParentPlugins(typ component.Type) {
+	i := p.components[typ]
+	if i == nil {
+		return
+	}
+	pluginWithParent, ok := i.Component.(PluginWithParent)
+	if !ok {
+		p.logger.Warn("plugin does not support parents",
+			"component", typ.String(),
+			"name", p.Name)
+
+	} else {
+		p.logger.Info("setting plugin parents",
+			"component", typ.String(),
+			"name", p.Name)
+
+		parentComponents := []interface{}{}
+		for _, pp := range p.ParentPlugins {
+			parentComponents = append(parentComponents, pp.components[typ].Component)
+		}
+		// TODO: set parent plugins
+		pluginWithParent.SetParentPlugins(parentComponents)
+	}
 }
 
 // Get specific component type from plugin
@@ -171,4 +197,8 @@ func (p *Plugin) types() []string {
 		result = append(result, t.String())
 	}
 	return result
+}
+
+type PluginWithParent interface {
+	SetParentPlugins([]interface{})
 }
