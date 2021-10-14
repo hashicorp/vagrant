@@ -236,11 +236,14 @@ module Vagrant
   def self.enable_server_mode!
     if !server_mode?
       SERVER_MODE_CALLBACKS.each(&:call)
-      l = VagrantLogger.new("")
-      lv = VagrantLogger.new("vagrant")
-      l.outputters = Log4r::Outputter.stderr
-      lv.outputters = Log4r::Outputter.stderr
       Log4r::Outputter.stderr.formatter = Util::HCLogFormatter.new
+      Log4r::Logger.each_logger do |l|
+        l.outputters = Log4r::Outputter.stderr
+      end
+      # NOTE: The root logger forces the `#outputters=` method to be a no-op
+      #       so we need to just update the instance variable directly to ensure
+      #       that all subloggers are properly setup with the correct outputter
+      Log4r::Logger.root.instance_variable_set(:@outputters, [Log4r::Outputter.stderr])
     end
     @_server_mode = true
   end
