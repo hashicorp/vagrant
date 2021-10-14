@@ -88,7 +88,7 @@ if ENV["VAGRANT_LOG"] && ENV["VAGRANT_LOG"] != ""
 
     logger = VagrantLogger.new("vagrant")
     if ENV["VAGRANT_LOG_FILE"] && ENV["VAGRANT_LOG_FILE"] != ""
-      logger.outputters = Log4r::FileOutputter.new("vagrant", {:filename=>ENV["VAGRANT_LOG_FILE"]} )
+      logger.outputters = Log4r::FileOutputter.new("vagrant", filename: ENV["VAGRANT_LOG_FILE"])
     else
       logger.outputters = Log4r::Outputter.stderr
     end

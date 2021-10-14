@@ -236,6 +236,11 @@ module Vagrant
   def self.enable_server_mode!
     if !server_mode?
       SERVER_MODE_CALLBACKS.each(&:call)
+      l = VagrantLogger.new("")
+      lv = VagrantLogger.new("vagrant")
+      l.outputters = Log4r::Outputter.stderr
+      lv.outputters = Log4r::Outputter.stderr
+      Log4r::Outputter.stderr.formatter = Util::HCLogFormatter.new
     end
     @_server_mode = true
   end
