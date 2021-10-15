@@ -22,6 +22,7 @@ module VagrantPlugins
           @default_args = default_args
         end
 
+        # TODO(spox): request scoping for seed values - needs investigation
         def seed(req, ctx)
           @seeds = req.list.to_a
           Empty.new
