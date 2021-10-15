@@ -32,7 +32,7 @@ module Vagrant
       # @param [Symbol] cap_name Name of the capability
       def capability(cap_name, *args)
         @logger.debug("running remote host capability #{cap_name} with args #{args}")
-        client.capability(cap_name, @env.to_proto, *args)
+        client.capability(cap_name, *args)
       end
 
       # Tests whether the given capability is possible.
