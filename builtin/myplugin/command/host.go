@@ -55,14 +55,14 @@ func (c *Host) Execute(trm terminal.UI, project core.Project) int32 {
 
 	trm.Output("have host plugin to run against")
 
-	if r, err := h.HasCapability("dummy"); !r {
-		trm.Output("No dummy capability found (%s)", err)
+	if r, err := h.HasCapability("write_hello"); !r {
+		trm.Output("No write_hello capability found (%s)", err)
 		return 1
 	}
 
-	trm.Output("host plugin has dummy capability to run")
+	trm.Output("host plugin has write_hello capability to run")
 
-	result, err := h.Capability("dummy", trm, "test value")
+	result, err := h.Capability("write_hello", trm)
 	if err != nil {
 		trm.Output("Error running capability: %s", err)
 		return 1
