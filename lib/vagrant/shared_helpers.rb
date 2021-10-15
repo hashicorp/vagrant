@@ -238,12 +238,12 @@ module Vagrant
       SERVER_MODE_CALLBACKS.each(&:call)
       Log4r::Outputter.stderr.formatter = Util::HCLogFormatter.new
       Log4r::Logger.each_logger do |l|
-        l.outputters = Log4r::Outputter.stderr
+        l.outputters = Log4r::Outputter.stderr if l.parent == Log4r::RootLogger.instance
       end
       Log4r::Logger::Repository.class_eval do
         def self.[]=(n, l)
           self.synchronize do
-            l.outputters = Log4r::Outputter.stderr
+            l.outputters = Log4r::Outputter.stderr if l.parent == Log4r::RootLogger.instance
             instance.loggers[n] = l
           end
         end
