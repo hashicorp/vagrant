@@ -18,7 +18,6 @@ module VagrantPlugins
         def command_info(req, ctx)
           with_info(ctx) do |info|
             command_info = collect_command_info(info.plugin_name, [])
-            logger.info("command info, #{command_info}")
             SDK::Command::CommandInfoResp.new(
               command_info: command_info,
             )
@@ -85,7 +84,7 @@ module VagrantPlugins
         protected
 
         def collect_command_info(plugin_name, subcommand_names)
-          logger.info("collecting command information for #{plugin_name} #{subcommand_names}")
+          logger.debug("collecting command information for #{plugin_name} #{subcommand_names}")
           options = command_options_for(plugin_name, subcommand_names)
           if options.nil?
             hlp_msg = ""
@@ -131,17 +130,17 @@ module VagrantPlugins
         end
 
         def get_subcommands(plugin_name, subcommand_names)
-          logger.info("collecting subcommands for #{plugin_name} #{subcommand_names}")
+          logger.debug("collecting subcommands for #{plugin_name} #{subcommand_names}")
           subcommands = []
           cmds = subcommands_for(plugin_name, subcommand_names)
           if !cmds.nil?
-            logger.info("found subcommands #{cmds.keys}")
+            logger.debug("found subcommands #{cmds.keys}")
             cmds.keys.each do |subcmd|
               subnms = subcommand_names.dup
               subcommands << collect_command_info(plugin_name, subnms.append(subcmd.to_s))
             end
           else
-            logger.info("no subcommands found")
+            logger.debug("no subcommands found")
           end
           return subcommands
         end

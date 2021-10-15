@@ -36,6 +36,7 @@ module VagrantPlugins
 
         # @param [Symbol] cap_name Name of the capability
         def capability(cap_name, *args)
+          logger.debug("executing capability #{cap_name}")
           arg_protos = seeds.map do |any|
             SDK::FuncSpec::Value.new(
               name: "",

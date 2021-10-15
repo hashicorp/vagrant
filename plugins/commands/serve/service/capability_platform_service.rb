@@ -85,9 +85,11 @@ module VagrantPlugins
 
         def capability(req, ctx)
           with_info(ctx) do |info|
-            logger.debug("executing capability, got req #{req}")
             cap_name = req.name.to_sym
             plugin_name = info.plugin_name.to_sym
+
+            logger.debug("executing capability #{cap_name} on plugin #{plugin_name}")
+
             caps_registry = capabilities[plugin_name]
             target_cap = caps_registry.get(cap_name)
 
