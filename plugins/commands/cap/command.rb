@@ -28,9 +28,9 @@ module VagrantPlugins
             options[:check] = f
           end
 
-          o.on("-t", "--target=TARGET", "Target guest to run against (if applicable)") do |t|
-            options[:target] = t
-          end
+          # o.on("-t", "--target=TARGET", "Target guest to run against (if applicable)") do |t|
+          #   options[:target] = t
+          # end
         end
 
         # Parse the options
