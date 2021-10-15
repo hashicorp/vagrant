@@ -34,15 +34,10 @@ module VagrantPlugins
       DEFAULT_BIND = "localhost"
       DEFAULT_PORT_RANGE = 40000..50000
 
+      include Util::HasLogger
+
       def self.synopsis
         "start Vagrant server"
-      end
-
-      def logger
-        if !@logger
-          @logger = Log4r::Logger.new(self.class.name.to_s.downcase)
-        end
-        @logger
       end
 
       def execute
