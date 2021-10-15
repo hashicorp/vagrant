@@ -107,9 +107,9 @@ module VagrantPlugins
         s.handle(health_checker)
 
         logger.debug("writing connection informatation to stdout for go-plugin")
-        STDOUT.puts "1|1|tcp|127.0.0.1:#{port}|grpc"
+        STDOUT.puts "1|1|tcp|#{bind_addr}:#{port}|grpc"
         STDOUT.flush
-        logger.info("Vagrant GRPC service is now running addr=#{bind_addr.inspect} ports=#{ports.inspect}")
+        logger.info("Vagrant GRPC service is now running addr=#{bind_addr.inspect} port=#{port.inspect}")
         s.run_till_terminated_or_interrupted([1, 'int', 'SIGQUIT', 'SIGINT'])
       ensure
         logger.info("Vagrant GRPC service is shutting down")
