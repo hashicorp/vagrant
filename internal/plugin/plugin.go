@@ -11,6 +11,7 @@ import (
 
 	sdk "github.com/hashicorp/vagrant-plugin-sdk"
 	"github.com/hashicorp/vagrant-plugin-sdk/component"
+	"github.com/hashicorp/vagrant-plugin-sdk/internal-shared/cacher"
 	"github.com/hashicorp/vagrant/builtin/myplugin"
 	"github.com/hashicorp/vagrant/builtin/otherplugin"
 )
@@ -38,6 +39,7 @@ type Plugin struct {
 	Location string                // Location of the plugin (generally path to binary)
 	Name     string                // Name of the plugin
 	Types    []component.Type      // Component types supported by this plugin
+	Cache    cacher.Cache
 
 	closers    []func() error
 	components map[component.Type]*Instance
@@ -142,6 +144,12 @@ func (p *Plugin) InstanceOf(
 			"name", p.Name)
 
 		return nil, fmt.Errorf("unable to extract broker from plugin client")
+	}
+
+	if c, ok := raw.(interface {
+		SetCache(cacher.Cache)
+	}); ok {
+		c.SetCache(p.Cache)
 	}
 
 	i = &Instance{

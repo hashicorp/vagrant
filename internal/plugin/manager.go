@@ -13,10 +13,11 @@ import (
 	"github.com/hashicorp/go-hclog"
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/go-plugin"
-	"github.com/hashicorp/vagrant/internal/serverclient"
 
 	"github.com/hashicorp/vagrant-plugin-sdk/component"
 	"github.com/hashicorp/vagrant-plugin-sdk/helper/path"
+	"github.com/hashicorp/vagrant-plugin-sdk/internal-shared/cacher"
+	"github.com/hashicorp/vagrant/internal/serverclient"
 )
 
 type PluginRegistration func(hclog.Logger) (*Plugin, error)
@@ -33,6 +34,7 @@ type Manager struct {
 	logger          hclog.Logger
 	m               sync.Mutex
 	parent          *Manager
+	cache           cacher.Cache
 }
 
 // Create a new plugin manager
@@ -42,6 +44,7 @@ func NewManager(ctx context.Context, l hclog.Logger) *Manager {
 		builtins: NewBuiltins(ctx, l),
 		ctx:      ctx,
 		logger:   l,
+		cache:    cacher.New(),
 	}
 }
 
@@ -58,6 +61,7 @@ func (m *Manager) Sub(name string) *Manager {
 		legacyLoaded:    true,
 		logger:          m.logger.Named(name),
 		parent:          m,
+		cache:           m.cache,
 	}
 	m.closer(func() error { return s.Close() })
 
@@ -336,6 +340,7 @@ func (m *Manager) register(
 	if err != nil {
 		return
 	}
+	plg.Cache = m.cache
 
 	for _, t := range plg.Types {
 		m.logger.Info("registering plugin",
