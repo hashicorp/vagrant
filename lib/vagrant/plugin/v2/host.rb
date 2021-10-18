@@ -26,8 +26,13 @@ module Vagrant
             n = nil
             if entry.last
               ancestors << entry.last
-              entry = hosts[entry.last]
-              n = entry.last
+              # `hosts` might not have the key, if the entry does not exist within
+              # the Ruby runtime. For example, if a Ruby plugin has a dependency
+              # on a Go plugin.
+              if hosts.has_key?(entry.last)
+                entry = hosts[entry.last]
+                n = entry.last
+              end
             end
           end
           ancestors
