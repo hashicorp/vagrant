@@ -39,7 +39,7 @@ func (h *AlwaysTrueHost) ParentsFunc() interface{} {
 }
 
 func (h *AlwaysTrueHost) Parents() []string {
-	return []string{"darwin", "bsd", "force", "host", "platform", "match"}
+	return []string{}
 }
 
 // HasCapabilityFunc implements component.Host
