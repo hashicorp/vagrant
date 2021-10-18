@@ -30,7 +30,7 @@ func (h *AlwaysTrueHost) HostDetectFunc() interface{} {
 }
 
 func (h *AlwaysTrueHost) Detect() bool {
-	return false
+	return true
 }
 
 // ParentsFunc implements component.Host
@@ -39,7 +39,7 @@ func (h *AlwaysTrueHost) ParentsFunc() interface{} {
 }
 
 func (h *AlwaysTrueHost) Parents() []string {
-	return []string{"darwin", "bsd"}
+	return []string{}
 }
 
 // HasCapabilityFunc implements component.Host
@@ -48,7 +48,7 @@ func (h *AlwaysTrueHost) HasCapabilityFunc() interface{} {
 }
 
 func (h *AlwaysTrueHost) CheckCapability(n *component.NamedCapability) bool {
-	if n.Capability == "write_hello" {
+	if n.Capability == "write_hello" || n.Capability == "write_hello_file" {
 		return true
 	}
 	return false
@@ -58,12 +58,18 @@ func (h *AlwaysTrueHost) CheckCapability(n *component.NamedCapability) bool {
 func (h *AlwaysTrueHost) CapabilityFunc(name string) interface{} {
 	if name == "write_hello" {
 		return h.WriteHelloCap
+	} else if name == "write_hello_file" {
+		return h.WriteHelloToTempFileCap
 	}
 	return errors.New("Invalid capability requested")
 }
 
 func (h *AlwaysTrueHost) WriteHelloCap(ui terminal.UI) error {
 	return cap.WriteHello(ui)
+}
+
+func (h *AlwaysTrueHost) WriteHelloToTempFileCap() error {
+	return cap.WriteHelloToTempfile()
 }
 
 var (
