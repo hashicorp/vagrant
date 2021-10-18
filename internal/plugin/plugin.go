@@ -11,6 +11,7 @@ import (
 
 	sdk "github.com/hashicorp/vagrant-plugin-sdk"
 	"github.com/hashicorp/vagrant-plugin-sdk/component"
+	"github.com/hashicorp/vagrant-plugin-sdk/core"
 	"github.com/hashicorp/vagrant-plugin-sdk/internal-shared/cacher"
 	"github.com/hashicorp/vagrant/builtin/myplugin"
 	"github.com/hashicorp/vagrant/builtin/otherplugin"
@@ -188,6 +189,18 @@ func (p *Plugin) InstanceOf(
 	p.components[c] = i
 
 	return
+}
+
+func (p *Plugin) SeedPlugin(typ component.Type, args ...interface{}) error {
+	seedTarget := p.components[typ].Component
+	if s, ok := seedTarget.(core.Seeder); ok {
+		if err := s.Seed(args...); err != nil {
+			return err
+		}
+	} else {
+		return fmt.Errorf("host plugin does not support seeder interface")
+	}
+	return nil
 }
 
 // Helper that returns supported types as strings
