@@ -114,7 +114,20 @@ func (p *Project) DefaultPrivateKey() (path string, err error) {
 
 // Host implements core.Project
 func (p *Project) Host() (host core.Host, err error) {
-	return p.basis.Host()
+	if host, err = p.basis.Host(); err != nil {
+		return
+	}
+	if s, ok := host.(core.Seeder); ok {
+		list, err := s.Seeds()
+		if err != nil {
+			return nil, err
+		}
+		list = append(list, p)
+		if err = s.Seed(list...); err != nil {
+			return nil, err
+		}
+	}
+	return
 }
 
 // MachineIndex implements core.Project

@@ -257,14 +257,6 @@ func (b *Basis) Host() (host core.Host, err error) {
 		return nil, fmt.Errorf("failed to detect host plugin for current platform")
 	}
 
-	if s, ok := result.(core.Seeder); ok {
-		if err = s.Seed(b.statebag); err != nil {
-			return nil, err
-		}
-	} else {
-		return nil, fmt.Errorf("host plugin does not support seeder interface")
-	}
-
 	b.logger.Info("host detection complete",
 		"name", result_name)
 

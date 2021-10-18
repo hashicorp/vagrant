@@ -12,7 +12,7 @@ module VagrantPlugins
           default_args = [
             # Always get the state bag for host capabilities
             SDK::FuncSpec::Value.new(
-              type: "hashicorp.vagrant.sdk.Args.StateBag",
+              type: "hashicorp.vagrant.sdk.Args.Project",
               name: "",
             ),
           ]
