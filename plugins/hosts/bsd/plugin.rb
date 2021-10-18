@@ -6,7 +6,7 @@ module VagrantPlugins
       name "BSD host"
       description "BSD host support."
 
-      host("bsd") do
+      host("bsd", "myplugin") do
         require File.expand_path("../host", __FILE__)
         Host
       end
