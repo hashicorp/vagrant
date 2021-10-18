@@ -25,11 +25,6 @@ module VagrantPlugins
         require_relative "cap/nfs"
         Cap::NFS
       end
-
-      host_capability("void", "dummy") do
-        require_relative "cap/dummy"
-        Cap::Dummy
-      end
     end
   end
 end
