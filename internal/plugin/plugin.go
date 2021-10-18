@@ -100,7 +100,6 @@ func (p *Plugin) SetParentPlugins(typ component.Type) {
 		for _, pp := range p.ParentPlugins {
 			parentComponents = append(parentComponents, pp.components[typ].Component)
 		}
-		// TODO: set parent plugins
 		pluginWithParent.SetParentPlugins(parentComponents)
 	}
 }
