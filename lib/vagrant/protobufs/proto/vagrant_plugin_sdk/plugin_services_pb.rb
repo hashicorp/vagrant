@@ -298,6 +298,20 @@ module Hashicorp
           rpc :ConfigStruct, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::Config::StructResp
           rpc :Configure, ::Hashicorp::Vagrant::Sdk::Config::ConfigureRequest, ::Google::Protobuf::Empty
           rpc :Documentation, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::Config::Documentation
+          rpc :Usable, ::Hashicorp::Vagrant::Sdk::FuncSpec::Args, ::Hashicorp::Vagrant::Sdk::SyncedFolder::UsableResp
+          rpc :UsableSpec, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::FuncSpec
+          rpc :Enable, ::Hashicorp::Vagrant::Sdk::FuncSpec::Args, ::Google::Protobuf::Empty
+          rpc :EnableSpec, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::FuncSpec
+          rpc :Disable, ::Hashicorp::Vagrant::Sdk::FuncSpec::Args, ::Google::Protobuf::Empty
+          rpc :DisableSpec, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::FuncSpec
+          rpc :Cleanup, ::Hashicorp::Vagrant::Sdk::FuncSpec::Args, ::Google::Protobuf::Empty
+          rpc :CleanupSpec, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::FuncSpec
+          rpc :Capability, ::Hashicorp::Vagrant::Sdk::Platform::Capability::NamedRequest, ::Hashicorp::Vagrant::Sdk::Platform::Capability::Resp
+          rpc :CapabilitySpec, ::Hashicorp::Vagrant::Sdk::Platform::Capability::NamedRequest, ::Hashicorp::Vagrant::Sdk::FuncSpec
+          rpc :HasCapability, ::Hashicorp::Vagrant::Sdk::FuncSpec::Args, ::Hashicorp::Vagrant::Sdk::Platform::Capability::CheckResp
+          rpc :HasCapabilitySpec, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::FuncSpec
+          rpc :Seed, ::Hashicorp::Vagrant::Sdk::Args::Direct, ::Google::Protobuf::Empty
+          rpc :Seeds, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::Args::Direct
         end
 
         Stub = Service.rpc_stub_class
