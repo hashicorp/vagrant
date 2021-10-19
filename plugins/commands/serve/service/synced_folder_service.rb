@@ -52,17 +52,15 @@ module VagrantPlugins
                 name: "",
               ),
               SDK::FuncSpec::Value.new(
-                type: "hashicorp.vagrant.sdk.Args.OptionsHash",
+                type: "hashicorp.vagrant.sdk.Args.Folder",
                 name: "",
               ),
-             #TODO
-            ],
-            result: [
               SDK::FuncSpec::Value.new(
-                type: "hashicorp.vagrant.sdk.SyncedFolder.UsableResp",
+                type: "hashicorp.vagrant.sdk.Args.Direct",
                 name: "",
               ),
             ],
+            result: [],
           )
         end
 
@@ -72,6 +70,55 @@ module VagrantPlugins
           end
         end
 
+        def disable_spec(*_)
+          SDK::FuncSpec.new(
+            name: "disable_spec",
+            args: [
+              SDK::FuncSpec::Value.new(
+                type: "hashicorp.vagrant.sdk.Args.Target.Machine",
+                name: "",
+              ),
+              SDK::FuncSpec::Value.new(
+                type: "hashicorp.vagrant.sdk.Args.Folder",
+                name: "",
+              ),
+              SDK::FuncSpec::Value.new(
+                type: "hashicorp.vagrant.sdk.Args.Direct",
+                name: "",
+              ),
+            ],
+            result: [],
+          )
+        end
+
+        def disable(req, ctx)
+          with_info(ctx) do |info|
+            # TODO
+          end
+        end
+
+        def cleanup_spec(*_)
+          SDK::FuncSpec.new(
+            name: "cleanup_spec",
+            args: [
+              SDK::FuncSpec::Value.new(
+                type: "hashicorp.vagrant.sdk.Args.Target.Machine",
+                name: "",
+              ),
+              SDK::FuncSpec::Value.new(
+                type: "hashicorp.vagrant.sdk.Args.Direct",
+                name: "",
+              ),
+            ],
+            result: [],
+          )
+        end
+
+        def cleanup(req, ctx)
+          with_info(ctx) do |info|
+            # TODO
+          end
+        end
 
       end
     end
