@@ -8,6 +8,8 @@ on:
       - 'cmd/**'
       - 'internal/**'
       - '.github/workflows**'
+      - 'go.mod'
+      - 'go.sum'
   pull_request:
     branches:
       - main
@@ -15,6 +17,8 @@ on:
       - 'builtin/**'
       - 'cmd/**'
       - 'internal/**'
+      - 'go.mod'
+      - 'go.sum'
 
 jobs:
   unit-tests:
