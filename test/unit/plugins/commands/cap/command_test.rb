@@ -49,7 +49,7 @@ describe VagrantPlugins::CommandCap::Command do
     end
 
     context "runs against target vm" do
-      let(:argv) { ["provider", "foo", "--target=dummy"] }
+      let(:argv) { ["provider", "foo", "--target-guest=dummy"] }
       let(:cap) {
         Class.new do
           def self.foo(m)
