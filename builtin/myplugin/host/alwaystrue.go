@@ -33,13 +33,13 @@ func (h *AlwaysTrueHost) Detect() bool {
 	return true
 }
 
-// ParentsFunc implements component.Host
-func (h *AlwaysTrueHost) ParentsFunc() interface{} {
-	return h.Parents
+// ParentFunc implements component.Host
+func (h *AlwaysTrueHost) ParentFunc() interface{} {
+	return h.Parent
 }
 
-func (h *AlwaysTrueHost) Parents() []string {
-	return []string{}
+func (h *AlwaysTrueHost) Parent() string {
+	return ""
 }
 
 // HasCapabilityFunc implements component.Host

@@ -70,7 +70,7 @@ func (m *Machine) Guest() (g core.Guest, err error) {
 			continue
 		}
 
-		gp, err := guest.Parents()
+		gp, err := guest.Parent()
 		if err != nil {
 			m.logger.Error("failed to get parents from guest",
 				"plugin", name,
@@ -80,7 +80,7 @@ func (m *Machine) Guest() (g core.Guest, err error) {
 			continue
 		}
 
-		rp, err := result.Parents()
+		rp, err := result.Parent()
 		if err != nil {
 			m.logger.Error("failed to get parents from guest",
 				"plugin", result_name,

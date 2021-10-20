@@ -226,7 +226,7 @@ func (b *Basis) Host() (host core.Host, err error) {
 		}
 
 		if detected {
-			hp, err := host.Parents()
+			hp, err := host.Parent()
 			if err != nil {
 				b.logger.Error("failed to get parents from host",
 					"plugin", name,
@@ -236,7 +236,7 @@ func (b *Basis) Host() (host core.Host, err error) {
 				continue
 			}
 
-			rp, err := result.Parents()
+			rp, err := result.Parent()
 			if err != nil {
 				b.logger.Error("failed to get parents from host",
 					"plugin", result_name,

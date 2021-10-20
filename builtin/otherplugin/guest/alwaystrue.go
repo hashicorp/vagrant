@@ -41,12 +41,12 @@ func (h *AlwaysTrueGuest) Detect(t plugincore.Target) bool {
 }
 
 // ParentsFunc implements component.Guest
-func (h *AlwaysTrueGuest) ParentsFunc() interface{} {
-	return h.Parents
+func (h *AlwaysTrueGuest) ParentFunc() interface{} {
+	return h.Parent
 }
 
-func (h *AlwaysTrueGuest) Parents() []string {
-	return []string{"force", "guest", "platform", "match"} // We just need to have this be the most of all matches
+func (h *AlwaysTrueGuest) Parent() string {
+	return ""
 }
 
 // HasCapabilityFunc implements component.Guest
