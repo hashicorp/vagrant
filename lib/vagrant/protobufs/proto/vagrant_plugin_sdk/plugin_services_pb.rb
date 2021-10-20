@@ -252,8 +252,8 @@ module Hashicorp
           rpc :CapabilitySpec, ::Hashicorp::Vagrant::Sdk::Platform::Capability::NamedRequest, ::Hashicorp::Vagrant::Sdk::FuncSpec
           rpc :HasCapability, ::Hashicorp::Vagrant::Sdk::FuncSpec::Args, ::Hashicorp::Vagrant::Sdk::Platform::Capability::CheckResp
           rpc :HasCapabilitySpec, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::FuncSpec
-          rpc :Parents, ::Hashicorp::Vagrant::Sdk::FuncSpec::Args, ::Hashicorp::Vagrant::Sdk::Platform::ParentsResp
-          rpc :ParentsSpec, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::FuncSpec
+          rpc :Parent, ::Hashicorp::Vagrant::Sdk::FuncSpec::Args, ::Hashicorp::Vagrant::Sdk::Platform::ParentResp
+          rpc :ParentSpec, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::FuncSpec
           rpc :Seed, ::Hashicorp::Vagrant::Sdk::Args::Direct, ::Google::Protobuf::Empty
           rpc :Seeds, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::Args::Direct
         end
@@ -278,8 +278,8 @@ module Hashicorp
           rpc :CapabilitySpec, ::Hashicorp::Vagrant::Sdk::Platform::Capability::NamedRequest, ::Hashicorp::Vagrant::Sdk::FuncSpec
           rpc :HasCapability, ::Hashicorp::Vagrant::Sdk::FuncSpec::Args, ::Hashicorp::Vagrant::Sdk::Platform::Capability::CheckResp
           rpc :HasCapabilitySpec, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::FuncSpec
-          rpc :Parents, ::Hashicorp::Vagrant::Sdk::FuncSpec::Args, ::Hashicorp::Vagrant::Sdk::Platform::ParentsResp
-          rpc :ParentsSpec, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::FuncSpec
+          rpc :Parent, ::Hashicorp::Vagrant::Sdk::FuncSpec::Args, ::Hashicorp::Vagrant::Sdk::Platform::ParentResp
+          rpc :ParentSpec, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::FuncSpec
           rpc :Seed, ::Hashicorp::Vagrant::Sdk::Args::Direct, ::Google::Protobuf::Empty
           rpc :Seeds, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::Args::Direct
         end
