@@ -53,22 +53,22 @@ describe VagrantPlugins::CommandServe::Service::GuestService do
     end
   end
 
-  context "requesting parents" do
+  context "requesting parent" do
     it "generates a spec" do
-      spec = subject.parents_spec
+      spec = subject.parent_spec
       expect(spec).not_to be_nil
     end
 
     it "raises an error for unknown plugins" do
       ctx = DummyContext.new("idontexisthahaha")
-      expect { subject.parents("", ctx) }.to raise_error
+      expect { subject.parent("", ctx) }.to raise_error
     end
 
-    it "requests parents from plugins" do
+    it "requests parent from plugins" do
       ctx = DummyContext.new("test")
-      parents = subject.parents("", ctx)
-      expect(parents).not_to be_nil
-      expect(parents.parents).to include("parent_test")
+      parent = subject.parent("", ctx)
+      expect(parent).not_to be_nil
+      expect(parent.parent).to eq("parent_test")
     end
   end
 
@@ -135,7 +135,7 @@ describe VagrantPlugins::CommandServe::Service::GuestService do
           Hashicorp::Vagrant::Sdk::FuncSpec::Value.new(
             name: "", 
             type: "hashicorp.vagrant.sdk.Args.NamedCapability", 
-            value: Google::Protobuf::Any.pack(Hashicorp::Vagrant::Sdk::Args::NamedCapability.new(Capability:"mycap")))
+            value: Google::Protobuf::Any.pack(Hashicorp::Vagrant::Sdk::Args::NamedCapability.new(capability:"mycap")))
         ]
       )
     }
@@ -146,7 +146,7 @@ describe VagrantPlugins::CommandServe::Service::GuestService do
           Hashicorp::Vagrant::Sdk::FuncSpec::Value.new(
             name: "", 
             type: "hashicorp.vagrant.sdk.Args.NamedCapability", 
-            value: Google::Protobuf::Any.pack(Hashicorp::Vagrant::Sdk::Args::NamedCapability.new(Capability:"notacapability")))
+            value: Google::Protobuf::Any.pack(Hashicorp::Vagrant::Sdk::Args::NamedCapability.new(capability:"notacapability")))
         ]
       )
     }
