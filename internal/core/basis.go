@@ -197,6 +197,21 @@ func (b *Basis) State() *StateBag {
 	return b.statebag.(*StateBag)
 }
 
+func (b *Basis) countParents(host core.Host) (int, error) {
+	numParents := 0
+	p, err := host.Parent()
+	if err != nil {
+		return 0, err
+	}
+	if p != "" {
+		numParents += 1
+		parentHost, _ := b.component(b.ctx, component.HostType, p)
+		n, _ := b.countParents(parentHost.Value.(core.Host))
+		numParents += n
+	}
+	return numParents, nil
+}
+
 // Returns the detected host for the current platform
 func (b *Basis) Host() (host core.Host, err error) {
 	hosts, err := b.typeComponents(b.ctx, component.HostType)
@@ -205,6 +220,7 @@ func (b *Basis) Host() (host core.Host, err error) {
 	}
 	var result core.Host
 	var result_name string
+	var numParents int
 
 	for name, h := range hosts {
 		host := h.Value.(core.Host)
@@ -221,12 +237,13 @@ func (b *Basis) Host() (host core.Host, err error) {
 			if detected {
 				result = host
 				result_name = name
+				numParents, _ = b.countParents(host)
 			}
 			continue
 		}
 
 		if detected {
-			hp, err := host.Parent()
+			hp, err := b.countParents(host)
 			if err != nil {
 				b.logger.Error("failed to get parents from host",
 					"plugin", name,
@@ -236,19 +253,10 @@ func (b *Basis) Host() (host core.Host, err error) {
 				continue
 			}
 
-			rp, err := result.Parent()
-			if err != nil {
-				b.logger.Error("failed to get parents from host",
-					"plugin", result_name,
-					"type", "Host",
-					"error", err)
-
-				continue
-			}
-
-			if len(hp) > len(rp) {
+			if hp > numParents {
 				result = host
 				result_name = name
+				numParents = hp
 			}
 		}
 	}
