@@ -267,5 +267,6 @@ module Vagrant
     ->{ Vagrant::MachineIndex.prepend(Vagrant::MachineIndex::Remote) },
     ->{ Vagrant::MachineIndex::Entry.prepend(Vagrant::MachineIndex::Entry::Remote::InstanceMethods) },
     ->{ Vagrant::MachineIndex::Entry.extend(Vagrant::MachineIndex::Entry::Remote::ClassMethods) },
+    ->{ Vagrant::Plugin::V2::SyncedFolder.prepend(Vagrant::Plugin::V2::SyncedFolder::Remote) },
   ].freeze
 end
