@@ -13,30 +13,6 @@ module Vagrant
         def detect?(env)
           false
         end
-
-        # Returns list of parents for
-        # this host
-        #
-        # @return [Array<Symbol>]
-        def parents
-          hosts = Vagrant.plugin("2").manager.hosts.to_hash
-          ancestors = []
-          n, entry = hosts.detect { |_, v| v.first == self.class }
-          while n
-            n = nil
-            if entry.last
-              ancestors << entry.last
-              # `hosts` might not have the key, if the entry does not exist within
-              # the Ruby runtime. For example, if a Ruby plugin has a dependency
-              # on a Go plugin.
-              if hosts.has_key?(entry.last)
-                entry = hosts[entry.last]
-                n = entry.last
-              end
-            end
-          end
-          ancestors
-        end
       end
     end
   end

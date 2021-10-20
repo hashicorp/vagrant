@@ -58,26 +58,26 @@ module VagrantPlugins
           end
         end
 
-        def parents_spec(*_)
+        def parent_spec(*_)
           SDK::FuncSpec.new(
-            name: "parents_spec",
+            name: "parent_spec",
             result: [
-              type: "hashicorp.vagrant.sdk.Host.ParentsResp",
+              type: "hashicorp.vagrant.sdk.Host.ParentResp",
               name: "",
             ]
           )
         end
 
-        def parents(req, ctx)
+        def parent(req, ctx)
           with_info(ctx) do |info|
             plugin_name = info.plugin_name
-            plugin = Vagrant.plugin("2").manager.hosts[plugin_name.to_s.to_sym].to_a.first
+            host_hash = Vagrant.plugin("2").manager.hosts[plugin_name.to_s.to_sym].to_a
+            plugin = host_hash.first
             if !plugin
               raise "Failed to locate host plugin for: #{plugin_name.inspect}"
             end
-            p = plugin.new.parents
-            SDK::Platform::ParentsResp.new(
-              parents: p
+            SDK::Platform::ParentResp.new(
+              parent: host_hash.last
             )
           end
         end
