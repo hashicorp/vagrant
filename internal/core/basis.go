@@ -539,46 +539,38 @@ func (b *Basis) Run(ctx context.Context, task *vagrant_server.Task) (err error) 
 }
 
 type HasParents interface {
-	Parents() ([]string, error)
+	Parent() (string, error)
 }
 
 func (b *Basis) loadParentPlugins(p *plugin.Plugin, typ component.Type) (err error) {
 	plg, err := p.InstanceOf(typ)
 	if err != nil {
-		panic(err)
+		return err
 	}
 	h, ok := plg.Component.(HasParents)
 	if !ok {
 		b.logger.Debug("Plugin of type ", typ, " does not have Parents")
 		return nil
 	}
-	parents, err := h.Parents()
+	parent, err := h.Parent()
 	if err != nil {
-		panic(err)
+		return err
 	}
-	if len(parents) == len(p.ParentPlugins) {
+	if parent == "" {
 		return
 	}
-	// TODO: avoid making duplicate entries
-	for _, parent := range parents {
-		// Avoid looping if a plugin name has erronously been added to the parent list
-		if parent == p.Name {
-			continue
-		}
-		b.logger.Debug("Loading parents: ", parent)
-		parentPlugin, err := b.plugins.Find(parent, typ)
-		if err != nil {
-			b.logger.Debug("Error finding parent plugin: ", parent)
-			continue
-		}
-		_, err = parentPlugin.InstanceOf(typ)
-		if err != nil {
-			b.logger.Debug("Error loading parent plugin: ", parent)
-		}
-		p.ParentPlugins = append(p.ParentPlugins, parentPlugin)
-		b.loadParentPlugins(parentPlugin, typ)
+	b.logger.Debug("Loading parent: ", parent)
+	parentPlugin, err := b.plugins.Find(parent, typ)
+	if err != nil {
+		b.logger.Debug("Error finding parent plugin: ", parent)
 	}
-	p.SetParentPlugins(typ)
+	_, err = parentPlugin.InstanceOf(typ)
+	if err != nil {
+		b.logger.Debug("Error loading parent plugin: ", parent)
+	}
+	p.ParentPlugin = parentPlugin
+	b.loadParentPlugins(parentPlugin, typ)
+	p.SetParentPlugin(typ)
 	return
 }
 
