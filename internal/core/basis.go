@@ -542,14 +542,16 @@ type HasParents interface {
 	Parent() (string, error)
 }
 
-func (b *Basis) loadParentPlugins(p *plugin.Plugin, typ component.Type) (err error) {
+func (b *Basis) loadParentPlugin(p *plugin.Plugin, typ component.Type) (err error) {
 	plg, err := p.InstanceOf(typ)
 	if err != nil {
 		return err
 	}
 	h, ok := plg.Component.(HasParents)
 	if !ok {
-		b.logger.Debug("Plugin of type ", typ, " does not have Parents")
+		b.logger.Debug("plugin does not have parents",
+			"type", typ)
+
 		return nil
 	}
 	parent, err := h.Parent()
@@ -559,17 +561,28 @@ func (b *Basis) loadParentPlugins(p *plugin.Plugin, typ component.Type) (err err
 	if parent == "" {
 		return
 	}
-	b.logger.Debug("Loading parent: ", parent)
+	b.logger.Debug("loading plugin parent",
+		"type", typ,
+		"name", parent,
+	)
 	parentPlugin, err := b.plugins.Find(parent, typ)
 	if err != nil {
-		b.logger.Debug("Error finding parent plugin: ", parent)
+		b.logger.Debug("failed to find parent plugin",
+			"type", typ,
+			"name", parent,
+			"error", err,
+		)
 	}
 	_, err = parentPlugin.InstanceOf(typ)
 	if err != nil {
-		b.logger.Debug("Error loading parent plugin: ", parent)
+		b.logger.Debug("error loading parent plugin",
+			"type", typ,
+			"name", parent,
+			"error", err,
+		)
 	}
 	p.ParentPlugin = parentPlugin
-	b.loadParentPlugins(parentPlugin, typ)
+	b.loadParentPlugin(parentPlugin, typ)
 	p.SetParentPlugin(typ)
 	return
 }
@@ -591,7 +604,7 @@ func (b *Basis) component(
 	}
 
 	// Make sure parent plugins get loaded
-	b.loadParentPlugins(p, typ)
+	b.loadParentPlugin(p, typ)
 
 	c, err := p.InstanceOf(typ)
 	if err != nil {
