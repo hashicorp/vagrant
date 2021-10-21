@@ -39,7 +39,23 @@ module VagrantPlugins
 
         def usable(req, ctx)
           with_info(ctx) do |info|
-            # TODO
+            plugin_name = info.plugin_name
+            target = mapper.funcspec_map(req)
+            project = target.project
+            env = Vagrant::Environment.new({client: project})
+            machine = env.machine(target.name.to_sym, target.provider_name.to_sym)
+            
+            synced_folders = Vagrant.plugin("2").manager.synced_folders
+            logger.debug("got synced folders #{synced_folders}")
+            plugin = [plugin_name.to_s.to_sym].to_a.first
+            logger.debug("got plugin #{plugin}")
+            sf = plugin.new
+            logger.debug("got sf #{sf}")
+            usable = sf.usable?(machine)
+            logger.debug("usable: #{usable}")
+            SDK::SyncedFolder::UsableResp.new(
+              usable: usable,
+            )
           end
         end
 
