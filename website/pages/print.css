@@ -2,7 +2,7 @@
 @media print {
   iframe,
   .g-footer,
-  #__next > header,
+  [class*='hashi-stack-menu'],
   [aria-hidden='true'],
   [id='__next-build-watcher'],
   [id='edit-this-page'],
