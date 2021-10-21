@@ -371,7 +371,8 @@ module Vagrant
       end
 
       def synced_folders
-        self.class.synced_folders(self)
+        # self.class.synced_folders(self)
+        client.synced_folders
       end
 
       def to_proto

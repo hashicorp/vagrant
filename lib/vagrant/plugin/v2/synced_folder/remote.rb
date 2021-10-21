@@ -14,6 +14,7 @@ module Vagrant
           end
 
           def _initialize(machine, synced_folder_type)
+            @client = nil#TODO!
             self
           end
 
@@ -53,6 +54,29 @@ module Vagrant
           # @param [Hash] opts
           def cleanup(machine, opts)
             client.cleanup(machine.to_proto, opts)
+          end
+
+          # Executes the capability with the given name, optionally passing more
+          # arguments onwards to the capability. If the capability returns a value,
+          # it will be returned.
+          #
+          # @param [Symbol] cap_name Name of the capability
+          def capability(cap_name, *args)
+            @logger.debug("running remote host capability #{cap_name} with args #{args}")
+            client.capability(cap_name, *args)
+          end
+
+          # Tests whether the given capability is possible.
+          #
+          # @param [Symbol] cap_name Capability name
+          # @return [Boolean]
+          def capability?(cap_name)
+            @logger.debug("checking for remote host capability #{cap_name}")
+            client.has_capability?(cap_name)
+          end
+
+          def to_proto
+            client.proto
           end
         end
       end
