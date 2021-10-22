@@ -3,7 +3,6 @@ module VagrantPlugins
     class Mappers
       module Internal
         autoload :Graph, Vagrant.source_root.join("plugins/commands/serve/mappers/internal/graph").to_s
-        autoload :Stack, Vagrant.source_root.join("plugins/commands/serve/mappers/internal/stack").to_s
       end
     end
   end
