@@ -5,6 +5,8 @@ module VagrantPlugins
     # Provides value mapping to ease interaction
     # with protobuf and clients
     class Mappers
+      include Util::HasLogger
+
       autoload :Internal, Vagrant.source_root.join("plugins/commands/serve/mappers/internal").to_s
       autoload :Mapper, Vagrant.source_root.join("plugins/commands/serve/mappers/mapper").to_s
 
@@ -72,45 +74,51 @@ module VagrantPlugins
           return val if val
         end
 
+        args = ([value] + extra_args + known_arguments).compact
+        result = nil
+
         # If we don't have a desired final type, test for mappers
         # that are satisfied by the arguments we have and run that
         # directly
         if to.nil?
-          args = ([value] + extra_args + known_arguments).compact
-          matched_mappers = mappers.find_all do |m|
-            if m.satisfied_by?(*args)
-              if to
-                m.output.ancestors.include?(to)
-              else
-                true
-              end
-            else
-              false
+          valid_outputs = []
+          cb = lambda do |k|
+            matches = mappers.find_all do |m|
+              m.inputs.first.valid?(k)
+            end
+            outs = matches.map(&:output)
+            to_search = outs - valid_outputs
+            valid_outputs |= outs
+
+            to_search.each do |o|
+              cb.call(o)
             end
           end
-          if matched_mappers.empty?
-            raise ArgumentError,
-              "Failed to locate valid mapper. (source: #{value ? value.class : 'none'} " \
-              "destination: #{to ? to : 'undefined'} - args: #{args.map(&:class).inspect} Value: #{value.inspect})" \
+          cb.call(value)
+
+          if valid_outputs.empty?
+            raise TypeError,
+              "No valid mappers found for input type `#{value.class}'"
           end
-          if matched_mappers.size > 1
-            m = matched_mappers.detect do |mp|
-              mp.inputs.detect do |mi|
-                mi.valid?(args.first)
-              end
+
+          valid_outputs.reverse!
+          logger.debug("mapper output types discovered for input type `#{value.class}': #{valid_outputs}")
+          last_error = nil
+          valid_outputs.each do |out|
+            begin
+              m_graph = Internal::Graph::Mappers.new(
+                output_type: out,
+                mappers: self,
+                input_values: args,
+              )
+              result = m_graph.execute
+            rescue => err
+              logger.debug("typeless mapping failure (non-critical): #{err} (input - #{value} / output #{out})")
+              last_error = err
             end
-            if m.nil?
-              raise ArgumentError,
-                "Multiple valid mappers found: #{matched_mappers.map(&:class).inspect} (source: #{value ? value.class : 'none'} " \
-                "destination: #{to ? to : 'undefined'} - args: #{args.map(&:class).inspect} Value: #{value.inspect})"
-            end
-            matched_mappers = [m]
           end
-          mapper = matched_mappers.first
-          margs = mapper.determine_inputs(*args)
-          result = mapper.call(*margs)
+          raise last_error if result.nil? && last_error
         else
-          args = ([value] + extra_args).compact
           m_graph = Internal::Graph::Mappers.new(
             output_type: to,
             mappers: self,
