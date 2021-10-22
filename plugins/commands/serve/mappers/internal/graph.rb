@@ -1,331 +1,239 @@
+require "rgl/adjacency"
+require "rgl/traversal"
+require "rgl/dijkstra"
+require "rgl/topsort"
+
 module VagrantPlugins
   module CommandServe
     class Mappers
       module Internal
-        class Graph
+        class Graph < RGL::DirectedAdjacencyGraph
           autoload :Mappers, Vagrant.source_root.join("plugins/commands/serve/mappers/internal/graph/mappers").to_s
           autoload :Search, Vagrant.source_root.join("plugins/commands/serve/mappers/internal/graph/search").to_s
-          autoload :Topological, Vagrant.source_root.join("plugins/commands/serve/mappers/internal/graph/topological").to_s
           autoload :Vertex, Vagrant.source_root.join("plugins/commands/serve/mappers/internal/graph/vertex").to_s
           autoload :WeightedVertex, Vagrant.source_root.join("plugins/commands/serve/mappers/internal/graph/weighted_vertex").to_s
 
+          include Util::HasLogger
+
           # Default weight used for weighted vetices
           # when no weight is provided
-          DEFAULT_WEIGHT = 1_000_000
-          # Marker value used for lookups
-          VERTEX_ID = :vertex_id
+          DEFAULT_WEIGHT = 1000
 
-          # @return [Hash<Object, Vertex>] list of vertices within graph
-          attr_reader :vertex_map
-          # @return [Hash<Object, Hash<Object, Symbol>>] incoming adjecency list
-          attr_reader :adjecency_in
-          # @return [Hash<Object, Array<WeightedVertex>] weighted incoming adjecency list
-          attr_reader :adjecency_in_weight
-          # @return [Hash<Object, Hash<Object, Symbol>>] outgoing adjecency list
-          attr_reader :adjecency_out
-          # @return [Hash<Object, Array<WeightedVertex>] weighted outgoing adjecency list
-          attr_reader :adjecency_out_weight
-
-          # Create a new Graph
-          def initialize
+          def initialize(*_)
             @vertex_map = {}
-            @adjecency_in = {}
-            @adjecency_in_weight = {}
-            @adjecency_out = {}
-            @adjecency_out_weight = {}
-            @m = Mutex.new
+            super
           end
 
-          # @return [Array<Vertex>] list of vertices
+          def initialize_copy(orig)
+            super
+            @vertex_map = orig.instance_eval { @vertex_map }.dup
+            @vertices_dict = @vertices_dict.dup
+            @vertices_dict.keys.each do |v|
+              edges = @vertices_dict[v]
+              @vertices_dict[v] = {in: edges[:in].dup, out: edges[:out].dup}
+            end
+          end
+
+          def to_a
+            @vertices_dict.keys
+          end
+
+          def each_out_vertex(v, &block)
+            v = vertex_for(v)
+            if !has_vertex?(v)
+              raise "No vertex `#{v}' found in graph"
+            end
+            @vertices_dict[v][:out].each(&block)
+          end
+          alias :each_adjacent :each_out_vertex
+
+          def out_vertices(v)
+            v = vertex_for(v)
+            if !has_vertex?(v)
+              raise "No vertex `#{v}' found in graph"
+            end
+            @vertices_dict[v][:out].to_a
+          end
+          alias :adjacent_vertices :out_vertices
+
+          def out_degree(v)
+            v = vertex_for(v)
+            if !has_vertex?(v)
+              raise "No vertex `#{v}' found in graph"
+            end
+            @vertices_dict[v][:out].size
+          end
+
+          def each_in_vertex(v, &block)
+            v = vertex_for(v)
+            if !has_vertex?(v)
+              raise "No vertex `#{v}' found in graph"
+            end
+            @vertices_dict[v][:in].each(&block)
+          end
+
+          def in_vertices(v)
+            v = vertex_for(v)
+            if !has_vertex?(v)
+              raise "No vertex `#{v}' found in graph"
+            end
+            @vertices_dict[v][:in].to_a
+          end
+
+          def in_degree(v)
+            v = vertex_for(v)
+            if !has_vertex?(v)
+              raise "No vertex `#{v}' found in graph"
+            end
+            @vertices[v][:in].size
+          end
+
           def vertices
-            @m.synchronize do
-              vertex_map.values
+            @vertices_dict.keys
+          end
+
+          def num_vertices
+            @vertices_dict.size
+          end
+
+          def num_edges
+            @vertices_dict.each_value.inject(0) do |count, edges|
+              count + edges[:out].size
             end
           end
 
-          # Create a copy of the current Graph
-          #
-          # @return [Graph]
-          def copy
-            @m.synchronize do
-              self.class.new.tap do |g|
-                # Copy our vertices list
-                g.vertex_map.replace(vertex_map.dup)
-
-                # Copy incoming edges list
-                new_in = Hash.new.tap do |nin|
-                  adjecency_in.each_pair do |k, v|
-                    nin[k] = v.dup
-                  end
-                end
-                g.adjecency_in.replace(new_in)
-
-                # Copy outgoing edges list
-                new_out = Hash.new.tap do |nout|
-                  adjecency_out.each_pair do |k, v|
-                    nout[k] = v.dup
-                  end
-                end
-                g.adjecency_out.replace(new_out)
-
-                # Copy incoming edge weights
-                in_w = Hash.new.tap do |win|
-                  adjecency_in_weight.each_pair do |k, v|
-                    win[k] = v.dup
-                  end
-                end
-
-                # Copy outgoing edge weights
-                g.adjecency_in_weight.replace(in_w)
-                out_w = Hash.new.tap do |wout|
-                  adjecency_out_weight.each_pair do |k, v|
-                    wout[k] = v.dup
-                  end
-                end
-                g.adjecency_out_weight.replace(out_w)
-              end
-            end
+          def has_edge?(u, v)
+            u = vertex_for(u)
+            v = vertex_for(v)
+            has_vertex?(u) && @vertices_dict[u][0].include?(v)
           end
 
-          # Create a reversed copy of the current Graph
-          #
-          # @return [Graph]
-          def reverse
-            @m.synchronize do
-              self.class.new.tap do |g|
-                # Copy our vertices list
-                g.vertex_map.replace(vertex_map.dup)
-
-                # Transfer incoming edges list to outgoing edges
-                new_in = Hash.new.tap do |nin|
-                  adjecency_in.each_pair do |k, v|
-                    nin[k] = v.dup
-                  end
-                end
-                g.adjecency_out.replace(new_in)
-
-                # Transfer outgoing edges list to incoming edges
-                new_out = Hash.new.tap do |nout|
-                  adjecency_out.each_pair do |k, v|
-                    nout[k] = v.dup
-                  end
-                end
-                g.adjecency_in.replace(new_out)
-
-                in_w = Hash.new.tap do |win|
-                  adjecency_in_weight.each_pair do |k, v|
-                    win[k] = v.dup
-                  end
-                end
-                # Set out vertices as in
-                g.adjecency_out_weight.replace(in_w)
-                out_w = Hash.new.tap do |wout|
-                  adjecency_out_weight.each_pair do |k, v|
-                    wout[k] = v.dup
-                  end
-                end
-                # Set in vertices as out
-                g.adjecency_in_weight.replace(out_w)
-              end
-            end
-          end
-
-          # List of incoming vertices and their weights
-          # to the given vertex
-          #
-          # @param v [Vertex]
-          # @return [Hash<Vertex, Integer>]
-          def weighted_edges_in(v)
-            @m.synchronize do
-              v = add_vertex(v)
-              Hash.tap do |wei|
-                Array(adjecency_in_weight[v.hash_code]).each do |vrt|
-                  wei[vertex_map[vrt.hash_code]] = vrt.weight
-                end
-              end
-            end
-          end
-
-          # List of outgoing vertices and their weights
-          # from the given vertex
-          #
-          # @param v [Vertex]
-          # @return [Hash<Vertex, Integer>]
-          def weighted_edges_out(v)
-            @m.synchronize do
-              v = add_vertex(v)
-              Hash.tap do |wei|
-                Array(adjecency_out_weight[v.hash_code]).each do |vrt|
-                  wei[vertex_map[vrt.hash_code]] = vrt.weight
-                end
-              end
-            end
-          end
-
-          # List of incoming vertices to the given vertex
-          #
-          # @param v [Vertex]
-          # @return [Array<Vertex>]
-          def edges_in(v)
-            @m.synchronize do
-              v = add_vertex(v)
-              adjecency_in_weight[v.hash_code].sort_by(&:weight).map do |vrt|
-                vertex_map[vrt.hash_code]
-              end
-            end
-          end
-
-          # List of outgoing vertices from the given vertex
-          #
-          # @param v [Vertex]
-          # @return [Array<Vertex>]
-          def edges_out(v)
-            @m.synchronize do
-              v = add_vertex(v)
-              adjecency_out_weight[v.hash_code].sort_by(&:weight).map do |vrt|
-                vertex_map[vrt.hash_code]
-              end
-            end
-          end
-
-          # Add a vertex to the graph. Vertices are
-          # registered by the vertex's hash code value,
-          # so the returned object may not be the same
-          # object that was provided.
-          #
-          # @param v [Vertex]
-          # @return [Vertex]
-          def add(v)
-            @m.synchronize do
-              add_vertex(v)
-            end
-          end
-
-          # Remove a vertex from the graph
-          #
-          # @param v [Vertex]
-          # @return [Vertex]
-          def remove(v)
-            @m.synchronize do
-              v = add_vertex(v)
-              vertex_map.delete(v.hash_code)
-
-              adjecency_out.delete(v.hash_code)
-              adjecency_in.delete(v.hash_code)
-
-              adjecency_out_weight.delete(v.hash_code)
-              adjecency_in_weight.delete(v.hash_code)
-
-              adjecency_in.each_pair do |_, invrt|
-                invrt.delete(v.hash_code)
-              end
-              adjecency_in_weight.values.each do |list|
-                list.delete_if { |vrt| vrt.hash_code == v.hash_code }
-              end
-
-              adjecency_out.each_pair do |_, outvrt|
-                outvrt.delete(v.hash_code)
-              end
-              adjecency_out_weight.values.each do |list|
-                list.delete_if { |vrt| vrt.hash_code == v.hash_code }
-              end
-
-              v
-            end
-          end
-
-          # Add an edge from one vertex to another
-          #
-          # @param from [Vertex]
-          # @param to [Vertex]
-          # @return [self]
-          def add_edge(from, to)
-            add_weighted_edge(from, to, DEFAULT_WEIGHT)
-            self
-          end
-
-          # Add a weighted edge from one vertex to another
-          #
-          # @param from [Vertex]
-          # @param to [Vertex]
-          # @param weight [Integer]
-          # @return [self]
-          def add_weighted_edge(from, to, weight)
-            @m.synchronize do
-              from = add_vertex(from)
-              to = add_vertex(to)
-              adjecency_out[from.hash_code][to.hash_code] = VERTEX_ID
-              adjecency_out_weight[from.hash_code] << WeightedVertex.new(
-                code: to.hash_code,
-                weight: weight
-              )
-              adjecency_in[to.hash_code][from.hash_code] = VERTEX_ID
-              adjecency_in_weight[to.hash_code] << WeightedVertex.new(
-                code: from.hash_code,
-                weight: weight
-              )
-            end
-            self
-          end
-
-          # Remove an edge from one vertex to another
-          #
-          # @param from [Vertex]
-          # @param to [Vertex]
-          # @return [self]
-          def remove_edge(from, to)
-            @m.synchronize do
-              from = add_vertex(from)
-              to = add_vertex(to)
-              adjecency_in[to.hash_code].delete(from.hash_code)
-              adjecency_in_weight[to.hash_code].delete_if { |vrt|
-                vrt.hash_code == from.hash_code }
-              adjecency_out[from.hash_code].delete(to.hash_code)
-              adjecency_out_weight[from.hash_code].delete_if { |vrt|
-                vrt.hash_code == to.hash_code }
-            end
-            self
-          end
-
-          # Finalize the graph for use. This will ensure all
-          # edges are properly sorted if weighted.
-          def finalize!
-            # @m.synchronize do
-            #   adjecency_in_weight.each_pair do |code, list|
-            #     list.sort_by!(&:weight)
-            #     adjecency_in[code] = Hash[list.map{ |w| [w.hash_code, VERTEX_ID] }]
-            #   end
-            #   adjecency_out_weight.each_pair do |code, list|
-            #     list.sort_by!(&:weight)
-            #     adjecency_out[code] = Hash[list.map{ |w| [w.hash_code, VERTEX_ID] }]
-            #   end
-            # end
-            self
-          end
-
-          protected
-
-          # Adds a vertex to the graph and initializes
-          # edge data structures. If a hash code for the
-          # vertex has already been registered, the registered
-          # vertex will be returned (which may be different than
-          # the provided vertex)
-          #
-          # @param v [Vertex]
-          # @return [Vertex]
           def add_vertex(v)
             if !v.is_a?(Vertex)
               raise TypeError,
                 "Expected type `Vertex', got `#{v.class}'"
             end
-            if vertex_map.key?(v.hash_code)
-              return vertex_map[v.hash_code]
+            if @vertex_map.key?(v.hash_code)
+              v = @vertex_map[v.hash_code]
+            else
+              if !v.is_a?(WeightedVertex)
+                v = WeightedVertex.new(v, weight: DEFAULT_WEIGHT)
+              end
+              @vertex_map[v.hash_code] = v
             end
-            adjecency_in[v.hash_code] = {}
-            adjecency_in_weight[v.hash_code] = []
-            adjecency_out[v.hash_code] = {}
-            adjecency_out_weight[v.hash_code] = []
-            vertex_map[v.hash_code] = v
+
+            @vertices_dict[v] ||= {
+              in: @edgelist_class.new,
+              out: @edgelist_class.new,
+            }
+            v
+          end
+
+          def add_edge(u, v)
+            u = add_vertex(u) # ensure key
+            v = add_vertex(v) # ensure key
+            basic_add_edge(u, v)
+          end
+
+          def remove_vertex(v)
+            v = vertex_for(v)
+            if has_vertex?(v)
+              edges = @vertices_dict[v]
+              @vertices_dict.delete(v)
+              edges[:in].each do |parent|
+                @vertices_dict[parent][:out].delete(v)
+              end
+              edges[:out].each do |child|
+                @vertices_dict[child][:in].delete(v)
+              end
+              @vertex_map.delete(v.hash_code)
+            end
+            v
+          end
+
+          def remove_edge(u, v)
+            u = vertex_for(u)
+            v = vertex_for(v)
+            if has_vertex?(u) && has_vertex?(v)
+              if @vertices_dict[u][:out].delete?(v)
+                @vertices_dict[v][:in].delete(u)
+              end
+            end
+            self
+          end
+
+          def edgelist_class=(klass)
+            @vertices_dict.keys.each do |v|
+              edges = @vertices_dict[v]
+              @vertices_dict[v] = {
+                in: klass.new(edges[:in].to_a),
+                out: klass.new(edges[:out].to_a),
+              }
+            end
+            self
+          end
+
+          def reverse
+            result = dup
+            result.reverse!
+          end
+
+          def reverse!
+            @vertices_dict.keys.each do |v|
+              edges = @vertices_dict[v]
+              @vertices_dict[v] = {
+                in: edges[:out],
+                out: edges[:in],
+              }
+            end
+            self
+          end
+
+          def shortest_path(source, target)
+            dijkstra_shortest_path(edge_weights_map, source, target)
+          end
+
+          def shortest_paths(source, target)
+            dijkstra_shortest_paths(edge_weights_map, source, target)
+          end
+
+          def edge_weights_map
+            Hash.new.tap do |edge_map|
+              each_edge do |*edges|
+                edge_map[edges] = edges.map(&:weight).inject(&:+)
+              end
+            end
+          end
+
+          def vertex_for(v)
+            @vertex_map[v.hash_code]
+          end
+
+          def to_s
+            "<#{self.class.name}:#{object_id} num_vertices=#{vertices.size}>"
+          end
+
+          def inspect
+            vinfo = vertices.map do |v|
+              ins = in_vertices(v).map do |iv|
+                "    -> #{iv}"
+              end.join("\n")
+              outs = out_vertices(v).map do |ov|
+                "    <- #{ov}"
+              end.join("\n")
+              "  " + [v].tap { |content|
+                content << ins if !ins.empty?
+                content << outs if !outs.empty?
+              }.join("\n")
+            end.join("\n")
+            "<#{self.class.name}:#{object_id} num_vertices=#{vertices.size} vertices=\n#{vinfo}\n>"
+          end
+
+          protected
+
+          def basic_add_edge(u, v)
+            @vertices_dict[u][:out].add(v)
+            @vertices_dict[v][:in].add(u)
           end
         end
       end
