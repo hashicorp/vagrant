@@ -572,6 +572,8 @@ func (b *Basis) loadParentPlugin(p *plugin.Plugin, typ component.Type) (err erro
 			"name", parent,
 			"error", err,
 		)
+		return fmt.Errorf("failed to find parent: %s", err)
+
 	}
 	_, err = parentPlugin.InstanceOf(typ)
 	if err != nil {
@@ -580,6 +582,7 @@ func (b *Basis) loadParentPlugin(p *plugin.Plugin, typ component.Type) (err erro
 			"name", parent,
 			"error", err,
 		)
+		return fmt.Errorf("failed to load parent: %s", err)
 	}
 	p.ParentPlugin = parentPlugin
 	b.loadParentPlugin(parentPlugin, typ)
