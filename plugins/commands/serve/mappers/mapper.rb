@@ -48,7 +48,7 @@ module VagrantPlugins
           # @param arg [Object] Argument to validate
           # @return [Boolean]
           def valid?(arg)
-            if !arg.is_a?(type)
+            if !arg.is_a?(type) && arg != type
               return false
             end
             validator.call(arg)
