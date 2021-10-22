@@ -43,6 +43,8 @@ type Basis struct {
 	ctx      context.Context
 	statebag core.StateBag
 
+	lookupCache map[string]interface{}
+
 	m      sync.Mutex
 	client *serverclient.VagrantClient
 
@@ -56,11 +58,12 @@ type Basis struct {
 // NewBasis creates a new Basis with the given options.
 func NewBasis(ctx context.Context, opts ...BasisOption) (b *Basis, err error) {
 	b = &Basis{
-		ctx:      ctx,
-		logger:   hclog.L(),
-		jobInfo:  &component.JobInfo{},
-		projects: map[string]*Project{},
-		statebag: NewStateBag(),
+		ctx:         ctx,
+		logger:      hclog.L(),
+		jobInfo:     &component.JobInfo{},
+		projects:    map[string]*Project{},
+		statebag:    NewStateBag(),
+		lookupCache: map[string]interface{}{},
 	}
 
 	for _, opt := range opts {
@@ -214,6 +217,9 @@ func (b *Basis) countParents(host core.Host) (int, error) {
 
 // Returns the detected host for the current platform
 func (b *Basis) Host() (host core.Host, err error) {
+	if c, ok := b.lookupCache["host"]; ok {
+		return c.(core.Host), nil
+	}
 	hosts, err := b.typeComponents(b.ctx, component.HostType)
 	if err != nil {
 		return nil, err
@@ -267,6 +273,8 @@ func (b *Basis) Host() (host core.Host, err error) {
 
 	b.logger.Info("host detection complete",
 		"name", result_name)
+
+	b.lookupCache["host"] = result
 
 	return result, nil
 }
