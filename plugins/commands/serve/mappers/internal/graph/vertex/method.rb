@@ -30,8 +30,12 @@ module VagrantPlugins
                 @value = @callable.call(*args)
               end
 
+              def to_s
+                "<Vertex:Method callable=#{@callable} hash=#{hash_code}>"
+              end
+
               def inspect
-                "<Vertex:Method:#{object_id} hash=#{hash_code} callable=#{@callable} value=#{value}>"
+                "<#{self.class.name} callable=#{@callable} value=#{value} hash=#{hash_code}>"
               end
             end
           end

@@ -16,8 +16,12 @@ module VagrantPlugins
                 value.class
               end
 
+              def to_s
+                "<Vertex:Value type=#{type} hash=#{hash_code}>"
+              end
+
               def inspect
-                "<Vertex:Value:#{object_id} hash=#{hash_code} type=#{type} value=#{value}>"
+                "<#{self.class.name} type=#{type} value=#{value} hash=#{hash_code}>"
               end
             end
           end

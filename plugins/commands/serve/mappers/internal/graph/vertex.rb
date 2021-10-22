@@ -1,5 +1,3 @@
-require 'securerandom'
-
 module VagrantPlugins
   module CommandServe
     class Mappers
@@ -26,7 +24,7 @@ module VagrantPlugins
             # their hash code value. By default,
             # the `#object_id` is used
             def hash_code
-              @code ||= SecureRandom.uuid
+              object_id
             end
 
             # By default, only a single edge must
@@ -41,8 +39,12 @@ module VagrantPlugins
               value
             end
 
+            def to_s
+              "<Vertex value=#{value} hash=#{hash_code}>"
+            end
+
             def inspect
-              "<Vertex:#{object_id} hash=#{hash_code} value=#{value}>"
+              "<#{self.class.name} value=#{value} hash=#{hash_code}>"
             end
           end
         end
