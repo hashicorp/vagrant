@@ -30,6 +30,7 @@ Gem::Specification.new do |s|
   s.add_dependency "net-scp", "~> 3.0.0"
   s.add_dependency "rb-kqueue", "~> 0.2.0"
   s.add_dependency "rexml", "~> 3.2"
+  s.add_dependency "rgl", "~> 0.5.7"
   s.add_dependency "rubyzip", "~> 2.0"
   s.add_dependency "vagrant_cloud", "~> 3.0.5"
   s.add_dependency "wdm", "~> 0.1.0"
