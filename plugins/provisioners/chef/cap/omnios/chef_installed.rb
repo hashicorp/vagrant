@@ -8,12 +8,12 @@ module VagrantPlugins
           # @return [true, false]
           def self.chef_installed(machine, product, version)
             product_name = product == 'chef-workstation' ? 'chef-workstation' : 'chef'
-            product_binary = product_name == 'chef-workstation' ? 'chef' : 'chef-client'
-            test_binary = "/opt/#{product_name}/bin/#{product_binary}"
-            command = "test -x #{test_binary}"
+            verify_bin = product_name == 'chef-workstation' ? 'chef' : 'chef-client'
+            verify_path = "/opt/#{product_name}/bin/#{verify_bin}"
+            command = "test -x #{verify_path}"
 
             if version != :latest
-              command << "&& #{test_binary} --version | grep '#{version}'"
+              command << "&& #{verify_path} --version | grep '#{version}'"
             end
 
             machine.communicate.test(command, sudo: true)
