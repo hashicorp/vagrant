@@ -3,6 +3,7 @@ import '@hashicorp/platform-util/nprogress/style.css'
 
 import Min100Layout from '@hashicorp/react-min-100-layout'
 import NProgress from '@hashicorp/platform-util/nprogress'
+import usePageviewAnalytics from '@hashicorp/platform-analytics'
 import createConsentManager from '@hashicorp/react-consent-manager/loader'
 import useAnchorLinkAnalytics from '@hashicorp/platform-util/anchor-link-analytics'
 import Router from 'next/router'
@@ -23,6 +24,7 @@ const { ConsentManager, openConsentManager } = createConsentManager({
 
 export default function App({ Component, pageProps }) {
   useAnchorLinkAnalytics()
+  usePageviewAnalytics()
 
   return (
     <ErrorBoundary FallbackComponent={Error}>
