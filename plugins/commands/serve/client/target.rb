@@ -22,9 +22,10 @@ module VagrantPlugins
           SDK::Ref::Target.new(resource_id: resource_id)
         end
 
-        # @return [Communicator]
-        # TODO: Implement
+        # @return [Client::Communicator]
         def communicate
+          comm_raw = client.communicate(Empty.new)
+          Communicator.load(comm_raw, broker: @broker)
         end
 
         # @return [Pathname] target specific data directory

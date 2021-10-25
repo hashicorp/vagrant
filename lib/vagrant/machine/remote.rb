@@ -194,16 +194,11 @@ module Vagrant
       end
 
       def communicate
-        # TODO: this should be communicating with the client.communicate
-        if !@communicator
-          requested  = @config.vm.communicator
-          requested ||= :ssh
-          klass = Vagrant.plugin("2").manager.communicators[requested]
-          raise Errors::CommunicatorNotFound, comm: requested.to_s if !klass
-          @communicator = klass.new(self)
+        @logger.debug("Getting communicator from client")
+        if !@communicate
+          @communicate = Vagrant::Plugin::V2::Communicator.new(self)
         end
-
-        @communicator
+        @communicate
       end
 
       def guest
