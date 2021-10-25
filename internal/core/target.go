@@ -228,6 +228,7 @@ func (t *Target) Run(ctx context.Context, task *vagrant_server.Task) (err error)
 		strings.Split(task.CommandName, " "))
 	result, err := t.callDynamicFunc(ctx, t.logger, fn, (*int32)(nil),
 		argmapper.Typed(task.CliArgs, t.jobInfo, t.dir),
+		argmapper.ConverterFunc(cmd.mappers...),
 	)
 
 	if err != nil || result == nil || result.(int32) != 0 {

@@ -83,12 +83,27 @@ func Factory(
 			return nil, fmt.Errorf("failed to load plugin information interface")
 		}
 
+		mappers, err := pluginclient.Mappers(client)
+		if err != nil {
+			log.Error("error requesting plugin mappers",
+				"error", err,
+			)
+			client.Kill()
+			return nil, err
+		}
+
+		log.Info("collected mappers from plugin",
+			"name", info.Name(),
+			"mappers", mappers,
+		)
+
 		p = &Plugin{
 			Builtin:    false,
 			Client:     rpcClient,
 			Location:   cmd.Path,
 			Name:       info.Name(),
 			Types:      info.ComponentTypes(),
+			Mappers:    mappers,
 			components: map[component.Type]*Instance{},
 			logger:     nlog.Named(info.Name()),
 			src:        client,
@@ -102,15 +117,6 @@ func Factory(
 		return
 	}
 }
-
-// Request the mappers
-// mappers, err := pluginclient.Mappers(client)
-// if err != nil {
-// 	log.Error("error requesting plugin mappers",
-// 		"error", err)
-// 	client.Kill()
-// 	return nil, err
-// }
 
 // BuiltinFactory creates a factory for a built-in plugin type.
 func BuiltinFactory(name string) PluginRegistration {

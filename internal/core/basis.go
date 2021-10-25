@@ -524,7 +524,9 @@ func (b *Basis) Run(ctx context.Context, task *vagrant_server.Task) (err error) 
 	fn := cmd.Value.(component.Command).ExecuteFunc(
 		strings.Split(task.CommandName, " "))
 	result, err := b.callDynamicFunc(ctx, b.logger, fn, (*int32)(nil),
-		argmapper.Typed(task.CliArgs, b.jobInfo, b.dir))
+		argmapper.Typed(task.CliArgs, b.jobInfo, b.dir),
+		argmapper.ConverterFunc(cmd.mappers...),
+	)
 
 	if err != nil || result == nil || result.(int32) != 0 {
 		b.logger.Error("failed to execute command",
@@ -633,7 +635,7 @@ func (b *Basis) component(
 			ServerAddr: b.Client().ServerTarget(),
 		},
 		hooks:   hooks,
-		mappers: b.mappers,
+		mappers: append(b.mappers, p.Mappers...),
 		plugin:  c,
 	}, nil
 }

@@ -5,6 +5,7 @@ import (
 	"strings"
 	"sync"
 
+	"github.com/hashicorp/go-argmapper"
 	"github.com/hashicorp/go-hclog"
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/go-plugin"
@@ -42,6 +43,7 @@ type Plugin struct {
 	Types        []component.Type      // Component types supported by this plugin
 	Cache        cacher.Cache
 	ParentPlugin *Plugin
+	Mappers      []*argmapper.Func
 
 	closers    []func() error
 	components map[component.Type]*Instance
@@ -177,7 +179,7 @@ func (p *Plugin) InstanceOf(
 	i = &Instance{
 		Component: raw,
 		Broker:    b.GRPCBroker(),
-		Mappers:   nil,
+		Mappers:   p.Mappers,
 	}
 
 	// Store the instance for later usage

@@ -286,6 +286,7 @@ func (p *Project) Run(ctx context.Context, task *vagrant_server.Task) (err error
 		strings.Split(task.CommandName, " "))
 	result, err := p.callDynamicFunc(ctx, p.logger, fn, (*int32)(nil),
 		argmapper.Typed(task.CliArgs, p.jobInfo, p.dir),
+		argmapper.ConverterFunc(cmd.mappers...),
 	)
 
 	p.logger.Warn("completed running command from project", "result", result)
