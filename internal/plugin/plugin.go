@@ -176,6 +176,10 @@ func (p *Plugin) InstanceOf(
 		c.SetCache(p.Cache)
 	}
 
+	if cm, ok := raw.(HasMappers); ok {
+		cm.AppendMappers(p.Mappers...)
+	}
+
 	i = &Instance{
 		Component: raw,
 		Broker:    b.GRPCBroker(),
@@ -186,6 +190,10 @@ func (p *Plugin) InstanceOf(
 	p.components[c] = i
 
 	return
+}
+
+type HasMappers interface {
+	AppendMappers(...*argmapper.Func)
 }
 
 func (p *Plugin) SeedPlugin(typ component.Type, args ...interface{}) error {

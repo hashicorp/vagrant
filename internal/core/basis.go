@@ -552,10 +552,6 @@ type HasParents interface {
 	Parent() (string, error)
 }
 
-type HasMappers interface {
-	AppendMappers(...*argmapper.Func)
-}
-
 func (b *Basis) loadParentPlugin(p *plugin.Plugin, typ component.Type) (err error) {
 	plg, err := p.InstanceOf(typ)
 	if err != nil {
@@ -630,11 +626,7 @@ func (b *Basis) component(
 
 	// TODO(spox): we need to add hooks
 
-	if cm, ok := c.Component.(HasMappers); ok {
-		cm.AppendMappers(c.Mappers...)
-	}
 	hooks := map[string][]*config.Hook{}
-	allMappers := append(b.mappers, p.Mappers...)
 	return &Component{
 		Value: c.Component,
 		Info: &vagrant_server.Component{
@@ -643,7 +635,7 @@ func (b *Basis) component(
 			ServerAddr: b.Client().ServerTarget(),
 		},
 		hooks:   hooks,
-		mappers: allMappers,
+		mappers: append(b.mappers, p.Mappers...),
 		plugin:  c,
 	}, nil
 }
