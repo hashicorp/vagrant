@@ -110,9 +110,6 @@ module VagrantPlugins
 
             val = Google::Protobuf::Value.new
             val.from_ruby(result)
-            SDK::Platform::Capability::Resp.new(
-              result: Google::Protobuf::Any.pack(val)
-            )
           end
         end
 

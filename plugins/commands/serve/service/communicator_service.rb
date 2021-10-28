@@ -212,7 +212,7 @@ module VagrantPlugins
                 name: "",
               ),
               SDK::FuncSpec::Value.new(
-                type: "hashicorp.vagrant.sdk.Args.Command",
+                type: "hashicorp.vagrant.sdk.Communicator.Command",
                 name: "",
               ),
               SDK::FuncSpec::Value.new(
@@ -265,7 +265,7 @@ module VagrantPlugins
                 name: "",
               ),
               SDK::FuncSpec::Value.new(
-                type: "hashicorp.vagrant.sdk.Args.Command",
+                type: "hashicorp.vagrant.sdk.Communicator.Command",
                 name: "",
               ),
               SDK::FuncSpec::Value.new(
@@ -284,10 +284,13 @@ module VagrantPlugins
           with_info(ctx) do |info|
             plugin_name = info.plugin_name
             logger.debug("Got plugin #{plugin_name}")
+            logger.debug("got req #{req}")
+            logger.debug("got req args #{req.args}")
 
-            target, cmd, opts = mapper.funcspec_map(req)
+            # target, cmd, opts = mapper.funcspec_map(req, mapper, broker)
+            target, cmd = mapper.funcspec_map(req, mapper, broker)
             logger.debug("Got machine #{target}")
-            logger.debug("Got opts #{opts}")
+            # logger.debug("Got opts #{opts}")
             logger.debug("Got cmd #{cmd}")
 
             logger.info("mapping received arguments to guest machine")
@@ -295,7 +298,8 @@ module VagrantPlugins
             logger.debug("Got machine #{machine}")
 
             plugin = Vagrant.plugin("2").manager.communicators[plugin_name.to_s.to_sym]
-            logger.debug("Got plugin #{plugin}")
+            logger.debug("Got plugin instance #{plugin}")
+
 
             communicator = plugin.new(machine)
             logger.debug("communicator: #{communicator}")

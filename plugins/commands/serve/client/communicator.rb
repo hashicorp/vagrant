@@ -174,7 +174,9 @@ module VagrantPlugins
           #   opts[k] = val
           # end
 
-          opts_struct = Google::Protobuf::Struct.from_hash(opts)
+          opts_struct = Google::Protobuf::Struct.from_hash(
+            opts.transform_keys(&:to_s)
+          )
 
           SDK::FuncSpec::Args.new(
             args: [
@@ -184,8 +186,8 @@ module VagrantPlugins
                 value: Google::Protobuf::Any.pack(machine.to_proto)
               ),
               SDK::FuncSpec::Value.new(
-                type: "hashicorp.vagrant.sdk.Args.Command",
-                value: Google::Protobuf::Any.pack(SDK::Args::Command.new(command: cmd)),
+                type: "hashicorp.vagrant.sdk.Communicator.Command",
+                value: Google::Protobuf::Any.pack(SDK::Communicator::Command.new(command: cmd)),
               ),
               SDK::FuncSpec::Value.new(
                 type: "", # TODO: what goes here
