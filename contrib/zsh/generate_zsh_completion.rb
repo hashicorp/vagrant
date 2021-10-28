@@ -121,11 +121,11 @@ def get_top_level_commands(root_command, cmd_list)
   return commands, flags_def, case_string
 end
 
-def format_script(root_command, subcommands, funciton_name)
+def format_script(root_command, subcommands, function_name)
   top_level_commands, top_level_args, state_case = get_top_level_commands(root_command, subcommands)
   
   script = """
-function #{funciton_name} () {
+function #{function_name} () {
 
   #{top_level_commands}
 
