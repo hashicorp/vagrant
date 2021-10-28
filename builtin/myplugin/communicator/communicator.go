@@ -1,8 +1,9 @@
-package myplugin
+package communicator
 
 import (
 	"github.com/hashicorp/vagrant-plugin-sdk/component"
 	plugincore "github.com/hashicorp/vagrant-plugin-sdk/core"
+	pb "github.com/hashicorp/vagrant/builtin/myplugin/proto"
 )
 
 type DummyConfig struct {
@@ -74,7 +75,7 @@ func (h *DummyCommunicator) ExecuteFunc() interface{} {
 func (h *DummyCommunicator) Execute(
 	machine plugincore.Machine,
 	command []string,
-	options ...CommunicatorOptions,
+	options ...pb.CommunicatorOptions,
 ) (status int32, err error) {
 	return 0, nil
 }
@@ -86,7 +87,7 @@ func (h *DummyCommunicator) PrivilegedExecuteFunc() interface{} {
 func (h *DummyCommunicator) PrivilegedExecute(
 	machine plugincore.Machine,
 	command []string,
-	options ...CommunicatorOptions,
+	options ...pb.CommunicatorOptions,
 ) (status int32, err error) {
 	return 0, nil
 }
@@ -98,7 +99,7 @@ func (h *DummyCommunicator) TestFunc() interface{} {
 func (h *DummyCommunicator) Test(
 	machine plugincore.Machine,
 	command []string,
-	options ...CommunicatorOptions,
+	options ...pb.CommunicatorOptions,
 ) (valid bool, err error) {
 	return true, nil
 }

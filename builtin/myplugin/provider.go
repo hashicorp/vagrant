@@ -6,6 +6,7 @@ import (
 	"github.com/hashicorp/vagrant-plugin-sdk/component"
 	"github.com/hashicorp/vagrant-plugin-sdk/docs"
 	"github.com/hashicorp/vagrant-plugin-sdk/multistep"
+	pb "github.com/hashicorp/vagrant/builtin/myplugin/proto"
 )
 
 type ProviderConfig struct {
@@ -64,8 +65,8 @@ func (p *Provider) Init() (bool, error) {
 }
 
 // TODO: Take an implementation of core.Machine as an input
-func (c *Provider) ActionUp(ctx context.Context, statebag *multistep.BasicStateBag) (*UpResult, error) {
-	return &UpResult{}, nil
+func (c *Provider) ActionUp(ctx context.Context, statebag *multistep.BasicStateBag) (*pb.UpResult, error) {
+	return &pb.UpResult{}, nil
 }
 
 var (

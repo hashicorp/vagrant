@@ -3,10 +3,11 @@ package myplugin
 import (
 	sdk "github.com/hashicorp/vagrant-plugin-sdk"
 	"github.com/hashicorp/vagrant/builtin/myplugin/command"
+	communincator "github.com/hashicorp/vagrant/builtin/myplugin/communicator"
 	"github.com/hashicorp/vagrant/builtin/myplugin/host"
 )
 
-//go:generate protoc -I ../../.. --go_opt=plugins=grpc --go_out=../../.. vagrant-ruby/builtin/myplugin/plugin.proto
+//go:generate protoc -I ../../.. --go_opt=plugins=grpc --go_out=../../.. vagrant-ruby/builtin/myplugin/proto/plugin.proto
 
 // Options are the SDK options to use for instantiation.
 var CommandOptions = []sdk.Option{
@@ -14,7 +15,8 @@ var CommandOptions = []sdk.Option{
 		&Provider{},
 		&command.Command{},
 		&host.AlwaysTrueHost{},
-		&DummyCommunicator{},
+		&communincator.DummyCommunicator{},
 	),
+	sdk.WithMappers(StructToCommunincatorOptions),
 	sdk.WithName("myplugin"),
 }
