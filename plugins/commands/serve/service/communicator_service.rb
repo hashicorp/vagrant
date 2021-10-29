@@ -269,7 +269,7 @@ module VagrantPlugins
                 name: "",
               ),
               SDK::FuncSpec::Value.new(
-                type: "", # TODO: get opts
+                type: "google.protobuf.Struct",
                 name: "",
               )
             ],

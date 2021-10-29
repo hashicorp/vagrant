@@ -121,7 +121,8 @@ module VagrantPlugins
         end
 
         def converter(proto)
-          proto.value.unpack(Google::Protobuf::Struct).to_h
+          h = proto.value.unpack(Google::Protobuf::Struct).to_h
+          h.transform_keys(&:to_sym)
         end
       end
     end

@@ -190,7 +190,7 @@ module VagrantPlugins
                 value: Google::Protobuf::Any.pack(SDK::Communicator::Command.new(command: cmd)),
               ),
               SDK::FuncSpec::Value.new(
-                type: "", # TODO: what goes here
+                type: "google.protobuf.Struct",
                 value: Google::Protobuf::Any.pack(opts_struct),
               ),
             ]
