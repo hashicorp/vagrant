@@ -11,10 +11,14 @@ module VagrantPlugins
             ROOT_WEIGHT = 0
             # Weight given to the destination vertex
             FINAL_WEIGHT = 0
+            # Weight given to first input value vertex
+            BASE_WEIGHT = 0
             # Weight given to input value vertices
-            VALUE_WEIGHT = 50
+            VALUE_WEIGHT = 10
+            # Weight given to input vertices
+            INPUT_WEIGHT = 20
             # Weight given to output vertices
-            OUTPUT_WEIGHT = 100
+            OUTPUT_WEIGHT = 20
 
             # @return [Graph] graph instance representing mappers
             attr_reader :graph
@@ -32,12 +36,13 @@ module VagrantPlugins
             # @param input_values [Array<Object>] Values provided for execution
             # @param mappers [Mappers] Mappers instance to use
             def initialize(output_type:, input_values:, mappers:)
-              if !output_type.nil? && !output_type.is_a?(Class)
+              if !output_type.nil? && !output_type.is_a?(Class) && !output_type.is_a?(Module)
                 raise TypeError,
-                  "Expected output type to be `Class', got `#{output_type.class}'"
+                  "Expected output type to be `Class', got `#{output_type.class}' (#{output_type})"
               end
               @final = output_type
               @inputs = Array(input_values).compact
+              @inputs.delete_if(&:nil?)
               if !mappers.is_a?(CommandServe::Mappers)
                 raise TypeError,
                   "Expected mapper to be `Mappers', got `#{mappers.class}'"
@@ -57,6 +62,7 @@ module VagrantPlugins
               # Generate list of vertices to reach destination
               # from root, if possible
               search = Search.new(graph: graph)
+              logger.debug("searching for conversion path #{inputs.first} -> #{final}")
               p = search.path(@root, @dst)
 
               logger.debug {
@@ -88,7 +94,7 @@ module VagrantPlugins
             end
 
             def to_s
-              "<Graph:Mappers output_type=#{final} input_values=#{inputs}>"
+              "<Graph:Mappers output_type=#{final} input_values=#{inputs.map(&:class)}>"
             end
 
             def inspect
@@ -104,14 +110,19 @@ module VagrantPlugins
               @root = graph.add_vertex(Graph::Vertex.new(value: :root))
               @root.weight = ROOT_WEIGHT
               # Add the provided input values
+              i = 0
               input_vertices = inputs.map do |input_value|
+                if input_value.nil?
+                  raise "Received nil in inputs: #{inputs}"
+                end
                 iv = graph.add_vertex(Graph::Vertex::Value.new(value: input_value))
-                iv.weight = VALUE_WEIGHT
+                iv.weight = i == 0 ? BASE_WEIGHT : VALUE_WEIGHT
+                i += 1
                 graph.add_edge(@root, iv)
                 iv
               end
               # Also add the known values from the mappers instance
-              input_vertices += mappers.known_arguments.map do |input_value|
+              input_vertices += mappers.known_arguments.find_all{ |a| !a.nil? }.map do |input_value|
                 iv = graph.add_vertex(Graph::Vertex::Value.new(value: input_value))
                 iv.weight = VALUE_WEIGHT
                 graph.add_edge(@root, iv)
@@ -125,10 +136,12 @@ module VagrantPlugins
                 fn = graph.add_vertex(Graph::Vertex::Method.new(callable: mapper))
                 fn_inputs += mapper.inputs.map do |i|
                   iv = graph.add_vertex(Graph::Vertex::Input.new(type: i.type))
+                  iv.weight = INPUT_WEIGHT
                   graph.add_edge(iv, fn)
                   iv
                 end
                 ov = graph.add_vertex(Graph::Vertex::Output.new(type: mapper.output))
+                ov.weight = OUTPUT_WEIGHT
                 graph.add_edge(fn, ov)
                 fn_outputs << ov
               end
@@ -141,14 +154,14 @@ module VagrantPlugins
               # matching input vertices
               input_vertices.each do |iv|
                 fn_inputs.each do |f_iv|
-                  if iv.type == f_iv.type
+                  if iv.type == f_iv.type || iv.type.ancestors.include?(f_iv.type)
                     graph.add_edge(iv, f_iv)
                   end
                 end
 
                 # If a value vertex matches the desired
                 # output value, connect it directly
-                if @dst.type == iv.type
+                if @dst.type == iv.type || iv.type.ancestors.include?(@dst.type)
                   graph.add_edge(iv, @dst)
                 end
               end
@@ -156,14 +169,14 @@ module VagrantPlugins
               # matching input vertices
               fn_outputs.each do |f_ov|
                 fn_inputs.each do |f_iv|
-                  if f_ov.type == f_iv.type
+                  if f_ov.type == f_iv.type || f_ov.type.ancestors.include?(f_iv.type)
                     graph.add_edge(f_ov, f_iv)
                   end
                 end
 
                 # If an output value matches the desired
                 # output value, connect it directly
-                if @dst.type == f_ov.type
+                if @dst.type == f_ov.type || f_ov.type.ancestors.include?(@dst)
                   graph.add_edge(f_ov, @dst)
                 end
               end
