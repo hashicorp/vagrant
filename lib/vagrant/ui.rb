@@ -83,6 +83,11 @@ module Vagrant
       def rewriting
         yield self
       end
+
+      def to_proto
+        raise NotImplementedError,
+          "Vagrant::UI::Interface#to_proto"
+      end
     end
 
     # This is a UI implementation that does nothing.
@@ -294,6 +299,14 @@ module Vagrant
 
         @prefix = prefix
         @ui     = ui
+      end
+
+      def to_proto
+        @ui.to_proto
+      end
+
+      def client
+        @ui.client
       end
 
       def initialize_copy(original)

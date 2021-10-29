@@ -1,6 +1,8 @@
 module Vagrant
   module UI
     class Remote < Basic
+      attr_reader :client
+
       def initialize(client)
         super()
         @client = client
