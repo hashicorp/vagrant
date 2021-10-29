@@ -200,7 +200,18 @@ module VagrantPlugins
           def edge_weights_map
             Hash.new.tap do |edge_map|
               each_edge do |*edges|
-                edge_map[edges] = edges.map(&:weight).inject(&:+)
+                w = edges.map(&:weight).inject(&:+)
+                if edges.first.respond_to?(:type) && edges.last.respond_to?(:type)
+                  if edges.first.type != edges.last.type
+                    w += 1
+                    extra = edges.first.type.ancestors.index(edges.last.type)
+                    if extra.nil?
+                      extra = edges.last.type.ancestors.index(edges.first.type)
+                    end
+                    w += extra.to_i
+                  end
+                end
+                edge_map[edges] = w
               end
             end
           end
