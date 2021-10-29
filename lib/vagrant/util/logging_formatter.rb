@@ -35,7 +35,11 @@ module Vagrant
         }
         d["@caller"] = event.tracer[0] if event.tracer
 
-        d.to_json + "\n"
+        # TODO(spox): fix this with force encoding on the message
+        begin
+          d.to_json + "\n"
+        rescue
+        end
       end
     end
   end
