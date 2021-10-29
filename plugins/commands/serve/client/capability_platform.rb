@@ -44,21 +44,28 @@ module VagrantPlugins
               value: any,
             )
           end
-          any_args = args.map do |a|
-            if a.class.ancestors.include?(Google::Protobuf::MessageExts)
-              val = a
-            else
-              val = Google::Protobuf::Value.new
-              val.from_ruby(a)
-            end
-            Google::Protobuf::Any.pack(val)
-          end
-
+          d = Types::Direct.new(arguments: args)
+          da = mapper.map(d, mapper, to: SDK::Args::Direct) #Google::Protobuf::Any)
           arg_protos << SDK::FuncSpec::Value.new(
             name: "",
             type: "hashicorp.vagrant.sdk.Args.Direct",
-            value: Google::Protobuf::Any.pack(SDK::Args::Direct.new(list: any_args)),
+            value: Google::Protobuf::Any.pack(da),
           )
+          # any_args = args.map do |a|
+          #   if a.class.ancestors.include?(Google::Protobuf::MessageExts)
+          #     val = a
+          #   else
+          #     val = Google::Protobuf::Value.new
+          #     val.from_ruby(a)
+          #   end
+          #   Google::Protobuf::Any.pack(val)
+          # end
+
+          # arg_protos << SDK::FuncSpec::Value.new(
+          #   name: "",
+          #   type: "hashicorp.vagrant.sdk.Args.Direct",
+          #   value: Google::Protobuf::Any.pack(SDK::Args::Direct.new(list: any_args)),
+          # )
 
           req = SDK::Platform::Capability::NamedRequest.new(
             name: cap_name.to_s,
