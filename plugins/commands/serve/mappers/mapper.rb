@@ -4,8 +4,10 @@ module VagrantPlugins
       # Mapper defines a single mapping from a source
       # value to a destination value
       class Mapper
+        extend Util::HasLogger
         # Track all known mappers
         @@mappers = []
+        @@init = false
 
         # @return [Array<Class>] list of known mappers
         def self.registered
@@ -25,9 +27,9 @@ module VagrantPlugins
           # @param validator [Callable] Callable to validate argument (optional)
           # @yield Callable to validate argument (optional)
           def initialize(type:, validator: nil, &block)
-            if !type.is_a?(Class)
+            if !type.is_a?(Class) && !type.is_a?(Module)
               raise ArgumentError,
-                "Type must be constant type"
+                "Type must be constant type (given: #{type})"
             end
             @type = type
             if validator && block
@@ -51,6 +53,7 @@ module VagrantPlugins
             if !arg.is_a?(type) && arg != type
               return false
             end
+            return true if arg.is_a?(Class)
             validator.call(arg)
           end
         end
@@ -58,6 +61,48 @@ module VagrantPlugins
         # Registers class as a known mapper
         def self.inherited(klass)
           @@mappers << klass
+        end
+
+        def self.generate_anys
+          return if @@init
+          @@mappers.each do |klass|
+            # For any mapper that outputs a protobuf message,
+            # automatically provide an Any mapper.
+            logger.info("creating new mapper instance for inspection: #{klass.name}")
+            m  = nil
+            begin
+              m = klass.new
+            rescue => err
+              raise "Failed on class: #{klass.name} - #{err}"
+            end
+            if m.output.ancestors.include?(Google::Protobuf::MessageExts)
+              names = registered.map(&:name)
+              next if names.include?("#{m.output.name}ToAny")
+              logger.info("generating new Any converter #{m.output.name}ToAny")
+              Class.new(Mapper).class_eval("
+                def self.name
+                  '#{m.output.name}' + 'ToAny'
+                end
+
+                def initialize
+                  super(
+                    inputs: [Input.new(type: #{m.output.name})],
+                    output: Google::Protobuf::Any,
+                    func: method(:converter)
+                  )
+                end
+
+                def converter(v)
+                  Google::Protobuf::Any.pack(v)
+                end
+
+                def to_s
+                  '<#{m.output.name}' + 'ToAny:' + object_id.to_s + '>'
+                end
+                ")
+            end
+          end
+          @@init = true
         end
 
         # @return [Array<Input>] list of inputs for mapper
@@ -76,13 +121,13 @@ module VagrantPlugins
           Array(inputs).each do |i|
             if !i.is_a?(Input)
               raise ArgumentError,
-                "Inputs must be `Input' type"
+                "Inputs must be `Input' type (given: #{i.inspect})"
             end
           end
           @inputs = Array(inputs)
           if !output.is_a?(Class)
             raise ArgumentError,
-              "Output must be constant type"
+              "Output must be Class type (given: #{output.inspect} / #{output.class})"
           end
           @output = output
           if !func.respond_to?(:call)
