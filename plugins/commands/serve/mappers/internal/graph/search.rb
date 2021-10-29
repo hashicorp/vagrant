@@ -56,12 +56,23 @@ module VagrantPlugins
 
                 # Apply topological sort to the graph so we have
                 # a proper for execution
-                Array.new.tap do |path|
+                result = Array.new.tap do |path|
                   t = graph.topsort_iterator
                   until t.at_end?
                     path << t.forward
                   end
                 end
+
+                if result.first != src
+                  raise NoPathError,
+                    "Initial vertex is not source #{src} != #{result.first}"
+                end
+
+                if result.last != dst
+                  raise NoPathError,
+                    "Final vertex is not destination #{dst} != #{result.last}"
+                end
+                result
               end
             end
 
@@ -70,6 +81,10 @@ module VagrantPlugins
             def generate_path(src, dst)
               begin
                 path = graph.shortest_path(src, dst)
+                o = Array(path).map { |v|
+                  "#{v} ->"
+                }.join("\n")
+                logger.debug("path generation #{src} -> #{dst}\n#{o}")
                 if path.nil?
                   raise NoPathError,
                     "Path generation failed to reach destination (#{dst&.type&.inspect})"
