@@ -263,6 +263,7 @@ require Vagrant.source_root.join("plugins/commands/serve/mappers/basis.rb").to_s
 require Vagrant.source_root.join("plugins/commands/serve/mappers/box.rb").to_s
 require Vagrant.source_root.join("plugins/commands/serve/mappers/capabilities.rb").to_s
 require Vagrant.source_root.join("plugins/commands/serve/mappers/command.rb").to_s
+require Vagrant.source_root.join("plugins/commands/serve/mappers/communicator.rb").to_s
 require Vagrant.source_root.join("plugins/commands/serve/mappers/direct.rb").to_s
 require Vagrant.source_root.join("plugins/commands/serve/mappers/environment.rb").to_s
 require Vagrant.source_root.join("plugins/commands/serve/mappers/guest.rb").to_s
