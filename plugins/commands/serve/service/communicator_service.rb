@@ -162,11 +162,11 @@ module VagrantPlugins
               ),
               SDK::FuncSpec::Value.new(
                 type: "hashicorp.vagrant.sdk.Communicator.Path",
-                name: "",
+                name: "to",
               ),
               SDK::FuncSpec::Value.new(
                 type: "hashicorp.vagrant.sdk.Communicator.Path",
-                name: "",
+                name: "from",
               )
             ],
             result: [
@@ -187,17 +187,16 @@ module VagrantPlugins
             logger.debug("Got from #{from}")
             logger.debug("Got to #{to}")
 
-            logger.info("mapping received arguments to guest machine")
-            machine = mapper.map(target, to: Vagrant::Machine)
-            logger.debug("Got machine #{machine}")
+            project = target.project
+            env = Vagrant::Environment.new({client: project})
+            machine = env.machine(target.name.to_sym, target.provider_name.to_sym)
 
             plugin = Vagrant.plugin("2").manager.communicators[plugin_name.to_s.to_sym]
             logger.debug("Got plugin #{plugin}")
-
             communicator = plugin.new(machine)
             logger.debug("communicator: #{communicator}")
 
-            communicator.upload(from, to)
+            communicator.upload(from.path, to.path)
 
             SDK::Communicator::FileTransferResp.new()
           end

@@ -103,10 +103,12 @@ module VagrantPlugins
               ),
               SDK::FuncSpec::Value.new(
                 type: "hashicorp.vagrant.sdk.Communicator.Path",
+                name: "to",
                 value: Google::Protobuf::Any.pack(SDK::Communicator::Path.new(path: from)),
               ),
               SDK::FuncSpec::Value.new(
                 type: "hashicorp.vagrant.sdk.Communicator.Path",
+                name: "from",
                 value: Google::Protobuf::Any.pack(SDK::Communicator::Path.new(path: to)),
               ),
             ]
