@@ -1842,6 +1842,18 @@ en:
         outputted:
 
         %{vboxmanage} --version
+      virtualbox_invalid_host_subnet: |-
+        The IP address configured for the host-only network is not within the
+        allowed ranges. Please update the address used to be within the allowed
+        ranges and run the command again.
+
+          Address: %{address}
+          Ranges: %{ranges}
+
+        Valid ranges can be modified in the /etc/vbox/networks.conf file. For
+        more information including valid format see:
+
+          https://www.virtualbox.org/manual/ch06.html#network_hostonly
       vm_creation_required: |-
         VM must be created before running this command. Run `vagrant up` first.
       vm_inaccessible: |-

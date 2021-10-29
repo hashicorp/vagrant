@@ -16,6 +16,14 @@ module VagrantPlugins
       #
       # This handles all the `config.vm.network` configurations.
       class Network
+
+        # Location of the VirtualBox networks configuration file
+        VBOX_NET_CONF = "/etc/vbox/networks.conf".freeze
+        # Version of VirtualBox that introduced hostonly network range restrictions
+        HOSTONLY_VALIDATE_VERSION = Gem::Version.new("6.1.28").freeze
+        # Default valid range for hostonly networks
+        HOSTONLY_DEFAULT_RANGE = [IPAddr.new("192.68.56.0/21").freeze].freeze
+
         include Vagrant::Util::NetworkIP
         include Vagrant::Util::ScopedHashOverride
 
@@ -255,7 +263,7 @@ module VagrantPlugins
 
           # Make sure the type is a symbol
           options[:type] = options[:type].to_sym
-         
+
           if options[:type] == :dhcp && !options[:ip]
             # Try to find a matching device to set the config ip to
             matching_device = hostonly_find_matching_network(options)
@@ -263,7 +271,7 @@ module VagrantPlugins
               options[:ip] = matching_device[:ip]
             else
               # Default IP is in the 20-bit private network block for DHCP based networks
-              options[:ip] = "172.28.128.1"
+              options[:ip] = "192.68.56.1"
             end
           end
 
@@ -287,6 +295,8 @@ module VagrantPlugins
               address: options[:ip], mask: options[:netmask],
               error: e.message
           end
+
+          validate_hostonly_ip!(options[:ip])
 
           if ip.ipv4?
             # Verify that a host-only network subnet would not collide
@@ -499,6 +509,33 @@ module VagrantPlugins
           end
 
           nil
+        end
+
+        # Validates the IP used to configure the network is within the allowed
+        # ranges. It only validates if the network configuration file exists.
+        # This was introduced in 6.1.28 so previous version won't have restrictions
+        # placed on the valid ranges
+        def validate_hostonly_ip!(ip)
+          return if Gem::Version.new(Driver::Meta.version) < HOSTONLY_VALIDATE_VERSION ||
+            Vagrant::Util::Platform.windows?
+
+          ip = IPAddr.new(ip.to_s) if !ip.is_a?(IPAddr)
+          valid_ranges = load_net_conf
+          return if valid_ranges.any?{ |range| range.include?(ip) }
+          raise Vagrant::Errors::VirtualBoxInvalidHostSubnet,
+            address: ip,
+            ranges: valid_ranges.map{ |r| "#{r}/#{r.prefix}" }.join(", ")
+        end
+
+        def load_net_conf
+          return HOSTONLY_DEFAULT_RANGE if !File.exist?(VBOX_NET_CONF)
+          File.readlines(VBOX_NET_CONF).map do |line|
+            line = line.strip
+            next if !line.start_with?("*")
+            line[1,line.length].strip.split(" ").map do |entry|
+              IPAddr.new(entry)
+            end
+          end.flatten.compact
         end
 
         #-----------------------------------------------------------------

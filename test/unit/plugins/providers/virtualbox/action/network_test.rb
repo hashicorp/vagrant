@@ -30,6 +30,187 @@ describe VagrantPlugins::ProviderVirtualBox::Action::Network do
   before do
     allow(driver).to receive(:enable_adapters)
     allow(driver).to receive(:read_network_interfaces)   { nics }
+    allow(VagrantPlugins::ProviderVirtualBox::Driver::Meta).to receive(:version).
+      and_return("6.1.0")
+  end
+
+  describe "#hostonly_config" do
+    before do
+      allow(subject).to receive(:hostonly_find_matching_network)
+      allow(driver).to receive(:read_bridged_interfaces).and_return([])
+      subject.instance_eval do
+        def env=(e)
+          @env = e
+        end
+      end
+
+      subject.env = env
+    end
+
+    let(:options) {
+      {
+        type: type,
+        ip: address,
+      }
+    }
+    let(:type) { :dhcp }
+    let(:address) { nil }
+
+    it "should validate the IP" do
+      expect(subject).to receive(:validate_hostonly_ip!)
+      subject.hostonly_config(options)
+    end
+  end
+
+  describe "#validate_hostonly_ip!" do
+    let(:address) { "192.168.1.2" }
+    let(:net_conf) { [IPAddr.new(address + "/24")]}
+
+    before do
+      allow(VagrantPlugins::ProviderVirtualBox::Driver::Meta).to receive(:version).
+        and_return("6.1.28")
+
+      allow(subject).to receive(:load_net_conf).and_return(net_conf)
+      expect(subject).to receive(:validate_hostonly_ip!).and_call_original
+    end
+
+    it "should load net configuration" do
+      expect(subject).to receive(:load_net_conf).and_return(net_conf)
+      subject.validate_hostonly_ip!(address)
+    end
+
+    context "when address is within ranges" do
+      it "should not error" do
+        subject.validate_hostonly_ip!(address)
+      end
+    end
+
+    context "when address is not found within ranges" do
+      let(:net_conf) { [IPAddr.new("127.0.0.1/20")] }
+
+      it "should raise an error" do
+        expect {
+          subject.validate_hostonly_ip!(address)
+        }.to raise_error(Vagrant::Errors::VirtualBoxInvalidHostSubnet)
+      end
+    end
+
+    context "when virtualbox version does not restrict range" do
+      before do
+        allow(VagrantPlugins::ProviderVirtualBox::Driver::Meta).to receive(:version).
+          and_return("6.1.20")
+      end
+
+      it "should not error" do
+        subject.validate_hostonly_ip!(address)
+      end
+
+      it "should not attempt to load network configuration" do
+        expect(subject).not_to receive(:load_net_conf)
+        subject.validate_hostonly_ip!(address)
+      end
+    end
+
+    context "when platform is windows" do
+      before do
+        allow(Vagrant::Util::Platform).to receive(:windows?).and_return(true)
+      end
+
+      it "should not error" do
+        subject.validate_hostonly_ip!(address)
+      end
+
+      it "should not attempt to load network configuration" do
+        expect(subject).not_to receive(:load_net_conf)
+        subject.validate_hostonly_ip!(address)
+      end
+    end
+  end
+
+  describe "#load_net_conf" do
+    let(:file_contents) { [""] }
+
+    before do
+      allow(File).to receive(:exist?).
+        with(described_class.const_get(:VBOX_NET_CONF)).
+        and_return(true)
+      allow(File).to receive(:readlines).
+        with(described_class.const_get(:VBOX_NET_CONF)).
+        and_return(file_contents)
+    end
+
+    it "should read the configuration file" do
+      expect(File).to receive(:readlines).
+        with(described_class.const_get(:VBOX_NET_CONF)).
+        and_return(file_contents)
+
+      subject.load_net_conf
+    end
+
+    context "when file has comments only" do
+      let(:file_contents) {
+        [
+          "# A comment",
+          "# Another comment",
+        ]
+      }
+
+      it "should return an empty array" do
+        expect(subject.load_net_conf).to eq([])
+      end
+    end
+
+    context "when file has valid range entries" do
+      let(:file_contents) {
+        [
+          "* 127.0.0.1/24",
+          "* 192.168.1.1/24",
+        ]
+      }
+
+      it "should return an array with content" do
+        expect(subject.load_net_conf).not_to be_empty
+      end
+
+      it "should include IPAddr instances" do
+        subject.load_net_conf.each do |entry|
+          expect(entry).to be_a(IPAddr)
+        end
+      end
+    end
+
+    context "when file has valid range entries and comments" do
+      let(:file_contents) {
+        [
+          "# Comment in file",
+          "* 127.0.0.0/8",
+          "random text",
+          " * 192.168.2.0/28",
+        ]
+      }
+
+      it "should contain two entries" do
+        expect(subject.load_net_conf.size).to eq(2)
+      end
+    end
+
+    context "when file has multiple entries on single line" do
+      let(:file_contents) {
+        [
+          "* 0.0.0.0/0 ::/0"
+        ]
+      }
+
+      it "should contain two entries" do
+        expect(subject.load_net_conf.size).to eq(2)
+      end
+
+      it "should contain an ipv4 and ipv6 range" do
+        result = subject.load_net_conf
+        expect(result.first).to be_ipv4
+        expect(result.last).to be_ipv6
+      end
+    end
   end
 
   it "calls the next action in the chain" do
@@ -133,29 +314,29 @@ describe VagrantPlugins::ProviderVirtualBox::Action::Network do
       subject.call(env)
 
       expect(driver).to have_received(:create_host_only_network).with({
-        adapter_ip: '172.28.128.1',
+        adapter_ip: '192.68.56.1',
         netmask: '255.255.255.0',
       })
 
       expect(driver).to have_received(:create_dhcp_server).with('vboxnet0', {
-        adapter_ip: "172.28.128.1",
+        adapter_ip: "192.68.56.1",
         auto_config: true,
-        ip: "172.28.128.1",
+        ip: "192.68.56.1",
         mac: nil,
         name: nil,
         netmask: "255.255.255.0",
         nic_type: nil,
         type: :dhcp,
-        dhcp_ip: "172.28.128.2",
-        dhcp_lower: "172.28.128.3",
-        dhcp_upper: "172.28.128.254",
+        dhcp_ip: "192.68.56.2",
+        dhcp_lower: "192.68.56.3",
+        dhcp_upper: "192.68.56.254",
         adapter: 2
       })
 
       expect(guest).to have_received(:capability).with(:configure_networks, [{
         type: :dhcp,
-        adapter_ip: "172.28.128.1",
-        ip: "172.28.128.1",
+        adapter_ip: "192.68.56.1",
+        ip: "192.68.56.1",
         netmask: "255.255.255.0",
         auto_config: true,
         interface: nil
@@ -213,8 +394,8 @@ describe VagrantPlugins::ProviderVirtualBox::Action::Network do
       { ip: 'foo'},
       { ip: '1.2.3'},
       { ip: 'dead::beef::'},
-      { ip: '172.28.128.3', netmask: 64},
-      { ip: '172.28.128.3', netmask: 'ffff:ffff::'},
+      { ip: '192.68.56.3', netmask: 64},
+      { ip: '192.68.56.3', netmask: 'ffff:ffff::'},
       { ip: 'dead:beef::', netmask: 'foo:bar::'},
       { ip: 'dead:beef::', netmask: '255.255.255.0'}
     ].each do |args|
