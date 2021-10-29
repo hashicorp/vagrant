@@ -216,7 +216,7 @@ module VagrantPlugins
                 name: "",
               ),
               SDK::FuncSpec::Value.new(
-                type: "", # TODO: get opts
+                type: "google.protobuf.Struct",
                 name: "",
               )
             ],
@@ -230,23 +230,17 @@ module VagrantPlugins
         def execute(req, ctx)
           with_info(ctx) do |info|
             plugin_name = info.plugin_name
-            logger.debug("Got plugin #{plugin_name}")
-
-            target, cmd, opts = mapper.funcspec_map(req)
-            logger.debug("Got machine #{target}")
+            target, cmd, opts = mapper.funcspec_map(req, mapper, broker)
+            logger.debug("Got machine client #{target}")
             logger.debug("Got opts #{opts}")
             logger.debug("Got cmd #{cmd}")
 
-            logger.info("mapping received arguments to guest machine")
-            machine = mapper.map(target, to: Vagrant::Machine)
-            logger.debug("Got machine #{machine}")
+            project = target.project
+            env = Vagrant::Environment.new({client: project})
+            machine = env.machine(target.name.to_sym, target.provider_name.to_sym)
 
             plugin = Vagrant.plugin("2").manager.communicators[plugin_name.to_s.to_sym]
-            logger.debug("Got plugin #{plugin}")
-
             communicator = plugin.new(machine)
-            logger.debug("communicator: #{communicator}")
-
             exit_code = communicator.execute(cmd, opts)
             logger.debug("command exit code: #{exit_code}")
 
@@ -283,28 +277,18 @@ module VagrantPlugins
         def privileged_execute(req, ctx)
           with_info(ctx) do |info|
             plugin_name = info.plugin_name
-            logger.debug("Got plugin #{plugin_name}")
-            logger.debug("got req #{req}")
-            logger.debug("got req args #{req.args}")
-
-            # target, cmd, opts = mapper.funcspec_map(req, mapper, broker)
-            target, cmd = mapper.funcspec_map(req, mapper, broker)
-            logger.debug("Got machine #{target}")
-            # logger.debug("Got opts #{opts}")
+            target, cmd, opts = mapper.funcspec_map(req, mapper, broker)
+            logger.debug("Got machine client #{target}")
+            logger.debug("Got opts #{opts}")
             logger.debug("Got cmd #{cmd}")
 
-            logger.info("mapping received arguments to guest machine")
-            machine = mapper.map(target, to: Vagrant::Machine)
-            logger.debug("Got machine #{machine}")
+            project = target.project
+            env = Vagrant::Environment.new({client: project})
+            machine = env.machine(target.name.to_sym, target.provider_name.to_sym)
 
             plugin = Vagrant.plugin("2").manager.communicators[plugin_name.to_s.to_sym]
-            logger.debug("Got plugin instance #{plugin}")
-
-
             communicator = plugin.new(machine)
-            logger.debug("communicator: #{communicator}")
-
-            exit_code = communicator.sudo(cmd, opts)
+            exit_code = communicator.sudo(cmd.command, opts)
             logger.debug("command exit code: #{exit_code}")
 
             SDK::Communicator::ExecuteResp.new(
