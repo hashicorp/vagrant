@@ -29,6 +29,10 @@ module VagrantPlugins
           end
           @client = srv_klass.new(conn, :this_channel_is_insecure)
         end
+
+        def to_proto
+          @proto
+        end
       end
     end
   end
