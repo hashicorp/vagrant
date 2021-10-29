@@ -8,6 +8,7 @@ module VagrantPlugins
 
         prepend Util::ClientSetup
         prepend Util::HasLogger
+        prepend Util::HasMapper
 
         # @return [<String>] parents
         def parents
