@@ -54,12 +54,13 @@ module VagrantPlugins
           with_info(ctx) do |info|
             plugin_name = info.plugin_name
 
-            ui_client, env_client, arguments = mapper.funcspec_map(req.spec)
+            ui, env, arguments = mapper.funcspec_map(req.spec, expect: [Vagrant::UI::Remote, Vagrant::Environment, SDK::Command::Arguments])
 
-            ui = Vagrant::UI::Remote.new(ui_client)
-            env = Vagrant::Environment.new(
-              {ui: ui, client: env_client}
-            )
+
+            # ui = Vagrant::UI::Remote.new(ui_client)
+            # env = Vagrant::Environment.new(
+            #   {ui: ui, client: env_client}
+            # )
 
             plugin = Vagrant::Plugin::V2::Plugin.manager.commands[plugin_name.to_sym].to_a.first
             if !plugin

@@ -40,7 +40,7 @@ module VagrantPlugins
         def detect(req, ctx)
           with_info(ctx) do |info|
             plugin_name = info.plugin_name
-            target = mapper.funcspec_map(req)
+            target = mapper.funcspec_map(req, expect: Client::Target)
             project = target.project
             env = Vagrant::Environment.new({client: project})
             machine = env.machine(target.name.to_sym, target.provider_name.to_sym)

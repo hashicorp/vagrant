@@ -40,7 +40,7 @@ module VagrantPlugins
         def action_up(req, ctx)
           with_info(ctx) do |info|
             plugin_name = info.plugin_name
-            ui, machine = mapper.funcspec_map(req.spec)
+            ui, machine = mapper.funcspec_map(req.spec, expect: [Vagrant::UI::Remote, Vagrant::Machine])
 
             machine = Client::Target::Machine.load(raw_machine, ui)
             machine.ui.warn("hello from vagrant")

@@ -39,7 +39,7 @@ module VagrantPlugins
         def detect(req, ctx)
           with_info(ctx) do |info|
             plugin_name = info.plugin_name
-            statebag = mapper.funcspec_map(req)
+            statebag = mapper.funcspec_map(req, expect: Client::StateBag)
             plugin = Vagrant.plugin("2").manager.hosts[plugin_name.to_s.to_sym].to_a.first
             if !plugin
               raise "Failed to locate host plugin for: #{plugin_name.inspect}"
