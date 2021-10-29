@@ -20,7 +20,7 @@ module VagrantPlugins
         # Location of the VirtualBox networks configuration file
         VBOX_NET_CONF = "/etc/vbox/networks.conf".freeze
         # Version of VirtualBox that introduced hostonly network range restrictions
-        HOSTONLY_VALIDATE_VERSION = Gem::Version.new("6.1.28").freeze
+        HOSTONLY_VALIDATE_VERSION = Gem::Version.new("6.1.28")
         # Default valid range for hostonly networks
         HOSTONLY_DEFAULT_RANGE = [IPAddr.new("192.68.56.0/21").freeze].freeze
 
