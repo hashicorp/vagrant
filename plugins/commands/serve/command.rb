@@ -27,6 +27,7 @@ module VagrantPlugins
     autoload :Client, Vagrant.source_root.join("plugins/commands/serve/client").to_s
     autoload :Mappers, Vagrant.source_root.join("plugins/commands/serve/mappers").to_s
     autoload :Service, Vagrant.source_root.join("plugins/commands/serve/service").to_s
+    autoload :Types, Vagrant.source_root.join("plugins/commands/serve/types").to_s
     autoload :Util, Vagrant.source_root.join("plugins/commands/serve/util").to_s
 
     class Command < Vagrant.plugin("2", :command)
