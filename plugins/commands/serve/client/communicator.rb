@@ -76,12 +76,12 @@ module VagrantPlugins
                 value: Google::Protobuf::Any.pack(machine.to_proto)
               ),
               SDK::FuncSpec::Value.new(
-                type: "hashicorp.vagrant.sdk.Args.Path",
-                value: Google::Protobuf::Any.pack(SDK::Args::Path.new(path: from)),
+                type: "hashicorp.vagrant.sdk.Communicator.Path",
+                value: Google::Protobuf::Any.pack(SDK::Communicator::Path.new(path: from)),
               ),
               SDK::FuncSpec::Value.new(
-                type: "hashicorp.vagrant.sdk.Args.Path",
-                value: Google::Protobuf::Any.pack(SDK::Args::Path.new(path: to)),
+                type: "hashicorp.vagrant.sdk.Communicator.Path",
+                value: Google::Protobuf::Any.pack(SDK::Communicator::Path.new(path: to)),
               ),
             ]
           )
@@ -102,12 +102,12 @@ module VagrantPlugins
                 value: Google::Protobuf::Any.pack(machine.to_proto)
               ),
               SDK::FuncSpec::Value.new(
-                type: "hashicorp.vagrant.sdk.Args.Path",
-                value: Google::Protobuf::Any.pack(SDK::Args::Path.new(path: from)),
+                type: "hashicorp.vagrant.sdk.Communicator.Path",
+                value: Google::Protobuf::Any.pack(SDK::Communicator::Path.new(path: from)),
               ),
               SDK::FuncSpec::Value.new(
-                type: "hashicorp.vagrant.sdk.Args.Path",
-                value: Google::Protobuf::Any.pack(SDK::Args::Path.new(path: to)),
+                type: "hashicorp.vagrant.sdk.Communicator.Path",
+                value: Google::Protobuf::Any.pack(SDK::Communicator::Path.new(path: to)),
               ),
             ]
           )

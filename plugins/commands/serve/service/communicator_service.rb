@@ -110,11 +110,11 @@ module VagrantPlugins
                 name: "",
               ),
               SDK::FuncSpec::Value.new(
-                type: "hashicorp.vagrant.sdk.Args.Path",
+                type: "hashicorp.vagrant.sdk.Communicator.Path",
                 name: "",
               ),
               SDK::FuncSpec::Value.new(
-                type: "hashicorp.vagrant.sdk.Args.Path",
+                type: "hashicorp.vagrant.sdk.Communicator.Path",
                 name: "",
               )
             ],
@@ -161,11 +161,11 @@ module VagrantPlugins
                 name: "",
               ),
               SDK::FuncSpec::Value.new(
-                type: "hashicorp.vagrant.sdk.Args.Path",
+                type: "hashicorp.vagrant.sdk.Communicator.Path",
                 name: "",
               ),
               SDK::FuncSpec::Value.new(
-                type: "hashicorp.vagrant.sdk.Args.Path",
+                type: "hashicorp.vagrant.sdk.Communicator.Path",
                 name: "",
               )
             ],

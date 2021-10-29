@@ -17,6 +17,23 @@ module VagrantPlugins
           SDK::Communicator::Command.decode(proto.value.value)
         end
       end
+
+      # Build a communicator path from a FuncSpec value
+      class CommunicatorPathFromSpec < Mapper
+        def initialize
+          inputs = [].tap do |i|
+            i << Input.new(type: SDK::FuncSpec::Value) { |arg|
+              arg.type == "hashicorp.vagrant.sdk.Communicator.Path" &&
+                !arg&.value&.value.nil?
+            }
+          end
+          super(inputs: inputs, output: SDK::Communicator::Path, func: method(:converter))
+        end
+
+        def converter(proto)
+          SDK::Communicator::Path.decode(proto.value.value)
+        end
+      end
     end
   end
 end
