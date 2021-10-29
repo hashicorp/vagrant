@@ -131,6 +131,7 @@ describe VagrantPlugins::ProviderVirtualBox::Action::Network do
     let(:file_contents) { [""] }
 
     before do
+      allow(File).to receive(:exist?).and_call_original
       allow(File).to receive(:exist?).
         with(described_class.const_get(:VBOX_NET_CONF)).
         and_return(true)
