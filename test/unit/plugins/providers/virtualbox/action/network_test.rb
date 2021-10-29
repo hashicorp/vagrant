@@ -315,29 +315,29 @@ describe VagrantPlugins::ProviderVirtualBox::Action::Network do
       subject.call(env)
 
       expect(driver).to have_received(:create_host_only_network).with({
-        adapter_ip: '192.68.56.1',
+        adapter_ip: '192.168.56.1',
         netmask: '255.255.255.0',
       })
 
       expect(driver).to have_received(:create_dhcp_server).with('vboxnet0', {
-        adapter_ip: "192.68.56.1",
+        adapter_ip: "192.168.56.1",
         auto_config: true,
-        ip: "192.68.56.1",
+        ip: "192.168.56.1",
         mac: nil,
         name: nil,
         netmask: "255.255.255.0",
         nic_type: nil,
         type: :dhcp,
-        dhcp_ip: "192.68.56.2",
-        dhcp_lower: "192.68.56.3",
-        dhcp_upper: "192.68.56.254",
+        dhcp_ip: "192.168.56.2",
+        dhcp_lower: "192.168.56.3",
+        dhcp_upper: "192.168.56.254",
         adapter: 2
       })
 
       expect(guest).to have_received(:capability).with(:configure_networks, [{
         type: :dhcp,
-        adapter_ip: "192.68.56.1",
-        ip: "192.68.56.1",
+        adapter_ip: "192.168.56.1",
+        ip: "192.168.56.1",
         netmask: "255.255.255.0",
         auto_config: true,
         interface: nil
@@ -395,8 +395,8 @@ describe VagrantPlugins::ProviderVirtualBox::Action::Network do
       { ip: 'foo'},
       { ip: '1.2.3'},
       { ip: 'dead::beef::'},
-      { ip: '192.68.56.3', netmask: 64},
-      { ip: '192.68.56.3', netmask: 'ffff:ffff::'},
+      { ip: '192.168.56.3', netmask: 64},
+      { ip: '192.168.56.3', netmask: 'ffff:ffff::'},
       { ip: 'dead:beef::', netmask: 'foo:bar::'},
       { ip: 'dead:beef::', netmask: '255.255.255.0'}
     ].each do |args|

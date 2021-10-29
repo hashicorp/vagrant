@@ -22,7 +22,7 @@ module VagrantPlugins
         # Version of VirtualBox that introduced hostonly network range restrictions
         HOSTONLY_VALIDATE_VERSION = Gem::Version.new("6.1.28")
         # Default valid range for hostonly networks
-        HOSTONLY_DEFAULT_RANGE = [IPAddr.new("192.68.56.0/21").freeze].freeze
+        HOSTONLY_DEFAULT_RANGE = [IPAddr.new("192.168.56.0/21").freeze].freeze
 
         include Vagrant::Util::NetworkIP
         include Vagrant::Util::ScopedHashOverride
@@ -271,7 +271,7 @@ module VagrantPlugins
               options[:ip] = matching_device[:ip]
             else
               # Default IP is in the 20-bit private network block for DHCP based networks
-              options[:ip] = "192.68.56.1"
+              options[:ip] = "192.168.56.1"
             end
           end
 
