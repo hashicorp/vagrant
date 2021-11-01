@@ -168,12 +168,7 @@ module VagrantPlugins
         protected
 
         def generate_execution_request(machine, cmd, opts={})
-          # opts.each do |k,v| 
-          #   val = Google::Protobuf::Value.new
-          #   val.from_ruby(v)
-          #   opts[k] = val
-          # end
-
+          opts.transform_values! { |v| v.is_a?(Symbol) ? v.to_s : v}
           opts_struct = Google::Protobuf::Struct.from_hash(
             opts.transform_keys(&:to_s)
           )

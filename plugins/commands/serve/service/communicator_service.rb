@@ -232,7 +232,7 @@ module VagrantPlugins
 
             plugin = Vagrant.plugin("2").manager.communicators[plugin_name.to_s.to_sym]
             communicator = plugin.new(machine)
-            exit_code = communicator.execute(cmd, opts)
+            exit_code = communicator.execute(cmd.command, opts)
             logger.debug("command exit code: #{exit_code}")
 
             SDK::Communicator::ExecuteResp.new(
