@@ -644,6 +644,34 @@ describe Vagrant::Bundler do
         expect(Gem.sources.sources.first.uri.to_s).to eq(described_class.const_get(:HASHICORP_GEMSTORE))
       end
     end
+
+    context "multiple specs" do
+      let(:solution_file) { double('solution_file') }
+      let(:vagrant_set)   { double('vagrant_set') }
+
+      before do
+        allow(subject).to receive(:load_solution_file).and_return(solution_file)
+        allow(subject).to receive(:generate_vagrant_set).and_return(vagrant_set)
+        allow(solution_file).to receive(:valid?).and_return(true)
+      end
+
+      it "should activate spec of deps already loaded" do
+        spec = Gem.loaded_specs.first
+        deps = [spec[0]]
+        specs = [spec[1].dup, spec[1].dup]
+        specs[0].version = Gem::Version::new('0.0.1')
+        # make sure haven't accidentally modified both
+        expect(specs[0].version).to_not eq(specs[1].version)
+
+        expect(solution_file).to receive(:dependency_list).and_return(deps)
+        expect(vagrant_set).to receive(:find_all).and_return(specs)
+        expect(subject).to receive(:activate_solution) do |activate_specs|
+          expect(activate_specs.length()).to eq(1)
+          expect(activate_specs[0].full_spec()).to eq(specs[1])
+        end
+        subject.init!([])
+      end
+    end
   end
 
   describe "#install" do

@@ -258,7 +258,12 @@ module Vagrant
       if solution_file&.valid?
         @logger.debug("loading cached solution set")
         solution = solution_file.dependency_list.map do |dep|
-          spec = composed_set.find_all(dep).first
+          spec = composed_set.find_all(dep).select do |dep_spec|
+            next(true) unless Gem.loaded_specs.has_key?(dep_spec.name)
+
+            Gem.loaded_specs[dep_spec.name].version.eql?(dep_spec.version)
+          end.first
+
           if !spec
             @logger.warn("failed to locate specification for dependency - #{dep}")
             @logger.warn("invalidating solution file - #{solution_file}")
