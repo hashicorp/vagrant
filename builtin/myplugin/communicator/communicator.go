@@ -63,7 +63,7 @@ func (h *DummyCommunicator) UploadFunc() interface{} {
 
 func (h *DummyCommunicator) Upload(
 	machine plugincore.Machine,
-	source, destination string,
+	source string, destination string,
 ) error {
 	return nil
 }
@@ -75,7 +75,7 @@ func (h *DummyCommunicator) ExecuteFunc() interface{} {
 func (h *DummyCommunicator) Execute(
 	machine plugincore.Machine,
 	command []string,
-	options ...pb.CommunicatorOptions,
+	options *pb.CommunicatorOptions,
 ) (status int32, err error) {
 	return 0, nil
 }
@@ -87,7 +87,7 @@ func (h *DummyCommunicator) PrivilegedExecuteFunc() interface{} {
 func (h *DummyCommunicator) PrivilegedExecute(
 	machine plugincore.Machine,
 	command []string,
-	options ...pb.CommunicatorOptions,
+	options *pb.CommunicatorOptions,
 ) (status int32, err error) {
 	return 0, nil
 }
