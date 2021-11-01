@@ -451,6 +451,9 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
     add_message "hashicorp.vagrant.sdk.Communicator.Path" do
       optional :path, :string, 1
     end
+    add_message "hashicorp.vagrant.sdk.Communicator.RemotePath" do
+      optional :path, :string, 1
+    end
     add_message "hashicorp.vagrant.sdk.Platform" do
     end
     add_message "hashicorp.vagrant.sdk.Platform.DetectResp" do
@@ -826,6 +829,7 @@ module Hashicorp
       Communicator::TestResp = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Communicator.TestResp").msgclass
       Communicator::Command = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Communicator.Command").msgclass
       Communicator::Path = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Communicator.Path").msgclass
+      Communicator::RemotePath = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Communicator.RemotePath").msgclass
       Platform = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Platform").msgclass
       Platform::DetectResp = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Platform.DetectResp").msgclass
       Platform::ParentResp = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Platform.ParentResp").msgclass

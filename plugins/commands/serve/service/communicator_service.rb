@@ -114,14 +114,11 @@ module VagrantPlugins
                 name: "",
               ),
               SDK::FuncSpec::Value.new(
-                type: "hashicorp.vagrant.sdk.Communicator.Path",
+                type: "hashicorp.vagrant.sdk.Communicator.RemotePath",
                 name: "",
               )
             ],
-            result: [
-              type: "hashicorp.vagrant.sdk.Communicator.FileTransferResp",
-              name: "",
-            ]
+            result: []
           )
         end
 
@@ -148,7 +145,7 @@ module VagrantPlugins
 
             communicator.download(from, to)
 
-            SDK::Communicator::FileTransferResp.new()
+            Empty.new
           end
         end
 
@@ -162,17 +159,12 @@ module VagrantPlugins
               ),
               SDK::FuncSpec::Value.new(
                 type: "hashicorp.vagrant.sdk.Communicator.Path",
-                name: "to",
               ),
               SDK::FuncSpec::Value.new(
-                type: "hashicorp.vagrant.sdk.Communicator.Path",
-                name: "from",
+                type: "hashicorp.vagrant.sdk.Communicator.RemotePath",
               )
             ],
-            result: [
-              type: "hashicorp.vagrant.sdk.Communicator.FileTransferResp",
-              name: "",
-            ]
+            result: []
           )
         end
 
@@ -198,7 +190,7 @@ module VagrantPlugins
 
             communicator.upload(from.path, to.path)
 
-            SDK::Communicator::FileTransferResp.new()
+            Empty.new
           end
         end
 
