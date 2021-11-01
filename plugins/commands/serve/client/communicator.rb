@@ -76,12 +76,14 @@ module VagrantPlugins
                 value: Google::Protobuf::Any.pack(machine.to_proto)
               ),
               SDK::FuncSpec::Value.new(
-                type: "hashicorp.vagrant.sdk.Communicator.Path",
-                value: Google::Protobuf::Any.pack(SDK::Communicator::Path.new(path: from)),
-              ),
-              SDK::FuncSpec::Value.new(
-                type: "hashicorp.vagrant.sdk.Communicator.RemotePath",
-                value: Google::Protobuf::Any.pack(SDK::Communicator::RemotePath.new(path: to)),
+                type: "hashicorp.vagrant.sdk.Args.NamedPaths",
+                value: Google::Protobuf::Any.pack(
+                  SDK::Args::NamedPaths.new(
+                    paths: [
+                      SDK::Args::NamedPath.new(path: from, name: "from"),
+                      SDK::Args::NamedPath.new(path: to, name: "to"),
+                    ])
+                ),
               ),
             ]
           )
@@ -102,12 +104,14 @@ module VagrantPlugins
                 value: Google::Protobuf::Any.pack(machine.to_proto)
               ),
               SDK::FuncSpec::Value.new(
-                type: "hashicorp.vagrant.sdk.Communicator.Path",
-                value: Google::Protobuf::Any.pack(SDK::Communicator::Path.new(path: from)),
-              ),
-              SDK::FuncSpec::Value.new(
-                type: "hashicorp.vagrant.sdk.Communicator.RemotePath",
-                value: Google::Protobuf::Any.pack(SDK::Communicator::RemotePath.new(path: to)),
+                type: "hashicorp.vagrant.sdk.Args.NamedPaths",
+                value: Google::Protobuf::Any.pack(
+                  SDK::Args::NamedPaths.new(
+                    paths: [
+                      SDK::Args::NamedPath.new(path: from, name: "from"),
+                      SDK::Args::NamedPath.new(path: to, name: "to"),
+                    ])
+                ),
               ),
             ]
           )

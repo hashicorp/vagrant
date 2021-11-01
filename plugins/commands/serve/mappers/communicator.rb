@@ -23,31 +23,15 @@ module VagrantPlugins
         def initialize
           inputs = [].tap do |i|
             i << Input.new(type: SDK::FuncSpec::Value) { |arg|
-              arg.type == "hashicorp.vagrant.sdk.Communicator.Path" &&
+              arg.type == "hashicorp.vagrant.sdk.Args.NamedPaths" &&
                 !arg&.value&.value.nil?
             }
           end
-          super(inputs: inputs, output: SDK::Communicator::Path, func: method(:converter))
+          super(inputs: inputs, output: SDK::Args::NamedPaths, func: method(:converter))
         end
 
         def converter(proto)
-          SDK::Communicator::Path.decode(proto.value.value)
-        end
-      end
-
-      class CommunicatorRemotePathFromSpec < Mapper
-        def initialize
-          inputs = [].tap do |i|
-            i << Input.new(type: SDK::FuncSpec::Value) { |arg|
-              arg.type == "hashicorp.vagrant.sdk.Communicator.RemotePath" &&
-                !arg&.value&.value.nil?
-            }
-          end
-          super(inputs: inputs, output: SDK::Communicator::RemotePath, func: method(:converter))
-        end
-
-        def converter(proto)
-          SDK::Communicator::RemotePath.decode(proto.value.value)
+          SDK::Args::NamedPaths.decode(proto.value.value)
         end
       end
     end

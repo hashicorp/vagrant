@@ -110,13 +110,8 @@ module VagrantPlugins
                 name: "",
               ),
               SDK::FuncSpec::Value.new(
-                type: "hashicorp.vagrant.sdk.Communicator.Path",
-                name: "",
+                type: "hashicorp.vagrant.sdk.Args.NamedPaths",
               ),
-              SDK::FuncSpec::Value.new(
-                type: "hashicorp.vagrant.sdk.Communicator.RemotePath",
-                name: "",
-              )
             ],
             result: []
           )
@@ -128,10 +123,11 @@ module VagrantPlugins
             plugin_name = info.plugin_name
             logger.debug("Got plugin #{plugin_name}")
 
-            target, from, to = mapper.funcspec_map(req)
+            target, paths = mapper.funcspec_map(req)
             logger.debug("Got target #{target}")
-            logger.debug("Got from #{from}")
-            logger.debug("Got to #{to}")
+            logger.debug("Got paths #{paths}")
+            from = paths.paths.select{ |p| p.name == "from" }.first
+            to = paths.paths.select{ |p| p.name == "to" }.first
 
             logger.info("mapping received arguments to guest machine")
             machine = mapper.map(target, to: Vagrant::Machine)
@@ -143,7 +139,7 @@ module VagrantPlugins
             communicator = plugin.new(machine)
             logger.debug("communicator: #{communicator}")
 
-            communicator.download(from, to)
+            communicator.download(from.path, to.path)
 
             Empty.new
           end
@@ -158,11 +154,8 @@ module VagrantPlugins
                 name: "",
               ),
               SDK::FuncSpec::Value.new(
-                type: "hashicorp.vagrant.sdk.Communicator.Path",
+                type: "hashicorp.vagrant.sdk.Args.NamedPaths",
               ),
-              SDK::FuncSpec::Value.new(
-                type: "hashicorp.vagrant.sdk.Communicator.RemotePath",
-              )
             ],
             result: []
           )
@@ -174,10 +167,11 @@ module VagrantPlugins
             plugin_name = info.plugin_name
             logger.debug("Got plugin #{plugin_name}")
 
-            target, from, to = mapper.funcspec_map(req)
+            target, paths = mapper.funcspec_map(req)
             logger.debug("Got target #{target}")
-            logger.debug("Got from #{from}")
-            logger.debug("Got to #{to}")
+            logger.debug("Got paths #{paths}")
+            from = paths.paths.select{ |p| p.name == "from" }.first
+            to = paths.paths.select{ |p| p.name == "to" }.first
 
             project = target.project
             env = Vagrant::Environment.new({client: project})

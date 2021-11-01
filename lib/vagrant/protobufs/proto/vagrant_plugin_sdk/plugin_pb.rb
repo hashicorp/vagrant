@@ -42,6 +42,13 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
     add_message "hashicorp.vagrant.sdk.Args.MetadataSet" do
       map :metadata, :string, :string, 1
     end
+    add_message "hashicorp.vagrant.sdk.Args.NamedPath" do
+      optional :name, :string, 1
+      optional :path, :string, 2
+    end
+    add_message "hashicorp.vagrant.sdk.Args.NamedPaths" do
+      repeated :paths, :message, 1, "hashicorp.vagrant.sdk.Args.NamedPath"
+    end
     add_message "hashicorp.vagrant.sdk.Args.TerminalUI" do
       optional :stream_id, :uint32, 1
       optional :network, :string, 2
@@ -448,12 +455,6 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
     add_message "hashicorp.vagrant.sdk.Communicator.Command" do
       optional :command, :string, 1
     end
-    add_message "hashicorp.vagrant.sdk.Communicator.Path" do
-      optional :path, :string, 1
-    end
-    add_message "hashicorp.vagrant.sdk.Communicator.RemotePath" do
-      optional :path, :string, 1
-    end
     add_message "hashicorp.vagrant.sdk.Platform" do
     end
     add_message "hashicorp.vagrant.sdk.Platform.DetectResp" do
@@ -737,6 +738,8 @@ module Hashicorp
       Args::DataDir::Target = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Args.DataDir.Target").msgclass
       Args::DataDir::Component = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Args.DataDir.Component").msgclass
       Args::MetadataSet = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Args.MetadataSet").msgclass
+      Args::NamedPath = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Args.NamedPath").msgclass
+      Args::NamedPaths = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Args.NamedPaths").msgclass
       Args::TerminalUI = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Args.TerminalUI").msgclass
       Args::Logger = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Args.Logger").msgclass
       Args::JobInfo = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Args.JobInfo").msgclass
@@ -828,8 +831,6 @@ module Hashicorp
       Communicator::ExecuteResp = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Communicator.ExecuteResp").msgclass
       Communicator::TestResp = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Communicator.TestResp").msgclass
       Communicator::Command = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Communicator.Command").msgclass
-      Communicator::Path = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Communicator.Path").msgclass
-      Communicator::RemotePath = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Communicator.RemotePath").msgclass
       Platform = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Platform").msgclass
       Platform::DetectResp = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Platform.DetectResp").msgclass
       Platform::ParentResp = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Platform.ParentResp").msgclass
