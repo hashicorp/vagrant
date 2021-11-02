@@ -8,6 +8,19 @@ description: |-
 
 # Frequently Asked Questions
 
+## Q: How do I use the VMware Fusion Tech Preview?
+
+The Vagrant VMware utility expects VMware Fusion to be installed in a specific
+path on macOS. Since the VMware Fusion Tech Preview installs into a different
+path, the Vagrant VMware utility will fail to detect the installation and will
+not start. To resolve this you can create a symlink from the VMware Fusion
+Tech Preview installation path to the normal VMware Fusion installation path:
+
+```shell-session
+sudo ln -s /Applications/VMware\ Fusion\ Tech\ Preview.app /Applications/VMware\ Fusion.app
+```
+
+
 ## Q: How do I upgrade my currently installed Vagrant VMware plugin?
 
 You can update the Vagrant VMware plugin to the latest version by re-running the
