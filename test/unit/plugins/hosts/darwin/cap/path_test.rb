@@ -1,13 +1,21 @@
 require_relative "../../../../base"
 require_relative "../../../../../../plugins/hosts/darwin/cap/path"
+require_relative "../../../../../../plugins/hosts/darwin/cap/version"
 
 describe VagrantPlugins::HostDarwin::Cap::Path do
   describe ".resolve_host_path" do
     let(:env) { double("environment") }
     let(:path) { "/test/vagrant/path" }
     let(:firmlink_map) { {} }
+    let(:macos_version) { Gem::Version.new("10.15.1") }
 
-    before { allow(described_class).to receive(:firmlink_map).and_return(firmlink_map) }
+    before do
+      allow(VagrantPlugins::HostDarwin::Cap::Version).to receive(:version).
+        with(anything).
+        and_return(macos_version)
+      allow(described_class).to receive(:firmlink_map).
+        and_return(firmlink_map)
+    end
 
     it "should not change the path when no firmlinks are defined" do
       expect(described_class.resolve_host_path(env, path)).to eq(path)
@@ -46,6 +54,18 @@ describe VagrantPlugins::HostDarwin::Cap::Path do
 
       it "should include the updated path name" do
         expect(described_class.resolve_host_path(env, path)).to include("other")
+      end
+    end
+
+    context "when macos version is later than catalina" do
+      let(:macos_version) { Gem::Version.new("10.16.1") }
+
+      it "should not update the path" do
+        expect(described_class.resolve_host_path(env, path)).to eq(path)
+      end
+
+      it "should not prefix the path with the defined data path" do
+        expect(described_class.resolve_host_path(env, path)).not_to start_with(described_class.const_get(:FIRMLINK_DATA_PATH))
       end
     end
   end
