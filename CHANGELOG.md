@@ -5,6 +5,7 @@ FEATURES:
 IMPROVEMENTS:
 
 - guest/suse: Add fallback shutdown for versions without systemd [GH-12489]
+- provider/virtualbox: Validate VirtualBox hostonly network range [GH-12564]
 
 BUG FIXES
 
