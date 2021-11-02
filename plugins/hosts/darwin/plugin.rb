@@ -70,6 +70,11 @@ module VagrantPlugins
         require_relative "cap/nfs"
         Cap::NFS
       end
+
+      host_capability("darwin", "nfs_restart_command") do
+        require_relative "cap/nfs"
+        Cap::NFS
+      end
     end
   end
 end
