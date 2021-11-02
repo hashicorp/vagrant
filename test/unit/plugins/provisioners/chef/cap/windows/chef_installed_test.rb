@@ -23,19 +23,38 @@ describe VagrantPlugins::Chef::Cap::Windows::ChefInstalled do
   end
 
   describe "#chef_installed" do
-    let(:version) { "15.0.0" }
-    let(:command) { "if ((&knife --version) -Match \"15.0.0\"){ exit 0 } else { exit 1 }" }
+    describe "when chef-workstation" do
+      let(:version) { "15.0.0" }
+      let(:command) { "if ((&chef --version) -Match \"15.0.0\"){ exit 0 } else { exit 1 }" }
 
-    it "returns true if installed" do
-      expect(machine.communicate).to receive(:test).
-        with(command, sudo: true).and_return(true)
-      subject.chef_installed(machine, "chef_solo", version)
+      it "returns true if installed" do
+        expect(machine.communicate).to receive(:test).
+          with(command, sudo: true).and_return(true)
+        subject.chef_installed(machine, "chef-workstation", version)
+      end
+
+      it "returns false if not installed" do
+        expect(machine.communicate).to receive(:test).
+          with(command, sudo: true).and_return(false)
+        expect(subject.chef_installed(machine, "chef-workstation", version)).to be_falsey
+      end
     end
 
-    it "returns false if not installed" do
-      expect(machine.communicate).to receive(:test).
-        with(command, sudo: true).and_return(false)
-      expect(subject.chef_installed(machine, "chef_solo", version)).to be_falsey
+    describe "when chef-workstation" do
+      let(:version) { "15.0.0" }
+      let(:command) { "if ((&chef-client --version) -Match \"15.0.0\"){ exit 0 } else { exit 1 }" }
+
+      it "returns true if installed" do
+        expect(machine.communicate).to receive(:test).
+          with(command, sudo: true).and_return(true)
+        subject.chef_installed(machine, "chef_solo", version)
+      end
+
+      it "returns false if not installed" do
+        expect(machine.communicate).to receive(:test).
+          with(command, sudo: true).and_return(false)
+        expect(subject.chef_installed(machine, "chef_solo", version)).to be_falsey
+      end
     end
   end
 end
