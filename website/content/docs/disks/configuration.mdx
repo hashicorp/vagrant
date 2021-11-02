@@ -61,7 +61,7 @@ You can set a disk type with the first argument of a disk config in your Vagrant
 
 ```ruby
 config.vm.disk :disk, name: "backup", size: "10GB"
-config.vm.disk :dvd, name: "installer", path: "./installer.iso"
+config.vm.disk :dvd, name: "installer", file: "./installer.iso"
 config.vm.disk :floppy, name: "cool_files"
 ```
 
