@@ -1024,6 +1024,10 @@ module Vagrant
       error_key(:virtualbox_version_empty)
     end
 
+    class VirtualBoxInvalidHostSubnet < VagrantError
+      error_key(:virtualbox_invalid_host_subnet)
+    end
+
     class VMBaseMacNotSpecified < VagrantError
       error_key(:no_base_mac, "vagrant.actions.vm.match_mac")
     end
