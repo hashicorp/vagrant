@@ -27,6 +27,6 @@ export PKT_VAGRANT_DOCKER_IMAGES="${VAGRANT_DOCKER_IMAGES}"
 echo "Running vagrant spec tests..."
 # Need to make memory customizable for windows hosts
 wrap_stream packet-exec run "vagrant provision" \
-                "Vagrant Blackbox testing command failed"
+                "Vagrant Acceptance testing command failed"
 
 echo "Finished vagrant spec tests"

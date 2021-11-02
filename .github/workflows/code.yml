@@ -5,7 +5,7 @@ on:
       - 'spec-test-*'
 
 jobs:
-  sync-blackbox:
+  sync-acceptance:
     if: github.repository == 'hashicorp/vagrant'
     runs-on: ubuntu-18.04
     steps:
@@ -18,7 +18,7 @@ jobs:
         uses: ruby/setup-ruby@v1
         with:
           ruby-version: '2.6'
-      - name: Sync Blackbox Testing Repository
+      - name: Sync Acceptance Testing Repository
         run: ./.ci/sync.sh
         working-directory: ${{github.workspace}}
         env:
