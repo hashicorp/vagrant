@@ -96,6 +96,10 @@ module VagrantPlugins
         # @param [String] local path
         # @param [String] remote path
         def upload(machine, from, to)
+          from_val = Google::Protobuf::Value.new
+          from_val.from_ruby(from)
+          to_val = Google::Protobuf::Value.new
+          to_val.from_ruby(to)
           req = SDK::FuncSpec::Args.new(
             args: [
               SDK::FuncSpec::Value.new(
@@ -104,15 +108,25 @@ module VagrantPlugins
                 value: Google::Protobuf::Any.pack(machine.to_proto)
               ),
               SDK::FuncSpec::Value.new(
-                type: "hashicorp.vagrant.sdk.Args.NamedPaths",
-                value: Google::Protobuf::Any.pack(
-                  SDK::Args::NamedPaths.new(
-                    paths: [
-                      SDK::Args::NamedPath.new(path: from, name: "from"),
-                      SDK::Args::NamedPath.new(path: to, name: "to"),
-                    ])
-                ),
+                name: "source", 
+                type: "string", 
+                value: Google::Protobuf::Any.pack(from_val)
               ),
+              SDK::FuncSpec::Value.new(
+                name: "destination", 
+                type: "string", 
+                value: Google::Protobuf::Any.pack(to_val)
+              ),
+              # SDK::FuncSpec::Value.new(
+              #   type: "hashicorp.vagrant.sdk.Args.NamedPaths",
+              #   value: Google::Protobuf::Any.pack(
+              #     SDK::Args::NamedPaths.new(
+              #       paths: [
+              #         SDK::Args::NamedPath.new(path: from, name: "from"),
+              #         SDK::Args::NamedPath.new(path: to, name: "to"),
+              #       ])
+              #   ),
+              # ),
             ]
           )
 

@@ -1,6 +1,8 @@
 package communicator
 
 import (
+	"github.com/hashicorp/go-argmapper"
+	"github.com/hashicorp/go-hclog"
 	"github.com/hashicorp/vagrant-plugin-sdk/component"
 	plugincore "github.com/hashicorp/vagrant-plugin-sdk/core"
 	pb "github.com/hashicorp/vagrant/builtin/myplugin/proto"
@@ -61,10 +63,16 @@ func (h *DummyCommunicator) UploadFunc() interface{} {
 	return h.Upload
 }
 
-func (h *DummyCommunicator) Upload(
-	machine plugincore.Machine,
-	source string, destination string,
+func (h *DummyCommunicator) Upload(input struct {
+	argmapper.Struct
+	Machine     plugincore.Machine `argmapper:",typeOnly"`
+	Logger      hclog.Logger       `argmapper:",typeOnly"`
+	Source      string
+	Destination string
+},
 ) error {
+	input.Logger.Debug("got Source ", input.Source)
+	input.Logger.Debug("got Destination ", input.Destination)
 	return nil
 }
 
@@ -87,7 +95,7 @@ func (h *DummyCommunicator) PrivilegedExecuteFunc() interface{} {
 func (h *DummyCommunicator) PrivilegedExecute(
 	machine plugincore.Machine,
 	command []string,
-	options *pb.CommunicatorOptions,
+	// options *pb.CommunicatorOptions,
 ) (status int32, err error) {
 	return 0, nil
 }
