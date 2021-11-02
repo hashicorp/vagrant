@@ -9,6 +9,7 @@ IMPROVEMENTS:
 BUG FIXES
 
 - host/windows: Properly handle spaces in path to SSH key [GH-12398]
+- provisioner/chef: Update install checks [GH-12555]
 
 ## 2.2.18 (July 27, 2021)
 
