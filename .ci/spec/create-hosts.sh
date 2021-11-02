@@ -39,7 +39,7 @@ wrap curl -fLO ${INSTALLER_URL} \
 
 echo "Creating vagrant spec guests..."
 wrap_stream packet-exec run -upload --  "vagrant up --no-provision --provider vmware_desktop" \
-                                        "Vagrant Blackbox host creation command failed"
+                                        "Vagrant Acceptance host creation command failed"
 
 
 echo "Finished bringing up vagrant spec guests"
