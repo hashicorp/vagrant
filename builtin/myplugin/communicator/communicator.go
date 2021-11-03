@@ -52,10 +52,16 @@ func (h *DummyCommunicator) DownloadFunc() interface{} {
 	return h.Download
 }
 
-func (h *DummyCommunicator) Download(
-	machine plugincore.Machine,
-	source, destination string,
+func (h *DummyCommunicator) Download(input struct {
+	argmapper.Struct
+	Machine     plugincore.Machine `argmapper:",typeOnly"`
+	Logger      hclog.Logger       `argmapper:",typeOnly"`
+	Source      string
+	Destination string
+},
 ) error {
+	input.Logger.Debug("got Source ", input.Source)
+	input.Logger.Debug("got Destination ", input.Destination)
 	return nil
 }
 
@@ -95,7 +101,7 @@ func (h *DummyCommunicator) PrivilegedExecuteFunc() interface{} {
 func (h *DummyCommunicator) PrivilegedExecute(
 	machine plugincore.Machine,
 	command []string,
-	// options *pb.CommunicatorOptions,
+	options *pb.CommunicatorOptions,
 ) (status int32, err error) {
 	return 0, nil
 }
