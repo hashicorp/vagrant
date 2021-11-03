@@ -109,24 +109,12 @@ module VagrantPlugins
               ),
               SDK::FuncSpec::Value.new(
                 name: "source", 
-                type: "string", 
                 value: Google::Protobuf::Any.pack(from_val)
               ),
               SDK::FuncSpec::Value.new(
                 name: "destination", 
-                type: "string", 
                 value: Google::Protobuf::Any.pack(to_val)
               ),
-              # SDK::FuncSpec::Value.new(
-              #   type: "hashicorp.vagrant.sdk.Args.NamedPaths",
-              #   value: Google::Protobuf::Any.pack(
-              #     SDK::Args::NamedPaths.new(
-              #       paths: [
-              #         SDK::Args::NamedPath.new(path: from, name: "from"),
-              #         SDK::Args::NamedPath.new(path: to, name: "to"),
-              #       ])
-              #   ),
-              # ),
             ]
           )
 

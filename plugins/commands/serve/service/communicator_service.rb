@@ -154,7 +154,10 @@ module VagrantPlugins
                 name: "",
               ),
               SDK::FuncSpec::Value.new(
-                type: "hashicorp.vagrant.sdk.Args.NamedPaths",
+                name: "source"
+              ),
+              SDK::FuncSpec::Value.new(
+                name: "destination"
               ),
             ],
             result: []
@@ -165,13 +168,18 @@ module VagrantPlugins
           logger.debug("Uploading")
           with_info(ctx) do |info|
             plugin_name = info.plugin_name
-            logger.debug("Got plugin #{plugin_name}")
 
-            target, paths = mapper.funcspec_map(req)
+            # Need to specifically now use funcspec map since the funcspec map
+            # will inject results into the mappers. This causes duplicate values
+            # to come up for arguments of the same type
+            expected_types = [Client::Target::Machine, String, String]
+            to, target, from = req.args.map do |r|
+              logger.debug("mapping #{r}")
+              mapper.map(r, expected_types.shift)
+            end
             logger.debug("Got target #{target}")
-            logger.debug("Got paths #{paths}")
-            from = paths.paths.select{ |p| p.name == "from" }.first
-            to = paths.paths.select{ |p| p.name == "to" }.first
+            logger.debug("Got to #{to}")
+            logger.debug("Got from #{from}")
 
             project = target.project
             env = Vagrant::Environment.new({client: project})
@@ -181,8 +189,9 @@ module VagrantPlugins
             logger.debug("Got plugin #{plugin}")
             communicator = plugin.new(machine)
             logger.debug("communicator: #{communicator}")
+            logger.debug("uploading: #{from} -> #{to}")
 
-            communicator.upload(from.path, to.path)
+            communicator.upload(from, to)
 
             Empty.new
           end
