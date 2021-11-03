@@ -21,7 +21,8 @@ describe VagrantPlugins::ProviderVirtualBox::Action::Network do
 
   let(:env)    {{ machine: machine, ui: machine.ui }}
   let(:app)    { lambda { |*args| }}
-  let(:driver) { double("driver") }
+  let(:driver) { double("driver", version: vbox_version) }
+  let(:vbox_version) { "6.1.0" }
 
   let(:nics)         { {} }
 
@@ -30,8 +31,6 @@ describe VagrantPlugins::ProviderVirtualBox::Action::Network do
   before do
     allow(driver).to receive(:enable_adapters)
     allow(driver).to receive(:read_network_interfaces)   { nics }
-    allow(VagrantPlugins::ProviderVirtualBox::Driver::Meta).to receive(:version).
-      and_return("6.1.0")
   end
 
   describe "#hostonly_config" do
@@ -65,23 +64,21 @@ describe VagrantPlugins::ProviderVirtualBox::Action::Network do
   describe "#validate_hostonly_ip!" do
     let(:address) { "192.168.1.2" }
     let(:net_conf) { [IPAddr.new(address + "/24")]}
+    let(:vbox_version) { "6.1.28" }
 
     before do
-      allow(VagrantPlugins::ProviderVirtualBox::Driver::Meta).to receive(:version).
-        and_return("6.1.28")
-
       allow(subject).to receive(:load_net_conf).and_return(net_conf)
       expect(subject).to receive(:validate_hostonly_ip!).and_call_original
     end
 
     it "should load net configuration" do
       expect(subject).to receive(:load_net_conf).and_return(net_conf)
-      subject.validate_hostonly_ip!(address)
+      subject.validate_hostonly_ip!(address, driver)
     end
 
     context "when address is within ranges" do
       it "should not error" do
-        subject.validate_hostonly_ip!(address)
+        subject.validate_hostonly_ip!(address, driver)
       end
     end
 
@@ -90,24 +87,21 @@ describe VagrantPlugins::ProviderVirtualBox::Action::Network do
 
       it "should raise an error" do
         expect {
-          subject.validate_hostonly_ip!(address)
+          subject.validate_hostonly_ip!(address, driver)
         }.to raise_error(Vagrant::Errors::VirtualBoxInvalidHostSubnet)
       end
     end
 
     context "when virtualbox version does not restrict range" do
-      before do
-        allow(VagrantPlugins::ProviderVirtualBox::Driver::Meta).to receive(:version).
-          and_return("6.1.20")
-      end
+      let(:vbox_version) { "6.1.20" }
 
       it "should not error" do
-        subject.validate_hostonly_ip!(address)
+        subject.validate_hostonly_ip!(address, driver)
       end
 
       it "should not attempt to load network configuration" do
         expect(subject).not_to receive(:load_net_conf)
-        subject.validate_hostonly_ip!(address)
+        subject.validate_hostonly_ip!(address, driver)
       end
     end
 
@@ -117,12 +111,12 @@ describe VagrantPlugins::ProviderVirtualBox::Action::Network do
       end
 
       it "should not error" do
-        subject.validate_hostonly_ip!(address)
+        subject.validate_hostonly_ip!(address, driver)
       end
 
       it "should not attempt to load network configuration" do
         expect(subject).not_to receive(:load_net_conf)
-        subject.validate_hostonly_ip!(address)
+        subject.validate_hostonly_ip!(address, driver)
       end
     end
   end
