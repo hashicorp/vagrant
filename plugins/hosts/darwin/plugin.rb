@@ -70,6 +70,11 @@ module VagrantPlugins
         require_relative "cap/nfs"
         Cap::NFS
       end
+
+      host_capability("darwin", "version") do
+        require_relative "cap/version"
+        Cap::Version
+      end
     end
   end
 end

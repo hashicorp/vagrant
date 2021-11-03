@@ -356,6 +356,10 @@ module Vagrant
       error_key(:darwin_mount_failed)
     end
 
+    class DarwinVersionFailed < VagrantError
+      error_key(:darwin_version_failed)
+    end
+
     class DestroyRequiresForce < VagrantError
       error_key(:destroy_requires_force)
     end
