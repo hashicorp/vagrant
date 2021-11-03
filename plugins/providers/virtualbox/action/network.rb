@@ -296,7 +296,7 @@ module VagrantPlugins
               error: e.message
           end
 
-          validate_hostonly_ip!(options[:ip])
+          validate_hostonly_ip!(options[:ip], @env[:machine].provider.driver)
 
           if ip.ipv4?
             # Verify that a host-only network subnet would not collide
@@ -515,8 +515,8 @@ module VagrantPlugins
         # ranges. It only validates if the network configuration file exists.
         # This was introduced in 6.1.28 so previous version won't have restrictions
         # placed on the valid ranges
-        def validate_hostonly_ip!(ip)
-          return if Gem::Version.new(Driver::Meta.version) < HOSTONLY_VALIDATE_VERSION ||
+        def validate_hostonly_ip!(ip, driver)
+          return if Gem::Version.new(driver.version) < HOSTONLY_VALIDATE_VERSION ||
             Vagrant::Util::Platform.windows?
 
           ip = IPAddr.new(ip.to_s) if !ip.is_a?(IPAddr)
