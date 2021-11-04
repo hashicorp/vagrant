@@ -1,4 +1,5 @@
 require "tempfile"
+require "yaml"
 
 require_relative "../../../../lib/vagrant/util/template_renderer"
 
@@ -8,9 +9,70 @@ module VagrantPlugins
       class ConfigureNetworks
         extend Vagrant::Util::GuestInspection::Linux
 
+        NETWORK_MANAGER_CONN_DIR = "/etc/NetworkManager/system-connections".freeze
         DEFAULT_ENVIRONMENT_IP = "127.0.0.1".freeze
 
         def self.configure_networks(machine, networks)
+          comm = machine.communicate
+          return configure_networks_cloud_init(machine, networks) if comm.test("command -v cloud-init")
+
+          interfaces = machine.guest.capability(:network_interfaces)
+          nm_dev = {}
+          comm.execute("nmcli -t c show") do |type, data|
+            if type == :stdout
+              _, id, _, dev = data.strip.split(":")
+              nm_dev[dev] = id
+            end
+          end
+          comm.sudo("rm #{File.join(NETWORK_MANAGER_CONN_DIR, 'vagrant-*.conf')}")
+
+          networks.each_with_index do |network, i|
+            network[:device] = interfaces[network[:interface]]
+            addr = IPAddr.new(network[:ip])
+            mask = addr.mask(network[:netmask])
+            if !network[:mac_address]
+              comm.execute("cat /sys/class/net/#{network[:device]}/address") do |type, data|
+                if type == :stdout
+                  network[:mac_address] = data
+                end
+              end
+            end
+
+            f = Tempfile.new("vagrant-coreos-network")
+            {
+              connection: {
+                type: "ethernet",
+                id: network[:device],
+                "interface-name": network[:device]
+              },
+              ethernet: {
+                "mac-address": network[:mac_address]
+              },
+              ipv4: {
+                method: "manual",
+                addresses: "#{network[:ip]}/#{mask.prefix}",
+                gateway: network.fetch(:gateway, mask.to_range.first.succ),
+              },
+            }.each_pair do |section, content|
+              f.puts "[#{section}]"
+              content.each_pair do |key, value|
+                f.puts "#{key}=#{value}"
+              end
+            end
+            f.close
+            comm.sudo("nmcli c delete '#{nm_dev[network[:device]]}'")
+            dst = File.join("/var/tmp", "vagrant-#{network[:device]}.conf")
+            final = File.join(NETWORK_MANAGER_CONN_DIR, "vagrant-#{network[:device]}.conf")
+            comm.upload(f.path, dst)
+            comm.sudo("chown root:root '#{dst}'")
+            comm.sudo("chmod 0600 '#{dst}'")
+            comm.sudo("mv '#{dst}' '#{final}'")
+            f.delete
+          end
+          comm.sudo("nmcli c reload")
+        end
+
+        def self.configure_networks_cloud_init(machine, networks)
           cloud_config = {}
           # Locate configured IP addresses to drop in /etc/environment
           # for export. If no addresses found, fall back to default
