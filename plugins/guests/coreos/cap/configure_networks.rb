@@ -24,7 +24,8 @@ module VagrantPlugins
               nm_dev[dev] = id
             end
           end
-          comm.sudo("rm #{File.join(NETWORK_MANAGER_CONN_DIR, 'vagrant-*.conf')}")
+          comm.sudo("rm #{File.join(NETWORK_MANAGER_CONN_DIR, 'vagrant-*.conf')}",
+            error_check: false)
 
           networks.each_with_index do |network, i|
             network[:device] = interfaces[network[:interface]]
