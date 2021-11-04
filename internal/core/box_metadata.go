@@ -2,6 +2,7 @@ package core
 
 import (
 	"encoding/json"
+	"reflect"
 
 	"github.com/mitchellh/mapstructure"
 )
@@ -11,6 +12,34 @@ type BoxVersionProvider struct {
 	Url          string
 	Checksum     string
 	ChecksumType string
+}
+
+func (b *BoxVersionProvider) MatchesAny(p ...*BoxVersionProvider) (matches bool) {
+	for _, provider := range p {
+		if b.Matches(provider) {
+			return true
+		}
+	}
+	return false
+}
+
+func (b *BoxVersionProvider) Matches(p *BoxVersionProvider) (matches bool) {
+	pVal := reflect.ValueOf(*p)
+	bVal := reflect.ValueOf(*b)
+	typeOfMatcher := pVal.Type()
+	matches = true
+
+	fields := pVal.NumField()
+	for i := 0; i < fields; i++ {
+		if pVal.Field(i).Interface() != "" {
+			bField := bVal.FieldByName(typeOfMatcher.Field(i).Name).Interface()
+			pField := pVal.Field(i).Interface()
+			if pField != bField {
+				return false
+			}
+		}
+	}
+	return
 }
 
 type BoxVersion struct {
@@ -52,19 +81,41 @@ func LoadBoxMetadata(data []byte) (*BoxMetadata, error) {
 	return &result, mapstructure.Decode(metadata, &result)
 }
 
-func (b *BoxMetadata) Version(version string) (v *BoxVersion, err error) {
+func (b *BoxMetadata) Version(version string, providerOpts *BoxVersionProvider) (v *BoxVersion, err error) {
+	matchesProvider := false
 	for _, ver := range b.Versions {
 		if ver.Version == version {
-			return ver, nil
+			// Check for the provider in the version
+			if providerOpts == nil {
+				matchesProvider = true
+			} else {
+				for _, p := range ver.Providers {
+					if p.Matches(providerOpts) {
+						matchesProvider = true
+					}
+				}
+			}
+
+			if matchesProvider {
+				return ver, nil
+			}
 		}
 	}
 	return
 }
 
-func (b *BoxMetadata) ListVersions() ([]string, error) {
+func (b *BoxMetadata) ListVersions(providerOpts ...*BoxVersionProvider) ([]string, error) {
 	v := []string{}
 	for _, version := range b.Versions {
-		v = append(v, version.Version)
+		if providerOpts != nil {
+			for _, p := range version.Providers {
+				if p.MatchesAny(providerOpts...) {
+					v = append(v, version.Version)
+				}
+			}
+		} else {
+			v = append(v, version.Version)
+		}
 	}
 	return v, nil
 }
