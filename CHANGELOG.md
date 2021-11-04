@@ -9,6 +9,7 @@ IMPROVEMENTS:
 
 BUG FIXES
 
+- guest/windows: Fix directory creation with rsync [GH-11880]
 - host/windows: Properly handle spaces in path to SSH key [GH-12398]
 - provisioner/chef: Update install checks [GH-12555]
 
