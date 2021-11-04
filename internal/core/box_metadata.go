@@ -7,7 +7,6 @@ import (
 )
 
 type BoxVersionProvider struct {
-	// provider *vagrant_server.BoxMetadata_Version_Provider
 	Name         string
 	Url          string
 	Checksum     string
@@ -15,9 +14,8 @@ type BoxVersionProvider struct {
 }
 
 type BoxVersion struct {
-	// version *vagrant_server.BoxMetadata_Version
 	Version     string
-	State       string
+	Status      string
 	Description string
 	Providers   []*BoxVersionProvider
 }
@@ -43,7 +41,6 @@ type BoxMetadata struct {
 	Name        string
 	Description string
 	Versions    []*BoxVersion
-	// metadata *vagrant_server.BoxMetadata
 }
 
 func LoadBoxMetadata(data []byte) (*BoxMetadata, error) {
