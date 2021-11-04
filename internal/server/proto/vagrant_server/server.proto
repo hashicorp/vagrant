@@ -263,6 +263,29 @@ message Project {
   Job.DataSource data_source = 101;
 }
 
+message Box {
+  // The box name. This is the logical name used when adding the box.
+  string name = 1;
+
+  // This is the provider that this box is built for.
+  string provider = 2;
+
+  // The version of this box.
+  string version = 3;
+
+  // This is the directory on disk where this box exists.
+  string directory = 4;
+
+  // TODO: is this <string, string>?
+  // This is the metadata for the box. This is read from the "metadata.json"
+  // file that all boxes require.
+  map<string, string> metadata = 5;
+
+  // This is the URL to the version info and other metadata for this
+  // box.
+  string metadata_url = 6;
+}
+
 message Target {
   // Unique resource identifier
   string resource_id = 1;
@@ -305,6 +328,7 @@ message Target {
     // ID of machine as assigned by provider
     string id = 1;
 
+    // TODO: this should be replaced with `Box`
     // Box information for guest
     sdk.Args.Target.Machine.Box box = 7;
 

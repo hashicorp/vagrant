@@ -44,6 +44,14 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
       optional :remote_enabled, :bool, 100
       optional :data_source, :message, 101, "hashicorp.vagrant.Job.DataSource"
     end
+    add_message "hashicorp.vagrant.Box" do
+      optional :name, :string, 1
+      optional :provider, :string, 2
+      optional :version, :string, 3
+      optional :directory, :string, 4
+      map :metadata, :string, :string, 5
+      optional :metadata_url, :string, 6
+    end
     add_message "hashicorp.vagrant.Target" do
       optional :resource_id, :string, 1
       optional :datadir, :message, 2, "hashicorp.vagrant.sdk.Args.DataDir.Target"
@@ -860,6 +868,7 @@ module Hashicorp
     VersionInfo::ProtocolVersion = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.VersionInfo.ProtocolVersion").msgclass
     Basis = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.Basis").msgclass
     Project = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.Project").msgclass
+    Box = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.Box").msgclass
     Target = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.Target").msgclass
     Target::Machine = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.Target.Machine").msgclass
     Vagrantfile = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.Vagrantfile").msgclass

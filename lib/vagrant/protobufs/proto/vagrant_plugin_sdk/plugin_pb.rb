@@ -42,9 +42,6 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
     add_message "hashicorp.vagrant.sdk.Args.MetadataSet" do
       map :metadata, :string, :string, 1
     end
-    add_message "hashicorp.vagrant.sdk.Args.Folder" do
-      map :folders, :string, :message, 1, "google.protobuf.Any"
-    end
     add_message "hashicorp.vagrant.sdk.Args.TerminalUI" do
       optional :stream_id, :uint32, 1
       optional :network, :string, 2
@@ -99,12 +96,9 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
       optional :target, :string, 3
     end
     add_message "hashicorp.vagrant.sdk.Args.Target.Machine.Box" do
-      optional :name, :string, 1
-      optional :provider, :string, 2
-      optional :version, :string, 3
-      optional :directory, :string, 4
-      map :metadata, :string, :string, 5
-      optional :metadata_url, :string, 6
+      optional :stream_id, :uint32, 1
+      optional :network, :string, 2
+      optional :target, :string, 3
     end
     add_message "hashicorp.vagrant.sdk.Args.Target.Machine.State" do
       optional :id, :string, 1
@@ -479,11 +473,6 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
     add_message "hashicorp.vagrant.sdk.Platform.Capability.Resp" do
       optional :result, :message, 1, "google.protobuf.Any"
     end
-    add_message "hashicorp.vagrant.sdk.SyncedFolder" do
-    end
-    add_message "hashicorp.vagrant.sdk.SyncedFolder.UsableResp" do
-      optional :usable, :bool, 1
-    end
     add_message "hashicorp.vagrant.sdk.Ref" do
     end
     add_message "hashicorp.vagrant.sdk.Ref.Box" do
@@ -747,7 +736,6 @@ module Hashicorp
       Args::DataDir::Target = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Args.DataDir.Target").msgclass
       Args::DataDir::Component = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Args.DataDir.Component").msgclass
       Args::MetadataSet = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Args.MetadataSet").msgclass
-      Args::Folder = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Args.Folder").msgclass
       Args::TerminalUI = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Args.TerminalUI").msgclass
       Args::Logger = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Args.Logger").msgclass
       Args::JobInfo = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Args.JobInfo").msgclass
@@ -849,8 +837,6 @@ module Hashicorp
       Platform::Capability::NamedRequest = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Platform.Capability.NamedRequest").msgclass
       Platform::Capability::CheckResp = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Platform.Capability.CheckResp").msgclass
       Platform::Capability::Resp = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Platform.Capability.Resp").msgclass
-      SyncedFolder = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.SyncedFolder").msgclass
-      SyncedFolder::UsableResp = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.SyncedFolder.UsableResp").msgclass
       Ref = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Ref").msgclass
       Ref::Box = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Ref.Box").msgclass
       Ref::Basis = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Ref.Basis").msgclass
