@@ -187,9 +187,9 @@ Vagrant.configure(2) do |config|
 end
 ```
 
-### Ansible Parallel Execution from a Guest
+### Ansible Parallel Execution from a Guest deprecated
 
-With the following configuration pattern, you can install and execute Ansible only on a single guest machine (the `"controller"`) to provision all your machines.
+With the following configuration pattern, you can install and execute Ansible only on a single guest machine (the `"controller"`) to provision all your machines. This does not work since .vagrant will not be synced to the guests vms by default. In fact I tried to include it but it's not possible. To quote the doc: "By default, the ".vagrant/" directory is excluded.".
 
 ```ruby
 Vagrant.configure("2") do |config|
