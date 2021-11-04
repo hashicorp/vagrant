@@ -96,7 +96,7 @@ describe "VagrantPlugins::GuestCoreOS::Cap::ConfigureNetworks" do
 
       it "should remove any previous vagrant configuration" do
         expect(comm).to receive(:sudo).
-          with(/rm .*vagrant-.*conf/)
+          with(/rm .*vagrant-.*conf/, error_check: false)
         described_class.configure_networks(machine, networks)
       end
 
@@ -124,11 +124,19 @@ describe "VagrantPlugins::GuestCoreOS::Cap::ConfigureNetworks" do
         described_class.configure_networks(machine, networks)
       end
 
-      it "should delete device from network manager" do
+      it "should disconnect device in network manager" do
         expect(comm).to receive(:sudo).
-          with("nmcli c delete 'UUID_for_eth1'")
+          with("nmcli d disconnect 'eth1'", error_check: false)
         expect(comm).to receive(:sudo).
-          with("nmcli c delete 'UUID_for_eth2'")
+          with("nmcli d disconnect 'eth2'", error_check: false)
+        described_class.configure_networks(machine, networks)
+      end
+
+      it "should delete connection from network manager" do
+        expect(comm).to receive(:sudo).
+          with("nmcli c delete 'UUID_for_eth1'", error_check: false)
+        expect(comm).to receive(:sudo).
+          with("nmcli c delete 'UUID_for_eth2'", error_check: false)
         described_class.configure_networks(machine, networks)
       end
 
@@ -154,9 +162,17 @@ describe "VagrantPlugins::GuestCoreOS::Cap::ConfigureNetworks" do
         described_class.configure_networks(machine, networks)
       end
 
-      it "should reload network manager" do
+      it "should load the configuration files into network manager" do
         expect(comm).to receive(:sudo).
-          with("nmcli c reload")
+          with(/nmcli c load .*conf/).twice
+        described_class.configure_networks(machine, networks)
+      end
+
+      it "should connect the devices in network manager" do
+        expect(comm).to receive(:sudo).
+          with("nmcli d connect 'eth1'")
+        expect(comm).to receive(:sudo).
+          with("nmcli d connect 'eth2'")
         described_class.configure_networks(machine, networks)
       end
     end

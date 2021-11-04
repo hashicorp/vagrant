@@ -61,16 +61,18 @@ module VagrantPlugins
               end
             end
             f.close
-            comm.sudo("nmcli c delete '#{nm_dev[network[:device]]}'")
+            comm.sudo("nmcli d disconnect '#{network[:device]}'", error_check: false)
+            comm.sudo("nmcli c delete '#{nm_dev[network[:device]]}'", error_check: false)
             dst = File.join("/var/tmp", "vagrant-#{network[:device]}.conf")
             final = File.join(NETWORK_MANAGER_CONN_DIR, "vagrant-#{network[:device]}.conf")
             comm.upload(f.path, dst)
             comm.sudo("chown root:root '#{dst}'")
             comm.sudo("chmod 0600 '#{dst}'")
             comm.sudo("mv '#{dst}' '#{final}'")
+            comm.sudo("nmcli c load '#{final}'")
+            comm.sudo("nmcli d connect '#{network[:device]}'")
             f.delete
           end
-          comm.sudo("nmcli c reload")
         end
 
         def self.configure_networks_cloud_init(machine, networks)
