@@ -4,7 +4,7 @@ module VagrantPlugins
   module GuestAtomic
     class Guest < Vagrant.plugin("2", :guest)
       def detect?(machine)
-        machine.communicate.test("grep 'ostree=' /proc/cmdline")
+        machine.communicate.test("grep 'ostree=.*atomic' /proc/cmdline")
       end
     end
   end
