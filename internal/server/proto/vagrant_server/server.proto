@@ -328,9 +328,8 @@ message Target {
     // ID of machine as assigned by provider
     string id = 1;
 
-    // TODO: this should be replaced with `Box`
     // Box information for guest
-    sdk.Args.Target.Machine.Box box = 7;
+    Box box = 7;
 
     // User ID of machine creator
     string uid = 9;

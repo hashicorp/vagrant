@@ -70,7 +70,7 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
     end
     add_message "hashicorp.vagrant.Target.Machine" do
       optional :id, :string, 1
-      optional :box, :message, 7, "hashicorp.vagrant.sdk.Args.Target.Machine.Box"
+      optional :box, :message, 7, "hashicorp.vagrant.Box"
       optional :uid, :string, 9
       optional :state, :message, 10, "hashicorp.vagrant.sdk.Args.Target.Machine.State"
     end
