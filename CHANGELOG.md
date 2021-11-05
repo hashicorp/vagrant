@@ -9,6 +9,8 @@ IMPROVEMENTS:
 
 BUG FIXES
 
+- guest/atomic: Update detection to prevent matching on non-atomic guests [GH-12575]
+- guest/coreos: Fix configure network capability [GH-12575]
 - guest/windows: Fix directory creation with rsync [GH-11880]
 - host/windows: Properly handle spaces in path to SSH key [GH-12398]
 - provisioner/chef: Update install checks [GH-12555]
