@@ -1,6 +1,7 @@
 package core
 
 import (
+	"errors"
 	"os"
 	"time"
 
@@ -19,6 +20,7 @@ type Box struct {
 }
 
 func (b *Box) loadMetadata() (metadata core.BoxMetadata) {
+	// TODO: need box metadata implementation
 	return
 }
 
@@ -125,6 +127,37 @@ func (b *Box) Repackage(path string) (err error) {
 
 func (b *Box) Version() (version string, err error) {
 	return b.box.Version, nil
+}
+
+func (b *Box) GreaterThanOrEqual(box core.Box) (bool, error) {
+	name, err := box.Name()
+	if err != nil {
+		return false, err
+	}
+	version, err := box.Version()
+	if err != nil {
+		return false, err
+	}
+	provider, err := box.Provider()
+	if err != nil {
+		return false, err
+	}
+
+	if b.box.Name == name && b.box.Provider == provider {
+		if b.box.Version >= version {
+			return true, nil
+		}
+		return false, nil
+	}
+	return false, errors.New("Box name and provider does not match, can't compare")
+}
+
+func (b *Box) LessThan(box core.Box) (bool, error) {
+	gte, err := b.GreaterThanOrEqual(box)
+	if err != nil {
+		return false, err
+	}
+	return !gte, nil
 }
 
 func (b *Box) Save() error {
