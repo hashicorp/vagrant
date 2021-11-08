@@ -1,3 +1,5 @@
+require_relative "version"
+
 module VagrantPlugins
   module HostDarwin
     module Cap
