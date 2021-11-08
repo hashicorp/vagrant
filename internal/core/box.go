@@ -1,11 +1,11 @@
 package core
 
 import (
-	"errors"
 	"os"
 	"time"
 
 	"github.com/hashicorp/go-hclog"
+	"github.com/hashicorp/go-version"
 	"github.com/hashicorp/vagrant-plugin-sdk/core"
 	"github.com/hashicorp/vagrant/internal/server/proto/vagrant_server"
 	"google.golang.org/protobuf/types/known/timestamppb"
@@ -129,35 +129,32 @@ func (b *Box) Version() (version string, err error) {
 	return b.box.Version, nil
 }
 
-func (b *Box) GreaterThanOrEqual(box core.Box) (bool, error) {
+func (b *Box) Compare(box core.Box) (int, error) {
 	name, err := box.Name()
 	if err != nil {
-		return false, err
+		return 0, err
 	}
-	version, err := box.Version()
+	ver, err := box.Version()
 	if err != nil {
-		return false, err
+		return 0, err
 	}
 	provider, err := box.Provider()
 	if err != nil {
-		return false, err
+		return 0, err
 	}
 
-	if b.box.Name == name && b.box.Provider == provider {
-		if b.box.Version >= version {
-			return true, nil
-		}
-		return false, nil
-	}
-	return false, errors.New("Box name and provider does not match, can't compare")
-}
-
-func (b *Box) LessThan(box core.Box) (bool, error) {
-	gte, err := b.GreaterThanOrEqual(box)
+	boxVersion, err := version.NewVersion(
+		b.box.Name + "-" + b.box.Version + "-" + b.box.Provider)
 	if err != nil {
-		return false, err
+		return 0, nil
 	}
-	return !gte, nil
+	otherVersion, err := version.NewVersion(
+		name + "-" + ver + "-" + provider)
+	if err != nil {
+		return 0, nil
+	}
+
+	return boxVersion.Compare(otherVersion), nil
 }
 
 func (b *Box) Save() error {
