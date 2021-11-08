@@ -17,7 +17,8 @@ module VagrantPlugins
         def self.resolve_host_path(env, path)
           path = File.expand_path(path)
           # Only expand firmlink paths on Catalina
-          return path if !CATALINA_CONSTRAINT.satisfied_by?(Cap::Version.version(env))
+          host_version = env.host.capability(:version)
+          return path if !CATALINA_CONSTRAINT.satisfied_by?(host_version)
 
           firmlink = firmlink_map.detect do |mount_path, data_path|
             path.start_with?(mount_path)
