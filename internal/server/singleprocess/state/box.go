@@ -51,7 +51,7 @@ func (s *State) BoxGet(ref *vagrant_plugin_sdk.Ref_Box) (*vagrant_server.Box, er
 	return result, err
 }
 
-func (s *State) BoxtPut(box *vagrant_server.Box) error {
+func (s *State) BoxPut(box *vagrant_server.Box) error {
 	memTxn := s.inmem.Txn(true)
 	defer memTxn.Abort()
 
