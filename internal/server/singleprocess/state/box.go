@@ -6,6 +6,8 @@ import (
 	"github.com/hashicorp/vagrant-plugin-sdk/proto/vagrant_plugin_sdk"
 	"github.com/hashicorp/vagrant/internal/server/proto/vagrant_server"
 	bolt "go.etcd.io/bbolt"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 )
 
 var boxBucket = []byte("box")
@@ -94,12 +96,19 @@ func (s *State) boxDelete(
 	memTxn *memdb.Txn,
 	ref *vagrant_plugin_sdk.Ref_Box,
 ) (err error) {
+	b, err := s.boxGet(dbTxn, memTxn, ref)
+	if err != nil {
+		if status.Code(err) == codes.NotFound {
+			return nil
+		}
+		return err
+	}
 	// TODO: should references to the box, say in the machine also be deleted?
 	// Delete the box
-	if err = dbTxn.Bucket(boxBucket).Delete(s.boxIdByRef(ref)); err != nil {
+	if err = dbTxn.Bucket(boxBucket).Delete(s.boxId(b)); err != nil {
 		return
 	}
-	if err = memTxn.Delete(boxIndexTableName, s.newBoxIndexRecordByRef(ref)); err != nil {
+	if err = memTxn.Delete(boxIndexTableName, s.newBoxIndexRecord(b)); err != nil {
 		return
 	}
 	return
