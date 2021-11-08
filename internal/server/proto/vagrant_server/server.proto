@@ -65,6 +65,15 @@ service Vagrant {
 
   rpc ListTargets(google.protobuf.Empty) returns (ListTargetsResponse);
 
+  // CRUD operations for box
+  rpc UpsertBox(UpsertBoxRequest) returns (UpsertBoxResponse);
+
+  rpc DeleteBox(DeleteBoxRequest) returns (google.protobuf.Empty);
+
+  rpc GetBox(GetBoxRequest) returns (GetBoxResponse);
+
+  rpc ListBoxes(google.protobuf.Empty) returns (ListBoxesResponse);
+
   // GetLogStream reads the log stream for a deployment. This will immediately
   // send a single LogEntry with the lines we have so far. If there are no
   // available lines this will NOT block and instead will return an error.
@@ -1295,6 +1304,31 @@ message FindTargetResponse {
 message ListTargetsResponse {
   repeated sdk.Ref.Target targets = 1;
 }
+
+message UpsertBoxRequest {
+  Box box = 1;
+}
+
+message UpsertBoxResponse {
+  Box box = 1;
+}
+
+message DeleteBoxRequest {
+  sdk.Ref.Box box = 1;
+}
+
+message GetBoxRequest {
+  sdk.Ref.Box box = 2;
+}
+
+message GetBoxResponse {
+  Box box = 1;
+}
+
+message ListBoxesResponse {
+  repeated sdk.Ref.Box boxes = 1;
+}
+
 
 /********************************************************************
 * Logs

@@ -49,6 +49,11 @@ module Hashicorp
         rpc :GetTarget, ::Hashicorp::Vagrant::GetTargetRequest, ::Hashicorp::Vagrant::GetTargetResponse
         rpc :FindTarget, ::Hashicorp::Vagrant::FindTargetRequest, ::Hashicorp::Vagrant::FindTargetResponse
         rpc :ListTargets, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::ListTargetsResponse
+        # CRUD operations for box
+        rpc :UpsertBox, ::Hashicorp::Vagrant::UpsertBoxRequest, ::Hashicorp::Vagrant::UpsertBoxResponse
+        rpc :DeleteBox, ::Hashicorp::Vagrant::DeleteBoxRequest, ::Google::Protobuf::Empty
+        rpc :GetBox, ::Hashicorp::Vagrant::GetBoxRequest, ::Hashicorp::Vagrant::GetBoxResponse
+        rpc :ListBoxes, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::ListBoxesResponse
         # GetLogStream reads the log stream for a deployment. This will immediately
         # send a single LogEntry with the lines we have so far. If there are no
         # available lines this will NOT block and instead will return an error.

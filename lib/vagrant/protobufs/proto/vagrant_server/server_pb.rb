@@ -596,6 +596,24 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
     add_message "hashicorp.vagrant.ListTargetsResponse" do
       repeated :targets, :message, 1, "hashicorp.vagrant.sdk.Ref.Target"
     end
+    add_message "hashicorp.vagrant.UpsertBoxRequest" do
+      optional :box, :message, 1, "hashicorp.vagrant.Box"
+    end
+    add_message "hashicorp.vagrant.UpsertBoxResponse" do
+      optional :box, :message, 1, "hashicorp.vagrant.Box"
+    end
+    add_message "hashicorp.vagrant.DeleteBoxRequest" do
+      optional :box, :message, 1, "hashicorp.vagrant.sdk.Ref.Box"
+    end
+    add_message "hashicorp.vagrant.GetBoxRequest" do
+      optional :box, :message, 2, "hashicorp.vagrant.sdk.Ref.Box"
+    end
+    add_message "hashicorp.vagrant.GetBoxResponse" do
+      optional :box, :message, 1, "hashicorp.vagrant.Box"
+    end
+    add_message "hashicorp.vagrant.ListBoxesResponse" do
+      repeated :boxes, :message, 1, "hashicorp.vagrant.sdk.Ref.Box"
+    end
     add_message "hashicorp.vagrant.GetLogStreamRequest" do
       optional :limit_backlog, :int32, 4
       oneof :scope do
@@ -991,6 +1009,12 @@ module Hashicorp
     FindTargetRequest = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.FindTargetRequest").msgclass
     FindTargetResponse = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.FindTargetResponse").msgclass
     ListTargetsResponse = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.ListTargetsResponse").msgclass
+    UpsertBoxRequest = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.UpsertBoxRequest").msgclass
+    UpsertBoxResponse = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.UpsertBoxResponse").msgclass
+    DeleteBoxRequest = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.DeleteBoxRequest").msgclass
+    GetBoxRequest = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.GetBoxRequest").msgclass
+    GetBoxResponse = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.GetBoxResponse").msgclass
+    ListBoxesResponse = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.ListBoxesResponse").msgclass
     GetLogStreamRequest = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.GetLogStreamRequest").msgclass
     LogBatch = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.LogBatch").msgclass
     LogBatch::Entry = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.LogBatch.Entry").msgclass

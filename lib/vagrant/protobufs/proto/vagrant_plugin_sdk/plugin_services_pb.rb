@@ -385,7 +385,7 @@ module Hashicorp
           rpc :GetID, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::Target::Machine::GetIDResponse
           rpc :SetState, ::Hashicorp::Vagrant::Sdk::Target::Machine::SetStateRequest, ::Google::Protobuf::Empty
           rpc :GetState, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::Args::Target::Machine::State
-          rpc :Box, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::Args::Target::Machine::Box
+          rpc :Box, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::Args::Box
           rpc :Guest, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::Args::Guest
           rpc :Reload, ::Google::Protobuf::Empty, ::Google::Protobuf::Empty
           rpc :ConnectionInfo, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::Target::Machine::ConnectionInfoResponse
@@ -465,6 +465,35 @@ module Hashicorp
           rpc :Includes, ::Hashicorp::Vagrant::Sdk::TargetIndex::TargetIdentifier, ::Hashicorp::Vagrant::Sdk::TargetIndex::IncludesResponse
           rpc :Set, ::Hashicorp::Vagrant::Sdk::Args::Target, ::Hashicorp::Vagrant::Sdk::Args::Target
           rpc :All, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::TargetIndex::AllResponse
+        end
+
+        Stub = Service.rpc_stub_class
+      end
+      module BoxService
+        # *******************************************************************
+        # Box services
+        # ******************************************************************
+        class Service
+
+          include ::GRPC::GenericService
+
+          self.marshal_class_method = :encode
+          self.unmarshal_class_method = :decode
+          self.service_name = 'hashicorp.vagrant.sdk.BoxService'
+
+          rpc :AutomaticUpdateCheckAllowed, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::Box::AutomaticUpdateCheckAllowedResponse
+          rpc :Destroy, ::Google::Protobuf::Empty, ::Google::Protobuf::Empty
+          rpc :HasUpdate, ::Hashicorp::Vagrant::Sdk::Box::HasUpdateRequest, ::Hashicorp::Vagrant::Sdk::Box::HasUpdateResponse
+          rpc :InUse, ::Hashicorp::Vagrant::Sdk::Args::TargetIndex, ::Hashicorp::Vagrant::Sdk::Box::InUseResponse
+          rpc :Repackage, ::Hashicorp::Vagrant::Sdk::Args::Path, ::Google::Protobuf::Empty
+          rpc :Directory, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::Args::Path
+          rpc :Metadata, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::Args::MetadataSet
+          rpc :MetadataURL, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::Box::MetadataUrlResponse
+          rpc :Name, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::Box::NameResponse
+          rpc :Provider, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::Box::ProviderResponse
+          rpc :Version, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::Box::VersionResponse
+          rpc :GreaterThanOrEqual, ::Hashicorp::Vagrant::Sdk::Args::Box, ::Hashicorp::Vagrant::Sdk::Box::EqualityResponse
+          rpc :LessThan, ::Hashicorp::Vagrant::Sdk::Args::Box, ::Hashicorp::Vagrant::Sdk::Box::EqualityResponse
         end
 
         Stub = Service.rpc_stub_class

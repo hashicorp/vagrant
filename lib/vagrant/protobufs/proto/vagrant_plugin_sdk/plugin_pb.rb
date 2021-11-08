@@ -42,6 +42,9 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
     add_message "hashicorp.vagrant.sdk.Args.MetadataSet" do
       map :metadata, :string, :string, 1
     end
+    add_message "hashicorp.vagrant.sdk.Args.Path" do
+      optional :path, :string, 1
+    end
     add_message "hashicorp.vagrant.sdk.Args.TerminalUI" do
       optional :stream_id, :uint32, 1
       optional :network, :string, 2
@@ -95,15 +98,15 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
       optional :network, :string, 2
       optional :target, :string, 3
     end
-    add_message "hashicorp.vagrant.sdk.Args.Target.Machine.Box" do
-      optional :stream_id, :uint32, 1
-      optional :network, :string, 2
-      optional :target, :string, 3
-    end
     add_message "hashicorp.vagrant.sdk.Args.Target.Machine.State" do
       optional :id, :string, 1
       optional :short_description, :string, 2
       optional :long_description, :string, 3
+    end
+    add_message "hashicorp.vagrant.sdk.Args.Box" do
+      optional :stream_id, :uint32, 1
+      optional :network, :string, 2
+      optional :target, :string, 3
     end
     add_message "hashicorp.vagrant.sdk.Args.StateBag" do
       optional :stream_id, :uint32, 1
@@ -477,6 +480,9 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
     end
     add_message "hashicorp.vagrant.sdk.Ref.Box" do
       optional :resource_id, :string, 1
+      optional :name, :string, 2
+      optional :version, :string, 3
+      optional :provider, :string, 4
     end
     add_message "hashicorp.vagrant.sdk.Ref.Basis" do
       optional :resource_id, :string, 1
@@ -723,6 +729,35 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
     add_message "hashicorp.vagrant.sdk.TargetIndex.IncludesResponse" do
       optional :exists, :bool, 1
     end
+    add_message "hashicorp.vagrant.sdk.Box" do
+    end
+    add_message "hashicorp.vagrant.sdk.Box.AutomaticUpdateCheckAllowedResponse" do
+      optional :allowed, :bool, 1
+    end
+    add_message "hashicorp.vagrant.sdk.Box.HasUpdateRequest" do
+      optional :version, :string, 1
+    end
+    add_message "hashicorp.vagrant.sdk.Box.HasUpdateResponse" do
+      optional :hasUpdate, :bool, 1
+    end
+    add_message "hashicorp.vagrant.sdk.Box.InUseResponse" do
+      optional :inUse, :bool, 1
+    end
+    add_message "hashicorp.vagrant.sdk.Box.MetadataUrlResponse" do
+      optional :metadataUrl, :string, 1
+    end
+    add_message "hashicorp.vagrant.sdk.Box.NameResponse" do
+      optional :name, :string, 1
+    end
+    add_message "hashicorp.vagrant.sdk.Box.ProviderResponse" do
+      optional :provider, :string, 1
+    end
+    add_message "hashicorp.vagrant.sdk.Box.VersionResponse" do
+      optional :version, :string, 1
+    end
+    add_message "hashicorp.vagrant.sdk.Box.EqualityResponse" do
+      optional :result, :bool, 1
+    end
   end
 end
 
@@ -736,6 +771,7 @@ module Hashicorp
       Args::DataDir::Target = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Args.DataDir.Target").msgclass
       Args::DataDir::Component = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Args.DataDir.Component").msgclass
       Args::MetadataSet = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Args.MetadataSet").msgclass
+      Args::Path = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Args.Path").msgclass
       Args::TerminalUI = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Args.TerminalUI").msgclass
       Args::Logger = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Args.Logger").msgclass
       Args::JobInfo = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Args.JobInfo").msgclass
@@ -747,8 +783,8 @@ module Hashicorp
       Args::Target::State = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Args.Target.State").msgclass
       Args::Target::State::State = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Args.Target.State.State").enummodule
       Args::Target::Machine = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Args.Target.Machine").msgclass
-      Args::Target::Machine::Box = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Args.Target.Machine.Box").msgclass
       Args::Target::Machine::State = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Args.Target.Machine.State").msgclass
+      Args::Box = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Args.Box").msgclass
       Args::StateBag = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Args.StateBag").msgclass
       Args::Host = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Args.Host").msgclass
       Args::Guest = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Args.Guest").msgclass
@@ -897,6 +933,16 @@ module Hashicorp
       TargetIndex::TargetIdentifier = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.TargetIndex.TargetIdentifier").msgclass
       TargetIndex::AllResponse = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.TargetIndex.AllResponse").msgclass
       TargetIndex::IncludesResponse = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.TargetIndex.IncludesResponse").msgclass
+      Box = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Box").msgclass
+      Box::AutomaticUpdateCheckAllowedResponse = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Box.AutomaticUpdateCheckAllowedResponse").msgclass
+      Box::HasUpdateRequest = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Box.HasUpdateRequest").msgclass
+      Box::HasUpdateResponse = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Box.HasUpdateResponse").msgclass
+      Box::InUseResponse = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Box.InUseResponse").msgclass
+      Box::MetadataUrlResponse = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Box.MetadataUrlResponse").msgclass
+      Box::NameResponse = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Box.NameResponse").msgclass
+      Box::ProviderResponse = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Box.ProviderResponse").msgclass
+      Box::VersionResponse = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Box.VersionResponse").msgclass
+      Box::EqualityResponse = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Box.EqualityResponse").msgclass
     end
   end
 end
