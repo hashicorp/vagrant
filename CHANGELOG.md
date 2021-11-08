@@ -6,6 +6,8 @@ IMPROVEMENTS:
 
 BUG FIXES:
 
+- host/darwin: Fix `NameError` for version capability [GH-12581]
+
 ## 2.2.19 (November 5, 2021)
 
 IMPROVEMENTS:
