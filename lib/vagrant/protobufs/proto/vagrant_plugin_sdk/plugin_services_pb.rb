@@ -492,8 +492,7 @@ module Hashicorp
           rpc :Name, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::Box::NameResponse
           rpc :Provider, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::Box::ProviderResponse
           rpc :Version, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::Box::VersionResponse
-          rpc :GreaterThanOrEqual, ::Hashicorp::Vagrant::Sdk::Args::Box, ::Hashicorp::Vagrant::Sdk::Box::EqualityResponse
-          rpc :LessThan, ::Hashicorp::Vagrant::Sdk::Args::Box, ::Hashicorp::Vagrant::Sdk::Box::EqualityResponse
+          rpc :Compare, ::Hashicorp::Vagrant::Sdk::Args::Box, ::Hashicorp::Vagrant::Sdk::Box::EqualityResponse
         end
 
         Stub = Service.rpc_stub_class

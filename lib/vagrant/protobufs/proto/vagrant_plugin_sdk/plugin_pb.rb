@@ -756,7 +756,7 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
       optional :version, :string, 1
     end
     add_message "hashicorp.vagrant.sdk.Box.EqualityResponse" do
-      optional :result, :bool, 1
+      optional :result, :int32, 1
     end
   end
 end

@@ -103,7 +103,6 @@ func (s *State) boxDelete(
 		}
 		return err
 	}
-	// TODO: should references to the box, say in the machine also be deleted?
 	// Delete the box
 	if err = dbTxn.Bucket(boxBucket).Delete(s.boxId(b)); err != nil {
 		return
