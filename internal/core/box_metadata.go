@@ -84,7 +84,7 @@ func LoadBoxMetadata(data []byte) (*BoxMetadata, error) {
 
 func (b *BoxMetadata) Version(ver string, providerOpts *BoxVersionProvider) (v *BoxVersion, err error) {
 	matchesProvider := false
-	inputVersion, err := version.NewVersion(ver)
+	inputVersion, err := version.NewConstraint(ver)
 	if err != nil {
 		return nil, err
 	}
@@ -93,7 +93,7 @@ func (b *BoxMetadata) Version(ver string, providerOpts *BoxVersionProvider) (v *
 		if err != nil {
 			return nil, err
 		}
-		if boxVersion.Equal(inputVersion) {
+		if inputVersion.Check(boxVersion) {
 			// Check for the provider in the version
 			if providerOpts == nil {
 				matchesProvider = true

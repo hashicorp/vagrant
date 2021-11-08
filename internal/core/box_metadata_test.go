@@ -100,6 +100,8 @@ func TestListVersionsWithQuery(t *testing.T) {
 func TestGetVersion(t *testing.T) {
 	version := loadVersion(t, []byte(rawMetadata), "1.2.3")
 	require.NotNil(t, version)
+	constrainedVersion := loadVersion(t, []byte(rawMetadata), ">1.0.0")
+	require.NotNil(t, constrainedVersion)
 	neVersion := loadVersion(t, []byte(rawMetadata), "0.0.0")
 	require.Nil(t, neVersion)
 }
