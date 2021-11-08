@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"reflect"
 
+	"github.com/hashicorp/go-version"
 	"github.com/mitchellh/mapstructure"
 )
 
@@ -81,23 +82,30 @@ func LoadBoxMetadata(data []byte) (*BoxMetadata, error) {
 	return &result, mapstructure.Decode(metadata, &result)
 }
 
-func (b *BoxMetadata) Version(version string, providerOpts *BoxVersionProvider) (v *BoxVersion, err error) {
+func (b *BoxMetadata) Version(ver string, providerOpts *BoxVersionProvider) (v *BoxVersion, err error) {
 	matchesProvider := false
-	for _, ver := range b.Versions {
-		if ver.Version == version {
+	inputVersion, err := version.NewVersion(ver)
+	if err != nil {
+		return nil, err
+	}
+	for _, boxVer := range b.Versions {
+		boxVersion, err := version.NewVersion(boxVer.Version)
+		if err != nil {
+			return nil, err
+		}
+		if boxVersion.Equal(inputVersion) {
 			// Check for the provider in the version
 			if providerOpts == nil {
 				matchesProvider = true
 			} else {
-				for _, p := range ver.Providers {
+				for _, p := range boxVer.Providers {
 					if p.Matches(providerOpts) {
 						matchesProvider = true
 					}
 				}
 			}
-
 			if matchesProvider {
-				return ver, nil
+				return boxVer, nil
 			}
 		}
 	}
