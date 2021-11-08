@@ -1,6 +1,7 @@
 package core
 
 import (
+	"errors"
 	"os"
 	"time"
 
@@ -143,18 +144,20 @@ func (b *Box) Compare(box core.Box) (int, error) {
 		return 0, err
 	}
 
-	boxVersion, err := version.NewVersion(
-		b.box.Name + "-" + b.box.Version + "-" + b.box.Provider)
-	if err != nil {
-		return 0, nil
-	}
-	otherVersion, err := version.NewVersion(
-		name + "-" + ver + "-" + provider)
-	if err != nil {
-		return 0, nil
-	}
+	if b.box.Name == name && b.box.Provider == provider {
+		boxVersion, err := version.NewVersion(b.box.Version)
+		if err != nil {
+			return 0, nil
+		}
+		otherVersion, err := version.NewVersion(ver)
+		if err != nil {
+			return 0, nil
+		}
 
-	return boxVersion.Compare(otherVersion), nil
+		res := otherVersion.Compare(boxVersion)
+		return res, nil
+	}
+	return 0, errors.New("Box name and provider does not match, can't compare")
 }
 
 func (b *Box) Save() error {
