@@ -5,13 +5,16 @@ require_relative "../../../../../../plugins/hosts/darwin/cap/version"
 describe VagrantPlugins::HostDarwin::Cap::Path do
   describe ".resolve_host_path" do
     let(:env) { double("environment") }
+    let(:host) { double("host") }
     let(:path) { "/test/vagrant/path" }
     let(:firmlink_map) { {} }
     let(:macos_version) { Gem::Version.new("10.15.1") }
 
     before do
-      allow(VagrantPlugins::HostDarwin::Cap::Version).to receive(:version).
-        with(anything).
+      allow(env).to receive(:host).
+        and_return(host)
+      allow(host).to receive(:capability).
+        with(:version).
         and_return(macos_version)
       allow(described_class).to receive(:firmlink_map).
         and_return(firmlink_map)
