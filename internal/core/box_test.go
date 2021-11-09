@@ -1,9 +1,15 @@
 package core
 
 import (
+	"context"
+	"io/ioutil"
+	"os"
+	"path/filepath"
 	"testing"
 	"time"
 
+	"github.com/hashicorp/go-hclog"
+	"github.com/hashicorp/vagrant/internal/plugin"
 	"github.com/hashicorp/vagrant/internal/server/proto/vagrant_server"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/protobuf/types/known/timestamppb"
@@ -37,6 +43,31 @@ func hashicorpBionicTestBox() *Box {
 			LastUpdate:  timestamppb.Now(),
 		},
 	}
+}
+
+func TestNewBox(t *testing.T) {
+	pluginManager := plugin.NewManager(
+		context.Background(),
+		hclog.New(&hclog.LoggerOptions{}),
+	)
+	basis := TestBasis(t, WithPluginManager(pluginManager))
+	td, err := ioutil.TempDir("", "box-metadata")
+	require.NoError(t, err)
+	data := []byte("{}")
+	err = os.WriteFile(filepath.Join(td, "metadata.json"), data, 0644)
+	require.NoError(t, err)
+	t.Cleanup(func() { os.RemoveAll(td) })
+
+	box, err := NewBox(
+		BoxWithBasis(basis),
+		BoxWithName("test/box"),
+		BoxWithVersion("1.2.3"),
+		BoxWithVersion("1.2.3"),
+		BoxWithDirectory(td),
+	)
+	require.NoError(t, err)
+	require.NotNil(t, box)
+	require.Equal(t, "test/box", box.box.Name)
 }
 
 func TestBoxAutomaticUpdateCheckAllowed(t *testing.T) {

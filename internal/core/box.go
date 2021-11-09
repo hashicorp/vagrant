@@ -5,10 +5,12 @@ import (
 	"io/ioutil"
 	"net/http"
 	"os"
+	"path/filepath"
 	"sync"
 	"time"
 
 	"github.com/hashicorp/go-hclog"
+	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/go-version"
 	"github.com/hashicorp/vagrant-plugin-sdk/core"
 	"github.com/hashicorp/vagrant/internal/server/proto/vagrant_server"
@@ -24,6 +26,103 @@ type Box struct {
 	box    *vagrant_server.Box
 	logger hclog.Logger
 	m      sync.Mutex
+}
+
+func NewBox(opts ...BoxOption) (b *Box, err error) {
+	b = &Box{
+		logger: hclog.L(),
+		box:    &vagrant_server.Box{},
+	}
+
+	for _, opt := range opts {
+		if oerr := opt(b); oerr != nil {
+			err = multierror.Append(err, oerr)
+		}
+	}
+
+	if b.basis == nil {
+		return nil, errors.New("Basis must be specified for the box")
+	}
+
+	if b.box.Directory == "" {
+		return nil, errors.New("Box directory must be specified for the box")
+
+	}
+
+	metadataFile := filepath.Join(b.box.Directory, "metadata.json")
+	if _, err := os.Stat(metadataFile); err != nil {
+		return nil, err
+	}
+
+	data, err := os.ReadFile(metadataFile)
+	if err != nil {
+		return nil, err
+	}
+	metadata, err := LoadBoxMetadata(data)
+	if err != nil {
+		return nil, err
+	}
+	mapstructure.Decode(metadata, &b.box.Metadata)
+	b.Save()
+	return
+}
+
+type BoxOption func(*Box) error
+
+func BoxWithLogger(log hclog.Logger) BoxOption {
+	return func(b *Box) (err error) {
+		b.logger = log
+		return
+	}
+}
+
+func BoxWithBasis(basis *Basis) BoxOption {
+	return func(b *Box) (err error) {
+		b.basis = basis
+		return
+	}
+}
+
+func BoxWithName(name string) BoxOption {
+	return func(b *Box) (err error) {
+		b.box.Name = name
+		return
+	}
+}
+
+func BoxWithVersion(ver string) BoxOption {
+	return func(b *Box) (err error) {
+		_, err = version.NewVersion(ver)
+		if err != nil {
+			return err
+		}
+		b.box.Version = ver
+		return
+	}
+}
+
+func BoxWithProvider(provider string) BoxOption {
+	return func(b *Box) (err error) {
+		b.box.Provider = provider
+		return
+	}
+}
+
+func BoxWithMetadataUrl(url string) BoxOption {
+	return func(b *Box) (err error) {
+		b.box.MetadataUrl = url
+		return
+	}
+}
+
+func BoxWithDirectory(dir string) BoxOption {
+	return func(b *Box) (err error) {
+		if _, err := os.Stat(dir); err != nil {
+			return err
+		}
+		b.box.Directory = dir
+		return
+	}
 }
 
 func (b *Box) loadMetadata() (metadata *BoxMetadata, err error) {
