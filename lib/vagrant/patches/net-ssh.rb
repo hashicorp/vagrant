@@ -1,4 +1,4 @@
-require "net/ssh"
+require "net/ssh/version"
 
 # Only patch if we have version 6.1.0 loaded as
 # these patches pull 6.1.0 up to the as of now
@@ -115,6 +115,18 @@ if Net::SSH::Version::STRING == "6.1.0"
     end
   end
 
+  require "net/ssh/transport/algorithms"
+  # net/ssh/transport/algorithms
+  [:kex, :host_key].each do |key|
+    idx = Net::SSH::Transport::Algorithms::ALGORITHMS[key].index(
+      Net::SSH::Transport::Algorithms::DEFAULT_ALGORITHMS[key].last
+    )
+    Net::SSH::Transport::Algorithms::DEFAULT_ALGORITHMS[key].push("rsa-sha2-512")
+    Net::SSH::Transport::Algorithms::DEFAULT_ALGORITHMS[key].push("rsa-sha2-256")
+    Net::SSH::Transport::Algorithms::ALGORITHMS[key].insert(idx, "rsa-sha2-256")
+    Net::SSH::Transport::Algorithms::ALGORITHMS[key].insert(idx, "rsa-sha2-512")
+  end
+
   require "net/ssh/authentication/key_manager"
   Net::SSH::Authentication::KeyManager.prepend(DeprecatedRsaSha1::KeyManager)
   require "net/ssh/authentication/session"
@@ -154,13 +166,6 @@ if Net::SSH::Version::STRING == "6.1.0"
       @verify_key.verify(sig,data)
     end
   end
-
-  require "net/ssh/transport/algorithms"
-  # net/ssh/transport/algorithms
-  Net::SSH::Transport::Algorithms::DEFAULT_ALGORITHMS[:host_key].insert(
-    Net::SSH::Transport::Algorithms::DEFAULT_ALGORITHMS[:host_key].size - 1, "rsa-sha2-256")
-  Net::SSH::Transport::Algorithms::DEFAULT_ALGORITHMS[:host_key].insert(
-    Net::SSH::Transport::Algorithms::DEFAULT_ALGORITHMS[:host_key].size - 1, "rsa-sha2-512")
 
   require "net/ssh/transport/cipher_factory"
   # net/ssh/transport/cipher_factory
@@ -277,3 +282,5 @@ if Net::SSH::Version::STRING == "6.1.0"
     end
   end
 end
+
+require "net/ssh"
