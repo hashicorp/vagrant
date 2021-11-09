@@ -1,7 +1,9 @@
 package core
 
 import (
+	"archive/tar"
 	"errors"
+	"io"
 	"io/ioutil"
 	"net/http"
 	"os"
@@ -257,8 +259,41 @@ func (b *Box) Provider() (name string, err error) {
 }
 
 // This repackages this box and outputs it to the given path.
-func (b *Box) Repackage(path string) (err error) {
-	// TODO
+func (b *Box) Repackage(outputPath string) (err error) {
+	b.logger.Trace("repackaging box", b.box.Name,
+		"to", outputPath)
+
+	tarFile, err := os.Create(outputPath)
+	if err != nil {
+		return err
+	}
+	defer tarFile.Close()
+	tw := tar.NewWriter(tarFile)
+	defer tw.Close()
+
+	err = filepath.Walk(b.box.Directory, func(path string, info os.FileInfo, err error) error {
+		header, err := tar.FileInfoHeader(info, path)
+		if err != nil {
+			return err
+		}
+		if err := tw.WriteHeader(header); err != nil {
+			return err
+		}
+		if !info.IsDir() {
+			data, err := os.Open(path)
+			if err != nil {
+				return err
+			}
+			if _, err := io.Copy(tw, data); err != nil {
+				return err
+			}
+		}
+		return nil
+	})
+	if err != nil {
+		return err
+	}
+
 	return
 }
 
