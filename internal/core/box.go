@@ -127,6 +127,13 @@ func BoxWithDirectory(dir string) BoxOption {
 	}
 }
 
+func BoxWithBox(box *vagrant_server.Box) BoxOption {
+	return func(b *Box) (err error) {
+		b.box = box
+		return
+	}
+}
+
 func (b *Box) loadMetadata() (metadata *BoxMetadata, err error) {
 	resp, err := http.Get(b.box.MetadataUrl)
 	if err != nil {

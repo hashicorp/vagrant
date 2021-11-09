@@ -15,37 +15,44 @@ import (
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
+func hashicorpBionicBoxData() *vagrant_server.Box {
+	return &vagrant_server.Box{
+		Id:          "123",
+		Provider:    "virtualbox",
+		Version:     "0.0.282",
+		Directory:   "/tmp/boxes",
+		Metadata:    map[string]string{},
+		MetadataUrl: "https://app.vagrantup.com/hashicorp/boxes/bionic64.json",
+		Name:        "hashicorp/bionic64",
+		LastUpdate:  timestamppb.Now(),
+	}
+}
+func testboxBoxData() *vagrant_server.Box {
+	return &vagrant_server.Box{
+		Id:          "123",
+		Provider:    "virtualbox",
+		Version:     "1.2.3",
+		Directory:   "/tmp/boxes",
+		Metadata:    map[string]string{},
+		MetadataUrl: "http://idontexist",
+		Name:        "test/box",
+		LastUpdate:  timestamppb.Now(),
+	}
+}
+
 func newTestBox() *Box {
 	return &Box{
-		box: &vagrant_server.Box{
-			Id:          "123",
-			Provider:    "virtualbox",
-			Version:     "1.2.3",
-			Directory:   "/tmp/boxes",
-			Metadata:    map[string]string{},
-			MetadataUrl: "http://idontexist",
-			Name:        "test/box",
-			LastUpdate:  timestamppb.Now(),
-		},
+		box: testboxBoxData(),
 	}
 }
 
 func hashicorpBionicTestBox() *Box {
 	return &Box{
-		box: &vagrant_server.Box{
-			Id:          "123",
-			Provider:    "virtualbox",
-			Version:     "0.0.282",
-			Directory:   "/tmp/boxes",
-			Metadata:    map[string]string{},
-			MetadataUrl: "https://app.vagrantup.com/hashicorp/boxes/bionic64.json",
-			Name:        "hashicorp/bionic64",
-			LastUpdate:  timestamppb.Now(),
-		},
+		box: hashicorpBionicBoxData(),
 	}
 }
 
-func TestNewBox(t *testing.T) {
+func newFullBox(t *testing.T, boxData *vagrant_server.Box) *Box {
 	pluginManager := plugin.NewManager(
 		context.Background(),
 		hclog.New(&hclog.LoggerOptions{}),
@@ -57,21 +64,24 @@ func TestNewBox(t *testing.T) {
 	err = os.WriteFile(filepath.Join(td, "metadata.json"), data, 0644)
 	require.NoError(t, err)
 	t.Cleanup(func() { os.RemoveAll(td) })
-
+	// Change the box directory to the temp dir
+	boxData.Directory = td
 	box, err := NewBox(
 		BoxWithBasis(basis),
-		BoxWithName("test/box"),
-		BoxWithVersion("1.2.3"),
-		BoxWithVersion("1.2.3"),
-		BoxWithDirectory(td),
+		BoxWithBox(boxData),
 	)
 	require.NoError(t, err)
+	return box
+}
+
+func TestNewBox(t *testing.T) {
+	box := newFullBox(t, testboxBoxData())
 	require.NotNil(t, box)
 	require.Equal(t, "test/box", box.box.Name)
 }
 
 func TestBoxAutomaticUpdateCheckAllowed(t *testing.T) {
-	testBox := newTestBox()
+	testBox := newFullBox(t, testboxBoxData())
 	// just did automated check
 	testBox.box.LastUpdate = timestamppb.Now()
 	allowed1, err := testBox.AutomaticUpdateCheckAllowed()
