@@ -16,6 +16,9 @@ module Vagrant
   class Box
     include Comparable
 
+    autoload :Remote, "vagrant/box/remote"
+
+
     # Number of seconds to wait between checks for box updates
     BOX_UPDATE_CHECK_INTERVAL = 3600
 
