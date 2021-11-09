@@ -37,8 +37,11 @@ func (m *Machine) SetID(value string) (err error) {
 }
 
 func (m *Machine) Box() (b core.Box, err error) {
-	var result core.Box
-	return result, mapstructure.Decode(m.machine.Box, &result)
+	return &Box{
+		basis:  m.project.basis,
+		box:    m.machine.Box,
+		logger: m.logger,
+	}, nil
 }
 
 // Guest implements core.Machine
