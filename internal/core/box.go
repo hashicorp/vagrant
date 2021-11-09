@@ -5,6 +5,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"os"
+	"sync"
 	"time"
 
 	"github.com/hashicorp/go-hclog"
@@ -19,8 +20,10 @@ import (
 const BoxUpdateCheckInterval = 3600
 
 type Box struct {
+	basis  *Basis
 	box    *vagrant_server.Box
 	logger hclog.Logger
+	m      sync.Mutex
 }
 
 func (b *Box) loadMetadata() (metadata *BoxMetadata, err error) {
@@ -195,8 +198,20 @@ func (b *Box) Compare(box core.Box) (int, error) {
 }
 
 func (b *Box) Save() error {
-	// TODO:
-	return nil
+	b.m.Lock()
+	defer b.m.Unlock()
+	b.logger.Trace("saving box to db",
+		"box", b.box.Name)
+
+	_, err := b.basis.client.UpsertBox(
+		b.basis.ctx,
+		&vagrant_server.UpsertBoxRequest{Box: b.box},
+	)
+	if err != nil {
+		b.logger.Trace("filed to save box",
+			"box", b.box.Name)
+	}
+	return err
 }
 
 var _ core.Box = (*Box)(nil)
