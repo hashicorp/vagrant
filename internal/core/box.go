@@ -2,6 +2,8 @@ package core
 
 import (
 	"errors"
+	"io/ioutil"
+	"net/http"
 	"os"
 	"time"
 
@@ -9,6 +11,7 @@ import (
 	"github.com/hashicorp/go-version"
 	"github.com/hashicorp/vagrant-plugin-sdk/core"
 	"github.com/hashicorp/vagrant/internal/server/proto/vagrant_server"
+	"github.com/mitchellh/mapstructure"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
@@ -20,9 +23,18 @@ type Box struct {
 	logger hclog.Logger
 }
 
-func (b *Box) loadMetadata() (metadata core.BoxMetadata) {
-	// TODO: need box metadata implementation
-	return
+func (b *Box) loadMetadata() (metadata *BoxMetadata, err error) {
+	resp, err := http.Get(b.box.MetadataUrl)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	data, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return nil, err
+	}
+	return LoadBoxMetadata(data)
 }
 
 func (b *Box) matches(box core.Box) (bool, error) {
@@ -72,8 +84,27 @@ func (b *Box) Directory() (path string, err error) {
 // and provider. If the box doesn't have an update that satisfies the
 // constraints, it will return nil.
 func (b *Box) HasUpdate(version string) (updateAvailable bool, err error) {
-	// TODO: need box metadata
-	return
+	metadata, err := b.loadMetadata()
+	if err != nil {
+		return false, err
+	}
+	versionConstraint := ""
+	if version == "" {
+		versionConstraint = "> " + b.box.Version
+	} else {
+		versionConstraint = version + ", " + "> " + b.box.Version
+	}
+	result, err := metadata.Version(
+		versionConstraint,
+		&BoxVersionProvider{Name: b.box.Provider},
+	)
+	if err != nil {
+		return false, err
+	}
+	if result == nil {
+		return false, nil
+	}
+	return true, nil
 }
 
 // Checks if this box is in use according to the given machine
@@ -104,8 +135,11 @@ func (b *Box) InUse(index core.TargetIndex) (inUse bool, err error) {
 }
 
 func (b *Box) Metadata() (metadata core.BoxMetadataMap, err error) {
-	// TODO
-	return
+	meta, err := b.loadMetadata()
+	if err != nil {
+		return nil, err
+	}
+	return metadata, mapstructure.Decode(meta, &metadata)
 }
 
 func (b *Box) MetadataURL() (url string, err error) {

@@ -24,6 +24,21 @@ func newTestBox() *Box {
 	}
 }
 
+func hashicorpBionicTestBox() *Box {
+	return &Box{
+		box: &vagrant_server.Box{
+			Id:          "123",
+			Provider:    "virtualbox",
+			Version:     "0.0.282",
+			Directory:   "/tmp/boxes",
+			Metadata:    map[string]string{},
+			MetadataUrl: "https://app.vagrantup.com/hashicorp/boxes/bionic64.json",
+			Name:        "hashicorp/bionic64",
+			LastUpdate:  timestamppb.Now(),
+		},
+	}
+}
+
 func TestBoxAutomaticUpdateCheckAllowed(t *testing.T) {
 	testBox := newTestBox()
 	// just did automated check
@@ -74,4 +89,34 @@ func TestCompare(t *testing.T) {
 	otherBox.box.Provider = "notthesame"
 	_, err = testBox.Compare(otherBox)
 	require.Error(t, err)
+}
+
+func TestHasUpdate(t *testing.T) {
+	box := hashicorpBionicTestBox()
+
+	// Older box
+	box.box.Version = "0.0.282"
+	result, err := box.HasUpdate("")
+	if err != nil {
+		t.Errorf("Failed to check for update")
+	}
+	require.True(t, result)
+
+	// Newer box
+	box.box.Version = "99.9.282"
+	result2, err := box.HasUpdate("")
+	if err != nil {
+		t.Errorf("Failed to check for update")
+	}
+	require.False(t, result2)
+}
+
+func TestMetadata(t *testing.T) {
+	box := hashicorpBionicTestBox()
+	result, err := box.Metadata()
+	if err != nil {
+		t.Errorf("Failed to get metadata")
+	}
+	require.NotNil(t, result)
+	require.Equal(t, "hashicorp/bionic64", result["Name"])
 }
