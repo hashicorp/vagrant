@@ -19,15 +19,13 @@ module VagrantPlugins
           def box
             b = client.box(Empty.new)
             box_client = Box.load(b, broker: broker)
-            logger.debug("got box client #{box_client}")
             box = Vagrant::Box.new(
               box_client.name,
               box_client.provider.to_sym,
               box_client.version,
               Pathname.new(box_client.directory),
+              client: box_client
             )
-            logger.debug("generate box from box client #{box}")
-            box.client = box_client
             box
           end
 

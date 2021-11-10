@@ -19,7 +19,7 @@ module Vagrant
       #   disk.
       # @param [String] metadata_url Metadata URL for box
       # @param [Hook] hook A hook to apply to the box downloader, for example, for authentication
-      def initialize(name, provider, version, directory, metadata_url: nil, hook: nil)
+      def initialize(name, provider, version, directory, metadata_url: nil, hook: nil, client: nil)
         @logger = Log4r::Logger.new("vagrant::box")
 
         @name      = name
@@ -28,6 +28,12 @@ module Vagrant
         @directory = directory
         @metadata_url = metadata_url
         @hook = hook
+
+        if client.nil?
+          raise ArgumentError,
+            "Remote client is required for `#{self.class.name}'"
+        end
+        @client = client
       end
 
       def destroy!
@@ -56,10 +62,6 @@ module Vagrant
 
       def to_proto
         client.proto
-      end
-
-      def client=(c)
-        @client = c
       end
     end
   end
