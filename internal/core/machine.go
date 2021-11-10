@@ -16,6 +16,7 @@ import (
 
 type Machine struct {
 	*Target
+	box     *Box
 	machine *vagrant_server.Target_Machine
 	logger  hclog.Logger
 }
@@ -37,11 +38,20 @@ func (m *Machine) SetID(value string) (err error) {
 }
 
 func (m *Machine) Box() (b core.Box, err error) {
-	return &Box{
-		basis:  m.project.basis,
-		box:    m.machine.Box,
-		logger: m.logger,
-	}, nil
+	if m.box == nil {
+		box, err := NewBox(
+			BoxWithBasis(m.project.basis),
+			BoxWithBox(m.machine.Box),
+			// BoxWithName(m.target.Configuration.ConfigVm.Box),
+			BoxWithLogger(m.logger),
+			// BoxWithDirectory("/Users/sophia/project/vagrant-ruby/cmd/vagrant/boxes/hashicorp-VAGRANTSLASH-bionic64/1.0.282/virtualbox/"),
+		)
+		if err != nil {
+			return nil, err
+		}
+		m.box = box
+	}
+	return m.box, nil
 }
 
 // Guest implements core.Machine
