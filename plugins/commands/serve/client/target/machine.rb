@@ -17,13 +17,18 @@ module VagrantPlugins
 
           # @return [Vagrant::Box] box backing machine
           def box
-            resp = client.box(Empty.new)
-            Vagrant::Box.new(
-              resp.box.name,
-              resp.box.provider.to_sym,
-              resp.box.version,
-              Pathname.new(resp.box.directory),
+            b = client.box(Empty.new)
+            box_client = Box.load(b, broker: broker)
+            logger.debug("got box client #{box_client}")
+            box = Vagrant::Box.new(
+              box_client.name,
+              box_client.provider.to_sym,
+              box_client.version,
+              Pathname.new(box_client.directory),
             )
+            logger.debug("generate box from box client #{box}")
+            box.client = box_client
+            box
           end
 
           # @return

@@ -39,8 +39,7 @@ module Vagrant
         @provider_options = provider_options
         @provider_config = provider_config
 
-        #TODO: get box from @client.get_box()
-        @box             = box
+        @box             = @client.box
         @config          = config
         @data_dir        = @client.data_dir
         @vagrantfile     = vagrantfile

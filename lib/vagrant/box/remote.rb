@@ -57,6 +57,10 @@ module Vagrant
       def to_proto
         client.proto
       end
+
+      def client=(c)
+        @client = c
+      end
     end
   end
 end
