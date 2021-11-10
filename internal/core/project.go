@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"os"
+	"path/filepath"
 	"strings"
 	"sync"
 
@@ -11,6 +12,7 @@ import (
 	"github.com/hashicorp/go-argmapper"
 	"github.com/hashicorp/go-hclog"
 	"github.com/hashicorp/go-multierror"
+	"google.golang.org/protobuf/types/known/anypb"
 
 	"github.com/hashicorp/vagrant-plugin-sdk/component"
 	"github.com/hashicorp/vagrant-plugin-sdk/core"
@@ -427,19 +429,34 @@ func (p *Project) InitTargets() (err error) {
 
 	updated := false
 	for _, t := range p.project.Configuration.MachineConfigs {
-		for _, et := range existingTargets {
-			if t.Name == et {
-				p.logger.Trace("target already exists within project",
-					"project", p.Name(),
-					"target", t.Name,
-				)
-
-				t = nil
-				break
-			}
-		}
 		if t == nil {
 			continue
+		}
+		// TODO: get provider info here too/generate full machine config?
+		// We know that these are machines so, save the Machine record
+		machineRecord := &vagrant_server.Target_Machine{}
+		// TODO: create a new box for now. This should be querying the box collection
+		//       for a box that matches the provided provider and name
+		doxDir := filepath.Join(p.basis.dir.DataDir().String(), "boxes/hashicorp-VAGRANTSLASH-bionic64/1.0.282/virtualbox/")
+		b, erro := NewBox(
+			BoxWithBasis(p.basis),
+			BoxWithName(t.ConfigVm.Box),
+			// TODO: need to get this box info from the vagrantfile/provider
+			BoxWithProvider("virtualbox"),
+			BoxWithVersion("1.0.282"),
+			BoxWithDirectory(doxDir),
+		)
+		if erro != nil {
+			return erro
+		}
+		machineRecord.Box = b.ToProto()
+		machineRecordAny, erro := anypb.New(machineRecord)
+		if err != nil {
+			p.logger.Debug("Error generating machine record for target",
+				"project", p.Name(),
+				"target", t.Name,
+			)
+			return erro
 		}
 		_, err = p.Client().UpsertTarget(p.ctx,
 			&vagrant_server.UpsertTargetRequest{
@@ -447,6 +464,7 @@ func (p *Project) InitTargets() (err error) {
 					Name:          t.Name,
 					Project:       p.Ref().(*vagrant_plugin_sdk.Ref_Project),
 					Configuration: t,
+					Record:        machineRecordAny,
 				},
 			},
 		)

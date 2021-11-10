@@ -42,9 +42,7 @@ func (m *Machine) Box() (b core.Box, err error) {
 		box, err := NewBox(
 			BoxWithBasis(m.project.basis),
 			BoxWithBox(m.machine.Box),
-			// BoxWithName(m.target.Configuration.ConfigVm.Box),
 			BoxWithLogger(m.logger),
-			// BoxWithDirectory("/Users/sophia/project/vagrant-ruby/cmd/vagrant/boxes/hashicorp-VAGRANTSLASH-bionic64/1.0.282/virtualbox/"),
 		)
 		if err != nil {
 			return nil, err
