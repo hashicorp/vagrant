@@ -160,6 +160,7 @@ end
 # NOTE: Always directly load mappers so they are automatically registered and
 #       available. Using autoloading behavior will result in them being unaavailable
 #       until explicitly requested by name
+require Vagrant.source_root.join("plugins/commands/serve/mappers/box.rb").to_s
 require Vagrant.source_root.join("plugins/commands/serve/mappers/capabilities.rb").to_s
 require Vagrant.source_root.join("plugins/commands/serve/mappers/command.rb").to_s
 require Vagrant.source_root.join("plugins/commands/serve/mappers/direct.rb").to_s
