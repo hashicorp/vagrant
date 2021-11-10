@@ -90,9 +90,12 @@ The following is an example of using SMB to sync a folder:
 
 ```ruby
 Vagrant.configure("2") do |config|
-  config.vm.synced_folder ".", "/vagrant", type: "smb"
+  config.vm.synced_folder ".", "/vagrant", type: "smb",
+    smb_username: "USERNAME",
+    smb_password: "PASSWORD"
 end
 ```
+Replace "USERNAME" and "PASSWORD" with your SMB username and password.
 
 ## Preventing Idle Disconnects
 
