@@ -65,6 +65,7 @@ func NewBox(opts ...BoxOption) (b *Box, err error) {
 		return nil, err
 	}
 	mapstructure.Decode(metadata, &b.box.Metadata)
+	b.box.Id = b.box.Name + "-" + b.box.Version + "-" + b.box.Provider
 	b.Save()
 	return
 }
@@ -336,6 +337,10 @@ func (b *Box) Compare(box core.Box) (int, error) {
 		return res, nil
 	}
 	return 0, errors.New("Box name and provider does not match, can't compare")
+}
+
+func (b *Box) ToProto() *vagrant_server.Box {
+	return b.box
 }
 
 func (b *Box) Save() error {
