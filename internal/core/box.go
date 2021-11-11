@@ -2,6 +2,7 @@ package core
 
 import (
 	"archive/tar"
+	"context"
 	"errors"
 	"io"
 	"io/ioutil"
@@ -15,6 +16,7 @@ import (
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/go-version"
 	"github.com/hashicorp/vagrant-plugin-sdk/core"
+	"github.com/hashicorp/vagrant-plugin-sdk/proto/vagrant_plugin_sdk"
 	"github.com/hashicorp/vagrant/internal/server/proto/vagrant_server"
 	"github.com/mitchellh/mapstructure"
 	"google.golang.org/protobuf/types/known/timestamppb"
@@ -71,6 +73,17 @@ func NewBox(opts ...BoxOption) (b *Box, err error) {
 }
 
 type BoxOption func(*Box) error
+
+func BoxWithRef(ref *vagrant_plugin_sdk.Ref_Box, ctx context.Context) BoxOption {
+	return func(b *Box) (err error) {
+		boxResponse, err := b.basis.client.GetBox(
+			ctx,
+			&vagrant_server.GetBoxRequest{Box: ref},
+		)
+		b.box = boxResponse.Box
+		return
+	}
+}
 
 func BoxWithLogger(log hclog.Logger) BoxOption {
 	return func(b *Box) (err error) {
