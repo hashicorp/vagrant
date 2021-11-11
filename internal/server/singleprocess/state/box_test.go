@@ -117,4 +117,80 @@ func TestBox(t *testing.T) {
 		require.NoError(err)
 		require.Len(b, 2)
 	})
+
+	t.Run("Find", func(t *testing.T) {
+		require := require.New(t)
+
+		s := TestState(t)
+		defer s.Close()
+
+		err := s.BoxPut(&vagrant_server.Box{
+			Id:       "hashicorp/bionic-1.2.3-virtualbox",
+			Name:     "hashicorp/bionic",
+			Version:  "1.2.3",
+			Provider: "virtualbox",
+		})
+		require.NoError(err)
+
+		err = s.BoxPut(&vagrant_server.Box{
+			Id:       "hashicorp/bionic-1.2.4-virtualbox",
+			Name:     "hashicorp/bionic",
+			Version:  "1.2.4",
+			Provider: "virtualbox",
+		})
+		require.NoError(err)
+
+		b, err := s.BoxFind(&vagrant_plugin_sdk.Ref_Box{
+			Name: "hashicorp/bionic",
+		})
+		require.NoError(err)
+		require.Equal(b.Name, "hashicorp/bionic")
+		require.Equal(b.Version, "1.2.4")
+
+		b2, err := s.BoxFind(&vagrant_plugin_sdk.Ref_Box{
+			Name:    "hashicorp/bionic",
+			Version: "1.2.3",
+		})
+		require.NoError(err)
+		require.Equal(b2.Name, "hashicorp/bionic")
+		require.Equal(b2.Version, "1.2.3")
+
+		b3, err := s.BoxFind(&vagrant_plugin_sdk.Ref_Box{
+			Name:     "hashicorp/bionic",
+			Version:  "1.2.3",
+			Provider: "virtualbox",
+		})
+		require.NoError(err)
+		require.Equal(b3.Name, "hashicorp/bionic")
+		require.Equal(b3.Version, "1.2.3")
+		require.Equal(b3.Provider, "virtualbox")
+
+		b4, err := s.BoxFind(&vagrant_plugin_sdk.Ref_Box{
+			Name:     "hashicorp/bionic",
+			Version:  "1.2.3",
+			Provider: "dontexist",
+		})
+		require.NoError(err)
+		require.Nil(b4)
+
+		b5, err := s.BoxFind(&vagrant_plugin_sdk.Ref_Box{
+			Name:     "hashicorp/bionic",
+			Version:  "9.9.9",
+			Provider: "virtualbox",
+		})
+		require.NoError(err)
+		require.Nil(b5)
+
+		b6, err := s.BoxFind(&vagrant_plugin_sdk.Ref_Box{
+			Version: "1.2.3",
+		})
+		require.NoError(err)
+		require.Nil(b6)
+
+		b7, err := s.BoxFind(&vagrant_plugin_sdk.Ref_Box{
+			Name: "dontexist",
+		})
+		require.NoError(err)
+		require.Nil(b7)
+	})
 }

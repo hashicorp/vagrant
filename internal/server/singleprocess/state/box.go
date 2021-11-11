@@ -3,6 +3,7 @@ package state
 import (
 	"github.com/golang/protobuf/proto"
 	"github.com/hashicorp/go-memdb"
+	"github.com/hashicorp/go-version"
 	"github.com/hashicorp/vagrant-plugin-sdk/proto/vagrant_plugin_sdk"
 	"github.com/hashicorp/vagrant/internal/server/proto/vagrant_server"
 	bolt "go.etcd.io/bbolt"
@@ -64,6 +65,20 @@ func (s *State) BoxPut(box *vagrant_server.Box) error {
 		memTxn.Commit()
 	}
 	return err
+}
+
+func (s *State) BoxFind(b *vagrant_plugin_sdk.Ref_Box) (*vagrant_server.Box, error) {
+	memTxn := s.inmem.Txn(false)
+	defer memTxn.Abort()
+
+	var result *vagrant_server.Box
+	err := s.db.View(func(dbTxn *bolt.Tx) error {
+		var err error
+		result, err = s.boxFind(dbTxn, memTxn, b)
+		return err
+	})
+
+	return result, err
 }
 
 func (s *State) boxList(
@@ -139,6 +154,53 @@ func (s *State) boxPut(
 	if err = s.boxIndexSet(memTxn, id, value); err != nil {
 		s.log.Error("failed to index box", "box", value, "error", err)
 		return
+	}
+
+	return
+}
+
+func (s *State) boxFind(
+	dbTxn *bolt.Tx,
+	memTxn *memdb.Txn,
+	ref *vagrant_plugin_sdk.Ref_Box,
+) (r *vagrant_server.Box, err error) {
+	var match *boxIndexRecord
+	highestVersion, _ := version.NewVersion("0.0.0")
+	req := s.newBoxIndexRecordByRef(ref)
+	// Get the name first
+	if req.Name != "" {
+		raw, err := memTxn.Get(
+			boxIndexTableName,
+			boxIndexNameIndexName,
+			req.Name,
+		)
+		if err != nil {
+			return nil, err
+		}
+		for e := raw.Next(); e != nil; e = raw.Next() {
+			boxIndexEntry := e.(*boxIndexRecord)
+			if req.Version != "" {
+				if boxIndexEntry.Version != req.Version {
+					continue
+				}
+			}
+			if req.Provider != "" {
+				if boxIndexEntry.Provider != req.Provider {
+					continue
+				}
+			}
+			v, _ := version.NewVersion(boxIndexEntry.Version)
+			if v.GreaterThan(highestVersion) {
+				highestVersion = v
+				match = boxIndexEntry
+			}
+		}
+
+		if match != nil {
+			return s.boxGet(dbTxn, memTxn, &vagrant_plugin_sdk.Ref_Box{
+				ResourceId: match.Id,
+			})
+		}
 	}
 
 	return
