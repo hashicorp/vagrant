@@ -50,3 +50,15 @@ func (s *service) UpsertBox(
 
 	return &vagrant_server.UpsertBoxResponse{Box: result}, nil
 }
+
+func (s *service) FindBox(
+	ctx context.Context,
+	req *vagrant_server.FindBoxRequest,
+) (*vagrant_server.FindBoxResponse, error) {
+	result, err:= s.state.BoxFind(req.Box)
+	if err != nil {
+		return nil, err
+	}
+
+	return &vagrant_server.FindBoxResponse{Box: result}, nil
+}

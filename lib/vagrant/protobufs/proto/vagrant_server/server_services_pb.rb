@@ -54,6 +54,7 @@ module Hashicorp
         rpc :DeleteBox, ::Hashicorp::Vagrant::DeleteBoxRequest, ::Google::Protobuf::Empty
         rpc :GetBox, ::Hashicorp::Vagrant::GetBoxRequest, ::Hashicorp::Vagrant::GetBoxResponse
         rpc :ListBoxes, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::ListBoxesResponse
+        rpc :FindBox, ::Hashicorp::Vagrant::FindBoxRequest, ::Hashicorp::Vagrant::FindBoxResponse
         # GetLogStream reads the log stream for a deployment. This will immediately
         # send a single LogEntry with the lines we have so far. If there are no
         # available lines this will NOT block and instead will return an error.

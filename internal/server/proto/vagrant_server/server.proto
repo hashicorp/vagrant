@@ -74,6 +74,8 @@ service Vagrant {
 
   rpc ListBoxes(google.protobuf.Empty) returns (ListBoxesResponse);
 
+  rpc FindBox(FindBoxRequest) returns (FindBoxResponse);
+
   // GetLogStream reads the log stream for a deployment. This will immediately
   // send a single LogEntry with the lines we have so far. If there are no
   // available lines this will NOT block and instead will return an error.
@@ -1327,6 +1329,14 @@ message GetBoxResponse {
 
 message ListBoxesResponse {
   repeated sdk.Ref.Box boxes = 1;
+}
+
+message FindBoxRequest {
+  sdk.Ref.Box box = 2;
+}
+
+message FindBoxResponse {
+  Box box = 1;
 }
 
 
