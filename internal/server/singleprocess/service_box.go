@@ -7,7 +7,7 @@ import (
 	"github.com/hashicorp/vagrant/internal/server/proto/vagrant_server"
 )
 
-func (s *service) ListBox(
+func (s *service) ListBoxes(
 	ctx context.Context,
 	req *empty.Empty,
 ) (*vagrant_server.ListBoxesResponse, error) {
@@ -55,7 +55,7 @@ func (s *service) FindBox(
 	ctx context.Context,
 	req *vagrant_server.FindBoxRequest,
 ) (*vagrant_server.FindBoxResponse, error) {
-	result, err:= s.state.BoxFind(req.Box)
+	result, err := s.state.BoxFind(req.Box)
 	if err != nil {
 		return nil, err
 	}

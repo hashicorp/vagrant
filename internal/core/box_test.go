@@ -52,15 +52,18 @@ func hashicorpBionicTestBox() *Box {
 	}
 }
 
-func newFullBox(t *testing.T, boxData *vagrant_server.Box) *Box {
-	pluginManager := plugin.NewManager(
-		context.Background(),
-		hclog.New(&hclog.LoggerOptions{}),
-	)
-	basis := TestBasis(t, WithPluginManager(pluginManager))
+func newFullBox(t *testing.T, boxData *vagrant_server.Box, testBasis *Basis) *Box {
+	basis := testBasis
+	if basis == nil {
+		pluginManager := plugin.NewManager(
+			context.Background(),
+			hclog.New(&hclog.LoggerOptions{}),
+		)
+		basis = TestBasis(t, WithPluginManager(pluginManager))
+	}
 	td, err := ioutil.TempDir("", "box-metadata")
 	require.NoError(t, err)
-	data := []byte("{}")
+	data := []byte("{\"provider\":\"virtualbox\"}")
 	err = os.WriteFile(filepath.Join(td, "metadata.json"), data, 0644)
 	require.NoError(t, err)
 	t.Cleanup(func() { os.RemoveAll(td) })
@@ -75,13 +78,13 @@ func newFullBox(t *testing.T, boxData *vagrant_server.Box) *Box {
 }
 
 func TestNewBox(t *testing.T) {
-	box := newFullBox(t, testboxBoxData())
+	box := newFullBox(t, testboxBoxData(), nil)
 	require.NotNil(t, box)
 	require.Equal(t, "test/box", box.box.Name)
 }
 
 func TestBoxAutomaticUpdateCheckAllowed(t *testing.T) {
-	testBox := newFullBox(t, testboxBoxData())
+	testBox := newFullBox(t, testboxBoxData(), nil)
 	// just did automated check
 	testBox.box.LastUpdate = timestamppb.Now()
 	allowed1, err := testBox.AutomaticUpdateCheckAllowed()

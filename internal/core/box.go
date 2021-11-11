@@ -3,6 +3,7 @@ package core
 import (
 	"archive/tar"
 	"context"
+	"encoding/json"
 	"errors"
 	"io"
 	"io/ioutil"
@@ -62,13 +63,12 @@ func NewBox(opts ...BoxOption) (b *Box, err error) {
 	if err != nil {
 		return nil, err
 	}
-	metadata, err := LoadBoxMetadata(data)
-	if err != nil {
+	if err := json.Unmarshal(data, &b.box.Metadata); err != nil {
 		return nil, err
 	}
-	mapstructure.Decode(metadata, &b.box.Metadata)
+	// The metadata should have provider info
+	b.box.Provider = b.box.Metadata["provider"]
 	b.box.Id = b.box.Name + "-" + b.box.Version + "-" + b.box.Provider
-	b.Save()
 	return
 }
 
@@ -198,7 +198,10 @@ func (b *Box) AutomaticUpdateCheckAllowed() (allowed bool, err error) {
 
 // This deletes the box. This is NOT undoable.
 func (b *Box) Destroy() (err error) {
-	return os.RemoveAll(b.box.Directory)
+	if _, err := os.Stat(b.box.Directory); err != nil {
+		return os.RemoveAll(b.box.Directory)
+	}
+	return
 }
 
 func (b *Box) Directory() (path string, err error) {
@@ -297,6 +300,7 @@ func (b *Box) Repackage(outputPath string) (err error) {
 		if err != nil {
 			return err
 		}
+		header.Name = filepath.ToSlash(path)
 		if err := tw.WriteHeader(header); err != nil {
 			return err
 		}
@@ -305,6 +309,7 @@ func (b *Box) Repackage(outputPath string) (err error) {
 			if err != nil {
 				return err
 			}
+			defer data.Close()
 			if _, err := io.Copy(tw, data); err != nil {
 				return err
 			}

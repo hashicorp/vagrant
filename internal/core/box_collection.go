@@ -7,7 +7,6 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
-	"sync"
 
 	"github.com/hashicorp/go-hclog"
 	"github.com/hashicorp/vagrant-plugin-sdk/proto/vagrant_plugin_sdk"
@@ -24,7 +23,6 @@ const (
 type BoxCollection struct {
 	basis     *Basis
 	directory string
-	m         sync.Mutex
 	logger    hclog.Logger
 }
 
@@ -46,8 +44,10 @@ func (b *BoxCollection) Add(path, name, version string, force bool, providers ..
 	if exists != nil && !force {
 		return nil, fmt.Errorf("Box already exits, can't add %s v%s", name, version)
 	} else {
-		// If the box already exists but force is enabled, then delete the box
-		exists.Destroy()
+		if exists != nil {
+			// If the box already exists but force is enabled, then delete the box
+			exists.Destroy()
+		}
 	}
 
 	tempDir := b.basis.dir.TempDir().String()
@@ -61,8 +61,14 @@ func (b *BoxCollection) Add(path, name, version string, force bool, providers ..
 	reader := tar.NewReader(boxFile)
 	for {
 		header, err := reader.Next()
+		if err == io.EOF {
+			break
+		}
 		if err != nil {
 			return nil, err
+		}
+		if header == nil {
+			continue
 		}
 		dest := filepath.Join(tempDir, header.Name)
 		switch header.Typeflag {
@@ -75,6 +81,12 @@ func (b *BoxCollection) Add(path, name, version string, force bool, providers ..
 				}
 			}
 		case tar.TypeReg:
+			if _, err := os.Stat(filepath.Dir(dest)); err != nil {
+				err = os.MkdirAll(filepath.Dir(dest), 0755)
+				if err != nil {
+					return nil, err
+				}
+			}
 			// copy the file
 			f, err := os.OpenFile(dest, os.O_CREATE|os.O_RDWR, os.FileMode(header.Mode))
 			if err != nil {
@@ -95,25 +107,65 @@ func (b *BoxCollection) Add(path, name, version string, force bool, providers ..
 			Directory: tempDir,
 		}),
 	)
-	newBox.Save()
 	if err != nil {
 		return nil, err
 	}
 	provider := newBox.box.Provider
-	foundProvider := false
-	for _, p := range providers {
-		if p == provider {
-			foundProvider = true
-			break
+
+	if providers != nil {
+		foundProvider := false
+		for _, p := range providers {
+			if p == provider {
+				foundProvider = true
+				break
+			}
+		}
+		if !foundProvider {
+			return nil, fmt.Errorf("could not add box %s, provider '%s' does not match the expected providers %s", path, provider, providers)
 		}
 	}
-	if !foundProvider {
-		return nil, fmt.Errorf("could not add box %s, provider '%s' does not match the expected providers %s", path, provider, providers)
-	}
 
-	destDir := b.generateDirectoryName(filepath.Join(b.directory, name, version, provider))
+	destDir := filepath.Join(b.directory, b.generateDirectoryName(name), version, provider)
 	b.logger.Debug("Box directory: %s", destDir)
-	os.Rename(tempDir, destDir)
+	os.MkdirAll(destDir, 0755)
+	// Copy the contents of the tempdir to the final dir
+	err = filepath.Walk(tempDir, func(path string, info os.FileInfo, erro error) (err error) {
+		// TODO: only copy in the files that were extracted into the tempdir
+		destPath := filepath.Join(destDir, info.Name())
+		if info.IsDir() {
+			err = os.MkdirAll(destPath, info.Mode())
+			return err
+		} else {
+			data, err := os.Open(path)
+			if err != nil {
+				return err
+			}
+			defer data.Close()
+			dest, err := os.Create(destPath)
+			if err != nil {
+				return err
+			}
+			defer dest.Close()
+			if err != nil {
+				return err
+			}
+			if _, err := io.Copy(dest, data); err != nil {
+				return err
+			}
+		}
+		return
+	})
+
+	newBox, err = NewBox(
+		BoxWithBasis(b.basis),
+		BoxWithBox(&vagrant_server.Box{
+			Name:      name,
+			Version:   version,
+			Directory: destDir,
+			Provider:  provider,
+		}),
+	)
+	newBox.Save()
 	return newBox, nil
 }
 
@@ -156,7 +208,7 @@ func (b *BoxCollection) Find(name, version string, providers ...string) (box *Bo
 		if err != nil {
 			return nil, err
 		}
-		if resp != nil {
+		if resp.Box != nil {
 			// Return the first box that is found
 			return NewBox(
 				BoxWithBasis(b.basis),
