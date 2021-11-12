@@ -38,6 +38,9 @@ Gem::Specification.new do |s|
   s.add_dependency "winrm-elevated", ">= 1.2.1", "< 2.0"
   s.add_dependency "winrm-fs", ">= 1.3.4", "< 2.0"
 
+  # Needed for go generate to use grpc_tools_ruby_protoc
+  s.add_development_dependency "grpc-tools", "~> 1.41.1"
+
   # Constraint rake to properly handle deprecated method usage
   # from within rspec
   s.add_development_dependency "rake", "~> 13.0"

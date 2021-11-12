@@ -28,6 +28,7 @@ pkg/*
 test/tmp/
 /exec
 .ruby-bundle
+vendor/bundle
 
 # Documentation
 _site/*
