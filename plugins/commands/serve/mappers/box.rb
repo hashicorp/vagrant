@@ -15,6 +15,25 @@ module VagrantPlugins
           Client::Box.load(proto, broker: broker)
         end
       end
+
+      class BoxClientToBox < Mapper
+        def initialize
+          inputs = [].tap do |i|
+            i << Input.new(type: Client::Box)
+          end
+          super(inputs: inputs, output: Vagrant::Box, func: method(:converter))
+        end
+
+        def converter(box_client)
+          Vagrant::Box.new(
+            box_client.name,
+            box_client.provider.to_sym,
+            box_client.version,
+            Pathname.new(box_client.directory),
+            client: box_client
+          )
+        end
+      end
     end
   end
 end
