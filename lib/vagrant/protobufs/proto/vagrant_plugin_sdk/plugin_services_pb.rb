@@ -497,6 +497,26 @@ module Hashicorp
 
         Stub = Service.rpc_stub_class
       end
+      module BoxCollectionService
+        # *******************************************************************
+        # BoxCollecion services
+        # ******************************************************************
+        class Service
+
+          include ::GRPC::GenericService
+
+          self.marshal_class_method = :encode
+          self.unmarshal_class_method = :decode
+          self.service_name = 'hashicorp.vagrant.sdk.BoxCollectionService'
+
+          rpc :Add, ::Hashicorp::Vagrant::Sdk::BoxCollection::AddRequest, ::Hashicorp::Vagrant::Sdk::Args::Box
+          rpc :All, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::BoxCollection::AllResponse
+          rpc :Clean, ::Hashicorp::Vagrant::Sdk::BoxCollection::CleanRequest, ::Google::Protobuf::Empty
+          rpc :Find, ::Hashicorp::Vagrant::Sdk::BoxCollection::FindRequest, ::Hashicorp::Vagrant::Sdk::Args::Box
+        end
+
+        Stub = Service.rpc_stub_class
+      end
     end
   end
 end

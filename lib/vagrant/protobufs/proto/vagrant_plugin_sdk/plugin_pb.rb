@@ -144,9 +144,6 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
     add_message "hashicorp.vagrant.sdk.Args.Direct" do
       repeated :list, :message, 1, "google.protobuf.Any"
     end
-    add_message "hashicorp.vagrant.sdk.BoxCollection" do
-      optional :directory, :string, 1
-    end
     add_message "hashicorp.vagrant.sdk.SSHInfo" do
       optional :host, :string, 1
       optional :port, :string, 2
@@ -599,6 +596,9 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
     end
     add_message "hashicorp.vagrant.sdk.Vagrantfile" do
     end
+    add_message "hashicorp.vagrant.sdk.Vagrantfile.BoxCollection" do
+      optional :directory, :string, 1
+    end
     add_message "hashicorp.vagrant.sdk.Vagrantfile.GetVagrantfileRequest" do
       oneof :component do
         optional :project, :message, 1, "hashicorp.vagrant.sdk.Ref.Project"
@@ -612,7 +612,7 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
     add_message "hashicorp.vagrant.sdk.Vagrantfile.TargetRequest" do
       optional :name, :string, 1
       optional :provider, :string, 2
-      optional :boxes, :message, 3, "hashicorp.vagrant.sdk.BoxCollection"
+      optional :boxes, :message, 3, "hashicorp.vagrant.sdk.Vagrantfile.BoxCollection"
       optional :data_path, :string, 4
       optional :project, :message, 5, "hashicorp.vagrant.sdk.Args.Project"
     end
@@ -622,7 +622,7 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
     add_message "hashicorp.vagrant.sdk.Vagrantfile.TargetConfigRequest" do
       optional :name, :string, 1
       optional :provider, :string, 2
-      optional :boxes, :message, 3, "hashicorp.vagrant.sdk.BoxCollection"
+      optional :boxes, :message, 3, "hashicorp.vagrant.sdk.Vagrantfile.BoxCollection"
       optional :data_path, :string, 4
       optional :validate_provider, :bool, 5
     end
@@ -758,6 +758,27 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
     add_message "hashicorp.vagrant.sdk.Box.EqualityResponse" do
       optional :result, :int32, 1
     end
+    add_message "hashicorp.vagrant.sdk.BoxCollection" do
+    end
+    add_message "hashicorp.vagrant.sdk.BoxCollection.AddRequest" do
+      optional :path, :string, 1
+      optional :name, :string, 2
+      optional :version, :string, 3
+      optional :metadataUrl, :string, 4
+      optional :force, :bool, 5
+      repeated :providers, :string, 6
+    end
+    add_message "hashicorp.vagrant.sdk.BoxCollection.AllResponse" do
+      repeated :boxes, :message, 1, "hashicorp.vagrant.sdk.Args.Box"
+    end
+    add_message "hashicorp.vagrant.sdk.BoxCollection.CleanRequest" do
+      optional :name, :string, 1
+    end
+    add_message "hashicorp.vagrant.sdk.BoxCollection.FindRequest" do
+      optional :name, :string, 1
+      optional :version, :string, 2
+      repeated :providers, :string, 3
+    end
   end
 end
 
@@ -793,7 +814,6 @@ module Hashicorp
       Args::TargetIndex = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Args.TargetIndex").msgclass
       Args::NamedCapability = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Args.NamedCapability").msgclass
       Args::Direct = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Args.Direct").msgclass
-      BoxCollection = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.BoxCollection").msgclass
       SSHInfo = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.SSHInfo").msgclass
       WinrmInfo = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.WinrmInfo").msgclass
       WinrmInfo::Transport = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.WinrmInfo.Transport").enummodule
@@ -912,6 +932,7 @@ module Hashicorp
       Project::TmpResponse = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Project.TmpResponse").msgclass
       Project::DefaultPrivateKeyResponse = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Project.DefaultPrivateKeyResponse").msgclass
       Vagrantfile = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Vagrantfile").msgclass
+      Vagrantfile::BoxCollection = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Vagrantfile.BoxCollection").msgclass
       Vagrantfile::GetVagrantfileRequest = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Vagrantfile.GetVagrantfileRequest").msgclass
       Vagrantfile::GetVagrantfileResponse = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Vagrantfile.GetVagrantfileResponse").msgclass
       Vagrantfile::TargetRequest = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Vagrantfile.TargetRequest").msgclass
@@ -943,6 +964,11 @@ module Hashicorp
       Box::ProviderResponse = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Box.ProviderResponse").msgclass
       Box::VersionResponse = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Box.VersionResponse").msgclass
       Box::EqualityResponse = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Box.EqualityResponse").msgclass
+      BoxCollection = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.BoxCollection").msgclass
+      BoxCollection::AddRequest = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.BoxCollection.AddRequest").msgclass
+      BoxCollection::AllResponse = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.BoxCollection.AllResponse").msgclass
+      BoxCollection::CleanRequest = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.BoxCollection.CleanRequest").msgclass
+      BoxCollection::FindRequest = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.BoxCollection.FindRequest").msgclass
     end
   end
 end
