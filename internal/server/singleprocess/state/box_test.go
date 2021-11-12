@@ -192,5 +192,28 @@ func TestBox(t *testing.T) {
 		})
 		require.NoError(err)
 		require.Nil(b7)
+
+		b8, err := s.BoxFind(&vagrant_plugin_sdk.Ref_Box{
+			Name:    "hashicorp/bionic",
+			Version: "~> 1.2",
+		})
+		require.NoError(err)
+		require.Equal(b8.Name, "hashicorp/bionic")
+		require.Equal(b8.Version, "1.2.4")
+
+		b9, err := s.BoxFind(&vagrant_plugin_sdk.Ref_Box{
+			Name:    "hashicorp/bionic",
+			Version: "> 1.0, < 3.0",
+		})
+		require.NoError(err)
+		require.Equal(b9.Name, "hashicorp/bionic")
+		require.Equal(b9.Version, "1.2.4")
+
+		b10, err := s.BoxFind(&vagrant_plugin_sdk.Ref_Box{
+			Name:    "hashicorp/bionic",
+			Version: "< 1.0",
+		})
+		require.NoError(err)
+		require.Nil(b10)
 	})
 }

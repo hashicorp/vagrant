@@ -177,10 +177,19 @@ func (s *State) boxFind(
 		if err != nil {
 			return nil, err
 		}
+		if req.Version == "" {
+			req.Version = ">= 0"
+		}
+		versionConstraint, err := version.NewConstraint(req.Version)
+		if err != nil {
+			return nil, err
+		}
+
 		for e := raw.Next(); e != nil; e = raw.Next() {
 			boxIndexEntry := e.(*boxIndexRecord)
 			if req.Version != "" {
-				if boxIndexEntry.Version != req.Version {
+				boxVersion, _ := version.NewVersion(boxIndexEntry.Version)
+				if !versionConstraint.Check(boxVersion) {
 					continue
 				}
 			}
