@@ -9,6 +9,7 @@ import (
 	"strings"
 
 	"github.com/hashicorp/go-hclog"
+	"github.com/hashicorp/vagrant-plugin-sdk/core"
 	"github.com/hashicorp/vagrant-plugin-sdk/proto/vagrant_plugin_sdk"
 	"github.com/hashicorp/vagrant/internal/server/proto/vagrant_server"
 	"google.golang.org/protobuf/types/known/emptypb"
@@ -32,7 +33,7 @@ type BoxCollection struct {
 // * BoxProviderDoesntMatch - If the given box provider doesn't match the
 // 	actual box provider in the untarred box.
 // * BoxUnpackageFailure - An invalid tar file.
-func (b *BoxCollection) Add(path, name, version string, force bool, providers ...string) (box *Box, err error) {
+func (b *BoxCollection) Add(path, name, version, metadataURL string, force bool, providers ...string) (box core.Box, err error) {
 	if _, err := os.Stat(path); err != nil {
 		return nil, fmt.Errorf("Could not add box, unable to find path %s", path)
 	}
@@ -170,12 +171,12 @@ func (b *BoxCollection) Add(path, name, version string, force bool, providers ..
 }
 
 // This returns an array of all the boxes on the system
-func (b *BoxCollection) All() (boxes []*Box, err error) {
+func (b *BoxCollection) All() (boxes []core.Box, err error) {
 	resp, err := b.basis.client.ListBoxes(
 		b.basis.ctx,
 		&emptypb.Empty{},
 	)
-	boxes = []*Box{}
+	boxes = []core.Box{}
 	for _, boxRef := range resp.Boxes {
 		box, err := NewBox(
 			BoxWithBasis(b.basis),
@@ -191,7 +192,7 @@ func (b *BoxCollection) All() (boxes []*Box, err error) {
 }
 
 // Find a box in the collection with the given name, version and provider.
-func (b *BoxCollection) Find(name, version string, providers ...string) (box *Box, err error) {
+func (b *BoxCollection) Find(name, version string, providers ...string) (box core.Box, err error) {
 	// If no providers are spcified then search for any provider
 	if len(providers) == 0 {
 		providers = append(providers, "")
@@ -230,3 +231,5 @@ func (b *BoxCollection) generateDirectoryName(path string) (out string) {
 	out = strings.ReplaceAll(path, ":", VagrantColon)
 	return strings.ReplaceAll(out, "/", VagrantSlash)
 }
+
+var _ core.BoxCollection = (*BoxCollection)(nil)
