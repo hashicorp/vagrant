@@ -46,9 +46,9 @@ module VagrantPlugins
         end
 
         # @return [Vagrant::Box] box found
-        def find(name, providers, versions)
+        def find(name, providers, version)
           res = client.find(SDK::BoxCollection::FindRequest.new(
-            name: name, version: version, providers: providers
+            name: name, version: version, providers: Array(providers)
           ))
           box_client = Box.load(res, broker: broker)
           box = Vagrant::Box.new(

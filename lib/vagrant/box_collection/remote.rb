@@ -33,7 +33,12 @@ module Vagrant
       # @return [Array] Array of `[name, version, provider]` of the boxes
       #   installed on this system.
       def all
-        client.all
+        all_boxes = client.all
+        boxes = []
+        all_boxes.each do |b|
+          boxes << [b.name, b.version, b.provider]
+        end
+        boxes
       end
 
       # @return [Box] The box found, or `nil` if not found.
