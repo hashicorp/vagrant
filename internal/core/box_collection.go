@@ -131,7 +131,6 @@ func (b *BoxCollection) Add(path, name, version, metadataURL string, force bool,
 	os.MkdirAll(destDir, 0755)
 	// Copy the contents of the tempdir to the final dir
 	err = filepath.Walk(tempDir, func(path string, info os.FileInfo, erro error) (err error) {
-		// TODO: only copy in the files that were extracted into the tempdir
 		destPath := filepath.Join(destDir, info.Name())
 		if info.IsDir() {
 			err = os.MkdirAll(destPath, info.Mode())
