@@ -423,6 +423,7 @@ module Hashicorp
           rpc :Target, ::Hashicorp::Vagrant::Sdk::Project::TargetRequest, ::Hashicorp::Vagrant::Sdk::Args::Target
           rpc :TargetNames, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::Project::TargetNamesResponse
           rpc :TargetIds, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::Project::TargetIdsResponse
+          rpc :Boxes, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::Args::BoxCollection
         end
 
         Stub = Service.rpc_stub_class

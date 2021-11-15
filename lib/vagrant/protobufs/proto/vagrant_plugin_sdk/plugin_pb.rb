@@ -108,6 +108,11 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
       optional :network, :string, 2
       optional :target, :string, 3
     end
+    add_message "hashicorp.vagrant.sdk.Args.BoxCollection" do
+      optional :stream_id, :uint32, 1
+      optional :network, :string, 2
+      optional :target, :string, 3
+    end
     add_message "hashicorp.vagrant.sdk.Args.StateBag" do
       optional :stream_id, :uint32, 1
       optional :network, :string, 2
@@ -806,6 +811,7 @@ module Hashicorp
       Args::Target::Machine = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Args.Target.Machine").msgclass
       Args::Target::Machine::State = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Args.Target.Machine.State").msgclass
       Args::Box = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Args.Box").msgclass
+      Args::BoxCollection = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Args.BoxCollection").msgclass
       Args::StateBag = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Args.StateBag").msgclass
       Args::Host = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Args.Host").msgclass
       Args::Guest = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Args.Guest").msgclass
