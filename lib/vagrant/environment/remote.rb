@@ -68,6 +68,14 @@ module Vagrant
         hook(:environment_load, runner: Action::Runner.new(env: self))
       end
 
+      # Returns the collection of boxes for the environment.
+      #
+      # @return [BoxCollection]
+      def boxes
+        box_colletion_client = client.boxes
+        @_boxes ||= BoxCollection.new(nil, client: box_colletion_client)
+      end
+
       # Returns the host object associated with this environment.
       #
       # @return [Class]

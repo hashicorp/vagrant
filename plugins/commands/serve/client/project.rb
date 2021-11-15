@@ -5,6 +5,14 @@ module VagrantPlugins
         prepend Util::ClientSetup
         prepend Util::HasLogger
 
+        # return [VagrantPlugins::CommandServe::Client::BoxCollection]
+        def boxes
+          BoxCollection.load(
+            client.boxes(Empty.new),
+            broker: broker
+          )
+        end
+
         # return [String]
         def cache_dir
           data_dirs.cache_dir

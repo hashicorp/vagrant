@@ -17,8 +17,6 @@ module Vagrant
           raise ArgumentError,
             "Remote client is required for `#{self.class.name}'"
         end
-
-        @directory = directory
         @hook      = options[:hook]
         @logger    = Log4r::Logger.new("vagrant::box_collection")
       end
