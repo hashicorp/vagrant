@@ -3,6 +3,7 @@ package core
 import (
 	"context"
 	"fmt"
+	"path/filepath"
 	"strings"
 	"sync"
 
@@ -33,15 +34,16 @@ import (
 // finished with the basis to properly clean
 // up any open resources.
 type Basis struct {
-	basis    *vagrant_server.Basis
-	logger   hclog.Logger
-	config   *config.Config
-	plugins  *plugin.Manager
-	projects map[string]*Project
-	mappers  []*argmapper.Func
-	dir      *datadir.Basis
-	ctx      context.Context
-	statebag core.StateBag
+	basis         *vagrant_server.Basis
+	logger        hclog.Logger
+	config        *config.Config
+	plugins       *plugin.Manager
+	projects      map[string]*Project
+	mappers       []*argmapper.Func
+	dir           *datadir.Basis
+	ctx           context.Context
+	statebag      core.StateBag
+	boxCollection *BoxCollection
 
 	lookupCache map[string]interface{}
 
@@ -198,6 +200,16 @@ func (b *Basis) Client() *serverclient.VagrantClient {
 
 func (b *Basis) State() *StateBag {
 	return b.statebag.(*StateBag)
+}
+
+func (b *Basis) Boxes() (bc *BoxCollection, err error) {
+	if b.boxCollection == nil {
+		b.boxCollection = &BoxCollection{
+			basis:     b,
+			directory: filepath.Join(b.dir.DataDir().String(), "boxes"),
+		}
+	}
+	return b.boxCollection, nil
 }
 
 func (b *Basis) countParents(host core.Host) (int, error) {

@@ -62,6 +62,11 @@ func (p *Project) UI() (terminal.UI, error) {
 	return p.ui, nil
 }
 
+// Boxes implements core.Project
+func (p *Project) Boxes() (bc core.BoxCollection, err error) {
+	return p.basis.Boxes()
+}
+
 // CWD implements core.Project
 func (p *Project) CWD() (path string, err error) {
 	cwd, ok := os.LookupEnv("VAGRANT_CWD")
