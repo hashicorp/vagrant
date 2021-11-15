@@ -71,7 +71,10 @@ func (b *BoxCollection) Add(path, name, version, metadataURL string, force bool,
 		if header == nil {
 			continue
 		}
-		dest := filepath.Join(tempDir, header.Name)
+		dest, err := validateNewPath(filepath.Join(tempDir, header.Name), tempDir)
+		if err != nil {
+			return nil, err
+		}
 		switch header.Typeflag {
 		case tar.TypeDir:
 			// create directory if it doesn't already exist
@@ -131,7 +134,10 @@ func (b *BoxCollection) Add(path, name, version, metadataURL string, force bool,
 	os.MkdirAll(destDir, 0755)
 	// Copy the contents of the tempdir to the final dir
 	err = filepath.Walk(tempDir, func(path string, info os.FileInfo, erro error) (err error) {
-		destPath := filepath.Join(destDir, info.Name())
+		destPath, err := validateNewPath(filepath.Join(destDir, info.Name()), destDir)
+		if err != nil {
+			return err
+		}
 		if info.IsDir() {
 			err = os.MkdirAll(destPath, info.Mode())
 			return err
@@ -229,6 +235,18 @@ func (b *BoxCollection) Clean(name string) (err error) {
 func (b *BoxCollection) generateDirectoryName(path string) (out string) {
 	out = strings.ReplaceAll(path, ":", VagrantColon)
 	return strings.ReplaceAll(out, "/", VagrantSlash)
+}
+
+func validateNewPath(path string, parentPath string) (newPath string, err error) {
+	newPath, err = filepath.Abs(path)
+	if err != nil {
+		return "", err
+	}
+	// Ensure that the newPath is within the parentPath
+	if !strings.HasPrefix(newPath, parentPath) {
+		return "", fmt.Errorf("could not add box outside of box directory %s", parentPath)
+	}
+	return
 }
 
 var _ core.BoxCollection = (*BoxCollection)(nil)
