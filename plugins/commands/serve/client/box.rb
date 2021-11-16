@@ -28,7 +28,7 @@ module VagrantPlugins
         # @return [Bool] is in use
         def in_use(index)
           res = client.in_use(index)
-          res.in_use
+          res.inUse
         end
 
         # @param [String] path

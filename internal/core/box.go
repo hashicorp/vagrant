@@ -198,9 +198,28 @@ func (b *Box) AutomaticUpdateCheckAllowed() (allowed bool, err error) {
 
 // This deletes the box. This is NOT undoable.
 func (b *Box) Destroy() (err error) {
+	b.m.Lock()
+	defer b.m.Unlock()
+	b.logger.Trace("deleting box from db",
+		"box", b.box.Name)
+
+	_, err = b.basis.client.DeleteBox(
+		b.basis.ctx,
+		&vagrant_server.DeleteBoxRequest{Box: &vagrant_plugin_sdk.Ref_Box{
+			ResourceId: b.box.Id, Name: b.box.Name, Version: b.box.Version, Provider: b.box.Provider,
+		}},
+	)
+	if err != nil {
+		b.logger.Trace("filed to delete box",
+			"box", b.box.Name)
+	}
+
 	if _, err := os.Stat(b.box.Directory); err != nil {
+		b.logger.Trace("Removing box files",
+			"path", b.box.Directory)
 		return os.RemoveAll(b.box.Directory)
 	}
+
 	return
 }
 
@@ -247,7 +266,7 @@ func (b *Box) InUse(index core.TargetIndex) (inUse bool, err error) {
 		if err != nil {
 			continue
 		}
-		machineBox, err := m.(*Machine).Box()
+		machineBox, err := m.(core.Machine).Box()
 		if err != nil {
 			return false, err
 		}
