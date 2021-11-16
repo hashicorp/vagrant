@@ -142,10 +142,11 @@ func (b *BoxCollection) Add(path, name, version, metadataURL string, force bool,
 	newBox, err = NewBox(
 		BoxWithBasis(b.basis),
 		BoxWithBox(&vagrant_server.Box{
-			Name:      name,
-			Version:   version,
-			Directory: destDir,
-			Provider:  provider,
+			Name:        name,
+			Version:     version,
+			Directory:   destDir,
+			Provider:    provider,
+			MetadataUrl: metadataURL,
 		}),
 	)
 	newBox.Save()
