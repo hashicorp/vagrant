@@ -210,11 +210,11 @@ func (b *Box) Destroy() (err error) {
 		}},
 	)
 	if err != nil {
-		b.logger.Trace("filed to delete box",
+		b.logger.Trace("failed to delete box",
 			"box", b.box.Name)
 	}
 
-	if _, err := os.Stat(b.box.Directory); err != nil {
+	if fs, _ := os.Stat(b.box.Directory); fs != nil {
 		b.logger.Trace("Removing box files",
 			"path", b.box.Directory)
 		return os.RemoveAll(b.box.Directory)
