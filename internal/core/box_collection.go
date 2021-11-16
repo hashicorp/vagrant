@@ -1,13 +1,15 @@
 package core
 
 import (
-	"archive/tar"
+	"bytes"
 	"fmt"
 	"io"
 	"os"
 	"path/filepath"
 	"strings"
 
+	"github.com/h2non/filetype"
+	"github.com/hashicorp/go-getter"
 	"github.com/hashicorp/go-hclog"
 	"github.com/hashicorp/vagrant-plugin-sdk/core"
 	"github.com/hashicorp/vagrant-plugin-sdk/proto/vagrant_plugin_sdk"
@@ -51,58 +53,33 @@ func (b *BoxCollection) Add(path, name, version, metadataURL string, force bool,
 		}
 	}
 
-	tempDir := b.basis.dir.TempDir().String()
-	// delete tempdir when finished
+	tempDir := filepath.Join(b.basis.dir.TempDir().String(), "box-extractor")
+	err = os.MkdirAll(tempDir, 0755)
+	if err != nil {
+		return nil, err
+	} // delete tempdir when finished
 	defer os.RemoveAll(tempDir)
 	b.logger.Debug("Unpacking box")
 	boxFile, err := os.Open(path)
 	if err != nil {
 		return nil, err
 	}
-	reader := tar.NewReader(boxFile)
-	for {
-		header, err := reader.Next()
-		if err == io.EOF {
-			break
-		}
-		if err != nil {
-			return nil, err
-		}
-		if header == nil {
-			continue
-		}
-		dest, err := validateNewPath(filepath.Join(tempDir, header.Name), tempDir)
-		if err != nil {
-			return nil, err
-		}
-		switch header.Typeflag {
-		case tar.TypeDir:
-			// create directory if it doesn't already exist
-			if fi, _ := os.Stat(dest); fi != nil {
-				err = os.MkdirAll(dest, 0755)
-				if err != nil {
-					return nil, err
-				}
-			}
-		case tar.TypeReg:
-			if _, err := os.Stat(filepath.Dir(dest)); err != nil {
-				err = os.MkdirAll(filepath.Dir(dest), 0755)
-				if err != nil {
-					return nil, err
-				}
-			}
-			// copy the file
-			f, err := os.OpenFile(dest, os.O_CREATE|os.O_RDWR, os.FileMode(header.Mode))
-			if err != nil {
-				return nil, err
-			}
-			if _, err := io.Copy(f, reader); err != nil {
-				return nil, err
-			}
-			f.Close()
-		}
+	buffer := make([]byte, 512)
+	n, err := boxFile.Read(buffer)
+	if err != nil && err != io.EOF {
+		return nil, err
 	}
-
+	io.MultiReader(bytes.NewBuffer(buffer[:n]), boxFile)
+	typ, err := filetype.Match(buffer)
+	ext := typ.Extension
+	if typ.Extension == "gz" {
+		ext = "tar.gz"
+	}
+	decompressor := getter.Decompressors[ext]
+	err = decompressor.Decompress(tempDir, path, true, os.ModeDir)
+	if err != nil {
+		return nil, err
+	}
 	newBox, err := NewBox(
 		BoxWithBasis(b.basis),
 		BoxWithBox(&vagrant_server.Box{
