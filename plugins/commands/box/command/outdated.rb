@@ -50,6 +50,7 @@ module VagrantPlugins
               machine: machine,
             }.merge(download_options))
           end
+          return 0
         end
 
         def outdated_global(download_options)
