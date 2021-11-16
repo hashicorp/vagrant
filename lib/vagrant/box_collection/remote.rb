@@ -24,8 +24,8 @@ module Vagrant
       # @return [Vagrant::Box]
       def add(path, name, version, **opts)
         client.add(
-          path, name, version, force: opts[:force],
-          metadata_url: opts[:metadata_url], provider:opts[:providers] 
+          path, name, version, force=opts[:force],
+          metadata_url=opts[:metadata_url], provider=opts[:providers] 
         )
       end
 
