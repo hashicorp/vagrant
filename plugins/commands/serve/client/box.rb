@@ -33,7 +33,7 @@ module VagrantPlugins
 
         # @param [String] path
         def repackage(path)
-          client.repackage(SDK::Args::Path.new(path: path))
+          client.repackage(SDK::Args::Path.new(path: path.to_s))
         end
 
         # @return [String] path
