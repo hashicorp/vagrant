@@ -44,7 +44,7 @@ Vagrant.configure("2") do |config|
   config.vm.define "one" do |c|
     c.vm.hostname = "one"
     c.vm.usable_port_range = 8070..8090
-    c.vm.box = "bento/ubuntu"
+    c.vm.box = "bento/ubuntu-16.04"
     c.vm.provision "shell", inline: "echo hello world"
     c.vm.provision "shell" do |s|
       s.inline = "echo goodbye"

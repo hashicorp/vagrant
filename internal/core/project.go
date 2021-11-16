@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"os"
-	"path/filepath"
 	"strings"
 	"sync"
 
@@ -440,21 +439,19 @@ func (p *Project) InitTargets() (err error) {
 		// TODO: get provider info here too/generate full machine config?
 		// We know that these are machines so, save the Machine record
 		machineRecord := &vagrant_server.Target_Machine{}
-		// TODO: create a new box for now. This should be querying the box collection
-		//       for a box that matches the provided provider and name
-		doxDir := filepath.Join(p.basis.dir.DataDir().String(), "boxes/hashicorp-VAGRANTSLASH-bionic64/1.0.282/virtualbox/")
-		b, erro := NewBox(
-			BoxWithBasis(p.basis),
-			BoxWithName(t.ConfigVm.Box),
-			// TODO: need to get this box info from the vagrantfile/provider
-			BoxWithProvider("virtualbox"),
-			BoxWithVersion("1.0.282"),
-			BoxWithDirectory(doxDir),
-		)
+		boxes, _ := p.Boxes()
+		b, erro := boxes.Find(t.ConfigVm.Box, "")
 		if erro != nil {
 			return erro
 		}
-		machineRecord.Box = b.ToProto()
+		if b == nil {
+			// Add the box
+			b, erro = addBox(t.ConfigVm.Box, "virtualbox", p.basis)
+			if erro != nil {
+				return nil
+			}
+		}
+		machineRecord.Box = b.(*Box).ToProto()
 		machineRecordAny, erro := anypb.New(machineRecord)
 		if err != nil {
 			p.logger.Debug("Error generating machine record for target",

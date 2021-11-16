@@ -207,6 +207,7 @@ func (b *Basis) Boxes() (bc *BoxCollection, err error) {
 		b.boxCollection = &BoxCollection{
 			basis:     b,
 			directory: filepath.Join(b.dir.DataDir().String(), "boxes"),
+			logger:    b.logger,
 		}
 	}
 	return b.boxCollection, nil
