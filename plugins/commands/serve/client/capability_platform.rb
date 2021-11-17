@@ -5,6 +5,11 @@ module VagrantPlugins
     module Client
       module CapabilityPlatform
 
+        def self.included(klass)
+          return if klass.ancestors.include?(Util::HasMapper)
+          klass.prepend(Util::HasMapper)
+        end
+
         def seed(*args)
           raise NotImplementedError,
             "Seeding is not currently supported via Ruby client"
@@ -12,7 +17,7 @@ module VagrantPlugins
 
         def seeds
           res = client.seeds(Empty.new)
-          res.list
+          res.arguments
         end
 
         # @param [Symbol] cap_name Capability name
@@ -45,27 +50,12 @@ module VagrantPlugins
             )
           end
           d = Types::Direct.new(arguments: args)
-          da = mapper.map(d, mapper, to: SDK::Args::Direct) #Google::Protobuf::Any)
+          da = mapper.map(d, to: Google::Protobuf::Any)
           arg_protos << SDK::FuncSpec::Value.new(
             name: "",
             type: "hashicorp.vagrant.sdk.Args.Direct",
             value: Google::Protobuf::Any.pack(da),
           )
-          # any_args = args.map do |a|
-          #   if a.class.ancestors.include?(Google::Protobuf::MessageExts)
-          #     val = a
-          #   else
-          #     val = Google::Protobuf::Value.new
-          #     val.from_ruby(a)
-          #   end
-          #   Google::Protobuf::Any.pack(val)
-          # end
-
-          # arg_protos << SDK::FuncSpec::Value.new(
-          #   name: "",
-          #   type: "hashicorp.vagrant.sdk.Args.Direct",
-          #   value: Google::Protobuf::Any.pack(SDK::Args::Direct.new(list: any_args)),
-          # )
 
           req = SDK::Platform::Capability::NamedRequest.new(
             name: cap_name.to_s,
