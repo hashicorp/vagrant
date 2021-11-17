@@ -101,14 +101,31 @@ func (s *State) targetFind(
 			match = raw.(*targetIndexRecord)
 		}
 	}
-	// Try the name next
+	// Try the name + project next
 	if match == nil && req.Name != "" {
-		if raw, err := memTxn.First(
+		// Match the name first
+		raw, err := memTxn.Get(
 			targetIndexTableName,
 			targetIndexNameIndexName,
 			req.Name,
-		); raw != nil && err == nil {
-			match = raw.(*targetIndexRecord)
+		)
+		if err != nil {
+			return nil, err
+		}
+		// Check for matching project next
+		if req.ProjectId != "" {
+			for e := raw.Next(); e != nil; e = raw.Next() {
+				targetIndexEntry := e.(*targetIndexRecord)
+				if targetIndexEntry.ProjectId == req.ProjectId {
+					match = targetIndexEntry
+					break
+				}
+			}
+		} else {
+			e := raw.Next()
+			if e != nil {
+				match = e.(*targetIndexRecord)
+			}
 		}
 	}
 	// Finally try the uuid
@@ -305,6 +322,15 @@ func targetIndexSchema() *memdb.TableSchema {
 					Lowercase: true,
 				},
 			},
+			targetIndexProjectIndexName: {
+				Name:         targetIndexProjectIndexName,
+				AllowMissing: false,
+				Unique:       false,
+				Indexer: &memdb.StringFieldIndex{
+					Field:     "ProjectId",
+					Lowercase: true,
+				},
+			},
 			targetIndexUuidName: {
 				Name:         targetIndexUuidName,
 				AllowMissing: true,
@@ -319,10 +345,11 @@ func targetIndexSchema() *memdb.TableSchema {
 }
 
 const (
-	targetIndexIdIndexName   = "id"
-	targetIndexNameIndexName = "name"
-	targetIndexUuidName      = "uuid"
-	targetIndexTableName     = "target-index"
+	targetIndexIdIndexName      = "id"
+	targetIndexNameIndexName    = "name"
+	targetIndexProjectIndexName = "project"
+	targetIndexUuidName         = "uuid"
+	targetIndexTableName        = "target-index"
 )
 
 type targetIndexRecord struct {
