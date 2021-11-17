@@ -25,12 +25,18 @@ module VagrantPlugins
           inputs = [].tap do |i|
             i << Input.new(type: SDK::Args::Project)
             i << Input.new(type: Broker)
+            i << Input.new(type: Util::Cacher)
           end
           super(inputs: inputs, output: Client::Project, func: method(:converter))
         end
 
-        def converter(proto, broker)
-          Client::Project.load(proto, broker: broker)
+        def converter(proto, broker, cacher)
+          cid = proto.target.to_s if proto.target.to_s != ""
+          return cacher[cid] if cid && cacher.registered?(cid)
+
+          project = Client::Project.load(proto, broker: broker)
+          cacher[cid] = project if cid
+          project
         end
       end
 
