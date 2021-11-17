@@ -208,6 +208,7 @@ require Vagrant.source_root.join("plugins/commands/serve/mappers/environment.rb"
 require Vagrant.source_root.join("plugins/commands/serve/mappers/guest.rb").to_s
 require Vagrant.source_root.join("plugins/commands/serve/mappers/known_types.rb").to_s
 require Vagrant.source_root.join("plugins/commands/serve/mappers/machine.rb").to_s
+require Vagrant.source_root.join("plugins/commands/serve/mappers/pathname.rb").to_s
 require Vagrant.source_root.join("plugins/commands/serve/mappers/project.rb").to_s
 require Vagrant.source_root.join("plugins/commands/serve/mappers/state_bag.rb").to_s
 require Vagrant.source_root.join("plugins/commands/serve/mappers/target.rb").to_s
