@@ -53,13 +53,13 @@ module VagrantPlugins
       class MachineFromTarget < Mapper
         def initialize
           inputs = [].tap do |i|
-            i << Input.new(type: Vagrant::Environment)
             i << Input.new(type: Client::Target)
+            i << Input.new(type: Vagrant::Environment)
           end
           super(inputs: inputs, output: Vagrant::Machine, func: method(:converter))
         end
 
-        def converter(env, target)
+        def converter(target, env)
           env.machine(
             target.name.to_sym,
             target.provider_name.to_sym,
@@ -71,17 +71,32 @@ module VagrantPlugins
       class MachineFromMachineClient < Mapper
         def initialize
           inputs = [].tap do |i|
-            i << Input.new(type: Vagrant::Environment)
             i << Input.new(type: Client::Target::Machine)
+            i << Input.new(type: Mappers)
           end
           super(inputs: inputs, output: Vagrant::Machine, func: method(:converter))
         end
 
-        def converter(env, machine)
+        def converter(machine, mappers)
+          env = mappers.map(machine.project, to: Vagrant::Environment)
           env.machine(
             machine.name.to_sym,
             machine.provider_name.to_sym,
           )
+        end
+      end
+
+      class MachineToProto < Mapper
+        def initialize
+          super(
+            inputs: [Input.new(type:Client::Target::Machine)],
+            output: SDK::Args::Target::Machine,
+            func: method(:converter),
+          )
+        end
+
+        def converter(m)
+          m.to_proto
         end
       end
     end
