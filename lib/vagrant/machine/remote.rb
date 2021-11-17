@@ -108,7 +108,7 @@ module Vagrant
       end
 
       def provider_name
-        client.provider_name
+        client.provider_name.to_sym
       end
 
       def provider_options
