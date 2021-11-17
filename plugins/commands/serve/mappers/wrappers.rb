@@ -17,7 +17,34 @@ module VagrantPlugins
           value.new.value.class :
           value.new.values.class
         n = type.name.to_s.split("::").last
-        Class.new(Mapper).class_eval "
+
+        Class.new(Mapper) do
+          def converter(proto)
+            v = extract(proto)
+            embiggen(v)
+          end
+
+          def extract(v)
+            if v.respond_to?(:value)
+              v = v.value
+            elsif v.respond_to?(:values)
+              v = v.values.to_a
+            elsif v.respond_to?(:fields)
+              v = v.fields.to_h
+            else
+              v
+            end
+          end
+
+          def embiggen(v)
+            return v if !v.is_a?(Enumerable)
+            v.class[
+              v.map { |nv|
+                embiggen(extract(nv))
+              }
+            ]
+          end
+        end.class_eval "
           def initialize
             super(
               inputs: [Input.new(type: #{value.name})],
@@ -32,16 +59,6 @@ module VagrantPlugins
 
           def to_s
             '<#{name}To#{n}:' + object_id.to_s + '>'
-          end
-
-          def converter(proto)
-            if proto.respond_to?(:value)
-              proto.value
-            elsif proto.respond_to?(:values)
-              proto.values.to_a
-            else
-              proto.fields.to_h
-            end
           end
         "
       end
