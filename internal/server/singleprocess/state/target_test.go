@@ -43,6 +43,36 @@ func TestTarget(t *testing.T) {
 		}))
 		require.NoError(err)
 
+		// Ensure there is one entry
+		resp, err := s.TargetList()
+		require.NoError(err)
+		require.Len(resp, 1)
+
+		// Try to insert duplicate entry
+		err = s.TargetPut(serverptypes.TestTarget(t, &vagrant_server.Target{
+			ResourceId: resourceId,
+			Project:    projectRef,
+			Name:       "test",
+		}))
+		require.NoError(err)
+
+		// Ensure there is still one entry
+		resp, err = s.TargetList()
+		require.NoError(err)
+		require.Len(resp, 1)
+
+		// Try to insert duplicate entry by just name and project
+		err = s.TargetPut(serverptypes.TestTarget(t, &vagrant_server.Target{
+			Project: projectRef,
+			Name:    "test",
+		}))
+		require.NoError(err)
+
+		// Ensure there is still one entry
+		resp, err = s.TargetList()
+		require.NoError(err)
+		require.Len(resp, 1)
+
 		// Get exact
 		{
 			resp, err := s.TargetGet(&vagrant_plugin_sdk.Ref_Target{
@@ -108,6 +138,71 @@ func TestTarget(t *testing.T) {
 			resp, err := s.TargetList()
 			require.NoError(err)
 			require.Len(resp, 0)
+		}
+	})
+
+	t.Run("Find", func(t *testing.T) {
+		require := require.New(t)
+
+		s := TestState(t)
+		defer s.Close()
+		projectRef := testProject(t, s)
+
+		resourceId := "AbCdE"
+		// Set
+		err := s.TargetPut(serverptypes.TestTarget(t, &vagrant_server.Target{
+			ResourceId: resourceId,
+			Project:    projectRef,
+			Name:       "test",
+		}))
+		require.NoError(err)
+
+		// Find by resource id
+		{
+			resp, err := s.TargetFind(&vagrant_server.Target{
+				ResourceId: resourceId,
+			})
+			require.NoError(err)
+			require.NotNil(resp)
+			require.Equal(resp.ResourceId, resourceId)
+		}
+
+		// Find by resource name
+		{
+			resp, err := s.TargetFind(&vagrant_server.Target{
+				Name: "test",
+			})
+			require.NoError(err)
+			require.NotNil(resp)
+			require.Equal(resp.ResourceId, resourceId)
+		}
+
+		// Find by resource name+project
+		{
+			resp, err := s.TargetFind(&vagrant_server.Target{
+				Name: "test", Project: projectRef,
+			})
+			require.NoError(err)
+			require.NotNil(resp)
+			require.Equal(resp.ResourceId, resourceId)
+		}
+
+		// Don't find nonexistent project
+		{
+			resp, err := s.TargetFind(&vagrant_server.Target{
+				Name: "test", Project: &vagrant_plugin_sdk.Ref_Project{ResourceId: "idontexist"},
+			})
+			require.Error(err)
+			require.Nil(resp)
+		}
+
+		// Don't find just by project
+		{
+			resp, err := s.TargetFind(&vagrant_server.Target{
+				Project: projectRef,
+			})
+			require.Error(err)
+			require.Nil(resp)
 		}
 	})
 }
