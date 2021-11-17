@@ -170,12 +170,23 @@ func (s *State) targetPut(
 	}
 
 	if value.ResourceId == "" {
-		s.log.Trace("target has no resource id, assuming new target",
-			"target", value)
-		if value.ResourceId, err = s.newResourceId(); err != nil {
-			s.log.Error("failed to create resource id for target", "target", value,
-				"error", err)
-			return
+		// If no resource id is provided, try to find the target based on the name and project
+		foundTarget, erro := s.targetFind(dbTxn, memTxn, value)
+		// If an invalid return code is returned from find then an error occured
+		if _, ok := status.FromError(erro); !ok {
+			return erro
+		}
+		if foundTarget != nil {
+			value.ResourceId = foundTarget.ResourceId
+			value.Uuid = foundTarget.Uuid
+		} else {
+			s.log.Trace("target has no resource id and could not find matching target, assuming new target",
+				"target", value)
+			if value.ResourceId, err = s.newResourceId(); err != nil {
+				s.log.Error("failed to create resource id for target", "target", value,
+					"error", err)
+				return
+			}
 		}
 		if value.Uuid == "" {
 			s.log.Trace("target has no uuid assigned, assigning...", "target", value)

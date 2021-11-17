@@ -148,9 +148,7 @@ func (s *State) projectPut(
 	s.log.Trace("storing project", "project", value, "basis", value.Basis)
 
 	// Grab the stored project if it's available
-	existProject, err := s.projectGet(dbTxn, memTxn, &vagrant_plugin_sdk.Ref_Project{
-		ResourceId: value.ResourceId,
-	})
+	existProject, err := s.projectFind(dbTxn, memTxn, value)
 	if err != nil {
 		// ensure value is nil to identify non-existence
 		existProject = nil
