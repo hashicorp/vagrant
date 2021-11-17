@@ -203,7 +203,7 @@ module VagrantPlugins
                 w = edges.map(&:weight).inject(&:+)
                 if edges.first.respond_to?(:type) && edges.last.respond_to?(:type)
                   if edges.first.type != edges.last.type
-                    w += 1
+                    w += 200
                     extra = edges.first.type.ancestors.index(edges.last.type)
                     if extra.nil?
                       extra = edges.last.type.ancestors.index(edges.first.type)
