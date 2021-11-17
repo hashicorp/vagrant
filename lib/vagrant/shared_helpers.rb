@@ -249,9 +249,9 @@ module Vagrant
         end
       end
     end
-    if ENV["VAGRANT_LOG_MAPPER"] == ""
-      Log4r::Logger.new("vagrantplugins::command::serve::mappers::internal")
-      l.outputters = nil
+    if ENV["VAGRANT_LOG_MAPPER"].to_s == ""
+      l = Log4r::Logger.new("vagrantplugins::commandserve::mappers::internal")
+      l.level = Log4r::ERROR
     end
     @_server_mode = true
   end
