@@ -19,6 +19,7 @@ type Machine struct {
 	box     *Box
 	machine *vagrant_server.Target_Machine
 	logger  hclog.Logger
+	guest   core.Guest
 }
 
 // Close implements core.Machine
@@ -54,6 +55,9 @@ func (m *Machine) Box() (b core.Box, err error) {
 
 // Guest implements core.Machine
 func (m *Machine) Guest() (g core.Guest, err error) {
+	if m.guest != nil {
+		return m.guest, nil
+	}
 	guests, err := m.project.basis.typeComponents(m.ctx, component.GuestType)
 	if err != nil {
 		return
@@ -61,6 +65,7 @@ func (m *Machine) Guest() (g core.Guest, err error) {
 
 	var result core.Guest
 	var result_name string
+	var numParents int
 
 	for name, g := range guests {
 		guest := g.Value.(core.Guest)
@@ -77,33 +82,30 @@ func (m *Machine) Guest() (g core.Guest, err error) {
 			if detected {
 				result = guest
 				result_name = name
+				if numParents, err = m.project.basis.countParents(guest); err != nil {
+					return nil, err
+				}
 			}
 			continue
 		}
 
-		gp, err := guest.Parent()
-		if err != nil {
-			m.logger.Error("failed to get parents from guest",
-				"plugin", name,
-				"type", "Guest",
-				"error", err)
+		if detected {
+			gp, err := m.project.basis.countParents(guest)
+			if err != nil {
+				m.logger.Error("failed to get parents from guest",
+					"plugin", name,
+					"type", "Guest",
+					"error", err,
+				)
 
-			continue
-		}
+				continue
+			}
 
-		rp, err := result.Parent()
-		if err != nil {
-			m.logger.Error("failed to get parents from guest",
-				"plugin", result_name,
-				"type", "Guest",
-				"error", err)
-
-			continue
-		}
-
-		if len(gp) > len(rp) {
-			result = guest
-			result_name = name
+			if gp > numParents {
+				result = guest
+				result_name = name
+				numParents = gp
+			}
 		}
 	}
 
@@ -111,16 +113,19 @@ func (m *Machine) Guest() (g core.Guest, err error) {
 		return nil, fmt.Errorf("failed to detect guest plugin for current platform")
 	}
 
+	m.logger.Info("guest detection complete",
+		"name", result_name)
+
 	if s, ok := result.(core.Seeder); ok {
-		if err = s.Seed(m); err != nil {
+		p, _ := m.Project()
+		if err = s.Seed(m, p, m.Target); err != nil {
 			return nil, err
 		}
 	} else {
 		return nil, fmt.Errorf("guest plugin does not support seeder interface")
 	}
 
-	m.logger.Info("guest detection complete",
-		"name", result_name)
+	m.guest = result
 
 	return result, nil
 }
