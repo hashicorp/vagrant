@@ -49,19 +49,19 @@ module VagrantPlugins
         end
       end
 
-      # class TerminalFromProject < Mapper
-      #   def initialize
-      #     super(
-      #       inputs: [Input.new(type: Client::Project)],
-      #       output: Client::Terminal,
-      #       func: method(:converter)
-      #     )
-      #   end
+      class TerminalFromProject < Mapper
+        def initialize
+          super(
+            inputs: [Input.new(type: Client::Project)],
+            output: Client::Terminal,
+            func: method(:converter)
+          )
+        end
 
-      #   def converter(project)
-      #     project.ui
-      #   end
-      # end
+        def converter(project)
+          project.ui
+        end
+      end
 
       class TerminalToProto < Mapper
         def initialize
