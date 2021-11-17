@@ -4,43 +4,48 @@ require "google/protobuf/wrappers_pb"
 module VagrantPlugins
   module CommandServe
     class Mappers
-      class Direct < Mapper
+      class DirectFuncSpec < Mapper
         def initialize
           inputs = [].tap do |i|
             i << Input.new(type: SDK::FuncSpec::Value) { |arg|
               arg.type == "hashicorp.vagrant.sdk.Args.Direct" &&
                 !arg&.value&.value.nil?
             }
-            i << Input.new(type: Mappers)
           end
-          super(inputs: inputs, output: Array, func: method(:converter))
+          super(inputs: inputs, output: SDK::Args::Direct, func: method(:converter))
         end
 
-        def converter(proto, mappers)
-          SDK::Args::Direct.decode(proto.value.value).list.map do |v|
-            namespace = v.type_name.split(".")
-            klass_name = namespace.pop
+        def converter(proto)
+          SDK::Args::Direct.decode(proto.value.value)
+        end
+      end
 
-            ns = namespace.inject(Object) { |memo, n|
-              memo.const_get(n.split("_").map(&:capitalize).join.to_sym) if memo
-            }
-            klass = ns.const_get(klass_name) if ns
-            v = v.unpack(klass) if klass
+      class DirectFromProto < Mapper
+        include Util::HasLogger
 
-            new_v = true
-            while new_v
-              begin
-                v = mappers.map(v)
-              rescue
-                new_v = false
-              end
-            end
-            v
+        def initialize
+          super(
+            inputs: [
+              Input.new(type: SDK::Args::Direct),
+              Input.new(type: Mappers),
+            ],
+            output: Types::Direct,
+            func: method(:converter),
+          )
+        end
+
+        def converter(direct, mappers)
+          args = direct.arguments.map do |v|
+            logger.debug("converting direct argument #{v} to something useful")
+            mappers.map(v)
           end
+          Types::Direct.new(arguments: args)
         end
       end
 
       class DirectToProto < Mapper
+        include Util::HasLogger
+
         def initialize
           inputs = [].tap do |i|
             i << Input.new(type: Types::Direct)
@@ -52,13 +57,13 @@ module VagrantPlugins
         def converter(d, mappers)
           args = d.args.map do |a|
             begin
-              mappers.map(a, mappers, to: Google::Protobuf::Any)
+              logger.debug("direct argument list item map to any: #{a}")
+              mappers.map(a, to: Google::Protobuf::Any)
             rescue => err
               raise "Failed to map value #{a} - #{err}\n#{err.backtrace.join("\n")}"
             end
-
           end
-          SDK::Args::Direct.new(list: args)
+          SDK::Args::Direct.new(arguments: args)
         end
       end
     end
