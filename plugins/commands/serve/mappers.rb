@@ -23,11 +23,17 @@ module VagrantPlugins
         @known_arguments = args
         Mapper.generate_anys
         @mappers = Mapper.registered.map(&:new)
-        @identifiers = []
+        @cacher = Util::Cacher.new
       end
 
+      # Create a clone of this mappers instance
+      #
+      # @return [Mappers]
       def clone
-        n = self.class.new(*known_arguments)
+        self.class.new(known_arguments).tap do |m|
+          m.cacher = cacher
+          m.mappers.replace(mappers.dup)
+        end
       end
 
       # Add an argument to be included with mapping calls
@@ -36,33 +42,19 @@ module VagrantPlugins
       # @return [Object]
       def add_argument(v)
         known_arguments << v
-        @identifiers << identify(v)
         v
       end
 
-      def cached(key)
-        return false if cacher.nil?
-        cacher[key]
-      end
-
-      def cache_key(*args)
-        key = Digest::SHA256.new
-        @identifiers.each { |i| key << i }
-        args.each do |a|
-          key << identify(a)
-        end
-        key.hexdigest
-      end
-
-      def identify(thing)
-        thing.respond_to?(:cacher_id) ?
-          thing.cacher_id.to_s :
-          thing.object_id.to_s
-      end
-
+      # Convert Any proto message to actual message type
+      #
+      # @param any [Google::Protobuf::Any]
+      # @return [Google::Protobuf::MessageExts]
       def unany(any)
-        type = any.type.split('/').last.to_s.split('.').inject(Object) { |memo, name|
-          memo.const_get(name.to_s.capitalize)
+        type = any.type_name.split('/').last.to_s.split('.').inject(Object) { |memo, name|
+          c = memo.constants.detect { |mc| mc.to_s.downcase == name.to_s.downcase }
+          raise NameError,
+            "Failed to find constant for `#{any.type_name}'" if c.nil?
+          memo.const_get(c)
         }
         any.unpack(type)
       end
@@ -73,12 +65,7 @@ module VagrantPlugins
       # @param to [Class] Resultant type (optional)
       # @return [Object]
       def map(value, *extra_args, to: nil)
-        # If we already processed this value, return cached value
-        cache_key = cache_key(value, *extra_args, to)
-        if c = cached(cache_key)
-          return c
-        end
-
+        logger.debug("starting the value mapping process #{value} => #{to.nil? ? 'unknown' : to.inspect}")
         if value.nil? && to
           val = (extra_args + known_arguments).detect do |item|
             item.is_a?(to)
@@ -86,8 +73,22 @@ module VagrantPlugins
           return val if val
         end
 
+        # NOTE: We set the cacher instance into the extra args
+        # instead of adding it as a known argument so if it is
+        # changed the correct instance will be used
+        extra_args << cacher
+        extra_args << self
+
         if value.is_a?(Google::Protobuf::Any)
-          value = unany(value)
+          non_any = unany(value)
+          logger.debug("extracted any proto message #{value} -> #{non_any}")
+          value = non_any
+        end
+
+        # If the provided value is a protobuf value, just return that value
+        if value.is_a?(Google::Protobuf::Value)
+          logger.debug("direct return of protobuf value contents - #{value.to_ruby}")
+          return value.to_ruby
         end
 
         args = ([value] + extra_args + known_arguments).compact
@@ -102,7 +103,7 @@ module VagrantPlugins
               m.output.ancestors.include?(Google::Protobuf::MessageExts)
             next m if !m.inputs.first.valid?(SDK::FuncSpec::Value) ||
               m.inputs.first.valid?(value)
-            logger.warn("removing mapper - invalid funcspec match - #{m}")
+            logger.debug("removing mapper - invalid funcspec match - #{m}")
             nil
           end.compact
           map_mapper.mappers.replace(valid_mappers)
@@ -135,9 +136,14 @@ module VagrantPlugins
           end
 
           valid_outputs.reverse!
-          logger.debug("mapper output types discovered for input type `#{value.class}': #{valid_outputs}, mappers:\n" + map_mapper.mappers.map(&:to_s).join("\n"))
+          valid_outputs.delete_if do |o|
+            (value.class.ancestors.include?(Google::Protobuf::MessageExts) &&
+              o.ancestors.include?(Google::Protobuf::MessageExts)) ||
+              o.ancestors.include?(value.class)
+          end
           last_error = nil
           valid_outputs.each do |out|
+            logger.debug("attempting blind map #{value} -> #{out}")
             begin
               m_graph = Internal::Graph::Mappers.new(
                 output_type: out,
@@ -160,8 +166,7 @@ module VagrantPlugins
           )
           result = m_graph.execute
         end
-        cacher[cache_key] = result if cacher
-        logger.debug("map of #{value} to #{to.inspect} => #{result}")
+        logger.debug("map of #{value} to #{to.nil? ? 'unknown' : to.inspect} => #{result}")
         result
       end
 
@@ -179,19 +184,21 @@ module VagrantPlugins
       # @return [Array<Object>, Object]
       def funcspec_map(spec, *extra_args, expect: [])
         expect = Array(expect)
-        expect.unshift(expect.pop).compact
+        args = spec.args.dup
+        # NOTE: the spec will have the order of the arguments
+        # shifted one. not sure why, but we can just work around
+        # it here for now.
+        args.push(args.shift)
         result = Array.new.tap do |result_args|
-          spec.args.each_with_index do |arg, i|
-            result_args << map(arg, *extra_args + result_args, to: expect[i])
+          args.each_with_index do |arg, i|
+            logger.debug("mapping funcspec value #{arg.inspect} to expected type #{expect[i]}")
+            result_args << map(arg, *(extra_args + result_args), to: expect[i])
           end
         end
         if result.size == 1
           return result.first
         end
-        # NOTE: the spec will have the order of the arguments
-        # shifted one. not sure why, but we can just work around
-        # it here for now.
-        result.push(result.shift)
+        result
       end
     end
   end
