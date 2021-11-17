@@ -2,18 +2,50 @@ module VagrantPlugins
   module CommandServe
     class Mappers
       class EnvironmentFromProject < Mapper
+        include Util::HasLogger
+
         def initialize
           inputs = [
             Input.new(type: Client::Project),
             Input.new(type: Vagrant::UI::Remote),
+            Input.new(type: Util::Cacher)
           ]
           super(inputs: inputs, output: Vagrant::Environment, func: method(:converter))
         end
 
-        def converter(project, ui)
-          Vagrant::Environment.new(ui: ui, client: project)
+        def converter(project, ui, cacher)
+          cid = project.resource_id
+          return cacher[cid] if cacher.registered?(cid)
+          logger.warn("cache miss for environment with project resource id #{cid} cache=#{cacher} !!")
+          env = Vagrant::Environment.new(ui: ui, client: project)
+          cacher[cid] = env
+          env
         end
       end
+
+      class EnvironmentFromProjectNoUI < Mapper
+        include Util::HasLogger
+
+        def initialize
+          inputs = [
+            Input.new(type: Client::Project),
+            Input.new(type: Util::Cacher),
+            Input.new(type: Mappers)
+          ]
+          super(inputs: inputs, output: Vagrant::Environment, func: method(:converter))
+        end
+
+        def converter(project, cacher, mapper)
+          cid = project.resource_id
+          return cacher[cid] if cacher.registered?(cid)
+          logger.warn("cache miss for environment with project resource id #{cid} cache=#{cacher}")
+          ui = mapper.map(project, to: Vagrant::UI::Remote)
+          env = Vagrant::Environment.new(client: project, ui: ui)
+          cacher[cid] = env
+          env
+        end
+      end
+
     end
   end
 end
