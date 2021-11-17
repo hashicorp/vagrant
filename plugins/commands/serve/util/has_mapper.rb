@@ -4,14 +4,15 @@ module VagrantPlugins
       # Adds mapper initialization and will include
       module HasMapper
         def mapper
+          if !Thread.current.thread_variable_get(:cacher)
+            Thread.current.thread_variable_set(:cacher, Cacher.new)
+          end
+          @mapper.cacher = Thread.current.thread_variable_get(:cacher)
           @mapper
         end
 
         def initialize(*args, **opts, &block)
-          @cacher = Cacher.new
           @mapper = Mappers.new
-          # TODO(spox): enable this when future is present
-          # @mapper.cacher = @cacher
           if respond_to?(:broker)
             @mapper.add_argument(broker)
           end
