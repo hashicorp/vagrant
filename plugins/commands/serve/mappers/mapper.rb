@@ -176,7 +176,7 @@ module VagrantPlugins
               value = args.detect do |arg|
                 input.valid?(arg)
               end
-              if !value
+              if value.nil? && input.type != NilClass
                 raise ArgumentError,
                   "Failed to locate required argument of type `#{input.type}'"
               end
