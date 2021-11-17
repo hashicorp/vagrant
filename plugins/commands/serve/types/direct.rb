@@ -7,6 +7,10 @@ module VagrantPlugins
         def initialize(arguments:)
           @args = arguments
         end
+
+        def arguments
+          @args
+        end
       end
     end
   end
