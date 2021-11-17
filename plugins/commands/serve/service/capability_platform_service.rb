@@ -24,12 +24,12 @@ module VagrantPlugins
 
         # TODO(spox): request scoping for seed values - needs investigation
         def seed(req, ctx)
-          @seeds = req.list.to_a
+          @seeds = req.arguments.to_a
           Empty.new
         end
 
         def seeds(req, ctx)
-          SDK::Args::Direct.new(list: @seeds)
+          SDK::Args::Direct.new(arguments: @seeds)
         end
 
         def has_capability_spec(*_)
@@ -68,7 +68,7 @@ module VagrantPlugins
         def capability_spec(req, ctx)
           SDK::FuncSpec.new(
             name: "capability_spec",
-            args: default_args + [
+            args: default_args.values + [
               SDK::FuncSpec::Value.new(
                 type: "hashicorp.vagrant.sdk.Args.Direct",
                 name: "",
@@ -93,9 +93,15 @@ module VagrantPlugins
             caps_registry = capabilities[plugin_name]
             target_cap = caps_registry.get(cap_name)
 
-            args = mapper.funcspec_map(req.func_args, mapper, broker)
-            args = [args.first] + args.last
+            args = mapper.funcspec_map(
+              req.func_args,
+              expect: default_args.keys + [Types::Direct]
+            )
+            args = capability_arguments(args)
             cap_method = target_cap.method(cap_name)
+
+            arg_list = args.join("\n  - ")
+            logger.debug("arguments to be passed to #{cap_name} on plugin #{plugin_name}:\n  - #{arg_list}")
 
             result = cap_method.call(*args)
 
@@ -105,6 +111,11 @@ module VagrantPlugins
               result: Google::Protobuf::Any.pack(val)
             )
           end
+        end
+
+        def capability_arguments(args)
+          direct = args.pop
+          args + direct.arguments
         end
       end
     end
