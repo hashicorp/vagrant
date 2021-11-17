@@ -396,11 +396,6 @@ func (b *Basis) LoadProject(popts ...ProjectOption) (p *Project, err error) {
 		}
 	}
 
-	// Initialize any targets defined within the project
-	if err = p.InitTargets(); err != nil {
-		return
-	}
-
 	// If any targets are defined in the project, load them
 	if len(p.project.Targets) > 0 {
 		for _, tref := range p.project.Targets {

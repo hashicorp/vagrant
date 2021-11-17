@@ -65,7 +65,6 @@ func (c *Client) Task(
 	ctx context.Context,
 	op *vagrant_server.Job_RunOp,
 	mod JobModifier,
-
 ) (*vagrant_server.Job_RunResult, error) {
 	if op == nil {
 		op = &vagrant_server.Job_RunOp{}

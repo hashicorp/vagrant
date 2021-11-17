@@ -213,6 +213,11 @@ func (t *Target) Run(ctx context.Context, task *vagrant_server.Task) (err error)
 		"target", t,
 		"task", task)
 
+	// Intialize targets
+	if err = t.project.InitTargets(); err != nil {
+		return err
+	}
+
 	cmd, err := t.project.basis.component(
 		ctx, component.CommandType, task.Component.Name)
 
