@@ -64,6 +64,11 @@ module VagrantPlugins
           Host.load(h, broker: broker)
         end
 
+        # @return [String] resource identifier for this target
+        def resource_id
+          client.resource_id(Empty.new).resource_id
+        end
+
         # return [<String>]
         def target_names
           resp = client.target_names(Empty.new)
