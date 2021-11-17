@@ -415,7 +415,7 @@ func (b *Basis) LoadProject(popts ...ProjectOption) (p *Project, err error) {
 	p.Closer(func() error {
 		b.m.Lock()
 		defer b.m.Unlock()
-		delete(b.projects, p.ResourceId())
+		delete(b.projects, p.project.ResourceId)
 		delete(b.projects, p.Name())
 		return nil
 	})
@@ -494,11 +494,11 @@ func (b *Basis) SaveFull() (err error) {
 	for _, p := range b.projects {
 		b.logger.Trace("saving project",
 			"basis", b.ResourceId(),
-			"project", p.ResourceId())
+			"project", p.project.ResourceId)
 
 		if perr := p.SaveFull(); perr != nil {
 			b.logger.Trace("error while saving project",
-				"project", p.ResourceId(),
+				"project", p.project.ResourceId,
 				"error", err)
 
 			err = multierror.Append(err, perr)

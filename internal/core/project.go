@@ -204,8 +204,8 @@ func (p *Project) Name() string {
 }
 
 // Resource ID for this project
-func (p *Project) ResourceId() string {
-	return p.project.ResourceId
+func (p *Project) ResourceId() (string, error) {
+	return p.project.ResourceId, nil
 }
 
 // Returns the job info if currently set
@@ -362,7 +362,7 @@ func (p *Project) Save() (err error) {
 	defer p.m.Unlock()
 
 	p.logger.Trace("saving project to db",
-		"project", p.ResourceId())
+		"project", p.project.ResourceId)
 
 	result, err := p.Client().UpsertProject(p.ctx,
 		&vagrant_server.UpsertProjectRequest{
@@ -371,7 +371,7 @@ func (p *Project) Save() (err error) {
 	)
 	if err != nil {
 		p.logger.Trace("failed to save project",
-			"project", p.ResourceId())
+			"project", p.project.ResourceId)
 	}
 
 	p.project = result.Project
