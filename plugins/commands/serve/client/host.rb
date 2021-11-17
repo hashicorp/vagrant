@@ -4,11 +4,10 @@ module VagrantPlugins
   module CommandServe
     module Client
       class Host
-        include CapabilityPlatform
-
         prepend Util::ClientSetup
         prepend Util::HasLogger
-        prepend Util::HasMapper
+
+        include CapabilityPlatform
 
         # @return [<String>] parents
         def parents
