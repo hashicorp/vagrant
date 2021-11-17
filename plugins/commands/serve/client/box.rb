@@ -21,14 +21,14 @@ module VagrantPlugins
           res = client.has_update(SDK::Box::HasUpdateRequest.new(
             version: version
           ))
-          res.hasUpdate
+          res.has_update
         end
 
         # @param [Sdk::Args::TargetIndex] index
         # @return [Bool] is in use
         def in_use(index)
           res = client.in_use(index)
-          res.inUse
+          res.in_use
         end
 
         # @param [String] path

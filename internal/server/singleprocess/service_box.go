@@ -24,7 +24,7 @@ func (s *service) DeleteBox(
 	req *vagrant_server.DeleteBoxRequest,
 ) (empt *empty.Empty, err error) {
 	err = s.state.BoxDelete(req.Box)
-	return
+	return &empty.Empty{}, nil
 }
 
 func (s *service) GetBox(

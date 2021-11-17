@@ -743,10 +743,10 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
       optional :version, :string, 1
     end
     add_message "hashicorp.vagrant.sdk.Box.HasUpdateResponse" do
-      optional :hasUpdate, :bool, 1
+      optional :has_update, :bool, 1
     end
     add_message "hashicorp.vagrant.sdk.Box.InUseResponse" do
-      optional :inUse, :bool, 1
+      optional :in_use, :bool, 1
     end
     add_message "hashicorp.vagrant.sdk.Box.MetadataUrlResponse" do
       optional :metadataUrl, :string, 1
