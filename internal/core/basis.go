@@ -213,19 +213,23 @@ func (b *Basis) Boxes() (bc *BoxCollection, err error) {
 	return b.boxCollection, nil
 }
 
-func (b *Basis) countParents(host core.Host) (int, error) {
+func (b *Basis) countParents(iplg interface{}) (int, error) {
+	plg, ok := iplg.(HasParent)
+	if !ok {
+		return 0, fmt.Errorf("plugin should support parents but does not")
+	}
+
 	numParents := 0
-	p, err := host.Parent()
+	parent := plg.GetParentPlugin()
+	if parent == nil {
+		return 0, nil
+	}
+	numParents += 1
+	n, err := b.countParents(parent)
 	if err != nil {
 		return 0, err
 	}
-	if p != "" {
-		numParents += 1
-		parentHost, _ := b.component(b.ctx, component.HostType, p)
-		n, _ := b.countParents(parentHost.Value.(core.Host))
-		numParents += n
-	}
-	return numParents, nil
+	return numParents + n, nil
 }
 
 // Returns the detected host for the current platform
@@ -256,7 +260,9 @@ func (b *Basis) Host() (host core.Host, err error) {
 			if detected {
 				result = host
 				result_name = name
-				numParents, _ = b.countParents(host)
+				if numParents, err = b.countParents(host); err != nil {
+					return nil, err
+				}
 			}
 			continue
 		}
@@ -561,8 +567,10 @@ func (b *Basis) Run(ctx context.Context, task *vagrant_server.Task) (err error) 
 	return
 }
 
-type HasParents interface {
+type HasParent interface {
 	Parent() (string, error)
+	SetParentPlugin(interface{})
+	GetParentPlugin() interface{}
 }
 
 func (b *Basis) loadParentPlugin(p *plugin.Plugin, typ component.Type) (err error) {
@@ -570,7 +578,7 @@ func (b *Basis) loadParentPlugin(p *plugin.Plugin, typ component.Type) (err erro
 	if err != nil {
 		return err
 	}
-	h, ok := plg.Component.(HasParents)
+	h, ok := plg.Component.(HasParent)
 	if !ok {
 		b.logger.Debug("plugin does not have parents",
 			"type", typ)
@@ -630,7 +638,14 @@ func (b *Basis) component(
 	}
 
 	// Make sure parent plugins get loaded
-	b.loadParentPlugin(p, typ)
+	if err = b.loadParentPlugin(p, typ); err != nil {
+		b.logger.Error("failed to load parent plugin",
+			"type", typ.String(),
+			"name", name,
+			"error", err,
+		)
+		return nil, err
+	}
 
 	c, err := p.InstanceOf(typ)
 	if err != nil {
