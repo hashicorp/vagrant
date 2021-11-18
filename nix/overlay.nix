@@ -12,6 +12,8 @@ final: prev: rec {
 
   go-tools = prev.callPackage ./go-tools.nix { };
 
+  grpc-tools = prev.callPackage ./grpc-tools.nix { };
+
   go-mockery = prev.callPackage ./go-mockery.nix { };
 
   go-changelog = prev.callPackage ./go-changelog.nix { };

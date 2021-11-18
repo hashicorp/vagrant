@@ -10,6 +10,7 @@
 , go-protobuf
 , go-protobuf-json
 , go-tools
+, grpc-tools
 , grpcurl
 , libpng
 , libtool
@@ -41,6 +42,7 @@ mkShell rec {
     go-tools
     go-mockery
     go-changelog
+    grpc-tools
 
     # Needed for website/
     autoconf
