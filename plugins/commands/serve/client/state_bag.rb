@@ -15,6 +15,7 @@ module VagrantPlugins
           )
           client.get(req).value
         end
+        alias_method :[], :get
 
         # @param [String]
         # @return [String, Boolean]
@@ -34,6 +35,7 @@ module VagrantPlugins
           )
           client.put(req)
         end
+        alias_method :[]=, :put
 
         # @param [String]
         # @return []
@@ -43,6 +45,8 @@ module VagrantPlugins
           )
           client.remove(req)
         end
+        alias_method :delete, :remove
+
       end
     end
   end
