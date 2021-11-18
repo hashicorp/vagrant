@@ -64,12 +64,13 @@ func (p *Project) LoadVagrantfile() error {
 		return fmt.Errorf("Couldn't attach to Ruby runtime")
 	}
 
+	// This is the Vagrantfile that exists in the Project directory
+	// Does this parse include the Vagrantfile that exists for the machine?
 	vagrantfile, err := rvc.ParseVagrantfile(p.vagrantfile.String())
 	if err != nil {
 		l.Error("failed to parse project vagrantfile",
 			"error", err,
 		)
-
 		return err
 	}
 
@@ -128,11 +129,19 @@ func (p *Project) LoadTarget(n string) (*Target, error) {
 	// Doesn't exist so lets create it
 	// TODO(spox): do we actually want to create these?
 
+	var machineConfig *vagrant_plugin_sdk.Vagrantfile_MachineConfig
+	for _, m := range p.project.Configuration.MachineConfigs {
+		if m.Name == n {
+			machineConfig = m
+			break
+		}
+	}
 	uresult, err := p.vagrant.UpsertTarget(p.ctx,
 		&vagrant_server.UpsertTargetRequest{
 			Target: &vagrant_server.Target{
-				Name:    n,
-				Project: p.Ref(),
+				Name:          n,
+				Project:       p.Ref(),
+				Configuration: machineConfig,
 			},
 		},
 	)

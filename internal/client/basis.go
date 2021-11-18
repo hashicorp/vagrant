@@ -146,12 +146,12 @@ func (b *Basis) LoadVagrantfile() error {
 		return fmt.Errorf("Couldn't attach to Ruby runtime")
 	}
 
+	// This is the Vagrantfile that exists in the Basis directory
 	vagrantfile, err := rvc.ParseVagrantfile(vpath.String())
 	if err != nil {
 		l.Error("failed to parse basis vagrantfile",
 			"error", err,
 		)
-
 		return err
 	}
 
