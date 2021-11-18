@@ -1,6 +1,25 @@
 module VagrantPlugins
   module CommandServe
     class Mappers
+      class TargetIndexProtoFromSpec < Mapper
+        def initialize
+          super(
+            inputs: [
+              Input.new(type: SDK::FuncSpec::Value) { |arg|
+                arg.type == "hashicorp.vagrant.sdk.Args.TargetIndex" &&
+                  !arg&.value&.value.nil?
+              }
+            ],
+            output: SDK::Args::TargetIndex,
+            func: method(:converter)
+          )
+        end
+
+        def converter(fv)
+          SDK::Args::TargetIndex.decode(fv.value.value)
+        end
+      end
+
       # Build a target index client from a FuncSpec value
       class TargetIndexFromSpec < Mapper
         def initialize

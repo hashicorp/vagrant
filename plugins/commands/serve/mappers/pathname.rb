@@ -1,6 +1,25 @@
 module VagrantPlugins
   module CommandServe
     class Mappers
+      class PathnameProtoFromSpec < Mapper
+        def initialize
+          super(
+            inputs: [
+              Input.new(type: SDK::FuncSpec::Value) { |arg|
+                arg.type == "hashicorp.vagrant.sdk.Args.Path" &&
+                  !arg&.value&.value.nil?
+              }
+            ],
+            output: SDK::Args::Path,
+            func: method(:converter),
+          )
+        end
+
+        def converter(fv)
+          SDK::Args::Path.decode(fv.value.value)
+        end
+      end
+
       class PathnameToProto < Mapper
         def initialize
           super(

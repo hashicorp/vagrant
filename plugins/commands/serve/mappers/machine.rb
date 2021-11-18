@@ -1,6 +1,25 @@
 module VagrantPlugins
   module CommandServe
     class Mappers
+      class MachineProtoFromSpec < Mapper
+        def initialize
+          super(
+            inputs: [
+              Input.new(type: SDK::FuncSpec::Value) { |arg|
+                arg.type == "hashicorp.vagrant.sdk.Args.Target.Machine" &&
+                  !arg&.value&.value.nil?
+              }
+            ],
+            output: SDK::Args::Target::Machine,
+            func: method(:converter)
+          )
+        end
+
+        def converter(fv)
+          SDK::Args::Target::Machine.decode(fv.value.value)
+        end
+      end
+
       # Build a machine client from a FuncSpec value
       class MachineFromSpec < Mapper
         def initialize

@@ -2,7 +2,7 @@ module VagrantPlugins
   module CommandServe
     class Mappers
       # Build a command arguments from a FuncSpec value
-      class CommandArgumentsFromSpec < Mapper
+      class CommandArgumentsProtoFromSpec < Mapper
         def initialize
           inputs = [].tap do |i|
             i << Input.new(type: SDK::FuncSpec::Value) { |arg|

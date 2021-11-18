@@ -1,6 +1,25 @@
 module VagrantPlugins
   module CommandServe
     class Mappers
+      class TerminalProtoFromSpec < Mapper
+        def initialize
+          super(
+            inputs: [
+              Input.new(type: SDK::FuncSpec::Value) { |arg|
+                arg.type == "hashicorp.vagrant.sdk.Args.TerminalUI" &&
+                  !arg&.value&.value.nil?
+              }
+            ],
+            output: SDK::Args::TerminalUI,
+            func: method(:converter),
+          )
+        end
+
+        def converter(fv)
+          SDK::Args::TerminalUI.decode(fv.value.value)
+        end
+      end
+
       # Build a terminal client from a FuncSpec value
       class TerminalFromSpec < Mapper
         def initialize

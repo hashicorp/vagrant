@@ -1,6 +1,24 @@
 module VagrantPlugins
   module CommandServe
     class Mappers
+      class ProjectProtoFromSpec < Mapper
+        def initialize
+          super(
+            inputs: [Input.new(type: SDK::FuncSpec::Value) { |arg|
+                arg.type == "hashicorp.vagrant.sdk.Args.Project" &&
+                  !arg&.value&.value.nil?
+              }
+            ],
+            output: SDK::Args::Project,
+            func: method(:converter),
+          )
+        end
+
+        def converter(fv)
+          SDK::Args::Project.decode(fv.value.value)
+        end
+      end
+
       # Build a project client from a FuncSpec value
       class ProjectFromSpec < Mapper
         def initialize
