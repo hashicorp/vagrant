@@ -11,7 +11,6 @@ import (
 	"github.com/hashicorp/go-argmapper"
 	"github.com/hashicorp/go-hclog"
 	"github.com/hashicorp/go-multierror"
-	"google.golang.org/protobuf/types/known/anypb"
 
 	"github.com/hashicorp/vagrant-plugin-sdk/component"
 	"github.com/hashicorp/vagrant-plugin-sdk/core"
@@ -441,37 +440,12 @@ func (p *Project) InitTargets() (err error) {
 		if t == nil {
 			continue
 		}
-		// TODO: get provider info here too/generate full machine config?
-		// We know that these are machines so, save the Machine record
-		machineRecord := &vagrant_server.Target_Machine{}
-		boxes, _ := p.Boxes()
-		b, erro := boxes.Find(t.ConfigVm.Box, "")
-		if erro != nil {
-			return erro
-		}
-		if b == nil {
-			// Add the box
-			b, erro = addBox(t.ConfigVm.Box, "virtualbox", p.basis)
-			if erro != nil {
-				return nil
-			}
-		}
-		machineRecord.Box = b.(*Box).ToProto()
-		machineRecordAny, erro := anypb.New(machineRecord)
-		if err != nil {
-			p.logger.Debug("Error generating machine record for target",
-				"project", p.Name(),
-				"target", t.Name,
-			)
-			return erro
-		}
 		_, err = p.Client().UpsertTarget(p.ctx,
 			&vagrant_server.UpsertTargetRequest{
 				Target: &vagrant_server.Target{
 					Name:          t.Name,
 					Project:       p.Ref().(*vagrant_plugin_sdk.Ref_Project),
 					Configuration: t,
-					Record:        machineRecordAny,
 				},
 			},
 		)

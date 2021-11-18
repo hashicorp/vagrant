@@ -40,16 +40,25 @@ func (m *Machine) SetID(value string) (err error) {
 
 func (m *Machine) Box() (b core.Box, err error) {
 	if m.box == nil {
-		box, err := NewBox(
-			BoxWithBasis(m.project.basis),
-			BoxWithBox(m.machine.Box),
-			BoxWithLogger(m.logger),
-		)
+		// TODO: get provider info here too/generate full machine config?
+		// We know that these are machines so, save the Machine record
+		boxes, _ := m.project.Boxes()
+		b, err := boxes.Find(m.target.Configuration.ConfigVm.Box, "")
 		if err != nil {
 			return nil, err
 		}
-		m.box = box
+		if b == nil {
+			// Add the box
+			b, err = addBox(m.target.Configuration.ConfigVm.Box, "virtualbox", m.project.basis)
+			if err != nil {
+				return nil, err
+			}
+		}
+		m.machine.Box = b.(*Box).ToProto()
+		m.Save()
+		m.box = b.(*Box)
 	}
+
 	return m.box, nil
 }
 
