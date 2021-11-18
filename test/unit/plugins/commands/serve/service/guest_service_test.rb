@@ -19,12 +19,12 @@ describe VagrantPlugins::CommandServe::Service::GuestService do
 
   let(:machine){ double("machine") }
 
-  let(:machine_arg){ 
+  let(:machine_arg){
     Hashicorp::Vagrant::Sdk::FuncSpec::Args.new(
       args: [
         Hashicorp::Vagrant::Sdk::FuncSpec::Value.new(
-          name: "", 
-          type: "hashicorp.vagrant.sdk.Args.Target", 
+          name: "",
+          type: "hashicorp.vagrant.sdk.Args.Target",
           value: Google::Protobuf::Any.pack(
             Hashicorp::Vagrant::Sdk::Args::Target.new(stream_id: 1, network: "here:101", target: "unix://here"
         )))
@@ -79,15 +79,12 @@ describe VagrantPlugins::CommandServe::Service::GuestService do
           false
         end
       end
-  
+
       register_plugin do |p|
         p.guest(:test_false) { test_false_guest }
       end
 
-      VagrantPlugins::CommandServe::Client::Target.any_instance.stub(:project).and_return("")
-      VagrantPlugins::CommandServe::Client::Target.any_instance.stub(:name).and_return("dummy")
-      VagrantPlugins::CommandServe::Client::Target.any_instance.stub(:provider_name).and_return("virtualbox")
-      Vagrant::Environment.any_instance.stub(:machine).and_return(machine)
+      VagrantPlugins::CommandServe::Mappers.any_instance.stub(:funcspec_map).and_return(machine)
     end
 
     it "generates a spec" do
@@ -120,7 +117,7 @@ describe VagrantPlugins::CommandServe::Service::GuestService do
           true
         end
       end
-  
+
       register_plugin do |p|
         p.guest(:cap_guest) { cap_guest }
         p.guest_capability(:cap_guest, :mycap) do
@@ -129,23 +126,23 @@ describe VagrantPlugins::CommandServe::Service::GuestService do
       end
     end
 
-    let(:named_cap_request){ 
+    let(:named_cap_request){
       Hashicorp::Vagrant::Sdk::FuncSpec::Args.new(
         args: [
           Hashicorp::Vagrant::Sdk::FuncSpec::Value.new(
-            name: "", 
-            type: "hashicorp.vagrant.sdk.Args.NamedCapability", 
+            name: "",
+            type: "hashicorp.vagrant.sdk.Args.NamedCapability",
             value: Google::Protobuf::Any.pack(Hashicorp::Vagrant::Sdk::Args::NamedCapability.new(capability:"mycap")))
         ]
       )
     }
 
-    let(:named_cap_bad_request){ 
+    let(:named_cap_bad_request){
       Hashicorp::Vagrant::Sdk::FuncSpec::Args.new(
         args: [
           Hashicorp::Vagrant::Sdk::FuncSpec::Value.new(
-            name: "", 
-            type: "hashicorp.vagrant.sdk.Args.NamedCapability", 
+            name: "",
+            type: "hashicorp.vagrant.sdk.Args.NamedCapability",
             value: Google::Protobuf::Any.pack(Hashicorp::Vagrant::Sdk::Args::NamedCapability.new(capability:"notacapability")))
         ]
       )
