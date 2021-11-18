@@ -5,6 +5,24 @@ module VagrantPlugins
     # Provides value mapping to ease interaction
     # with protobuf and clients
     class Mappers
+      DEFAULT_MAPS = {
+        SDK::Args::Array => Array,
+        SDK::Args::Direct => Types::Direct,
+        SDK::Args::Guest => Client::Guest,
+        SDK::Args::Hash => Hash,
+        SDK::Args::Host => Client::Host,
+        SDK::Args::Path => Pathname,
+        SDK::Args::Project => Vagrant::Environment,
+        SDK::Args::StateBag => Client::StateBag,
+        SDK::Args::Target => Vagrant::Machine,
+        SDK::Args::TargetIndex => Client::TargetIndex,
+        SDK::Args::Target::Machine => Vagrant::Machine,
+        SDK::Args::TerminalUI => Vagrant::UI::Remote,
+        Client::Project => Vagrant::Environment,
+        Client::Target => Vagrant::Machine,
+        Client::Terminal => Vagrant::UI::Remote,
+      }
+
       include Util::HasLogger
 
       autoload :Internal, Vagrant.source_root.join("plugins/commands/serve/mappers/internal").to_s
@@ -65,6 +83,10 @@ module VagrantPlugins
       # @param to [Class] Resultant type (optional)
       # @return [Object]
       def map(value, *extra_args, to: nil)
+        # If we don't have a destination type provided, attempt
+        # to set it using our default maps
+        to = DEFAULT_MAP[value.class] if to.nil?
+
         logger.debug("starting the value mapping process #{value} => #{to.nil? ? 'unknown' : to.inspect}")
         if value.nil? && to
           val = (extra_args + known_arguments).detect do |item|
@@ -189,6 +211,12 @@ module VagrantPlugins
         # shifted one. not sure why, but we can just work around
         # it here for now.
         args.push(args.shift)
+
+        # Start with unpacking the funcspec values so the #map method can
+        # apply known default expectations to values
+        args = args.map { |a| unfuncspec(a) }
+
+        # Now send the arguments through the mapping process
         result = Array.new.tap do |result_args|
           args.each_with_index do |arg, i|
             logger.debug("mapping funcspec value #{arg.inspect} to expected type #{expect[i]}")
@@ -200,12 +228,32 @@ module VagrantPlugins
         end
         result
       end
+
+      # Extracts proto message from funcspec argument proto
+      #
+      # @param v [SDK::FuncSpec::Value]
+      # @return [Google:Protobuf::MessageExts]
+      def unfuncspec(v)
+        m = mappers.find_all { |map|
+          map.inputs.size == 1 &&
+            map.inputs.first.valid?(v)
+        }
+        if m.size > 1
+          raise TypeError,
+            "FuncSpec value of type `#{v.class}' matches more than one mapper"
+        end
+        if m.empty?
+          raise ArgumentError,
+            "FuncSpec value of type `#{v.class}' has no valid mappers"
+        end
+        m.first.call(v)
+      end
     end
   end
 end
 
 # NOTE: Always directly load mappers so they are automatically registered and
-#       available. Using autoloading behavior will result in them being unaavailable
+#       available. Using autoloading behavior will result in them being unavailable
 #       until explicitly requested by name
 require Vagrant.source_root.join("plugins/commands/serve/mappers/box.rb").to_s
 require Vagrant.source_root.join("plugins/commands/serve/mappers/capabilities.rb").to_s
