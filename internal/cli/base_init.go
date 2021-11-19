@@ -1,7 +1,6 @@
 package cli
 
 import (
-	"errors"
 	"fmt"
 	"path/filepath"
 
@@ -20,15 +19,10 @@ import (
 func (c *baseCommand) initConfig(optional bool) (*configpkg.Config, error) {
 	path, err := c.initConfigPath()
 	if err != nil {
-		return nil, err
-	}
-
-	if path == "" {
 		if optional {
 			return nil, nil
 		}
-
-		return nil, errors.New("A Vagrant configuration file is required but wasn't found.")
+		return nil, err
 	}
 
 	return c.initConfigLoad(path)
@@ -37,9 +31,9 @@ func (c *baseCommand) initConfig(optional bool) (*configpkg.Config, error) {
 // initConfigPath returns the configuration path to load.
 func (c *baseCommand) initConfigPath() (string, error) {
 	// This configuarion is for the Vagrant process, not the same as a Vagrantfile
-	path, err := configpkg.FindPath(nil, "vagrant-config.hcl")
+	path, err := configpkg.FindPath(c.basis.Path(), "vagrant-config.hcl")
 	if err != nil {
-		return "", fmt.Errorf("Error looking for a Vagrant configuration: %s", err)
+		return "", fmt.Errorf("error looking for a Vagrant configuration: %s", err)
 	}
 
 	return path.String(), nil

@@ -210,3 +210,8 @@ func (b *Basis) VagrantRubyRuntime() plugin.ClientProtocol {
 func (b *Basis) UI() terminal.UI {
 	return b.ui
 }
+
+// Client returns the raw Vagrant server API client.
+func (b *Basis) Path() path.Path {
+	return b.path
+}

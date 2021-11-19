@@ -296,62 +296,10 @@ func (c *baseCommand) Init(opts ...Option) error {
 		c.ui = terminal.NonInteractiveUI(c.Ctx)
 	}
 
-	// Parse the configuration
+	// Parse the configuration (config does not need to exist)
+	// TODO: This should be `c.initConfig(true)`,
+	//       need to set the basis path first
 	c.cfg = &config.Config{}
-
-	// If we have an app target requirement, we have to get it from the args
-	// or the config.
-	// if baseCfg.TargetRequired && c.project != nil {
-	// 	// If we have args, attempt to extract there first.
-	// 	if len(c.args) > 0 {
-	// 		match := reTarget.FindStringSubmatch(c.args[0])
-	// 		if match != nil {
-	// 			// Set our target
-	// 			t, err := c.project.LoadTarget(match[1])
-	// 			if err != nil {
-	// 				return err
-	// 			}
-	// 			c.target = t
-
-	// 			// Shift the args
-	// 			c.args = c.args[1:]
-
-	// 			// Explicitly set remote (TODO: why?)
-	// 			c.flagRemote = true
-	// 		}
-	// 	}
-
-	// 	// If we didn't get our ref, then we need to load config
-	// 	if c.target == nil {
-	// 		baseCfg.Config = true
-	// 	}
-	// }
-
-	// // If we're loading the config, then get it.
-	// if baseCfg.Config {
-	// 	cfg, err := c.initConfig(baseCfg.ConfigOptional)
-	// 	if err != nil {
-	// 		c.logError(c.Log, "failed to load configuration", err)
-	// 		return err
-	// 	}
-	// 	c.cfg = cfg
-	// 	if cfg != nil {
-	// 		// If we require an app target and we still haven't set it,
-	// 		// and the user provided it via the CLI, set it now. This code
-	// 		// path is only reached if it wasn't set via the args either
-	// 		// above.
-	// 		if c.flagTarget == "" {
-	// 			c.flagTarget = "default"
-	// 		}
-	// 		t, err := c.project.LoadTarget(c.flagTarget)
-
-	// 		if err != nil {
-	// 			return err
-	// 		}
-
-	// 		c.target = t
-	// 	}
-	// }
 
 	// Validate remote vs. local operations.
 	if c.flagRemote && c.target == nil {
@@ -364,23 +312,6 @@ func (c *baseCommand) Init(opts ...Option) error {
 					"on this setting for more information.")
 			c.logError(c.Log, "", err)
 			return err
-		}
-	}
-
-	if baseCfg.TargetRequired && c.project != nil {
-		if c.target == nil {
-			if len(c.cfg.Project.Targets) != 1 {
-				c.ui.Output(errTargetModeSingle, terminal.WithErrorStyle())
-				return ErrSentinel
-			}
-
-			target, err := c.project.LoadTarget(c.cfg.Project.Targets[0].Name)
-
-			if err != nil {
-				return err
-			}
-
-			c.target = target
 		}
 	}
 
