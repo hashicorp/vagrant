@@ -11,16 +11,12 @@ import (
 	"github.com/hashicorp/vagrant/internal/pkg/defaults"
 )
 
-// Config is the core configuration
-// TODO(spox): We need to do the whole merging thing
-//             with the config and access things directly
-//             via the Config, not the Basis or Project
+// Config is the core configuration for connecting to the
+// Vagrant server/runners.
+// This does not include Vagrantfile type config
 type Config struct {
 	Runner *Runner           `hcl:"runner,block" default:"{}"`
 	Labels map[string]string `hcl:"labels,optional"`
-
-	Basis   *Basis
-	Project *Project
 
 	pathData map[string]string
 	ctx      *hcl.EvalContext
@@ -85,49 +81,3 @@ func Load(path string, pwd string) (*Config, error) {
 
 	return &cfg, nil
 }
-
-// Load a project from a configuration file (Vagrantfile)
-// func (c *Config) LoadProject(vagrantfile *vagrant_server.Vagrantfile, projectRef *vagrant_server.Ref_Project) (*Project, error) {
-// 	// We require an absolute path for the path so we can set the path vars
-// 	// if !filepath.IsAbs(path) {
-// 	// 	var err error
-// 	// 	path, err = filepath.Abs(path)
-// 	// 	if err != nil {
-// 	// 		return nil, err
-// 	// 	}
-// 	// }
-
-// 	// // If we have no pwd, then use pwd from basis config
-// 	// if pwd == "" {
-// 	// 	pwd = c.pathData["pwd"]
-// 	// }
-// 	// // Setup our initial variable set
-// 	// pathData := map[string]string{
-// 	// 	"pwd":         pwd,
-// 	// 	"project":     filepath.Dir(path),
-// 	// 	"vagrantfile": path,
-// 	// }
-
-// 	// Decode
-// 	// var cfg Project
-// 	// cfg.Location = filepath.Dir(path)
-
-// 	machines := []*Machine{}
-// 	for _, el := range vagrantfile.MachineConfigs {
-// 		machines = append(machines, &Machine{Name: el.Name, Box: el.Box})
-// 	}
-// 	communicators := []*Communicator{}
-// 	for _, el := range vagrantfile.Communicators {
-// 		communicators = append(communicators, &Communicator{Name: el.Name})
-// 	}
-
-// 	return &Project{
-// 		Location:      filepath.Dir(vagrantfile.Path),
-// 		Vagrant:       &Vagrant{},
-// 		Machines:      machines,
-// 		Communicators: communicators,
-// 		path:          filepath.Dir(vagrantfile.Path),
-// 		config:        c,
-// 		ref:           projectRef,
-// 	}, nil
-// }
