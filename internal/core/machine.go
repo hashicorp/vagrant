@@ -43,13 +43,17 @@ func (m *Machine) Box() (b core.Box, err error) {
 		// TODO: get provider info here too/generate full machine config?
 		// We know that these are machines so, save the Machine record
 		boxes, _ := m.project.Boxes()
-		b, err := boxes.Find(m.target.Configuration.ConfigVm.Box, "")
+		boxName := m.Config().ConfigVm.Box
+		// Get the first provider available - that's the one that
+		// will be used to launch the machine
+		provider := m.Config().ConfigVm.Providers[0].Type
+		b, err := boxes.Find(boxName, "", provider)
 		if err != nil {
 			return nil, err
 		}
 		if b == nil {
 			// Add the box
-			b, err = addBox(m.target.Configuration.ConfigVm.Box, "virtualbox", m.project.basis)
+			b, err = addBox(boxName, provider, m.project.basis)
 			if err != nil {
 				return nil, err
 			}
