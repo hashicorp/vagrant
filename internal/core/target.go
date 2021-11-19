@@ -14,7 +14,6 @@ import (
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/vagrant/internal/config"
 	"github.com/hashicorp/vagrant/internal/serverclient"
-	"google.golang.org/grpc"
 	"google.golang.org/protobuf/types/known/anypb"
 
 	"github.com/hashicorp/vagrant-plugin-sdk/component"
@@ -31,14 +30,12 @@ type Target struct {
 	target  *vagrant_server.Target
 	project *Project
 	logger  hclog.Logger
-	config  *config.Target
 	dir     *datadir.Target
 
-	grpcServer *grpc.Server
-	m          sync.Mutex
-	jobInfo    *component.JobInfo
-	closers    []func() error
-	ui         terminal.UI
+	m       sync.Mutex
+	jobInfo *component.JobInfo
+	closers []func() error
+	ui      terminal.UI
 }
 
 func (t *Target) GetUUID() (id string, err error) {

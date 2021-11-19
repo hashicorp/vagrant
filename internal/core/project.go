@@ -20,7 +20,6 @@ import (
 	"github.com/hashicorp/vagrant-plugin-sdk/terminal"
 
 	"github.com/hashicorp/vagrant/internal/config"
-	"github.com/hashicorp/vagrant/internal/factory"
 	"github.com/hashicorp/vagrant/internal/server/proto/vagrant_server"
 	"github.com/hashicorp/vagrant/internal/serverclient"
 )
@@ -30,15 +29,13 @@ import (
 // The Close function should be called when finished with the project
 // to properly clean up any open resources.
 type Project struct {
-	project   *vagrant_server.Project
-	ctx       context.Context
-	basis     *Basis
-	config    *config.Project
-	logger    hclog.Logger
-	targets   map[string]*Target
-	factories map[component.Type]*factory.Factory
-	dir       *datadir.Project
-	mappers   []*argmapper.Func
+	project *vagrant_server.Project
+	ctx     context.Context
+	basis   *Basis
+	logger  hclog.Logger
+	targets map[string]*Target
+	dir     *datadir.Project
+	mappers []*argmapper.Func
 
 	// jobInfo is the base job info for executed functions.
 	jobInfo *component.JobInfo
@@ -527,14 +524,6 @@ func (p *Project) doOperation(
 	op operation,
 ) (interface{}, proto.Message, error) {
 	return doOperation(ctx, log, p, op)
-}
-
-// options is the configuration to construct a new Project. Some
-// configuration is set directly on the Project. This is only used for
-// intermediate values that need to be processed further before initializing
-// the project.
-type options struct {
-	Config *config.Project
 }
 
 // ProjectOption is used to set options for LoadProject
