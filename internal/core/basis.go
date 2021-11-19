@@ -36,7 +36,6 @@ import (
 type Basis struct {
 	basis         *vagrant_server.Basis
 	logger        hclog.Logger
-	config        *config.Config
 	plugins       *plugin.Manager
 	projects      map[string]*Project
 	mappers       []*argmapper.Func
@@ -114,17 +113,6 @@ func NewBasis(ctx context.Context, opts ...BasisOption) (b *Basis, err error) {
 
 		if err != nil {
 			return
-		}
-	}
-
-	// TODO(spox): After fixing up datadir, use that to do
-	// configuration loading
-	if b.config == nil {
-		if b.config, err = config.Load("", ""); err != nil {
-			b.logger.Warn("failed to load config, using stub",
-				"error", err)
-			b.config = &config.Config{}
-			err = nil
 		}
 	}
 
@@ -829,13 +817,6 @@ func WithLogger(log hclog.Logger) BasisOption {
 func WithPluginManager(m *plugin.Manager) BasisOption {
 	return func(b *Basis) (err error) {
 		b.plugins = m
-		return
-	}
-}
-
-func WithBasisConfig(c *config.Config) BasisOption {
-	return func(b *Basis) (err error) {
-		b.config = c
 		return
 	}
 }
