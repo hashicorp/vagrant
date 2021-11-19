@@ -13,9 +13,8 @@ type Project struct {
 	Labels   map[string]string `hcl:"labels,optional"`
 
 	// These should _roughly_ map to existing Vagrantfile configurations
-	Vagrant       *Vagrant        `hcl:"vagrant,block"`
-	Targets       []*Target       `hcl:"machine,block"`
-	Communicators []*Communicator `hcl:"communicator,block"`
+	Vagrant *Vagrant  `hcl:"vagrant,block"`
+	Targets []*Target `hcl:"machine,block"`
 
 	Body   hcl.Body `hcl:",body"`
 	Remain hcl.Body `hcl:",remain"`
