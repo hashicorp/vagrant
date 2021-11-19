@@ -38,6 +38,10 @@ type Target struct {
 	ui      terminal.UI
 }
 
+func (b *Target) Config() *vagrant_plugin_sdk.Vagrantfile_MachineConfig {
+	return b.target.Configuration
+}
+
 func (t *Target) GetUUID() (id string, err error) {
 	return t.target.Uuid, nil
 }

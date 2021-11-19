@@ -142,6 +142,10 @@ func NewBasis(ctx context.Context, opts ...BasisOption) (b *Basis, err error) {
 	return
 }
 
+func (b *Basis) Config() *vagrant_plugin_sdk.Vagrantfile_Vagrantfile {
+	return b.basis.Configuration
+}
+
 // Basis UI is the "default" UI with no prefix modifications
 func (b *Basis) UI() (terminal.UI, error) {
 	return b.ui, nil
