@@ -5,6 +5,7 @@ module VagrantPlugins
         class Graph
           # Represents a vertex within the graph
           class Vertex
+            autoload :Final, Vagrant.source_root.join("plugins/commands/serve/mappers/internal/graph/vertex/final").to_s
             autoload :Input, Vagrant.source_root.join("plugins/commands/serve/mappers/internal/graph/vertex/input").to_s
             autoload :Method, Vagrant.source_root.join("plugins/commands/serve/mappers/internal/graph/vertex/method").to_s
             autoload :Output, Vagrant.source_root.join("plugins/commands/serve/mappers/internal/graph/vertex/output").to_s
