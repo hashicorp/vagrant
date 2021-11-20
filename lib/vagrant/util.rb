@@ -19,6 +19,7 @@ module Vagrant
     autoload :GuestInspection,           'vagrant/util/guest_inspection'
     autoload :HashWithIndifferentAccess, 'vagrant/util/hash_with_indifferent_access'
     autoload :HCLogFormatter,            'vagrant/util/logging_formatter'
+    autoload :HCLogOutputter,            'vagrant/util/logging_formatter'
     autoload :InstallShellConfig,        'vagrant/util/install_cli_autocomplete'
     autoload :InstallZSHShellConfig,     'vagrant/util/install_cli_autocomplete'
     autoload :InstallBashShellConfig,    'vagrant/util/install_cli_autocomplete'

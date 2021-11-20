@@ -27,18 +27,34 @@ module Vagrant
 
     class HCLogFormatter < Log4r::BasicFormatter
       def format(event)
-        d = {
-          "@timestamp" => Time.now.strftime("%Y-%m-%dT%H:%M:%S.%6N%:z"),
-          "@level" => Log4r::LNAMES[event.level].downcase,
-          "@module" => event.fullname.gsub("::", "."),
-          "@message" => format_object(event.data),
-        }
-        d["@caller"] = event.tracer[0] if event.tracer
+        message = format_object(event.data).
+          force_encoding('UTF-8').
+          scrub("?")
+        if message.count("\n") > 40
+          message = message.split("\n").each_slice(40).to_a
+          message = [message.shift.join("\n")] + message.map { |m|
+            "continued...\n" + m.join("\n") }
+        else
+          message = [message]
+        end
 
-        # TODO(spox): fix this with force encoding on the message
-        begin
+        message.map do |msg|
+          d = {
+            "@timestamp" => Time.now.strftime("%Y-%m-%dT%H:%M:%S.%6N%:z"),
+            "@level" => Log4r::LNAMES[event.level].downcase,
+            "@module" => event.fullname.gsub("::", "."),
+            "@message" => msg,
+          }
+          d["@caller"] = event.tracer[0] if event.tracer
           d.to_json + "\n"
-        rescue
+        end
+      end
+    end
+
+    class HCLogOutputter < Log4r::StderrOutputter
+      def write(data)
+        data.each do |d|
+          super(d)
         end
       end
     end
