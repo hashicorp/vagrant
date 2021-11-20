@@ -33,7 +33,7 @@ module VagrantPlugins
         end
 
         def converter(proto, broker)
-          Client::StateBag.load(proto, broker)
+          Client::StateBag.load(proto, broker: broker)
         end
       end
 
