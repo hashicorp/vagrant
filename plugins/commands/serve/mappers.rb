@@ -85,7 +85,7 @@ module VagrantPlugins
       def map(value, *extra_args, to: nil)
         # If we don't have a destination type provided, attempt
         # to set it using our default maps
-        to = DEFAULT_MAP[value.class] if to.nil?
+        to = DEFAULT_MAPS[value.class] if to.nil?
 
         logger.debug("starting the value mapping process #{value} => #{to.nil? ? 'unknown' : to.inspect}")
         if value.nil? && to
@@ -236,17 +236,20 @@ module VagrantPlugins
       def unfuncspec(v)
         m = mappers.find_all { |map|
           map.inputs.size == 1 &&
+            map.output.ancestors.include?(Google::Protobuf::MessageExts) &&
             map.inputs.first.valid?(v)
         }
         if m.size > 1
           raise TypeError,
-            "FuncSpec value of type `#{v.class}' matches more than one mapper"
+            "FuncSpec value of type `#{v.class}' matches more than one mapper (#{v})"
         end
         if m.empty?
           raise ArgumentError,
             "FuncSpec value of type `#{v.class}' has no valid mappers"
         end
-        m.first.call(v)
+        result = m.first.call(v)
+        logger.debug("converted funcspec argument #{v} -> #{result}")
+        result
       end
     end
   end
