@@ -147,7 +147,7 @@ module VagrantPlugins
               end
               # Create an output vertex for our expected
               # result type
-              @dst = graph.add_vertex(Graph::Vertex::Output.new(type: final))
+              @dst = graph.add_vertex(Graph::Vertex::Final.new(type: final))
               @dst.weight = FINAL_WEIGHT
 
               # Add an edge from all our value vertices to
