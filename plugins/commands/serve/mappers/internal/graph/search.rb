@@ -54,8 +54,25 @@ module VagrantPlugins
                   graph.remove_vertex(vrt)
                 end
 
+                if !graph.acyclic?
+                  begin
+                    # If the graph ends up with a cycle, attempt to
+                    # draw the graph for inspection. We don't care if
+                    # this fails as it's only for debugging and will
+                    # only be successful if graphviz is installed.
+                    require 'rgl/dot'
+                    graph.write_to_graphic_file('jpg')
+                  rescue
+                    # ignore
+                  end
+                  logger.error("path generation for #{src} -> #{dst} resulted in cyclic graph")
+
+                  raise NoPathError,
+                    "Failed to create an acyclic graph for path generation"
+                end
+
                 # Apply topological sort to the graph so we have
-                # a proper for execution
+                # a proper order for execution
                 result = Array.new.tap do |path|
                   t = graph.topsort_iterator
                   until t.at_end?
@@ -82,7 +99,7 @@ module VagrantPlugins
               begin
                 path = graph.shortest_path(src, dst)
                 o = Array(path).map { |v|
-                  "#{v} ->"
+                  "  #{v} ->"
                 }.join("\n")
                 logger.debug("path generation #{src} -> #{dst}\n#{o}")
                 if path.nil?
@@ -91,6 +108,7 @@ module VagrantPlugins
                 end
                 expand_path(path, src, graph)
               rescue InvalidVertex => err
+                logger.debug("invalid vertex in path, removing (#{err.vertex})")
                 graph.remove_vertex(err.vertex)
                 retry
               end
@@ -101,15 +119,17 @@ module VagrantPlugins
               path.each do |v|
                 new_path << v
                 next if !v.incoming_edges_required
+                logger.debug("validating incoming edges for vertex #{v}")
                 ins = graph.in_vertices(v)
-                g = graph.dup
+                g = graph.clone
                 g.remove_vertex(v)
                 ins.each do |dst|
-                  path = g.shortest_path(src, dst)
-                  raise InvalidVertex.new(v) if path.nil?
-                  path = expand_path(path, src, g)
-                  new_path += path
+                  ipath = g.shortest_path(src, dst)
+                  raise InvalidVertex.new(v) if ipath.nil? || ipath.empty?
+                  ipath = expand_path(ipath, src, g)
+                  new_path += ipath
                 end
+                logger.debug("incoming edge validation complete for vertex #{v}")
               end
               new_path
             end
