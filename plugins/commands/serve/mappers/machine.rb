@@ -25,7 +25,7 @@ module VagrantPlugins
         def initialize
           inputs = [].tap do |i|
             i << Input.new(type: SDK::FuncSpec::Value) { |arg|
-              arg.type == "hashicorp.vagrant.sdk.Args.Machine" &&
+              arg.type == "hashicorp.vagrant.sdk.Args.Target.Machine" &&
                 !arg&.value&.value.nil?
             }
             i << Input.new(type: Broker)
