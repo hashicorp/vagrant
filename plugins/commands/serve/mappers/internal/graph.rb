@@ -174,7 +174,7 @@ module VagrantPlugins
           end
 
           def reverse
-            result = dup
+            result = clone
             result.reverse!
           end
 
