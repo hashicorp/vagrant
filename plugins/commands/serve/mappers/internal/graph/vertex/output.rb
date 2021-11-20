@@ -23,6 +23,10 @@ module VagrantPlugins
                 "<Vertex:Output type=#{type} hash=#{hash_code}>"
               end
 
+              def hash_code
+                "Output:#{type}"
+              end
+
               def inspect
                 "<#{self.class.name} type=#{type} value=#{value} hash=#{hash_code}>"
               end
