@@ -87,8 +87,11 @@ module VagrantPlugins
             client.set_state(req)
           end
 
-          # TODO: this is setup to return plugins. verify
           def synced_folders
+            folder_protos = client.synced_folders(Empty.new).synced_folders
+            folder_protos.map do |f|
+              SyncedFolder.load(f, broker: broker)
+            end
           end
 
           # @return [Integer] user ID that owns machine

@@ -371,8 +371,16 @@ module Vagrant
       end
 
       def synced_folders
-        # self.class.synced_folders(self)
-        client.synced_folders
+        folders = Vagrant::Plugin::V2::SyncedFolder::Collection.new
+        synced_folder_clients = client.synced_folders
+        @logger.debug("synced folder clients: #{synced_folder_clients}")
+        synced_folder_clients.each do |f|
+          # TODO: get type of synced folder and wrap it up in this hash
+          impl = "virtualbox"
+          sf = Vagrant::Plugin::V2::SyncedFolder.new._initialize(self, impl, f)
+          folders[impl] = {"id": {plugin: sf}}
+        end
+        folders
       end
 
       def to_proto

@@ -178,7 +178,21 @@ func (m *Machine) UID() (userId string, err error) {
 
 // SyncedFolders implements core.Machine
 func (m *Machine) SyncedFolders() (folders []core.SyncedFolder, err error) {
-	// TODO: need Vagrantfile
+	config := m.target.Configuration
+	machineConfig := config.ConfigVm
+	syncedFolders := machineConfig.SyncedFolders
+
+	folders = []core.SyncedFolder{}
+	for _, folder := range syncedFolders {
+		// TODO: get default synced folder type
+		folder.Type = "virtualbox"
+		plg, err := m.project.basis.component(m.ctx, component.SyncedFolderType, folder.Type)
+		// TODO: configure with folder info
+		if err != nil {
+			return nil, err
+		}
+		folders = append(folders, plg.Value.(core.SyncedFolder))
+	}
 	return
 }
 

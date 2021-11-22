@@ -13,8 +13,14 @@ module Vagrant
             end
           end
 
-          def _initialize(machine, synced_folder_type)
-            @client = nil#TODO!
+          def _initialize(machine, synced_folder_type, client=nil)
+            @machine = machine
+            @client = client
+            if @client.nil?
+              raise ArgumentError,
+                "Remote client is required for `#{self.class.name}'"
+            end
+            @logger = Log4r::Logger.new("vagrant::synced_folder")
             self
           end
 
@@ -62,7 +68,7 @@ module Vagrant
           #
           # @param [Symbol] cap_name Name of the capability
           def capability(cap_name, *args)
-            @logger.debug("running remote host capability #{cap_name} with args #{args}")
+            @logger.debug("running remote synced folder capability #{cap_name} with args #{args}")
             client.capability(cap_name, *args)
           end
 
@@ -71,7 +77,7 @@ module Vagrant
           # @param [Symbol] cap_name Capability name
           # @return [Boolean]
           def capability?(cap_name)
-            @logger.debug("checking for remote host capability #{cap_name}")
+            @logger.debug("checking for remote synced folder capability #{cap_name}")
             client.has_capability?(cap_name)
           end
 
