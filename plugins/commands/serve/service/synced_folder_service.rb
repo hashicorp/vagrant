@@ -45,11 +45,7 @@ module VagrantPlugins
             env = Vagrant::Environment.new({client: project})
             machine = env.machine(target.name.to_sym, target.provider_name.to_sym)
             
-            synced_folders = Vagrant.plugin("2").manager.synced_folders
-            logger.debug("got synced folders #{synced_folders}")
-            plugin = [plugin_name.to_s.to_sym].to_a.first
-            logger.debug("got plugin #{plugin}")
-            sf = plugin.new
+            sf = get_synced_folder_plugin(plugin_name)
             logger.debug("got sf #{sf}")
             usable = sf.usable?(machine)
             logger.debug("usable: #{usable}")
@@ -76,13 +72,20 @@ module VagrantPlugins
                 name: "",
               ),
             ],
-            result: [],
           )
         end
 
         def enable(req, ctx)
           with_info(ctx) do |info|
-            # TODO
+            plugin_name = info.plugin_name
+            machine, folders, opts = mapper.funcspec_map(
+              req.func_args,
+              expect: [Vagrant::Machine, Hash, Types::Direct]
+            )
+
+            sf = get_synced_folder_plugin(plugin_name)
+            sf.enable(machine, folders, opts)
+            Empty.new
           end
         end
 
@@ -103,13 +106,20 @@ module VagrantPlugins
                 name: "",
               ),
             ],
-            result: [],
           )
         end
 
         def disable(req, ctx)
           with_info(ctx) do |info|
-            # TODO
+            plugin_name = info.plugin_name
+            machine, folders, opts = mapper.funcspec_map(
+              req.func_args,
+              expect: [Vagrant::Machine, Hash, Types::Direct]
+            )
+
+            sf = get_synced_folder_plugin(plugin_name)
+            sf.disable(machine, folders, opts)
+            Empty.new
           end
         end
 
@@ -126,16 +136,34 @@ module VagrantPlugins
                 name: "",
               ),
             ],
-            result: [],
           )
         end
 
         def cleanup(req, ctx)
           with_info(ctx) do |info|
-            # TODO
+            plugin_name = info.plugin_name
+            machine, opts = mapper.funcspec_map(
+              req.func_args,
+              expect: [Vagrant::Machine, Types::Direct]
+            )
+
+            sf = get_synced_folder_plugin(plugin_name)
+            sf.cleanup(machine, opts)
+            Empty.new
           end
         end
 
+        private
+        
+        def get_synced_folder_plugin(plugin_name)
+          synced_folders = Vagrant.plugin("2").manager.synced_folders
+          logger.debug("got synced folders #{synced_folders}")
+          plugin = [plugin_name.to_s.to_sym].to_a.first
+          logger.debug("got plugin #{plugin}")
+          sf = plugin.new
+          logger.debug("got sf #{sf}")
+          sf
+        end
       end
     end
   end
