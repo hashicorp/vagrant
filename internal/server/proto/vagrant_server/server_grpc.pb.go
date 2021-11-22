@@ -52,6 +52,12 @@ type VagrantClient interface {
 	GetTarget(ctx context.Context, in *GetTargetRequest, opts ...grpc.CallOption) (*GetTargetResponse, error)
 	FindTarget(ctx context.Context, in *FindTargetRequest, opts ...grpc.CallOption) (*FindTargetResponse, error)
 	ListTargets(ctx context.Context, in *empty.Empty, opts ...grpc.CallOption) (*ListTargetsResponse, error)
+	// CRUD operations for box
+	UpsertBox(ctx context.Context, in *UpsertBoxRequest, opts ...grpc.CallOption) (*UpsertBoxResponse, error)
+	DeleteBox(ctx context.Context, in *DeleteBoxRequest, opts ...grpc.CallOption) (*empty.Empty, error)
+	GetBox(ctx context.Context, in *GetBoxRequest, opts ...grpc.CallOption) (*GetBoxResponse, error)
+	ListBoxes(ctx context.Context, in *empty.Empty, opts ...grpc.CallOption) (*ListBoxesResponse, error)
+	FindBox(ctx context.Context, in *FindBoxRequest, opts ...grpc.CallOption) (*FindBoxResponse, error)
 	// GetLogStream reads the log stream for a deployment. This will immediately
 	// send a single LogEntry with the lines we have so far. If there are no
 	// available lines this will NOT block and instead will return an error.
@@ -285,6 +291,51 @@ func (c *vagrantClient) FindTarget(ctx context.Context, in *FindTargetRequest, o
 func (c *vagrantClient) ListTargets(ctx context.Context, in *empty.Empty, opts ...grpc.CallOption) (*ListTargetsResponse, error) {
 	out := new(ListTargetsResponse)
 	err := c.cc.Invoke(ctx, "/hashicorp.vagrant.Vagrant/ListTargets", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *vagrantClient) UpsertBox(ctx context.Context, in *UpsertBoxRequest, opts ...grpc.CallOption) (*UpsertBoxResponse, error) {
+	out := new(UpsertBoxResponse)
+	err := c.cc.Invoke(ctx, "/hashicorp.vagrant.Vagrant/UpsertBox", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *vagrantClient) DeleteBox(ctx context.Context, in *DeleteBoxRequest, opts ...grpc.CallOption) (*empty.Empty, error) {
+	out := new(empty.Empty)
+	err := c.cc.Invoke(ctx, "/hashicorp.vagrant.Vagrant/DeleteBox", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *vagrantClient) GetBox(ctx context.Context, in *GetBoxRequest, opts ...grpc.CallOption) (*GetBoxResponse, error) {
+	out := new(GetBoxResponse)
+	err := c.cc.Invoke(ctx, "/hashicorp.vagrant.Vagrant/GetBox", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *vagrantClient) ListBoxes(ctx context.Context, in *empty.Empty, opts ...grpc.CallOption) (*ListBoxesResponse, error) {
+	out := new(ListBoxesResponse)
+	err := c.cc.Invoke(ctx, "/hashicorp.vagrant.Vagrant/ListBoxes", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *vagrantClient) FindBox(ctx context.Context, in *FindBoxRequest, opts ...grpc.CallOption) (*FindBoxResponse, error) {
+	out := new(FindBoxResponse)
+	err := c.cc.Invoke(ctx, "/hashicorp.vagrant.Vagrant/FindBox", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -655,6 +706,12 @@ type VagrantServer interface {
 	GetTarget(context.Context, *GetTargetRequest) (*GetTargetResponse, error)
 	FindTarget(context.Context, *FindTargetRequest) (*FindTargetResponse, error)
 	ListTargets(context.Context, *empty.Empty) (*ListTargetsResponse, error)
+	// CRUD operations for box
+	UpsertBox(context.Context, *UpsertBoxRequest) (*UpsertBoxResponse, error)
+	DeleteBox(context.Context, *DeleteBoxRequest) (*empty.Empty, error)
+	GetBox(context.Context, *GetBoxRequest) (*GetBoxResponse, error)
+	ListBoxes(context.Context, *empty.Empty) (*ListBoxesResponse, error)
+	FindBox(context.Context, *FindBoxRequest) (*FindBoxResponse, error)
 	// GetLogStream reads the log stream for a deployment. This will immediately
 	// send a single LogEntry with the lines we have so far. If there are no
 	// available lines this will NOT block and instead will return an error.
@@ -781,6 +838,21 @@ func (UnimplementedVagrantServer) FindTarget(context.Context, *FindTargetRequest
 }
 func (UnimplementedVagrantServer) ListTargets(context.Context, *empty.Empty) (*ListTargetsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListTargets not implemented")
+}
+func (UnimplementedVagrantServer) UpsertBox(context.Context, *UpsertBoxRequest) (*UpsertBoxResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpsertBox not implemented")
+}
+func (UnimplementedVagrantServer) DeleteBox(context.Context, *DeleteBoxRequest) (*empty.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DeleteBox not implemented")
+}
+func (UnimplementedVagrantServer) GetBox(context.Context, *GetBoxRequest) (*GetBoxResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetBox not implemented")
+}
+func (UnimplementedVagrantServer) ListBoxes(context.Context, *empty.Empty) (*ListBoxesResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ListBoxes not implemented")
+}
+func (UnimplementedVagrantServer) FindBox(context.Context, *FindBoxRequest) (*FindBoxResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method FindBox not implemented")
 }
 func (UnimplementedVagrantServer) GetLogStream(*GetLogStreamRequest, Vagrant_GetLogStreamServer) error {
 	return status.Errorf(codes.Unimplemented, "method GetLogStream not implemented")
@@ -1177,6 +1249,96 @@ func _Vagrant_ListTargets_Handler(srv interface{}, ctx context.Context, dec func
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(VagrantServer).ListTargets(ctx, req.(*empty.Empty))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Vagrant_UpsertBox_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpsertBoxRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(VagrantServer).UpsertBox(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/hashicorp.vagrant.Vagrant/UpsertBox",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(VagrantServer).UpsertBox(ctx, req.(*UpsertBoxRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Vagrant_DeleteBox_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DeleteBoxRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(VagrantServer).DeleteBox(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/hashicorp.vagrant.Vagrant/DeleteBox",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(VagrantServer).DeleteBox(ctx, req.(*DeleteBoxRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Vagrant_GetBox_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetBoxRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(VagrantServer).GetBox(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/hashicorp.vagrant.Vagrant/GetBox",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(VagrantServer).GetBox(ctx, req.(*GetBoxRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Vagrant_ListBoxes_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(empty.Empty)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(VagrantServer).ListBoxes(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/hashicorp.vagrant.Vagrant/ListBoxes",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(VagrantServer).ListBoxes(ctx, req.(*empty.Empty))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Vagrant_FindBox_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(FindBoxRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(VagrantServer).FindBox(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/hashicorp.vagrant.Vagrant/FindBox",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(VagrantServer).FindBox(ctx, req.(*FindBoxRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -1670,6 +1832,26 @@ var Vagrant_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "ListTargets",
 			Handler:    _Vagrant_ListTargets_Handler,
+		},
+		{
+			MethodName: "UpsertBox",
+			Handler:    _Vagrant_UpsertBox_Handler,
+		},
+		{
+			MethodName: "DeleteBox",
+			Handler:    _Vagrant_DeleteBox_Handler,
+		},
+		{
+			MethodName: "GetBox",
+			Handler:    _Vagrant_GetBox_Handler,
+		},
+		{
+			MethodName: "ListBoxes",
+			Handler:    _Vagrant_ListBoxes_Handler,
+		},
+		{
+			MethodName: "FindBox",
+			Handler:    _Vagrant_FindBox_Handler,
 		},
 		{
 			MethodName: "SetConfig",
