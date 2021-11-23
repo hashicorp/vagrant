@@ -373,7 +373,6 @@ module Vagrant
       def synced_folders
         folders = Vagrant::Plugin::V2::SyncedFolder::Collection.new
         synced_folder_clients = client.synced_folders
-        @logger.debug("synced folder clients: #{synced_folder_clients}")
         synced_folder_clients.each do |f|
           # TODO: get type of synced folder and wrap it up in this hash
           impl = "virtualbox"

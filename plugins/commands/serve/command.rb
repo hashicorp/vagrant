@@ -97,7 +97,8 @@ module VagrantPlugins
 
 
         [Service::InternalService, Service::ProviderService, Service::GuestService,
-          Service::HostService, Service::CommandService, Broker::Streamer].each do |service_klass|
+          Service::HostService, Service::CommandService, Service::SyncedFolderService,
+          Broker::Streamer].each do |service_klass|
           service = service_klass.new(broker: broker)
           s.handle(service)
           health_checker.add_status(service_klass,

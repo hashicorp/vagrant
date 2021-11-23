@@ -4,10 +4,10 @@ module VagrantPlugins
   module CommandServe
     module Client
       class SyncedFolder
-        include CapabilityPlatform
-
         prepend Util::ClientSetup
         prepend Util::HasLogger
+
+        include CapabilityPlatform
 
         # @param [Sdk::Args::Machine]
         # @return [Boolean]
