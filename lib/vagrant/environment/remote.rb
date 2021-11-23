@@ -80,8 +80,11 @@ module Vagrant
       #
       # @return [Class]
       def host
-        h = @client.host
-        Vagrant::Host.new(h, nil, nil, self)
+        if !@host
+          h = @client.host
+          @host = Vagrant::Host.new(h, nil, nil, self)
+        end
+        @host
       end
 
       # Gets a target (machine) by name

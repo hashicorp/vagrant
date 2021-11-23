@@ -105,6 +105,14 @@ module VagrantPlugins
 
             result = cap_method.call(*args)
 
+            logger.debug("got result #{result}")
+            if result.nil? || (result.respond_to?(:empty?) && result.empty?)
+              logger.debug("got empty result, returning empty response")
+              return SDK::Platform::Capability::Resp.new(
+                result: nil
+              )
+            end
+
             val = Google::Protobuf::Value.new
             val.from_ruby(result)
             SDK::Platform::Capability::Resp.new(
