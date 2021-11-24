@@ -8,7 +8,6 @@ import (
 	"github.com/hashicorp/vagrant/internal/server/proto/vagrant_server"
 )
 
-// TODO: test
 func (s *service) UpsertBasis(
 	ctx context.Context,
 	req *vagrant_server.UpsertBasisRequest,
@@ -21,7 +20,6 @@ func (s *service) UpsertBasis(
 	return &vagrant_server.UpsertBasisResponse{Basis: result}, nil
 }
 
-// TODO: test
 func (s *service) GetBasis(
 	ctx context.Context,
 	req *vagrant_server.GetBasisRequest,
@@ -30,7 +28,6 @@ func (s *service) GetBasis(
 	if err != nil {
 		return nil, err
 	}
-
 	return &vagrant_server.GetBasisResponse{Basis: result}, nil
 }
 
@@ -46,7 +43,6 @@ func (s *service) FindBasis(
 	return &vagrant_server.FindBasisResponse{Basis: result}, nil
 }
 
-// TODO: test
 func (s *service) ListBasis(
 	ctx context.Context,
 	req *empty.Empty,
