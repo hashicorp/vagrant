@@ -374,10 +374,10 @@ module Vagrant
         folders = Vagrant::Plugin::V2::SyncedFolder::Collection.new
         synced_folder_clients = client.synced_folders
         synced_folder_clients.each do |f|
-          # TODO: get type of synced folder and wrap it up in this hash
+          # TODO: get type of synced folder
           impl = "virtualbox"
-          sf = Vagrant::Plugin::V2::SyncedFolder.new._initialize(self, impl, f)
-          folders[impl] = {"id": {plugin: sf}}
+          sf = Vagrant::Plugin::V2::SyncedFolder.new._initialize(self, impl, f[:plugin])
+          folders[impl] = {f[:folder][:destination] => f[:folder].merge({plugin: sf})}
         end
         folders
       end
