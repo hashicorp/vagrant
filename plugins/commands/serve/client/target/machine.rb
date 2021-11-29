@@ -87,10 +87,16 @@ module VagrantPlugins
             client.set_state(req)
           end
 
+          # Synced folder for machine 
+          #
+          # @return [List<[Client::SyncedFolder, Map<String, String>]>]
           def synced_folders
             folder_protos = client.synced_folders(Empty.new).synced_folders
-            folder_protos.map do |f|
-              SyncedFolder.load(f, broker: broker)
+            folder_protos.map do |fp|
+              {
+                plugin: SyncedFolder.load(fp.plugin, broker: broker),
+                folder: fp.folder.to_h,
+              }
             end
           end
 
