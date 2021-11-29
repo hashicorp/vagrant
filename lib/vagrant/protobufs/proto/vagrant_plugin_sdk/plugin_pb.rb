@@ -569,7 +569,11 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
       optional :user_id, :string, 1
     end
     add_message "hashicorp.vagrant.sdk.Target.Machine.SyncedFoldersResponse" do
-      repeated :synced_folders, :message, 1, "hashicorp.vagrant.sdk.Args.SyncedFolder"
+      repeated :synced_folders, :message, 1, "hashicorp.vagrant.sdk.Target.Machine.SyncedFoldersResponse.MachineSyncedFolder"
+    end
+    add_message "hashicorp.vagrant.sdk.Target.Machine.SyncedFoldersResponse.MachineSyncedFolder" do
+      optional :plugin, :message, 1, "hashicorp.vagrant.sdk.Args.SyncedFolder"
+      optional :folder, :message, 2, "hashicorp.vagrant.sdk.Vagrantfile.SyncedFolder"
     end
     add_message "hashicorp.vagrant.sdk.Project" do
     end
@@ -945,6 +949,7 @@ module Hashicorp
       Target::Machine::ConnectionInfoResponse = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Target.Machine.ConnectionInfoResponse").msgclass
       Target::Machine::UIDResponse = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Target.Machine.UIDResponse").msgclass
       Target::Machine::SyncedFoldersResponse = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Target.Machine.SyncedFoldersResponse").msgclass
+      Target::Machine::SyncedFoldersResponse::MachineSyncedFolder = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Target.Machine.SyncedFoldersResponse.MachineSyncedFolder").msgclass
       Project = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Project").msgclass
       Project::ResourceIdResponse = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Project.ResourceIdResponse").msgclass
       Project::TargetRequest = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Project.TargetRequest").msgclass
