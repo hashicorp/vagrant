@@ -516,6 +516,19 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
       optional :project, :message, 2, "hashicorp.vagrant.sdk.Ref.Project"
       optional :name, :string, 3
     end
+    add_message "hashicorp.vagrant.sdk.Basis" do
+    end
+    add_message "hashicorp.vagrant.sdk.Basis.PluginsRequest" do
+      repeated :types, :string, 1
+    end
+    add_message "hashicorp.vagrant.sdk.Basis.PluginsResponse" do
+      repeated :plugins, :message, 1, "hashicorp.vagrant.sdk.Basis.Plugin"
+    end
+    add_message "hashicorp.vagrant.sdk.Basis.Plugin" do
+      optional :name, :string, 1
+      optional :type, :string, 2
+      optional :plugin, :message, 3, "google.protobuf.Any"
+    end
     add_message "hashicorp.vagrant.sdk.Target" do
     end
     add_message "hashicorp.vagrant.sdk.Target.ResourceIdResponse" do
@@ -930,6 +943,10 @@ module Hashicorp
       Ref::Basis = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Ref.Basis").msgclass
       Ref::Project = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Ref.Project").msgclass
       Ref::Target = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Ref.Target").msgclass
+      Basis = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Basis").msgclass
+      Basis::PluginsRequest = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Basis.PluginsRequest").msgclass
+      Basis::PluginsResponse = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Basis.PluginsResponse").msgclass
+      Basis::Plugin = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Basis.Plugin").msgclass
       Target = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Target").msgclass
       Target::ResourceIdResponse = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Target.ResourceIdResponse").msgclass
       Target::RecordResponse = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Target.RecordResponse").msgclass

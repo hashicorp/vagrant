@@ -328,6 +328,7 @@ module Hashicorp
           rpc :DataDir, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::Args::DataDir::Basis
           rpc :UI, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::Args::TerminalUI
           rpc :Host, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::Args::Host
+          rpc :Plugins, ::Hashicorp::Vagrant::Sdk::Basis::PluginsRequest, ::Hashicorp::Vagrant::Sdk::Basis::PluginsResponse
         end
 
         Stub = Service.rpc_stub_class
