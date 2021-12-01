@@ -258,6 +258,7 @@ end
 # NOTE: Always directly load mappers so they are automatically registered and
 #       available. Using autoloading behavior will result in them being unavailable
 #       until explicitly requested by name
+require Vagrant.source_root.join("plugins/commands/serve/mappers/basis.rb").to_s
 require Vagrant.source_root.join("plugins/commands/serve/mappers/box.rb").to_s
 require Vagrant.source_root.join("plugins/commands/serve/mappers/capabilities.rb").to_s
 require Vagrant.source_root.join("plugins/commands/serve/mappers/command.rb").to_s
@@ -269,6 +270,7 @@ require Vagrant.source_root.join("plugins/commands/serve/mappers/machine.rb").to
 require Vagrant.source_root.join("plugins/commands/serve/mappers/pathname.rb").to_s
 require Vagrant.source_root.join("plugins/commands/serve/mappers/project.rb").to_s
 require Vagrant.source_root.join("plugins/commands/serve/mappers/state_bag.rb").to_s
+require Vagrant.source_root.join("plugins/commands/serve/mappers/synced_folder.rb").to_s
 require Vagrant.source_root.join("plugins/commands/serve/mappers/target.rb").to_s
 require Vagrant.source_root.join("plugins/commands/serve/mappers/target_index.rb").to_s
 require Vagrant.source_root.join("plugins/commands/serve/mappers/terminal.rb").to_s
