@@ -1,6 +1,7 @@
 module VagrantPlugins
   module CommandServe
     module Client
+      autoload :Basis, Vagrant.source_root.join("plugins/commands/serve/client/basis").to_s
       autoload :Box, Vagrant.source_root.join("plugins/commands/serve/client/box").to_s
       autoload :BoxCollection, Vagrant.source_root.join("plugins/commands/serve/client/box_collection").to_s
       autoload :CapabilityPlatform, Vagrant.source_root.join("plugins/commands/serve/client/capability_platform").to_s
