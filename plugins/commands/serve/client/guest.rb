@@ -8,6 +8,7 @@ module VagrantPlugins
         prepend Util::HasLogger
 
         include CapabilityPlatform
+        include Util::HasSeeds::Client
 
         # @return [<String>] parents
         def parents

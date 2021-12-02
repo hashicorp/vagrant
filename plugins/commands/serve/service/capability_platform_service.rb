@@ -7,6 +7,7 @@ module VagrantPlugins
 
         def self.included(klass)
           klass.include(Util::ServiceInfo)
+          klass.include(Util::HasSeeds::Service)
           klass.prepend(Util::HasMapper)
           klass.prepend(Util::HasBroker)
           klass.prepend(Util::HasLogger)
@@ -20,16 +21,6 @@ module VagrantPlugins
         def initialize_capability_platform!(capabilities, default_args)
           @capabilities = capabilities
           @default_args = default_args
-        end
-
-        # TODO(spox): request scoping for seed values - needs investigation
-        def seed(req, ctx)
-          @seeds = req.arguments.to_a
-          Empty.new
-        end
-
-        def seeds(req, ctx)
-          SDK::Args::Direct.new(arguments: @seeds)
         end
 
         def has_capability_spec(*_)
@@ -54,7 +45,7 @@ module VagrantPlugins
           with_info(ctx) do |info|
             cap_name = mapper.funcspec_map(req)
             plugin_name = info.plugin_name
-            logger.debug("checking for #{cap_name} capability in #{plugin_name}")
+            logger.debug("checking for #{cap_name.inspect} capability in #{plugin_name}")
 
             caps_registry = @capabilities[plugin_name.to_sym]
             has_cap = caps_registry.key?(cap_name.to_sym)
@@ -92,6 +83,10 @@ module VagrantPlugins
 
             caps_registry = capabilities[plugin_name]
             target_cap = caps_registry.get(cap_name)
+
+            if target_cap.nil?
+              raise "Failed to locate requested capability `#{cap_name.inspect}' on plugin #{plugin_name}"
+            end
 
             args = mapper.funcspec_map(
               req.func_args,
