@@ -213,6 +213,9 @@ func (t *Target) Run(ctx context.Context, task *vagrant_server.Task) (err error)
 		"target", t,
 		"task", task)
 
+	// Set seeds for any plugins that may be used
+	t.seed(nil)
+
 	// Intialize targets
 	if err = t.project.InitTargets(); err != nil {
 		return err
@@ -232,7 +235,7 @@ func (t *Target) Run(ctx context.Context, task *vagrant_server.Task) (err error)
 	fn := cmd.Value.(component.Command).ExecuteFunc(
 		strings.Split(task.CommandName, " "))
 	result, err := t.callDynamicFunc(ctx, t.logger, fn, (*int32)(nil),
-		argmapper.Typed(task.CliArgs, t.jobInfo, t.dir),
+		argmapper.Typed(task.CliArgs, t.jobInfo, t.dir, t.ctx, t.ui),
 		argmapper.ConverterFunc(cmd.mappers...),
 	)
 
@@ -254,6 +257,19 @@ func (t *Target) Run(ctx context.Context, task *vagrant_server.Task) (err error)
 	}
 
 	return
+}
+
+func (t *Target) seed(fn func(*core.Seeds)) {
+	t.project.seed(
+		func(s *core.Seeds) {
+			s.AddNamed("target", t)
+			s.AddNamed("target_ui", t.UI)
+			s.AddTyped(t)
+			if fn != nil {
+				fn(s)
+			}
+		},
+	)
 }
 
 // Specializes target into a machine
@@ -285,13 +301,6 @@ func (t *Target) callDynamicFunc(
 ) (interface{}, error) {
 	// ensure our UI status is closed after every call in case it is used
 	defer t.ui.Status().Close()
-
-	// add project related arguments
-	args = append(args,
-		argmapper.Typed(t),
-		argmapper.Named("target", t),
-		argmapper.Named("target_ui", t.UI),
-	)
 
 	return t.project.callDynamicFunc(ctx, log, f, expectedType, args...)
 }

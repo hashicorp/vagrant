@@ -125,13 +125,19 @@ func (m *Machine) Guest() (g core.Guest, err error) {
 	m.logger.Info("guest detection complete",
 		"name", result_name)
 
+	// NOTE: For guest seeding we need to prevent guest plugin instance
+	// from being cached and reused. Currently, in a multi-machine setup
+	// which are the same guest, the target values will get appended
+	// TODO(spox): Fix this in the plugin manager
 	if s, ok := result.(core.Seeder); ok {
-		p, _ := m.Project()
-		if err = s.Seed(m, p, m.Target); err != nil {
+		seeds, err := s.Seeds()
+		if err != nil {
 			return nil, err
 		}
-	} else {
-		return nil, fmt.Errorf("guest plugin does not support seeder interface")
+		seeds.Typed = append(seeds.Typed, m.Target)
+		if err = s.Seed(seeds); err != nil {
+			return nil, err
+		}
 	}
 
 	m.guest = result

@@ -54,7 +54,8 @@ type Basis struct {
 	closers []func() error
 	ui      terminal.UI
 
-	factory *Factory
+	factory    *Factory
+	seedValues *core.Seeds
 }
 
 // NewBasis creates a new Basis with the given options.
@@ -66,6 +67,7 @@ func NewBasis(ctx context.Context, opts ...BasisOption) (b *Basis, err error) {
 		projects:    map[string]*Project{},
 		statebag:    NewStateBag(),
 		lookupCache: map[string]interface{}{},
+		seedValues:  core.NewSeeds(),
 	}
 
 	for _, opt := range opts {
@@ -340,7 +342,9 @@ func (b *Basis) Init() (result *vagrant_server.Job_InitResult, err error) {
 	for _, c := range cmds {
 		fn := c.Value.(component.Command).CommandInfoFunc()
 		raw, err := b.callDynamicFunc(ctx, b.logger, fn,
-			(*[]*vagrant_server.Job_Command)(nil))
+			(*[]*vagrant_server.Job_Command)(nil),
+			argmapper.Typed(b.ctx),
+		)
 
 		if err != nil {
 			return nil, err
@@ -553,6 +557,9 @@ func (b *Basis) Run(ctx context.Context, task *vagrant_server.Task) (err error) 
 		"basis", b,
 		"task", task)
 
+	// Set seeds for any plugins that may be used
+	b.seed(nil)
+
 	// Build the component to run
 	cmd, err := b.component(ctx, component.CommandType, task.Component.Name)
 	if err != nil {
@@ -562,7 +569,7 @@ func (b *Basis) Run(ctx context.Context, task *vagrant_server.Task) (err error) 
 	fn := cmd.Value.(component.Command).ExecuteFunc(
 		strings.Split(task.CommandName, " "))
 	result, err := b.callDynamicFunc(ctx, b.logger, fn, (*int32)(nil),
-		argmapper.Typed(task.CliArgs, b.jobInfo, b.dir),
+		argmapper.Typed(task.CliArgs, b.jobInfo, b.dir, b.ctx, b.ui),
 		argmapper.ConverterFunc(cmd.mappers...),
 	)
 
@@ -666,6 +673,11 @@ func (b *Basis) component(
 		return nil, err
 	}
 
+	err = p.SeedPlugin(typ, b.seedValues)
+	if err != nil {
+		return nil, err
+	}
+
 	c, err := p.InstanceOf(typ)
 	if err != nil {
 		return nil, err
@@ -745,14 +757,37 @@ func (b *Basis) callDynamicFunc(
 	// the UI we send by default
 	defer b.ui.Status().Close()
 
-	// add the default arguments always provided by the basis
-	args = append(args,
-		argmapper.Typed(b, b.ui, ctx, log),
-		argmapper.Named("basis", b),
-		argmapper.Logger(dynamic.Logger),
-	)
+	// Add seed arguments
+	for _, v := range b.seedValues.Typed {
+		b.logger.Info("seeding typed value into dynamic call",
+			"value", hclog.Fmt("%T", v),
+		)
 
+		args = append(args, argmapper.Typed(v))
+	}
+
+	for k, v := range b.seedValues.Named {
+		b.logger.Info("seeding named value into dynamic call",
+			"name", k,
+			"value", hclog.Fmt("%T", v),
+		)
+
+		args = append(args, argmapper.Named(k, v))
+	}
+
+	// Always include a logger within our arguments
+	args = append(args, argmapper.Typed(b.logger))
 	return dynamic.CallFunc(f, expectedType, b.mappers, args...)
+}
+
+func (b *Basis) seed(fn func(*core.Seeds)) {
+	s := b.seedValues
+	s.AddNamed("basis", b)
+	s.AddNamed("basis_ui", b.ui)
+	s.AddTyped(b, b.ui)
+	if fn != nil {
+		fn(s)
+	}
 }
 
 func (b *Basis) execHook(

@@ -119,20 +119,7 @@ func (p *Project) DefaultPrivateKey() (path string, err error) {
 
 // Host implements core.Project
 func (p *Project) Host() (host core.Host, err error) {
-	if host, err = p.basis.Host(); err != nil {
-		return
-	}
-	if s, ok := host.(core.Seeder); ok {
-		list, err := s.Seeds()
-		if err != nil {
-			return nil, err
-		}
-		list = append(list, p)
-		if err = s.Seed(list...); err != nil {
-			return nil, err
-		}
-	}
-	return
+	return p.basis.Host()
 }
 
 // MachineIndex implements core.Project
@@ -281,6 +268,9 @@ func (p *Project) Run(ctx context.Context, task *vagrant_server.Task) (err error
 		"project", p,
 		"task", task)
 
+	// Set seeds for any plugins that may be used
+	p.seed(nil)
+
 	// Intialize targets
 	if err = p.InitTargets(); err != nil {
 		return err
@@ -295,7 +285,7 @@ func (p *Project) Run(ctx context.Context, task *vagrant_server.Task) (err error
 	fn := cmd.Value.(component.Command).ExecuteFunc(
 		strings.Split(task.CommandName, " "))
 	result, err := p.callDynamicFunc(ctx, p.logger, fn, (*int32)(nil),
-		argmapper.Typed(task.CliArgs, p.jobInfo, p.dir),
+		argmapper.Typed(ctx, task.CliArgs, p.jobInfo),
 		argmapper.ConverterFunc(cmd.mappers...),
 	)
 
@@ -306,7 +296,8 @@ func (p *Project) Run(ctx context.Context, task *vagrant_server.Task) (err error
 			"type", component.CommandType,
 			"name", task.Component.Name,
 			"result", result,
-			"error", err)
+			"error", err,
+		)
 
 		cmdErr := &runError{}
 		if err != nil {
@@ -320,6 +311,19 @@ func (p *Project) Run(ctx context.Context, task *vagrant_server.Task) (err error
 	}
 
 	return
+}
+
+func (p *Project) seed(fn func(*core.Seeds)) {
+	p.basis.seed(
+		func(s *core.Seeds) {
+			s.AddNamed("project", p)
+			s.AddNamed("project_ui", p.ui)
+			s.AddTyped(p)
+			if fn != nil {
+				fn(s)
+			}
+		},
+	)
 }
 
 // Register functions to be called when closing this project
@@ -505,13 +509,6 @@ func (p *Project) callDynamicFunc(
 ) (interface{}, error) {
 	// ensure our UI status is closed after every call in case it is used
 	defer p.ui.Status().Close()
-
-	// add project related arguments
-	args = append(args,
-		argmapper.Typed(p),
-		argmapper.Named("project", p),
-		argmapper.Named("project_ui", p.UI),
-	)
 
 	return p.basis.callDynamicFunc(ctx, log, f, expectedType, args...)
 }
