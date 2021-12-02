@@ -162,22 +162,15 @@ func (b *Basis) DataDir() (*datadir.Basis, error) {
 	return b.dir, nil
 }
 
-var StringComponentTypeMap = map[string]component.Type{
-	"command":       component.CommandType,
-	"communicator":  component.CommunicatorType,
-	"guest":         component.GuestType,
-	"host":          component.HostType,
-	"provider":      component.ProviderType,
-	"provisioner":   component.ProvisionerType,
-	"synced_folder": component.SyncedFolderType,
-}
-
 // Implements core.Basis
 // Returns all the registered plugins of the types specified
 func (b *Basis) Plugins(types ...string) (plugins []*core.NamedPlugin, err error) {
 	plugins = []*core.NamedPlugin{}
 	for _, pluginType := range types {
-		typ := StringComponentTypeMap[pluginType]
+		typ, err := component.FindType(pluginType)
+		if err != nil {
+			return nil, err
+		}
 		components, err := b.typeComponents(b.ctx, typ)
 		if err != nil {
 			return nil, err
