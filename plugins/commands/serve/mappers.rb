@@ -11,6 +11,7 @@ module VagrantPlugins
         SDK::Args::Guest => Client::Guest,
         SDK::Args::Hash => Hash,
         SDK::Args::Host => Client::Host,
+        SDK::Args::NamedCapability => Symbol,
         SDK::Args::Path => Pathname,
         SDK::Args::Project => Vagrant::Environment,
         SDK::Args::StateBag => Client::StateBag,
