@@ -196,10 +196,10 @@ type HasMappers interface {
 	AppendMappers(...*argmapper.Func)
 }
 
-func (p *Plugin) SeedPlugin(typ component.Type, args ...interface{}) error {
+func (p *Plugin) SeedPlugin(typ component.Type, args *core.Seeds) error {
 	seedTarget := p.components[typ].Component
 	if s, ok := seedTarget.(core.Seeder); ok {
-		if err := s.Seed(args...); err != nil {
+		if err := s.Seed(args); err != nil {
 			return err
 		}
 	} else {
