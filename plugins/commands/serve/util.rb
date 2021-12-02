@@ -8,6 +8,7 @@ module VagrantPlugins
       autoload :HasBroker, Vagrant.source_root.join("plugins/commands/serve/util/has_broker").to_s
       autoload :HasLogger, Vagrant.source_root.join("plugins/commands/serve/util/has_logger").to_s
       autoload :HasMapper, Vagrant.source_root.join("plugins/commands/serve/util/has_mapper").to_s
+      autoload :HasSeeds, Vagrant.source_root.join("plugins/commands/serve/util/has_seeds").to_s
       autoload :ServiceInfo, Vagrant.source_root.join("plugins/commands/serve/util/service_info").to_s
 
       module WithMapper
