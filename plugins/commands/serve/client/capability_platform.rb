@@ -10,16 +10,6 @@ module VagrantPlugins
           klass.prepend(Util::HasMapper)
         end
 
-        def seed(*args)
-          raise NotImplementedError,
-            "Seeding is not currently supported via Ruby client"
-        end
-
-        def seeds
-          res = client.seeds(Empty.new)
-          res.arguments
-        end
-
         # @param [Symbol] cap_name Capability name
         # @return [Boolean]
         def has_capability?(cap_name)
@@ -42,9 +32,16 @@ module VagrantPlugins
         # @param [Symbol] cap_name Name of the capability
         def capability(cap_name, *args)
           logger.debug("executing capability #{cap_name}")
-          arg_protos = seeds.map do |any|
+          arg_protos = seeds.typed.map do |any|
             SDK::FuncSpec::Value.new(
               name: "",
+              type: any.type_name,
+              value: any,
+            )
+          end
+          arg_protos += seeds.named.map do |name, any|
+            SDK::FuncSpec::Value.new(
+              name: name,
               type: any.type_name,
               value: any,
             )
