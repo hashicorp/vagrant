@@ -1,6 +1,6 @@
 module Vagrant
   module Plugin
-    module V2
+    module Remote
       class SyncedFolder
         # This module enables SyncedFolder for server mode
         module Remote
@@ -13,14 +13,16 @@ module Vagrant
             end
           end
 
-          def _initialize(machine, synced_folder_type, client=nil)
-            @machine = machine
+          def initialize(client=nil)
             @client = client
             if @client.nil?
               raise ArgumentError,
                 "Remote client is required for `#{self.class.name}'"
             end
-            @logger = Log4r::Logger.new("vagrant::synced_folder")
+            @logger = Log4r::Logger.new("vagrant::remote::synced_folder")
+          end
+          
+          def _initialize(machine, synced_folder_type, client=nil)
             self
           end
 
