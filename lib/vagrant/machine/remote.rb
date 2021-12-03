@@ -376,8 +376,13 @@ module Vagrant
         synced_folder_clients.each do |f|
           # TODO: get type of synced folder
           impl = "virtualbox"
-          sf = Vagrant::Plugin::V2::SyncedFolder.new._initialize(self, impl, f[:plugin])
-          folders[impl] = {f[:folder][:destination] => f[:folder].merge({plugin: sf})}
+          sf = Vagrant::Plugin::V2::SyncedFolder.new(f[:plugin])
+          # Set plugin, guestpath and hostpath from synced folder info
+          folders[impl] = {f[:folder][:destination] => f[:folder].merge({
+            plugin: sf,
+            guestpath: f[:folder][:destination],
+            hostpath: f[:folder][:source],
+          })}
         end
         folders
       end
