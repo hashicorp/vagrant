@@ -256,17 +256,20 @@ func (b *Basis) Host() (host core.Host, err error) {
 		return c.(core.Host), nil
 	}
 
-	// TODO: load basis vagrantfile!
+	// TODO: load vagrantfile!
 	// If a host is defined in the Vagrantfile, try to load it
-	hostName := b.Config().MachineConfigs[0].ConfigVagrant.Host
-	if hostName != "" {
-		// If a host is set, then just try to detect that
-		hostComponent, err := b.component(b.ctx, component.HostType, hostName)
-		if err != nil {
-			return nil, fmt.Errorf("failed to find requested host plugin")
+	bConfig := b.Config()
+	if bConfig != nil {
+		hostName := bConfig.MachineConfigs[0].ConfigVagrant.Host
+		if hostName != "" {
+			// If a host is set, then just try to detect that
+			hostComponent, err := b.component(b.ctx, component.HostType, hostName)
+			if err != nil {
+				return nil, fmt.Errorf("failed to find requested host plugin")
+			}
+			b.lookupCache["host"] = hostComponent.Value.(core.Host)
+			return hostComponent.Value.(core.Host), nil
 		}
-		b.lookupCache["host"] = hostComponent.Value.(core.Host)
-		return hostComponent.Value.(core.Host), nil
 	}
 
 	// If a host is not defined in the Vagrantfile, try to detect it
