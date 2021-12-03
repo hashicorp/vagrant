@@ -13,6 +13,10 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
   add_file("vagrant_plugin_sdk/plugin.proto", :syntax => :proto3) do
     add_message "hashicorp.vagrant.sdk.Args" do
     end
+    add_message "hashicorp.vagrant.sdk.Args.Seeds" do
+      repeated :typed, :message, 1, "google.protobuf.Any"
+      map :named, :string, :message, 2, "google.protobuf.Any"
+    end
     add_message "hashicorp.vagrant.sdk.Args.DataDir" do
     end
     add_message "hashicorp.vagrant.sdk.Args.DataDir.Basis" do
@@ -157,6 +161,8 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
     end
     add_message "hashicorp.vagrant.sdk.Args.Hash" do
       map :fields, :string, :message, 1, "google.protobuf.Any"
+    end
+    add_message "hashicorp.vagrant.sdk.Args.Null" do
     end
     add_message "hashicorp.vagrant.sdk.SSHInfo" do
       optional :host, :string, 1
@@ -825,6 +831,7 @@ module Hashicorp
   module Vagrant
     module Sdk
       Args = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Args").msgclass
+      Args::Seeds = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Args.Seeds").msgclass
       Args::DataDir = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Args.DataDir").msgclass
       Args::DataDir::Basis = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Args.DataDir.Basis").msgclass
       Args::DataDir::Project = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Args.DataDir.Project").msgclass
@@ -857,6 +864,7 @@ module Hashicorp
       Args::Direct = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Args.Direct").msgclass
       Args::Array = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Args.Array").msgclass
       Args::Hash = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Args.Hash").msgclass
+      Args::Null = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Args.Null").msgclass
       SSHInfo = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.SSHInfo").msgclass
       WinrmInfo = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.WinrmInfo").msgclass
       WinrmInfo::Transport = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.WinrmInfo.Transport").enummodule
