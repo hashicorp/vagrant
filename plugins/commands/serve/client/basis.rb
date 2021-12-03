@@ -41,11 +41,11 @@ module VagrantPlugins
           plugins_response = client.plugins(
             SDK::Basis::PluginsRequest.new(types: Array(types))
           )
-          plugins = []
+          plugins = {}
           plugins_response.plugins.each do |plg|
             logger.debug("mappng plugin: #{plg}")
             unany_plg = mapper.unany(plg.plugin)
-            plugins << mapper.map(unany_plg, broker)
+            plugins[plg.name.to_sym] = mapper.map(unany_plg, broker)
           end
           plugins
         end
