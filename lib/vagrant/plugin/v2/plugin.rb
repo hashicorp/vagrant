@@ -24,7 +24,12 @@ module Vagrant
         #
         # @return [V2::Manager]
         def self.manager
-          @manager ||= Manager.new
+          if Vagrant.server_mode?
+            @manager ||= Vagrant::Plugin::Remote::Manager.new
+          else
+            @manager ||= Manager.new
+          end
+          @manager
         end
 
         # Returns the {Components} for this plugin.

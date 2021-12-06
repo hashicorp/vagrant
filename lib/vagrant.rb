@@ -231,10 +231,6 @@ module Vagrant
   # @param [String] component
   # @return [Class]
   def self.plugin(version, component=nil)
-    # TODO
-    if component.nil? && Vagrant.server_mode?
-      version = "remote"
-    end
     # Build up the key and return a result
     key    = version.to_s.to_sym
     key    = [key, component.to_s.to_sym] if component
