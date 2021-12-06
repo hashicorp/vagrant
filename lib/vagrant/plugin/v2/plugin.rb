@@ -24,9 +24,12 @@ module Vagrant
         #
         # @return [V2::Manager]
         def self.manager
+          @manager if !@manager.nil?
           if Vagrant.server_mode?
+            LOGGER.debug("using remote manager")
             @manager ||= Vagrant::Plugin::Remote::Manager.new
           else
+            LOGGER.debug("using v2 manager")
             @manager ||= Manager.new
           end
           @manager
