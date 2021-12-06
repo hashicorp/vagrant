@@ -13,12 +13,6 @@ module Vagrant
             end
           end
 
-          # This returns the available synced folder implementations. This
-          # is a separate method so that it can be easily stubbed by tests.
-          def plugins
-            @plugins ||= Vagrant.plugin("remote").manager.synced_folders
-          end
-
           # This should never be called?
           def default_synced_folder_type(machine, plugins)
             nil

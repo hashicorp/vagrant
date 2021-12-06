@@ -13,7 +13,7 @@ module Vagrant
           @logger = Log4r::Logger.new("vagrant::plugin::remote::manager")
           @logger.debug("initializing remote manager")
           # Copy in local Ruby registered plugins
-          @registered = Vagrant.plugin("2").manager.registered
+          @registered = Vagrant.plugin("2").v2_manager.registered
         end
 
         # This returns all synced folder implementations.
