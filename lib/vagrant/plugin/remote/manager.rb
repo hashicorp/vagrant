@@ -18,25 +18,32 @@ module Vagrant
           @registered = {}
         end
 
-         # This returns all the registered communicators.
+        # This returns all the registered commands.
+        #
+        # @return [Registry<Symbol, Array<Proc, Hash>>]
+        def commands
+          @registered[:command]
+        end
+
+        # This returns all the registered communicators.
         #
         # @return [Hash]
         def communicators
-          registered[:communincator]
+          @registered[:communincator]
         end
 
         # This returns all the registered guests.
         #
         # @return [Hash]
         def guests
-          registered[:guest]
+          @registered[:guest]
         end
 
         # This returns all the registered guests.
         #
         # @return [Hash]
         def hosts
-          registered[:host]
+          @registered[:host]
         end
 
         # This returns all synced folder implementations.

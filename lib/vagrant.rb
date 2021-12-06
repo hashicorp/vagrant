@@ -181,6 +181,8 @@ module Vagrant
     c.register([:"2", :provisioner])  { Plugin::V2::Provisioner }
     c.register([:"2", :push])         { Plugin::V2::Push }
     c.register([:"2", :synced_folder]) { Plugin::V2::SyncedFolder }
+
+    c.register(:remote)               { Plugin::Remote::Plugin }
   end
 
   # Configure a Vagrant environment. The version specifies the version
@@ -229,6 +231,10 @@ module Vagrant
   # @param [String] component
   # @return [Class]
   def self.plugin(version, component=nil)
+    # TODO
+    if component.nil? && Vagrant.server_mode?
+      version = "remote"
+    end
     # Build up the key and return a result
     key    = version.to_s.to_sym
     key    = [key, component.to_s.to_sym] if component

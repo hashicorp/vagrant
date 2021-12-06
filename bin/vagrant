@@ -199,9 +199,10 @@ begin
   # Doing this prevents Vagrant from attempting to load an
   # Environment directly.
   if sub_cmd == "serve"
+    cmd = Vagrant.plugin("2").manager.commands[:serve].first
     Vagrant.enable_server_mode!
-    cmd = Vagrant.plugin("2").manager.commands[:serve].first.call
-    result = cmd.new([], nil).execute
+    cmd_call = cmd.call
+    result = cmd_call.new([], nil).execute
     exit(result)
   else
     # Create the environment, which is the cwd of wherever the

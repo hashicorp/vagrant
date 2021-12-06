@@ -43,7 +43,7 @@ module VagrantPlugins
             project = target.project
             env = Vagrant::Environment.new({client: project})
             machine = env.machine(target.name.to_sym, target.provider_name.to_sym)
-            
+
             sf = get_synced_folder_plugin(plugin_name)
             logger.debug("got sf #{sf}")
             usable = sf.usable?(machine)
@@ -153,9 +153,9 @@ module VagrantPlugins
         end
 
         private
-        
+
         def get_synced_folder_plugin(plugin_name)
-          synced_folders = Vagrant.plugin("2").manager.synced_folders
+          synced_folders = Vagrant::Plugin::V2::Plugin.manager.synced_folders
           logger.debug("got synced folders #{synced_folders}")
           plugin = [plugin_name.to_s.to_sym].to_a.first
           logger.debug("got plugin #{plugin}")
