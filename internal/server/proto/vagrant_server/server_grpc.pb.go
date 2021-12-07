@@ -4,10 +4,10 @@ package vagrant_server
 
 import (
 	context "context"
+	empty "github.com/golang/protobuf/ptypes/empty"
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
-	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
 // This is a compile-time assertion to ensure that this generated file
@@ -22,11 +22,11 @@ type VagrantClient interface {
 	// GetVersionInfo returns information about the server. This RPC call does
 	// NOT require authentication. It can be used by clients to determine if they
 	// are capable of talking to this server.
-	GetVersionInfo(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetVersionInfoResponse, error)
+	GetVersionInfo(ctx context.Context, in *empty.Empty, opts ...grpc.CallOption) (*GetVersionInfoResponse, error)
 	UpsertBasis(ctx context.Context, in *UpsertBasisRequest, opts ...grpc.CallOption) (*UpsertBasisResponse, error)
 	GetBasis(ctx context.Context, in *GetBasisRequest, opts ...grpc.CallOption) (*GetBasisResponse, error)
 	FindBasis(ctx context.Context, in *FindBasisRequest, opts ...grpc.CallOption) (*FindBasisResponse, error)
-	ListBasis(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*ListBasisResponse, error)
+	ListBasis(ctx context.Context, in *empty.Empty, opts ...grpc.CallOption) (*ListBasisResponse, error)
 	// ListTasks returns the tasks.
 	ListTasks(ctx context.Context, in *ListTasksRequest, opts ...grpc.CallOption) (*ListTasksResponse, error)
 	// GetTask returns a task
@@ -44,19 +44,19 @@ type VagrantClient interface {
 	// ListProjects returns a list of all the projects. There is no equivalent
 	// ListApplications because applications are a part of projects and you
 	// can use GetProject to get more information about the project.
-	ListProjects(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*ListProjectsResponse, error)
+	ListProjects(ctx context.Context, in *empty.Empty, opts ...grpc.CallOption) (*ListProjectsResponse, error)
 	// UpsertTarget upserts a target with a project. If the target
 	// is already registered this does nothing.
 	UpsertTarget(ctx context.Context, in *UpsertTargetRequest, opts ...grpc.CallOption) (*UpsertTargetResponse, error)
-	DeleteTarget(ctx context.Context, in *DeleteTargetRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	DeleteTarget(ctx context.Context, in *DeleteTargetRequest, opts ...grpc.CallOption) (*empty.Empty, error)
 	GetTarget(ctx context.Context, in *GetTargetRequest, opts ...grpc.CallOption) (*GetTargetResponse, error)
 	FindTarget(ctx context.Context, in *FindTargetRequest, opts ...grpc.CallOption) (*FindTargetResponse, error)
-	ListTargets(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*ListTargetsResponse, error)
+	ListTargets(ctx context.Context, in *empty.Empty, opts ...grpc.CallOption) (*ListTargetsResponse, error)
 	// CRUD operations for box
 	UpsertBox(ctx context.Context, in *UpsertBoxRequest, opts ...grpc.CallOption) (*UpsertBoxResponse, error)
-	DeleteBox(ctx context.Context, in *DeleteBoxRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	DeleteBox(ctx context.Context, in *DeleteBoxRequest, opts ...grpc.CallOption) (*empty.Empty, error)
 	GetBox(ctx context.Context, in *GetBoxRequest, opts ...grpc.CallOption) (*GetBoxResponse, error)
-	ListBoxes(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*ListBoxesResponse, error)
+	ListBoxes(ctx context.Context, in *empty.Empty, opts ...grpc.CallOption) (*ListBoxesResponse, error)
 	FindBox(ctx context.Context, in *FindBoxRequest, opts ...grpc.CallOption) (*FindBoxResponse, error)
 	// GetLogStream reads the log stream for a deployment. This will immediately
 	// send a single LogEntry with the lines we have so far. If there are no
@@ -79,7 +79,7 @@ type VagrantClient interface {
 	//
 	// This RPC always returns immediately. You must use GetJob or GetJobStream
 	// to wait on the status of the cancellation.
-	CancelJob(ctx context.Context, in *CancelJobRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	CancelJob(ctx context.Context, in *CancelJobRequest, opts ...grpc.CallOption) (*empty.Empty, error)
 	// GetJob queries a job by ID.
 	GetJob(ctx context.Context, in *GetJobRequest, opts ...grpc.CallOption) (*Job, error)
 	// INTERNAL: ListJobs lists all the jobs the server has processed. This
@@ -94,15 +94,15 @@ type VagrantClient interface {
 	// Multiple listeners can open a job stream.
 	GetJobStream(ctx context.Context, in *GetJobStreamRequest, opts ...grpc.CallOption) (Vagrant_GetJobStreamClient, error)
 	// Clean out old jobs from the job database
-	PruneOldJobs(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	PruneOldJobs(ctx context.Context, in *empty.Empty, opts ...grpc.CallOption) (*empty.Empty, error)
 	// GetRunner gets information about a single runner.
 	GetRunner(ctx context.Context, in *GetRunnerRequest, opts ...grpc.CallOption) (*Runner, error)
 	// GetServerConfig sets configuration for the Vagrant server.
-	GetServerConfig(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetServerConfigResponse, error)
+	GetServerConfig(ctx context.Context, in *empty.Empty, opts ...grpc.CallOption) (*GetServerConfigResponse, error)
 	// SetServerConfig sets configuration for the Vagrant server.
-	SetServerConfig(ctx context.Context, in *SetServerConfigRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	SetServerConfig(ctx context.Context, in *SetServerConfigRequest, opts ...grpc.CallOption) (*empty.Empty, error)
 	// CreateSnapshot creates a new database snapshot.
-	CreateSnapshot(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (Vagrant_CreateSnapshotClient, error)
+	CreateSnapshot(ctx context.Context, in *empty.Empty, opts ...grpc.CallOption) (Vagrant_CreateSnapshotClient, error)
 	// RestoreSnapshot performs a database restore with the given snapshot.
 	// This API doesn't do a full online restore, it only stages the restore
 	// for the next server start to finalize the restore. See the arguments for
@@ -111,11 +111,11 @@ type VagrantClient interface {
 	// BootstrapToken returns the initial token for the server. This can only
 	// be requested once on first startup. After initial request this will
 	// always return a PermissionDenied error.
-	BootstrapToken(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*NewTokenResponse, error)
+	BootstrapToken(ctx context.Context, in *empty.Empty, opts ...grpc.CallOption) (*NewTokenResponse, error)
 	// Generate a new invite token that users can exchange for a login token.
 	GenerateInviteToken(ctx context.Context, in *InviteTokenRequest, opts ...grpc.CallOption) (*NewTokenResponse, error)
 	// Generate a new login token that users can use to login directly.
-	GenerateLoginToken(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*NewTokenResponse, error)
+	GenerateLoginToken(ctx context.Context, in *empty.Empty, opts ...grpc.CallOption) (*NewTokenResponse, error)
 	// Exchange a invite token for a login token.
 	ConvertInviteToken(ctx context.Context, in *ConvertInviteTokenRequest, opts ...grpc.CallOption) (*NewTokenResponse, error)
 	// RunnerConfig is called to register a runner and receive the configuration
@@ -135,7 +135,7 @@ func NewVagrantClient(cc grpc.ClientConnInterface) VagrantClient {
 	return &vagrantClient{cc}
 }
 
-func (c *vagrantClient) GetVersionInfo(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetVersionInfoResponse, error) {
+func (c *vagrantClient) GetVersionInfo(ctx context.Context, in *empty.Empty, opts ...grpc.CallOption) (*GetVersionInfoResponse, error) {
 	out := new(GetVersionInfoResponse)
 	err := c.cc.Invoke(ctx, "/hashicorp.vagrant.Vagrant/GetVersionInfo", in, out, opts...)
 	if err != nil {
@@ -171,7 +171,7 @@ func (c *vagrantClient) FindBasis(ctx context.Context, in *FindBasisRequest, opt
 	return out, nil
 }
 
-func (c *vagrantClient) ListBasis(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*ListBasisResponse, error) {
+func (c *vagrantClient) ListBasis(ctx context.Context, in *empty.Empty, opts ...grpc.CallOption) (*ListBasisResponse, error) {
 	out := new(ListBasisResponse)
 	err := c.cc.Invoke(ctx, "/hashicorp.vagrant.Vagrant/ListBasis", in, out, opts...)
 	if err != nil {
@@ -243,7 +243,7 @@ func (c *vagrantClient) FindProject(ctx context.Context, in *FindProjectRequest,
 	return out, nil
 }
 
-func (c *vagrantClient) ListProjects(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*ListProjectsResponse, error) {
+func (c *vagrantClient) ListProjects(ctx context.Context, in *empty.Empty, opts ...grpc.CallOption) (*ListProjectsResponse, error) {
 	out := new(ListProjectsResponse)
 	err := c.cc.Invoke(ctx, "/hashicorp.vagrant.Vagrant/ListProjects", in, out, opts...)
 	if err != nil {
@@ -261,8 +261,8 @@ func (c *vagrantClient) UpsertTarget(ctx context.Context, in *UpsertTargetReques
 	return out, nil
 }
 
-func (c *vagrantClient) DeleteTarget(ctx context.Context, in *DeleteTargetRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
-	out := new(emptypb.Empty)
+func (c *vagrantClient) DeleteTarget(ctx context.Context, in *DeleteTargetRequest, opts ...grpc.CallOption) (*empty.Empty, error) {
+	out := new(empty.Empty)
 	err := c.cc.Invoke(ctx, "/hashicorp.vagrant.Vagrant/DeleteTarget", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -288,7 +288,7 @@ func (c *vagrantClient) FindTarget(ctx context.Context, in *FindTargetRequest, o
 	return out, nil
 }
 
-func (c *vagrantClient) ListTargets(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*ListTargetsResponse, error) {
+func (c *vagrantClient) ListTargets(ctx context.Context, in *empty.Empty, opts ...grpc.CallOption) (*ListTargetsResponse, error) {
 	out := new(ListTargetsResponse)
 	err := c.cc.Invoke(ctx, "/hashicorp.vagrant.Vagrant/ListTargets", in, out, opts...)
 	if err != nil {
@@ -306,8 +306,8 @@ func (c *vagrantClient) UpsertBox(ctx context.Context, in *UpsertBoxRequest, opt
 	return out, nil
 }
 
-func (c *vagrantClient) DeleteBox(ctx context.Context, in *DeleteBoxRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
-	out := new(emptypb.Empty)
+func (c *vagrantClient) DeleteBox(ctx context.Context, in *DeleteBoxRequest, opts ...grpc.CallOption) (*empty.Empty, error) {
+	out := new(empty.Empty)
 	err := c.cc.Invoke(ctx, "/hashicorp.vagrant.Vagrant/DeleteBox", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -324,7 +324,7 @@ func (c *vagrantClient) GetBox(ctx context.Context, in *GetBoxRequest, opts ...g
 	return out, nil
 }
 
-func (c *vagrantClient) ListBoxes(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*ListBoxesResponse, error) {
+func (c *vagrantClient) ListBoxes(ctx context.Context, in *empty.Empty, opts ...grpc.CallOption) (*ListBoxesResponse, error) {
 	out := new(ListBoxesResponse)
 	err := c.cc.Invoke(ctx, "/hashicorp.vagrant.Vagrant/ListBoxes", in, out, opts...)
 	if err != nil {
@@ -401,8 +401,8 @@ func (c *vagrantClient) QueueJob(ctx context.Context, in *QueueJobRequest, opts 
 	return out, nil
 }
 
-func (c *vagrantClient) CancelJob(ctx context.Context, in *CancelJobRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
-	out := new(emptypb.Empty)
+func (c *vagrantClient) CancelJob(ctx context.Context, in *CancelJobRequest, opts ...grpc.CallOption) (*empty.Empty, error) {
+	out := new(empty.Empty)
 	err := c.cc.Invoke(ctx, "/hashicorp.vagrant.Vagrant/CancelJob", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -469,8 +469,8 @@ func (x *vagrantGetJobStreamClient) Recv() (*GetJobStreamResponse, error) {
 	return m, nil
 }
 
-func (c *vagrantClient) PruneOldJobs(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*emptypb.Empty, error) {
-	out := new(emptypb.Empty)
+func (c *vagrantClient) PruneOldJobs(ctx context.Context, in *empty.Empty, opts ...grpc.CallOption) (*empty.Empty, error) {
+	out := new(empty.Empty)
 	err := c.cc.Invoke(ctx, "/hashicorp.vagrant.Vagrant/PruneOldJobs", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -487,7 +487,7 @@ func (c *vagrantClient) GetRunner(ctx context.Context, in *GetRunnerRequest, opt
 	return out, nil
 }
 
-func (c *vagrantClient) GetServerConfig(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetServerConfigResponse, error) {
+func (c *vagrantClient) GetServerConfig(ctx context.Context, in *empty.Empty, opts ...grpc.CallOption) (*GetServerConfigResponse, error) {
 	out := new(GetServerConfigResponse)
 	err := c.cc.Invoke(ctx, "/hashicorp.vagrant.Vagrant/GetServerConfig", in, out, opts...)
 	if err != nil {
@@ -496,8 +496,8 @@ func (c *vagrantClient) GetServerConfig(ctx context.Context, in *emptypb.Empty, 
 	return out, nil
 }
 
-func (c *vagrantClient) SetServerConfig(ctx context.Context, in *SetServerConfigRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
-	out := new(emptypb.Empty)
+func (c *vagrantClient) SetServerConfig(ctx context.Context, in *SetServerConfigRequest, opts ...grpc.CallOption) (*empty.Empty, error) {
+	out := new(empty.Empty)
 	err := c.cc.Invoke(ctx, "/hashicorp.vagrant.Vagrant/SetServerConfig", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -505,7 +505,7 @@ func (c *vagrantClient) SetServerConfig(ctx context.Context, in *SetServerConfig
 	return out, nil
 }
 
-func (c *vagrantClient) CreateSnapshot(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (Vagrant_CreateSnapshotClient, error) {
+func (c *vagrantClient) CreateSnapshot(ctx context.Context, in *empty.Empty, opts ...grpc.CallOption) (Vagrant_CreateSnapshotClient, error) {
 	stream, err := c.cc.NewStream(ctx, &Vagrant_ServiceDesc.Streams[2], "/hashicorp.vagrant.Vagrant/CreateSnapshot", opts...)
 	if err != nil {
 		return nil, err
@@ -548,7 +548,7 @@ func (c *vagrantClient) RestoreSnapshot(ctx context.Context, opts ...grpc.CallOp
 
 type Vagrant_RestoreSnapshotClient interface {
 	Send(*RestoreSnapshotRequest) error
-	CloseAndRecv() (*emptypb.Empty, error)
+	CloseAndRecv() (*empty.Empty, error)
 	grpc.ClientStream
 }
 
@@ -560,18 +560,18 @@ func (x *vagrantRestoreSnapshotClient) Send(m *RestoreSnapshotRequest) error {
 	return x.ClientStream.SendMsg(m)
 }
 
-func (x *vagrantRestoreSnapshotClient) CloseAndRecv() (*emptypb.Empty, error) {
+func (x *vagrantRestoreSnapshotClient) CloseAndRecv() (*empty.Empty, error) {
 	if err := x.ClientStream.CloseSend(); err != nil {
 		return nil, err
 	}
-	m := new(emptypb.Empty)
+	m := new(empty.Empty)
 	if err := x.ClientStream.RecvMsg(m); err != nil {
 		return nil, err
 	}
 	return m, nil
 }
 
-func (c *vagrantClient) BootstrapToken(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*NewTokenResponse, error) {
+func (c *vagrantClient) BootstrapToken(ctx context.Context, in *empty.Empty, opts ...grpc.CallOption) (*NewTokenResponse, error) {
 	out := new(NewTokenResponse)
 	err := c.cc.Invoke(ctx, "/hashicorp.vagrant.Vagrant/BootstrapToken", in, out, opts...)
 	if err != nil {
@@ -589,7 +589,7 @@ func (c *vagrantClient) GenerateInviteToken(ctx context.Context, in *InviteToken
 	return out, nil
 }
 
-func (c *vagrantClient) GenerateLoginToken(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*NewTokenResponse, error) {
+func (c *vagrantClient) GenerateLoginToken(ctx context.Context, in *empty.Empty, opts ...grpc.CallOption) (*NewTokenResponse, error) {
 	out := new(NewTokenResponse)
 	err := c.cc.Invoke(ctx, "/hashicorp.vagrant.Vagrant/GenerateLoginToken", in, out, opts...)
 	if err != nil {
@@ -676,11 +676,11 @@ type VagrantServer interface {
 	// GetVersionInfo returns information about the server. This RPC call does
 	// NOT require authentication. It can be used by clients to determine if they
 	// are capable of talking to this server.
-	GetVersionInfo(context.Context, *emptypb.Empty) (*GetVersionInfoResponse, error)
+	GetVersionInfo(context.Context, *empty.Empty) (*GetVersionInfoResponse, error)
 	UpsertBasis(context.Context, *UpsertBasisRequest) (*UpsertBasisResponse, error)
 	GetBasis(context.Context, *GetBasisRequest) (*GetBasisResponse, error)
 	FindBasis(context.Context, *FindBasisRequest) (*FindBasisResponse, error)
-	ListBasis(context.Context, *emptypb.Empty) (*ListBasisResponse, error)
+	ListBasis(context.Context, *empty.Empty) (*ListBasisResponse, error)
 	// ListTasks returns the tasks.
 	ListTasks(context.Context, *ListTasksRequest) (*ListTasksResponse, error)
 	// GetTask returns a task
@@ -698,19 +698,19 @@ type VagrantServer interface {
 	// ListProjects returns a list of all the projects. There is no equivalent
 	// ListApplications because applications are a part of projects and you
 	// can use GetProject to get more information about the project.
-	ListProjects(context.Context, *emptypb.Empty) (*ListProjectsResponse, error)
+	ListProjects(context.Context, *empty.Empty) (*ListProjectsResponse, error)
 	// UpsertTarget upserts a target with a project. If the target
 	// is already registered this does nothing.
 	UpsertTarget(context.Context, *UpsertTargetRequest) (*UpsertTargetResponse, error)
-	DeleteTarget(context.Context, *DeleteTargetRequest) (*emptypb.Empty, error)
+	DeleteTarget(context.Context, *DeleteTargetRequest) (*empty.Empty, error)
 	GetTarget(context.Context, *GetTargetRequest) (*GetTargetResponse, error)
 	FindTarget(context.Context, *FindTargetRequest) (*FindTargetResponse, error)
-	ListTargets(context.Context, *emptypb.Empty) (*ListTargetsResponse, error)
+	ListTargets(context.Context, *empty.Empty) (*ListTargetsResponse, error)
 	// CRUD operations for box
 	UpsertBox(context.Context, *UpsertBoxRequest) (*UpsertBoxResponse, error)
-	DeleteBox(context.Context, *DeleteBoxRequest) (*emptypb.Empty, error)
+	DeleteBox(context.Context, *DeleteBoxRequest) (*empty.Empty, error)
 	GetBox(context.Context, *GetBoxRequest) (*GetBoxResponse, error)
-	ListBoxes(context.Context, *emptypb.Empty) (*ListBoxesResponse, error)
+	ListBoxes(context.Context, *empty.Empty) (*ListBoxesResponse, error)
 	FindBox(context.Context, *FindBoxRequest) (*FindBoxResponse, error)
 	// GetLogStream reads the log stream for a deployment. This will immediately
 	// send a single LogEntry with the lines we have so far. If there are no
@@ -733,7 +733,7 @@ type VagrantServer interface {
 	//
 	// This RPC always returns immediately. You must use GetJob or GetJobStream
 	// to wait on the status of the cancellation.
-	CancelJob(context.Context, *CancelJobRequest) (*emptypb.Empty, error)
+	CancelJob(context.Context, *CancelJobRequest) (*empty.Empty, error)
 	// GetJob queries a job by ID.
 	GetJob(context.Context, *GetJobRequest) (*Job, error)
 	// INTERNAL: ListJobs lists all the jobs the server has processed. This
@@ -748,15 +748,15 @@ type VagrantServer interface {
 	// Multiple listeners can open a job stream.
 	GetJobStream(*GetJobStreamRequest, Vagrant_GetJobStreamServer) error
 	// Clean out old jobs from the job database
-	PruneOldJobs(context.Context, *emptypb.Empty) (*emptypb.Empty, error)
+	PruneOldJobs(context.Context, *empty.Empty) (*empty.Empty, error)
 	// GetRunner gets information about a single runner.
 	GetRunner(context.Context, *GetRunnerRequest) (*Runner, error)
 	// GetServerConfig sets configuration for the Vagrant server.
-	GetServerConfig(context.Context, *emptypb.Empty) (*GetServerConfigResponse, error)
+	GetServerConfig(context.Context, *empty.Empty) (*GetServerConfigResponse, error)
 	// SetServerConfig sets configuration for the Vagrant server.
-	SetServerConfig(context.Context, *SetServerConfigRequest) (*emptypb.Empty, error)
+	SetServerConfig(context.Context, *SetServerConfigRequest) (*empty.Empty, error)
 	// CreateSnapshot creates a new database snapshot.
-	CreateSnapshot(*emptypb.Empty, Vagrant_CreateSnapshotServer) error
+	CreateSnapshot(*empty.Empty, Vagrant_CreateSnapshotServer) error
 	// RestoreSnapshot performs a database restore with the given snapshot.
 	// This API doesn't do a full online restore, it only stages the restore
 	// for the next server start to finalize the restore. See the arguments for
@@ -765,11 +765,11 @@ type VagrantServer interface {
 	// BootstrapToken returns the initial token for the server. This can only
 	// be requested once on first startup. After initial request this will
 	// always return a PermissionDenied error.
-	BootstrapToken(context.Context, *emptypb.Empty) (*NewTokenResponse, error)
+	BootstrapToken(context.Context, *empty.Empty) (*NewTokenResponse, error)
 	// Generate a new invite token that users can exchange for a login token.
 	GenerateInviteToken(context.Context, *InviteTokenRequest) (*NewTokenResponse, error)
 	// Generate a new login token that users can use to login directly.
-	GenerateLoginToken(context.Context, *emptypb.Empty) (*NewTokenResponse, error)
+	GenerateLoginToken(context.Context, *empty.Empty) (*NewTokenResponse, error)
 	// Exchange a invite token for a login token.
 	ConvertInviteToken(context.Context, *ConvertInviteTokenRequest) (*NewTokenResponse, error)
 	// RunnerConfig is called to register a runner and receive the configuration
@@ -785,7 +785,7 @@ type VagrantServer interface {
 type UnimplementedVagrantServer struct {
 }
 
-func (UnimplementedVagrantServer) GetVersionInfo(context.Context, *emptypb.Empty) (*GetVersionInfoResponse, error) {
+func (UnimplementedVagrantServer) GetVersionInfo(context.Context, *empty.Empty) (*GetVersionInfoResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetVersionInfo not implemented")
 }
 func (UnimplementedVagrantServer) UpsertBasis(context.Context, *UpsertBasisRequest) (*UpsertBasisResponse, error) {
@@ -797,7 +797,7 @@ func (UnimplementedVagrantServer) GetBasis(context.Context, *GetBasisRequest) (*
 func (UnimplementedVagrantServer) FindBasis(context.Context, *FindBasisRequest) (*FindBasisResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method FindBasis not implemented")
 }
-func (UnimplementedVagrantServer) ListBasis(context.Context, *emptypb.Empty) (*ListBasisResponse, error) {
+func (UnimplementedVagrantServer) ListBasis(context.Context, *empty.Empty) (*ListBasisResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListBasis not implemented")
 }
 func (UnimplementedVagrantServer) ListTasks(context.Context, *ListTasksRequest) (*ListTasksResponse, error) {
@@ -821,13 +821,13 @@ func (UnimplementedVagrantServer) GetProject(context.Context, *GetProjectRequest
 func (UnimplementedVagrantServer) FindProject(context.Context, *FindProjectRequest) (*FindProjectResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method FindProject not implemented")
 }
-func (UnimplementedVagrantServer) ListProjects(context.Context, *emptypb.Empty) (*ListProjectsResponse, error) {
+func (UnimplementedVagrantServer) ListProjects(context.Context, *empty.Empty) (*ListProjectsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListProjects not implemented")
 }
 func (UnimplementedVagrantServer) UpsertTarget(context.Context, *UpsertTargetRequest) (*UpsertTargetResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UpsertTarget not implemented")
 }
-func (UnimplementedVagrantServer) DeleteTarget(context.Context, *DeleteTargetRequest) (*emptypb.Empty, error) {
+func (UnimplementedVagrantServer) DeleteTarget(context.Context, *DeleteTargetRequest) (*empty.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DeleteTarget not implemented")
 }
 func (UnimplementedVagrantServer) GetTarget(context.Context, *GetTargetRequest) (*GetTargetResponse, error) {
@@ -836,19 +836,19 @@ func (UnimplementedVagrantServer) GetTarget(context.Context, *GetTargetRequest) 
 func (UnimplementedVagrantServer) FindTarget(context.Context, *FindTargetRequest) (*FindTargetResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method FindTarget not implemented")
 }
-func (UnimplementedVagrantServer) ListTargets(context.Context, *emptypb.Empty) (*ListTargetsResponse, error) {
+func (UnimplementedVagrantServer) ListTargets(context.Context, *empty.Empty) (*ListTargetsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListTargets not implemented")
 }
 func (UnimplementedVagrantServer) UpsertBox(context.Context, *UpsertBoxRequest) (*UpsertBoxResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UpsertBox not implemented")
 }
-func (UnimplementedVagrantServer) DeleteBox(context.Context, *DeleteBoxRequest) (*emptypb.Empty, error) {
+func (UnimplementedVagrantServer) DeleteBox(context.Context, *DeleteBoxRequest) (*empty.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DeleteBox not implemented")
 }
 func (UnimplementedVagrantServer) GetBox(context.Context, *GetBoxRequest) (*GetBoxResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetBox not implemented")
 }
-func (UnimplementedVagrantServer) ListBoxes(context.Context, *emptypb.Empty) (*ListBoxesResponse, error) {
+func (UnimplementedVagrantServer) ListBoxes(context.Context, *empty.Empty) (*ListBoxesResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListBoxes not implemented")
 }
 func (UnimplementedVagrantServer) FindBox(context.Context, *FindBoxRequest) (*FindBoxResponse, error) {
@@ -866,7 +866,7 @@ func (UnimplementedVagrantServer) GetConfig(context.Context, *ConfigGetRequest) 
 func (UnimplementedVagrantServer) QueueJob(context.Context, *QueueJobRequest) (*QueueJobResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method QueueJob not implemented")
 }
-func (UnimplementedVagrantServer) CancelJob(context.Context, *CancelJobRequest) (*emptypb.Empty, error) {
+func (UnimplementedVagrantServer) CancelJob(context.Context, *CancelJobRequest) (*empty.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CancelJob not implemented")
 }
 func (UnimplementedVagrantServer) GetJob(context.Context, *GetJobRequest) (*Job, error) {
@@ -881,31 +881,31 @@ func (UnimplementedVagrantServer) ValidateJob(context.Context, *ValidateJobReque
 func (UnimplementedVagrantServer) GetJobStream(*GetJobStreamRequest, Vagrant_GetJobStreamServer) error {
 	return status.Errorf(codes.Unimplemented, "method GetJobStream not implemented")
 }
-func (UnimplementedVagrantServer) PruneOldJobs(context.Context, *emptypb.Empty) (*emptypb.Empty, error) {
+func (UnimplementedVagrantServer) PruneOldJobs(context.Context, *empty.Empty) (*empty.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method PruneOldJobs not implemented")
 }
 func (UnimplementedVagrantServer) GetRunner(context.Context, *GetRunnerRequest) (*Runner, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetRunner not implemented")
 }
-func (UnimplementedVagrantServer) GetServerConfig(context.Context, *emptypb.Empty) (*GetServerConfigResponse, error) {
+func (UnimplementedVagrantServer) GetServerConfig(context.Context, *empty.Empty) (*GetServerConfigResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetServerConfig not implemented")
 }
-func (UnimplementedVagrantServer) SetServerConfig(context.Context, *SetServerConfigRequest) (*emptypb.Empty, error) {
+func (UnimplementedVagrantServer) SetServerConfig(context.Context, *SetServerConfigRequest) (*empty.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SetServerConfig not implemented")
 }
-func (UnimplementedVagrantServer) CreateSnapshot(*emptypb.Empty, Vagrant_CreateSnapshotServer) error {
+func (UnimplementedVagrantServer) CreateSnapshot(*empty.Empty, Vagrant_CreateSnapshotServer) error {
 	return status.Errorf(codes.Unimplemented, "method CreateSnapshot not implemented")
 }
 func (UnimplementedVagrantServer) RestoreSnapshot(Vagrant_RestoreSnapshotServer) error {
 	return status.Errorf(codes.Unimplemented, "method RestoreSnapshot not implemented")
 }
-func (UnimplementedVagrantServer) BootstrapToken(context.Context, *emptypb.Empty) (*NewTokenResponse, error) {
+func (UnimplementedVagrantServer) BootstrapToken(context.Context, *empty.Empty) (*NewTokenResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method BootstrapToken not implemented")
 }
 func (UnimplementedVagrantServer) GenerateInviteToken(context.Context, *InviteTokenRequest) (*NewTokenResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GenerateInviteToken not implemented")
 }
-func (UnimplementedVagrantServer) GenerateLoginToken(context.Context, *emptypb.Empty) (*NewTokenResponse, error) {
+func (UnimplementedVagrantServer) GenerateLoginToken(context.Context, *empty.Empty) (*NewTokenResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GenerateLoginToken not implemented")
 }
 func (UnimplementedVagrantServer) ConvertInviteToken(context.Context, *ConvertInviteTokenRequest) (*NewTokenResponse, error) {
@@ -930,7 +930,7 @@ func RegisterVagrantServer(s grpc.ServiceRegistrar, srv VagrantServer) {
 }
 
 func _Vagrant_GetVersionInfo_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(emptypb.Empty)
+	in := new(empty.Empty)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -942,7 +942,7 @@ func _Vagrant_GetVersionInfo_Handler(srv interface{}, ctx context.Context, dec f
 		FullMethod: "/hashicorp.vagrant.Vagrant/GetVersionInfo",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(VagrantServer).GetVersionInfo(ctx, req.(*emptypb.Empty))
+		return srv.(VagrantServer).GetVersionInfo(ctx, req.(*empty.Empty))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -1002,7 +1002,7 @@ func _Vagrant_FindBasis_Handler(srv interface{}, ctx context.Context, dec func(i
 }
 
 func _Vagrant_ListBasis_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(emptypb.Empty)
+	in := new(empty.Empty)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -1014,7 +1014,7 @@ func _Vagrant_ListBasis_Handler(srv interface{}, ctx context.Context, dec func(i
 		FullMethod: "/hashicorp.vagrant.Vagrant/ListBasis",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(VagrantServer).ListBasis(ctx, req.(*emptypb.Empty))
+		return srv.(VagrantServer).ListBasis(ctx, req.(*empty.Empty))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -1146,7 +1146,7 @@ func _Vagrant_FindProject_Handler(srv interface{}, ctx context.Context, dec func
 }
 
 func _Vagrant_ListProjects_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(emptypb.Empty)
+	in := new(empty.Empty)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -1158,7 +1158,7 @@ func _Vagrant_ListProjects_Handler(srv interface{}, ctx context.Context, dec fun
 		FullMethod: "/hashicorp.vagrant.Vagrant/ListProjects",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(VagrantServer).ListProjects(ctx, req.(*emptypb.Empty))
+		return srv.(VagrantServer).ListProjects(ctx, req.(*empty.Empty))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -1236,7 +1236,7 @@ func _Vagrant_FindTarget_Handler(srv interface{}, ctx context.Context, dec func(
 }
 
 func _Vagrant_ListTargets_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(emptypb.Empty)
+	in := new(empty.Empty)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -1248,7 +1248,7 @@ func _Vagrant_ListTargets_Handler(srv interface{}, ctx context.Context, dec func
 		FullMethod: "/hashicorp.vagrant.Vagrant/ListTargets",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(VagrantServer).ListTargets(ctx, req.(*emptypb.Empty))
+		return srv.(VagrantServer).ListTargets(ctx, req.(*empty.Empty))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -1308,7 +1308,7 @@ func _Vagrant_GetBox_Handler(srv interface{}, ctx context.Context, dec func(inte
 }
 
 func _Vagrant_ListBoxes_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(emptypb.Empty)
+	in := new(empty.Empty)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -1320,7 +1320,7 @@ func _Vagrant_ListBoxes_Handler(srv interface{}, ctx context.Context, dec func(i
 		FullMethod: "/hashicorp.vagrant.Vagrant/ListBoxes",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(VagrantServer).ListBoxes(ctx, req.(*emptypb.Empty))
+		return srv.(VagrantServer).ListBoxes(ctx, req.(*empty.Empty))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -1512,7 +1512,7 @@ func (x *vagrantGetJobStreamServer) Send(m *GetJobStreamResponse) error {
 }
 
 func _Vagrant_PruneOldJobs_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(emptypb.Empty)
+	in := new(empty.Empty)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -1524,7 +1524,7 @@ func _Vagrant_PruneOldJobs_Handler(srv interface{}, ctx context.Context, dec fun
 		FullMethod: "/hashicorp.vagrant.Vagrant/PruneOldJobs",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(VagrantServer).PruneOldJobs(ctx, req.(*emptypb.Empty))
+		return srv.(VagrantServer).PruneOldJobs(ctx, req.(*empty.Empty))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -1548,7 +1548,7 @@ func _Vagrant_GetRunner_Handler(srv interface{}, ctx context.Context, dec func(i
 }
 
 func _Vagrant_GetServerConfig_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(emptypb.Empty)
+	in := new(empty.Empty)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -1560,7 +1560,7 @@ func _Vagrant_GetServerConfig_Handler(srv interface{}, ctx context.Context, dec 
 		FullMethod: "/hashicorp.vagrant.Vagrant/GetServerConfig",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(VagrantServer).GetServerConfig(ctx, req.(*emptypb.Empty))
+		return srv.(VagrantServer).GetServerConfig(ctx, req.(*empty.Empty))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -1584,7 +1584,7 @@ func _Vagrant_SetServerConfig_Handler(srv interface{}, ctx context.Context, dec 
 }
 
 func _Vagrant_CreateSnapshot_Handler(srv interface{}, stream grpc.ServerStream) error {
-	m := new(emptypb.Empty)
+	m := new(empty.Empty)
 	if err := stream.RecvMsg(m); err != nil {
 		return err
 	}
@@ -1609,7 +1609,7 @@ func _Vagrant_RestoreSnapshot_Handler(srv interface{}, stream grpc.ServerStream)
 }
 
 type Vagrant_RestoreSnapshotServer interface {
-	SendAndClose(*emptypb.Empty) error
+	SendAndClose(*empty.Empty) error
 	Recv() (*RestoreSnapshotRequest, error)
 	grpc.ServerStream
 }
@@ -1618,7 +1618,7 @@ type vagrantRestoreSnapshotServer struct {
 	grpc.ServerStream
 }
 
-func (x *vagrantRestoreSnapshotServer) SendAndClose(m *emptypb.Empty) error {
+func (x *vagrantRestoreSnapshotServer) SendAndClose(m *empty.Empty) error {
 	return x.ServerStream.SendMsg(m)
 }
 
@@ -1631,7 +1631,7 @@ func (x *vagrantRestoreSnapshotServer) Recv() (*RestoreSnapshotRequest, error) {
 }
 
 func _Vagrant_BootstrapToken_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(emptypb.Empty)
+	in := new(empty.Empty)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -1643,7 +1643,7 @@ func _Vagrant_BootstrapToken_Handler(srv interface{}, ctx context.Context, dec f
 		FullMethod: "/hashicorp.vagrant.Vagrant/BootstrapToken",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(VagrantServer).BootstrapToken(ctx, req.(*emptypb.Empty))
+		return srv.(VagrantServer).BootstrapToken(ctx, req.(*empty.Empty))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -1667,7 +1667,7 @@ func _Vagrant_GenerateInviteToken_Handler(srv interface{}, ctx context.Context, 
 }
 
 func _Vagrant_GenerateLoginToken_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(emptypb.Empty)
+	in := new(empty.Empty)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -1679,7 +1679,7 @@ func _Vagrant_GenerateLoginToken_Handler(srv interface{}, ctx context.Context, d
 		FullMethod: "/hashicorp.vagrant.Vagrant/GenerateLoginToken",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(VagrantServer).GenerateLoginToken(ctx, req.(*emptypb.Empty))
+		return srv.(VagrantServer).GenerateLoginToken(ctx, req.(*empty.Empty))
 	}
 	return interceptor(ctx, in, info, handler)
 }

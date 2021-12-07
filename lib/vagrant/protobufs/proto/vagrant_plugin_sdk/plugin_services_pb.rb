@@ -203,15 +203,15 @@ module Hashicorp
           rpc :MatchSpec, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::FuncSpec
           rpc :Match, ::Hashicorp::Vagrant::Sdk::FuncSpec::Args, ::Hashicorp::Vagrant::Sdk::Communicator::MatchResp
           rpc :InitSpec, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::FuncSpec
-          rpc :Init, ::Hashicorp::Vagrant::Sdk::FuncSpec::Args, ::Hashicorp::Vagrant::Sdk::Communicator::InitResp
+          rpc :Init, ::Hashicorp::Vagrant::Sdk::FuncSpec::Args, ::Google::Protobuf::Empty
           rpc :ReadySpec, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::FuncSpec
           rpc :Ready, ::Hashicorp::Vagrant::Sdk::FuncSpec::Args, ::Hashicorp::Vagrant::Sdk::Communicator::ReadyResp
           rpc :WaitForReadySpec, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::FuncSpec
           rpc :WaitForReady, ::Hashicorp::Vagrant::Sdk::FuncSpec::Args, ::Hashicorp::Vagrant::Sdk::Communicator::ReadyResp
           rpc :DownloadSpec, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::FuncSpec
-          rpc :Download, ::Hashicorp::Vagrant::Sdk::FuncSpec::Args, ::Hashicorp::Vagrant::Sdk::Communicator::FileTransferResp
+          rpc :Download, ::Hashicorp::Vagrant::Sdk::FuncSpec::Args, ::Google::Protobuf::Empty
           rpc :UploadSpec, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::FuncSpec
-          rpc :Upload, ::Hashicorp::Vagrant::Sdk::FuncSpec::Args, ::Hashicorp::Vagrant::Sdk::Communicator::FileTransferResp
+          rpc :Upload, ::Hashicorp::Vagrant::Sdk::FuncSpec::Args, ::Google::Protobuf::Empty
           rpc :ExecuteSpec, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::FuncSpec
           rpc :Execute, ::Hashicorp::Vagrant::Sdk::FuncSpec::Args, ::Hashicorp::Vagrant::Sdk::Communicator::ExecuteResp
           rpc :PrivilegedExecuteSpec, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::FuncSpec
@@ -219,7 +219,7 @@ module Hashicorp
           rpc :TestSpec, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::FuncSpec
           rpc :Test, ::Hashicorp::Vagrant::Sdk::FuncSpec::Args, ::Hashicorp::Vagrant::Sdk::Communicator::TestResp
           rpc :ResetSpec, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::FuncSpec
-          rpc :Reset, ::Hashicorp::Vagrant::Sdk::FuncSpec::Args, ::Hashicorp::Vagrant::Sdk::Communicator::ResetResp
+          rpc :Reset, ::Hashicorp::Vagrant::Sdk::FuncSpec::Args, ::Google::Protobuf::Empty
           rpc :Seed, ::Hashicorp::Vagrant::Sdk::Args::Seeds, ::Google::Protobuf::Empty
           rpc :Seeds, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::Args::Seeds
         end
