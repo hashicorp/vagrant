@@ -109,37 +109,6 @@ module VagrantPlugins
           proto.list.map do |v|
             mapper.map(v)
           end
-      class StructFromSpec < Mapper
-        def initialize
-          inputs = [].tap do |i|
-            i << Input.new(type: SDK::FuncSpec::Value) { |arg|
-              arg.type == "google.protobuf.Struct" &&
-                !arg&.value&.value.nil?
-            }
-          end
-          super(inputs: inputs, output: Hash, func: method(:converter))
-        end
-
-        def converter(proto)
-          h = proto.value.unpack(Google::Protobuf::Struct).to_h
-          h.transform_keys(&:to_sym)
-        end
-      end
-
-      class KnownStringType < Mapper
-        def initialize
-          inputs = [].tap do |i|
-            i << Input.new(type: SDK::FuncSpec::Value) { |arg|
-              arg.value.type_url == "type.googleapis.com/google.protobuf.Value" &&
-                !arg&.value&.value.nil? && arg.type == "" && converter(arg).is_a?(String)
-            }
-          end
-          super(inputs: inputs, output: String, func: method(:converter))
-        end
-
-        def converter(proto)
-          val = proto.value.unpack(Google::Protobuf::Value)
-          val.to_ruby
         end
       end
     end
