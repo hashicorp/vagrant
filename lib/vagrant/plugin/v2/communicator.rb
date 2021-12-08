@@ -17,7 +17,7 @@ module Vagrant
       # version.
       class Communicator
 
-        autoload :Remote, "vagrant/plugin/v2/communicator/remote"
+        autoload :Remote, "vagrant/plugin/remote/communicator"
         
         # This returns true/false depending on if the given machine
         # can be communicated with using this communicator. If this returns

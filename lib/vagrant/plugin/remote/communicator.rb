@@ -1,6 +1,6 @@
 module Vagrant
   module Plugin
-    module V2
+    module Remote
       class Communicator
         # This module enables Communicator for server mode
         module Remote
@@ -14,7 +14,7 @@ module Vagrant
           end
 
           def initialize(machine)
-            @logger = Log4r::Logger.new("vagrant::communicator")
+            @logger = Log4r::Logger.new("vagrant::remote::communicator")
             @logger.debug("initializing communicator with remote baackend")
             @machine = machine
             @client = machine.client.communicate
