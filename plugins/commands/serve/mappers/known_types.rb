@@ -51,6 +51,24 @@ module VagrantPlugins
         end
       end
 
+      class HashProtoFromSpec < Mapper
+        def initialize
+          super(
+            inputs: [Input.new(type: SDK::FuncSpec::Value) { |arg|
+                arg.type == "hashicorp.vagrant.sdk.Args.Hash" &&
+                  !arg&.value&.value.nil?
+              }
+            ],
+            output: SDK::Args::Hash,
+            func: method(:converter),
+          )
+        end
+
+        def converter(fv)
+          SDK::Args::Hash.decode(fv.value.value)
+        end
+      end
+
       class HashFromProto < Mapper
         def initialize
           super(
@@ -65,7 +83,7 @@ module VagrantPlugins
 
         def converter(proto, mapper)
           Hash.new.tap do |result|
-            proto.fields.each_pair do |k, v|
+            proto.fields.each do |k, v|
               r = mapper.map(v)
               result[k.to_s] = r
             end

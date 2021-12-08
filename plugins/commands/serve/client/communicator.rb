@@ -4,6 +4,7 @@ module VagrantPlugins
     module Client
       class Communicator
 
+        prepend Util::HasMapper
         extend Util::Connector
         include Util::HasSeeds::Client
 
@@ -177,10 +178,7 @@ module VagrantPlugins
         protected
 
         def generate_execution_request(machine, cmd, opts={})
-          opts.transform_values! { |v| v.is_a?(Symbol) ? v.to_s : v}
-          opts_struct = Google::Protobuf::Struct.from_hash(
-            opts.transform_keys(&:to_s)
-          )
+          opts_proto = mapper.map(opts, to: SDK::Args::Hash)
 
           SDK::FuncSpec::Args.new(
             args: [
@@ -194,8 +192,8 @@ module VagrantPlugins
                 value: Google::Protobuf::Any.pack(SDK::Communicator::Command.new(command: cmd)),
               ),
               SDK::FuncSpec::Value.new(
-                type: "google.protobuf.Struct",
-                value: Google::Protobuf::Any.pack(opts_struct),
+                type: "hashicorp.vagrant.sdk.Args.Hash",
+                value: Google::Protobuf::Any.pack(opts_proto),
               ),
             ]
           )
