@@ -96,16 +96,11 @@ func (t *Target) Communicate() (c core.Communicator, err error) {
 	// TODO: get the communicator name from the Vagrantfile
 	//       eg. t.target.Configuration.ConfigVm.Communicator
 	communicatorName := "ssh"
-	communicators, err := t.project.basis.typeComponents(t.ctx, component.CommunicatorType)
+	communicator, err := t.project.basis.component(t.ctx, component.CommunicatorType, communicatorName)
 	if err != nil {
 		return nil, err
 	}
-	for name, c := range communicators {
-		if name == communicatorName {
-			t.communicator = c.Value.(core.Communicator)
-
-		}
-	}
+	t.communicator = communicator.Value.(core.Communicator)
 	return t.communicator, nil
 }
 

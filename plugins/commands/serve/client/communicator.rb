@@ -5,6 +5,7 @@ module VagrantPlugins
       class Communicator
 
         extend Util::Connector
+        include Util::HasSeeds::Client
 
         attr_reader :broker
         attr_reader :client
