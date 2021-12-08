@@ -15,10 +15,11 @@ module Vagrant
 
           def initialize(client=nil)
             @client = client
-            if @client.nil?
-              raise ArgumentError,
-                "Remote client is required for `#{self.class.name}'"
-            end
+            # TODO: re-enable once remote manager is setup
+            # if @client.nil?
+            #   raise ArgumentError,
+            #     "Remote client is required for `#{self.class.name}'"
+            # end
             @logger = Log4r::Logger.new("vagrant::remote::synced_folder")
           end
           
