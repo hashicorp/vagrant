@@ -17,6 +17,24 @@ module VagrantPlugins
           SDK::Communicator::Command.decode(proto.value.value)
         end
       end
+
+      class TimeDurationFromSpec < Mapper
+        def initialize
+          super(
+            inputs: [Input.new(type: SDK::FuncSpec::Value) { |arg|
+                arg.type == "hashicorp.vagrant.sdk.Args.TimeDuration" &&
+                  !arg&.value&.value.nil?
+              }
+            ],
+            output: SDK::Args::TimeDuration,
+            func: method(:converter),
+          )
+        end
+
+        def converter(fv)
+          SDK::Args::TimeDuration.decode(fv.value.value)
+        end
+      end
     end
   end
 end
