@@ -196,7 +196,7 @@ module VagrantPlugins
                 name: "",
               ),
               SDK::FuncSpec::Value.new(
-                type: "google.protobuf.Struct",
+                type: "hashicorp.vagrant.sdk.Args.Hash",
                 name: "",
               )
             ],
@@ -210,17 +210,18 @@ module VagrantPlugins
         def execute(req, ctx)
           with_info(ctx) do |info|
             plugin_name = info.plugin_name
-            target, cmd, opts = mapper.funcspec_map(req, mapper, broker)
-            logger.debug("Got machine client #{target}")
+            logger.debug("got req: #{req}")
+            machine, cmd, opts = mapper.funcspec_map(
+              req, mapper, broker,
+              expect: [Vagrant::Machine, SDK::Communicator::Command, Hash]
+            )
+            logger.debug("Got machine client #{machine}")
             logger.debug("Got opts #{opts}")
             logger.debug("Got cmd #{cmd}")
 
-            project = target.project
-            env = Vagrant::Environment.new({client: project})
-            machine = env.machine(target.name.to_sym, target.provider_name.to_sym)
-
             plugin = Vagrant.plugin("2").manager.communicators[plugin_name.to_s.to_sym]
             communicator = plugin.new(machine)
+            opts.transform_keys!(&:to_sym)
             exit_code = communicator.execute(cmd.command, opts)
             logger.debug("command exit code: #{exit_code}")
 
