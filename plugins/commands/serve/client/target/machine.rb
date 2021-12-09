@@ -34,6 +34,13 @@ module VagrantPlugins
           def connection_info
           end
 
+          # @return [Communicator] machine communicator
+          def communicate
+            logger.debug("Getting guest from remote machine")
+            c = client.communicate(Empty.new)
+            Communicator.load(c, broker: broker)
+          end
+
           # @return [Guest] machine guest
           # TODO: This needs to be loaded properly
           def guest
