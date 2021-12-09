@@ -28,6 +28,20 @@ module VagrantPlugins
         ")
       end
 
+      class SymbolToString < Mapper
+        def initialize
+          super(
+            inputs: [Input.new(type: Symbol)],
+            output: String,
+            func: method(:converter),
+          )
+        end
+
+        def converter(sym)
+          sym.to_s
+        end
+      end
+
       class HashToProto < Mapper
         def initialize
           super(
