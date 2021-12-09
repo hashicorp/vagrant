@@ -78,7 +78,7 @@ module VagrantPlugins
             plugin = Vagrant.plugin("2").manager.communicators[plugin_name.to_s.to_sym]
 
             begin
-              ready = plugin.new(machine).wait_for_ready(wait_duration)
+              ready = plugin.new(machine).wait_for_ready(wait_duration.duration)
             rescue => err
               logger.error(err)
               logger.debug("#{err.class}: #{err}\n#{err.backtrace.join("\n")}")
