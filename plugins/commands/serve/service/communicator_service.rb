@@ -122,7 +122,7 @@ module VagrantPlugins
         end
 
         def download(req, ctx)
-          logger.debug("Uploading")
+          logger.debug("Downloading")
           with_info(ctx) do |info|
             plugin_name = info.plugin_name
             logger.debug("Got plugin #{plugin_name}")
@@ -176,21 +176,13 @@ module VagrantPlugins
           with_info(ctx) do |info|
             plugin_name = info.plugin_name
 
-            # Need to specifically now use funcspec map since the funcspec map
-            # will inject results into the mappers. This causes duplicate values
-            # to come up for arguments of the same type
-            expected_types = [Client::Target::Machine, String, String]
-            to, target, from = req.args.map do |r|
-              logger.debug("mapping #{r}")
-              mapper.map(r, expected_types.shift)
-            end
-            logger.debug("Got target #{target}")
+            to, machine, from = mapper.funcspec_map(
+              req, mapper, broker,
+              expect: [Vagrant::Machine, String, String]
+            )
+            logger.debug("Got machine #{machine}")
             logger.debug("Got to #{to}")
             logger.debug("Got from #{from}")
-
-            project = target.project
-            env = Vagrant::Environment.new({client: project})
-            machine = env.machine(target.name.to_sym, target.provider_name.to_sym)
 
             plugin = Vagrant.plugin("2").manager.communicators[plugin_name.to_s.to_sym]
             logger.debug("Got plugin #{plugin}")
@@ -284,6 +276,7 @@ module VagrantPlugins
 
             plugin = Vagrant.plugin("2").manager.communicators[plugin_name.to_s.to_sym]
             communicator = plugin.new(machine)
+            opts.transform_keys!(&:to_sym)
             exit_code = communicator.sudo(cmd.command, opts)
             logger.debug("command exit code: #{exit_code}")
 
