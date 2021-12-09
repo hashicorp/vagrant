@@ -125,26 +125,17 @@ module VagrantPlugins
           logger.debug("Downloading")
           with_info(ctx) do |info|
             plugin_name = info.plugin_name
-            logger.debug("Got plugin #{plugin_name}")
-
-            # Need to specifically now use funcspec map since the funcspec map
-            # will inject results into the mappers. This causes duplicate values
-            # to come up for arguments of the same type
-            expected_types = [Client::Target::Machine, String, String]
-            to, target, from = req.args.map do |r|
-              logger.debug("mapping #{r}")
-              mapper.map(r, expected_types.shift)
-            end
-            logger.debug("Got target #{target}")
-            logger.debug("Got to #{to}")
-            logger.debug("Got from #{from}")
-
-            project = target.project
-            env = Vagrant::Environment.new({client: project})
-            machine = env.machine(target.name.to_sym, target.provider_name.to_sym)
+            dest_proto = req.args.select{ |a| a.name == "destination" }.first
+            to = mapper.unany(dest_proto.value).to_ruby
+            source_proto = req.args.select{ |a| a.name == "source" }.first
+            from = mapper.unany(source_proto.value).to_ruby
+            req.args.reject!{ |a| a.name == "source" || a.name == "destination" }
+            machine  = mapper.funcspec_map(
+              req, mapper, broker,
+              expect: [Vagrant::Machine]
+            )
 
             plugin = Vagrant.plugin("2").manager.communicators[plugin_name.to_s.to_sym]
-            logger.debug("Got plugin #{plugin}")
             communicator = plugin.new(machine)
             communicator.download(from, to)
 
@@ -175,17 +166,17 @@ module VagrantPlugins
           logger.debug("Uploading")
           with_info(ctx) do |info|
             plugin_name = info.plugin_name
-
-            to, machine, from = mapper.funcspec_map(
+            dest_proto = req.args.select{ |a| a.name == "destination" }.first
+            to = mapper.unany(dest_proto.value).to_ruby
+            source_proto = req.args.select{ |a| a.name == "source" }.first
+            from = mapper.unany(source_proto.value).to_ruby
+            req.args.reject!{ |a| a.name == "source" || a.name == "destination" }
+            machine  = mapper.funcspec_map(
               req, mapper, broker,
-              expect: [Vagrant::Machine, String, String]
+              expect: [Vagrant::Machine]
             )
-            logger.debug("Got machine #{machine}")
-            logger.debug("Got to #{to}")
-            logger.debug("Got from #{from}")
 
             plugin = Vagrant.plugin("2").manager.communicators[plugin_name.to_s.to_sym]
-            logger.debug("Got plugin #{plugin}")
             communicator = plugin.new(machine)
             communicator.upload(from, to)
             Empty.new
