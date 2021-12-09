@@ -34,20 +34,14 @@ module VagrantPlugins
         end
 
         def ready(req, ctx)
-          logger.debug("Checking if ready")
           with_info(ctx) do |info|
             plugin_name = info.plugin_name
-            logger.debug("Got plugin #{plugin_name}")
-            target = mapper.funcspec_map(req)
-
-            machine = mapper.map(target, to: Vagrant::Machine)
-            logger.debug("Got machine #{machine}")
-
+            machine = mapper.funcspec_map(
+              req, mapper, broker,
+              expect: [Vagrant::Machine]
+            )
             plugin = Vagrant.plugin("2").manager.communicators[plugin_name.to_s.to_sym]
-            logger.debug("Got plugin #{plugin}")
-
             ready = plugin.new(machine).ready?
-            logger.debug("is ready: #{ready}")
             SDK::Communicator::ReadyResp.new(
               ready: ready
             )
@@ -77,16 +71,11 @@ module VagrantPlugins
         def wait_for_ready(req, ctx)
           with_info(ctx) do |info|
             plugin_name = info.plugin_name
-            logger.debug("Got plugin #{plugin_name}")
-            target, wait_duration = mapper.funcspec_map(req)
-            logger.debug("Got target #{target}")
-            logger.debug("Got duration #{wait_duration}")
-
-            machine = mapper.map(target, to: Vagrant::Machine)
-            logger.debug("Got machine #{machine}")
-
+            machine, wait_duration = mapper.funcspec_map(
+              req, mapper, broker,
+              expect: [Vagrant::Machine, SDK::Args::TimeDuration]
+            )
             plugin = Vagrant.plugin("2").manager.communicators[plugin_name.to_s.to_sym]
-            logger.debug("Got plugin #{plugin}")
 
             begin
               ready = plugin.new(machine).wait_for_ready(wait_duration)
@@ -138,7 +127,6 @@ module VagrantPlugins
             plugin = Vagrant.plugin("2").manager.communicators[plugin_name.to_s.to_sym]
             communicator = plugin.new(machine)
             communicator.download(from, to)
-
             Empty.new
           end
         end
@@ -215,9 +203,6 @@ module VagrantPlugins
               req, mapper, broker,
               expect: [Vagrant::Machine, SDK::Communicator::Command, Hash]
             )
-            logger.debug("Got machine client #{machine}")
-            logger.debug("Got opts #{opts}")
-            logger.debug("Got cmd #{cmd}")
 
             plugin = Vagrant.plugin("2").manager.communicators[plugin_name.to_s.to_sym]
             communicator = plugin.new(machine)
@@ -262,9 +247,6 @@ module VagrantPlugins
               req, mapper, broker,
               expect: [Vagrant::Machine, SDK::Communicator::Command, Hash]
             )
-            logger.debug("Got machine client #{machine}")
-            logger.debug("Got opts #{opts}")
-            logger.debug("Got cmd #{cmd}")
 
             plugin = Vagrant.plugin("2").manager.communicators[plugin_name.to_s.to_sym]
             communicator = plugin.new(machine)
@@ -291,7 +273,7 @@ module VagrantPlugins
                 name: "",
               ),
               SDK::FuncSpec::Value.new(
-                type: "", # TODO: get opts
+                type: "hashicorp.vagrant.sdk.Args.Hash",
                 name: "",
               )
             ],
@@ -307,21 +289,13 @@ module VagrantPlugins
             plugin_name = info.plugin_name
             logger.debug("Got plugin #{plugin_name}")
 
-            target, cmd, opts = mapper.funcspec_map(req)
-            logger.debug("Got machine #{target}")
-            logger.debug("Got opts #{opts}")
-            logger.debug("Got cmd #{cmd}")
-
-            logger.info("mapping received arguments to guest machine")
-            machine = mapper.map(target, to: Vagrant::Machine)
-            logger.debug("Got machine #{machine}")
+            machine, cmd, opts = mapper.funcspec_map(
+              req, mapper, broker,
+              expect: [Vagrant::Machine, SDK::Communicator::Command, Hash]
+            )
 
             plugin = Vagrant.plugin("2").manager.communicators[plugin_name.to_s.to_sym]
-            logger.debug("Got plugin #{plugin}")
-
             communicator = plugin.new(machine)
-            logger.debug("communicator: #{communicator}")
-
             valid = communicator.test(cmd, opts)
             logger.debug("command is valid?: #{valid}")
 
@@ -350,21 +324,15 @@ module VagrantPlugins
         def reset(req, ctx)
           with_info(ctx) do |info|
             plugin_name = info.plugin_name
-            logger.debug("Got plugin #{plugin_name}")
-            target = mapper.funcspec_map(req)
-
-            machine = mapper.map(target, to: Vagrant::Machine)
-            logger.debug("Got machine #{machine}")
+            machine = mapper.funcspec_map(
+              req, mapper, broker,
+              expect: [Vagrant::Machine]
+            )
 
             plugin = Vagrant.plugin("2").manager.communicators[plugin_name.to_s.to_sym]
-            logger.debug("Got plugin #{plugin}")
-
             communicator = plugin.new(machine)
-            logger.debug("communicator: #{communicator}")
-
             communicator.reset()
-
-            SDK::Communicator::ResetResp.new()
+            Empty.new
           end
         end
       end
