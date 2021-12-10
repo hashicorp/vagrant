@@ -178,7 +178,9 @@ module VagrantPlugins
         protected
 
         def generate_execution_request(machine, cmd, opts={})
+          opts = {} if opts.nil?
           opts_proto = mapper.map(opts, to: SDK::Args::Hash)
+          opts_any = Google::Protobuf::Any.pack(opts_proto)
 
           SDK::FuncSpec::Args.new(
             args: [
@@ -193,7 +195,7 @@ module VagrantPlugins
               ),
               SDK::FuncSpec::Value.new(
                 type: "hashicorp.vagrant.sdk.Args.Hash",
-                value: Google::Protobuf::Any.pack(opts_proto),
+                value: opts_any,
               ),
             ]
           )

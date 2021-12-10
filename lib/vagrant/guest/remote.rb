@@ -60,8 +60,15 @@ module Vagrant
       #
       # @return [Symbol]
       def name
-        # TODO: this can probably be deleted
-        client.parents[0]
+        # TODO: Get name from plugin
+        "placeholder"
+      end
+
+      # Returns the parent of the guest.
+      #
+      # @return [String]
+      def parent
+        client.parent
       end
 
       def to_proto
