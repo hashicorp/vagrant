@@ -202,7 +202,6 @@ module Vagrant
       end
 
       def guest
-        raise Errors::MachineGuestNotReady if !communicate.ready?
         if !@guest
           @guest = Guest.new(self, nil, nil)
         end
