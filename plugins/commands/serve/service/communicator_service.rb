@@ -41,7 +41,8 @@ module VagrantPlugins
               expect: [Vagrant::Machine]
             )
             plugin = Vagrant.plugin("2").manager.communicators[plugin_name.to_s.to_sym]
-            ready = plugin.new(machine).ready?
+            communicator = plugin.new(machine)
+            ready = communicator.ready?
             SDK::Communicator::ReadyResp.new(
               ready: ready
             )
@@ -269,7 +270,7 @@ module VagrantPlugins
                 name: "",
               ),
               SDK::FuncSpec::Value.new(
-                type: "hashicorp.vagrant.sdk.Args.Command",
+                type: "hashicorp.vagrant.sdk.Communicator.Command",
                 name: "",
               ),
               SDK::FuncSpec::Value.new(
@@ -287,8 +288,6 @@ module VagrantPlugins
         def test(req, ctx)
           with_info(ctx) do |info|
             plugin_name = info.plugin_name
-            logger.debug("Got plugin #{plugin_name}")
-
             machine, cmd, opts = mapper.funcspec_map(
               req, mapper, broker,
               expect: [Vagrant::Machine, SDK::Communicator::Command, Hash]
@@ -296,7 +295,8 @@ module VagrantPlugins
 
             plugin = Vagrant.plugin("2").manager.communicators[plugin_name.to_s.to_sym]
             communicator = plugin.new(machine)
-            valid = communicator.test(cmd, opts)
+            opts.transform_keys!(&:to_sym)
+            valid = communicator.test(cmd.command, opts)
             logger.debug("command is valid?: #{valid}")
 
             SDK::Communicator::TestResp.new(
