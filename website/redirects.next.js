@@ -5,6 +5,7 @@
 // Next.js redirect documentation: https://nextjs.org/docs/api-reference/next.config.js/redirects
 
 module.exports = [
+  { source: '/home', destination: '/', permanent: true },
   { source: '/support', destination: '/', permanent: true },
   { source: '/sponsors', destination: '/', permanent: true },
   { source: '/about', destination: '/intro', permanent: true },
