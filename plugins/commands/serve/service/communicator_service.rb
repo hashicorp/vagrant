@@ -331,7 +331,7 @@ module VagrantPlugins
 
             plugin = Vagrant.plugin("2").manager.communicators[plugin_name.to_s.to_sym]
             communicator = plugin.new(machine)
-            communicator.reset()
+            communicator.reset
             Empty.new
           end
         end
