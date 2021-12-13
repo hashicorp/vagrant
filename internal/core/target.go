@@ -3,6 +3,7 @@ package core
 import (
 	"context"
 	"fmt"
+	"os"
 	"strings"
 	"sync"
 	"time"
@@ -218,6 +219,7 @@ func (t *Target) Destroy() (err error) {
 	_, err = t.Client().DeleteTarget(t.ctx, &vagrant_server.DeleteTargetRequest{
 		Target: t.Ref().(*vagrant_plugin_sdk.Ref_Target),
 	})
+	os.RemoveAll(t.dir.DataDir().String())
 	return
 }
 
