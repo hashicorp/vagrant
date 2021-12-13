@@ -73,6 +73,9 @@ module VagrantPlugins
           #
           # @param [String] new_id New machine ID
           def set_id(new_id)
+            if new_id.nil?
+              new_id = ""
+            end
             client.set_id(
               SDK::Target::Machine::SetIDRequest.new(
                 id: new_id
