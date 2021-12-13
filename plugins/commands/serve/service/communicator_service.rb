@@ -116,9 +116,9 @@ module VagrantPlugins
           with_info(ctx) do |info|
             plugin_name = info.plugin_name
             dest_proto = req.args.select{ |a| a.name == "destination" }.first
-            to = mapper.unany(dest_proto.value).to_ruby
+            to = mapper.map(dest_proto.value, to: Pathname).to_s
             source_proto = req.args.select{ |a| a.name == "source" }.first
-            from = mapper.unany(source_proto.value).to_ruby
+            from = mapper.map(source_proto.value, to: Pathname).to_s
             req.args.reject!{ |a| a.name == "source" || a.name == "destination" }
             machine  = mapper.funcspec_map(
               req, mapper, broker,
@@ -156,9 +156,9 @@ module VagrantPlugins
           with_info(ctx) do |info|
             plugin_name = info.plugin_name
             dest_proto = req.args.select{ |a| a.name == "destination" }.first
-            to = mapper.unany(dest_proto.value).to_ruby
+            to = mapper.map(dest_proto.value, to: Pathname).to_s
             source_proto = req.args.select{ |a| a.name == "source" }.first
-            from = mapper.unany(source_proto.value).to_ruby
+            from = mapper.map(source_proto.value, to: Pathname).to_s
             req.args.reject!{ |a| a.name == "source" || a.name == "destination" }
             machine  = mapper.funcspec_map(
               req, mapper, broker,

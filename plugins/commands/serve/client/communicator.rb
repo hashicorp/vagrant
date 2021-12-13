@@ -70,10 +70,8 @@ module VagrantPlugins
         # @param [String] remote path
         # @param [String] local path
         def download(machine, from, to)
-          from_val = Google::Protobuf::Value.new
-          from_val.from_ruby(from)
-          to_val = Google::Protobuf::Value.new
-          to_val.from_ruby(to)
+          from_val = mapper.map(from, to: SDK::Args::Path)
+          to_val = mapper.map(to, to: SDK::Args::Path)
           req = SDK::FuncSpec::Args.new(
             args: [
               SDK::FuncSpec::Value.new(
@@ -100,10 +98,8 @@ module VagrantPlugins
         # @param [String] local path
         # @param [String] remote path
         def upload(machine, from, to)
-          from_val = Google::Protobuf::Value.new
-          from_val.from_ruby(from)
-          to_val = Google::Protobuf::Value.new
-          to_val.from_ruby(to)
+          from_val = mapper.map(from, to: SDK::Args::Path)
+          to_val = mapper.map(to, to: SDK::Args::Path)
           req = SDK::FuncSpec::Args.new(
             args: [
               SDK::FuncSpec::Value.new(
