@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/golang/protobuf/ptypes/empty"
+	"google.golang.org/protobuf/types/known/emptypb"
 
 	"github.com/hashicorp/vagrant/internal/server/proto/vagrant_server"
 )
@@ -26,7 +27,7 @@ func (s *service) DeleteTarget(
 	req *vagrant_server.DeleteTargetRequest,
 ) (empt *empty.Empty, err error) {
 	err = s.state.TargetDelete(req.Target)
-	return
+	return &emptypb.Empty{}, err
 }
 
 // TODO: test
