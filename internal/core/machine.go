@@ -72,9 +72,27 @@ func (m *Machine) Box() (b core.Box, err error) {
 
 // Guest implements core.Machine
 func (m *Machine) Guest() (g core.Guest, err error) {
+	// Try to see if a guest has already been found
 	if m.guest != nil {
 		return m.guest, nil
 	}
+
+	// Check if a guest is provided by the Vagrantfile. If it is, then try
+	// to use that guest
+	// TODO: This check maybe needs to get reworked when the Vagrantfile bits
+	// actually start getting used
+	if m.target.Configuration.ConfigVm.Guest != "" {
+		// Ignore error about guest not being found - will also try detecting the guest
+		guest, _ := m.project.basis.component(
+			m.ctx, component.GuestType, m.target.Configuration.ConfigVm.Guest)
+		if guest != nil {
+			m.guest = guest.Value.(core.Guest)
+			m.seedPlugin(m.guest)
+			return m.guest, nil
+		}
+	}
+
+	// Try to detect a guest
 	guests, err := m.project.basis.typeComponents(m.ctx, component.GuestType)
 	if err != nil {
 		return
@@ -137,20 +155,23 @@ func (m *Machine) Guest() (g core.Guest, err error) {
 	// from being cached and reused. Currently, in a multi-machine setup
 	// which are the same guest, the target values will get appended
 	// TODO(spox): Fix this in the plugin manager
-	if s, ok := result.(core.Seeder); ok {
+	m.seedPlugin(result)
+	m.guest = result
+	return result, nil
+}
+
+func (m *Machine) seedPlugin(plg interface{}) (err error) {
+	if s, ok := plg.(core.Seeder); ok {
 		seeds, err := s.Seeds()
 		if err != nil {
-			return nil, err
+			return err
 		}
 		seeds.Typed = append(seeds.Typed, m.Target)
 		if err = s.Seed(seeds); err != nil {
-			return nil, err
+			return err
 		}
 	}
-
-	m.guest = result
-
-	return result, nil
+	return
 }
 
 func (m *Machine) Inspect() (printable string, err error) {
