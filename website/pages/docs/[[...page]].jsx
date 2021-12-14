@@ -33,11 +33,9 @@ const { getStaticPaths, getStaticProps } = getStaticGenerationFunctions(
       }
     : {
         strategy: 'fs',
-        basePath: basePath,
         localContentDir: CONTENT_DIR,
         navDataFile: NAV_DATA_FILE,
         product: productSlug,
-        revalidate: false,
         scope: { VMWARE_UTILITY_VERSION: versions.VMWARE_UTILITY_VERSION },
       }
 )
