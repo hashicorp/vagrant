@@ -99,7 +99,8 @@ module VagrantPlugins
           Hash.new.tap do |result|
             proto.fields.each do |k, v|
               r = mapper.map(v)
-              result[k.to_s] = r
+              # result[k.to_s] = r
+              result[k.to_sym] = r
             end
           end
         end

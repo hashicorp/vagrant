@@ -2,6 +2,20 @@ module VagrantPlugins
   module CommandServe
     class Mappers
       # Build a synced folder client from a proto instance
+      class SyncedFolderProtoFromInstance < Mapper
+        def initialize
+          inputs = [].tap do |i|
+            i << Input.new(type: Vagrant::Plugin::V2::SyncedFolder)
+          end
+          super(inputs: inputs, output: SDK::Args::SyncedFolder, func: method(:converter))
+        end
+
+        def converter(plg)
+          plg.to_proto
+        end
+      end
+
+      # Build a synced folder client from a proto instance
       class SyncedFolderFromProto < Mapper
         def initialize
           inputs = [].tap do |i|
