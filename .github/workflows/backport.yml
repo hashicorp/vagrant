@@ -19,4 +19,4 @@ jobs:
         env:
           BACKPORT_LABEL_REGEXP: "backport/(?P<target>website)"
           BACKPORT_TARGET_TEMPLATE: "stable-{{.target}}"
-          GITHUB_TOKEN: ${{ secrets.ELEVATED_GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.HASHIBOT_TOKEN }}
