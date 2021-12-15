@@ -8,6 +8,7 @@ module VagrantPlugins
         prepend Util::HasLogger
 
         include CapabilityPlatform
+        include Util::HasSeeds::Client
 
         # @param [Sdk::Args::Machine]
         # @return [Boolean]

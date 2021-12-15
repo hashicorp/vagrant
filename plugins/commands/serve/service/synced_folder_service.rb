@@ -9,13 +9,12 @@ module VagrantPlugins
 
         def initialize(*args, **opts, &block)
           caps = Vagrant.plugin("2").manager.synced_folder_capabilities
-          default_args = [
-            # Always get a target to pass the synced folder capability
-            SDK::FuncSpec::Value.new(
+          default_args = {
+            Client::Target => SDK::FuncSpec::Value.new(
               type: "hashicorp.vagrant.sdk.Args.Target",
               name: "",
             ),
-          ]
+          }
           initialize_capability_platform!(caps, default_args)
         end
 
