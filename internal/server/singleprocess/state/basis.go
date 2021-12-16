@@ -319,5 +319,8 @@ func (s *State) basisId(b *vagrant_server.Basis) []byte {
 }
 
 func (s *State) basisIdByRef(ref *vagrant_plugin_sdk.Ref_Basis) []byte {
+	if ref == nil {
+		return []byte{}
+	}
 	return []byte(ref.ResourceId)
 }

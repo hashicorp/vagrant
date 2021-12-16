@@ -8,7 +8,6 @@ import (
 	"github.com/hashicorp/vagrant/internal/server/proto/vagrant_server"
 )
 
-// TODO: test
 func (s *service) UpsertProject(
 	ctx context.Context,
 	req *vagrant_server.UpsertProjectRequest,
@@ -21,7 +20,6 @@ func (s *service) UpsertProject(
 	return &vagrant_server.UpsertProjectResponse{Project: result}, nil
 }
 
-// TODO: test
 func (s *service) GetProject(
 	ctx context.Context,
 	req *vagrant_server.GetProjectRequest,
@@ -45,7 +43,6 @@ func (s *service) FindProject(
 	return &vagrant_server.FindProjectResponse{Project: result}, nil
 }
 
-// TODO: test
 func (s *service) ListProjects(
 	ctx context.Context,
 	req *empty.Empty,
