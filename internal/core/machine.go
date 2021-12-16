@@ -225,6 +225,7 @@ func (m *Machine) SyncedFolders() (folders []*core.MachineSyncedFolder, err erro
 		if err != nil {
 			return nil, err
 		}
+		m.seedPlugin(plg.Value)
 		var f *core.Folder
 		mapstructure.Decode(folder, &f)
 		folders = append(folders, &core.MachineSyncedFolder{
