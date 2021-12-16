@@ -28,17 +28,56 @@ module VagrantPlugins
         ")
       end
 
-      class SymbolToString < Mapper
+      class ArrayToProto < Mapper
         def initialize
           super(
-            inputs: [Input.new(type: Symbol)],
+            inputs: [
+              Input.new(type: Array),
+              Input.new(type: Mappers),
+            ],
+            output: SDK::Args::Array,
+            func: method(:converter),
+          )
+        end
+
+        def converter(array, mapper)
+          r = array.map do |v|
+            mapper.map(v, to: Google::Protobuf::Any)
+          end
+          SDK::Args::Array.new(list: r)
+        end
+      end
+
+      class ArrayFromProto < Mapper
+        def initialize
+          super(
+            inputs: [
+              Input.new(type: SDK::Args::Array),
+              Input.new(type: Mappers),
+            ],
+            output: Array,
+            func: method(:converter),
+          )
+        end
+
+        def converter(proto, mapper)
+          proto.list.map do |v|
+            mapper.map(v)
+          end
+        end
+      end
+
+      class ClassToString < Mapper
+        def initialize
+          super(
+            inputs: [Input.new(type: Class)],
             output: String,
             func: method(:converter),
           )
         end
 
-        def converter(sym)
-          sym.to_s
+        def converter(cls)
+          cls.to_s
         end
       end
 
@@ -99,49 +138,23 @@ module VagrantPlugins
           Hash.new.tap do |result|
             proto.fields.each do |k, v|
               r = mapper.map(v)
-              # result[k.to_s] = r
               result[k.to_sym] = r
             end
           end
         end
       end
 
-      class ArrayToProto < Mapper
+      class SymbolToString < Mapper
         def initialize
           super(
-            inputs: [
-              Input.new(type: Array),
-              Input.new(type: Mappers),
-            ],
-            output: SDK::Args::Array,
+            inputs: [Input.new(type: Symbol)],
+            output: String,
             func: method(:converter),
           )
         end
 
-        def converter(array, mapper)
-          r = array.map do |v|
-            mapper.map(v, to: Google::Protobuf::Any)
-          end
-          SDK::Args::Array.new(list: r)
-        end
-      end
-
-      class ArrayFromProto < Mapper
-        def initialize
-          super(
-            inputs: [
-              Input.new(type: SDK::Args::Array),
-              Input.new(type: Mappers),
-            ],
-            output: Array,
-            func: method(:converter),
-          )
-        end
-
-        def converter(proto, mapper)
-          proto.list.map do |v|
-            mapper.map(v)
-          end
+        def converter(sym)
+          sym.to_s
         end
       end
     end
