@@ -461,6 +461,8 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
     end
     add_message "hashicorp.vagrant.sdk.Communicator.ExecuteResp" do
       optional :exit_code, :int32, 1
+      optional :stdout, :string, 2
+      optional :stderr, :string, 3
     end
     add_message "hashicorp.vagrant.sdk.Communicator.TestResp" do
       optional :valid, :bool, 1
