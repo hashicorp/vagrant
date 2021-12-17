@@ -301,6 +301,50 @@ func (m *Manager) Close() (err error) {
 	return
 }
 
+// Implements core.PluginManager
+func (m *Manager) ListPlugins(typeNames ...string) ([]*core.NamedPlugin, error) {
+	result := []*core.NamedPlugin{}
+	for _, n := range typeNames {
+		t, err := component.FindType(n)
+		if err != nil {
+			return nil, err
+		}
+		list, err := m.Typed(t)
+		if err != nil {
+			return nil, err
+		}
+		for _, p := range list {
+			i := &core.NamedPlugin{
+				Type: t.String(),
+				Name: p.Name,
+			}
+			result = append(result, i)
+		}
+	}
+	return result, nil
+}
+
+// Implements core.PluginManager
+func (m *Manager) GetPlugin(name, typ string) (*core.NamedPlugin, error) {
+	t, err := component.FindType(typ)
+	if err != nil {
+		return nil, err
+	}
+	p, err := m.Find(name, t)
+	if err != nil {
+		return nil, err
+	}
+	c, err := p.InstanceOf(t)
+	if err != nil {
+		return nil, err
+	}
+	return &core.NamedPlugin{
+		Name:   p.Name,
+		Type:   t.String(),
+		Plugin: c.Component,
+	}, nil
+}
+
 // Loads builtin plugins using in process strategy
 // instead of isolated processes
 func (m *Manager) loadInProcessBuiltins() (err error) {
@@ -355,4 +399,38 @@ func (m *Manager) register(
 
 func (m *Manager) closer(f func() error) {
 	m.closers = append(m.closers, f)
+}
+
+func (m *Manager) Servinfo() ([]byte, error) {
+	if m.srv != nil {
+		return m.srv, nil
+	}
+	if m.legacyBroker == nil {
+		return nil, fmt.Errorf("legacy broker is unset, cannot create server")
+	}
+
+	p, closer, err := protomappers.PluginManagerProtoDirect(m, m.logger, m.legacyBroker)
+	if err != nil {
+		m.logger.Warn("failed to create plugin manager grpc server",
+			"error", err,
+		)
+
+		return nil, err
+	}
+
+	fn := func() error {
+		m.logger.Info("closing the GRPC server instance")
+		closer()
+		m.srv = nil
+		return nil
+	}
+	m.closer(fn)
+
+	m.logger.Info("new GRPC server instance started",
+		"address", p.Target,
+	)
+
+	m.srv, err = protojson.Marshal(p)
+
+	return m.srv, err
 }
