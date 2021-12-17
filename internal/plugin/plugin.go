@@ -12,7 +12,6 @@ import (
 
 	sdk "github.com/hashicorp/vagrant-plugin-sdk"
 	"github.com/hashicorp/vagrant-plugin-sdk/component"
-	"github.com/hashicorp/vagrant-plugin-sdk/core"
 	"github.com/hashicorp/vagrant-plugin-sdk/internal-shared/cacher"
 	"github.com/hashicorp/vagrant/builtin/myplugin"
 	"github.com/hashicorp/vagrant/builtin/otherplugin"
@@ -36,20 +35,42 @@ var (
 )
 
 type Plugin struct {
-	Builtin      bool                  // Flags if this plugin is a builtin plugin
-	Client       plugin.ClientProtocol // Client connection to plugin
-	Location     string                // Location of the plugin (generally path to binary)
-	Name         string                // Name of the plugin
-	Types        []component.Type      // Component types supported by this plugin
-	Cache        cacher.Cache
-	ParentPlugin *Plugin
-	Mappers      []*argmapper.Func
+	Builtin  bool                  // Flags if this plugin is a builtin plugin
+	Cache    cacher.Cache          // Cache for plugins to utilize in mappers
+	Client   plugin.ClientProtocol // Client connection to plugin
+	Location string                // Location of the plugin (generally path to binary)
+	Mappers  []*argmapper.Func     // Plugin specific mappers
+	Name     string                // Name of the plugin
+	Types    []component.Type      // Component types supported by this plugin
 
-	closers    []func() error
-	components map[component.Type]*Instance
+	closers    []func() error               // Functions to be called when manager is closed
+	components map[component.Type]*Instance // Map of created instances
 	logger     hclog.Logger
 	m          sync.Mutex
-	src        *plugin.Client
+	manager    *Manager       // Plugin manager this plugin belongs to
+	src        *plugin.Client // Client for the plugin
+}
+
+// Interface for plugins with mapper support
+type HasMappers interface {
+	AppendMappers(...*argmapper.Func)
+}
+
+// Interface for plugins which allow broker access
+type HasGRPCBroker interface {
+	GRPCBroker() *plugin.GRPCBroker
+}
+
+// Interface for plugins that allow setting request metadata
+type HasPluginMetadata interface {
+	SetRequestMetadata(k, v string)
+}
+
+// Interface for plugins that support having a parent
+type HasParent interface {
+	GetParentComponent() interface{}
+	Parent() (string, error)
+	SetParentComponent(interface{})
 }
 
 // Check if plugin implements specific component type
@@ -82,26 +103,6 @@ func (p *Plugin) Close() (err error) {
 	return
 }
 
-func (p *Plugin) SetParentPlugin(typ component.Type) {
-	i := p.components[typ]
-	if i == nil {
-		return
-	}
-	pluginWithParent, ok := i.Component.(PluginWithParent)
-	if !ok {
-		p.logger.Warn("plugin does not support parents",
-			"component", typ.String(),
-			"name", p.Name)
-
-	} else {
-		p.logger.Info("setting plugin parents",
-			"component", typ.String(),
-			"name", p.Name)
-
-		pluginWithParent.SetParentPlugin(p.ParentPlugin.components[typ].Component)
-	}
-}
-
 // Get specific component type from plugin
 func (p *Plugin) InstanceOf(
 	c component.Type,
@@ -113,14 +114,7 @@ func (p *Plugin) InstanceOf(
 		"name", p.Name,
 		"type", c.String())
 
-	ok := false
-	// Validate this plugin supports the requested component
-	for _, t := range p.Types {
-		if t == c {
-			ok = true
-		}
-	}
-	if !ok {
+	if !p.HasType(c) {
 		p.logger.Error("unsupported component type requested",
 			"name", p.Name,
 			"type", c.String(),
@@ -130,12 +124,12 @@ func (p *Plugin) InstanceOf(
 	}
 
 	// If it's cached, return that
-	if i, ok = p.components[c]; ok {
+	if i, ok := p.components[c]; ok {
 		p.logger.Trace("using cached component",
 			"name", p.Name,
 			"type", c.String())
 
-		return
+		return i, nil
 	}
 
 	// Build the instance
@@ -147,21 +141,9 @@ func (p *Plugin) InstanceOf(
 
 		return
 	}
-	setter, ok := raw.(PluginMetadata)
-	if !ok {
-		p.logger.Warn("plugin does not support name metadata, skipping",
-			"component", c.String(),
-			"name", p.Name)
 
-	} else {
-		p.logger.Info("setting plugin name metadata",
-			"component", c.String(),
-			"name", p.Name)
-
-		setter.SetRequestMetadata("plugin_name", p.Name)
-	}
-
-	b, ok := raw.(hasGRPCBroker)
+	// Extract the GRPC broker if possible
+	b, ok := raw.(HasGRPCBroker)
 	if !ok {
 		p.logger.Error("cannot extract grpc broker from plugin client",
 			"component", c.String(),
@@ -170,42 +152,36 @@ func (p *Plugin) InstanceOf(
 		return nil, fmt.Errorf("unable to extract broker from plugin client")
 	}
 
-	if c, ok := raw.(interface {
-		SetCache(cacher.Cache)
-	}); ok {
-		c.SetCache(p.Cache)
-	}
-
+	// Include any mappers provided by the plugin
 	if cm, ok := raw.(HasMappers); ok {
 		cm.AppendMappers(p.Mappers...)
 	}
 
+	// Create our instance
 	i = &Instance{
 		Component: raw,
 		Broker:    b.GRPCBroker(),
 		Mappers:   p.Mappers,
+		Name:      p.Name,
+		Type:      c,
+	}
+
+	// Apply configurations if no errors encountered
+	for _, fn := range p.manager.Configurators() {
+		if err = fn(i, p.logger); err != nil {
+			return
+		}
+	}
+
+	// Load the parent plugin if available
+	if err = p.loadParent(i); err != nil {
+		return
 	}
 
 	// Store the instance for later usage
 	p.components[c] = i
 
 	return
-}
-
-type HasMappers interface {
-	AppendMappers(...*argmapper.Func)
-}
-
-func (p *Plugin) SeedPlugin(typ component.Type, args *core.Seeds) error {
-	seedTarget := p.components[typ].Component
-	if s, ok := seedTarget.(core.Seeder); ok {
-		if err := s.Seed(args); err != nil {
-			return err
-		}
-	} else {
-		return fmt.Errorf("host plugin does not support seeder interface")
-	}
-	return nil
 }
 
 // Helper that returns supported types as strings
@@ -217,6 +193,60 @@ func (p *Plugin) types() []string {
 	return result
 }
 
-type PluginWithParent interface {
-	SetParentPlugin(interface{})
+func (p *Plugin) loadParent(i *Instance) error {
+	c, ok := i.Component.(HasParent)
+	if !ok {
+		p.logger.Debug("component component does not support parents",
+			"type", i.Type.String(),
+			"name", i.Name,
+		)
+
+		return nil
+	}
+
+	parentName, err := c.Parent()
+	if err != nil {
+		p.logger.Error("component parent request failed",
+			"type", i.Type.String(),
+			"name", i.Name,
+			"error", err,
+		)
+
+		return err
+	}
+
+	// If the parent name is empty, there is no parent
+	if parentName == "" {
+		return nil
+	}
+
+	parentPlugin, err := p.manager.Find(parentName, i.Type)
+	if err != nil {
+		p.logger.Error("failed to find parent component",
+			"type", i.Type.String(),
+			"name", i.Name,
+			"parent_name", parentName,
+			"error", err,
+		)
+
+		return err
+	}
+
+	pi, err := parentPlugin.InstanceOf(i.Type)
+	if err != nil {
+		p.logger.Error("failed to load parent component",
+			"type", i.Type.String(),
+			"name", i.Name,
+			"parent_name", parentName,
+			"error", err,
+		)
+
+		return err
+	}
+
+	// Set the parent
+	i.Parent = pi
+	c.SetParentComponent(pi.Component)
+
+	return nil
 }
