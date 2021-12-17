@@ -1,3 +1,5 @@
+require "ostruct"
+
 module VagrantPlugins
   module CommandServe
     module Service
@@ -10,13 +12,12 @@ module VagrantPlugins
       autoload :ProviderService, Vagrant.source_root.join("plugins/commands/serve/service/provider_service").to_s
       autoload :SyncedFolderService, Vagrant.source_root.join("plugins/commands/serve/service/synced_folder_service").to_s
 
+      class ServiceInfo < OpenStruct
 
-      class ServiceInfo
-        # @return [String] Name of requested plugin
-        attr_reader :plugin_name
-
-        def initialize(plugin_name: nil)
-          @plugin_name = plugin_name
+        def initialize(plugin_name: nil, broker: nil)
+          super()
+          self.plugin_name = plugin_name.to_sym if plugin_name
+          self.broker = broker
         end
 
         def self.info
@@ -28,15 +29,8 @@ module VagrantPlugins
           info
         end
 
-        def self.with_info(context)
-          info = new(plugin_name: context.metadata["plugin_name"])
-          Thread.current.thread_variable_set(:service_info, info)
-          return if !block_given?
-          begin
-            yield info
-          ensure
-            Thread.current.thread_variable_set(:service_info, nil)
-          end
+        def self.with_info(context, broker: nil)
+          raise NotImplementedError
         end
       end
     end
