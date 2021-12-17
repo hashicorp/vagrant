@@ -131,7 +131,7 @@ module VagrantPlugins
           @logger.debug("excuting")
           res = client.execute(req)
           @logger.debug("excution result: #{res}")
-          res.exit_code
+          res
         end
 
         # @param [Vagrant::Machine]

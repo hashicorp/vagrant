@@ -40,9 +40,12 @@ module Vagrant
             @client.upload(@machine, from, to)
           end
 
-          def execute(cmd, opts=nil)
+          def execute(cmd, opts=nil, &block)
             @logger.debug("remote communicator, executing command")
-            @client.execute(@machine, cmd, opts)
+            res = @client.execute(@machine, cmd, opts)
+            yield :stdout, res.stdout if block_given?
+            yield :stderr, res.stderr if block_given?
+            res.exit_code
           end
   
           def sudo(cmd, opts=nil)
