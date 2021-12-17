@@ -112,6 +112,7 @@ func New(opts ...Option) (*Runner, error) {
 			runner.ctx,
 			runner.logger.Named("plugin-manager"),
 		)
+		runner.cleanup(func() { runner.plugins.Close() })
 	}
 
 	if err := runner.plugins.LoadBuiltins(); err != nil {
