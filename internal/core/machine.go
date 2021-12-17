@@ -122,24 +122,13 @@ func (m *Machine) Guest() (g core.Guest, err error) {
 			if detected {
 				result = guest
 				result_name = name
-				if numParents, err = m.project.basis.countParents(guest); err != nil {
-					return nil, err
-				}
+				numParents = g.plugin.ParentCount()
 			}
 			continue
 		}
 
 		if detected {
-			gp, err := m.project.basis.countParents(guest)
-			if err != nil {
-				m.logger.Error("failed to get parents from guest",
-					"plugin", name,
-					"type", "Guest",
-					"error", err,
-				)
-
-				continue
-			}
+			gp := g.plugin.ParentCount()
 
 			if gp > numParents {
 				result = guest
