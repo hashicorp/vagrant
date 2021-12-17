@@ -39,7 +39,7 @@ module VagrantPlugins
         end
 
         def action_up(req, ctx)
-          with_info(ctx) do |info|
+          with_info(ctx, broker: broker) do |info|
             plugin_name = info.plugin_name
             ui, machine = mapper.funcspec_map(req.spec, expect: [Vagrant::UI::Remote, Vagrant::Machine])
 

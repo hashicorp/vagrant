@@ -42,7 +42,7 @@ module VagrantPlugins
         end
 
         def has_capability(req, ctx)
-          with_info(ctx) do |info|
+          with_info(ctx, broker: broker) do |info|
             cap_name = mapper.funcspec_map(req)
             plugin_name = info.plugin_name
             logger.debug("checking for #{cap_name.inspect} capability in #{plugin_name}")
@@ -75,7 +75,7 @@ module VagrantPlugins
         end
 
         def capability(req, ctx)
-          with_info(ctx) do |info|
+          with_info(ctx, broker: broker) do |info|
             cap_name = req.name.to_sym
             plugin_name = info.plugin_name.to_sym
 

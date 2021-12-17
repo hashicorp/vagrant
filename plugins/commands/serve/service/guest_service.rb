@@ -8,7 +8,7 @@ module VagrantPlugins
         include CapabilityPlatformService
 
         def initialize(*args, **opts, &block)
-          caps = Vagrant::Plugin::V2::Plugin.manager.guest_capabilities
+          caps = Vagrant.plugin("2").local_manager.guest_capabilities
           default_args = {
             Client::Target => SDK::FuncSpec::Value.new(
               type: "hashicorp.vagrant.sdk.Args.Target",
@@ -37,10 +37,10 @@ module VagrantPlugins
         end
 
         def detect(req, ctx)
-          with_info(ctx) do |info|
+          with_info(ctx, broker: broker) do |info|
             plugin_name = info.plugin_name
             machine = mapper.funcspec_map(req, expect: Vagrant::Machine)
-            plugin = Vagrant::Plugin::V2::Plugin.manager.guests[plugin_name.to_s.to_sym].to_a.first
+            plugin = Vagrant.plugin("2").local_manager.guests[plugin_name.to_s.to_sym].to_a.first
             if !plugin
               logger.debug("Failed to locate guest plugin for: #{plugin_name}")
               raise "Failed to locate guest plugin for: #{plugin_name.inspect}"
@@ -70,9 +70,9 @@ module VagrantPlugins
         end
 
         def parent(req, ctx)
-          with_info(ctx) do |info|
+          with_info(ctx, broker: broker) do |info|
             plugin_name = info.plugin_name
-            guest_hash = Vagrant::Plugin::V2::Plugin.manager.guests[plugin_name.to_s.to_sym].to_a
+            guest_hash = Vagrant.plugin("2").local_manager.guests[plugin_name.to_s.to_sym].to_a
             plugin = guest_hash.first
             if !plugin
               raise "Failed to locate guest plugin for: #{plugin_name.inspect}"

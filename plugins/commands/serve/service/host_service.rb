@@ -8,7 +8,7 @@ module VagrantPlugins
         include CapabilityPlatformService
 
         def initialize(*args, **opts, &block)
-          caps =Vagrant::Plugin::V2::Plugin.manager.host_capabilities
+          caps = Vagrant.plugin("2").local_manager.host_capabilities
           default_args = {
             Vagrant::Environment => SDK::FuncSpec::Value.new(
               type: "hashicorp.vagrant.sdk.Args.Project",
@@ -36,10 +36,10 @@ module VagrantPlugins
         end
 
         def detect(req, ctx)
-          with_info(ctx) do |info|
+          with_info(ctx, broker: broker) do |info|
             plugin_name = info.plugin_name
             statebag = mapper.funcspec_map(req, expect: Client::StateBag)
-            plugin = Vagrant::Plugin::V2::Plugin.manager.hosts[plugin_name.to_s.to_sym].to_a.first
+            plugin = Vagrant.plugin("2").local_manager.hosts[plugin_name.to_s.to_sym].to_a.first
             if !plugin
               raise "Failed to locate host plugin for: #{plugin_name.inspect}"
             end
@@ -68,9 +68,9 @@ module VagrantPlugins
         end
 
         def parent(req, ctx)
-          with_info(ctx) do |info|
+          with_info(ctx, broker: broker) do |info|
             plugin_name = info.plugin_name
-            host_hash = Vagrant::Plugin::V2::Plugin.manager.hosts[plugin_name.to_s.to_sym].to_a
+            host_hash = Vagrant.plugin("2").local_manager.hosts[plugin_name.to_s.to_sym].to_a
             plugin = host_hash.first
             if !plugin
               raise "Failed to locate host plugin for: #{plugin_name.inspect}"

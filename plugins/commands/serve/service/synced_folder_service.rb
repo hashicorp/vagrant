@@ -8,7 +8,7 @@ module VagrantPlugins
         include CapabilityPlatformService
 
         def initialize(*args, **opts, &block)
-          caps = Vagrant.plugin("2").manager.synced_folder_capabilities
+          caps = Vagrant.plugin("2").local_manager.synced_folder_capabilities
           default_args = {
             Vagrant::Machine => SDK::FuncSpec::Value.new(
               type: "hashicorp.vagrant.sdk.Args.Target",
@@ -37,7 +37,7 @@ module VagrantPlugins
         end
 
         def usable(req, ctx)
-          with_info(ctx) do |info|
+          with_info(ctx, broker: broker) do |info|
             plugin_name = info.plugin_name
             target = mapper.funcspec_map(req)
             project = target.project
@@ -75,7 +75,7 @@ module VagrantPlugins
         end
 
         def enable(req, ctx)
-          with_info(ctx) do |info|
+          with_info(ctx, broker: broker) do |info|
             plugin_name = info.plugin_name
             machine, folders, opts = mapper.funcspec_map(
               req.func_args,
@@ -109,7 +109,7 @@ module VagrantPlugins
         end
 
         def disable(req, ctx)
-          with_info(ctx) do |info|
+          with_info(ctx, broker: broker) do |info|
             plugin_name = info.plugin_name
             machine, folders, opts = mapper.funcspec_map(
               req.func_args,
@@ -139,7 +139,7 @@ module VagrantPlugins
         end
 
         def cleanup(req, ctx)
-          with_info(ctx) do |info|
+          with_info(ctx, broker: broker) do |info|
             plugin_name = info.plugin_name
             machine, opts = mapper.funcspec_map(
               req.func_args,
@@ -155,7 +155,7 @@ module VagrantPlugins
         private
 
         def get_synced_folder_plugin(plugin_name)
-          synced_folders = Vagrant::Plugin::V2::Plugin.manager.synced_folders
+          synced_folders = Vagrant.plugin("2").local_manager.synced_folders
           logger.debug("got synced folders #{synced_folders}")
           plugin = [plugin_name.to_s.to_sym].to_a.first
           logger.debug("got plugin #{plugin}")

@@ -17,7 +17,7 @@ module VagrantPlugins
         end
 
         def command_info(req, ctx)
-          with_info(ctx) do |info|
+          with_info(ctx, broker: broker) do |info|
             command_info = collect_command_info(info.plugin_name, [])
             SDK::Command::CommandInfoResp.new(
               command_info: command_info,
@@ -52,7 +52,7 @@ module VagrantPlugins
         end
 
         def execute(req, ctx)
-          with_info(ctx) do |info|
+          with_info(ctx, broker: broker) do |info|
             plugin_name = info.plugin_name
 
             _, env, arguments = mapper.funcspec_map(
@@ -64,7 +64,7 @@ module VagrantPlugins
               ]
             )
 
-            plugin = Vagrant::Plugin::V2::Plugin.manager.commands[plugin_name.to_sym].to_a.first
+            plugin = Vagrant.plugin("2").local_manager.commands[plugin_name.to_sym].to_a.first
             if !plugin
               raise "Failed to locate command plugin for: #{plugin_name}"
             end
@@ -110,7 +110,7 @@ module VagrantPlugins
           end
 
           if subcommand_names.empty?
-            plugin = Vagrant::Plugin::V2::Plugin.manager.commands[plugin_name.to_sym].to_a.first
+            plugin = Vagrant.plugin("2").local_manager.commands[plugin_name.to_sym].to_a.first
             if !plugin
               raise "Failed to locate command plugin for: #{plugin_name}"
             end
@@ -170,7 +170,7 @@ module VagrantPlugins
         end
 
         def subcommands_for(name, subcommands = [])
-          plugin = Vagrant::Plugin::V2::Plugin.manager.commands[name.to_sym].to_a.first
+          plugin = Vagrant.plugin("2").local_manager.commands[name.to_sym].to_a.first
           if !plugin
             raise "Failed to locate command plugin for: #{name}"
           end
@@ -183,6 +183,10 @@ module VagrantPlugins
           happy_klass = Class.new do
             def method_missing(*_)
               self
+            end
+
+            def to_hash
+              {}
             end
           end
 
@@ -205,7 +209,7 @@ module VagrantPlugins
         #   (an option parser should be available) the OptionParser for the command
         #    will be returned
         def command_options_for(name, subcommands = [])
-          plugin = Vagrant::Plugin::V2::Plugin.manager.commands[name.to_sym].to_a.first
+          plugin = Vagrant.plugin("2").local_manager.commands[name.to_sym].to_a.first
           if !plugin
             raise "Failed to locate command plugin for: #{name}"
           end
@@ -238,6 +242,9 @@ module VagrantPlugins
           happy_klass = Class.new do
             def method_missing(*_)
               self
+            end
+            def to_hash
+              {}
             end
           end
 

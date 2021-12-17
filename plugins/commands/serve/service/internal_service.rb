@@ -16,7 +16,7 @@ module VagrantPlugins
 
         def get_plugins(req, _unused_call)
           plugins = []
-          plugin_manager = Vagrant::Plugin::V2::Plugin.manager
+          plugin_manager = Vagrant::Plugin::V2::Plugin.local_manager
           plugins = [[:commands, :COMMAND],
             [:communicators, :COMMUNICATOR],
             [:guests, :GUEST],
