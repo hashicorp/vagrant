@@ -177,7 +177,7 @@ func (s *State) targetPut(
 	value *vagrant_server.Target,
 ) (err error) {
 	s.log.Trace("storing target", "target", value, "project",
-		value.Project, "basis", value.Project.Basis)
+		value.GetProject(), "basis", value.GetProject().GetBasis())
 
 	p, err := s.projectGet(dbTxn, memTxn, value.Project)
 	if err != nil {

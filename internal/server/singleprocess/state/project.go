@@ -389,5 +389,8 @@ func (s *State) projectId(p *vagrant_server.Project) []byte {
 }
 
 func (s *State) projectIdByRef(ref *vagrant_plugin_sdk.Ref_Project) []byte {
+	if ref == nil {
+		return []byte{}
+	}
 	return []byte(ref.ResourceId)
 }
