@@ -31,7 +31,11 @@ module VagrantPlugins
               raise NameError,
                 "failed to locate required protobuf constant `SDK::Args::#{n}'\n\nArgs: #{SDK::Args.constants.inspect}"
             end
-            raw = klass.decode(raw)
+            begin
+              raw = klass.decode(raw)
+            rescue
+              raw = klass.decode_json(raw)
+            end
           end
           self.new(connect(proto: raw, broker: broker), raw, broker)
         end
