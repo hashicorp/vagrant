@@ -13,38 +13,44 @@ import (
 	"github.com/hashicorp/go-hclog"
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/go-plugin"
+	"google.golang.org/protobuf/encoding/protojson"
 
 	"github.com/hashicorp/vagrant-plugin-sdk/component"
+	"github.com/hashicorp/vagrant-plugin-sdk/core"
 	"github.com/hashicorp/vagrant-plugin-sdk/helper/path"
-	"github.com/hashicorp/vagrant-plugin-sdk/internal-shared/cacher"
+	"github.com/hashicorp/vagrant-plugin-sdk/internal-shared/protomappers"
 	"github.com/hashicorp/vagrant/internal/serverclient"
 )
 
 type PluginRegistration func(hclog.Logger) (*Plugin, error)
+type PluginConfigurator func(*Instance, hclog.Logger) error
 
 type Manager struct {
-	Plugins []*Plugin
+	Plugins []*Plugin // Plugins managed by this manager
 
-	builtins        *Builtin
-	builtinsLoaded  bool
-	closers         []func() error
-	ctx             context.Context
-	discoveredPaths []path.Path
-	legacyLoaded    bool
-	logger          hclog.Logger
+	builtins        *Builtin             // Buitin plugins when using in process plugins
+	builtinsLoaded  bool                 // Flag that builtin plugins are loaded
+	closers         []func() error       // List of functions to execute on close
+	ctx             context.Context      // Context for the manager
+	discoveredPaths []path.Path          // List of paths this manager has loaded
+	dispenseFuncs   []PluginConfigurator // Configuration functions applied to instances
+	legacyLoaded    bool                 // Flag that legacy plugins have been loaded
+	legacyBroker    *plugin.GRPCBroker   // Broker for legacy runtime
+	logger          hclog.Logger         // Logger for the manager
 	m               sync.Mutex
-	parent          *Manager
-	cache           cacher.Cache
+	parent          *Manager // Parent manager if this is a sub manager
+	srv             []byte   // Marshalled proto message for plugin manager
 }
 
 // Create a new plugin manager
 func NewManager(ctx context.Context, l hclog.Logger) *Manager {
 	return &Manager{
-		Plugins:  []*Plugin{},
-		builtins: NewBuiltins(ctx, l),
-		ctx:      ctx,
-		logger:   l,
-		cache:    cacher.New(),
+		Plugins:       []*Plugin{},
+		builtins:      NewBuiltins(ctx, l),
+		closers:       []func() error{},
+		ctx:           ctx,
+		dispenseFuncs: []PluginConfigurator{},
+		logger:        l,
 	}
 }
 
@@ -61,7 +67,6 @@ func (m *Manager) Sub(name string) *Manager {
 		legacyLoaded:    true,
 		logger:          m.logger.Named(name),
 		parent:          m,
-		cache:           m.cache,
 	}
 	m.closer(func() error { return s.Close() })
 
@@ -105,6 +110,26 @@ func (m *Manager) LoadLegacyPlugins(
 	}
 
 	m.legacyLoaded = true
+	m.legacyBroker = c.GRPCBroker()
+
+	// Now add a configurator to set the plugin name on plugins
+	// when supported
+	err = m.Configure(
+		func(i *Instance, l hclog.Logger) error {
+			s, ok := i.Component.(HasPluginMetadata)
+			if !ok {
+				l.Warn("plugin does not support name metadata, skipping",
+					"component", i.Type.String(),
+					"name", i.Name,
+				)
+				return nil
+			}
+
+			s.SetRequestMetadata("plugin_name", i.Name)
+
+			return nil
+		},
+	)
 
 	return
 }
@@ -235,6 +260,26 @@ func (m *Manager) Register(
 	return m.register(factory)
 }
 
+// List of plugin configurators that should be applied to instances
+func (m *Manager) Configurators() (r []PluginConfigurator) {
+	if m.parent != nil {
+		r = m.parent.Configurators()
+	}
+	l := len(r) + len(m.dispenseFuncs)
+	rc := make([]PluginConfigurator, l)
+	copy(rc, r)
+	copy(rc[len(r):l], m.dispenseFuncs)
+	r = rc
+
+	return
+}
+
+// Add configuration to be applied to plugin instances when requested
+func (m *Manager) Configure(fn PluginConfigurator) error {
+	m.dispenseFuncs = append(m.dispenseFuncs, fn)
+	return nil
+}
+
 // Find a specific plugin by name and component type
 func (m *Manager) Find(
 	n string, // Name of the plugin
@@ -287,6 +332,7 @@ func (m *Manager) Close() (err error) {
 	m.m.Lock()
 	defer m.m.Unlock()
 
+	m.logger.Warn("closing the plugin manager")
 	for _, c := range m.closers {
 		if e := c(); err != nil {
 			err = multierror.Append(err, e)
@@ -384,7 +430,6 @@ func (m *Manager) register(
 	if err != nil {
 		return
 	}
-	plg.Cache = m.cache
 
 	for _, t := range plg.Types {
 		m.logger.Info("registering plugin",
@@ -392,6 +437,7 @@ func (m *Manager) register(
 			"name", plg.Name,
 		)
 	}
+	plg.manager = m
 
 	m.Plugins = append(m.Plugins, plg)
 	return
