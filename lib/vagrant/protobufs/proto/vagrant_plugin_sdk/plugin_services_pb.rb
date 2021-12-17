@@ -86,6 +86,21 @@ module Hashicorp
 
         Stub = Service.rpc_stub_class
       end
+      module PluginManagerService
+        class Service
+
+          include ::GRPC::GenericService
+
+          self.marshal_class_method = :encode
+          self.unmarshal_class_method = :decode
+          self.service_name = 'hashicorp.vagrant.sdk.PluginManagerService'
+
+          rpc :ListPlugins, ::Hashicorp::Vagrant::Sdk::PluginManager::PluginsRequest, ::Hashicorp::Vagrant::Sdk::PluginManager::PluginsResponse
+          rpc :GetPlugin, ::Hashicorp::Vagrant::Sdk::PluginManager::Plugin, ::Hashicorp::Vagrant::Sdk::PluginManager::Plugin
+        end
+
+        Stub = Service.rpc_stub_class
+      end
       module ProviderService
         # *******************************************************************
         # Provider Plugin Service
@@ -336,7 +351,6 @@ module Hashicorp
           rpc :DataDir, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::Args::DataDir::Basis
           rpc :UI, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::Args::TerminalUI
           rpc :Host, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::Args::Host
-          rpc :Plugins, ::Hashicorp::Vagrant::Sdk::Basis::PluginsRequest, ::Hashicorp::Vagrant::Sdk::Basis::PluginsResponse
         end
 
         Stub = Service.rpc_stub_class
