@@ -2,9 +2,9 @@ import { productName, productSlug } from 'data/metadata'
 import DocsPage from '@hashicorp/react-docs-page'
 import { getStaticGenerationFunctions } from '@hashicorp/react-docs-page/server'
 
-const NAV_DATA_FILE = 'data/vagrant-cloud-nav-data.json'
-const CONTENT_DIR = 'content/vagrant-cloud'
-const basePath = 'vagrant-cloud'
+const NAV_DATA_FILE = 'data/vmware-nav-data.json'
+const CONTENT_DIR = 'content/vmware'
+const basePath = 'vmware'
 
 export default function DocsLayout(props) {
   return (
