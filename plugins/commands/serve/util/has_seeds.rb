@@ -5,13 +5,11 @@ module VagrantPlugins
         # Provides seed value registration.
         module Service
           def seed(req, ctx)
-            logger.info("ruby side received seed through service - #{req.inspect}")
             @seeds = req
             Empty.new
           end
 
           def seeds(req, ctx)
-            logger.info("ruby side received seed request through service - #{@seeds.inspect}")
             return SDK::Args::Seeds.new if @seeds.nil?
             @seeds
           end
@@ -26,6 +24,22 @@ module VagrantPlugins
 
           def seeds
             client.seeds(Empty.new)
+          end
+
+          def seed_protos
+            seeds.typed.map { |any|
+              SDK::FuncSpec::Value.new(
+                name: "",
+                type: any.type_name,
+                value: any,
+              )
+            } + seeds.named.map { |name, any|
+              SDK::FuncSpec::Value.new(
+                name: name,
+                type: any.type_name,
+                value: any,
+              )
+            }
           end
         end
       end
