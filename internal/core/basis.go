@@ -16,6 +16,7 @@ import (
 	"github.com/hashicorp/vagrant-plugin-sdk/core"
 	"github.com/hashicorp/vagrant-plugin-sdk/datadir"
 	"github.com/hashicorp/vagrant-plugin-sdk/helper/path"
+	"github.com/hashicorp/vagrant-plugin-sdk/internal-shared/cacher"
 	"github.com/hashicorp/vagrant-plugin-sdk/internal-shared/dynamic"
 	"github.com/hashicorp/vagrant-plugin-sdk/internal-shared/protomappers"
 	"github.com/hashicorp/vagrant-plugin-sdk/proto/vagrant_plugin_sdk"
@@ -44,8 +45,6 @@ type Basis struct {
 	statebag      core.StateBag
 	boxCollection *BoxCollection
 
-	lookupCache map[string]interface{}
-
 	m      sync.Mutex
 	client *serverclient.VagrantClient
 
@@ -55,18 +54,19 @@ type Basis struct {
 
 	factory    *Factory
 	seedValues *core.Seeds
+	cache      cacher.Cache
 }
 
 // NewBasis creates a new Basis with the given options.
 func NewBasis(ctx context.Context, opts ...BasisOption) (b *Basis, err error) {
 	b = &Basis{
-		ctx:         ctx,
-		logger:      hclog.L(),
-		jobInfo:     &component.JobInfo{},
-		projects:    map[string]*Project{},
-		statebag:    NewStateBag(),
-		lookupCache: map[string]interface{}{},
-		seedValues:  core.NewSeeds(),
+		cache:      cacher.New(),
+		ctx:        ctx,
+		logger:     hclog.L(),
+		jobInfo:    &component.JobInfo{},
+		projects:   map[string]*Project{},
+		seedValues: core.NewSeeds(),
+		statebag:   NewStateBag(),
 	}
 
 	for _, opt := range opts {
@@ -135,6 +135,58 @@ func NewBasis(ctx context.Context, opts ...BasisOption) (b *Basis, err error) {
 	if b.plugins == nil {
 		return nil, fmt.Errorf("no plugin manager provided")
 	}
+
+	// Configure plugins with cache instance
+	b.plugins.Configure(
+		func(i *plugin.Instance, l hclog.Logger) error {
+			if c, ok := i.Component.(interface {
+				SetCache(cacher.Cache)
+			}); ok {
+				c.SetCache(b.cache)
+			}
+
+			return nil
+		},
+	)
+
+	// Configure plugins to have seeds set
+	b.plugins.Configure(
+		func(i *plugin.Instance, l hclog.Logger) error {
+			if s, ok := i.Component.(core.Seeder); ok {
+				if err := s.Seed(b.seedValues); err != nil {
+					return err
+				}
+			}
+			return nil
+		},
+	)
+
+	// Configure plugins to have plugin manager set (used by legacy)
+	b.plugins.Configure(
+		func(i *plugin.Instance, l hclog.Logger) error {
+			s, ok := i.Component.(plugin.HasPluginMetadata)
+			if !ok {
+				l.Warn("plugin does not support metadata, cannot assign plugin manager",
+					"component", i.Type.String(),
+					"name", i.Name,
+				)
+
+				return nil
+			}
+
+			srv, err := b.plugins.Servinfo()
+			if err != nil {
+				l.Warn("failed to get plugin manager information",
+					"error", err,
+				)
+
+				return nil
+			}
+			s.SetRequestMetadata("plugin_manager", string(srv))
+
+			return nil
+		},
+	)
 
 	err = b.plugins.Discover(b.dir.ConfigDir().Join("plugins"))
 
@@ -231,29 +283,10 @@ func (b *Basis) Boxes() (bc *BoxCollection, err error) {
 	return b.boxCollection, nil
 }
 
-func (b *Basis) countParents(iplg interface{}) (int, error) {
-	plg, ok := iplg.(HasParent)
-	if !ok {
-		return 0, fmt.Errorf("plugin should support parents but does not")
-	}
-
-	numParents := 0
-	parent := plg.GetParentPlugin()
-	if parent == nil {
-		return 0, nil
-	}
-	numParents += 1
-	n, err := b.countParents(parent)
-	if err != nil {
-		return 0, err
-	}
-	return numParents + n, nil
-}
-
 // Returns the detected host for the current platform
 func (b *Basis) Host() (host core.Host, err error) {
-	if c, ok := b.lookupCache["host"]; ok {
-		return c.(core.Host), nil
+	if h := b.cache.Get("host"); h != nil {
+		return h.(core.Host), nil
 	}
 
 	// TODO: load vagrantfile!
@@ -267,7 +300,7 @@ func (b *Basis) Host() (host core.Host, err error) {
 			if err != nil {
 				return nil, fmt.Errorf("failed to find requested host plugin")
 			}
-			b.lookupCache["host"] = hostComponent.Value.(core.Host)
+			b.cache.Register("host", hostComponent.Value.(core.Host))
 			return hostComponent.Value.(core.Host), nil
 		}
 	}
@@ -289,7 +322,8 @@ func (b *Basis) Host() (host core.Host, err error) {
 			b.logger.Error("host error on detection check",
 				"plugin", name,
 				"type", "Host",
-				"error", err)
+				"error", err,
+			)
 
 			continue
 		}
@@ -297,24 +331,13 @@ func (b *Basis) Host() (host core.Host, err error) {
 			if detected {
 				result = host
 				result_name = name
-				if numParents, err = b.countParents(host); err != nil {
-					return nil, err
-				}
+				numParents = h.plugin.ParentCount()
 			}
 			continue
 		}
 
 		if detected {
-			hp, err := b.countParents(host)
-			if err != nil {
-				b.logger.Error("failed to get parents from host",
-					"plugin", name,
-					"type", "Host",
-					"error", err)
-
-				continue
-			}
-
+			hp := h.plugin.ParentCount()
 			if hp > numParents {
 				result = host
 				result_name = name
@@ -330,7 +353,7 @@ func (b *Basis) Host() (host core.Host, err error) {
 	b.logger.Info("host detection complete",
 		"name", result_name)
 
-	b.lookupCache["host"] = result
+	b.cache.Register("host", result)
 
 	return result, nil
 }
@@ -604,60 +627,6 @@ func (b *Basis) Run(ctx context.Context, task *vagrant_server.Task) (err error) 
 	return
 }
 
-type HasParent interface {
-	Parent() (string, error)
-	SetParentPlugin(interface{})
-	GetParentPlugin() interface{}
-}
-
-func (b *Basis) loadParentPlugin(p *plugin.Plugin, typ component.Type) (err error) {
-	plg, err := p.InstanceOf(typ)
-	if err != nil {
-		return err
-	}
-	h, ok := plg.Component.(HasParent)
-	if !ok {
-		b.logger.Debug("plugin does not have parents",
-			"type", typ)
-
-		return nil
-	}
-	parent, err := h.Parent()
-	if err != nil {
-		return err
-	}
-	if parent == "" {
-		return
-	}
-	b.logger.Debug("loading plugin parent",
-		"type", typ,
-		"name", parent,
-	)
-	parentPlugin, err := b.plugins.Find(parent, typ)
-	if err != nil {
-		b.logger.Debug("failed to find parent plugin",
-			"type", typ,
-			"name", parent,
-			"error", err,
-		)
-		return fmt.Errorf("failed to find parent: %s", err)
-
-	}
-	_, err = parentPlugin.InstanceOf(typ)
-	if err != nil {
-		b.logger.Debug("error loading parent plugin",
-			"type", typ,
-			"name", parent,
-			"error", err,
-		)
-		return fmt.Errorf("failed to load parent: %s", err)
-	}
-	p.ParentPlugin = parentPlugin
-	b.loadParentPlugin(parentPlugin, typ)
-	p.SetParentPlugin(typ)
-	return
-}
-
 // Load a specific component
 func (b *Basis) component(
 	ctx context.Context, // context for the plugin
@@ -670,21 +639,6 @@ func (b *Basis) component(
 		name = strings.Split(name, " ")[0]
 	}
 	p, err := b.plugins.Find(name, typ)
-	if err != nil {
-		return nil, err
-	}
-
-	// Make sure parent plugins get loaded
-	if err = b.loadParentPlugin(p, typ); err != nil {
-		b.logger.Error("failed to load parent plugin",
-			"type", typ.String(),
-			"name", name,
-			"error", err,
-		)
-		return nil, err
-	}
-
-	err = p.SeedPlugin(typ, b.seedValues)
 	if err != nil {
 		return nil, err
 	}
