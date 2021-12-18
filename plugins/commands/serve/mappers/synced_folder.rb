@@ -50,21 +50,6 @@ module VagrantPlugins
         end
       end
 
-      # Build a synced folder client from a serialized proto string
-      class SyncedFolderFromString < Mapper
-        def initialize
-          inputs = [].tap do |i|
-            i << Input.new(type: String)
-            i << Input.new(type: Broker)
-          end
-          super(inputs: inputs, output: Client::SyncedFolder, func: method(:converter))
-        end
-
-        def converter(proto, broker)
-          Client::SyncedFolder.load(proto, broker: broker)
-        end
-      end
-
       # Build a synced folder from a synced folder client
       class SyncedFolderFromProto < Mapper
         def initialize

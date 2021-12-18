@@ -53,21 +53,6 @@ module VagrantPlugins
         end
       end
 
-      # Build a terminal client from a serialized proto string
-      class TerminalFromString < Mapper
-        def initialize
-          inputs = [].tap do |i|
-            i << Input.new(type: String)
-            i << Input.new(type: Broker)
-          end
-          super(inputs: inputs, output: Client::Terminal, func: method(:converter))
-        end
-
-        def converter(proto, broker)
-          Client::Terminal.load(proto, broker: broker)
-        end
-      end
-
       class TerminalFromProject < Mapper
         def initialize
           super(

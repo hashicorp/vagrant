@@ -39,21 +39,6 @@ module VagrantPlugins
           project
         end
       end
-
-      # Build a synced folder client from a serialized proto string
-      class BasisFromString < Mapper
-        def initialize
-          inputs = [].tap do |i|
-            i << Input.new(type: String)
-            i << Input.new(type: Broker)
-          end
-          super(inputs: inputs, output: Client::Basis, func: method(:converter))
-        end
-
-        def converter(proto, broker)
-          Client::Basis.load(proto, broker: broker)
-        end
-      end
     end
   end
 end

@@ -53,21 +53,6 @@ module VagrantPlugins
         end
       end
 
-      # Build a machine client from a serialized proto string
-      class MachineFromString < Mapper
-        def initialize
-          inputs = [].tap do |i|
-            i << Input.new(type: String)
-            i << Input.new(type: Broker)
-          end
-          super(inputs: inputs, output: Client::Target::Machine, func: method(:converter))
-        end
-
-        def converter(proto, broker)
-          Client::Target::Machine.load(proto, broker: broker)
-        end
-      end
-
       # Build a machine from a target
       class MachineFromTarget < Mapper
         def initialize
