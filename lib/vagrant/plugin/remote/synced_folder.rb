@@ -13,7 +13,7 @@ module Vagrant
             end
           end
 
-          def initialize(client:)
+          def initialize(client: nil)
             @client = client
             @logger = Log4r::Logger.new("vagrant::remote::synced_folder::#{self.class.name}")
             if client.nil?
@@ -22,6 +22,17 @@ module Vagrant
           end
 
           def _initialize(machine, synced_folder_type, client=nil)
+            if client.nil?
+              info = Thread.current.thread_variable_get(:service_info)
+              if info&.plugin_manager
+                @client = info.plugin_manager.get_plugin(
+                  name: synced_folder_type,
+                  type: :synced_folder,
+                )
+              else
+                raise "Cannot set remote client for synced folder, no manager available"
+              end
+            end
             self
           end
 
