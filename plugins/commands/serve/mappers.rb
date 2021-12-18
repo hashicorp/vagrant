@@ -131,6 +131,13 @@ module VagrantPlugins
             nil
           end.compact
           map_mapper.mappers.replace(valid_mappers)
+        elsif value.is_a?(Google::Protobuf::MessageExts)
+          map_mapper = self.clone
+          valid_mappers = map_mapper.mappers.map do |m|
+            next if value.is_a?(m.output)
+            m
+          end.compact
+          map_mapper.mappers.replace(valid_mappers)
         else
           map_mapper = self
         end
