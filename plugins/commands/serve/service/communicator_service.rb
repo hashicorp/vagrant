@@ -34,7 +34,7 @@ module VagrantPlugins
         end
 
         def ready(req, ctx)
-          with_info(ctx) do |info|
+          with_info(ctx, broker: broker) do |info|
             plugin_name = info.plugin_name
             machine = mapper.funcspec_map(
               req, mapper, broker,
@@ -70,7 +70,7 @@ module VagrantPlugins
         end
 
         def wait_for_ready(req, ctx)
-          with_info(ctx) do |info|
+          with_info(ctx, broker: broker) do |info|
             plugin_name = info.plugin_name
             machine, wait_duration = mapper.funcspec_map(
               req, mapper, broker,
@@ -113,7 +113,7 @@ module VagrantPlugins
 
         def download(req, ctx)
           logger.debug("Downloading")
-          with_info(ctx) do |info|
+          with_info(ctx, broker: broker) do |info|
             plugin_name = info.plugin_name
             dest_proto = req.args.select{ |a| a.name == "destination" }.first
             to = mapper.map(dest_proto.value, to: Pathname).to_s
@@ -153,7 +153,7 @@ module VagrantPlugins
 
         def upload(req, ctx)
           logger.debug("Uploading")
-          with_info(ctx) do |info|
+          with_info(ctx, broker: broker) do |info|
             plugin_name = info.plugin_name
             dest_proto = req.args.select{ |a| a.name == "destination" }.first
             to = mapper.map(dest_proto.value, to: Pathname).to_s
@@ -197,7 +197,7 @@ module VagrantPlugins
         end
 
         def execute(req, ctx)
-          with_info(ctx) do |info|
+          with_info(ctx, broker: broker) do |info|
             plugin_name = info.plugin_name
             logger.debug("got req: #{req}")
             machine, cmd, opts = mapper.funcspec_map(
@@ -246,7 +246,7 @@ module VagrantPlugins
         end
 
         def privileged_execute(req, ctx)
-          with_info(ctx) do |info|
+          with_info(ctx, broker: broker) do |info|
             plugin_name = info.plugin_name
             machine, cmd, opts = mapper.funcspec_map(
               req, mapper, broker,
@@ -294,7 +294,7 @@ module VagrantPlugins
         end
 
         def test(req, ctx)
-          with_info(ctx) do |info|
+          with_info(ctx, broker: broker) do |info|
             plugin_name = info.plugin_name
             machine, cmd, opts = mapper.funcspec_map(
               req, mapper, broker,
@@ -330,7 +330,7 @@ module VagrantPlugins
         end
 
         def reset(req, ctx)
-          with_info(ctx) do |info|
+          with_info(ctx, broker: broker) do |info|
             plugin_name = info.plugin_name
             machine = mapper.funcspec_map(
               req, mapper, broker,
