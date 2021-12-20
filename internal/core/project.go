@@ -3,7 +3,6 @@ package core
 import (
 	"context"
 	"errors"
-	"os"
 	"strings"
 	"sync"
 
@@ -16,6 +15,7 @@ import (
 	"github.com/hashicorp/vagrant-plugin-sdk/core"
 	"github.com/hashicorp/vagrant-plugin-sdk/datadir"
 	"github.com/hashicorp/vagrant-plugin-sdk/helper/path"
+	"github.com/hashicorp/vagrant-plugin-sdk/helper/paths"
 	"github.com/hashicorp/vagrant-plugin-sdk/proto/vagrant_plugin_sdk"
 	"github.com/hashicorp/vagrant-plugin-sdk/terminal"
 
@@ -68,16 +68,11 @@ func (p *Project) Boxes() (bc core.BoxCollection, err error) {
 
 // CWD implements core.Project
 func (p *Project) CWD() (path string, err error) {
-	cwd, ok := os.LookupEnv("VAGRANT_CWD")
-	if ok {
-		if _, err := os.Stat(cwd); !os.IsNotExist(err) {
-			// cwd exists
-			return cwd, nil
-		} else {
-			return "", errors.New("VAGRANT_CWD set to path that does not exist")
-		}
+	cwd, err := paths.VagrantCwd()
+	if err != nil {
+		return "", err
 	}
-	return os.Getwd()
+	return cwd.String(), nil
 }
 
 // DataDir implements core.Project

@@ -1,10 +1,10 @@
 package config
 
 import (
-	"fmt"
 	"os"
 
 	"github.com/hashicorp/vagrant-plugin-sdk/helper/path"
+	"github.com/hashicorp/vagrant-plugin-sdk/helper/paths"
 )
 
 // Filename is the default filename for the Vagrant configuration.
@@ -26,19 +26,9 @@ func GetVagrantfileName() string {
 // filename is empty, it will default to the Filename constant.
 func FindPath(dir path.Path, filename string) (p path.Path, err error) {
 	if dir == nil {
-		cwd, ok := os.LookupEnv("VAGRANT_CWD")
-		if ok {
-			if _, err := os.Stat(cwd); os.IsNotExist(err) {
-				return nil, fmt.Errorf("VAGRANT_CWD set to path (%s) that does not exist", cwd)
-			} else {
-				dir = path.NewPath(cwd)
-			}
-		} else {
-			cwd, err := os.Getwd()
-			if err != nil {
-				return nil, err
-			}
-			dir = path.NewPath(cwd)
+		dir, err = paths.VagrantCwd()
+		if err != nil {
+			return nil, err
 		}
 	}
 
