@@ -54,7 +54,19 @@ func TestFindPath(t *testing.T) {
 
 			out, err := FindPath(nil, "")
 			require.NoError(err)
-			require.Equal(p, out.String())
+
+			// On mac, tempfiles land in a place that can be referenced as either
+			// /tmp/ or /private/tmp/ (the former is a symlink to the latter).
+			// This can mess with path equality assertions. We explicitly
+			// eval symlinks on both expected and actual here to flush out that
+			// discrepancy.
+			absolutePath, err := filepath.EvalSymlinks(p)
+			require.NoError(err)
+
+			absoluteOut, err := out.EvalSymLinks()
+			require.NoError(err)
+
+			require.Equal(absolutePath, absoluteOut.String())
 		})
 
 		t.Run("walks parent dirs looking for Vagrantfile", func(t *testing.T) {
