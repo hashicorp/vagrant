@@ -108,10 +108,9 @@ module VagrantPlugins
               )
             end
 
-            val = Google::Protobuf::Value.new
-            val.from_ruby(result)
+            val = mapper.map(result, to: Google::Protobuf::Any)
             SDK::Platform::Capability::Resp.new(
-              result: Google::Protobuf::Any.pack(val)
+              result: val
             )
           end
         end

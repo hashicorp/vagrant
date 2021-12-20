@@ -212,8 +212,6 @@ module VagrantPlugins
             exit_code = communicator.execute(cmd.command, opts) {
               |type, data| output[type] << data if output[type]
             }
-            logger.debug("command exit code: #{exit_code}")
-            logger.debug("command output: #{output}")
 
             SDK::Communicator::ExecuteResp.new(
               exit_code: exit_code,

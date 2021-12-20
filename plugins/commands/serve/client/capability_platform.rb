@@ -60,7 +60,12 @@ module VagrantPlugins
               args: arg_protos,
             )
           )
-          client.capability(req)
+          result = client.capability(req)
+          if result.result.nil?
+            return nil
+          end
+          unmapped = mapper.map(result.result)
+          unmapped
         end
       end
     end
