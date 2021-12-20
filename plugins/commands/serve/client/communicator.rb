@@ -143,7 +143,7 @@ module VagrantPlugins
           @logger.debug("privleged excuting")
           res = client.privileged_execute(req)
           @logger.debug("privleged excution result: #{res}")
-          res.exit_code
+          res
         end
       
         # @param [Vagrant::Machine]

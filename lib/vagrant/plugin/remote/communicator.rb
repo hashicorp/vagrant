@@ -48,9 +48,12 @@ module Vagrant
             res.exit_code
           end
   
-          def sudo(cmd, opts=nil)
+          def sudo(cmd, opts=nil, &block)
             @logger.debug("remote communicator, executing (privileged) command")
-            @client.privileged_execute(@machine, cmd, opts)
+            res = @client.privileged_execute(@machine, cmd, opts)
+            yield :stdout, res.stdout if block_given?
+            yield :stderr, res.stderr if block_given?
+            res.exit_code
           end
 
           def test(cmd, opts=nil)

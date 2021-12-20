@@ -256,11 +256,15 @@ module VagrantPlugins
             plugin = Vagrant.plugin("2").manager.communicators[plugin_name.to_s.to_sym]
             communicator = plugin.new(machine)
             opts.transform_keys!(&:to_sym)
-            exit_code = communicator.sudo(cmd.command, opts)
-            logger.debug("command exit code: #{exit_code}")
+            output = {stdout: '', stderr: ''}
+            exit_code = communicator.sudo(cmd.command, opts) {
+              |type, data| output[type] << data if output[type]
+            }
 
             SDK::Communicator::ExecuteResp.new(
-              exit_code: exit_code
+              exit_code: exit_code,
+              stdout: output[:stdout],
+              stderr: output[:stderr]
             )
           end
         end
