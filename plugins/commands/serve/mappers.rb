@@ -22,6 +22,7 @@ module VagrantPlugins
         Client::Project => Vagrant::Environment,
         Client::Target => Vagrant::Machine,
         Client::Terminal => Vagrant::UI::Remote,
+        Client::SyncedFolder => Vagrant::Plugin::V2::SyncedFolder,
       }
 
       include Util::HasLogger
