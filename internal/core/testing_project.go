@@ -12,6 +12,7 @@ import (
 
 	"github.com/hashicorp/vagrant-plugin-sdk/component"
 	componentmocks "github.com/hashicorp/vagrant-plugin-sdk/component/mocks"
+	"github.com/hashicorp/vagrant-plugin-sdk/core"
 	"github.com/hashicorp/vagrant-plugin-sdk/datadir"
 	"github.com/hashicorp/vagrant-plugin-sdk/proto/vagrant_plugin_sdk"
 	"github.com/hashicorp/vagrant/internal/factory"
@@ -52,6 +53,19 @@ func TestTarget(t testing.T, opts ...BasisOption) (target *Target, err error) {
 		WithTargetRef(&vagrant_plugin_sdk.Ref_Target{Project: tp.Ref().(*vagrant_plugin_sdk.Ref_Project), Name: "test-target"}),
 	}...)
 
+	return
+}
+
+// TestMachine returns a fully in-memory and side-effect free Machine that
+// can be used for testing. Additional options can be given to provide your own
+// factories, configuration, etc.
+func TestMachine(t testing.T, opts ...BasisOption) (machine *Machine, err error) {
+	tt, _ := TestTarget(t)
+	specialized, err := tt.Specialize((*core.Machine)(nil))
+	if err != nil {
+		return nil, err
+	}
+	machine = specialized.(*Machine)
 	return
 }
 

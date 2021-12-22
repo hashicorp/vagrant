@@ -244,6 +244,7 @@ func (m *Machine) SyncedFolders() (folders []*core.MachineSyncedFolder, err erro
 func (m *Machine) SaveMachine() (err error) {
 	m.logger.Debug("saving machine to db", "machine", m.machine.Id)
 	m.target.Record, err = ptypes.MarshalAny(m.machine)
+	m.target.ResourceId = m.machine.Id
 	if err != nil {
 		return nil
 	}
