@@ -2,13 +2,13 @@ require "json"
 require "set"
 
 require 'vagrant/util/scoped_hash_override'
-require 'vagrant/action/builtin/remote/mixin_synced_folders'
 
 module Vagrant
   module Action
     module Builtin
       module MixinSyncedFolders
-        prepend Vagrant::Action::Builtin::Remote::MixinSyncedFolders
+        autoload :Remote, "vagrant/action/builtin/remote/mixin_synced_folderse"
+
         include Vagrant::Util::ScopedHashOverride
 
         # This goes over all the registered synced folder types and returns
