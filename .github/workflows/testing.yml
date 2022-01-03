@@ -30,7 +30,7 @@ jobs:
     runs-on: ubuntu-18.04
     strategy:
       matrix:
-        ruby: [ '2.6', '2.7', '3.0' ]
+        ruby: [ '2.6', '2.7', '3.0', '3.1' ]
     name: Vagrant unit tests on Ruby ${{ matrix.ruby }}
     steps:
       - name: Code Checkout
