@@ -7,7 +7,6 @@ module Vagrant
     # information scrubbing prior to being written
     # to output target
     class LoggingFormatter < Log4r::BasicFormatter
-
       # @return [Log4r::PatternFormatter]
       attr_reader :formatter
 
@@ -26,14 +25,19 @@ module Vagrant
     end
 
     class HCLogFormatter < Log4r::BasicFormatter
+      MAX_MESSAGE_LENGTH = 4096
+
       def format(event)
         message = format_object(event.data).
           force_encoding('UTF-8').
           scrub("?")
-        if message.count("\n") > 40
-          message = message.split("\n").each_slice(40).to_a
-          message = [message.shift.join("\n")] + message.map { |m|
-            "continued...\n" + m.join("\n") }
+        if message.length > MAX_MESSAGE_LENGTH
+          message = Array.new.tap { |a|
+            until message.empty?
+              a << "continued..." unless a.empty?
+              a << message.slice!(0, MAX_MESSAGE_LENGTH)
+            end
+          }
         else
           message = [message]
         end
