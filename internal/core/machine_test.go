@@ -28,7 +28,7 @@ func TestMachineSetValidId(t *testing.T) {
 	if err != nil {
 		t.Errorf("Failed to get target")
 	}
-	require.Equal(t, dbTarget.Target.ResourceId, "something")
+	require.Equal(t, dbTarget.Target.Uuid, "something")
 }
 
 func TestMachineSetEmptyId(t *testing.T) {
