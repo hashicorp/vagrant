@@ -12,7 +12,7 @@ module VagrantPlugins
         prepend Util::HasMapper
         prepend Util::HasBroker
         prepend Util::HasLogger
-        prepend Util::ExceptionLogger
+        include Util::ExceptionLogger
 
         def usable(req, _unused_call)
           nil

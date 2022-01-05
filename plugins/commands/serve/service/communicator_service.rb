@@ -8,9 +8,9 @@ module VagrantPlugins
 
         prepend Util::HasMapper
         prepend Util::HasBroker
-        prepend Util::ExceptionLogger
         prepend Util::HasLogger
         include Util::HasSeeds::Service
+        include Util::ExceptionLogger
 
         def initialize(*args, **opts, &block)
           super()

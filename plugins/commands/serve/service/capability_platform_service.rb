@@ -11,7 +11,7 @@ module VagrantPlugins
           klass.prepend(Util::HasMapper)
           klass.prepend(Util::HasBroker)
           klass.prepend(Util::HasLogger)
-          klass.prepend(Util::ExceptionLogger)
+          klass.include(Util::ExceptionLogger)
 
           klass.class_eval do
             attr_reader :capabilities, :default_args

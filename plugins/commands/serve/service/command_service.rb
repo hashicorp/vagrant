@@ -10,7 +10,7 @@ module VagrantPlugins
         prepend Util::HasMapper
         prepend Util::HasBroker
         prepend Util::HasLogger
-        prepend Util::ExceptionLogger
+        include Util::ExceptionLogger
 
         def command_info_spec(*args)
           SDK::FuncSpec.new
