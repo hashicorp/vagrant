@@ -7,6 +7,8 @@ require_relative "errors"
 module VagrantPlugins
   module LocalExecPush
     class Push < Vagrant.plugin("2", :push)
+      @@logger = Log4r::Logger.new("vagrant::push::local_exec")
+
       def push
         if config.inline
           execute_inline!(config.inline, config.args)
@@ -47,7 +49,7 @@ module VagrantPlugins
 
       # Execute the script, raising an exception if it fails.
       def execute!(*cmd)
-        if Vagrant::Util::Platform.windows?
+        if Vagrant::Util::Platform.windows? || Vagrant.server_mode?
           execute_subprocess!(*cmd)
         else
           execute_exec!(*cmd)
@@ -63,11 +65,13 @@ module VagrantPlugins
 
       # Run the command as exec (unix).
       def execute_exec!(*cmd)
+        @@logger.debug("executing command via exec: #{cmd.inspect}")
         Vagrant::Util::SafeExec.exec(cmd[0], *cmd[1..-1])
       end
 
       # Run the command as a subprocess (windows).
       def execute_subprocess!(*cmd)
+        @@logger.debug("executing command via subprocess: #{cmd.inspect}")
         cmd = cmd.dup << { notify: [:stdout, :stderr] }
         result = Vagrant::Util::Subprocess.execute(*cmd) do |type, data|
           if type == :stdout
@@ -77,7 +81,7 @@ module VagrantPlugins
           end
         end
 
-        Kernel.exit(result.exit_code)
+        Kernel.exit(result.exit_code) unless Vagrant.server_mode?
       end
     end
   end
