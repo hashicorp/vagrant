@@ -47,20 +47,6 @@ module VagrantPlugins
           Pathname.new(path.path)
         end
       end
-
-      class StringToPathname < Mapper
-        def initialize
-          super(
-            inputs: [Input.new(type: String)],
-            output: Pathname,
-            func: method(:converter),
-          )
-        end
-
-        def converter(path)
-          Pathname.new(path)
-        end
-      end
     end
   end
 end
