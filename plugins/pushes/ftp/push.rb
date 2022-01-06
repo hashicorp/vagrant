@@ -21,7 +21,7 @@ module VagrantPlugins
         files = nil
         begin
           files = Hash[*all_files.flat_map do |file|
-              relative_path = relative_path_for(file, config.dir)
+              relative_path = relative_path_for(file, base_dir)
               destination = File.join(config.destination, relative_path)
               file = File.expand_path(file, env.root_path)
               [file, destination]
@@ -31,11 +31,11 @@ module VagrantPlugins
         end
 
         ftp = "#{config.username}@#{config.host}:#{config.destination}"
-        env.ui.info "Uploading #{env.root_path} to #{ftp}"
+        env.ui.info "Uploading #{files.length} files to #{env.root_path} to #{ftp}"
 
         connect do |ftp|
           files.each do |local, remote|
-            @logger.info "Uploading #{local} => #{remote}"
+            env.ui.info "Uploading #{local} => #{remote}"
             ftp.upload(local, remote)
           end
         end
@@ -54,7 +54,7 @@ module VagrantPlugins
       # only returns **files**, not folders or symlinks!
       # @return [Array<String>]
       def all_files
-        files = glob("#{config.dir}/**/*") + includes_files
+        files = glob("#{base_dir}/**/*") + includes_files
         filter_excludes!(files, config.excludes)
         files.reject! { |f| !File.file?(f) }
         files
@@ -64,7 +64,7 @@ module VagrantPlugins
       # @return [Array<String>]
       def includes_files
         includes = config.includes.flat_map do |i|
-          path = absolute_path_for(i, config.dir)
+          path = absolute_path_for(i, base_dir)
           [path, "#{path}/**/*"]
         end
 
@@ -120,6 +120,14 @@ module VagrantPlugins
         Pathname.new(path).relative_path_from(Pathname.new(parent)).to_s
       rescue ArgumentError
         return path
+      end
+
+      def base_dir
+        if Pathname.new(config.dir).absolute?
+          config.dir
+        else
+          File.join(File.expand_path(env.root_path), config.dir)
+        end
       end
     end
   end
