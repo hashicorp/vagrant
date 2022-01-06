@@ -45,7 +45,7 @@ module VagrantPlugins
 
                 if required_vertices.nil?
                   raise NoPathError,
-                    "Path generation failed to reach destination (#{dst&.type&.inspect})"
+                    "Path generation failed to reach destination (source: #{src} destination: #{dst&.type&.inspect})"
                 end
                 logger.debug("required vertices list generation complete for path #{src} -> #{dst}")
 
