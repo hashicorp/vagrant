@@ -90,7 +90,7 @@ module VagrantPlugins
 
             args = mapper.funcspec_map(
               req.func_args,
-              expect: default_args.keys + [Types::Direct]
+              expect: default_args.keys + [Type::Direct]
             )
             args = capability_arguments(args)
             cap_method = target_cap.method(cap_name)

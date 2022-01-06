@@ -7,7 +7,7 @@ module VagrantPlugins
     class Mappers
       DEFAULT_MAPS = {
         SDK::Args::Array => Array,
-        SDK::Args::Direct => Types::Direct,
+        SDK::Args::Direct => Type::Direct,
         SDK::Args::Guest => Client::Guest,
         SDK::Args::Hash => Hash,
         SDK::Args::Host => Client::Host,

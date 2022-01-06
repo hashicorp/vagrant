@@ -79,7 +79,7 @@ module VagrantPlugins
             plugin_name = info.plugin_name
             machine, folders, opts = mapper.funcspec_map(
               req.func_args,
-              expect: [Vagrant::Machine, Hash, Types::Direct]
+              expect: [Vagrant::Machine, Hash, Type::Direct]
             )
 
             sf = get_synced_folder_plugin(plugin_name)
@@ -113,7 +113,7 @@ module VagrantPlugins
             plugin_name = info.plugin_name
             machine, folders, opts = mapper.funcspec_map(
               req.func_args,
-              expect: [Vagrant::Machine, Hash, Types::Direct]
+              expect: [Vagrant::Machine, Hash, Type::Direct]
             )
 
             sf = get_synced_folder_plugin(plugin_name)
@@ -143,7 +143,7 @@ module VagrantPlugins
             plugin_name = info.plugin_name
             machine, opts = mapper.funcspec_map(
               req.func_args,
-              expect: [Vagrant::Machine, Types::Direct]
+              expect: [Vagrant::Machine, Type::Direct]
             )
 
             sf = get_synced_folder_plugin(plugin_name)

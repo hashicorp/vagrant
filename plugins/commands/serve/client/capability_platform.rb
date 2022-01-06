@@ -46,7 +46,7 @@ module VagrantPlugins
               value: any,
             )
           end
-          d = Types::Direct.new(arguments: args)
+          d = Type::Direct.new(arguments: args)
           da = mapper.map(d, to: Google::Protobuf::Any)
           arg_protos << SDK::FuncSpec::Value.new(
             name: "",

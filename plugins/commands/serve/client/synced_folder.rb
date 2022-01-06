@@ -99,14 +99,14 @@ module VagrantPlugins
 
         def folder_proto(folders)
           folders_proto = {}
-          folders.each do |k, v| 
+          folders.each do |k, v|
             folder_proto[k] =  mapper.map(v, to: Google::Protobuf::Any)
           end
           folders_proto
         end
 
         def direct_opts_proto(opts)
-          direct_proto = Types::Direct.new(arguments: opts)
+          direct_proto = Type::Direct.new(arguments: opts)
           mapper.map(direct_proto, to: Google::Protobuf::Any)
         end
       end

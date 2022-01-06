@@ -1,3 +1,4 @@
+require "pp"
 require "google/protobuf/well_known_types"
 require "google/protobuf/wrappers_pb"
 
@@ -29,7 +30,7 @@ module VagrantPlugins
               Input.new(type: SDK::Args::Direct),
               Input.new(type: Mappers),
             ],
-            output: Types::Direct,
+            output: Type::Direct,
             func: method(:converter),
           )
         end
@@ -39,7 +40,7 @@ module VagrantPlugins
             logger.debug("converting direct argument #{v} to something useful")
             mappers.map(v)
           end
-          Types::Direct.new(arguments: args)
+          Type::Direct.new(arguments: args)
         end
       end
 
@@ -48,7 +49,7 @@ module VagrantPlugins
 
         def initialize
           inputs = [].tap do |i|
-            i << Input.new(type: Types::Direct)
+            i << Input.new(type: Type::Direct)
             i << Input.new(type: Mappers)
           end
           super(inputs: inputs, output: SDK::Args::Direct, func: method(:converter))
@@ -57,7 +58,7 @@ module VagrantPlugins
         def converter(d, mappers)
           args = d.args.map do |a|
             begin
-              logger.debug("direct argument list item map to any: #{a}")
+              logger.debug("direct argument list item map to any: #{a.pretty_inspect}")
               mappers.map(a, to: Google::Protobuf::Any)
             rescue => err
               raise "Failed to map value #{a} - #{err}\n#{err.backtrace.join("\n")}"
