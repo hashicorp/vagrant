@@ -3,32 +3,38 @@ require "google/protobuf/well_known_types"
 module VagrantPlugins
   module CommandServe
     class Mappers
-      [NilClass, Numeric, String, TrueClass, FalseClass,
-        Struct, Google::Protobuf::ListValue].each do |type|
-        Class.new(Mapper).class_eval("
-          def self.name
-            '#{type.name}ToProto'
-          end
+      class NilToProto < Mapper
+        def initialize
+          super(
+            inputs: [Input.new(type: NilClass)],
+            output: SDK::Args::Null,
+            func: method(:converter),
+          )
+        end
 
-          def to_s
-            '<#{type.name}ToProto:' + object_id.to_s + '>'
-          end
+        def converter(*_)
+          SDK::Args::Null.new
+        end
+      end
 
-          def initialize
-            super(
-              inputs: [Input.new(type: #{type.name})],
-              output: Google::Protobuf::Value,
-              func: method(:converter),
-            )
-          end
+      class NilFromProto < Mapper
+        def initialize
+          super(
+            inputs: [Input.new(type: SDK::Args::Null)],
+            output: NilClass,
+            func: method(:converter),
+          )
+        end
 
-          def converter(input)
-            Google::Protobuf::Value.new.tap { |v| v.from_ruby(input) }
-          end
-        ")
+        def converter(*_)
+          nil
+        end
       end
 
       class ArrayToProto < Mapper
+
+        include Util::HasLogger
+
         def initialize
           super(
             inputs: [
@@ -41,14 +47,22 @@ module VagrantPlugins
         end
 
         def converter(array, mapper)
-          r = array.map do |v|
-            mapper.map(v, to: Google::Protobuf::Any)
+          begin
+            r = array.map do |v|
+              mapper.map(v, to: Google::Protobuf::Any)
+            end
+            SDK::Args::Array.new(list: r)
+          rescue => err
+            logger.error("array mapping to proto failed: #{err}")
+            raise
           end
-          SDK::Args::Array.new(list: r)
         end
       end
 
       class ArrayFromProto < Mapper
+
+        include Util::HasLogger
+
         def initialize
           super(
             inputs: [
@@ -61,8 +75,13 @@ module VagrantPlugins
         end
 
         def converter(proto, mapper)
-          proto.list.map do |v|
-            mapper.map(v)
+          begin
+            proto.list.map do |v|
+              mapper.map(v)
+            end
+          rescue => err
+            logger.error("proto mapping to array failed: #{err}")
+            raise
           end
         end
       end
@@ -82,6 +101,9 @@ module VagrantPlugins
       end
 
       class HashToProto < Mapper
+
+        include Util::HasLogger
+
         def initialize
           super(
             inputs: [
@@ -94,13 +116,18 @@ module VagrantPlugins
         end
 
         def converter(hash, mapper)
-          fields = Hash.new.tap do |f|
-            hash.each_pair do |k, v|
-              r = mapper.map(v, to: Google::Protobuf::Any)
-              f[k] = r
+          begin
+            fields = Hash.new.tap do |f|
+              hash.each_pair do |k, v|
+                r = mapper.map(v, to: Google::Protobuf::Any)
+                f[k] = r
+              end
             end
+            SDK::Args::Hash.new(fields: fields)
+          rescue => err
+            logger.error("hash mapping to proto failed: #{err}")
+            raise
           end
-          SDK::Args::Hash.new(fields: fields)
         end
       end
 
@@ -123,6 +150,9 @@ module VagrantPlugins
       end
 
       class HashFromProto < Mapper
+
+        include Util::HasLogger
+
         def initialize
           super(
             inputs: [
@@ -135,11 +165,16 @@ module VagrantPlugins
         end
 
         def converter(proto, mapper)
-          Hash.new.tap do |result|
-            proto.fields.each do |k, v|
-              r = mapper.map(v)
-              result[k.to_sym] = r
+          begin
+            Hash.new.tap do |result|
+              proto.fields.each do |k, v|
+                r = mapper.map(v)
+                result[k.to_sym] = r
+              end
             end
+          rescue => err
+            logger.error("proto mapping to hash failed: #{err}")
+            raise
           end
         end
       end
