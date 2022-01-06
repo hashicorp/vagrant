@@ -26,8 +26,8 @@ module VagrantPlugins
           return if !block_given?
           begin
             yield info
-          rescue => e
-            raise "#{e.class}: #{e}\n#{e.backtrace.join("\n")}"
+          rescue
+            raise
           ensure
             Service::ServiceInfo.manager_tracker.deactivate do
               Vagrant.plugin("2").disable_remote_manager

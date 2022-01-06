@@ -85,7 +85,9 @@ module VagrantPlugins
             target_cap = caps_registry.get(cap_name)
 
             if target_cap.nil?
-              raise "Failed to locate requested capability `#{cap_name.inspect}' on plugin #{plugin_name}"
+              raise Vagrant::Errors::CapabilityNotFound,
+                cap:  cap_name.inspect,
+                host: plugin_name
             end
 
             args = mapper.funcspec_map(
