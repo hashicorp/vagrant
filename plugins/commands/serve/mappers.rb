@@ -89,7 +89,10 @@ module VagrantPlugins
         # to set it using our default maps
         to = DEFAULT_MAPS[value.class] if to.nil?
 
-        logger.debug("starting the value mapping process #{value} => #{to.nil? ? 'unknown' : to.inspect}")
+        # If the value given is the desired type, just return the value
+        return value if !value.nil? && !to.nil? && value.is_a?(to)
+
+        logger.debug("starting the value mapping process #{value.class} => #{to.nil? ? 'unknown' : to.inspect}")
         if value.nil? && to
           val = (extra_args + known_arguments).detect do |item|
             item.is_a?(to)
@@ -105,7 +108,7 @@ module VagrantPlugins
 
         if value.is_a?(Google::Protobuf::Any)
           non_any = unany(value)
-          logger.debug("extracted any proto message #{value} -> #{non_any}")
+          logger.debug("extracted any proto message #{value.class} -> #{non_any}")
           value = non_any
         end
 
@@ -163,7 +166,7 @@ module VagrantPlugins
 
           if valid_outputs.empty?
             raise TypeError,
-              "No valid mappers found for input type `#{value.class}' (#{value})"
+              "No valid mappers found for input type `#{value.class}'"
           end
 
           valid_outputs.reverse!
@@ -184,7 +187,7 @@ module VagrantPlugins
               result = m_graph.execute
               break
             rescue => err
-              logger.debug("typeless mapping failure (non-critical): #{err} (input - #{value} / output #{out})")
+              logger.debug("typeless mapping failure (non-critical): #{err} (input - #{value.class} / output #{out})")
               last_error = err
             end
           end
@@ -197,7 +200,7 @@ module VagrantPlugins
           )
           result = m_graph.execute
         end
-        logger.debug("map of #{value} to #{to.nil? ? 'unknown' : to.inspect} => #{result}")
+        logger.debug("map of #{value.class} to #{to.nil? ? 'unknown' : to.inspect} => #{result}")
         result
       end
 
