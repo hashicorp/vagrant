@@ -3,6 +3,8 @@ module VagrantPlugins
     module Util
       # Adds exception logging to all public instance methods
       module ExceptionLogger
+        prepend Util::HasMapper
+
         def self.included(klass)
           # Get all the public instance methods. Need to search ancestors as well
           # for modules like the Guest service which includes the CapabilityPlatform
@@ -15,10 +17,27 @@ module VagrantPlugins
               begin
                 super(*args, **opts, &block)
               rescue => err
-                raise if !self.respond_to?(:logger)
-                logger.error(err.message)
-                logger.debug("#{err.class}: #{err}\n#{err.backtrace.join("\n")}")
-                raise
+                proto = Google::Rpc::Status.new(
+                  code: GRPC::Core::StatusCodes::UNKNOWN, 
+                  message: "#{err.message}\n#{err.backtrace.join("\n")}",
+                  details: [mapper.map(err.message, to: Google::Protobuf::Any)]
+                )
+                encoded_proto = Google::Rpc::Status.encode(proto)
+                grpc_status_details_bin_trailer = 'grpc-status-details-bin'
+                grpc_error = GRPC::BadStatus.new(
+                  GRPC::Core::StatusCodes::UNKNOWN,
+                  err.message,
+                  {grpc_status_details_bin_trailer => encoded_proto},
+                )
+
+                if self.respond_to?(:logger)
+                  # logger.error(err.message)
+                  # logger.debug("#{err.class}: #{err}\n#{err.backtrace.join("\n")}")
+                  logger.debug("status: #{grpc_error.to_status}")
+                  logger.debug("rpc status: #{grpc_error.to_rpc_status}")
+                end
+
+                raise grpc_error
               end
             end
           end
