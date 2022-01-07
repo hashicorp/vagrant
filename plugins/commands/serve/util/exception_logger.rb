@@ -17,6 +17,9 @@ module VagrantPlugins
               begin
                 super(*args, **opts, &block)
               rescue => err
+                if err.is_a?(GRPC::BadStatus)
+                  raise err
+                end
                 localized_msg_details_any = Google::Protobuf::Any.new
                 localized_msg_details_any.pack(
                   SDK::Errors::LocalizedErrorMessage.new(
