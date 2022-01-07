@@ -19,12 +19,12 @@ describe VagrantPlugins::CommandServe::Service::HostService do
 
   let(:machine){ double("machine") }
 
-  let(:statebag_arg){ 
+  let(:statebag_arg){
     Hashicorp::Vagrant::Sdk::FuncSpec::Args.new(
       args: [
         Hashicorp::Vagrant::Sdk::FuncSpec::Value.new(
-          name: "", 
-          type: "hashicorp.vagrant.sdk.Args.StateBag", 
+          name: "",
+          type: "hashicorp.vagrant.sdk.Args.StateBag",
           value: Google::Protobuf::Any.pack(
             Hashicorp::Vagrant::Sdk::Args::StateBag.new(stream_id: 1, network: "here:101", target: "unix://here"
         )))
@@ -32,9 +32,13 @@ describe VagrantPlugins::CommandServe::Service::HostService do
     )
   }
 
+  let(:statebag) { double("statebag") }
   subject { described_class.new(broker: broker) }
 
   before(:each) do
+    allow(Hashicorp::Vagrant::Sdk::StateBagService::Stub).
+      to receive(:new).and_return(statebag)
+
     parent_test_host = Class.new(Vagrant.plugin("2", :host)) do
       def detect?(env)
         true
@@ -61,7 +65,7 @@ describe VagrantPlugins::CommandServe::Service::HostService do
 
     it "raises an error for unknown plugins" do
       ctx = DummyContext.new("idontexisthahaha")
-      expect { subject.parent("", ctx) }.to raise_error
+      expect { subject.parent("", ctx) }.to raise_error(RuntimeError)
     end
 
     it "requests parent from plugins" do
@@ -79,7 +83,7 @@ describe VagrantPlugins::CommandServe::Service::HostService do
           false
         end
       end
-  
+
       register_plugin do |p|
         p.host(:test_false) { test_false_host }
       end
@@ -97,7 +101,7 @@ describe VagrantPlugins::CommandServe::Service::HostService do
 
     it "raises an error for unknown plugins" do
       ctx = DummyContext.new("idontexisthahaha")
-      expect { subject.detect("", ctx) }.to raise_error
+      expect { subject.detect("", ctx) }.to raise_error(RuntimeError)
     end
 
     it "detects true plugins" do
@@ -120,7 +124,7 @@ describe VagrantPlugins::CommandServe::Service::HostService do
           true
         end
       end
-  
+
       register_plugin do |p|
         p.host(:cap_host) { cap_host }
         p.host_capability(:cap_host, :mycap) do
@@ -129,23 +133,23 @@ describe VagrantPlugins::CommandServe::Service::HostService do
       end
     end
 
-    let(:named_cap_request){ 
+    let(:named_cap_request){
       Hashicorp::Vagrant::Sdk::FuncSpec::Args.new(
         args: [
           Hashicorp::Vagrant::Sdk::FuncSpec::Value.new(
-            name: "", 
-            type: "hashicorp.vagrant.sdk.Args.NamedCapability", 
+            name: "",
+            type: "hashicorp.vagrant.sdk.Args.NamedCapability",
             value: Google::Protobuf::Any.pack(Hashicorp::Vagrant::Sdk::Args::NamedCapability.new(capability:"mycap")))
         ]
       )
     }
 
-    let(:named_cap_bad_request){ 
+    let(:named_cap_bad_request){
       Hashicorp::Vagrant::Sdk::FuncSpec::Args.new(
         args: [
           Hashicorp::Vagrant::Sdk::FuncSpec::Value.new(
-            name: "", 
-            type: "hashicorp.vagrant.sdk.Args.NamedCapability", 
+            name: "",
+            type: "hashicorp.vagrant.sdk.Args.NamedCapability",
             value: Google::Protobuf::Any.pack(Hashicorp::Vagrant::Sdk::Args::NamedCapability.new(capability:"notacapability")))
         ]
       )
@@ -158,7 +162,7 @@ describe VagrantPlugins::CommandServe::Service::HostService do
 
     it "raises an error for unknown plugins" do
       ctx = DummyContext.new("idontexisthahaha")
-      expect { subject.has_capability(test_cap_name, ctx) }.to raise_error
+      expect { subject.has_capability(test_cap_name, ctx) }.to raise_error(NameError)
     end
 
     it "returns true for plugin with capability" do
