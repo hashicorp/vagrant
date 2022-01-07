@@ -11,6 +11,12 @@ require 'google/rpc/status_pb'
 require 'protostructure_pb'
 Google::Protobuf::DescriptorPool.generated_pool.build do
   add_file("vagrant_plugin_sdk/plugin.proto", :syntax => :proto3) do
+    add_message "hashicorp.vagrant.sdk.Errors" do
+    end
+    add_message "hashicorp.vagrant.sdk.Errors.LocalizedErrorMessage" do
+      optional :locale, :string, 1
+      optional :message, :string, 2
+    end
     add_message "hashicorp.vagrant.sdk.Args" do
     end
     add_message "hashicorp.vagrant.sdk.Args.Seeds" do
@@ -837,6 +843,8 @@ end
 module Hashicorp
   module Vagrant
     module Sdk
+      Errors = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Errors").msgclass
+      Errors::LocalizedErrorMessage = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Errors.LocalizedErrorMessage").msgclass
       Args = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Args").msgclass
       Args::Seeds = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Args.Seeds").msgclass
       Args::DataDir = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Args.DataDir").msgclass
