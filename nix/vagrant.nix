@@ -12,6 +12,7 @@
 , go-tools
 , grpc-tools
 , grpcurl
+, libarchive
 , libpng
 , libtool
 , mkShell
@@ -34,6 +35,9 @@ mkShell rec {
     nodejs-16_x
     protoc-gen-doc
     ruby
+
+    # Need bsdtar to run ruby tests
+    libarchive
 
     # Custom packages, added to overlay
     protobufPin
