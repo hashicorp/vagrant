@@ -2,12 +2,13 @@ package cli
 
 import (
 	"context"
-	"errors"
+	"fmt"
 	"reflect"
 	"strconv"
 
 	"github.com/DavidGamba/go-getoptions"
 	"github.com/DavidGamba/go-getoptions/option"
+	"google.golang.org/grpc/status"
 
 	"github.com/hashicorp/vagrant-plugin-sdk/proto/vagrant_plugin_sdk"
 	"github.com/hashicorp/vagrant-plugin-sdk/terminal"
@@ -94,8 +95,13 @@ func (c *DynamicCommand) Run(args []string) int {
 			cl.UI().Output("Running of task "+c.name+" failed unexpectedly\n", terminal.WithErrorStyle())
 			cl.UI().Output("Error: "+err.Error(), terminal.WithErrorStyle())
 		} else if !r.RunResult {
-			cl.UI().Output("Error: "+r.RunError.Message+"\n", terminal.WithErrorStyle())
-			err = errors.New("execution failed")
+			runErrorStatus := status.FromProto(r.RunError)
+			details := runErrorStatus.Details()
+			// TODO: seach through the details for a localized message if exists
+			userMessage := details[0].(*vagrant_plugin_sdk.Errors_LocalizedErrorMessage).Message
+			cl.UI().Output("Error: "+userMessage+"\n", terminal.WithErrorStyle())
+			runErr := status.FromProto(r.RunError)
+			err = fmt.Errorf("execution failed, %w", runErr.Err())
 		}
 
 		c.Log.Debug("result from operation", "task", c.name, "result", r)

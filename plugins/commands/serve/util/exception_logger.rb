@@ -17,10 +17,17 @@ module VagrantPlugins
               begin
                 super(*args, **opts, &block)
               rescue => err
+                localized_msg_details_any = Google::Protobuf::Any.new
+                localized_msg_details_any.pack(
+                  SDK::Errors::LocalizedErrorMessage.new(
+                    locale: "en-US", message: err.message
+                  )
+                )
+
                 proto = Google::Rpc::Status.new(
                   code: GRPC::Core::StatusCodes::UNKNOWN, 
                   message: "#{err.message}\n#{err.backtrace.join("\n")}",
-                  details: [mapper.map(err.message, to: Google::Protobuf::Any)]
+                  details: [localized_msg_details_any]
                 )
                 encoded_proto = Google::Rpc::Status.encode(proto)
                 grpc_status_details_bin_trailer = 'grpc-status-details-bin'
