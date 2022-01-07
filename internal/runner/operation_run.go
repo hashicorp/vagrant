@@ -3,8 +3,6 @@ package runner
 import (
 	"context"
 
-	"google.golang.org/grpc/status"
-
 	"github.com/hashicorp/vagrant/internal/core"
 	"github.com/hashicorp/vagrant/internal/server/proto/vagrant_server"
 )
@@ -37,8 +35,7 @@ func (r *Runner) executeRunOp(
 
 	jrr.RunResult = err == nil
 	if err != nil {
-		st, _ := status.FromError(err)
-		jrr.RunError = st.Proto()
+		jrr.RunError = err.(core.CommandError).Status()
 		if cmdErr, ok := err.(core.CommandError); ok {
 			jrr.ExitCode = int32(cmdErr.ExitCode())
 		}

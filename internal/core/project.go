@@ -10,6 +10,7 @@ import (
 	"github.com/hashicorp/go-argmapper"
 	"github.com/hashicorp/go-hclog"
 	"github.com/hashicorp/go-multierror"
+	"google.golang.org/grpc/status"
 
 	"github.com/hashicorp/vagrant-plugin-sdk/component"
 	"github.com/hashicorp/vagrant-plugin-sdk/core"
@@ -298,6 +299,9 @@ func (p *Project) Run(ctx context.Context, task *vagrant_server.Task) (err error
 		cmdErr := &runError{}
 		if err != nil {
 			cmdErr.err = err
+			if st, ok := status.FromError(err); ok {
+				cmdErr.status = st.Proto()
+			}
 		}
 		if result != nil {
 			cmdErr.exitCode = result.(int32)
