@@ -134,26 +134,23 @@ module VagrantPlugins
           end
         end
 
-      # Accept a specific stream ID and immediately
-      # serve a gRPC server on that stream ID.
-      #
-      # @param id [Integer] stream id
-      # @param services [Array<Class>] list of services to serve
-      def accept_and_serve(id, services)
-        s = GRPC::RpcServer.new
-        health_checker = Grpc::Health::Checker.new
-        port = s.add_http2_port("#{bind_addr}:0", :this_port_is_insecure)
-        services.each do |srv_klass|
-          s.handle(srv_klass.new)
-          health_checker.add_status(srv_klass,
-            Grpc::Health::V1::HealthCheckResponse::ServingStatus::SERVING)
+        # Accept a specific stream ID and immediately
+        # serve a gRPC server on that stream ID.
+        #
+        # @param id [Integer] stream id
+        # @param services [Array<Class>] list of services to serve
+        def accept_and_serve(id, services)
+          s = GRPC::RpcServer.new
+          health_checker = Grpc::Health::Checker.new
+          port = s.add_http2_port("#{bind_addr}:0", :this_port_is_insecure)
+          services.each do |srv_klass|
+            s.handle(srv_klass.new)
+            health_checker.add_status(srv_klass,
+              Grpc::Health::V1::HealthCheckResponse::ServingStatus::SERVING)
+          end
+          s.handle(health_checker)
+          s.run_till_terminated_or_interrupted([1, 'int', 'SIGQUIT', 'SIGINT'])
         end
-        s.handle(health_checker)
-        s.run_till_terminated_or_interrupted([1, 'int', 'SIGQUIT', 'SIGINT'])
-      end
-
-      ## Client side ##
-
       end
     end
   end
