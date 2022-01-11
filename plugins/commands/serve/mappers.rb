@@ -190,6 +190,7 @@ module VagrantPlugins
                 input_values: args,
               )
               result = m_graph.execute
+              to = out
               break
             rescue => err
               logger.debug("typeless mapping failure (non-critical): #{err} (input - #{value.class} / output #{out})")
