@@ -13,6 +13,9 @@ module VagrantPlugins
       autoload :SyncedFolderService, Vagrant.source_root.join("plugins/commands/serve/service/synced_folder_service").to_s
 
       class ServiceInfo < OpenStruct
+        class << self
+          attr_reader :manager_tracker
+        end
 
         def initialize(plugin_name: nil, broker: nil)
           super()
@@ -32,6 +35,8 @@ module VagrantPlugins
         def self.with_info(context, broker: nil)
           raise NotImplementedError
         end
+
+        @manager_tracker = Util::UsageTracker.new
       end
     end
   end
