@@ -30,8 +30,8 @@ module VagrantPlugins
         def ready(machine)
           req = SDK::FuncSpec::Args.new(
             args: [SDK::FuncSpec::Value.new(
-                name: "", 
-                type: "hashicorp.vagrant.sdk.Args.Target.Machine", 
+                name: "",
+                type: "hashicorp.vagrant.sdk.Args.Target.Machine",
                 value: Google::Protobuf::Any.pack(machine.to_proto)
             )]
           )
@@ -48,8 +48,8 @@ module VagrantPlugins
         def wait_for_ready(machine, time)
           req = SDK::FuncSpec::Args.new(
             args: [SDK::FuncSpec::Value.new(
-                name: "", 
-                type: "hashicorp.vagrant.sdk.Args.Target.Machine", 
+                name: "",
+                type: "hashicorp.vagrant.sdk.Args.Target.Machine",
                 value: Google::Protobuf::Any.pack(machine.to_proto)
             ),
             SDK::FuncSpec::Value.new(
@@ -70,21 +70,23 @@ module VagrantPlugins
         # @param [String] remote path
         # @param [String] local path
         def download(machine, from, to)
+          from = Pathname.new(from.to_s) if !from.is_a?(Pathname)
+          to = Pathname.new(to.to_s) if !to.is_a?(Pathname)
           from_val = mapper.map(from, to: SDK::Args::Path)
           to_val = mapper.map(to, to: SDK::Args::Path)
           req = SDK::FuncSpec::Args.new(
             args: [
               SDK::FuncSpec::Value.new(
-                name: "", 
-                type: "hashicorp.vagrant.sdk.Args.Target.Machine", 
+                name: "",
+                type: "hashicorp.vagrant.sdk.Args.Target.Machine",
                 value: Google::Protobuf::Any.pack(machine.to_proto)
               ),
               SDK::FuncSpec::Value.new(
-                name: "source", 
+                name: "source",
                 value: Google::Protobuf::Any.pack(from_val)
               ),
               SDK::FuncSpec::Value.new(
-                name: "destination", 
+                name: "destination",
                 value: Google::Protobuf::Any.pack(to_val)
               ),
             ]
@@ -98,21 +100,23 @@ module VagrantPlugins
         # @param [String] local path
         # @param [String] remote path
         def upload(machine, from, to)
+          from = Pathname.new(from.to_s) if !from.is_a?(Pathname)
+          to = Pathname.new(to.to_s) if !to.is_a?(Pathname)
           from_val = mapper.map(from, to: SDK::Args::Path)
           to_val = mapper.map(to, to: SDK::Args::Path)
           req = SDK::FuncSpec::Args.new(
             args: [
               SDK::FuncSpec::Value.new(
-                name: "", 
-                type: "hashicorp.vagrant.sdk.Args.Target.Machine", 
+                name: "",
+                type: "hashicorp.vagrant.sdk.Args.Target.Machine",
                 value: Google::Protobuf::Any.pack(machine.to_proto)
               ),
               SDK::FuncSpec::Value.new(
-                name: "source", 
+                name: "source",
                 value: Google::Protobuf::Any.pack(from_val)
               ),
               SDK::FuncSpec::Value.new(
-                name: "destination", 
+                name: "destination",
                 value: Google::Protobuf::Any.pack(to_val)
               ),
             ]
@@ -145,7 +149,7 @@ module VagrantPlugins
           @logger.debug("privleged excution result: #{res}")
           res
         end
-      
+
         # @param [Vagrant::Machine]
         # @param [String] command to run
         # @param [Hash] options
@@ -162,8 +166,8 @@ module VagrantPlugins
         def reset(machine)
           req = SDK::FuncSpec::Args.new(
             args: [SDK::FuncSpec::Value.new(
-                name: "", 
-                type: "hashicorp.vagrant.sdk.Args.Target.Machine", 
+                name: "",
+                type: "hashicorp.vagrant.sdk.Args.Target.Machine",
                 value: Google::Protobuf::Any.pack(machine.to_proto)
             )]
           )
@@ -181,8 +185,8 @@ module VagrantPlugins
           SDK::FuncSpec::Args.new(
             args: [
               SDK::FuncSpec::Value.new(
-                name: "", 
-                type: "hashicorp.vagrant.sdk.Args.Target.Machine", 
+                name: "",
+                type: "hashicorp.vagrant.sdk.Args.Target.Machine",
                 value: Google::Protobuf::Any.pack(machine.to_proto)
               ),
               SDK::FuncSpec::Value.new(
