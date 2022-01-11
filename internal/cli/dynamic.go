@@ -97,9 +97,12 @@ func (c *DynamicCommand) Run(args []string) int {
 		} else if !r.RunResult {
 			runErrorStatus := status.FromProto(r.RunError)
 			details := runErrorStatus.Details()
-			// TODO: seach through the details for a localized message if exists
-			userMessage := details[0].(*vagrant_plugin_sdk.Errors_LocalizedErrorMessage).Message
-			cl.UI().Output("Error: "+userMessage+"\n", terminal.WithErrorStyle())
+			for _, msg := range details {
+				switch m := msg.(type) {
+				case *vagrant_plugin_sdk.Errors_LocalizedErrorMessage:
+					cl.UI().Output("Error: "+m.Message+"\n", terminal.WithErrorStyle())
+				}
+			}
 			runErr := status.FromProto(r.RunError)
 			err = fmt.Errorf("execution failed, %w", runErr.Err())
 		}
