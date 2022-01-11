@@ -60,7 +60,7 @@ module VagrantPlugins
         end
 
         def converter(client)
-          Vagrant::Plugin::V2::SyncedFolder.new(client)
+          Vagrant::Plugin::V2::SyncedFolder.new(client: client)
         end
       end
     end
