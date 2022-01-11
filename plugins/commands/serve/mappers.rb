@@ -19,6 +19,7 @@ module VagrantPlugins
         SDK::Args::TargetIndex => Client::TargetIndex,
         SDK::Args::Target::Machine => Vagrant::Machine,
         SDK::Args::TerminalUI => Vagrant::UI::Remote,
+        SDK::Args::SyncedFolder => Vagrant::Plugin::V2::SyncedFolder,
         Client::Project => Vagrant::Environment,
         Client::Target => Vagrant::Machine,
         Client::Terminal => Vagrant::UI::Remote,
