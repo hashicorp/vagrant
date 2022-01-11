@@ -10,16 +10,7 @@ module VagrantPlugins
       autoload :HasMapper, Vagrant.source_root.join("plugins/commands/serve/util/has_mapper").to_s
       autoload :HasSeeds, Vagrant.source_root.join("plugins/commands/serve/util/has_seeds").to_s
       autoload :ServiceInfo, Vagrant.source_root.join("plugins/commands/serve/util/service_info").to_s
-
-      module WithMapper
-        def mapper
-          info = Thread.current.thread_variable_get(:service_info)
-          if info && info[:mapper]
-            return info[:mapper]
-          end
-          Mappers.new
-        end
-      end
+      autoload :UsageTracker, Vagrant.source_root.join("plugins/commands/serve/util/usage_tracker").to_s
     end
   end
 end
