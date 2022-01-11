@@ -12,7 +12,7 @@ module VagrantPlugins
       class InternalService < Hashicorp::Vagrant::RubyVagrant::Service
         prepend Util::HasBroker
         prepend Util::HasLogger
-        include Util::ExceptionLogger
+        include Util::ExceptionTransformer
 
         def get_plugins(req, _unused_call)
           plugins = []
