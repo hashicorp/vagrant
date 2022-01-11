@@ -8,6 +8,30 @@ module VagrantPlugins
     class Mappers
       module Internal
         class Graph < RGL::DirectedAdjacencyGraph
+
+          # This iterator is used for detecting and breaking cycles
+          # discovered within the graph using the DFS graph visitor
+          # concept
+          class CycleDeletorIterator < RGL::DFSVisitor
+            # Create a new iterator instance. Store the graph
+            # for later inspection use
+            def initialize(graph, *_)
+              @graph = graph
+              super
+            end
+
+            # Examines the vertex to detect any cycles. If an
+            # adjacent edge has already been visited then we
+            # remove the edge to break the cycle.
+            def handle_examine_vertex(u)
+              graph.each_adjacent(u) do |v|
+                if v.is_a?(Vertex::Output) && color_map[v] != :WHITE
+                  graph.remove_edge(u, v)
+                end
+              end
+            end
+          end
+
           autoload :Mappers, Vagrant.source_root.join("plugins/commands/serve/mappers/internal/graph/mappers").to_s
           autoload :Search, Vagrant.source_root.join("plugins/commands/serve/mappers/internal/graph/search").to_s
           autoload :Vertex, Vagrant.source_root.join("plugins/commands/serve/mappers/internal/graph/vertex").to_s
@@ -187,6 +211,10 @@ module VagrantPlugins
               }
             end
             self
+          end
+
+          def break_cycles!(src)
+            depth_first_visit(src, CycleDeletorIterator.new(self)) { true }
           end
 
           def shortest_path(source, target)
