@@ -41,7 +41,7 @@ module VagrantPlugins
       # Create a new mappers instance. Any arguments provided will be
       # available to all mapper calls
       def initialize(*args)
-        @known_arguments = args
+        @known_arguments = Array(args).compact
         Mapper.generate_anys
         @mappers = Mapper.registered.map(&:new)
         @cacher = Util::Cacher.new
@@ -51,7 +51,7 @@ module VagrantPlugins
       #
       # @return [Mappers]
       def clone
-        self.class.new(known_arguments).tap do |m|
+        self.class.new(*known_arguments).tap do |m|
           m.cacher = cacher
           m.mappers.replace(mappers.dup)
         end
@@ -62,6 +62,10 @@ module VagrantPlugins
       # @param v [Object] Argument value
       # @return [Object]
       def add_argument(v)
+        if v.nil?
+          raise TypeError,
+            "Expected valid argument but received nil value"
+        end
         known_arguments << v
         v
       end
@@ -119,7 +123,7 @@ module VagrantPlugins
           return value.to_ruby
         end
 
-        args = ([value] + extra_args + known_arguments).compact
+        args = ([value] + extra_args.compact + known_arguments.compact)
         result = nil
 
         # For funcspec values, we want to pre-filter since they use
