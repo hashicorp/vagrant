@@ -95,7 +95,7 @@ module VagrantPlugins
         to = DEFAULT_MAPS[value.class] if to.nil?
 
         # If the value given is the desired type, just return the value
-        return value if !value.nil? && !to.nil? && value.is_a?(to)
+        return value if !to.nil? && value.is_a?(to)
 
         logger.debug("starting the value mapping process #{value.class} => #{to.nil? ? 'unknown' : to.inspect}")
         if value.nil? && to
