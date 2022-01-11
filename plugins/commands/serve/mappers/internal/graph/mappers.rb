@@ -41,8 +41,7 @@ module VagrantPlugins
                   "Expected output type to be `Class', got `#{output_type.class}' (#{output_type})"
               end
               @final = output_type
-              @inputs = Array(input_values).compact
-              @inputs.delete_if(&:nil?)
+              @inputs = Array(input_values)
               if !mappers.is_a?(CommandServe::Mappers)
                 raise TypeError,
                   "Expected mapper to be `Mappers', got `#{mappers.class}'"
@@ -112,9 +111,6 @@ module VagrantPlugins
               # Add the provided input values
               i = 0
               input_vertices = inputs.map do |input_value|
-                if input_value.nil?
-                  raise "Received nil in inputs: #{inputs}"
-                end
                 iv = graph.add_vertex(Graph::Vertex::Value.new(value: input_value))
                 iv.weight = i == 0 ? BASE_WEIGHT : VALUE_WEIGHT
                 i += 1
@@ -122,7 +118,7 @@ module VagrantPlugins
                 iv
               end
               # Also add the known values from the mappers instance
-              input_vertices += mappers.known_arguments.find_all{ |a| !a.nil? }.map do |input_value|
+              input_vertices += mappers.known_arguments.map do |input_value|
                 iv = graph.add_vertex(Graph::Vertex::Value.new(value: input_value))
                 iv.weight = VALUE_WEIGHT
                 graph.add_edge(@root, iv)
