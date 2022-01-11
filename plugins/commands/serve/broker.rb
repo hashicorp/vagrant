@@ -114,6 +114,10 @@ module VagrantPlugins
         end
       end
 
+      def inspect
+        to_s
+      end
+
       def client_for(stub)
       end
 
