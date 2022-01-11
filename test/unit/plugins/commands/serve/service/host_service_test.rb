@@ -65,7 +65,7 @@ describe VagrantPlugins::CommandServe::Service::HostService do
 
     it "raises an error for unknown plugins" do
       ctx = DummyContext.new("idontexisthahaha")
-      expect { subject.parent("", ctx) }.to raise_error(RuntimeError)
+      expect { subject.parent("", ctx) }.to raise_error(GRPC::BadStatus)
     end
 
     it "requests parent from plugins" do
@@ -101,7 +101,7 @@ describe VagrantPlugins::CommandServe::Service::HostService do
 
     it "raises an error for unknown plugins" do
       ctx = DummyContext.new("idontexisthahaha")
-      expect { subject.detect("", ctx) }.to raise_error(RuntimeError)
+      expect { subject.detect("", ctx) }.to raise_error(GRPC::BadStatus)
     end
 
     it "detects true plugins" do

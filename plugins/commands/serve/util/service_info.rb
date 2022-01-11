@@ -24,16 +24,12 @@ module VagrantPlugins
           end
           Thread.current.thread_variable_set(:service_info, info)
           return if !block_given?
-          begin
-            yield info
-          rescue
-            raise
-          ensure
-            Service::ServiceInfo.manager_tracker.deactivate do
-              Vagrant.plugin("2").disable_remote_manager
-            end
-            Thread.current.thread_variable_set(:service_info, nil)
+          yield info
+        ensure
+          Service::ServiceInfo.manager_tracker.deactivate do
+            Vagrant.plugin("2").disable_remote_manager
           end
+          Thread.current.thread_variable_set(:service_info, nil)
         end
       end
     end
