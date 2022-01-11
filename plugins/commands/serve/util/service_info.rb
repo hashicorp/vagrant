@@ -14,11 +14,13 @@ module VagrantPlugins
             broker: broker
           )
           if context.metadata["plugin_manager"] && info.broker
-            info.plugin_manager = Client::PluginManager.load(
-              context.metadata["plugin_manager"],
-              broker: info.broker
-            )
-            Vagrant.plugin("2").enable_remote_manager
+            Service::ServiceInfo.manager_tracker.activate do
+              info.plugin_manager = Client::PluginManager.load(
+                context.metadata["plugin_manager"],
+                broker: info.broker
+              )
+              Vagrant.plugin("2").enable_remote_manager
+            end
           end
           Thread.current.thread_variable_set(:service_info, info)
           return if !block_given?
@@ -27,7 +29,9 @@ module VagrantPlugins
           rescue => e
             raise "#{e.class}: #{e}\n#{e.backtrace.join("\n")}"
           ensure
-            Vagrant.plugin("2").disable_remote_manager
+            Service::ServiceInfo.manager_tracker.deactivate do
+              Vagrant.plugin("2").disable_remote_manager
+            end
             Thread.current.thread_variable_set(:service_info, nil)
           end
         end
