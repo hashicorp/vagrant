@@ -45,7 +45,7 @@ module VagrantPlugins
 
                 if required_vertices.nil?
                   raise NoPathError,
-                    "Path generation failed to reach destination (source: #{src} destination: #{dst&.type&.inspect})"
+                    "Path generation failed to reach destination (#{src} -> #{dst&.type&.inspect})"
                 end
                 logger.debug("required vertices list generation complete for path #{src} -> #{dst}")
 
@@ -55,20 +55,34 @@ module VagrantPlugins
                 end
 
                 if !graph.acyclic?
+                  logger.debug("cycles detected in graph, removing...")
                   begin
-                    # If the graph ends up with a cycle, attempt to
-                    # draw the graph for inspection. We don't care if
-                    # this fails as it's only for debugging and will
-                    # only be successful if graphviz is installed.
                     require 'rgl/dot'
-                    graph.write_to_graphic_file('jpg')
+                    graph.write_to_graphic_file('jpg', 'graph-cyclic')
                   rescue
-                    # ignore
+                    #
                   end
-                  logger.error("path generation for #{src} -> #{dst} resulted in cyclic graph")
 
-                  raise NoPathError,
-                    "Failed to create an acyclic graph for path generation"
+                  graph.break_cycles!(src)
+                  logger.debug("cycles removed from graph")
+
+                  if !graph.acyclic?
+                    logger.error("path generation for #{src} -> #{dst} resulted in cyclic graph")
+
+                    begin
+                      # If the graph ends up with a cycle, attempt to
+                      # draw the graph for inspection. We don't care if
+                      # this fails as it's only for debugging and will
+                      # only be successful if graphviz is installed.
+                      require 'rgl/dot'
+                      graph.write_to_graphic_file('jpg', 'vagrant-graph-cyclic')
+                    rescue
+                      # ignore
+                    end
+
+                    raise NoPathError,
+                      "Failed to create an acyclic graph for path generation"
+                  end
                 end
 
                 # Apply topological sort to the graph so we have
@@ -104,7 +118,7 @@ module VagrantPlugins
                 logger.debug("path generation #{src} -> #{dst}\n#{o}")
                 if path.nil?
                   raise NoPathError,
-                    "Path generation failed to reach destination (#{dst&.type&.inspect})"
+                    "Path generation failed to reach destination (#{src} -> #{dst&.type&.inspect})"
                 end
                 expand_path(path, src, graph)
               rescue InvalidVertex => err
