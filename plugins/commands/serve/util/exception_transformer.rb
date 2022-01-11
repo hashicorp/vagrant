@@ -22,7 +22,7 @@ module VagrantPlugins
                 end
                 localized_msg_details_any = Google::Protobuf::Any.new
                 localized_msg_details_any.pack(
-                  SDK::Errors::LocalizedErrorMessage.new(
+                  Google::Rpc::LocalizedMessage.new(
                     locale: "en-US", message: err.message
                   )
                 )

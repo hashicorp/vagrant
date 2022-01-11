@@ -8,6 +8,7 @@ import (
 
 	"github.com/DavidGamba/go-getoptions"
 	"github.com/DavidGamba/go-getoptions/option"
+	"google.golang.org/genproto/googleapis/rpc/errdetails"
 	"google.golang.org/grpc/status"
 
 	"github.com/hashicorp/vagrant-plugin-sdk/proto/vagrant_plugin_sdk"
@@ -99,7 +100,7 @@ func (c *DynamicCommand) Run(args []string) int {
 			details := runErrorStatus.Details()
 			for _, msg := range details {
 				switch m := msg.(type) {
-				case *vagrant_plugin_sdk.Errors_LocalizedErrorMessage:
+				case *errdetails.LocalizedMessage:
 					cl.UI().Output("Error: "+m.Message+"\n", terminal.WithErrorStyle())
 				}
 			}

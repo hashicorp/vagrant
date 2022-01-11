@@ -1,7 +1,7 @@
 package host
 
 import (
-	"errors"
+	"fmt"
 
 	"github.com/hashicorp/vagrant-plugin-sdk/component"
 	"github.com/hashicorp/vagrant-plugin-sdk/terminal"
@@ -61,7 +61,7 @@ func (h *AlwaysTrueHost) CapabilityFunc(name string) interface{} {
 	} else if name == "write_hello_file" {
 		return h.WriteHelloToTempFileCap
 	}
-	return errors.New("Invalid capability requested")
+	return fmt.Errorf("requested capability %s not found", name)
 }
 
 func (h *AlwaysTrueHost) WriteHelloCap(ui terminal.UI) error {
