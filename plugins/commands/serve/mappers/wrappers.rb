@@ -16,7 +16,7 @@ module VagrantPlugins
         end
 
         def converter(bool)
-          Google::Protobuf::BoolValue.new(value: bool)
+          Google::Protobuf::BoolValue.new(value: bool.value)
         end
       end
 
