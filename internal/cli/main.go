@@ -243,18 +243,22 @@ func logger(args []string) ([]string, hclog.Logger, io.Writer, error) {
 		case "-v":
 			if level == hclog.NoLevel || level > hclog.Info {
 				level = hclog.Info
+				_ = os.Setenv("VAGRANT_LOG", "info")
 			}
 		case "-vv":
 			if level == hclog.NoLevel || level > hclog.Debug {
 				level = hclog.Debug
+				_ = os.Setenv("VAGRANT_LOG", "debug")
 			}
 		case "-vvv":
 			if level == hclog.NoLevel || level > hclog.Trace {
 				level = hclog.Trace
+				_ = os.Setenv("VAGRANT_LOG", "trace")
 			}
 		case "-vvvv":
 			if level == hclog.NoLevel || level > hclog.Trace {
 				level = hclog.Trace
+				_ = os.Setenv("VAGRANT_LOG", "trace")
 			}
 			verbose = true
 		default:
