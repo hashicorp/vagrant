@@ -24,7 +24,7 @@ if !Log4r::Logger::LoggerFactory.respond_to?(:fake_define_methods)
       def fake_undefine_methods(logger)
         real_undefine_methods(logger)
         logger.instance_eval do
-          def trace
+          def trace(*_)
             @trace
           end
         end
