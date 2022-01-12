@@ -3,6 +3,7 @@ package client
 import (
 	"context"
 	"net"
+	"os"
 	"os/exec"
 	"path/filepath"
 	"runtime"
@@ -185,10 +186,11 @@ func (c *Client) initVagrantRubyRuntime() (rubyRuntime plugin.ClientProtocol, er
 	cmd := exec.Command(
 		"bundle", "exec", "vagrant", "serve",
 	)
+	level := os.Getenv("VAGRANT_LOG")
 	cmd.Env = []string{
 		"BUNDLE_GEMFILE=" + filepath.Join(this_dir, "../../..", "Gemfile"),
 		"VAGRANT_I_KNOW_WHAT_IM_DOING_PLEASE_BE_QUIET=true",
-		"VAGRANT_LOG=debug",
+		"VAGRANT_LOG=" + level,
 		"VAGRANT_LOG_FILE=/tmp/vagrant.log",
 	}
 
