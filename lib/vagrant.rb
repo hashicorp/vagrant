@@ -2,6 +2,9 @@ require "log4r"
 
 # Add patches to log4r to support trace level
 require "vagrant/patches/log4r"
+# Set our log levels and include trace
+require 'log4r/configurator'
+Log4r::Configurator.custom_levels(*(["TRACE"] + Log4r::Log4rConfig::LogLevels))
 
 # Update the default formatter within the log4r library to ensure
 # sensitive values are being properly scrubbed from logger data
@@ -48,16 +51,10 @@ require "vagrant/plugin/manager"
 # anything else so that we can setup the output before
 # any logging occurs.
 if ENV["VAGRANT_LOG"] && ENV["VAGRANT_LOG"] != ""
-  # Require Log4r and define the levels we'll be using
-  require 'log4r/configurator'
-  Log4r::Configurator.custom_levels(*(["TRACE"] + Log4r::Log4rConfig::LogLevels))
-
   level = Log4r::LNAMES.index(ENV["VAGRANT_LOG"].upcase)
-
-  # Some constants, such as "true" resolve to booleans, so the
-  # above error checking doesn't catch it. This will check to make
-  # sure that the log level is an integer, as Log4r requires.
-  level = nil if !level.is_a?(Integer)
+  if level.nil?
+    level = Log4r::LNAMES.index("FATAL")
+  end
 
   if !level
     # We directly write to stderr here because the VagrantError system
@@ -81,13 +78,16 @@ if ENV["VAGRANT_LOG"] && ENV["VAGRANT_LOG"] != ""
       end
     end
 
-    logger = VagrantLogger.new("vagrant")
-    if ENV["VAGRANT_LOG_FILE"] && ENV["VAGRANT_LOG_FILE"] != ""
-      logger.outputters = Log4r::FileOutputter.new("vagrant", filename: ENV["VAGRANT_LOG_FILE"])
-    else
-      logger.outputters = Log4r::Outputter.stderr
+    ["vagrant", "vagrantplugins"].each do |lname|
+      logger = VagrantLogger.new(lname)
+      if ENV["VAGRANT_LOG_FILE"] && ENV["VAGRANT_LOG_FILE"] != ""
+        logger.outputters = Log4r::FileOutputter.new("vagrant", filename: ENV["VAGRANT_LOG_FILE"])
+      else
+        logger.outputters = Log4r::Outputter.stderr
+      end
+      logger.level = level
     end
-    logger.level = level
+
     base_formatter = Log4r::BasicFormatter.new
     if ENV["VAGRANT_LOG_TIMESTAMP"]
       base_formatter = Log4r::PatternFormatter.new(
@@ -97,7 +97,6 @@ if ENV["VAGRANT_LOG"] && ENV["VAGRANT_LOG"] != ""
     end
 
     Log4r::Outputter.stderr.formatter = Vagrant::Util::LoggingFormatter.new(base_formatter)
-    logger = nil
   end
 end
 
