@@ -23,6 +23,7 @@ module VagrantPlugins
             [:hosts, :HOST],
             [:providers, :PROVIDER],
             [:provisioners, :PROVISIONER],
+            [:pushes, :PUSH],
             [:synced_folders, :SYNCEDFOLDER]].map do |method, const|
             plugin_manager.send(method).map do |k, v|
               Hashicorp::Vagrant::Plugin.new(name: k, type: Hashicorp::Vagrant::Plugin::Type.const_get(const))

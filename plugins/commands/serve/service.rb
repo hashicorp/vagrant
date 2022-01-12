@@ -11,6 +11,7 @@ module VagrantPlugins
       autoload :InternalService, Vagrant.source_root.join("plugins/commands/serve/service/internal_service").to_s
       autoload :ProviderService, Vagrant.source_root.join("plugins/commands/serve/service/provider_service").to_s
       autoload :SyncedFolderService, Vagrant.source_root.join("plugins/commands/serve/service/synced_folder_service").to_s
+      autoload :PushService, Vagrant.source_root.join("plugins/commands/serve/service/push_service").to_s
 
       class ServiceInfo < OpenStruct
         class << self

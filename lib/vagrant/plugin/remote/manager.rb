@@ -193,20 +193,20 @@ module Vagrant
         #   end
         # end
 
-        # def pushes
-        #   return real_manager.synced_folders if plugin_manager.nil?
+        def pushes
+          return real_manager.pushes if plugin_manager.nil?
 
-        #   Registry.new.tap do |result|
-        #     plugin_manager.list_plugins(:push).each do |plg|
-        #       sf_class = Class.new(V2::Push, &WRAPPER_CLASS)
-        #       sf_class.plugin_name = plg[:name]
-        #       sf_class.type = plg[:type]
-        #       result.register(plg[:name].to_sym) do
-        #         proc{sf_class}
-        #       end
-        #     end
-        #   end
-        # end
+          Registry.new.tap do |result|
+            plugin_manager.list_plugins(:push).each do |plg|
+              sf_class = Class.new(V2::Push, &WRAPPER_CLASS)
+              sf_class.plugin_name = plg[:name]
+              sf_class.type = plg[:type]
+              result.register(plg[:name].to_sym) do
+                sf_class
+              end
+            end
+          end
+        end
       end
     end
   end

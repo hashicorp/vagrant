@@ -49,6 +49,7 @@ message Plugin {
     MAPPER = 11;
     CONFIG = 12;
     PLUGININFO = 13;
+    PUSH = 14;
   }
 }
 

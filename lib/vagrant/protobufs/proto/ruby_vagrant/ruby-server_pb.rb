@@ -30,6 +30,7 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
       value :MAPPER, 11
       value :CONFIG, 12
       value :PLUGININFO, 13
+      value :PUSH, 14
     end
     add_message "hashicorp.vagrant.ParseVagrantfileRequest" do
       optional :path, :string, 1

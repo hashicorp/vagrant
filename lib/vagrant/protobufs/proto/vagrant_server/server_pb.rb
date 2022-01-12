@@ -141,6 +141,7 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
       value :MAPPER, 11
       value :CONFIG, 12
       value :PLUGININFO, 13
+      value :PUSH, 14
     end
     add_message "hashicorp.vagrant.Status" do
       optional :state, :enum, 1, "hashicorp.vagrant.Status.State"

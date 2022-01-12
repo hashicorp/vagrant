@@ -657,8 +657,15 @@ module Vagrant
     # This executes the push with the given name, raising any exceptions that
     # occur.
     #
+    # @param name [String] Push plugin name
+    # @param manager [Vagrant::Plugin::Manager] Plugin Manager to use,
+    # defaults to the primary one registered but parameterized so it can be
+    # overridden in server mode
+    #
+    # @see VagrantPlugins::CommandServe::Service::PushService Server mode behavior
+    #
     # Precondition: the push is not nil and exists.
-    def push(name)
+    def push(name, manager: Vagrant.plugin("2").manager)
       @logger.info("Getting push: #{name}")
 
       name = name.to_sym
@@ -671,7 +678,7 @@ module Vagrant
       end
 
       strategy, config = pushes[name]
-      push_registry = Vagrant.plugin("2").manager.pushes
+      push_registry = manager.pushes
       klass, _ = push_registry.get(strategy)
       if klass.nil?
         raise Vagrant::Errors::PushStrategyNotLoaded,

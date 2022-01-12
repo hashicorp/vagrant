@@ -57,6 +57,15 @@ module VagrantPlugins
           end
 
           config.finalize!
+          # It's important that we call _finalize! here also, because pushes get
+          # plucked out of the config in Environment#push without the larger
+          # root.finalize! walk having been done. This means that push configs
+          # were coming out unfinalized, which can cause havoc when they're
+          # passed through functions that attempt to capture keyword arguments,
+          # as they'll cause ruby to call .to_hash on the config, get a
+          # DummyConfig, and then blow up. That havoc was happening in server
+          # mode, and this call fixes it.
+          config._finalize!
 
           # Store it for retrieval later
           @__compiled_pushes[name] = [strategy, config]

@@ -9,6 +9,7 @@ module VagrantPlugins
         SDK::Args::Array => Array,
         SDK::Args::Direct => Type::Direct,
         SDK::Args::Guest => Client::Guest,
+
         SDK::Args::Hash => Hash,
         SDK::Args::Host => Client::Host,
         SDK::Args::NamedCapability => Symbol,
@@ -291,6 +292,7 @@ require Vagrant.source_root.join("plugins/commands/serve/mappers/machine.rb").to
 require Vagrant.source_root.join("plugins/commands/serve/mappers/pathname.rb").to_s
 require Vagrant.source_root.join("plugins/commands/serve/mappers/plugin_manager.rb").to_s
 require Vagrant.source_root.join("plugins/commands/serve/mappers/project.rb").to_s
+require Vagrant.source_root.join("plugins/commands/serve/mappers/push.rb").to_s
 require Vagrant.source_root.join("plugins/commands/serve/mappers/state_bag.rb").to_s
 require Vagrant.source_root.join("plugins/commands/serve/mappers/synced_folder.rb").to_s
 require Vagrant.source_root.join("plugins/commands/serve/mappers/target.rb").to_s
