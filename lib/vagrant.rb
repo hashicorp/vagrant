@@ -1,5 +1,8 @@
 require "log4r"
 
+# Add patches to log4r to support trace level
+require "vagrant/patches/log4r"
+
 # Update the default formatter within the log4r library to ensure
 # sensitive values are being properly scrubbed from logger data
 class Log4r::BasicFormatter
