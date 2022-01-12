@@ -49,18 +49,10 @@ require "vagrant/plugin/manager"
 # any logging occurs.
 if ENV["VAGRANT_LOG"] && ENV["VAGRANT_LOG"] != ""
   # Require Log4r and define the levels we'll be using
-  require 'log4r/config'
-  Log4r.define_levels(*Log4r::Log4rConfig::LogLevels)
+  require 'log4r/configurator'
+  Log4r::Configurator.custom_levels(*(["TRACE"] + Log4r::Log4rConfig::LogLevels))
 
-  level = nil
-  begin
-    level = Log4r.const_get(ENV["VAGRANT_LOG"].upcase)
-  rescue NameError
-    # This means that the logging constant wasn't found,
-    # which is fine. We just keep `level` as `nil`. But
-    # we tell the user.
-    level = nil
-  end
+  level = Log4r::LNAMES.index(ENV["VAGRANT_LOG"].upcase)
 
   # Some constants, such as "true" resolve to booleans, so the
   # above error checking doesn't catch it. This will check to make
