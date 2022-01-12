@@ -68,17 +68,11 @@ module VagrantPlugins
           @@mappers.each do |klass|
             # For any mapper that outputs a protobuf message,
             # automatically provide an Any mapper.
-            logger.info("creating new mapper instance for inspection: #{klass.name}")
-            m  = nil
-            begin
-              m = klass.new
-            rescue => err
-              raise "Failed on class: #{klass.name} - #{err}"
-            end
+            m  = klass.new
             if m.output.ancestors.include?(Google::Protobuf::MessageExts)
               names = registered.map(&:name)
               next if names.include?("#{m.output.name}ToAny")
-              logger.info("generating new Any converter #{m.output.name}ToAny")
+              logger.trace("generating new Any converter #{m.output.name}ToAny")
               Class.new(Mapper).class_eval("
                 def self.name
                   '#{m.output.name}' + 'ToAny'

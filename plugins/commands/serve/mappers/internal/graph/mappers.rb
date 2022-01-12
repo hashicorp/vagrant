@@ -51,7 +51,7 @@ module VagrantPlugins
               setup!
 
               logger.debug("new graph mappers instance created #{self}")
-              logger.debug("graph: #{graph.inspect}")
+              logger.trace("graph: #{graph.inspect}")
             end
 
             # Generate path and execute required mappers

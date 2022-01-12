@@ -39,7 +39,7 @@ module VagrantPlugins
                 logger.debug("finding path #{src} -> #{dst}")
                 @root = src
 
-                logger.debug("generating list of required vertices for path #{src} -> #{dst}")
+                logger.trace("generating list of required vertices for path #{src} -> #{dst}")
                 # Generate list of required vertices from the graph
                 required_vertices = generate_path(src, dst)
 
@@ -47,7 +47,7 @@ module VagrantPlugins
                   raise NoPathError,
                     "Path generation failed to reach destination (#{src} -> #{dst&.type&.inspect})"
                 end
-                logger.debug("required vertices list generation complete for path #{src} -> #{dst}")
+                logger.trace("required vertices list generation complete for path #{src} -> #{dst}")
 
                 # Remove all extraneous vertices
                 (graph.vertices - required_vertices).each do |vrt|
@@ -115,14 +115,14 @@ module VagrantPlugins
                 o = Array(path).map { |v|
                   "  #{v} ->"
                 }.join("\n")
-                logger.debug("path generation #{src} -> #{dst}\n#{o}")
+                logger.trace("path generation #{src} -> #{dst}\n#{o}")
                 if path.nil?
                   raise NoPathError,
                     "Path generation failed to reach destination (#{src} -> #{dst&.type&.inspect})"
                 end
                 expand_path(path, src, graph)
               rescue InvalidVertex => err
-                logger.debug("invalid vertex in path, removing (#{err.vertex})")
+                logger.trace("invalid vertex in path, removing (#{err.vertex})")
                 graph.remove_vertex(err.vertex)
                 retry
               end
@@ -133,7 +133,7 @@ module VagrantPlugins
               path.each do |v|
                 new_path << v
                 next if !v.incoming_edges_required
-                logger.debug("validating incoming edges for vertex #{v}")
+                logger.trace("validating incoming edges for vertex #{v}")
                 ins = graph.in_vertices(v)
                 g = graph.clone
                 g.remove_vertex(v)
@@ -143,7 +143,7 @@ module VagrantPlugins
                   ipath = expand_path(ipath, src, g)
                   new_path += ipath
                 end
-                logger.debug("incoming edge validation complete for vertex #{v}")
+                logger.trace("incoming edge validation complete for vertex #{v}")
               end
               new_path
             end

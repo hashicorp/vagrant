@@ -97,7 +97,7 @@ module VagrantPlugins
         # If the value given is the desired type, just return the value
         return value if !to.nil? && value.is_a?(to)
 
-        logger.debug("starting the value mapping process #{value.class} => #{to.nil? ? 'unknown' : to.inspect}")
+        logger.debug("starting value mapping process #{value.class} -> #{to.nil? ? 'unknown' : to.inspect}")
         if value.nil? && to
           val = (extra_args + known_arguments).detect do |item|
             item.is_a?(to)
@@ -135,7 +135,7 @@ module VagrantPlugins
               m.output.ancestors.include?(Google::Protobuf::MessageExts)
             next m if !m.inputs.first.valid?(SDK::FuncSpec::Value) ||
               m.inputs.first.valid?(value)
-            logger.debug("removing mapper - invalid funcspec match - #{m}")
+            logger.trace("removing mapper - invalid funcspec match - #{m}")
             nil
           end.compact
           map_mapper.mappers.replace(valid_mappers)
@@ -194,6 +194,7 @@ module VagrantPlugins
               break
             rescue => err
               logger.debug("typeless mapping failure (non-critical): #{err} (input - #{value.class} / output #{out})")
+              logger.trace("#{err.class}: #{err}\n#{err.backtrace.join("\n")}}}")
               last_error = err
             end
           end
@@ -266,7 +267,7 @@ module VagrantPlugins
             "FuncSpec value of type `#{v.class}' has no valid mappers"
         end
         result = m.first.call(v)
-        logger.debug("converted funcspec argument #{v} -> #{result}")
+        logger.trace("converted funcspec argument #{v} -> #{result}")
         result
       end
     end
