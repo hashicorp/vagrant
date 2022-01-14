@@ -64,6 +64,9 @@ describe VagrantPlugins::FTPPush::Push do
         .and_return(%w(*.rb))
     end
 
+    after do
+      server.reset
+    end
 
     it "pushes the files to the server" do
       subject.push
@@ -73,6 +76,31 @@ describe VagrantPlugins::FTPPush::Push do
     it "raises informative exception when too many files to process" do
       expect(subject).to receive(:all_files).and_raise(SystemStackError)
       expect{ subject.push }.to raise_error(VagrantPlugins::FTPPush::Errors::TooManyFiles)
+    end
+
+    context "when VAGRANT_CWD is set to something relative" do
+      # this will be the PWD for the test context
+      let(:pwd) { Pathname.new(Dir.mktmpdir("vagrant-ftp-push-pwd")) }
+
+      before do
+        # this path should have a ../ in it since the pwd is another temp dir
+        # and measuring path from one to the other. they're most likely to be
+        # siblings
+        relative_path = Pathname.new(@dir).relative_path_from(pwd)
+        allow(env).to receive(:root_path) { relative_path.to_s }
+        # reset config.dir to its default since it was set absolute above
+        allow(config).to receive(:dir) { "." }
+      end
+
+      it "properly paths out the files to upload" do
+        Vagrant::Util::SafeChdir.safe_chdir(pwd) do
+          subject.push
+        end
+
+        expect(server.files).to eq(%w(Gemfile data.txt))
+      ensure
+        FileUtils.rm_rf(pwd)
+      end
     end
   end
 
