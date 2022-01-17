@@ -1,8 +1,8 @@
-import NotFound from './404'
+import ErrorView from 'components/error-view'
 import Bugsnag from '@hashicorp/platform-runtime-error-monitoring'
 
 function Error({ statusCode }) {
-  return <NotFound statusCode={statusCode} />
+  return <ErrorView statusCode={statusCode} />
 }
 
 Error.getInitialProps = ({ res, err }) => {
