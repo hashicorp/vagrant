@@ -10,11 +10,12 @@ interface ErrorPageProps {
 const CONTENT_DICT = {
   404: {
     heading: 'Not Found',
-    message: "We're sorry but we can't find the page you're looking for.",
+    message: "We're sorry, but we can't find the page you're looking for.",
   },
   fallback: {
     heading: 'Something went wrong.',
-    message: "We're sorry",
+    message:
+      "We're sorry, but the requested page isn't available right now. We've logged this as an error, and will look into it. Please check back soon.",
   },
 }
 
