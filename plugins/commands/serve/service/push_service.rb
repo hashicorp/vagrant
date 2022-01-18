@@ -21,11 +21,13 @@ module VagrantPlugins
             #
             # We are already in a remote lookup loop, so we pass in the local
             # manager to ensure that the local plugin is being looked up.
-            result = env.push(plugin_name, manager: Vagrant.plugin("2").local_manager)
+            env.push(plugin_name, manager: Vagrant.plugin("2").local_manager)
 
-            SDK::Push::PushResponse.new(
-              exit_code: result.respond_to?(:exit_code) ? result.exit_code : 0
-            )
+            # The GRPC spec for push plugins has them just returning an empty
+            # response on success. The assumption is that they'll print their
+            # user feedback directly to the UI as necessary, and they can raise
+            # exceptions for error conditions.
+            Empty.new
           end
         end
 
@@ -38,12 +40,7 @@ module VagrantPlugins
                 name: "",
               ),
             ],
-            result: [
-              SDK::FuncSpec::Value.new(
-                type: "hashicorp.vagrant.sdk.Push.PushResponse",
-                name: "",
-              ),
-            ],
+            result: [],
           )
         end
       end
