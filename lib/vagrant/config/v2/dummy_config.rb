@@ -7,6 +7,14 @@ module Vagrant
         LOG  = Log4r::Logger.new("vagrant::config::v2::dummy_config")
 
         def method_missing(name, *args, &block)
+          # If a DummyConfig ends up as a last arg in a situation where it's
+          # being passed through a method with *kwargs, ruby 2.x will try to
+          # implicitly convert it into a hash. If it responds to to_hash but
+          # does not return an actual hash, Ruby gets mad.
+          if name == :to_hash
+            return super
+          end
+
           # Trying to define a variable
           if name.to_s.match(/^[\w]*=/)
             LOG.debug("found name #{name}")

@@ -5,6 +5,7 @@ import (
 	"github.com/hashicorp/vagrant/builtin/myplugin/command"
 	communincator "github.com/hashicorp/vagrant/builtin/myplugin/communicator"
 	"github.com/hashicorp/vagrant/builtin/myplugin/host"
+	"github.com/hashicorp/vagrant/builtin/myplugin/push"
 )
 
 //go:generate protoc -I ../../.. --go_opt=plugins=grpc --go_out=../../.. vagrant-ruby/builtin/myplugin/proto/plugin.proto
@@ -16,6 +17,7 @@ var CommandOptions = []sdk.Option{
 		&command.Command{},
 		&host.AlwaysTrueHost{},
 		&communincator.DummyCommunicator{},
+		&push.Encouragement{},
 	),
 	sdk.WithMappers(StructToCommunincatorOptions),
 	sdk.WithName("myplugin"),
