@@ -3,8 +3,6 @@ package core
 import (
 	"strings"
 
-	"github.com/DavidGamba/go-getoptions/option"
-
 	"github.com/hashicorp/vagrant-plugin-sdk/component"
 	"github.com/hashicorp/vagrant-plugin-sdk/proto/vagrant_plugin_sdk"
 	"github.com/hashicorp/vagrant/internal/server/proto/vagrant_server"
@@ -21,21 +19,24 @@ func JobCommandProto(c *component.CommandInfo) []*vagrant_server.Job_Command {
 	return jobCommandProto(c, []string{})
 }
 
-func FlagOption(input []*vagrant_server.Job_Flag) (opt []*option.Option, err error) {
-	opt = []*option.Option{}
-	for _, f := range input {
-		var newOpt *option.Option
+func FlagOption(input []*vagrant_server.Job_Flag) (opt component.CommandFlags, err error) {
+	opt = make([]*component.CommandFlag, len(input))
+
+	for i, f := range input {
+		opt[i] = &component.CommandFlag{
+			LongName:     f.LongName,
+			ShortName:    f.ShortName,
+			Description:  f.Description,
+			DefaultValue: f.DefaultValue,
+		}
 		switch f.Type {
 		case vagrant_server.Job_Flag_STRING:
-			newOpt = option.New(f.LongName, option.StringType)
+			opt[i].Type = component.FlagString
 		case vagrant_server.Job_Flag_BOOL:
-			newOpt = option.New(f.LongName, option.BoolType)
+			opt[i].Type = component.FlagBool
 		}
-		newOpt.Description = f.Description
-		newOpt.DefaultStr = f.DefaultValue
-		opt = append(opt, newOpt)
 	}
-	return opt, err
+	return
 }
 
 func CommandArgToMap(input *vagrant_plugin_sdk.Command_Arguments) (map[string]interface{}, error) {
@@ -51,28 +52,26 @@ func CommandArgToMap(input *vagrant_plugin_sdk.Command_Arguments) (map[string]in
 	return result, nil
 }
 
-func OptionFlagProto(input []*option.Option) []*vagrant_server.Job_Flag {
-	output := []*vagrant_server.Job_Flag{}
+func OptionFlagProto(input component.CommandFlags) []*vagrant_server.Job_Flag {
+	output := make([]*vagrant_server.Job_Flag, len(input))
 
-	for _, f := range input {
-		var flagType vagrant_server.Job_Flag_Type
-		switch f.OptType {
-		case option.StringType:
-			flagType = vagrant_server.Job_Flag_STRING
-		case option.BoolType:
-			flagType = vagrant_server.Job_Flag_BOOL
-		}
-
-		// TODO: get aliases
-		j := &vagrant_server.Job_Flag{
-			LongName:     f.Name,
-			ShortName:    f.Name,
+	for i, f := range input {
+		output[i] = &vagrant_server.Job_Flag{
+			LongName:     f.LongName,
+			ShortName:    f.ShortName,
 			Description:  f.Description,
-			DefaultValue: f.DefaultStr,
-			Type:         flagType,
+			DefaultValue: f.DefaultValue,
 		}
-		output = append(output, j)
+		switch f.Type {
+		case component.FlagBool:
+			output[i].Type = vagrant_server.Job_Flag_BOOL
+		case component.FlagString:
+			output[i].Type = vagrant_server.Job_Flag_STRING
+		default:
+			panic("unsupported flag type - " + f.Type.String())
+		}
 	}
+
 	return output
 }
 
