@@ -142,17 +142,10 @@ func Commands(
 		return nil, nil, err
 	}
 
-	s := baseCommand.client.UI().Status()
-	s.Update("Loading Vagrant...")
-
 	result, err := baseCommand.client.Commands(ctx, nil, baseCommand.Modifier())
 	if err != nil {
-		s.Step(terminal.StatusError, "Failed to load Vagrant!")
 		return nil, nil, err
 	}
-
-	s.Step(terminal.StatusOK, "Vagrant loaded!")
-	s.Close()
 
 	// Set plain mode if set
 	if os.Getenv(EnvPlain) != "" {
