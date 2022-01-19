@@ -60,7 +60,7 @@ module VagrantPlugins
               expect: [
                 Vagrant::UI::Remote,
                 Vagrant::Environment,
-                SDK::Command::Arguments
+                Type::CommandArguments
               ]
             )
 
@@ -70,7 +70,7 @@ module VagrantPlugins
             end
 
             cmd_klass = plugin.call
-            cmd_args = req.command_args.to_a[1..] + arguments.args.to_a
+            cmd_args = req.command_args.to_a[1..] + arguments.value
             cmd = cmd_klass.new(cmd_args, env)
             result = cmd.execute
 
