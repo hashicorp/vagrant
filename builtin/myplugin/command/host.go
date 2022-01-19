@@ -1,7 +1,6 @@
 package command
 
 import (
-	"github.com/DavidGamba/go-getoptions/option"
 	"github.com/hashicorp/vagrant-plugin-sdk/component"
 	"github.com/hashicorp/vagrant-plugin-sdk/core"
 	"github.com/hashicorp/vagrant-plugin-sdk/terminal"
@@ -40,8 +39,8 @@ func (c *Host) Help() string {
 	return c.Synopsis()
 }
 
-func (c *Host) Flags() []*option.Option {
-	return []*option.Option{}
+func (c *Host) Flags() component.CommandFlags {
+	return []*component.CommandFlag{}
 }
 
 func (c *Host) Execute(trm terminal.UI, project core.Project) int32 {

@@ -1,7 +1,6 @@
 package command
 
 import (
-	"github.com/DavidGamba/go-getoptions/option"
 	"github.com/hashicorp/vagrant-plugin-sdk/component"
 	"github.com/hashicorp/vagrant-plugin-sdk/docs"
 	"github.com/hashicorp/vagrant-plugin-sdk/terminal"
@@ -57,21 +56,26 @@ func (c *DoThing) Synopsis() string {
 }
 
 func (c *DoThing) Help() string {
-	return "I do really important work"
+	return "Usage: vagrant myplugin dothing"
 }
 
-func (c *DoThing) Flags() []*option.Option {
-	booltest := option.New("booltest", option.BoolType)
-	booltest.Description = "a test flag for bools"
-	booltest.DefaultStr = "true"
-	booltest.Aliases = append(booltest.Aliases, "bt")
-
-	stringflag := option.New("stringflag", option.StringType)
-	stringflag.Description = "a test flag for strings"
-	stringflag.DefaultStr = "message"
-	stringflag.Aliases = append(stringflag.Aliases, "sf")
-
-	return []*option.Option{booltest, stringflag}
+func (c *DoThing) Flags() component.CommandFlags {
+	return []*component.CommandFlag{
+		{
+			LongName:     "booltest",
+			ShortName:    "b",
+			Description:  "test flag for bools",
+			DefaultValue: "true",
+			Type:         component.FlagBool,
+		},
+		{
+			LongName:     "stringflag",
+			ShortName:    "s",
+			Description:  "test flag for strings",
+			DefaultValue: "a default message value",
+			Type:         component.FlagString,
+		},
+	}
 }
 
 func (c *DoThing) Execute(trm terminal.UI, flags map[string]interface{}) int32 {

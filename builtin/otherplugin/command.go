@@ -3,7 +3,6 @@ package otherplugin
 import (
 	"strings"
 
-	"github.com/DavidGamba/go-getoptions/option"
 	"github.com/hashicorp/vagrant-plugin-sdk/component"
 	plugincore "github.com/hashicorp/vagrant-plugin-sdk/core"
 
@@ -45,12 +44,12 @@ func (c *Command) CommandInfo() *component.CommandInfo {
 		Name:     "otherplugin",
 		Help:     "HELP MEEEEE!",
 		Synopsis: "This command does stuff",
-		Flags: []*option.Option{
-			&option.Option{
-				Name:        "thing",
-				OptType:     option.StringType,
-				Description: "a thing flag",
-				DefaultStr:  "I'm a thing!",
+		Flags: []*component.CommandFlag{
+			{
+				LongName:     "thing",
+				Description:  "a thing flag",
+				DefaultValue: "I'm a thing!",
+				Type:         component.FlagString,
 			},
 		},
 		Subcommands: []*component.CommandInfo{
@@ -58,13 +57,13 @@ func (c *Command) CommandInfo() *component.CommandInfo {
 				Name:     "info",
 				Help:     "Shows info",
 				Synopsis: "IT. SHOWS. INFO.",
-				Flags:    []*option.Option{},
+				Flags:    []*component.CommandFlag{},
 				Subcommands: []*component.CommandInfo{
 					&component.CommandInfo{
 						Name:     "ofni",
 						Help:     "Shows ofni",
 						Synopsis: "BIZZARO info",
-						Flags:    []*option.Option{},
+						Flags:    []*component.CommandFlag{},
 					},
 				},
 			},
@@ -72,12 +71,12 @@ func (c *Command) CommandInfo() *component.CommandInfo {
 				Name:     "dothing",
 				Help:     "Does thing",
 				Synopsis: "Does this super great thing!",
-				Flags: []*option.Option{
-					&option.Option{
-						OptType:     option.StringType,
-						Name:        "stringflag",
-						Description: "a test flag",
-						DefaultStr:  "I'm a string!",
+				Flags: []*component.CommandFlag{
+					{
+						LongName:     "stringflag",
+						Description:  "a test flag",
+						DefaultValue: "I'm a string!",
+						Type:         component.FlagString,
 					},
 				},
 			},
@@ -85,7 +84,7 @@ func (c *Command) CommandInfo() *component.CommandInfo {
 				Name:     "use-host",
 				Help:     "Executes a host capability",
 				Synopsis: "Executes a host capability",
-				Flags:    []*option.Option{},
+				Flags:    []*component.CommandFlag{},
 			},
 		},
 	}

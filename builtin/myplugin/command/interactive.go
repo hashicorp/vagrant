@@ -1,7 +1,6 @@
 package command
 
 import (
-	"github.com/DavidGamba/go-getoptions/option"
 	"github.com/hashicorp/vagrant-plugin-sdk/component"
 	"github.com/hashicorp/vagrant-plugin-sdk/docs"
 	"github.com/hashicorp/vagrant-plugin-sdk/terminal"
@@ -60,8 +59,8 @@ func (c *Interactive) Help() string {
 	return "Test out interactive input!"
 }
 
-func (c *Interactive) Flags() []*option.Option {
-	return []*option.Option{}
+func (c *Interactive) Flags() component.CommandFlags {
+	return []*component.CommandFlag{}
 }
 
 func (c *Interactive) Execute(trm terminal.UI) int32 {

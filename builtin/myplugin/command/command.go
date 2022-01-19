@@ -1,7 +1,6 @@
 package command
 
 import (
-	"github.com/DavidGamba/go-getoptions/option"
 	"github.com/hashicorp/vagrant-plugin-sdk/component"
 	plugincore "github.com/hashicorp/vagrant-plugin-sdk/core"
 	"github.com/hashicorp/vagrant-plugin-sdk/docs"
@@ -99,13 +98,16 @@ func (c *Command) Help() string {
 	return "I'm here for testing, try running some subcommands"
 }
 
-func (c *Command) Flags() []*option.Option {
-	stringflag := option.New("hehe", option.StringType)
-	stringflag.Description = "a test flag for strings"
-	stringflag.DefaultStr = "message"
-	stringflag.Aliases = append(stringflag.Aliases, "hh")
-
-	return []*option.Option{stringflag}
+func (c *Command) Flags() component.CommandFlags {
+	return []*component.CommandFlag{
+		{
+			LongName:     "hehe",
+			ShortName:    "",
+			Description:  "a test flag for strings",
+			DefaultValue: "a default message",
+			Type:         component.FlagString,
+		},
+	}
 }
 
 func (c *Command) Execute(trm terminal.UI, flags map[string]interface{}) int32 {

@@ -3,7 +3,6 @@ package command
 import (
 	"strings"
 
-	"github.com/DavidGamba/go-getoptions/option"
 	"github.com/hashicorp/vagrant-plugin-sdk/component"
 	plugincore "github.com/hashicorp/vagrant-plugin-sdk/core"
 	"github.com/hashicorp/vagrant-plugin-sdk/docs"
@@ -63,8 +62,8 @@ func (c *Info) Help() string {
 	return "Output some project information!"
 }
 
-func (c *Info) Flags() []*option.Option {
-	return []*option.Option{}
+func (c *Info) Flags() component.CommandFlags {
+	return []*component.CommandFlag{}
 }
 
 func (c *Info) Execute(trm terminal.UI, p plugincore.Project) int32 {
