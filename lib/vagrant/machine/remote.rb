@@ -98,7 +98,16 @@ module Vagrant
       end
 
       def state
-        client.machine_state
+        # TODO: this should be using the vagrant go core (client.machine_state).
+        # Since there is currently no way to access providers in the go machine
+        # leave this here for now. Once the provider has been ported, this should
+        # be updated.
+        s = @provider.state
+        if s != @_cached_state
+          client.set_machine_state(s) unless s.nil?
+          @_cached_state = s
+        end
+        s
       end
 
       def provider
