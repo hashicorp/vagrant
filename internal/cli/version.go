@@ -1,8 +1,7 @@
 package cli
 
 import (
-	"github.com/DavidGamba/go-getoptions"
-
+	"github.com/hashicorp/vagrant-plugin-sdk/component"
 	"github.com/hashicorp/vagrant/internal/version"
 )
 
@@ -31,7 +30,7 @@ func (c *VersionCommand) Run(args []string) int {
 	return 0
 }
 
-func (c *VersionCommand) Flags() *getoptions.GetOpt {
+func (c *VersionCommand) Flags() component.CommandFlags {
 	return c.flagSet(0, nil)
 }
 

@@ -1,7 +1,7 @@
 package cli
 
 import (
-	"github.com/DavidGamba/go-getoptions"
+	"github.com/hashicorp/vagrant-plugin-sdk/component"
 	"github.com/hashicorp/vagrant-plugin-sdk/terminal"
 )
 
@@ -18,7 +18,7 @@ func WithArgs(args []string) Option {
 // WithFlags sets the flags that are supported by this command. This MUST
 // be set otherwise a panic will happen. This is usually set by just calling
 // the Flags function on your command implementation.
-func WithFlags(f *getoptions.GetOpt) Option {
+func WithFlags(f []*component.CommandFlag) Option {
 	return func(c *baseConfig) { c.Flags = f }
 }
 
@@ -68,7 +68,7 @@ func WithUI(ui terminal.UI) Option {
 
 type baseConfig struct {
 	Args           []string
-	Flags          *getoptions.GetOpt
+	Flags          component.CommandFlags
 	Config         bool
 	ConfigOptional bool
 	Client         bool

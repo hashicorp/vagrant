@@ -5,11 +5,12 @@ import (
 	"strings"
 	"time"
 
-	"github.com/DavidGamba/go-getoptions"
+	"github.com/skratchdot/open-golang/open"
+
+	"github.com/hashicorp/vagrant-plugin-sdk/component"
 	"github.com/hashicorp/vagrant-plugin-sdk/terminal"
 	"github.com/hashicorp/vagrant/internal/clierrors"
 	"github.com/hashicorp/vagrant/internal/server/proto/vagrant_server"
-	"github.com/skratchdot/open-golang/open"
 )
 
 type UICommand struct {
@@ -86,14 +87,14 @@ func (c *UICommand) Run(args []string) int {
 	return 0
 }
 
-func (c *UICommand) Flags() *getoptions.GetOpt {
-	return c.flagSet(0, func(set *getoptions.GetOpt) {
-
-		set.BoolVar(
-			&c.flagAuthenticate,
-			"authenticate",
-			false,
-			set.Description("Creates a new invite token and passes it to the UI for authorization"),
+func (c *UICommand) Flags() component.CommandFlags {
+	return c.flagSet(0, func(set []*component.CommandFlag) []*component.CommandFlag {
+		return append(set,
+			&component.CommandFlag{
+				LongName:     "authenticate",
+				Description:  "Creates a new invite token and passes it to the UI for authorization",
+				DefaultValue: "false",
+			},
 		)
 	})
 }
@@ -117,5 +118,5 @@ Usage: vagrant ui [options]
   Opens the new UI. When provided a flag, will automatically open the
   token invite page with an invite token for authentication.
 
-` + c.Flags().Help())
+` + c.Flags().Display())
 }
