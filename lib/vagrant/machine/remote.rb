@@ -64,14 +64,16 @@ module Vagrant
       end
 
       # @return [Box]
-      # def box
-      #   client.get_box
-      # end
+      def box
+        client.box
+      end
 
+      # TODO
       # def config
       #   raise NotImplementedError, "TODO"
       # end
 
+      # TODO
       # @return [Pathname]
       # def data_dir
       #   Pathname.new(client.get_data_dir)
@@ -86,6 +88,7 @@ module Vagrant
         client.name
       end
 
+      # TODO
       # def index_uuid
       #   client.get_uuid
       # end
@@ -95,12 +98,7 @@ module Vagrant
       end
 
       def state
-        s = @provider.state
-        if s != @_cached_state
-          client.set_machine_state(s) unless s.nil?
-          @_cached_state = s
-        end
-        s
+        client.machine_state
       end
 
       def provider

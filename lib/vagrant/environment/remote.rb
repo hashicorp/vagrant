@@ -20,12 +20,12 @@ module Vagrant
         @logger = Log4r::Logger.new("vagrant::environment")
 
         # Set the default ui class
-        opts[:ui_class] ||= UI::Silent
+        opts[:ui_class] ||= UI::Remote
 
         @cwd = Pathname.new(@client.cwd)
         @home_path = Pathname.new(@client.home)
         @vagrantfile_name = [@client.vagrantfile_name]
-        @ui = opts.fetch(:ui, opts[:ui_class].new)
+        @ui = opts.fetch(:ui, opts[:ui_class].new(@client.ui))
         @local_data_path = Pathname.new(@client.local_data)
         @boxes_path = @home_path.join("boxes")
         @data_dir = Pathname.new(@client.data_dir)

@@ -38,7 +38,7 @@ module Vagrant
             @updated_at       = raw["updated_at"]
             @extra_data       = raw["extra_data"] || {}
 
-            @machine_client = raw["machine_client"]
+            @machine_client = raw["machine"]
 
             # Be careful with the paths
             @local_data_path = nil  if @local_data_path == ""
