@@ -198,6 +198,20 @@ func (m *Machine) SetMachineState(state *core.MachineState) (err error) {
 	var st *vagrant_plugin_sdk.Args_Target_Machine_State
 	mapstructure.Decode(state, &st)
 	m.machine.State = st
+
+	switch st.Id {
+	case "not_created":
+		m.target.State = vagrant_server.Operation_UNKNOWN
+	case "running":
+		m.target.State = vagrant_server.Operation_CREATED
+	case "poweroff":
+		m.target.State = vagrant_server.Operation_DESTROYED
+	case "pending":
+		m.target.State = vagrant_server.Operation_PENDING
+	default:
+		m.target.State = vagrant_server.Operation_UNKNOWN
+	}
+
 	return m.SaveMachine()
 }
 
