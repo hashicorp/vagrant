@@ -20,6 +20,7 @@ import (
 	"github.com/hashicorp/vagrant-plugin-sdk/terminal"
 	"github.com/hashicorp/vagrant/internal/core"
 	"github.com/hashicorp/vagrant/internal/pkg/signalcontext"
+	"github.com/hashicorp/vagrant/internal/server/proto/vagrant_server"
 	"github.com/hashicorp/vagrant/internal/version"
 )
 
@@ -170,21 +171,7 @@ func Commands(
 	//             any builtin commands on top so the builtin
 	//             commands have proper precedence.
 	for i := 0; i < len(result.Commands); i++ {
-		n := result.Commands[i]
-
-		flgs, _ := core.FlagOption(n.Flags)
-		if _, ok := commands[n.Name]; !ok {
-			commands[n.Name] = func() (cli.Command, error) {
-				return &DynamicCommand{
-					baseCommand: baseCommand,
-					name:        n.Name,
-					synopsis:    n.Synopsis,
-					help:        n.Help,
-					flags:       flgs,
-					flagData:    make(map[string]interface{}),
-				}, nil
-			}
-		}
+		registerCommand(result.Commands[i], commands, baseCommand, nil)
 	}
 
 	// fetch all known plugin commands
@@ -206,6 +193,39 @@ func Commands(
 	}
 
 	return baseCommand, commands, nil
+}
+
+func registerCommand(
+	c *vagrant_server.Job_Command,
+	cmds map[string]cli.CommandFactory,
+	base *baseCommand,
+	parent *DynamicCommand,
+) {
+	flgs, err := core.FlagOption(c.Flags)
+	if err != nil {
+		panic(err)
+	}
+
+	d := &DynamicCommand{
+		baseCommand: base,
+		name:        c.Name,
+		synopsis:    c.Synopsis,
+		help:        c.Help,
+		flags:       flgs,
+	}
+	if parent != nil {
+		d.parent = parent
+	}
+
+	cmds[d.fullName()] = func() (cli.Command, error) {
+		return d, nil
+	}
+
+	if c.Subcommands != nil && len(c.Subcommands) > 0 {
+		for _, s := range c.Subcommands {
+			registerCommand(s, cmds, base, d)
+		}
+	}
 }
 
 // logger returns the logger to use for the CLI. Output, level, etc. are
