@@ -93,15 +93,15 @@ module VagrantPlugins
             hlp_msg = ""
             flags = []
           else
-            hlp_msg = options.help
+            hlp_msg = options.banner
             # Now we can build our list of flags
             flags = options.top.list.find_all { |o|
               o.is_a?(OptionParser::Switch)
             }.map { |o|
               SDK::Command::Flag.new(
                 description: o.desc.join(" "),
-                long_name: o.switch_name,
-                short_name: o.short.first,
+                long_name: o.switch_name.to_s.gsub(/^-/, ''),
+                short_name: o.short.first.to_s.gsub(/^-/, ''),
                 type: o.is_a?(OptionParser::Switch::NoArgument) ?
                   SDK::Command::Flag::Type::BOOL :
                   SDK::Command::Flag::Type::STRING
