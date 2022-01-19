@@ -28,7 +28,7 @@ module VagrantPlugins
                 id: ident
               )
             )
-            machine = Target.load(resp.target, broker: broker).to_machine
+            machine = Target.load(resp, broker: broker).to_machine
             Vagrant::MachineIndex::Entry.load(machine)
           rescue GRPC::NotFound
             nil
@@ -59,7 +59,7 @@ module VagrantPlugins
               id: ident
             )
           )
-          machine = Target.load(resp.target, broker: broker).to_machine
+          machine = Target.load(resp, broker: broker).to_machine
           machine.set_name(entry.name)
           machine.set_state(entry.full_state)
           Vagrant::MachineIndex::Entry.load(machine)

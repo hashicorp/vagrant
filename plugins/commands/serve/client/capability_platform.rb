@@ -32,20 +32,7 @@ module VagrantPlugins
         # @param [Symbol] cap_name Name of the capability
         def capability(cap_name, *args)
           logger.debug("executing capability #{cap_name}")
-          arg_protos = seeds.typed.map do |any|
-            SDK::FuncSpec::Value.new(
-              name: "",
-              type: any.type_name,
-              value: any,
-            )
-          end
-          arg_protos += seeds.named.map do |name, any|
-            SDK::FuncSpec::Value.new(
-              name: name,
-              type: any.type_name,
-              value: any,
-            )
-          end
+          arg_protos = seed_protos
           d = Type::Direct.new(arguments: args)
           da = mapper.map(d, to: Google::Protobuf::Any)
           arg_protos << SDK::FuncSpec::Value.new(
