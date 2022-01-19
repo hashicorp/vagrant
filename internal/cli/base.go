@@ -6,12 +6,14 @@ import (
 	"fmt"
 	"io"
 	"regexp"
+	"strconv"
 	"strings"
 
 	"github.com/DavidGamba/go-getoptions"
 	"github.com/hashicorp/go-hclog"
 	"github.com/hashicorp/go-multierror"
 
+	"github.com/hashicorp/vagrant-plugin-sdk/component"
 	"github.com/hashicorp/vagrant-plugin-sdk/helper/paths"
 	"github.com/hashicorp/vagrant-plugin-sdk/terminal"
 	"github.com/hashicorp/vagrant/internal/clicontext"
@@ -89,6 +91,9 @@ type baseCommand struct {
 	// flagConnection contains manual flag-based connection info.
 	flagConnection clicontext.Config
 
+	// flagData contains flag info for command
+	flagData map[*component.CommandFlag]interface{}
+
 	// args that were present after parsing flags
 	args []string
 
@@ -117,11 +122,12 @@ func (c *baseCommand) Close() (err error) {
 	return
 }
 
-func BaseCommand(ctx context.Context, log hclog.Logger, logOutput io.Writer, opts ...Option) (*baseCommand, error) {
-	bc := &baseCommand{
+func BaseCommand(ctx context.Context, log hclog.Logger, logOutput io.Writer, opts ...Option) (bc *baseCommand, err error) {
+	bc = &baseCommand{
 		Ctx:       ctx,
 		Log:       log,
 		LogOutput: logOutput,
+		flagData:  map[*component.CommandFlag]interface{}{},
 	}
 
 	// Get just enough base configuration to
@@ -142,9 +148,7 @@ func BaseCommand(ctx context.Context, log hclog.Logger, logOutput io.Writer, opt
 		c.UI = terminal.ConsoleUI(context.Background())
 	}
 
-	// Allow parser to not fail on unknown arguments
-	c.Flags.SetUnknownMode(getoptions.Pass)
-	if _, err := c.Flags.Parse(c.Args); err != nil {
+	if c.Args, err = bc.Parse(c.Flags, c.Args, true); err != nil {
 		c.UI.Output(clierrors.Humanize(err), terminal.WithErrorStyle())
 		return nil, err
 	}
@@ -261,7 +265,7 @@ func BaseCommand(ctx context.Context, log hclog.Logger, logOutput io.Writer, opt
 //
 // Init should be called FIRST within the Run function implementation. Many
 // options will affect behavior of other functions that can be called later.
-func (c *baseCommand) Init(opts ...Option) error {
+func (c *baseCommand) Init(opts ...Option) (err error) {
 	baseCfg := baseConfig{
 		Config: true,
 		Client: true,
@@ -284,12 +288,11 @@ func (c *baseCommand) Init(opts ...Option) error {
 	c.ui = ui
 
 	// Parse flags
-	remainingArgs, err := baseCfg.Flags.Parse(baseCfg.Args)
-	if err != nil {
+	c.Log.Warn("generating flags", "flags", baseCfg.Flags)
+	if c.args, err = c.Parse(baseCfg.Flags, baseCfg.Args, false); err != nil {
 		c.ui.Output(clierrors.Humanize(err), terminal.WithErrorStyle())
 		return err
 	}
-	c.args = remainingArgs
 
 	// Reset the UI to plain if that was set
 	if c.flagPlain {
@@ -372,80 +375,135 @@ func (c *baseCommand) logError(log hclog.Logger, prefix string, err error) {
 
 // flagSet creates the flags for this command. The callback should be used
 // to configure the set with your own custom options.
-func (c *baseCommand) flagSet(bit flagSetBit, f func(*getoptions.GetOpt)) *getoptions.GetOpt {
-	set := getoptions.New()
-	set.BoolVar(
-		&c.flagPlain,
-		"plain",
-		false,
-		set.Description("Plain output: no colors, no animation."),
-	)
-
-	set.StringVar(
-		&c.flagTarget,
-		"target",
-		"",
-		set.Description("Target to apply. Certain commands require a single target for "+
-			"Vagrant configurations with multiple apps. If you have a single target, "+
-			"then this can be ignored."),
-	)
-
-	set.StringVar(
-		&c.flagBasis,
-		"basis",
-		"default",
-		set.Description("Basis to operate within."),
-	)
+func (c *baseCommand) flagSet(bit flagSetBit, f func([]*component.CommandFlag) []*component.CommandFlag) component.CommandFlags {
+	set := []*component.CommandFlag{
+		{
+			LongName:     "plain",
+			Description:  "Plain output: no colors, no animation",
+			DefaultValue: "false",
+			Type:         component.FlagBool,
+		},
+		{
+			LongName:     "basis",
+			Description:  "Basis to operate within",
+			DefaultValue: "default",
+			Type:         component.FlagString,
+		},
+		{
+			LongName:    "target",
+			Description: "Target to apply command",
+			Type:        component.FlagString,
+		},
+	}
 
 	if bit&flagSetOperation != 0 {
-		set.BoolVar(
-			&c.flagRemote,
-			"remote",
-			false,
-			set.Description("True to use a remote runner to execute. This defaults to false \n"+
-				"unless 'runner.default' is set in your configuration."),
+		set = append(set,
+			&component.CommandFlag{
+				LongName:     "remote",
+				Description:  "Use remote runner to execute",
+				DefaultValue: "false",
+				Type:         component.FlagBool,
+			},
+			&component.CommandFlag{
+				LongName:    "remote-source",
+				Description: "Override how remote runners source data",
+				Type:        component.FlagString,
+			},
 		)
-
-		// set.StringMapVar(
-		// 	&c.flagRemoteSource,
-		// 	"remote-source",
-		// 	1,
-		// 	MaxStringMapArgs,
-		// 	set.Description("Override configurations for how remote runners source data. "+
-		// 		"This is specified to the data source type being used in your configuration. "+
-		// 		"This is used for example to set a specific Git ref to run against."),
-		// )
 	}
 
 	if bit&flagSetConnection != 0 {
-		set.StringVar(
-			&c.flagConnection.Server.Address,
-			"server-addr",
-			"",
-			set.Description("Address for the server."),
-		)
-
-		set.BoolVar(
-			&c.flagConnection.Server.Tls,
-			"server-tls",
-			true,
-			set.Description("True if the server should be connected to via TLS."),
-		)
-
-		set.BoolVar(
-			&c.flagConnection.Server.TlsSkipVerify,
-			"server-tls-skip-verify",
-			false,
-			set.Description("True to skip verification of the TLS certificate advertised by the server."),
+		set = append(set,
+			&component.CommandFlag{
+				LongName:    "server-addr",
+				Description: "Address for the server",
+				Type:        component.FlagString,
+			},
+			&component.CommandFlag{
+				LongName:     "server-tls",
+				Description:  "Connect to server via TLS",
+				DefaultValue: "true",
+				Type:         component.FlagBool,
+			},
+			&component.CommandFlag{
+				LongName:     "server-tls-skip-verify",
+				Description:  "Skip verification of the TLS certificate advertised by the server",
+				DefaultValue: "false",
+				Type:         component.FlagBool,
+			},
 		)
 	}
 
 	if f != nil {
 		// Configure our values
-		f(set)
+		set = f(set)
 	}
 
 	return set
+}
+
+func (c *baseCommand) Parse(
+	flags []*component.CommandFlag,
+	args []string,
+	passThrough bool,
+) ([]string, error) {
+	opt := c.generateCliFlags(flags)
+	if passThrough {
+		opt.SetUnknownMode(getoptions.Pass)
+	} else {
+		opt.SetUnknownMode(getoptions.Fail)
+	}
+
+	c.Log.Warn("parsing arguments with flags", "args", args, "flags", flags)
+	remainArgs, err := opt.Parse(args)
+	if err != nil {
+		return nil, err
+	}
+
+	for _, f := range flags {
+		if called := opt.Called(f.LongName); !called {
+			c.Log.Error("flag was not called", "name", f.LongName)
+			continue
+		}
+		c.Log.Warn("flag was called", "name", f.LongName)
+		if f.Type == component.FlagString {
+			c.flagData[f] = opt.Value(f.LongName)
+			continue
+		}
+		val := true
+		if strings.HasPrefix(opt.CalledAs(f.LongName), "no-") {
+			val = false
+		}
+		c.flagData[f] = val
+	}
+
+	return remainArgs, nil
+}
+
+func (c *baseCommand) generateCliFlags(set []*component.CommandFlag) *getoptions.GetOpt {
+	opt := getoptions.New()
+	opt.SetUnknownMode(getoptions.Pass) // TODO: make this configurable
+
+	for _, f := range set {
+		opts := []getoptions.ModifyFn{}
+		if f.Description != "" {
+			opts = append(opts, opt.Description(f.Description))
+		}
+		if f.ShortName != "" {
+			opts = append(opts, opt.Alias(f.ShortName))
+		}
+
+		switch f.Type {
+		case component.FlagBool:
+			opts = append(opts, opt.Alias("no-"+f.LongName))
+			b, _ := strconv.ParseBool(f.DefaultValue)
+			opt.Bool(f.LongName, b, opts...)
+		case component.FlagString:
+			opt.String(f.LongName, f.DefaultValue, opts...)
+		}
+
+	}
+	return opt
 }
 
 // flagSetBit is used with baseCommand.flagSet
