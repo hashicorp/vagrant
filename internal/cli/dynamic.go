@@ -3,14 +3,11 @@ package cli
 import (
 	"context"
 	"fmt"
-	"reflect"
-	"strconv"
 
-	"github.com/DavidGamba/go-getoptions"
-	"github.com/DavidGamba/go-getoptions/option"
 	"google.golang.org/genproto/googleapis/rpc/errdetails"
 	"google.golang.org/grpc/status"
 
+	"github.com/hashicorp/vagrant-plugin-sdk/component"
 	"github.com/hashicorp/vagrant-plugin-sdk/proto/vagrant_plugin_sdk"
 	"github.com/hashicorp/vagrant-plugin-sdk/terminal"
 	"github.com/hashicorp/vagrant/internal/client"
@@ -23,8 +20,8 @@ type DynamicCommand struct {
 	name     string
 	synopsis string
 	help     string
-	flags    []*option.Option
-	flagData map[string]interface{}
+	parent   *DynamicCommand
+	flags    []*component.CommandFlag
 }
 
 func (c *DynamicCommand) Run(args []string) int {
@@ -42,22 +39,24 @@ func (c *DynamicCommand) Run(args []string) int {
 			Args:  args,
 			Flags: []*vagrant_plugin_sdk.Command_Arguments_Flag{},
 		}
-		for k, v := range c.flagData {
-			f := &vagrant_plugin_sdk.Command_Arguments_Flag{Name: k}
-			switch reflect.Indirect(reflect.ValueOf(v)).Kind() {
-			case reflect.String:
-				f.Value = &vagrant_plugin_sdk.Command_Arguments_Flag_String_{
-					String_: *v.(*string),
+		for f, v := range c.flagData {
+			cmdFlag := &vagrant_plugin_sdk.Command_Arguments_Flag{Name: f.LongName}
+			switch f.Type {
+			case component.FlagBool:
+				cmdFlag.Type = vagrant_plugin_sdk.Command_Arguments_Flag_BOOL
+				cmdFlag.Value = &vagrant_plugin_sdk.Command_Arguments_Flag_Bool{
+					Bool: v.(bool),
 				}
-				f.Type = vagrant_plugin_sdk.Command_Arguments_Flag_STRING
-			case reflect.Bool:
-				f.Value = &vagrant_plugin_sdk.Command_Arguments_Flag_Bool{
-					Bool: *v.(*bool),
+			case component.FlagString:
+				cmdFlag.Type = vagrant_plugin_sdk.Command_Arguments_Flag_STRING
+				cmdFlag.Value = &vagrant_plugin_sdk.Command_Arguments_Flag_String_{
+					String_: v.(string),
 				}
-				f.Type = vagrant_plugin_sdk.Command_Arguments_Flag_BOOL
 			}
-			taskArgs.Flags = append(taskArgs.Flags, f)
+			taskArgs.Flags = append(taskArgs.Flags, cmdFlag)
 		}
+
+		c.Log.Info("collected argument flags", "flags", taskArgs.Flags, "args", args)
 
 		t := &vagrant_server.Task{
 			Task: c.name,
@@ -125,27 +124,19 @@ func (c *DynamicCommand) Synopsis() string {
 }
 
 func (c *DynamicCommand) Help() string {
-	return c.help
+	return formatHelp(fmt.Sprintf("%s\n%s\n", c.help, c.Flags().Display()))
 }
 
-func (c *DynamicCommand) Flags() *getoptions.GetOpt {
-	return c.flagSet(flagSetOperation, func(opts *getoptions.GetOpt) {
-		for _, f := range c.flags {
-			switch f.OptType {
-			case option.BoolType:
-				b, _ := strconv.ParseBool(f.DefaultStr)
-				c.flagData[f.Name] = opts.Bool(
-					f.Name,
-					b,
-					opts.Description(f.Description),
-				)
-			case option.StringType:
-				c.flagData[f.Name] = opts.String(
-					f.Name,
-					f.DefaultStr,
-					opts.Description(f.Description),
-				)
-			}
-		}
+func (c *DynamicCommand) Flags() component.CommandFlags {
+	return c.flagSet(flagSetOperation, func(opts []*component.CommandFlag) []*component.CommandFlag {
+		return append(c.flags, opts...)
 	})
+}
+
+func (c *DynamicCommand) fullName() string {
+	var v string
+	if c.parent != nil {
+		v = c.parent.fullName() + " "
+	}
+	return v + c.name
 }
