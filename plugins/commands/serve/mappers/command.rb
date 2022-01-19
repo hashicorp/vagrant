@@ -18,6 +18,30 @@ module VagrantPlugins
         end
       end
 
+      class CommandArgumentsFromProto < Mapper
+        def initialize
+          super(
+            inputs: [Input.new(type: SDK::Command::Arguments)],
+            output: Type::CommandArguments,
+            func: method(:converter)
+          )
+        end
+
+        def converter(proto)
+          args = proto.args.to_a
+          flags = Hash.new.tap do |flgs|
+            proto.flags.each do |f|
+              if f.type == :BOOL
+                flgs[f.name] = f.bool
+              else
+                flgs[f.name] = f.string
+              end
+            end
+          end
+          Type::CommandArguments.new(args: args, flags: flags)
+        end
+      end
+
       class CommandProtoFromSpec < Mapper
         def initialize
           super(
