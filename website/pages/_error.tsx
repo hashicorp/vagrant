@@ -1,4 +1,4 @@
-import ErrorView from 'components/error-view'
+import ErrorView from '@hashicorp/react-error-view'
 import Bugsnag from '@hashicorp/platform-runtime-error-monitoring'
 
 function Error({ statusCode }) {
