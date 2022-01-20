@@ -29,6 +29,15 @@ func (m *Machine) Close() (err error) {
 
 // ID implements core.Machine
 func (m *Machine) ID() (id string, err error) {
+	// Sometimes the machine id does not get set, so set it here.
+	// TODO: This is maybe a symptom of a different problem
+	if m.target.Uuid != m.machine.Id {
+		m.machine.Id = m.target.Uuid
+		err = m.SaveMachine()
+		if err != nil {
+			return "", err
+		}
+	}
 	return m.machine.Id, nil
 }
 
@@ -39,12 +48,9 @@ func (m *Machine) SetID(value string) (err error) {
 		if err != nil {
 			return err
 		}
-		m.machine.Id = value
-	} else {
-		m.machine.Id = value
-		return m.SaveMachine()
 	}
-	return
+	m.machine.Id = value
+	return m.SaveMachine()
 }
 
 func (m *Machine) Box() (b core.Box, err error) {

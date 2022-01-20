@@ -103,11 +103,9 @@ module Vagrant
         # leave this here for now. Once the provider has been ported, this should
         # be updated.
         s = @provider.state
-        if s != @_cached_state
-          client.set_machine_state(s) unless s.nil?
-          @_cached_state = s
-        end
-        s
+        raise Errors::MachineStateInvalid if !s.is_a?(MachineState)
+        client.set_machine_state(s) unless s.nil?
+        return s
       end
 
       def provider
