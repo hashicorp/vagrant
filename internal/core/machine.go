@@ -29,15 +29,6 @@ func (m *Machine) Close() (err error) {
 
 // ID implements core.Machine
 func (m *Machine) ID() (id string, err error) {
-	// Sometimes the machine id does not get set, so set it here.
-	// TODO: This is maybe a symptom of a different problem
-	if m.target.Uuid != m.machine.Id {
-		m.machine.Id = m.target.Uuid
-		err = m.SaveMachine()
-		if err != nil {
-			return "", err
-		}
-	}
 	return m.machine.Id, nil
 }
 

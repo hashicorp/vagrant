@@ -194,6 +194,8 @@ func (s *State) targetPut(
 			return erro
 		}
 		if foundTarget != nil {
+			// Merge found target with provided target
+			proto.Merge(value, foundTarget)
 			value.ResourceId = foundTarget.ResourceId
 			value.Uuid = foundTarget.Uuid
 		} else {
