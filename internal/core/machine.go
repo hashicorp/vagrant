@@ -35,13 +35,11 @@ func (m *Machine) ID() (id string, err error) {
 // SetID implements core.Machine
 func (m *Machine) SetID(value string) (err error) {
 	if value == "" {
-		err = m.Destroy()
-		if err != nil {
-			return err
-		}
+		return m.Destroy()
+	} else {
+		m.machine.Id = value
+		return m.SaveMachine()
 	}
-	m.machine.Id = value
-	return m.SaveMachine()
 }
 
 func (m *Machine) Box() (b core.Box, err error) {
