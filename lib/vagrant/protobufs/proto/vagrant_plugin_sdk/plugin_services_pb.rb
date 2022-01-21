@@ -116,48 +116,33 @@ module Hashicorp
           self.unmarshal_class_method = :decode
           self.service_name = 'hashicorp.vagrant.sdk.ProviderService'
 
-          # rpc Usable(google.protobuf.Empty) returns (Provider.UsableResp);
-          # rpc Installed(google.protobuf.Empty) returns (Provider.InstalledResp);
           rpc :Usable, ::Hashicorp::Vagrant::Sdk::FuncSpec::Args, ::Hashicorp::Vagrant::Sdk::Provider::UsableResp
           rpc :UsableSpec, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::FuncSpec
           rpc :Installed, ::Hashicorp::Vagrant::Sdk::FuncSpec::Args, ::Hashicorp::Vagrant::Sdk::Provider::InstalledResp
           rpc :InstalledSpec, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::FuncSpec
           rpc :Init, ::Hashicorp::Vagrant::Sdk::FuncSpec::Args, ::Google::Protobuf::Empty
           rpc :InitSpec, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::FuncSpec
-          rpc :ActionUp, ::Hashicorp::Vagrant::Sdk::FuncSpec::Args, ::Hashicorp::Vagrant::Sdk::Provider::ActionResp
-          rpc :ActionUpSpec, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::FuncSpec
-          # rpc ActionHalt(FuncSpec.Args) returns (Provider.Action.Resp);
-          # rpc ActionHaltSpec(google.protobuf.Empty) returns (FuncSpec);
-          # rpc ActionSuspend(FuncSpec.Args) returns (Provider.Action.Resp);
-          # rpc ActionSuspendSpec(google.protobuf.Empty) returns (FuncSpec);
-          # rpc ActionReload(FuncSpec.Args) returns (Provider.Action.Resp);
-          # rpc ActionReloadSpec(google.protobuf.Empty) returns (FuncSpec);
-          # rpc ActionResume(FuncSpec.Args) returns (Provider.Action.Resp);
-          # rpc ActionResumeSpec(google.protobuf.Empty) returns (FuncSpec);
-          # rpc ActionProvision(FuncSpec.Args) returns (Provider.Action.Resp);
-          # rpc ActionProvisionSpec(google.protobuf.Empty) returns (FuncSpec);
-          # rpc ActionSnapshotSave(FuncSpec.Args) returns (Provider.Action.Resp);
-          # rpc ActionSnapshotSaveSpec(google.protobuf.Empty) returns (FuncSpec);
-          # rpc ActionSnapshotRestore(FuncSpec.Args) returns (Provider.Action.Resp);
-          # rpc ActionSnapshotRestoreSpec(google.protobuf.Empty) returns (FuncSpec);
-          # rpc ActionSnapshotDelete(FuncSpec.Args) returns (Provider.Action.Resp);
-          # rpc ActionSnapshotDeleteSpec(google.protobuf.Empty) returns (FuncSpec);
-          # rpc ActionDestroy(FuncSpec.Args) returns (Provider.Action.Resp);
-          # rpc ActionDestroySpec(google.protobuf.Empty) returns (FuncSpec);
+          rpc :Action, ::Hashicorp::Vagrant::Sdk::Provider::ActionRequest, ::Google::Protobuf::Empty
+          rpc :ActionSpec, ::Hashicorp::Vagrant::Sdk::Provider::ActionRequest, ::Hashicorp::Vagrant::Sdk::FuncSpec
+          rpc :MachineIdChanged, ::Hashicorp::Vagrant::Sdk::FuncSpec::Args, ::Google::Protobuf::Empty
+          rpc :MachineIdChangedSpec, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::FuncSpec
+          rpc :SshInfo, ::Hashicorp::Vagrant::Sdk::FuncSpec::Args, ::Hashicorp::Vagrant::Sdk::SSHInfo
+          rpc :SshInfoSpec, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::FuncSpec
+          rpc :State, ::Hashicorp::Vagrant::Sdk::FuncSpec::Args, ::Hashicorp::Vagrant::Sdk::Args::Target::Machine::State
+          rpc :StateSpec, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::FuncSpec
           rpc :ConfigStruct, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::Config::StructResp
           rpc :Configure, ::Hashicorp::Vagrant::Sdk::Config::ConfigureRequest, ::Google::Protobuf::Empty
           rpc :Documentation, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::Config::Documentation
+          rpc :Capability, ::Hashicorp::Vagrant::Sdk::Platform::Capability::NamedRequest, ::Hashicorp::Vagrant::Sdk::Platform::Capability::Resp
+          rpc :CapabilitySpec, ::Hashicorp::Vagrant::Sdk::Platform::Capability::NamedRequest, ::Hashicorp::Vagrant::Sdk::FuncSpec
+          rpc :HasCapability, ::Hashicorp::Vagrant::Sdk::FuncSpec::Args, ::Hashicorp::Vagrant::Sdk::Platform::Capability::CheckResp
+          rpc :HasCapabilitySpec, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::FuncSpec
           rpc :Seed, ::Hashicorp::Vagrant::Sdk::Args::Seeds, ::Google::Protobuf::Empty
           rpc :Seeds, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::Args::Seeds
         end
 
         Stub = Service.rpc_stub_class
       end
-      # rpc IsAuthenticator(google.protobuf.Empty) returns (ImplementsResp);
-      # rpc Auth(FuncSpec.Args) returns (Auth.AuthResponse);
-      # rpc AuthSpec(google.protobuf.Empty) returns (FuncSpec);
-      # rpc ValidateAuth(FuncSpec.Args) returns (google.protobuf.Empty);
-      # rpc ValidateAuthSpec(google.protobuf.Empty) returns (FuncSpec);
       module ProvisionerService
         # *******************************************************************
         # Provisioner Plugin Service
