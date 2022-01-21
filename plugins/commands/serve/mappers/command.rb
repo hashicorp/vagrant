@@ -42,6 +42,70 @@ module VagrantPlugins
         end
       end
 
+      class CommandInfoFromProto < Mapper
+        def initialize
+          super(
+            inputs: [Input.new(type: SDK::Command::CommandInfo)],
+            output: Type::CommandInfo,
+            func: method(:converter),
+          )
+        end
+
+        def converter(proto)
+          Type::CommandInfo.new(
+            name: proto.name,
+            help: proto.help,
+            synopsis: proto.synopsis,
+          ).tap do |c|
+            proto.flags.each do |f|
+              c.add_flag(
+                long_name: f.long_name,
+                short_name: f.short_name,
+                description: f.description,
+                default_value: f.default_value,
+                type: f.type,
+              )
+            end
+            proto.subcommands.each do |s_proto|
+              c.add_subcommand(converter(s_proto))
+            end
+          end
+        end
+      end
+
+      class CommandInfoToProto < Mapper
+        def initialize
+          super(
+            inputs: [Input.new(type: Type::CommandInfo)],
+            output: SDK::Command::CommandInfo,
+            func: method(:converter),
+          )
+        end
+
+        def converter(info)
+          flags = info.flags.map do |f|
+            SDK::Command::Flag.new(
+              long_name: f.long_name,
+              short_name: f.short_name,
+              description: f.description,
+              default_value: f.default_value,
+              type: f.type == :BOOL ? SDK::Command::Flag::Type::BOOL :
+                SDK::Command::Flag::Type::STRING
+            )
+          end
+          subcommands = info.subcommands.map do |s_info|
+            converter(s_info)
+          end
+          SDK::Command::CommandInfo.new(
+            name: info.name,
+            help: info.help,
+            synopsis: info.synopsis,
+            flags: flags,
+            subcommands: subcommands,
+          )
+        end
+      end
+
       class CommandProtoFromSpec < Mapper
         def initialize
           super(
