@@ -8,6 +8,7 @@ module VagrantPlugins
             autoload :Final, Vagrant.source_root.join("plugins/commands/serve/mappers/internal/graph/vertex/final").to_s
             autoload :Input, Vagrant.source_root.join("plugins/commands/serve/mappers/internal/graph/vertex/input").to_s
             autoload :Method, Vagrant.source_root.join("plugins/commands/serve/mappers/internal/graph/vertex/method").to_s
+            autoload :NamedValue, Vagrant.source_root.join("plugins/commands/serve/mappers/internal/graph/vertex/named_value").to_s
             autoload :Output, Vagrant.source_root.join("plugins/commands/serve/mappers/internal/graph/vertex/output").to_s
             autoload :Value, Vagrant.source_root.join("plugins/commands/serve/mappers/internal/graph/vertex/value").to_s
             # @return [Object] value of vertex
