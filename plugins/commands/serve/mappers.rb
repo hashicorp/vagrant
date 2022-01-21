@@ -76,21 +76,30 @@ module VagrantPlugins
       # @param any [Google::Protobuf::Any]
       # @return [Google::Protobuf::MessageExts]
       def unany(any)
-        type = any.type_name.split('/').last.to_s.split('.').inject(Object) { |memo, name|
-          c = memo.constants.detect { |mc| mc.to_s.downcase == name.to_s.downcase }
+        type = find_type(any.type_name.split("/").last.to_s)
+        any.unpack(type)
+      end
+
+      # Get const from name
+      #
+      # @param name [String]
+      # @return [Class]
+      def find_type(name)
+        name.to_s.split(".").inject(Object) { |memo, n|
+          c = memo.constants.detect { |mc| cm.to_s.downcase == name.to_s.downcase }
           raise NameError,
-            "Failed to find constant for `#{any.type_name}'" if c.nil?
+            "Failed to find constant for `#{name}'" if c.nil?
           memo.const_get(c)
         }
-        any.unpack(type)
       end
 
       # Map a given value
       #
       # @param value [Object] Value to map
+      # @param named [String] Named argument to prefer
       # @param to [Class] Resultant type (optional)
       # @return [Object]
-      def map(value, *extra_args, to: nil)
+      def map(value, *extra_args, named: nil, to: nil)
         # If we don't have a destination type provided, attempt
         # to set it using our default maps
         to = DEFAULT_MAPS[value.class] if to.nil?
