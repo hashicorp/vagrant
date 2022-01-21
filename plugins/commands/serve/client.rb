@@ -1,6 +1,6 @@
 module VagrantPlugins
   module CommandServe
-    module Client
+    class Client
       autoload :Basis, Vagrant.source_root.join("plugins/commands/serve/client/basis").to_s
       autoload :Box, Vagrant.source_root.join("plugins/commands/serve/client/box").to_s
       autoload :BoxCollection, Vagrant.source_root.join("plugins/commands/serve/client/box_collection").to_s
@@ -18,6 +18,12 @@ module VagrantPlugins
       autoload :Terminal, Vagrant.source_root.join("plugins/commands/serve/client/terminal").to_s
       autoload :StateBag, Vagrant.source_root.join("plugins/commands/serve/client/state_bag").to_s
       autoload :SyncedFolder, Vagrant.source_root.join("plugins/commands/serve/client/synced_folder").to_s
+
+      prepend Util::ClientSetup
+      include Util::HasLogger
+      include Util::HasSeeds::Client
+      include Util::HasMapper
+      include Util::FuncSpec
     end
   end
 end
