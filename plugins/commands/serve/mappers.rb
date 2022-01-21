@@ -201,6 +201,7 @@ module VagrantPlugins
               m_graph = Internal::Graph::Mappers.new(
                 output_type: out,
                 mappers: map_mapper,
+                named: named,
                 input_values: args,
               )
               result = m_graph.execute
@@ -217,6 +218,7 @@ module VagrantPlugins
           m_graph = Internal::Graph::Mappers.new(
             output_type: to,
             mappers: map_mapper,
+            named: named,
             input_values: args,
           )
           result = m_graph.execute
