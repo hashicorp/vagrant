@@ -13,6 +13,8 @@ module VagrantPlugins
             FINAL_WEIGHT = 0
             # Weight given to first input value vertex
             BASE_WEIGHT = 0
+            # Weight given to named input value vertices
+            NAMED_VALUE_WEIGHT = 5
             # Weight given to input value vertices
             VALUE_WEIGHT = 10
             # Weight given to input vertices
@@ -24,6 +26,8 @@ module VagrantPlugins
             attr_reader :graph
             # @return [Array<Object>] input values
             attr_reader :inputs
+            # @return [String] named input to prefer
+            attr_reader :named
             # @return [Mappers] mappers instance executing against
             attr_reader :mappers
             # @return [Class] expected return type
@@ -35,7 +39,8 @@ module VagrantPlugins
             # @param output_type [Class] Expected return type
             # @param input_values [Array<Object>] Values provided for execution
             # @param mappers [Mappers] Mappers instance to use
-            def initialize(output_type:, input_values:, mappers:)
+            # @param named [String] Named input to prefer
+            def initialize(output_type:, input_values:, mappers:, named: nil)
               if !output_type.nil? && !output_type.is_a?(Class) && !output_type.is_a?(Module)
                 raise TypeError,
                   "Expected output type to be `Class', got `#{output_type.class}' (#{output_type})"
@@ -47,6 +52,7 @@ module VagrantPlugins
                   "Expected mapper to be `Mappers', got `#{mappers.class}'"
               end
               @mappers = mappers
+              @named = named
 
               setup!
 
@@ -111,8 +117,18 @@ module VagrantPlugins
               # Add the provided input values
               i = 0
               input_vertices = inputs.map do |input_value|
-                iv = graph.add_vertex(Graph::Vertex::Value.new(value: input_value))
-                iv.weight = i == 0 ? BASE_WEIGHT : VALUE_WEIGHT
+                if input_value.is_a?(Type::NamedArgument)
+                  iv = graph.add_vertex(
+                    Graph::Vertex::NamedValue.new(
+                      name: input_value.name,
+                      value: input_value.value
+                    )
+                  )
+                  iv.weight = input_value.name == named ? NAMED_VALUE_WEIGHT : VALUE_WEIGHT
+                else
+                  iv = graph.add_vertex(Graph::Vertex::Value.new(value: input_value))
+                  iv.weight = i == 0 ? BASE_WEIGHT : VALUE_WEIGHT
+                end
                 i += 1
                 graph.add_edge(@root, iv)
                 iv
