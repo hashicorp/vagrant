@@ -13,7 +13,7 @@ import (
 // Options are the SDK options to use for instantiation.
 var CommandOptions = []sdk.Option{
 	sdk.WithComponents(
-		&Provider{},
+		// &Provider{},
 		&command.Command{},
 		&host.AlwaysTrueHost{},
 		&communincator.DummyCommunicator{},
