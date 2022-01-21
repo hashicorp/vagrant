@@ -6,6 +6,10 @@ module VagrantPlugins
     # with protobuf and clients
     class Mappers
       DEFAULT_MAPS = {
+        Client::Project => Vagrant::Environment,
+        Client::Target => Vagrant::Machine,
+        Client::Terminal => Vagrant::UI::Remote,
+        Client::SyncedFolder => Vagrant::Plugin::V2::SyncedFolder,
         SDK::Args::Array => Array,
         SDK::Args::Direct => Type::Direct,
         SDK::Args::Guest => Client::Guest,
@@ -16,15 +20,15 @@ module VagrantPlugins
         SDK::Args::Project => Vagrant::Environment,
         SDK::Args::Provider => Client::Provider,
         SDK::Args::StateBag => Client::StateBag,
+        SDK::Args::SyncedFolder => Vagrant::Plugin::V2::SyncedFolder,
         SDK::Args::Target => Vagrant::Machine,
         SDK::Args::TargetIndex => Client::TargetIndex,
         SDK::Args::Target::Machine => Vagrant::Machine,
+        SDK::Args::TimeDuration => Type::Duration,
         SDK::Args::TerminalUI => Vagrant::UI::Remote,
-        SDK::Args::SyncedFolder => Vagrant::Plugin::V2::SyncedFolder,
-        Client::Project => Vagrant::Environment,
-        Client::Target => Vagrant::Machine,
-        Client::Terminal => Vagrant::UI::Remote,
-        Client::SyncedFolder => Vagrant::Plugin::V2::SyncedFolder,
+        SDK::Command::Arguments => Type::CommandArguments,
+        SDK::Command::CommandInfo => Type::CommandInfo,
+        SDK::Communicator::Command => Type::CommunicatorCommandArguments,
       }
 
       include Util::HasLogger
