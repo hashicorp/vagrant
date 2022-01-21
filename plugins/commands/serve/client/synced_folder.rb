@@ -1,113 +1,81 @@
-require "google/protobuf/well_known_types"
-
 module VagrantPlugins
   module CommandServe
-    module Client
-      class SyncedFolder
-        prepend Util::ClientSetup
-        prepend Util::HasLogger
-
+    class Client
+      class SyncedFolder < Client
         include CapabilityPlatform
-        include Util::HasSeeds::Client
+        # Generate callback and spec for required arguments
+        #
+        # @return [SDK::FuncSpec, Proc]
+        def usable_func
+          spec = client.usable_spec
+          cb = proc do |args|
+            client.usable(args).usable
+          end
+          [spec, cb]
+        end
 
-        # @param [Sdk::Args::Machine]
+        # Check if synced folders are usable for guest
+        #
+        # @param machine [Vagrant::Machine] Guest machine
         # @return [Boolean]
         def usable(machine)
-          req = SDK::FuncSpec::Args.new(
-            args: [
-              SDK::FuncSpec::Value.new(
-                type: "hashicorp.vagrant.sdk.Args.Target.Machine",
-                value: Google::Protobuf::Any.pack(machine),
-              )
-            ]
-          )
-          res = client.usable(req)
-          res.usable
+          run_func(machine)
         end
 
-        # @param [Sdk::Args::Machine]
-        def enable(machine, folders, opts)
-          folder_proto = folder_proto(folders)
-          direct_any = direct_opts_proto(opts)
-
-          req = SDK::FuncSpec::Args.new(
-            args: [
-              SDK::FuncSpec::Value.new(
-                type: "hashicorp.vagrant.sdk.Args.Target.Machine",
-                value: Google::Protobuf::Any.pack(machine),
-              ),
-              SDK::FuncSpec::Value.new(
-                type: "hashicorp.vagrant.sdk.Args.Folder",
-                value: Google::Protobuf::Any.pack(folder_proto),
-              ),
-              SDK::FuncSpec::Value.new(
-                name: "",
-                type: "hashicorp.vagrant.sdk.Args.Direct",
-                value: Google::Protobuf::Any.pack(direct_any),
-              )
-            ]
-          )
-          client.enable(req)
-        end
-
-        # @param [Sdk::Args::Machine]
-        def disable(machine, folders, opts)
-          folders_proto = folder_proto(folders)
-          direct_any = direct_opts_proto(opts)
-
-          req = SDK::FuncSpec::Args.new(
-            args: [
-              SDK::FuncSpec::Value.new(
-                type: "hashicorp.vagrant.sdk.Args.Target.Machine",
-                value: Google::Protobuf::Any.pack(machine),
-              ),
-              SDK::FuncSpec::Value.new(
-                type: "hashicorp.vagrant.sdk.Args.Folder",
-                value: Google::Protobuf::Any.pack(folders_proto),
-              ),
-              SDK::FuncSpec::Value.new(
-                name: "",
-                type: "hashicorp.vagrant.sdk.Args.Direct",
-                value: Google::Protobuf::Any.pack(direct_any),
-              )
-            ]
-          )
-          client.disable(req)
-        end
-
-        # @param [Sdk::Args::Machine]
-        def cleanup(machine, opts)
-          direct_any = direct_opts_proto(opts)
-
-          req = SDK::FuncSpec::Args.new(
-            args: [
-              SDK::FuncSpec::Value.new(
-                type: "hashicorp.vagrant.sdk.Args.Target.Machine",
-                value: Google::Protobuf::Any.pack(machine),
-              ),
-              SDK::FuncSpec::Value.new(
-                name: "",
-                type: "hashicorp.vagrant.sdk.Args.Direct",
-                value: Google::Protobuf::Any.pack(direct_any),
-              )
-            ]
-          )
-          client.cleanup(req)
-        end
-
-        private
-
-        def folder_proto(folders)
-          folders_proto = {}
-          folders.each do |k, v|
-            folder_proto[k] =  mapper.map(v, to: Google::Protobuf::Any)
+        # Generate callback and spec for required arguments
+        #
+        # @return [SDK::FuncSpec, Proc]
+        def enable_func
+          spec = client.enable_spec
+          cb = proc do |args|
+            client.enable(args)
           end
-          folders_proto
+          [spec, cb]
         end
 
-        def direct_opts_proto(opts)
-          direct_proto = Type::Direct.new(arguments: opts)
-          mapper.map(direct_proto, to: Google::Protobuf::Any)
+        # Enable synced folders on guest
+        #
+        # @param machine [Vagrant::Machine] Guest machine
+        # @param folders [Array] Synced folders
+        # @param opts [Hash] Options for folders
+        def enable(machine, folders, opts)
+          run_func(machine, folders, opts)
+        end
+
+        def disable_func
+          spec = client.disable_spec
+          cb = proc do |args|
+            client.disable(args)
+          end
+          [spec, cb]
+        end
+
+        # Disable synced folders on guest
+        #
+        # @param machine [Vagrant::Machine] Guest machine
+        # @param folders [Array] Synced folders
+        # @param opts [Hash] Options for folders
+        def disable(machine, folders, opts)
+          run_func(machine, folders, opts)
+        end
+
+        # Generate callback and spec for required arguments
+        #
+        # @return [SDK::FuncSpec, Proc]
+        def cleanup_func
+          spec = client.cleanup_spec
+          cb = proc do |args|
+            client.cleanup(args)
+          end
+          [spec, cb]
+        end
+
+        # Cleanup synced folders on guest
+        #
+        # @param machine [Vagrant::Machine] Guest machine
+        # @param opts [Hash] Options for folders
+        def cleanup(machine, opts)
+          run_func(machine, opts)
         end
       end
     end

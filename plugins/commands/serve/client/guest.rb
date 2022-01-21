@@ -2,21 +2,23 @@ require "google/protobuf/well_known_types"
 
 module VagrantPlugins
   module CommandServe
-    module Client
-      class Guest
-        prepend Util::ClientSetup
-        prepend Util::HasLogger
-
+    class Client
+      class Guest < Client
         include CapabilityPlatform
-        include Util::HasSeeds::Client
+        # Generate callback and spec for required arguments
+        #
+        # @return [SDK::FuncSpec, Proc]
+        def parent_func
+          spec = client.parent_spec(Empty.new)
+          cb = proc do |args|
+            client.parent(args).parent
+          end
+          [spec, cb]
+        end
 
-        # @return [<String>] parents
+        # @return [Array<String>] parents
         def parent
-          req = SDK::FuncSpec::Args.new(
-            args: []
-          )
-          res = client.parent(req)
-          res.parent
+          run_func
         end
       end
     end

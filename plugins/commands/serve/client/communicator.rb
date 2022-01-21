@@ -1,69 +1,52 @@
 
 module VagrantPlugins
   module CommandServe
-    module Client
-      class Communicator
-
-        prepend Util::HasMapper
-        extend Util::Connector
-        include Util::HasSeeds::Client
-
-        attr_reader :broker
-        attr_reader :client
-        attr_reader :proto
-
-        def initialize(conn, proto, broker=nil)
-          @logger = Log4r::Logger.new("vagrant::command::serve::client::communicator")
-          @logger.debug("connecting to communicator service on #{conn}")
-          @client = SDK::CommunicatorService::Stub.new(conn, :this_channel_is_insecure)
-          @broker = broker
-          @proto = proto
-        end
-
-        def self.load(raw_communicator, broker:)
-          c = raw_communicator.is_a?(String) ? SDK::Args::Communicator.decode(raw_communicator) : raw_communicator
-          self.new(connect(proto: c, broker: broker), c, broker)
+    class Client
+      class Communicator < Client
+        # Generate callback and spec for required arguments
+        #
+        # @return [SDK::FuncSpec, Proc]
+        def ready_func
+          spec = client.ready_spec(Empty.new)
+          cb = proc do |args|
+            client.ready(args).ready
+          end
+          [spec, cb]
         end
 
         # @param [Vagrant::Machine]
         # @return [bool]
         def ready(machine)
-          req = SDK::FuncSpec::Args.new(
-            args: [SDK::FuncSpec::Value.new(
-                name: "",
-                type: "hashicorp.vagrant.sdk.Args.Target.Machine",
-                value: Google::Protobuf::Any.pack(machine.to_proto)
-            )]
-          )
-          @logger.debug("checking if communicator is ready")
-          @logger.debug("Sending request #{req}")
-          res = client.ready(req)
-          @logger.debug("ready? #{res}")
-          res.ready
+          run_func(machine)
+        end
+
+        # Generate callback and spec for required arguments
+        #
+        # @return [SDK::FuncSpec, Proc]
+        def wait_for_ready_func
+          spec = client.wait_for_ready_spec
+          cb = proc do |args|
+            client.wait_for_ready(args).ready
+          end
+          [spec, cb]
         end
 
         # @param [Vagrant::Machine]
         # @param [Integer] duration Timeout in seconds.
         # @return [Boolean]
         def wait_for_ready(machine, time)
-          req = SDK::FuncSpec::Args.new(
-            args: [SDK::FuncSpec::Value.new(
-                name: "",
-                type: "hashicorp.vagrant.sdk.Args.Target.Machine",
-                value: Google::Protobuf::Any.pack(machine.to_proto)
-            ),
-            SDK::FuncSpec::Value.new(
-              type: "hashicorp.vagrant.sdk.Args.TimeDuration",
-              value: Google::Protobuf::Any.pack(
-                SDK::Args::TimeDuration.new(duration: time)
-              ),
-            )
-          ]
-          )
-          @logger.debug("(waiting) checking if communicator is ready")
-          res = client.wait_for_ready(req)
-          @logger.debug("ready? #{res}")
-          res.ready
+          run_func(machine, Type::Duration.new(time))
+        end
+
+        # Generate callback and spec for required arguments
+        #
+        # @return [SDK::FuncSpec, Proc]
+        def download_func
+          spec = client.download_spec(Empty.new)
+          cb = proc do |args|
+            client.download(args)
+          end
+          [spec, cb]
         end
 
         # @param [Vagrant::Machine]
@@ -72,28 +55,23 @@ module VagrantPlugins
         def download(machine, from, to)
           from = Pathname.new(from.to_s) if !from.is_a?(Pathname)
           to = Pathname.new(to.to_s) if !to.is_a?(Pathname)
-          from_val = mapper.map(from, to: SDK::Args::Path)
-          to_val = mapper.map(to, to: SDK::Args::Path)
-          req = SDK::FuncSpec::Args.new(
-            args: [
-              SDK::FuncSpec::Value.new(
-                name: "",
-                type: "hashicorp.vagrant.sdk.Args.Target.Machine",
-                value: Google::Protobuf::Any.pack(machine.to_proto)
-              ),
-              SDK::FuncSpec::Value.new(
-                name: "source",
-                value: Google::Protobuf::Any.pack(from_val)
-              ),
-              SDK::FuncSpec::Value.new(
-                name: "destination",
-                value: Google::Protobuf::Any.pack(to_val)
-              ),
-            ]
-          )
 
-          @logger.debug("downloading #{from} -> #{to}")
-          client.download(req)
+          run_func(
+            Type::NamedArgument(name: "to", value: to),
+            Type::NamedArgument(name: "from", value: from),
+            machine
+          )
+        end
+
+        # Generate callback and spec for required arguments
+        #
+        # @return [SDK::FuncSpec, Proc]
+        def upload_func
+          spec = client.upload_spec(Empty.new)
+          cb = proc do |args|
+            client.upload(args)
+          end
+          [spec, cb]
         end
 
         # @param [Vagrant::Machine]
@@ -102,28 +80,23 @@ module VagrantPlugins
         def upload(machine, from, to)
           from = Pathname.new(from.to_s) if !from.is_a?(Pathname)
           to = Pathname.new(to.to_s) if !to.is_a?(Pathname)
-          from_val = mapper.map(from, to: SDK::Args::Path)
-          to_val = mapper.map(to, to: SDK::Args::Path)
-          req = SDK::FuncSpec::Args.new(
-            args: [
-              SDK::FuncSpec::Value.new(
-                name: "",
-                type: "hashicorp.vagrant.sdk.Args.Target.Machine",
-                value: Google::Protobuf::Any.pack(machine.to_proto)
-              ),
-              SDK::FuncSpec::Value.new(
-                name: "source",
-                value: Google::Protobuf::Any.pack(from_val)
-              ),
-              SDK::FuncSpec::Value.new(
-                name: "destination",
-                value: Google::Protobuf::Any.pack(to_val)
-              ),
-            ]
-          )
 
-          @logger.debug("uploading #{from} -> #{to}")
-          client.upload(req)
+          run_func(
+            Type::NamedArgument(name: "to", value: to),
+            Type::NamedArgument(name: "from", value: from),
+            machine
+          )
+        end
+
+        # Generate callback and spec for required arguments
+        #
+        # @return [SDK::FuncSpec, Proc]
+        def execute_func
+          spec = client.execute_spec(Empty.new)
+          cb = proc do |args|
+            client.execute(args).exit_code
+          end
+          [spec, cb]
         end
 
         # @param [Vagrant::Machine]
@@ -131,11 +104,18 @@ module VagrantPlugins
         # @param [Hash] options
         # @return [Integer]
         def execute(machine, cmd, opts)
-          req = generate_execution_request(machine, cmd, opts)
-          @logger.debug("excuting")
-          res = client.execute(req)
-          @logger.debug("excution result: #{res}")
-          res
+          run_func(machine, opts, Type::CommunicatorCommandArguments.new(value: cmd))
+        end
+
+        # Generate callback and spec for required arguments
+        #
+        # @return [SDK::FuncSpec, Proc]
+        def privileged_execute_func(machine, cmd, opts)
+          spec = client.privileged_execute_spec(Empty.new)
+          cb = proc do |args|
+            client.privileged_execute(args).exit_code
+          end
+          [spec, cb]
         end
 
         # @param [Vagrant::Machine]
@@ -143,11 +123,18 @@ module VagrantPlugins
         # @param [Hash] options
         # @return [Integer]
         def privileged_execute(machine, cmd, opts)
-          req = generate_execution_request(machine, cmd, opts)
-          @logger.debug("privleged excuting")
-          res = client.privileged_execute(req)
-          @logger.debug("privleged excution result: #{res}")
-          res
+          run_func(machine, opts, Type::CommunicatorCommandArguments.new(value: cmd))
+        end
+
+        # Generate callback and spec for required arguments
+        #
+        # @return [SDK::FuncSpec, Proc]
+        def test_func
+          spec = client.test_spec
+          cb = proc do |args|
+            client.test(args).valid
+          end
+          [spec, cb]
         end
 
         # @param [Vagrant::Machine]
@@ -155,50 +142,25 @@ module VagrantPlugins
         # @param [Hash] options
         # @return [Boolean]
         def test(machine, cmd, opts)
-          req = generate_execution_request(machine, cmd, opts)
-          @logger.debug("testing")
-          @logger.debug("Sending request #{req}")
-          res = client.test(req)
-          @logger.debug("test result? #{res}")
-          res.valid
+          run_func(machine, opts, Type::CommunicatorCommandArguments.new(value: cmd))
         end
 
+        # Generate callback and spec for required arguments
+        #
+        # @return [SDK::FuncSpec, Proc]
+        def reset_func
+          spec = client.reset_spec
+          cb = proc do |args|
+            client.reset(args)
+          end
+          [spec, cb]
+        end
+
+        # Reset the communicator connection
+        #
+        # @param machine [Vagrant::Machine] Guest to reset connection on
         def reset(machine)
-          req = SDK::FuncSpec::Args.new(
-            args: [SDK::FuncSpec::Value.new(
-                name: "",
-                type: "hashicorp.vagrant.sdk.Args.Target.Machine",
-                value: Google::Protobuf::Any.pack(machine.to_proto)
-            )]
-          )
-          @logger.debug("reseting communicator")
-          client.reset(req)
-        end
-
-        protected
-
-        def generate_execution_request(machine, cmd, opts={})
-          opts = {} if opts.nil?
-          opts_proto = mapper.map(opts, to: SDK::Args::Hash)
-          opts_any = Google::Protobuf::Any.pack(opts_proto)
-
-          SDK::FuncSpec::Args.new(
-            args: [
-              SDK::FuncSpec::Value.new(
-                name: "",
-                type: "hashicorp.vagrant.sdk.Args.Target.Machine",
-                value: Google::Protobuf::Any.pack(machine.to_proto)
-              ),
-              SDK::FuncSpec::Value.new(
-                type: "hashicorp.vagrant.sdk.Communicator.Command",
-                value: Google::Protobuf::Any.pack(SDK::Communicator::Command.new(command: cmd)),
-              ),
-              SDK::FuncSpec::Value.new(
-                type: "hashicorp.vagrant.sdk.Args.Hash",
-                value: opts_any,
-              ),
-            ]
-          )
+          run_func(machine)
         end
       end
     end

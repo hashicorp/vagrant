@@ -2,57 +2,58 @@ require "google/protobuf/well_known_types"
 
 module VagrantPlugins
   module CommandServe
-    module Client
+    class Client
       module CapabilityPlatform
-
-        def self.included(klass)
-          return if klass.ancestors.include?(Util::HasMapper)
-          klass.prepend(Util::HasMapper)
+        # Generate callback and spec for required arguments
+        #
+        # @return [SDK::FuncSpec, Proc]
+        def has_capability_func
+          spec = client.has_capability_spec
+          cb = proc do |args|
+            client.has_capability(args).has_capability
+          end
+          [spec, cb]
         end
 
         # @param [Symbol] cap_name Capability name
         # @return [Boolean]
         def has_capability?(cap_name)
-          logger.debug("checking for capability #{cap_name}")
-          val = SDK::Args::NamedCapability.new(capability: cap_name.to_s)
-          req = SDK::FuncSpec::Args.new(
-            args: [SDK::FuncSpec::Value.new(
-                name: "",
-                type: "hashicorp.vagrant.sdk.Args.NamedCapability",
-                value: Google::Protobuf::Any.pack(val)
-            )]
+          run_func(
+            SDK::Args::NamedCapability.new(
+              capability: cap_name.to_s
+            )
           )
+        end
 
-          res = client.has_capability(req)
-          logger.debug("got result #{res}")
-
-          res.has_capability
+        # Generate callback and spec for required arguments
+        #
+        # @param cap_name [String] Name of capability
+        # @return [SDK::FuncSpec, Proc]
+        def capability_func(cap_name)
+          spec = client.capability_spec(
+            SDK::Platform::Capability::NamedRequest.new(
+              name: cap_name,
+            )
+          )
+          cb = proc do |name, args|
+            result = client.capability(
+              SDK::Platform::Capability::NamedRequest.new(
+                name: name,
+                func_args: args,
+              )
+            )
+            return nil if result.nil?
+            mapper.map(result.result)
+          end
+          [spec, cb]
         end
 
         # @param [Symbol] cap_name Name of the capability
         def capability(cap_name, *args)
           logger.debug("executing capability #{cap_name}")
-          arg_protos = seed_protos
-          d = Type::Direct.new(arguments: args)
-          da = mapper.map(d, to: Google::Protobuf::Any)
-          arg_protos << SDK::FuncSpec::Value.new(
-            name: "",
-            type: "hashicorp.vagrant.sdk.Args.Direct",
-            value: Google::Protobuf::Any.pack(da),
-          )
-
-          req = SDK::Platform::Capability::NamedRequest.new(
-            name: cap_name.to_s,
-            func_args: SDK::FuncSpec::Args.new(
-              args: arg_protos,
-            )
-          )
-          result = client.capability(req)
-          if result.result.nil?
-            return nil
-          end
-          unmapped = mapper.map(result.result)
-          unmapped
+          spec, cb = capability_func(cap_name)
+          args << Type::Direct.new(value: args)
+          cb.call(cap_name, generate_funcspec_args(spec, *args))
         end
       end
     end

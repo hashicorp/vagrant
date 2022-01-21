@@ -1,18 +1,21 @@
 module VagrantPlugins
   module CommandServe
-    module Client
-      class Push
-        prepend Util::ClientSetup
-        prepend Util::HasLogger
+    class Client
+      class Push < Client
+        # Generate callback and spec for required arguments
+        #
+        # @return [SDK::FuncSpec, Proc]
+        def push_func
+          spec = client.push_spec
+          cb = proc do |args|
+            client.push(args)
+          end
+          [spec, cb]
+        end
 
-        include Util::HasSeeds::Client
-
+        # Execute push
         def push
-          logger.debug("doing push")
-          req = SDK::FuncSpec::Args.new(args: seed_protos)
-          res = client.push(req)
-          logger.debug("got response #{res}")
-          res
+          run_func
         end
       end
     end
