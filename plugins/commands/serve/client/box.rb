@@ -1,10 +1,7 @@
 module VagrantPlugins
   module CommandServe
-    module Client
-      class Box
-        prepend Util::ClientSetup
-        prepend Util::HasLogger
-
+    class Client
+      class Box < Client
         # @return [Bool] check allowed
         def automatic_update_check_allowed
           res = client.automatic_update_check_allowed(Empty.new)
@@ -33,7 +30,8 @@ module VagrantPlugins
 
         # @param [String] path
         def repackage(path)
-          client.repackage(SDK::Args::Path.new(path: path.to_s))
+          path = Pathname.new(path.to_s)
+          client.repackage(mapper.map(path, to: SDK::Args::Path))
         end
 
         # @return [String] path
@@ -79,7 +77,7 @@ module VagrantPlugins
           res = client.compare(box)
           res.result
         end
-      end 
+      end
     end
   end
 end

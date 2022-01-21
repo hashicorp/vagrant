@@ -1,11 +1,7 @@
 module VagrantPlugins
   module CommandServe
-    module Client
-      class Basis
-        prepend Util::ClientSetup
-        prepend Util::HasLogger
-        prepend Util::HasMapper
-
+    class Client
+      class Basis < Client
         # return [Sdk::Args::DataDir::Basis]
         def data_dirs
           resp = client.data_dir(Empty.new)

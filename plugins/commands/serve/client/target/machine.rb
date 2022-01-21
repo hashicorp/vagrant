@@ -1,15 +1,11 @@
 module VagrantPlugins
   module CommandServe
-    module Client
+    class Client
       # Machine is a specialization of a generic Target
       # and is how legacy Vagrant willl interact with
       # targets
       class Target
         class Machine < Target
-
-          prepend Util::ClientSetup
-          prepend Util::HasLogger
-
           # @return [String] resource identifier for this target
           def ref
             SDK::Ref::Target::Machine.new(resource_id: resource_id)
@@ -97,7 +93,7 @@ module VagrantPlugins
             client.set_state(req)
           end
 
-          # Synced folder for machine 
+          # Synced folder for machine
           #
           # @return [List<[Client::SyncedFolder, Map<String, String>]>]
           def synced_folders

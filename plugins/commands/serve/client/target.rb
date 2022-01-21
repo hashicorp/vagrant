@@ -2,13 +2,9 @@ require "time"
 
 module VagrantPlugins
   module CommandServe
-    module Client
-      class Target
-
+    class Client
+      class Target < Client
         autoload :Machine, Vagrant.source_root.join("plugins/commands/serve/client/target/machine").to_s
-
-        prepend Util::ClientSetup
-        prepend Util::HasLogger
 
         STATES = [
           :UNKNOWN,

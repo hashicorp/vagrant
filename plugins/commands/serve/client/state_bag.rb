@@ -1,12 +1,7 @@
-require "google/protobuf/well_known_types"
-
 module VagrantPlugins
   module CommandServe
-    module Client
-      class StateBag
-        prepend Util::ClientSetup
-        prepend Util::HasLogger
-
+    class Client
+      class StateBag < Client
         # @param [String]
         # @return [String]
         def get(key)

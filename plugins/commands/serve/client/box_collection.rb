@@ -1,10 +1,7 @@
 module VagrantPlugins
   module CommandServe
-    module Client
-      class BoxCollection
-        prepend Util::ClientSetup
-        prepend Util::HasLogger
-
+    class Client
+      class BoxCollection < Client
         # @return [Vagrant::Box] box added
         def add(path, name, version, force=false, metadata_url=nil, providers=[])
           logger.debug("adding box at path #{path}")

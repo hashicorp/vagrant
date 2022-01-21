@@ -1,10 +1,7 @@
 module VagrantPlugins
   module CommandServe
-    module Client
-      class Project
-        prepend Util::ClientSetup
-        prepend Util::HasLogger
-
+    class Client
+      class Project < Client
         # return [VagrantPlugins::CommandServe::Client::BoxCollection]
         def boxes
           BoxCollection.load(

@@ -1,14 +1,7 @@
-# TODO(spox): why do we need this?!
-require_relative "../util.rb"
-
 module VagrantPlugins
   module CommandServe
-    module Client
-      class Terminal
-
-        prepend Util::ClientSetup
-        prepend Util::HasLogger
-
+    class Client
+      class Terminal < Client
         # @return [String] name of proto class
         def self.sdk_alias
           "TerminalUI"

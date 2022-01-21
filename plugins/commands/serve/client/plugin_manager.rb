@@ -1,12 +1,7 @@
 module VagrantPlugins
   module CommandServe
-    module Client
-      class PluginManager
-
-        prepend Util::ClientSetup
-        prepend Util::HasLogger
-        prepend Util::HasMapper
-
+    class Client
+      class PluginManager < Client
         def list_plugins(types=[])
           resp = client.list_plugins(
             SDK::PluginManager::PluginsRequest.new(

@@ -1,11 +1,7 @@
 module VagrantPlugins
   module CommandServe
-    module Client
-      class TargetIndex
-
-        prepend Util::ClientSetup
-        prepend Util::HasLogger
-
+    class Client
+      class TargetIndex < Client
         # @param [string]
         # @return [Boolean] true if delete is successful
         def delete(ident)
