@@ -634,6 +634,9 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
     add_message "hashicorp.vagrant.sdk.Project.CwdResponse" do
       optional :path, :string, 1
     end
+    add_message "hashicorp.vagrant.sdk.Project.ConfigResponse" do
+      optional :vagrantfile, :message, 1, "hashicorp.vagrant.sdk.Vagrantfile.Vagrantfile"
+    end
     add_message "hashicorp.vagrant.sdk.Project.VagrantfileNameResponse" do
       optional :name, :string, 1
     end
@@ -770,11 +773,16 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
       optional :owner, :string, 9
       optional :type, :string, 10
     end
+    add_message "hashicorp.vagrant.sdk.Vagrantfile.PushConfig" do
+      optional :name, :string, 1
+      optional :config, :message, 2, "hashicorp.vagrant.sdk.Vagrantfile.GeneralConfig"
+    end
     add_message "hashicorp.vagrant.sdk.Vagrantfile.Vagrantfile" do
       optional :path, :string, 1
       optional :raw, :string, 2
       optional :current_version, :string, 3
       repeated :machine_configs, :message, 4, "hashicorp.vagrant.sdk.Vagrantfile.MachineConfig"
+      repeated :push_configs, :message, 5, "hashicorp.vagrant.sdk.Vagrantfile.PushConfig"
     end
     add_message "hashicorp.vagrant.sdk.TargetIndex" do
     end
@@ -836,11 +844,6 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
       optional :name, :string, 1
       optional :version, :string, 2
       repeated :providers, :string, 3
-    end
-    add_message "hashicorp.vagrant.sdk.Push" do
-    end
-    add_message "hashicorp.vagrant.sdk.Push.PushResponse" do
-      optional :exit_code, :int32, 1
     end
   end
 end
@@ -1003,6 +1006,7 @@ module Hashicorp
       Project::MachineNamesResponse = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Project.MachineNamesResponse").msgclass
       Project::ActiveMachinesResponse = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Project.ActiveMachinesResponse").msgclass
       Project::CwdResponse = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Project.CwdResponse").msgclass
+      Project::ConfigResponse = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Project.ConfigResponse").msgclass
       Project::VagrantfileNameResponse = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Project.VagrantfileNameResponse").msgclass
       Project::VagrantfilePathResponse = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Project.VagrantfilePathResponse").msgclass
       Project::HomeResponse = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Project.HomeResponse").msgclass
@@ -1027,6 +1031,7 @@ module Hashicorp
       Vagrantfile::Provider = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Vagrantfile.Provider").msgclass
       Vagrantfile::Network = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Vagrantfile.Network").msgclass
       Vagrantfile::SyncedFolder = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Vagrantfile.SyncedFolder").msgclass
+      Vagrantfile::PushConfig = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Vagrantfile.PushConfig").msgclass
       Vagrantfile::Vagrantfile = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Vagrantfile.Vagrantfile").msgclass
       TargetIndex = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.TargetIndex").msgclass
       TargetIndex::TargetIdentifier = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.TargetIndex.TargetIdentifier").msgclass
@@ -1047,8 +1052,6 @@ module Hashicorp
       BoxCollection::AllResponse = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.BoxCollection.AllResponse").msgclass
       BoxCollection::CleanRequest = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.BoxCollection.CleanRequest").msgclass
       BoxCollection::FindRequest = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.BoxCollection.FindRequest").msgclass
-      Push = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Push").msgclass
-      Push::PushResponse = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Push.PushResponse").msgclass
     end
   end
 end

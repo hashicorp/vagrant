@@ -53,8 +53,8 @@ type Project struct {
 	ui terminal.UI
 }
 
-func (b *Project) Config() *vagrant_plugin_sdk.Vagrantfile_Vagrantfile {
-	return b.project.Configuration
+func (b *Project) Config() (*vagrant_plugin_sdk.Vagrantfile_Vagrantfile, error) {
+	return b.project.Configuration, nil
 }
 
 // UI implements core.Project

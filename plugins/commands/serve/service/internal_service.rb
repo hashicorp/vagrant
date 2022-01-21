@@ -70,11 +70,14 @@ module VagrantPlugins
             )
           end
 
+          push_configs = v.config.push.to_proto
+
           vagrantfile = Hashicorp::Vagrant::Sdk::Vagrantfile::Vagrantfile.new(
             path: path,
             raw: raw,
             current_version: Vagrant::Config::CURRENT_VERSION,
             machine_configs: machine_configs,
+            push_configs: push_configs,
           )
           Hashicorp::Vagrant::ParseVagrantfileResponse.new(
             vagrantfile: vagrantfile

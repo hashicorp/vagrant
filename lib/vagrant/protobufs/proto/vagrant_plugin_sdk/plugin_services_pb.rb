@@ -448,6 +448,7 @@ module Hashicorp
           rpc :TargetIndex, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::Args::TargetIndex
           # rpc ActiveMachines(google.protobuf.Empty) returns (Project.ActiveMachinesResponse);
           rpc :CWD, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::Project::CwdResponse
+          rpc :Config, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::Project::ConfigResponse
           rpc :DataDir, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::Args::DataDir::Project
           rpc :VagrantfileName, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::Project::VagrantfileNameResponse
           rpc :VagrantfilePath, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::Project::VagrantfilePathResponse
@@ -566,7 +567,7 @@ module Hashicorp
           self.service_name = 'hashicorp.vagrant.sdk.PushService'
 
           rpc :PushSpec, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::FuncSpec
-          rpc :Push, ::Hashicorp::Vagrant::Sdk::FuncSpec::Args, ::Hashicorp::Vagrant::Sdk::Push::PushResponse
+          rpc :Push, ::Hashicorp::Vagrant::Sdk::FuncSpec::Args, ::Google::Protobuf::Empty
           rpc :Seed, ::Hashicorp::Vagrant::Sdk::Args::Seeds, ::Google::Protobuf::Empty
           rpc :Seeds, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::Args::Seeds
         end
