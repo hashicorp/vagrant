@@ -237,39 +237,40 @@ For more information about transport protocols and NFS version 4 see:
 
 ## Troubleshooting NFS Issues
 
-NFS issues may arise for a variety of reasons. The  following list
+NFS issues may arise for a variety of reasons. The following list
 describes how to possibly identify the root of the issue.
 
-* Ensure nfs server is running on the host. Check if it is running using 
-  the command `ps aux | grep nfsd`. If the nfs service is not running, 
+- Ensure nfs server is running on the host. Check if it is running using
+  the command `ps aux | grep nfsd`. If the nfs service is not running,
   then it may require a manual restart.
 
-* If using Mac, ensure that `/sbin/nfsd` has been given Full Disk Access.
+- If using Mac, ensure that `/sbin/nfsd` has been given Full Disk Access.
 
-* Ensure the synced folder is present in the hosts `/etc/exports` file.
-  If the target folder is not listed in  `/etc/exports`, then ensure that
+- Ensure the synced folder is present in the hosts `/etc/exports` file.
+  If the target folder is not listed in `/etc/exports`, then ensure that
   the synced_folder option `nfs_export` is set to `true`, or manually add
   the entry.
 
-* Ensure that the contents of `/etc/exports` is valid. For example, if running
+- Ensure that the contents of `/etc/exports` is valid. For example, if running
   nfsd, this can be done by running `nfsd checkexports`.
 
-* Ensure guest machine has a nfs client installed. The client may differ
+- Ensure guest machine has a nfs client installed. The client may differ
   depending on the OS. If no nfs client is installed on the guest, then it may
   need to be installed.
 
-* Ensure the guest has access to the mounts. This can be done using something
+- Ensure the guest has access to the mounts. This can be done using something
   like the `rpcinfo` or `showmount` commands. For example `rpcinfo -u <ip> nfs`
   or `showmount -e <ip>`.
 
-* Ensure a firewall is not blocking NFS.
+- Ensure a firewall is not blocking NFS.
 
-* Try manually mounting the folder, enabling verbose output:
-    ```
-    $ vagrant ssh
-    $ mount -v -t nfs -o <mount options> <ip address>:<path to folder on host> <mountpoint>
-    ```
+- Try manually mounting the folder, enabling verbose output:
 
-* If using a UDP connection: ensure UDP is enabled by the nfs server. This setting
+  ```bash
+  $ vagrant ssh
+  $ mount -v -t nfs -o <mount options> <ip address>:<path to folder on host> <mountpoint>
+  ```
+
+- If using a UDP connection: ensure UDP is enabled by the nfs server. This setting
   can likely be changed in config file `/etc/nfs.conf`. Or, in Vagrant, set the
   `nfs_udp` option for the synced folder to `false`.
