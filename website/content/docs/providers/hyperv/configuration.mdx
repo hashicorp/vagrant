@@ -22,7 +22,7 @@ you may set. A complete reference is shown below:
 - `ip_address_timeout` (integer) - Number of seconds to wait for the VM to report an IP address. Default: 120.
 - `linked_clone` (boolean) - Use differencing disk instead of cloning entire VHD. Default: false
 - `mac` (string) - MAC address for the guest network interface
-- `maxmemory` (integer) - Maximum number of megabytes allowed to be allocated for the VM. When set Dynamic Memory Allocation will be enabled.
+- `maxmemory` (integer) - Maximum number of megabytes allowed to be allocated for the VM. When set Dynamic Memory Allocation will be enabled. Set to `nil` to disable Dynamic Memory.
 - `memory` (integer) - Number of megabytes allocated to VM at startup. If `maxmemory` is set, this will be amount of memory allocated at startup.
 - `vlan_id` (integer) - VLAN ID for the guest network interface.
 - `vmname` (string) - Name of virtual machine as shown in Hyper-V manager. Default: Generated name.
