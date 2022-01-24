@@ -28,11 +28,6 @@ module VagrantPlugins
           res.is_installed
         end
 
-        # @param [Sdk::Args::Machine]
-        def init(machine)
-          # TODO
-        end
-
         # @param [Symbol] name of the action to run
         def action(name, *args)
           d = Type::Direct.new(arguments: args)

@@ -62,16 +62,6 @@ module VagrantPlugins
           end
         end
 
-        def init_spec(*_)
-          # TODO
-          nil
-        end
-
-        def init(req, ctx)
-          # TODO
-          nil
-        end
-
         def action_spec(req, _unused_call)
           SDK::FuncSpec.new(
             name: "capability_spec",

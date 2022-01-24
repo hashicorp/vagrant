@@ -120,8 +120,6 @@ module Hashicorp
           rpc :UsableSpec, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::FuncSpec
           rpc :Installed, ::Hashicorp::Vagrant::Sdk::FuncSpec::Args, ::Hashicorp::Vagrant::Sdk::Provider::InstalledResp
           rpc :InstalledSpec, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::FuncSpec
-          rpc :Init, ::Hashicorp::Vagrant::Sdk::FuncSpec::Args, ::Google::Protobuf::Empty
-          rpc :InitSpec, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::FuncSpec
           rpc :Action, ::Hashicorp::Vagrant::Sdk::Provider::ActionRequest, ::Google::Protobuf::Empty
           rpc :ActionSpec, ::Hashicorp::Vagrant::Sdk::Provider::ActionRequest, ::Hashicorp::Vagrant::Sdk::FuncSpec
           rpc :MachineIdChanged, ::Hashicorp::Vagrant::Sdk::FuncSpec::Args, ::Google::Protobuf::Empty
