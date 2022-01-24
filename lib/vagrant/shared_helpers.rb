@@ -269,6 +269,7 @@ module Vagrant
     ->{ Vagrant::MachineIndex::Entry.extend(Vagrant::MachineIndex::Entry::Remote::ClassMethods) },
     ->{ Vagrant::Plugin::V2::SyncedFolder.prepend(Vagrant::Plugin::Remote::SyncedFolder::Remote) },
     ->{ Vagrant::Plugin::V2::Communicator.prepend(Vagrant::Plugin::Remote::Communicator::Remote) },
+    ->{ Vagrant::Plugin::V2::Provider.prepend(Vagrant::Plugin::Remote::Provider::Remote) },
     ->{ Vagrant::Plugin::V2::Push.prepend(Vagrant::Plugin::Remote::Push::Remote) },
     ->{ Vagrant::Action::Builtin::MixinSyncedFolders.prepend(Vagrant::Action::Builtin::Remote::MixinSyncedFolders) },
   ].freeze

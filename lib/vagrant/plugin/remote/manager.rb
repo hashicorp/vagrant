@@ -163,20 +163,20 @@ module Vagrant
           end
         end
 
-        # def providers
-        #   return real_manager.synced_folders if plugin_manager.nil?
+        def providers
+          return real_manager.synced_folders if plugin_manager.nil?
 
-        #   Registry.new.tap do |result|
-        #     plugin_manager.list_plugins(:provider).each do |plg|
-        #       sf_class = Class.new(V2::Provider, &WRAPPER_CLASS)
-        #       sf_class.plugin_name = plg[:name]
-        #       sf_class.type = plg[:type]
-        #       result.register(plg[:name].to_sym) do
-        #         proc{sf_class}
-        #       end
-        #     end
-        #   end
-        # end
+          Registry.new.tap do |result|
+            plugin_manager.list_plugins(:provider).each do |plg|
+              sf_class = Class.new(V2::Provider, &WRAPPER_CLASS)
+              sf_class.plugin_name = plg[:name]
+              sf_class.type = plg[:type]
+              result.register(plg[:name].to_sym) do
+                proc{sf_class}
+              end
+            end
+          end
+        end
 
         # def provisioners
         #   return real_manager.synced_folders if plugin_manager.nil?

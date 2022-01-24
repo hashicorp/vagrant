@@ -15,7 +15,7 @@ module Vagrant
 
           def initialize(machine)
             @logger = Log4r::Logger.new("vagrant::remote::communicator")
-            @logger.debug("initializing communicator with remote baackend")
+            @logger.debug("initializing communicator with remote backend")
             @machine = machine
             @client = machine.client.communicate
           end

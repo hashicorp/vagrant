@@ -6,6 +6,7 @@ module Vagrant
       autoload :Communicator, "vagrant/plugin/remote/communicator"
       autoload :Manager, "vagrant/plugin/remote/manager"
       autoload :Plugin, "vagrant/plugin/remote/plugin"
+      autoload :Provider, "vagrant/plugin/remote/provider"
       autoload :Push, "vagrant/plugin/remote/push"
       autoload :SyncedFolder, "vagrant/plugin/remote/synced_folder"
     end
