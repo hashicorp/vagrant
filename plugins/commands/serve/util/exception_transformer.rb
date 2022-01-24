@@ -1,3 +1,5 @@
+require 'google/rpc/error_details_pb'
+
 module VagrantPlugins
   module CommandServe
     module Util
