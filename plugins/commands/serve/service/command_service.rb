@@ -73,7 +73,6 @@ module VagrantPlugins
             cmd_args = req.command_args.to_a[1..] + arguments.value
             cmd = cmd_klass.new(cmd_args, env)
             result = cmd.execute
-
             if !result.is_a?(Integer)
               result = 1
             end

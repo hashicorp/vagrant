@@ -131,7 +131,12 @@ module VagrantPlugins
         def state_spec(*_)
           SDK::FuncSpec.new(
             name: "ssh_info_spec",
-            args: [],
+            args: [
+              SDK::FuncSpec::Value.new(
+                type: "hashicorp.vagrant.sdk.Args.Target.Machine",
+                name: "",
+              )
+            ],
             result: [
               SDK::FuncSpec::Value.new(
               type: "hashicorp.vagrant.sdk.Args.Target.Machine.State",
@@ -144,9 +149,11 @@ module VagrantPlugins
         def state(req, ctx)
           plugins = Vagrant.plugin("2").local_manager.providers
           with_plugin(ctx, plugins, broker: broker) do |plugin|
-            provider = plugin.new
-            # TODO: does this provider need to be initialized?
-            # provider.initialize(machine)?
+            machine = mapper.funcspec_map(
+              req.func_args,
+              expect: [Vagrant::Machine]
+            )
+            provider = plugin.new(machine)
             machine_state = provider.state
             return SDK::Args::Target::Machine::State.new(
               id: machine_state.id,

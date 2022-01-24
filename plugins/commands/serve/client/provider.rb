@@ -57,11 +57,17 @@ module VagrantPlugins
           client.ssh_info(req)
         end
 
-         # @return [SDK::Args::Target::Machine::State] machine state
-         def state
-          req = SDK::FuncSpec::Args.new(args: seed_protos)
+        # @param [Sdk::Args::Machine]
+        # @return [SDK::Args::Target::Machine::State] machine state
+        def state(machine)
+          args = seed_protos
+          args << SDK::FuncSpec::Value.new(
+              type: "hashicorp.vagrant.sdk.Args.Target.Machine",
+              value: Google::Protobuf::Any.pack(machine),
+          )
+          req = SDK::FuncSpec::Args.new(args: args)
           client.state(req)
-         end
+        end
       end
     end
   end

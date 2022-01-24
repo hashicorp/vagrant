@@ -46,7 +46,7 @@ module Vagrant
           end
 
           def state
-            client.state
+            client.state(@machine.to_proto)
           end
 
           def initialize_capabilities!(*args, **opts)
