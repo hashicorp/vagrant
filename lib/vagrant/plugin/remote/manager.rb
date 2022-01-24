@@ -164,7 +164,7 @@ module Vagrant
         end
 
         def providers
-          return real_manager.synced_folders if plugin_manager.nil?
+          return real_manager.providers if plugin_manager.nil?
 
           Registry.new.tap do |result|
             plugin_manager.list_plugins(:provider).each do |plg|
@@ -172,7 +172,8 @@ module Vagrant
               sf_class.plugin_name = plg[:name]
               sf_class.type = plg[:type]
               result.register(plg[:name].to_sym) do
-                proc{sf_class}
+                # TODO: Options hash should be what?
+                [sf_class, {}]
               end
             end
           end
