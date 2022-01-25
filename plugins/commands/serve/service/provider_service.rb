@@ -64,7 +64,7 @@ module VagrantPlugins
 
         def action_spec(req, _unused_call)
           SDK::FuncSpec.new(
-            name: "capability_spec",
+            name: "action_spec",
             args: [
               SDK::FuncSpec::Value.new(
                 type: "hashicorp.vagrant.sdk.Args.Direct",
@@ -75,9 +75,40 @@ module VagrantPlugins
           )
         end
 
-        def action_up(req, ctx)
-          # TODO
-          nil
+        def action(req, ctx)
+          plugins = Vagrant.plugin("2").local_manager.providers
+          with_plugin(ctx, plugins, broker: broker) do |plugin|
+            action_name = req.name.to_sym
+            args = mapper.funcspec_map(
+              req.func_args,
+              expect: [Type::Direct]
+            )
+
+            machine = args.arguments.find { |a| a.is_a?(Vagrant::Machine) }
+            provider = plugin.new(machine)
+            callable = provider.action(action_name)
+            if callable.nil?
+              raise Errors::UnimplementedProviderAction,
+              action: name,
+              provider: @provider.to_s
+            end
+            action_raw(machine, action_name, callable)
+            Empty.new
+          end
+        end
+
+        def action_raw(machine, name, callable, extra_env={})
+          if !extra_env.is_a?(Hash)
+            extra_env = {}
+          end
+          # Run the action with the action runner on the environment
+          env = {ui: machine.ui}.merge(extra_env).merge(
+            raw_action_name: name,
+            action_name: "machine_action_#{name}".to_sym,
+            machine: machine,
+            machine_action: name
+          )
+          machine.env.action_runner.run(callable, env)
         end
 
         def machine_id_changed_spec(*_)

@@ -28,9 +28,11 @@ module VagrantPlugins
           res.is_installed
         end
 
+        # @param [Sdk::Args::Machine]
         # @param [Symbol] name of the action to run
-        def action(name, *args)
-          d = Type::Direct.new(arguments: args)
+        def action(machine, name)
+          arg_protos = seed_protos
+          d = Type::Direct.new(arguments: [machine])
           da = mapper.map(d, to: Google::Protobuf::Any)
           arg_protos << SDK::FuncSpec::Value.new(
             name: "",

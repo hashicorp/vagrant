@@ -124,78 +124,8 @@ module Vagrant
         "<Vagrant::Machine:resource_id=#{client.resource_id}>"
       end
 
-      ### HACKS
-
       def action(name, opts=nil)
-        @logger.info("Calling action: #{name} on provider #{@provider}")
-
-        opts ||= {}
-
-        # Determine whether we lock or not
-        lock = true
-        lock = opts.delete(:lock) if opts.key?(:lock)
-
-        # Extra env keys are the remaining opts
-        extra_env = opts.dup
-        # An environment is required for triggers to function properly. This is
-        # passed in specifically for the `#Action::Warden` class triggers. We call it
-        # `:trigger_env` instead of `env` in case it collides with an existing environment
-        extra_env[:trigger_env] = @env
-
-        check_cwd # Warns the UI if the machine was last used on a different dir
-
-        # Create a deterministic ID for this machine
-        vf = nil
-        vf = @env.vagrantfile_name[0] if @env.vagrantfile_name
-        id = Digest::MD5.hexdigest(
-          "#{@env.root_path}#{vf}#{@env.local_data_path}#{@name}")
-
-        # We only lock if we're not executing an SSH action. In the future
-        # we will want to do more fine-grained unlocking in actions themselves
-        # but for a 1.6.2 release this will work.
-        locker = Proc.new { |*args, &block| block.call }
-        locker = @env.method(:lock) if lock && !name.to_s.start_with?("ssh")
-
-        # Lock this machine for the duration of this action
-        return_env = locker.call("machine-action-#{id}") do
-          # Get the callable from the provider.
-          callable = @provider.action(name)
-
-          # If this action doesn't exist on the provider, then an exception
-          # must be raised.
-          if callable.nil?
-            raise Errors::UnimplementedProviderAction,
-              action: name,
-              provider: @provider.to_s
-          end
-
-          # Call the action
-          ui.machine("action", name.to_s, "start")
-          action_result = action_raw(name, callable, extra_env)
-          ui.machine("action", name.to_s, "end")
-          action_result
-        end
-        # preserve returning environment after machine action runs
-        return return_env
-      rescue Errors::EnvironmentLockedError
-        raise Errors::MachineActionLockedError,
-          action: name,
-          name: @name
-      end
-
-      def action_raw(name, callable, extra_env={})
-        if !extra_env.is_a?(Hash)
-          extra_env = {}
-        end
-
-        # Run the action with the action runner on the environment
-        env = {ui: @ui}.merge(extra_env).merge(
-          raw_action_name: name,
-          action_name: "machine_action_#{name}".to_sym,
-          machine: self,
-          machine_action: name
-        )
-        @env.action_runner.run(callable, env)
+        @provider.action(name)
       end
 
       def communicate
