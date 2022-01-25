@@ -103,6 +103,40 @@ module VagrantPlugins
           m.to_proto
         end
       end
+
+      class MachineStateFromProto < Mapper
+        def initialize
+          super(
+            inputs: [Input.new(type: SDK::Args::Target::Machine::State)],
+            output: Vagrant::MachineState,
+            func: method(:converter),
+          )
+        end
+
+        def converter(m)
+          Vagrant::MachineState.new(
+            m.id, m.short_description, m.long_description
+          )
+        end
+      end
+
+      class MachineStateToProto < Mapper
+        def initialize
+          super(
+            inputs: [Input.new(type: Vagrant::MachineState)],
+            output: SDK::Args::Target::Machine::State,
+            func: method(:converter),
+          )
+        end
+
+        def converter(machine_state)
+          SDK::Args::Target::Machine::State.new(
+            id: machine_state.id,
+            short_description: machine_state.short_description,
+            long_description: machine_state.long_description,
+          )
+        end
+      end
     end
   end
 end

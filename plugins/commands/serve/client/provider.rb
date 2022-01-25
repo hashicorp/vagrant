@@ -51,14 +51,15 @@ module VagrantPlugins
           client.machine_id_changed(req)
         end
 
-        # @return [SDK::SSHInfo] ssh info for machine
+        # @return [Hash] ssh info for machine
         def ssh_info
           req = SDK::FuncSpec::Args.new(args: seed_protos)
-          client.ssh_info(req)
+          machine_ssh_info = client.ssh_info(req)
+          machine_ssh_info.to_h
         end
 
         # @param [Sdk::Args::Machine]
-        # @return [SDK::Args::Target::Machine::State] machine state
+        # @return [Vagrant::MachineState] machine state
         def state(machine)
           args = seed_protos
           args << SDK::FuncSpec::Value.new(
@@ -66,7 +67,8 @@ module VagrantPlugins
               value: Google::Protobuf::Any.pack(machine),
           )
           req = SDK::FuncSpec::Args.new(args: args)
-          client.state(req)
+          machine_state = client.state(req)
+          mapper.map(machine_state, to: Vagrant::MachineState)
         end
       end
     end

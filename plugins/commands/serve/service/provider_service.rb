@@ -149,17 +149,10 @@ module VagrantPlugins
         def state(req, ctx)
           plugins = Vagrant.plugin("2").local_manager.providers
           with_plugin(ctx, plugins, broker: broker) do |plugin|
-            machine = mapper.funcspec_map(
-              req.func_args,
-              expect: [Vagrant::Machine]
-            )
+            machine = mapper.funcspec_map(req, expect: [Vagrant::Machine])
             provider = plugin.new(machine)
             machine_state = provider.state
-            return SDK::Args::Target::Machine::State.new(
-              id: machine_state.id,
-              short_description: machine_state.short_description,
-              long_description: machine_state.long_description,
-            )
+            return mapper.map(machine_state, to: SDK::Args::Target::Machine::State)
           end
         end
       end
