@@ -97,24 +97,15 @@ module VagrantPlugins
           end
         end
 
-        def action_raw(machine, name, callable, extra_env={})
-          if !extra_env.is_a?(Hash)
-            extra_env = {}
-          end
-          # Run the action with the action runner on the environment
-          env = {ui: machine.ui}.merge(extra_env).merge(
-            raw_action_name: name,
-            action_name: "machine_action_#{name}".to_sym,
-            machine: machine,
-            machine_action: name
-          )
-          machine.env.action_runner.run(callable, env)
-        end
-
         def machine_id_changed_spec(*_)
           SDK::FuncSpec.new(
             name: "machine_id_changed_spec",
-            args: [],
+            args: [
+              SDK::FuncSpec::Value.new(
+                type: "hashicorp.vagrant.sdk.Args.Target.Machine",
+                name: "",
+              )
+            ],
             result: [],
           )
         end
@@ -122,9 +113,8 @@ module VagrantPlugins
         def machine_id_changed(req, ctx)
           plugins = Vagrant.plugin("2").local_manager.providers
           with_plugin(ctx, plugins, broker: broker) do |plugin|
-            provider = plugin.new
-            # TODO: does this provider need to be initialized?
-            # provider.initialize(machine)?
+            machine = mapper.funcspec_map(req, expect: [Vagrant::Machine])
+            provider = plugin.new(machine)
             provider.machine_id_changed
           end
           Empty.new
@@ -133,7 +123,12 @@ module VagrantPlugins
         def ssh_info_spec(*_)
           SDK::FuncSpec.new(
             name: "ssh_info_spec",
-            args: [],
+            args: [
+              SDK::FuncSpec::Value.new(
+                type: "hashicorp.vagrant.sdk.Args.Target.Machine",
+                name: "",
+              )
+            ],
             result: [
               SDK::FuncSpec::Value.new(
               type: "hashicorp.vagrant.sdk.SSHInfo",
@@ -146,9 +141,8 @@ module VagrantPlugins
         def ssh_info(req, ctx)
           plugins = Vagrant.plugin("2").local_manager.providers
           with_plugin(ctx, plugins, broker: broker) do |plugin|
-            provider = plugin.new
-            # TODO: does this provider need to be initialized?
-            # provider.initialize(machine)?
+            machine = mapper.funcspec_map(req, expect: [Vagrant::Machine])
+            provider = plugin.new(machine)
             info = provider.ssh_info
             return SDK::SSHInfo.new(
               host: info[:host],
@@ -185,6 +179,20 @@ module VagrantPlugins
             machine_state = provider.state
             return mapper.map(machine_state, to: SDK::Args::Target::Machine::State)
           end
+        end
+
+        def action_raw(machine, name, callable, extra_env={})
+          if !extra_env.is_a?(Hash)
+            extra_env = {}
+          end
+          # Run the action with the action runner on the environment
+          env = {ui: machine.ui}.merge(extra_env).merge(
+            raw_action_name: name,
+            action_name: "machine_action_#{name}".to_sym,
+            machine: machine,
+            machine_action: name
+          )
+          machine.env.action_runner.run(callable, env)
         end
       end
     end

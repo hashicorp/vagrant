@@ -38,11 +38,11 @@ module Vagrant
           end
 
           def machine_id_changed
-            client.machine_id_changed
+            client.machine_id_changed(@machine.to_proto)
           end
 
           def ssh_info
-            client.ssh_info
+            client.ssh_info(@machine.to_proto)
           end
 
           def state
