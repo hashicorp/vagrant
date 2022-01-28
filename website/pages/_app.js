@@ -5,6 +5,7 @@ import Min100Layout from '@hashicorp/react-min-100-layout'
 import NProgress from '@hashicorp/platform-util/nprogress'
 import usePageviewAnalytics from '@hashicorp/platform-analytics'
 import createConsentManager from '@hashicorp/react-consent-manager/loader'
+import localConsentManagerServices from 'lib/consent-manager-services'
 import useAnchorLinkAnalytics from '@hashicorp/platform-util/anchor-link-analytics'
 import Router from 'next/router'
 import HashiHead from '@hashicorp/react-head'
@@ -20,6 +21,7 @@ import alertBannerData, { ALERT_BANNER_ACTIVE } from 'data/alert-banner'
 NProgress({ Router })
 const { ConsentManager, openConsentManager } = createConsentManager({
   preset: 'oss',
+  otherServices: [...localConsentManagerServices],
 })
 
 export default function App({ Component, pageProps }) {
