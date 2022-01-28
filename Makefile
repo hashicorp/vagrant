@@ -11,6 +11,7 @@ CGO_ENABLED?=0
 
 .PHONY: bin
 bin: # bin creates the binaries for Vagrant for the current platform
+	@test -s "thirdparty/proto/api-common-protos/.git" || { echo "git submodules not initialized, run 'git submodule update --init --recursive' and try again"; exit 1; }
 	CGO_ENABLED=$(CGO_ENABLED) go build -ldflags $(GOLDFLAGS) -tags assetsembedded -o ./vagrant ./cmd/vagrant
 
 .PHONY: bin/windows
@@ -21,10 +22,12 @@ bin/windows: # create windows binaries
 
 .PHONY: bin/linux
 bin/linux: # create Linux binaries
+	@test -s "thirdparty/proto/api-common-protos/.git" || { echo "git submodules not initialized, run 'git submodule update --init --recursive' and try again"; exit 1; }
 	GOOS=linux GOARCH=amd64 $(MAKE) bin
 
 .PHONY: bin/darwin
 bin/darwin: # create Darwin binaries
+	@test -s "thirdparty/proto/api-common-protos/.git" || { echo "git submodules not initialized, run 'git submodule update --init --recursive' and try again"; exit 1; }
 	GOOS=darwin GOARCH=amd64 $(MAKE) bin
 
 .PHONY: test
@@ -53,6 +56,6 @@ static-assets:
 gen/doc:
 	@rm -rf ./doc/* 2> /dev/null
 	protoc -I=. \
-		-I=./vendor/proto/api-common-protos/ \
+		-I=./thirdparty/proto/api-common-protos/ \
 		--doc_out=./doc --doc_opt=html,index.html \
 		./internal/server/proto/server.proto

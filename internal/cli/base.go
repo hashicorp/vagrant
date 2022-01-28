@@ -416,17 +416,20 @@ func (c *baseCommand) flagSet(bit flagSetBit, f func([]*component.CommandFlag) [
 		set = append(set,
 			&component.CommandFlag{
 				LongName:    "server-addr",
+				ShortName:   "",
 				Description: "Address for the server",
 				Type:        component.FlagString,
 			},
 			&component.CommandFlag{
 				LongName:     "server-tls",
+				ShortName:    "",
 				Description:  "Connect to server via TLS",
 				DefaultValue: "true",
 				Type:         component.FlagBool,
 			},
 			&component.CommandFlag{
 				LongName:     "server-tls-skip-verify",
+				ShortName:    "",
 				Description:  "Skip verification of the TLS certificate advertised by the server",
 				DefaultValue: "false",
 				Type:         component.FlagBool,
@@ -453,6 +456,7 @@ func (c *baseCommand) Parse(
 	} else {
 		opt.SetUnknownMode(getoptions.Fail)
 	}
+	opt.SetMode(getoptions.Bundling)
 
 	c.Log.Warn("parsing arguments with flags", "args", args, "flags", flags)
 	remainArgs, err := opt.Parse(args)
@@ -489,9 +493,9 @@ func (c *baseCommand) generateCliFlags(set []*component.CommandFlag) *getoptions
 		if f.Description != "" {
 			opts = append(opts, opt.Description(f.Description))
 		}
-		if f.ShortName != "" {
-			opts = append(opts, opt.Alias(f.ShortName))
-		}
+		// if f.ShortName != "" {
+		// 	opts = append(opts, opt.Alias(f.ShortName))
+		// }
 
 		switch f.Type {
 		case component.FlagBool:
