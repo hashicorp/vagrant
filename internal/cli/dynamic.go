@@ -124,7 +124,8 @@ func (c *DynamicCommand) Synopsis() string {
 }
 
 func (c *DynamicCommand) Help() string {
-	return formatHelp(fmt.Sprintf("%s\n%s\n", c.help, c.Flags().Display()))
+	fset := c.generateCliFlags(c.Flags())
+	return formatHelp(fmt.Sprintf("%s\n%s\n", c.help, fset.Display()))
 }
 
 func (c *DynamicCommand) Flags() component.CommandFlags {

@@ -9,7 +9,6 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/DavidGamba/go-getoptions"
 	"github.com/hashicorp/go-hclog"
 	"github.com/hashicorp/go-multierror"
 
@@ -21,6 +20,7 @@ import (
 	clientpkg "github.com/hashicorp/vagrant/internal/client"
 	"github.com/hashicorp/vagrant/internal/clierrors"
 	"github.com/hashicorp/vagrant/internal/config"
+	"github.com/hashicorp/vagrant/internal/flags"
 	"github.com/hashicorp/vagrant/internal/server/proto/vagrant_server"
 	"github.com/hashicorp/vagrant/internal/serverclient"
 )
@@ -446,68 +446,64 @@ func (c *baseCommand) flagSet(bit flagSetBit, f func([]*component.CommandFlag) [
 }
 
 func (c *baseCommand) Parse(
-	flags []*component.CommandFlag,
+	set []*component.CommandFlag,
 	args []string,
 	passThrough bool,
 ) ([]string, error) {
-	opt := c.generateCliFlags(flags)
+	fset := c.generateCliFlags(set)
 	if passThrough {
-		opt.SetUnknownMode(getoptions.Pass)
-	} else {
-		opt.SetUnknownMode(getoptions.Fail)
+		flags.SetUnknownMode(flags.PassOnUnknown)(fset)
 	}
-	opt.SetMode(getoptions.Bundling)
 
-	c.Log.Warn("parsing arguments with flags", "args", args, "flags", flags)
-	remainArgs, err := opt.Parse(args)
+	c.Log.Warn("parsing arguments with flags", "args", args, "flags", set)
+	remainArgs, err := fset.Parse(args)
 	if err != nil {
 		return nil, err
 	}
 
-	for _, f := range flags {
-		if called := opt.Called(f.LongName); !called {
-			c.Log.Error("flag was not called", "name", f.LongName)
+	for _, f := range set {
+		pf, err := fset.Flag(f.LongName)
+		if err != nil {
+			return nil, err
+		}
+		if !pf.Updated() {
 			continue
 		}
-		c.Log.Warn("flag was called", "name", f.LongName)
-		if f.Type == component.FlagString {
-			c.flagData[f] = opt.Value(f.LongName)
-			continue
-		}
-		val := true
-		if strings.HasPrefix(opt.CalledAs(f.LongName), "no-") {
-			val = false
-		}
-		c.flagData[f] = val
+		c.flagData[f] = pf.Value()
 	}
 
 	return remainArgs, nil
 }
 
-func (c *baseCommand) generateCliFlags(set []*component.CommandFlag) *getoptions.GetOpt {
-	opt := getoptions.New()
-	opt.SetUnknownMode(getoptions.Pass) // TODO: make this configurable
+func (c *baseCommand) generateCliFlags(set []*component.CommandFlag) *flags.Set {
+	fs := flags.NewSet("flags",
+		flags.SetErrorMode(flags.ReturnOnError),
+		flags.SetUnknownMode(flags.ErrorOnUnknown),
+	)
 
 	for _, f := range set {
-		opts := []getoptions.ModifyFn{}
+		opts := []flags.FlagModifier{}
 		if f.Description != "" {
-			opts = append(opts, opt.Description(f.Description))
+			opts = append(opts, flags.Description(f.Description))
 		}
-		// if f.ShortName != "" {
-		// 	opts = append(opts, opt.Alias(f.ShortName))
-		// }
+		if f.ShortName != "" {
+			opts = append(opts, flags.ShortName(rune(f.ShortName[0])))
+		}
 
 		switch f.Type {
 		case component.FlagBool:
-			opts = append(opts, opt.Alias("no-"+f.LongName))
 			b, _ := strconv.ParseBool(f.DefaultValue)
-			opt.Bool(f.LongName, b, opts...)
+			opts = append(opts, flags.DefaultValue(b))
+			fs.DefaultGroup().Bool(f.LongName, opts...)
 		case component.FlagString:
-			opt.String(f.LongName, f.DefaultValue, opts...)
+			if f.DefaultValue != "" {
+				opts = append(opts, flags.DefaultValue(f.DefaultValue))
+			}
+			fs.DefaultGroup().String(f.LongName, opts...)
 		}
 
 	}
-	return opt
+	return fs
 }
 
 // flagSetBit is used with baseCommand.flagSet
