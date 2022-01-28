@@ -77,7 +77,10 @@ module VagrantPlugins
         def converter(proto, mapper)
           begin
             proto.list.map do |v|
-              mapper.map(v)
+              r = mapper.map(v)
+              # unwrap any wrapper classes here before assigning
+              r = r.value if r.is_a?(Type)
+              r
             end
           rescue => err
             logger.error("proto mapping to array failed: #{err}")
@@ -169,6 +172,8 @@ module VagrantPlugins
             Hash.new.tap do |result|
               proto.fields.each do |k, v|
                 r = mapper.map(v)
+                # unwrap any wrapper classes here before assigning
+                r = r.value if r.is_a?(Type)
                 result[k.to_sym] = r
               end
             end
