@@ -131,14 +131,14 @@ func (s *Set) AddGroup(g *Group) error {
 }
 
 // Add a new group
-func (s *Set) NewGroup(name string, modifiers ...GroupModifier) error {
+func (s *Set) NewGroup(name string, modifiers ...GroupModifier) (*Group, error) {
 	for _, g := range s.groups {
 		if g.name == name {
-			return fmt.Errorf("flag group already exists with name %s", name)
+			return nil, fmt.Errorf("flag group already exists with name %s", name)
 		}
 	}
-	newGroup(s, name, modifiers...)
-	return nil
+	grp := newGroup(s, name, modifiers...)
+	return grp, nil
 }
 
 // Default group for flags. The default group does
