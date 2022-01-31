@@ -3,6 +3,8 @@ package flags
 import (
 	"fmt"
 	"strings"
+
+	"github.com/hashicorp/go-multierror"
 )
 
 type ErrorHandling uint
@@ -35,18 +37,21 @@ type Set struct {
 type SetModifier func(s *Set)
 type Visitor func(f *Flag)
 
+// Set the error handling mode for the Set
 func SetErrorMode(m ErrorHandling) SetModifier {
 	return func(s *Set) {
 		s.errorHandling = m
 	}
 }
 
+// Set the mode for handling unknown flags
 func SetUnknownMode(m UnknownHandling) SetModifier {
 	return func(s *Set) {
 		s.unknownHandling = m
 	}
 }
 
+// Create a new set
 func NewSet(name string, modifiers ...SetModifier) *Set {
 	s := &Set{
 		name:            name,
@@ -104,6 +109,8 @@ func (s *Set) VisitAll(fn Visitor) {
 	}
 }
 
+// Add a group to the set. This is used to relocate
+// a group from one set to another.
 func (s *Set) AddGroup(g *Group) error {
 	// Check that group hasn't already been added
 	for _, cg := range s.groups {
@@ -160,6 +167,8 @@ func (s *Set) Flags() []*Flag {
 	return f
 }
 
+// Get a flag by name. If the set has parsed, flags
+// can be retrieved using short name and aliases.
 func (s *Set) Flag(n string) (f *Flag, err error) {
 	if s.parsed {
 		f = s.flagMap[n]
