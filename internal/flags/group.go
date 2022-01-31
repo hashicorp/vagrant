@@ -163,9 +163,10 @@ func (g *Group) Integer(
 	return newFlag(name, IntegerType, g, modifiers...)
 }
 
+// Add a new Integer flag using variable
 func (g *Group) IntegerVar(
 	name string,
-	ptr *int,
+	ptr *int64,
 	modifiers ...FlagModifier,
 ) *Flag {
 	f := g.Integer(name, modifiers...)
@@ -183,9 +184,10 @@ func (g *Group) Increment(
 	return newFlag(name, IncrementType, g, modifiers...)
 }
 
+// Add a new IncrementType flag using variable
 func (g *Group) IncrementVar(
 	name string,
-	ptr *int,
+	ptr *int64,
 	modifiers ...FlagModifier,
 ) *Flag {
 	f := g.Increment(name, modifiers...)
@@ -204,10 +206,11 @@ func (g *Group) Map(
 	return newFlag(name, MapType, g, modifiers...)
 }
 
+// Add a new MaptType flag using variable
 func (g *Group) MapVar(
 	name string,
 	subtype Type,
-	ptr *map[string]interface{},
+	ptr interface{},
 	modifiers ...FlagModifier,
 ) *Flag {
 	f := g.Map(name, subtype, modifiers...)
