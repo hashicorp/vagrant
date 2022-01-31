@@ -2,6 +2,7 @@ package flags
 
 import (
 	"fmt"
+	"strings"
 	"testing"
 )
 
@@ -123,7 +124,7 @@ func Test_Set_VisitAll(t *testing.T) {
 
 func Test_Set_CreateGroup(t *testing.T) {
 	s := testSet()
-	if err := s.NewGroup("test-group"); err != nil {
+	if _, err := s.NewGroup("test-group"); err != nil {
 		t.Fatalf("failed to create new group: %s", err)
 	}
 	if len(s.groups) != 2 {
@@ -137,10 +138,10 @@ func Test_Set_CreateGroup(t *testing.T) {
 func Test_Set_CreateGroup_duplicate(t *testing.T) {
 	n := "test-group-name"
 	s := testSet()
-	if err := s.NewGroup(n); err != nil {
+	if _, err := s.NewGroup(n); err != nil {
 		t.Fatalf("failed to create new group: %s", err)
 	}
-	if err := s.NewGroup(n); err == nil {
+	if _, err := s.NewGroup(n); err == nil {
 		t.Fatalf("expected error but no error returned")
 	}
 }
@@ -154,7 +155,7 @@ func Test_Set_DefaultGroup(t *testing.T) {
 
 func Test_Set_Flags(t *testing.T) {
 	s := testSet()
-	if err := s.NewGroup("test-group"); err != nil {
+	if _, err := s.NewGroup("test-group"); err != nil {
 		t.Fatalf("failed to create new group: %s", err)
 	}
 	for i := 0; i < 5; i++ {
@@ -386,6 +387,21 @@ func Test_Set_Parse_unknown_pass(t *testing.T) {
 	}
 }
 
+func Test_Set_Parse_remaining(t *testing.T) {
+	s := testSet()
+	s.DefaultGroup().String("entry")
+	r, err := s.Parse([]string{"--entry", "VALUE", "action"})
+	if err != nil {
+		t.Fatalf("unexpected parse error: %s", err)
+	}
+	if len(r) != 1 {
+		t.Fatalf("invalid remaining length - 1 != %d", len(r))
+	}
+	if r[0] != "action" {
+		t.Errorf("invalid remaining value - action != %s", r[0])
+	}
+}
+
 // -vvv --entry eVALUE --mark -x xVALUE -y
 func Test_Set_Parse_1(t *testing.T) {
 	s := testSet()
@@ -422,6 +438,58 @@ func Test_Set_Parse_1(t *testing.T) {
 		}
 	}
 }
+
+func Test_Set_validateFlags(t *testing.T) {
+	s := testSet()
+	s.DefaultGroup().Bool("mark")
+	s.DefaultGroup().String("entry")
+	if err := s.validateFlags(); err != nil {
+		t.Errorf("unexpected validate error: %s", err)
+	}
+}
+
+func Test_Set_validateFlags_single(t *testing.T) {
+	s := testSet()
+	s.DefaultGroup().Bool("mark", Required())
+	s.DefaultGroup().String("entry")
+	err := s.validateFlags()
+	if err == nil {
+		t.Fatalf("expected error but no error returned")
+	}
+	if !strings.Contains(err.Error(), "--mark") {
+		t.Errorf("expected error to contain --mark but it did not - %s", err)
+	}
+}
+
+func Test_Set_validateFlags_multiple(t *testing.T) {
+	s := testSet()
+	s.DefaultGroup().Bool("mark", Required())
+	s.DefaultGroup().String("entry", Required())
+	s.DefaultGroup().Increment("verbosity")
+	err := s.validateFlags()
+	if err == nil {
+		t.Fatalf("expected error but no error returned")
+	}
+	if !strings.Contains(err.Error(), "--mark") {
+		t.Errorf("expected error to contain --mark but it did not - %s", err)
+	}
+	if !strings.Contains(err.Error(), "--entry") {
+		t.Errorf("expected error to contain --entry but it did not - %s", err)
+	}
+}
+
+func Test_Set_validateFlags_updated(t *testing.T) {
+	s := testSet()
+	f := s.DefaultGroup().Bool("mark", Required())
+	f.updated = true
+	s.DefaultGroup().String("entry")
+	err := s.validateFlags()
+	if err != nil {
+		t.Fatalf("error return when none was expected - %s", err)
+	}
+}
+
+// Below are complex argument parse tests
 
 // -vvyvvxxVALUE --mark --entry=EVALUE
 func Test_Set_Parse_2(t *testing.T) {
