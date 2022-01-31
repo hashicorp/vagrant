@@ -36,7 +36,7 @@ func (c *DynamicCommand) Run(args []string) int {
 	err := c.Do(c.Ctx, func(ctx context.Context, cl *client.Client, modifier client.JobModifier) (err error) {
 		cl.UI().Output("Running "+c.name+"... ", terminal.WithHeaderStyle())
 		taskArgs := &vagrant_plugin_sdk.Command_Arguments{
-			Args:  args,
+			Args:  c.args,
 			Flags: []*vagrant_plugin_sdk.Command_Arguments_Flag{},
 		}
 		for f, v := range c.flagData {
@@ -56,7 +56,11 @@ func (c *DynamicCommand) Run(args []string) int {
 			taskArgs.Flags = append(taskArgs.Flags, cmdFlag)
 		}
 
-		c.Log.Info("collected argument flags", "flags", taskArgs.Flags, "args", args)
+		c.Log.Debug("collected argument flags",
+			"flags", taskArgs.Flags,
+			"args", args,
+			"remaining", c.args,
+		)
 
 		t := &vagrant_server.Task{
 			Task: c.name,
