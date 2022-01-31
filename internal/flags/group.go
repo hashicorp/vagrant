@@ -224,6 +224,10 @@ func (g *Group) MapVar(
 func (g *Group) Display(
 	indent int, // Number of spaces to indent
 ) string {
+	if g.hidden {
+		return ""
+	}
+
 	var pad int
 	opts := []string{}
 	desc := []string{}
@@ -237,15 +241,24 @@ func (g *Group) Display(
 		} else {
 			opts = append(opts, "   ")
 		}
-		if f.kind == BooleanType {
+		switch f.kind {
+		case BooleanType:
 			opts[i] = fmt.Sprintf("%s --[no-]%s", opts[i], f.longName)
-		} else {
+		case IncrementType:
+			opts[i] = fmt.Sprintf("%s --%s", opts[i], f.longName)
+		default:
 			opts[i] = fmt.Sprintf("%s --%s VALUE", opts[i], f.longName)
 		}
 		desc = append(desc, f.description)
 		if len(opts[i]) > pad {
 			pad = len(opts[i])
 		}
+	}
+
+	// If there were no flags to display (empty flag collection or all hidden)
+	// then just return an empty string
+	if len(opts) == 0 {
+		return ""
 	}
 
 	pad += indent
