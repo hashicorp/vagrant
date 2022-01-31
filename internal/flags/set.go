@@ -200,6 +200,8 @@ func (s *Set) Parse(args []string) (remaining []string, err error) {
 	if s.parsed {
 		return nil, fmt.Errorf("Set has already parsed arguments")
 	}
+	s.parsed = true
+
 	// Initialize all the flags. Errors returned from here
 	// are either flag initialization issues or flag name
 	// collisions
@@ -337,11 +339,24 @@ func (s *Set) Parse(args []string) (remaining []string, err error) {
 		}
 	}
 
-	// TODO: need to validate for required flags
-
-	s.parsed = true
-
+	s.validateFlags()
 	return s.remaining, nil
+}
+
+func (s *Set) validateFlags() (err error) {
+	for _, f := range s.Flags() {
+		if !f.required {
+			continue
+		}
+		if !f.updated {
+			err = multierror.Append(
+				fmt.Errorf("missing required value for flag --%s", f.longName),
+				err,
+			)
+		}
+	}
+
+	return
 }
 
 func (s *Set) flagNotFound(name string) error {
