@@ -4,12 +4,14 @@ import "fmt"
 
 type GroupModifier func(g *Group)
 
+// Don't display the group name of the flags
 func HideGroupName() GroupModifier {
 	return func(g *Group) {
 		g.showGroupName = false
 	}
 }
 
+// Don't display this group of flags
 func HideGroup() GroupModifier {
 	return func(g *Group) {
 		g.hidden = true
@@ -17,11 +19,11 @@ func HideGroup() GroupModifier {
 }
 
 type Group struct {
-	flags         []*Flag
-	hidden        bool
-	name          string
-	set           *Set
-	showGroupName bool
+	flags         []*Flag // flags attached to group
+	hidden        bool    // group should not be displayed
+	name          string  // name of the group
+	set           *Set    // Set group is attached to
+	showGroupName bool    // group name should be included in display
 }
 
 func newGroup(s *Set, n string, modifiers ...GroupModifier) *Group {
@@ -44,6 +46,8 @@ func newGroup(s *Set, n string, modifiers ...GroupModifier) *Group {
 	return g
 }
 
+// Add a flag to the group. This is used to relocate
+// a flag from one group to another.
 func (g *Group) Add(f *Flag) (err error) {
 	if f.group == g {
 		return nil
@@ -67,16 +71,19 @@ func (g *Group) Add(f *Flag) (err error) {
 	return err
 }
 
+// Name of the group
 func (g *Group) Name() string {
 	return g.name
 }
 
+// Flags contained by this group
 func (g *Group) Flags() []*Flag {
 	f := make([]*Flag, len(g.flags))
 	copy(f, g.flags)
 	return f
 }
 
+// Add a new BooleanType flag
 func (g *Group) Bool(
 	name string,
 	modifiers ...FlagModifier,
@@ -84,6 +91,7 @@ func (g *Group) Bool(
 	return newFlag(name, BooleanType, g, modifiers...)
 }
 
+// Add a new BooleanType flag using variable
 func (g *Group) BoolVar(
 	name string,
 	ptr *bool,
@@ -96,6 +104,7 @@ func (g *Group) BoolVar(
 	return f
 }
 
+// Add a new StringType flag
 func (g *Group) String(
 	name string,
 	modifiers ...FlagModifier,
@@ -103,6 +112,7 @@ func (g *Group) String(
 	return newFlag(name, StringType, g, modifiers...)
 }
 
+// Add a new StringType flag using variable
 func (g *Group) StringVar(
 	name string,
 	ptr *string,
@@ -115,6 +125,7 @@ func (g *Group) StringVar(
 	return f
 }
 
+// Add a new ArrayType flag
 func (g *Group) Array(
 	name string,
 	subtype Type,
@@ -124,6 +135,7 @@ func (g *Group) Array(
 	return newFlag(name, ArrayType, g, modifiers...)
 }
 
+// Add a new ArrayType flag using variable
 func (g *Group) ArrayVar(
 	name string,
 	subtype Type,
@@ -137,13 +149,15 @@ func (g *Group) ArrayVar(
 	return f
 }
 
+// Add a new FloatType flag
 func (g *Group) Float(
 	name string,
 	modifiers ...FlagModifier,
 ) *Flag {
-	return newFlag(name, StringType, g, modifiers...)
+	return newFlag(name, FloatType, g, modifiers...)
 }
 
+// Add a new FloatType flag using variable
 func (g *Group) FloatVar(
 	name string,
 	ptr *float64,
@@ -156,6 +170,7 @@ func (g *Group) FloatVar(
 	return f
 }
 
+// Add a new Integer flag
 func (g *Group) Integer(
 	name string,
 	modifiers ...FlagModifier,
@@ -176,6 +191,7 @@ func (g *Group) IntegerVar(
 	return f
 }
 
+// Add a new IncrementType flag
 func (g *Group) Increment(
 	name string,
 	modifiers ...FlagModifier,
@@ -197,6 +213,7 @@ func (g *Group) IncrementVar(
 	return f
 }
 
+// Add a new MapType flag
 func (g *Group) Map(
 	name string,
 	subtype Type,
