@@ -13,7 +13,8 @@ export PATH=$PATH:/usr/local/go/bin
 go version
 
 # Install Ruby
-sudo snap install ruby --classic --channel=2.7/stable
+curl -sSL https://rvm.io/pkuczynski.asc | sudo gpg --import -
+curl -sSL https://get.rvm.io | bash -s stable --ruby
 
 pushd /vagrant
 
@@ -24,9 +25,14 @@ git config --global url."https://${HASHIBOT_USERNAME}:${HASHIBOT_TOKEN}@github.c
 gem install bundler -v "$(grep -A 1 "BUNDLED WITH" Gemfile.lock | tail -n 1)"
 make
 bundle install
-./vagrant status
+ln -s /vagrant/vagrant /bin/vagrant
 
-# dpkg -i vagrant_*_x86_64.deb
-# vagrant plugin install ./vagrant-spec.gem
+popd
 
+# Install vagrant-spec
+git clone https://github.com/hashicorp/vagrant-spec.git
+pushd vagrant-spec
+gem build vagrant-spec.gemspec
+gem install vagrant-spec*.gem
+vagrant-spec -h
 popd
