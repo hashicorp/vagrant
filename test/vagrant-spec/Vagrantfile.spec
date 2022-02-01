@@ -89,7 +89,11 @@ Vagrant.configure(2) do |global_config|
             path: "./scripts/#{PLATFORM_SCRIPT_MAPPING[platform]}-setup.#{provider_name}.ps1", run: "once"
         else
           config.vm.provision :shell,
-            path: "./scripts/#{PLATFORM_SCRIPT_MAPPING[platform]}-setup.#{provider_name}.sh", run: "once"
+            path: "./scripts/#{PLATFORM_SCRIPT_MAPPING[platform]}-setup.#{provider_name}.sh", run: "once",
+            env: {
+              "HASHIBOT_USERNAME" => ENV["HASHIBOT_USERNAME"],
+              "HASHIBOT_TOKEN" => ENV["HASHIBOT_TOKEN"]
+            }
         end
         if provider_name == "docker"
           docker_images.each_with_index do |image_info, idx|
