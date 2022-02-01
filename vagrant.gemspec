@@ -17,7 +17,7 @@ Gem::Specification.new do |s|
 
   s.add_dependency "bcrypt_pbkdf", "~> 1.1"
   s.add_dependency "childprocess", "~> 4.1.0"
-  s.add_dependency "ed25519", "~> 1.2.4"
+  s.add_dependency "ed25519", "~> 1.3.0"
   s.add_dependency "erubi"
   s.add_dependency 'googleapis-common-protos-types', '~> 1.3'
   s.add_dependency "grpc"
