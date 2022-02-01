@@ -1,0 +1,67 @@
+on:
+  push:
+    branches:
+      - main
+      - 'test-*'
+    paths:
+      - 'builtin/**'
+      - 'cmd/**'
+      - 'internal/**'
+      - '.github/workflows**'
+      - 'go.mod'
+      - 'go.sum'
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'builtin/**'
+      - 'cmd/**'
+      - 'internal/**'
+      - 'go.mod'
+      - 'go.sum'
+
+jobs:
+  tests:
+    runs-on: ubuntu-18.04
+    strategy:
+      matrix:
+        go: ['^1.16']
+        ruby: ['3.0']
+    name: Vagrant acceptance tests
+    steps:
+      - name: Code Checkout
+        uses: actions/checkout@v2
+      - name: Setup Go
+        uses: actions/setup-go@v2
+        with:
+          go-version: ${{matrix.go}}
+      - name: Setup Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: ${{matrix.ruby}}
+          architecture: 'x64'
+      - name: Setup ruby vagrant
+        run: |
+          gem install --no-document bundler
+          bundle install
+      - name: Build Vagrant
+        run:  |
+          git config --global url."https://${HASHIBOT_USERNAME}:${HASHIBOT_TOKEN}@github.com".insteadOf "https://github.com"
+          make bin/linux
+        env:
+          HASHIBOT_USERNAME: ${{ secrets.HASHIBOT_USERNAME }}
+          HASHIBOT_TOKEN: ${{ secrets.HASHIBOT_TOKEN }}
+      - name: Code vagrant-spec repo
+        uses: actions/checkout@v2
+        with:
+          repository: 'hashicorp/vagrant-spec'
+          path: vagrant-spec
+      - name: Install vagrant-spec
+        run: |
+          gem build vagrant-spec/vagrant-spec.gemspec
+          gem install vagrant-spec/vagrant-spec*.gem
+      - name: Run spec tests
+        run: |
+          vagrant-spec test --components=cli/box cli/plugin cli/version cli/init --config test/vagrant-spec/configs/vagrant-spec.config.virtualbox.rb
+        env:
+          VAGRANT_SPEC_BOX: "hashicorp/bionic64"
