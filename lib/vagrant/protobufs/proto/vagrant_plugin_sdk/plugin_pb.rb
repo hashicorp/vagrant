@@ -57,7 +57,7 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
     add_message "hashicorp.vagrant.sdk.Args.TerminalUI" do
       optional :stream_id, :uint32, 1
       optional :network, :string, 2
-      optional :target, :string, 3
+      optional :addr, :string, 3
     end
     add_message "hashicorp.vagrant.sdk.Args.Logger" do
       optional :name, :string, 1
@@ -76,32 +76,32 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
     add_message "hashicorp.vagrant.sdk.Args.PluginManager" do
       optional :stream_id, :uint32, 1
       optional :network, :string, 2
-      optional :target, :string, 3
+      optional :addr, :string, 3
     end
     add_message "hashicorp.vagrant.sdk.Args.Command" do
       optional :stream_id, :uint32, 1
       optional :network, :string, 2
-      optional :target, :string, 3
+      optional :addr, :string, 3
     end
     add_message "hashicorp.vagrant.sdk.Args.Basis" do
       optional :stream_id, :uint32, 1
       optional :network, :string, 2
-      optional :target, :string, 3
+      optional :addr, :string, 3
     end
     add_message "hashicorp.vagrant.sdk.Args.Project" do
       optional :stream_id, :uint32, 1
       optional :network, :string, 2
-      optional :target, :string, 3
+      optional :addr, :string, 3
     end
     add_message "hashicorp.vagrant.sdk.Args.Provider" do
       optional :stream_id, :uint32, 1
       optional :network, :string, 2
-      optional :target, :string, 3
+      optional :addr, :string, 3
     end
     add_message "hashicorp.vagrant.sdk.Args.Target" do
       optional :stream_id, :uint32, 1
       optional :network, :string, 2
-      optional :target, :string, 3
+      optional :addr, :string, 3
     end
     add_message "hashicorp.vagrant.sdk.Args.Target.State" do
       optional :state, :enum, 1, "hashicorp.vagrant.sdk.Args.Target.State.State"
@@ -115,7 +115,7 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
     add_message "hashicorp.vagrant.sdk.Args.Target.Machine" do
       optional :stream_id, :uint32, 1
       optional :network, :string, 2
-      optional :target, :string, 3
+      optional :addr, :string, 3
     end
     add_message "hashicorp.vagrant.sdk.Args.Target.Machine.State" do
       optional :id, :string, 1
@@ -125,47 +125,47 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
     add_message "hashicorp.vagrant.sdk.Args.Box" do
       optional :stream_id, :uint32, 1
       optional :network, :string, 2
-      optional :target, :string, 3
+      optional :addr, :string, 3
     end
     add_message "hashicorp.vagrant.sdk.Args.BoxCollection" do
       optional :stream_id, :uint32, 1
       optional :network, :string, 2
-      optional :target, :string, 3
+      optional :addr, :string, 3
     end
     add_message "hashicorp.vagrant.sdk.Args.StateBag" do
       optional :stream_id, :uint32, 1
       optional :network, :string, 2
-      optional :target, :string, 3
+      optional :addr, :string, 3
     end
     add_message "hashicorp.vagrant.sdk.Args.Host" do
       optional :stream_id, :uint32, 1
       optional :network, :string, 2
-      optional :target, :string, 3
+      optional :addr, :string, 3
     end
     add_message "hashicorp.vagrant.sdk.Args.Guest" do
       optional :stream_id, :uint32, 1
       optional :network, :string, 2
-      optional :target, :string, 3
+      optional :addr, :string, 3
     end
     add_message "hashicorp.vagrant.sdk.Args.Communicator" do
       optional :stream_id, :uint32, 1
       optional :network, :string, 2
-      optional :target, :string, 3
+      optional :addr, :string, 3
     end
     add_message "hashicorp.vagrant.sdk.Args.Push" do
       optional :stream_id, :uint32, 1
       optional :network, :string, 2
-      optional :target, :string, 3
+      optional :addr, :string, 3
     end
     add_message "hashicorp.vagrant.sdk.Args.SyncedFolder" do
       optional :stream_id, :uint32, 1
       optional :network, :string, 2
-      optional :target, :string, 3
+      optional :addr, :string, 3
     end
     add_message "hashicorp.vagrant.sdk.Args.TargetIndex" do
       optional :stream_id, :uint32, 1
       optional :network, :string, 2
-      optional :target, :string, 3
+      optional :addr, :string, 3
     end
     add_message "hashicorp.vagrant.sdk.Args.NamedCapability" do
       optional :capability, :string, 1
