@@ -6,7 +6,7 @@ GUEST_BOXES = {
   'hashicorp/bionic64' => '1.0.282',
   'hashicorp-vagrant/ubuntu-16.04' => '1.0.1',
   'hashicorp-vagrant/centos-7.4' => '1.0.2',
-  'hashicorp-vagrant/windows-10' => '1.0.0',
+  # 'hashicorp-vagrant/windows-10' => '1.0.0',
   'spox/osx-10.12' => '0.0.1'
 }
 
@@ -19,7 +19,7 @@ HOST_BOXES = {
   'hashicorp/bionic64' => '1.0.282',
   'hashicorp-vagrant/ubuntu-16.04' => '1.0.1',
   'hashicorp-vagrant/centos-7.4' => '1.0.2',
-  'hashicorp-vagrant/windows-10' => '1.0.0',
+  # 'hashicorp-vagrant/windows-10' => '1.0.0',
   'spox/osx-10.12' => '0.0.1'
 }
 
