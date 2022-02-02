@@ -49,7 +49,7 @@ module VagrantPlugins
         end
 
         def converter(proto, broker, cacher)
-          cid = proto.target.to_s if proto.target.to_s != ""
+          cid = proto.addr.to_s if proto.addr.to_s != ""
           return cacher[cid] if cid && cacher.registered?(cid)
 
           project = Client::Project.load(proto, broker: broker)

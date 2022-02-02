@@ -473,7 +473,7 @@ func (m *Manager) Servinfo() ([]byte, error) {
 	m.closer(fn)
 
 	m.logger.Info("new GRPC server instance started",
-		"address", p.Target,
+		"address", p.Addr,
 	)
 
 	m.srv, err = protojson.Marshal(p)
