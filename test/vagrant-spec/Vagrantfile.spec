@@ -108,7 +108,7 @@ Vagrant.configure(2) do |global_config|
                 path: "./scripts/#{platform}-run.#{provider_name}.ps1",
                 keep_color: true,
                 env: {
-                  "VAGRANT_SPEC_ARGS" => "--no-builtin --component provider/docker/docker/* #{spec_cmd_args}".strip,
+                  "VAGRANT_SPEC_ARGS" => "test --components provider/docker/docker/* #{spec_cmd_args}".strip,
                   "VAGRANT_SPEC_DOCKER_IMAGE" => docker_image
                 }
               )
@@ -118,7 +118,7 @@ Vagrant.configure(2) do |global_config|
                 path: "./scripts/#{PLATFORM_SCRIPT_MAPPING[platform]}-run.#{provider_name}.sh",
                 keep_color: true,
                 env: {
-                  "VAGRANT_SPEC_ARGS" => "--no-builtin --component provider/docker/docker/* #{spec_cmd_args}".strip,
+                  "VAGRANT_SPEC_ARGS" => "test --components provider/docker/docker/* #{spec_cmd_args}".strip,
                   "VAGRANT_SPEC_DOCKER_IMAGE" => docker_image
                 }
               )
@@ -150,7 +150,7 @@ Vagrant.configure(2) do |global_config|
                 path: "./scripts/#{PLATFORM_SCRIPT_MAPPING[platform]}-run.#{provider_name}.sh",
                 keep_color: true,
                 env: {
-                  "VAGRANT_SPEC_ARGS" => "#{spec_cmd_args}".strip,
+                  "VAGRANT_SPEC_ARGS" => "test #{spec_cmd_args}".strip,
                   "VAGRANT_SPEC_BOX" => "/vagrant/test/vagrant-spec/boxes/#{guest_box.sub('/', '_')}.#{provider_name}.#{box_version}.box",
                   "VAGRANT_SPEC_GUEST_PLATFORM" => guest_platform,
                 }
