@@ -4,6 +4,7 @@ module Vagrant
   module Plugin
     module Remote
       autoload :Communicator, "vagrant/plugin/remote/communicator"
+      autoload :Guest, "vagrant/plugin/remote/guest"
       autoload :Manager, "vagrant/plugin/remote/manager"
       autoload :Plugin, "vagrant/plugin/remote/plugin"
       autoload :Provider, "vagrant/plugin/remote/provider"
