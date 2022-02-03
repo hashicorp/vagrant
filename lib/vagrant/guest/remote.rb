@@ -21,11 +21,6 @@ module Vagrant
         # no-op
       end
 
-      def ready?
-        # TODO: check if a guest is ready. For now guests are born ready
-        true
-      end
-
       def detect!
         # no-op
         # This operation not happen in Ruby, instead rely
@@ -54,6 +49,14 @@ module Vagrant
       def capability?(cap_name)
         @logger.debug("checking for remote guest capability #{cap_name}")
         client.has_capability?(cap_name)
+      end
+
+      # @return [Boolean]
+      def ready?
+        # A remote guest is always "ready". That is, guest detection has already
+        # completed on the go side. So, at this stage and the communicator is 
+        # certainly available.
+        true
       end
 
       # Returns the specified or detected guest type name.

@@ -13,15 +13,10 @@ module Vagrant
             end
           end
 
-          def initialize(machine)
-            @logger = Log4r::Logger.new("vagrant::remote::guest")
-            @logger.debug("initializing guest with remote backend")
-            @machine = machine
-            @client = machine.client.guest
-          end
-
+          # @return [Boolean]
           def detect?(machine)
-            @client.detect(machine)
+            client = machine.client.guest
+            client.detect(machine)
           end
         end
       end

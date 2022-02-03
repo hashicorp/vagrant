@@ -17,7 +17,21 @@ module VagrantPlugins
           [spec, cb]
         end
 
-        # @return [Array<String>] parents
+        # @param [Vagrant::Machine]
+        # @return [Boolean]
+        def detect(machine)
+          req = SDK::FuncSpec::Args.new(
+            args: [SDK::FuncSpec::Value.new(
+                name: "",
+                type: "hashicorp.vagrant.sdk.Args.Target.Machine",
+                value: Google::Protobuf::Any.pack(machine.to_proto)
+            )]
+          )
+          res = client.detect(req)
+          res.detected
+        end
+
+        # @return [String] parents
         def parent
           run_func
         end
