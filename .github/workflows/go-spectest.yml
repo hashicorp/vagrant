@@ -56,6 +56,6 @@ jobs:
         run: |
           gem build vagrant-spec/vagrant-spec.gemspec
           gem install vagrant-spec-0.0.1.gem
-          bundle exec vagrant-spec test --components=cli/box cli/plugin cli/version cli/init --config test/vagrant-spec/configs/vagrant-spec.config.virtualbox.rb
+          bundle exec vagrant-spec test --components=cli/version --config test/vagrant-spec/configs/vagrant-spec.config.virtualbox.rb
         env:
           VAGRANT_SPEC_BOX: "hashicorp/bionic64"
