@@ -52,12 +52,10 @@ jobs:
         with:
           repository: 'hashicorp/vagrant-spec'
           path: vagrant-spec
-      - name: Install vagrant-spec
+      - name: Install and run vagrant-spec
         run: |
           gem build vagrant-spec/vagrant-spec.gemspec
-          gem install --local vagrant-spec-0.0.1.gem
-      - name: Run spec tests
-        run: |
-          vagrant-spec test --components=cli/box cli/plugin cli/version cli/init --config test/vagrant-spec/configs/vagrant-spec.config.virtualbox.rb
+          gem install vagrant-spec-0.0.1.gem
+          bundle exec vagrant-spec test --components=cli/box cli/plugin cli/version cli/init --config test/vagrant-spec/configs/vagrant-spec.config.virtualbox.rb
         env:
           VAGRANT_SPEC_BOX: "hashicorp/bionic64"
