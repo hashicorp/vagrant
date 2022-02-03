@@ -25,6 +25,8 @@ jobs:
     steps:
       - name: Code Checkout
         uses: actions/checkout@v2
+        with:
+          submodules: 'recursive'
       - name: Setup Go
         uses: actions/setup-go@v2
         with:
