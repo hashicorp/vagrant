@@ -50,9 +50,8 @@ jobs:
       - name: Get vagrant-spec repo
         uses: actions/checkout@v2
         with:
-          repository: 'soapy1/vagrant-spec'
+          repository: 'hashicorp/vagrant-spec'
           path: vagrant-spec
-          ref: use-full-vagrant-path-if-executable
       - name: Install and run vagrant-spec
         run: |
           pushd vagrant-spec
