@@ -58,6 +58,9 @@ jobs:
           gem build vagrant-spec.gemspec
           gem install vagrant-spec-0.0.1.gem
           popd
+          ls | grep vagrant
           vagrant-spec test --components=cli/version --config test/vagrant-spec/configs/vagrant-spec.config.virtualbox.rb
         env:
           VAGRANT_SPEC_BOX: "hashicorp/bionic64"
+          VAGRANT_PATH: vagrant
+          PATH: $PATH:$GITHUB_WORKSPACE
