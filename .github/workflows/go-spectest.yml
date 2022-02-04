@@ -50,17 +50,15 @@ jobs:
       - name: Get vagrant-spec repo
         uses: actions/checkout@v2
         with:
-          repository: 'hashicorp/vagrant-spec'
+          repository: 'soapy1/vagrant-spec'
           path: vagrant-spec
+          ref: use-full-vagrant-path-if-executable
       - name: Install and run vagrant-spec
         run: |
           pushd vagrant-spec
           gem build vagrant-spec.gemspec
           gem install vagrant-spec-0.0.1.gem
           popd
-          ls | grep vagrant
-          vagrant-spec test --components=cli/version --config test/vagrant-spec/configs/vagrant-spec.config.virtualbox.rb
+          VAGRANT_PATH="$GITHUB_WORKSPACE/vagrant" vagrant-spec test --components=cli/version --config test/vagrant-spec/configs/vagrant-spec.config.virtualbox.rb
         env:
           VAGRANT_SPEC_BOX: "hashicorp/bionic64"
-          VAGRANT_PATH: vagrant
-          PATH: $PATH:$GITHUB_WORKSPACE
