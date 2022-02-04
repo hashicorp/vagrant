@@ -47,15 +47,17 @@ jobs:
         env:
           HASHIBOT_USERNAME: ${{ secrets.HASHIBOT_USERNAME }}
           HASHIBOT_TOKEN: ${{ secrets.HASHIBOT_TOKEN }}
-      - name: Code vagrant-spec repo
+      - name: Get vagrant-spec repo
         uses: actions/checkout@v2
         with:
           repository: 'hashicorp/vagrant-spec'
           path: vagrant-spec
       - name: Install and run vagrant-spec
         run: |
-          gem build vagrant-spec/vagrant-spec.gemspec
+          pushd vagrant-spec
+          gem build vagrant-spec.gemspec
           gem install vagrant-spec-0.0.1.gem
-          bundle exec vagrant-spec test --components=cli/version --config test/vagrant-spec/configs/vagrant-spec.config.virtualbox.rb
+          popd
+          vagrant-spec test --components=cli/version --config test/vagrant-spec/configs/vagrant-spec.config.virtualbox.rb
         env:
           VAGRANT_SPEC_BOX: "hashicorp/bionic64"
