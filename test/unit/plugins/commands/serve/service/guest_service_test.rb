@@ -26,7 +26,7 @@ describe VagrantPlugins::CommandServe::Service::GuestService do
           name: "",
           type: "hashicorp.vagrant.sdk.Args.Target",
           value: Google::Protobuf::Any.pack(
-            Hashicorp::Vagrant::Sdk::Args::Target.new(stream_id: 1, network: "here:101", target: "unix://here"
+            Hashicorp::Vagrant::Sdk::Args::Target.new(stream_id: 1, network: "here:101", addr: "unix://here"
         )))
       ]
     )
