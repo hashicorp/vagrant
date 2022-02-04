@@ -20,7 +20,7 @@ jobs:
     strategy:
       matrix:
         go: ['^1.16']
-        ruby: ['3.0']
+        ruby: ['2.7']
     name: Vagrant acceptance tests
     steps:
       - name: Code Checkout
