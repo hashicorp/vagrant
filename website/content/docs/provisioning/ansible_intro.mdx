@@ -22,7 +22,7 @@ To learn more about Ansible, please consult the [Ansible Documentation Site](htt
 ## The Playbook File
 
 The first component of a successful Ansible provisioner setup is the Ansible playbook which contains the steps that should be run on the guest. Ansible's
-[playbook documentation](https://docs.ansible.com/playbooks.html) goes into great detail on how to author playbooks, and there are a number of [best practices](https://docs.ansible.com/playbooks_best_practices.html) that can be applied to use Ansible's powerful features effectively.
+[playbook documentation](https://docs.ansible.com/ansible/latest/user_guide/playbooks_intro.html) goes into great detail on how to author playbooks, and there are a number of [tips and tricks](https://docs.ansible.com/ansible/latest/user_guide/playbooks_best_practices.html) that can be applied to use Ansible's powerful features effectively.
 
 A playbook that installs and starts (or restarts) the NTP daemon via YUM looks like:
 
@@ -83,7 +83,7 @@ end
 
 ## The Inventory File
 
-When using Ansible, it needs to know on which machines a given playbook should run. It does this by way of an [inventory](https://docs.ansible.com/intro_inventory.html) file which lists those machines. In the context of Vagrant, there are two ways to approach working with inventory files.
+When using Ansible, it needs to know on which machines a given playbook should run. It does this by way of an [inventory](https://docs.ansible.com/ansible/latest/user_guide/intro_inventory.html) file which lists those machines. In the context of Vagrant, there are two ways to approach working with inventory files.
 
 ### Auto-Generated Inventory
 
