@@ -7,7 +7,7 @@ module VagrantPlugins
         #
         # @return [SDK::FuncSpec, Proc]
         def usable_func
-          spec = client.usable_spec
+          spec = client.usable_spec(Empty.new)
           cb = proc do |args|
             client.usable(args).usable
           end
@@ -26,7 +26,7 @@ module VagrantPlugins
         #
         # @return [SDK::FuncSpec, Proc]
         def enable_func
-          spec = client.enable_spec
+          spec = client.enable_spec(Empty.new)
           cb = proc do |args|
             client.enable(args)
           end
@@ -42,8 +42,11 @@ module VagrantPlugins
           run_func(machine, folders, opts)
         end
 
+        # Generate callback and spec for required arguments
+        #
+        # @return [SDK::FuncSpec, Proc]
         def disable_func
-          spec = client.disable_spec
+          spec = client.disable_spec(Empty.new)
           cb = proc do |args|
             client.disable(args)
           end
@@ -63,7 +66,7 @@ module VagrantPlugins
         #
         # @return [SDK::FuncSpec, Proc]
         def cleanup_func
-          spec = client.cleanup_spec
+          spec = client.cleanup_spec(Empty.new)
           cb = proc do |args|
             client.cleanup(args)
           end

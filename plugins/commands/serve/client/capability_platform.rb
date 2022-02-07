@@ -8,7 +8,7 @@ module VagrantPlugins
         #
         # @return [SDK::FuncSpec, Proc]
         def has_capability_func
-          spec = client.has_capability_spec
+          spec = client.has_capability_spec(Empty.new)
           cb = proc do |args|
             client.has_capability(args).has_capability
           end
@@ -52,8 +52,9 @@ module VagrantPlugins
         def capability(cap_name, *args)
           logger.debug("executing capability #{cap_name}")
           spec, cb = capability_func(cap_name)
-          args << Type::Direct.new(value: args)
-          cb.call(cap_name, generate_funcspec_args(spec, *args))
+          cb.call(cap_name,
+            generate_funcspec_args(spec,
+              Type::Direct.new(value: args), *args))
         end
       end
     end

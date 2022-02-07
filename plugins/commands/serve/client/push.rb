@@ -6,7 +6,7 @@ module VagrantPlugins
         #
         # @return [SDK::FuncSpec, Proc]
         def push_func
-          spec = client.push_spec
+          spec = client.push_spec(Empty.new)
           cb = proc do |args|
             client.push(args)
           end

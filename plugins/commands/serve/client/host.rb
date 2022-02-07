@@ -7,7 +7,7 @@ module VagrantPlugins
         #
         # @return [SDK::FuncSpec, Proc]
         def parent_func
-          spec = client.parent_spec
+          spec = client.parent_spec(Empty.new)
           cb = proc do |args|
             client.parent(args).parent
           end
