@@ -7,7 +7,6 @@ module VagrantPlugins
         include Mutex_m
 
         class Entry
-          include Mutex_m
           attr_reader :value
 
           def initialize(value)
@@ -16,7 +15,6 @@ module VagrantPlugins
           end
 
           def value
-            raise "Entry must be locked to access value" if !mu_locked?
             @value
           end
         end
