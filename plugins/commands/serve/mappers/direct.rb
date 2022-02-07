@@ -37,8 +37,12 @@ module VagrantPlugins
 
         def converter(direct, mappers)
           args = direct.arguments.map do |v|
-            logger.trace("converting direct argument #{v} to something useful")
-            mappers.map(v)
+            begin
+              mappers.map(v)
+            rescue => err
+              logger.debug("Failed to map value #{v} - #{err}\n#{err.backtrace.join("\n")}")
+              raise
+            end
           end
           Type::Direct.new(arguments: args)
         end
@@ -58,10 +62,10 @@ module VagrantPlugins
         def converter(d, mappers)
           args = d.args.map do |a|
             begin
-              logger.trace("direct argument list item map to any: #{a.pretty_inspect}")
               mappers.map(a, to: Google::Protobuf::Any)
             rescue => err
-              raise "Failed to map value #{a} - #{err}\n#{err.backtrace.join("\n")}"
+              logger.debug("Failed to map value #{a} - #{err}\n#{err.backtrace.join("\n")}")
+              raise
             end
           end
           SDK::Args::Direct.new(arguments: args)
