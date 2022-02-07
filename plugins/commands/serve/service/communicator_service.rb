@@ -101,10 +101,13 @@ module VagrantPlugins
                 name: "",
               ),
               SDK::FuncSpec::Value.new(
-                name: "source"
+                name: "source",
+                type: "hashicorp.vagrant.sdk.Args.Path"
+
               ),
               SDK::FuncSpec::Value.new(
-                name: "destination"
+                name: "destination",
+                type: "hashicorp.vagrant.sdk.Args.Path"
               ),
             ],
             result: []
@@ -141,10 +144,12 @@ module VagrantPlugins
                 name: "",
               ),
               SDK::FuncSpec::Value.new(
-                name: "source"
+                name: "source",
+                type: "hashicorp.vagrant.sdk.Args.Path"
               ),
               SDK::FuncSpec::Value.new(
-                name: "destination"
+                name: "destination",
+                type: "hashicorp.vagrant.sdk.Args.Path"
               ),
             ],
             result: []
