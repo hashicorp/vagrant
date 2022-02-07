@@ -124,7 +124,7 @@ module Hashicorp
           rpc :ActionSpec, ::Hashicorp::Vagrant::Sdk::Provider::ActionRequest, ::Hashicorp::Vagrant::Sdk::FuncSpec
           rpc :MachineIdChanged, ::Hashicorp::Vagrant::Sdk::FuncSpec::Args, ::Google::Protobuf::Empty
           rpc :MachineIdChangedSpec, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::FuncSpec
-          rpc :SshInfo, ::Hashicorp::Vagrant::Sdk::FuncSpec::Args, ::Hashicorp::Vagrant::Sdk::SSHInfo
+          rpc :SshInfo, ::Hashicorp::Vagrant::Sdk::FuncSpec::Args, ::Hashicorp::Vagrant::Sdk::Args::Connection::SSHInfo
           rpc :SshInfoSpec, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::FuncSpec
           rpc :State, ::Hashicorp::Vagrant::Sdk::FuncSpec::Args, ::Hashicorp::Vagrant::Sdk::Args::Target::Machine::State
           rpc :StateSpec, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::FuncSpec

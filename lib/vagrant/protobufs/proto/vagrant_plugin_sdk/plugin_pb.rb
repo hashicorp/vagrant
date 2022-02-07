@@ -152,6 +152,47 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
       optional :network, :string, 2
       optional :addr, :string, 3
     end
+    add_message "hashicorp.vagrant.sdk.Args.Connection" do
+    end
+    add_message "hashicorp.vagrant.sdk.Args.Connection.SSHInfo" do
+      optional :host, :string, 1
+      optional :port, :string, 2
+      optional :private_key_path, :string, 3
+      optional :keys_only, :bool, 4
+      optional :verify_host_key, :bool, 5
+      optional :username, :string, 6
+      optional :remote_user, :string, 7
+      optional :compression, :bool, 8
+      optional :dsa_authentication, :bool, 9
+      optional :config, :string, 10
+      repeated :extra_args, :string, 11
+      optional :forward_agent, :bool, 12
+      optional :forward_x11, :bool, 13
+      repeated :forward_env, :string, 14
+      optional :connect_timeout, :int64, 15
+      optional :ssh_command, :string, 16
+      optional :proxy_command, :string, 17
+    end
+    add_message "hashicorp.vagrant.sdk.Args.Connection.WinrmInfo" do
+      optional :username, :string, 1
+      optional :password, :string, 2
+      optional :host, :string, 3
+      optional :port, :int64, 4
+      optional :guest_port, :int64, 5
+      optional :max_tries, :int64, 6
+      optional :retry_delay, :int64, 7
+      optional :timeout, :int64, 8
+      optional :transport, :enum, 9, "hashicorp.vagrant.sdk.Args.Connection.WinrmInfo.Transport"
+      optional :ssl_peer_verification, :bool, 10
+      optional :execution_time_limit, :string, 11
+      optional :basic_auth_only, :bool, 12
+      optional :codepage, :string, 13
+    end
+    add_enum "hashicorp.vagrant.sdk.Args.Connection.WinrmInfo.Transport" do
+      value :NEGOTIATE, 0
+      value :SSL, 1
+      value :PLAINTEXT, 2
+    end
     add_message "hashicorp.vagrant.sdk.Args.Push" do
       optional :stream_id, :uint32, 1
       optional :network, :string, 2
@@ -180,45 +221,6 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
       map :fields, :string, :message, 1, "google.protobuf.Any"
     end
     add_message "hashicorp.vagrant.sdk.Args.Null" do
-    end
-    add_message "hashicorp.vagrant.sdk.SSHInfo" do
-      optional :host, :string, 1
-      optional :port, :string, 2
-      optional :private_key_path, :string, 3
-      optional :keys_only, :bool, 4
-      optional :verify_host_key, :bool, 5
-      optional :username, :string, 6
-      optional :remote_user, :string, 7
-      optional :compression, :bool, 8
-      optional :dsa_authentication, :bool, 9
-      optional :config, :string, 10
-      repeated :extra_args, :string, 11
-      optional :forward_agent, :bool, 12
-      optional :forward_x11, :bool, 13
-      repeated :forward_env, :string, 14
-      optional :connect_timeout, :int64, 15
-      optional :ssh_command, :string, 16
-      optional :proxy_command, :string, 17
-    end
-    add_message "hashicorp.vagrant.sdk.WinrmInfo" do
-      optional :username, :string, 1
-      optional :password, :string, 2
-      optional :host, :string, 3
-      optional :port, :int64, 4
-      optional :guest_port, :int64, 5
-      optional :max_tries, :int64, 6
-      optional :retry_delay, :int64, 7
-      optional :timeout, :int64, 8
-      optional :transport, :enum, 9, "hashicorp.vagrant.sdk.WinrmInfo.Transport"
-      optional :ssl_peer_verification, :bool, 10
-      optional :execution_time_limit, :string, 11
-      optional :basic_auth_only, :bool, 12
-      optional :codepage, :string, 13
-    end
-    add_enum "hashicorp.vagrant.sdk.WinrmInfo.Transport" do
-      value :NEGOTIATE, 0
-      value :SSL, 1
-      value :PLAINTEXT, 2
     end
     add_message "hashicorp.vagrant.sdk.FuncSpec" do
       optional :name, :string, 1
@@ -878,6 +880,10 @@ module Hashicorp
       Args::Host = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Args.Host").msgclass
       Args::Guest = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Args.Guest").msgclass
       Args::Communicator = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Args.Communicator").msgclass
+      Args::Connection = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Args.Connection").msgclass
+      Args::Connection::SSHInfo = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Args.Connection.SSHInfo").msgclass
+      Args::Connection::WinrmInfo = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Args.Connection.WinrmInfo").msgclass
+      Args::Connection::WinrmInfo::Transport = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Args.Connection.WinrmInfo.Transport").enummodule
       Args::Push = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Args.Push").msgclass
       Args::SyncedFolder = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Args.SyncedFolder").msgclass
       Args::TargetIndex = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Args.TargetIndex").msgclass
@@ -886,9 +892,6 @@ module Hashicorp
       Args::Array = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Args.Array").msgclass
       Args::Hash = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Args.Hash").msgclass
       Args::Null = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Args.Null").msgclass
-      SSHInfo = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.SSHInfo").msgclass
-      WinrmInfo = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.WinrmInfo").msgclass
-      WinrmInfo::Transport = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.WinrmInfo.Transport").enummodule
       FuncSpec = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.FuncSpec").msgclass
       FuncSpec::Value = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.FuncSpec.Value").msgclass
       FuncSpec::Args = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.FuncSpec.Args").msgclass
