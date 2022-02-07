@@ -2,14 +2,14 @@ module VagrantPlugins
   module CommandServe
     module Service
       class ProviderService < SDK::ProviderService::Service
-        
+
         include CapabilityPlatformService
 
         def initialize(*args, **opts, &block)
           caps = Vagrant.plugin("2").local_manager.provider_capabilities
           default_args = {
-            Client::Target => SDK::FuncSpec::Value.new(
-              type: "hashicorp.vagrant.sdk.Args.Target",
+            Client::Target::Machine => SDK::FuncSpec::Value.new(
+              type: "hashicorp.vagrant.sdk.Args.Target.Machine",
               name: "",
             ),
           }
