@@ -24,7 +24,7 @@ module VagrantPlugins
         #
         # @return [SDK::FuncSpec, Proc]
         def wait_for_ready_func
-          spec = client.wait_for_ready_spec
+          spec = client.wait_for_ready_spec(Empty.new)
           cb = proc do |args|
             client.wait_for_ready(args).ready
           end
@@ -35,7 +35,7 @@ module VagrantPlugins
         # @param [Integer] duration Timeout in seconds.
         # @return [Boolean]
         def wait_for_ready(machine, time)
-          run_func(machine, Type::Duration.new(time))
+          run_func(machine, Type::Duration.new(value: time))
         end
 
         # Generate callback and spec for required arguments
@@ -57,8 +57,8 @@ module VagrantPlugins
           to = Pathname.new(to.to_s) if !to.is_a?(Pathname)
 
           run_func(
-            Type::NamedArgument(name: "to", value: to),
-            Type::NamedArgument(name: "from", value: from),
+            Type::NamedArgument.new(name: "to", value: to),
+            Type::NamedArgument.new(name: "from", value: from),
             machine
           )
         end
@@ -82,8 +82,8 @@ module VagrantPlugins
           to = Pathname.new(to.to_s) if !to.is_a?(Pathname)
 
           run_func(
-            Type::NamedArgument(name: "to", value: to),
-            Type::NamedArgument(name: "from", value: from),
+            Type::NamedArgument.new(name: "source", value: from),
+            Type::NamedArgument.new(name: "destination", value: to),
             machine
           )
         end
@@ -94,7 +94,7 @@ module VagrantPlugins
         def execute_func
           spec = client.execute_spec(Empty.new)
           cb = proc do |args|
-            client.execute(args).exit_code
+            client.execute(args)
           end
           [spec, cb]
         end
@@ -104,16 +104,17 @@ module VagrantPlugins
         # @param [Hash] options
         # @return [Integer]
         def execute(machine, cmd, opts)
+          opts = {} if opts.nil?
           run_func(machine, opts, Type::CommunicatorCommandArguments.new(value: cmd))
         end
 
         # Generate callback and spec for required arguments
         #
         # @return [SDK::FuncSpec, Proc]
-        def privileged_execute_func(machine, cmd, opts)
+        def privileged_execute_func
           spec = client.privileged_execute_spec(Empty.new)
           cb = proc do |args|
-            client.privileged_execute(args).exit_code
+            client.privileged_execute(args)
           end
           [spec, cb]
         end
@@ -123,6 +124,7 @@ module VagrantPlugins
         # @param [Hash] options
         # @return [Integer]
         def privileged_execute(machine, cmd, opts)
+          opts = {} if opts.nil?
           run_func(machine, opts, Type::CommunicatorCommandArguments.new(value: cmd))
         end
 
@@ -130,7 +132,7 @@ module VagrantPlugins
         #
         # @return [SDK::FuncSpec, Proc]
         def test_func
-          spec = client.test_spec
+          spec = client.test_spec(Empty.new)
           cb = proc do |args|
             client.test(args).valid
           end
@@ -142,6 +144,7 @@ module VagrantPlugins
         # @param [Hash] options
         # @return [Boolean]
         def test(machine, cmd, opts)
+          opts = {} if opts.nil?
           run_func(machine, opts, Type::CommunicatorCommandArguments.new(value: cmd))
         end
 
@@ -149,7 +152,7 @@ module VagrantPlugins
         #
         # @return [SDK::FuncSpec, Proc]
         def reset_func
-          spec = client.reset_spec
+          spec = client.reset_spec(Empty.new)
           cb = proc do |args|
             client.reset(args)
           end
