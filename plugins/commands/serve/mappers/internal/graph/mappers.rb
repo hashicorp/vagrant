@@ -13,8 +13,10 @@ module VagrantPlugins
             FINAL_WEIGHT = 0
             # Weight given to first input value vertex
             BASE_WEIGHT = 0
+            # Weight given to output types matching final
+            DST_WEIGHT = 0
             # Weight given to named input value vertices
-            NAMED_VALUE_WEIGHT = 5
+            NAMED_VALUE_WEIGHT = 0
             # Weight given to input value vertices
             VALUE_WEIGHT = 10
             # Weight given to input vertices
@@ -52,7 +54,7 @@ module VagrantPlugins
                   "Expected mapper to be `Mappers', got `#{mappers.class}'"
               end
               @mappers = mappers
-              @named = named
+              @named = named.to_s
 
               setup!
 
@@ -112,27 +114,28 @@ module VagrantPlugins
             def setup!
               @graph = Graph.new
               # Create a root vertex to provide a single starting point
-              @root = graph.add_vertex(Graph::Vertex.new(value: :root))
+              @root = graph.add_vertex(Graph::Vertex::Root.new(value: :root))
               @root.weight = ROOT_WEIGHT
               # Add the provided input values
-              i = 0
+              root_value = true
               input_vertices = inputs.map do |input_value|
+                next if input_value == GENERATE
                 if input_value.is_a?(Type::NamedArgument)
                   iv = graph.add_vertex(
                     Graph::Vertex::NamedValue.new(
-                      name: input_value.name,
+                      name: input_value.name.to_s,
                       value: input_value.value
                     )
                   )
-                  iv.weight = input_value.name == named ? NAMED_VALUE_WEIGHT : VALUE_WEIGHT
+                  iv.weight = input_value.name.to_s == named ? NAMED_VALUE_WEIGHT : VALUE_WEIGHT
                 else
                   iv = graph.add_vertex(Graph::Vertex::Value.new(value: input_value))
-                  iv.weight = i == 0 ? BASE_WEIGHT : VALUE_WEIGHT
+                  iv.weight = root_value ? BASE_WEIGHT : VALUE_WEIGHT
                 end
-                i += 1
+                root_value = false
                 graph.add_edge(@root, iv)
                 iv
-              end
+              end.compact
               # Also add the known values from the mappers instance
               input_vertices += mappers.known_arguments.map do |input_value|
                 iv = graph.add_vertex(Graph::Vertex::Value.new(value: input_value))
@@ -153,7 +156,7 @@ module VagrantPlugins
                   iv
                 end
                 ov = graph.add_vertex(Graph::Vertex::Output.new(type: mapper.output))
-                ov.weight = OUTPUT_WEIGHT
+                ov.weight = mapper.output == final ? DST_WEIGHT : OUTPUT_WEIGHT
                 graph.add_edge(fn, ov)
                 fn_outputs << ov
               end
@@ -189,7 +192,21 @@ module VagrantPlugins
                 # If an output value matches the desired
                 # output value, connect it directly
                 if @dst.type == f_ov.type || f_ov.type.ancestors.include?(@dst)
+                  if f_ov.type.ancestors.include?(@dst)
+                    f_ov.weight += 1000
+                  end
                   graph.add_edge(f_ov, @dst)
+                end
+              end
+
+              # The output attached to our destination should be
+              # terminated at the destiation. If it has any out
+              # edges, remove those vertices (which has the bonus
+              # of helping to prevent cycles)
+              graph.each_in_vertex(@dst) do |vrt|
+                graph.each_out_vertex(vrt) do |ov|
+                  next if ov == @dst
+                  graph.remove_edge(vrt, ov)
                 end
               end
             end
