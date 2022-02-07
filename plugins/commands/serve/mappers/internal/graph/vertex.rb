@@ -10,6 +10,7 @@ module VagrantPlugins
             autoload :Method, Vagrant.source_root.join("plugins/commands/serve/mappers/internal/graph/vertex/method").to_s
             autoload :NamedValue, Vagrant.source_root.join("plugins/commands/serve/mappers/internal/graph/vertex/named_value").to_s
             autoload :Output, Vagrant.source_root.join("plugins/commands/serve/mappers/internal/graph/vertex/output").to_s
+            autoload :Root, Vagrant.source_root.join("plugins/commands/serve/mappers/internal/graph/vertex/root").to_s
             autoload :Value, Vagrant.source_root.join("plugins/commands/serve/mappers/internal/graph/vertex/value").to_s
             # @return [Object] value of vertex
             attr_reader :value
