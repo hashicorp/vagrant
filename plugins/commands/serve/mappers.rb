@@ -31,6 +31,19 @@ module VagrantPlugins
         SDK::Communicator::Command => Type::CommunicatorCommandArguments,
       }
 
+      # Constant used for generating value
+      GENERATE = Class.new {
+        def self.to_s
+          "[Value Generation]"
+        end
+        def to_s
+          "[Value Generation]"
+        end
+        def inspect
+          to_s
+        end
+      }.new.freeze
+
       include Util::HasLogger
 
       autoload :Internal, Vagrant.source_root.join("plugins/commands/serve/mappers/internal").to_s
@@ -90,7 +103,7 @@ module VagrantPlugins
       # @return [Class]
       def find_type(name)
         name.to_s.split(".").inject(Object) { |memo, n|
-          c = memo.constants.detect { |mc| cm.to_s.downcase == name.to_s.downcase }
+          c = memo.constants.detect { |mc| mc.to_s.downcase == n.to_s.downcase }
           raise NameError,
             "Failed to find constant for `#{name}'" if c.nil?
           memo.const_get(c)
@@ -108,15 +121,32 @@ module VagrantPlugins
         # to set it using our default maps
         to = DEFAULT_MAPS[value.class] if to.nil?
 
+        extra_args = [value, *extra_args].map do |a|
+          if a.is_a?(Type::NamedArgument)
+            name = a.name
+            a = a.value
+          end
+          if a.is_a?(Google::Protobuf::Any)
+            non_any = unany(a)
+            logger.debug("extracted any proto message #{a.class} -> #{non_any}")
+            a = non_any
+          end
+          if name
+            a = Type::NamedArgument.new(value: a, name: name)
+          end
+          a
+        end
+        value = extra_args.shift if value
+
         # If the value given is the desired type, just return the value
-        return value if !to.nil? && value.is_a?(to)
+        return value if value != GENERATE && !to.nil? && value.is_a?(to)
 
         logger.debug("starting value mapping process #{value.class} -> #{to.nil? ? 'unknown' : to.inspect}")
         if value.nil? && to
           val = (extra_args + known_arguments).detect do |item|
             item.is_a?(to)
           end
-          return val if val
+          return val if val != GENERATE && val
         end
 
         # NOTE: We set the cacher instance into the extra args
@@ -124,12 +154,6 @@ module VagrantPlugins
         # changed the correct instance will be used
         extra_args << cacher
         extra_args << self
-
-        if value.is_a?(Google::Protobuf::Any)
-          non_any = unany(value)
-          logger.debug("extracted any proto message #{value.class} -> #{non_any}")
-          value = non_any
-        end
 
         # If the provided value is a protobuf value, just return that value
         if value.is_a?(Google::Protobuf::Value)
@@ -229,8 +253,8 @@ module VagrantPlugins
 
       # Generate the given type based on given and/or
       # added arguments
-      def generate(*args, type:)
-        map(nil, *args, to: type)
+      def generate(*args, named: nil, type:)
+        map(GENERATE, *args, named: named, to: type)
       end
 
       # Map values provided by a FuncSpec request into
@@ -299,6 +323,7 @@ require Vagrant.source_root.join("plugins/commands/serve/mappers/capabilities.rb
 require Vagrant.source_root.join("plugins/commands/serve/mappers/command.rb").to_s
 require Vagrant.source_root.join("plugins/commands/serve/mappers/communicator.rb").to_s
 require Vagrant.source_root.join("plugins/commands/serve/mappers/direct.rb").to_s
+require Vagrant.source_root.join("plugins/commands/serve/mappers/duration.rb").to_s
 require Vagrant.source_root.join("plugins/commands/serve/mappers/environment.rb").to_s
 require Vagrant.source_root.join("plugins/commands/serve/mappers/guest.rb").to_s
 require Vagrant.source_root.join("plugins/commands/serve/mappers/host.rb").to_s
