@@ -39,14 +39,55 @@ module VagrantPlugins
                 logger.debug("finding path #{src} -> #{dst}")
                 @root = src
 
-                logger.trace("generating list of required vertices for path #{src} -> #{dst}")
-                # Generate list of required vertices from the graph
-                required_vertices = generate_path(src, dst)
+                # We know the root is our final destination, so flop the graph before searching
+                graph.reverse!
 
+                # Perform an initial DFS to prune the graph down
+                vertices = []
+                descender = lambda { |v|
+                  graph.depth_first_visit(v) { |vrt|
+                    vertices << vrt
+                  }
+                  vertices.uniq!
+                  vertices.each do |vrt|
+                    if vrt.incoming_edges_required
+                      graph.out_vertices(vrt).each do |ov|
+                        if !vertices.include?(ov)
+                          descender.call(ov)
+                        end
+                      end
+                    end
+                  end
+                }
+
+                descender.call(dst)
+
+                # Remove excess vertices from the graph
+                (graph.vertices - vertices).each { |v|
+                  graph.remove_vertex(v)
+                }
+
+                logger.trace("graph after DFS reduction:\n#{graph.reverse.inspect}")
+                logger.trace("generating list of required vertices for path #{src} -> #{dst}")
+
+                if !graph.vertices.include?(src)
+                  raise NoPathError,
+                    "Graph no longer includes source vertex #{src}"
+                end
+
+                if !graph.vertices.include?(dst)
+                  raise NoPathError,
+                    "Graph no longer includes destination vertex #{dst}"
+                end
+                # Generate list of required vertices from the graph
+                required_vertices = generate_path(dst, src)
+
+                # If not vertices were returned, then the path generation failed
                 if required_vertices.nil?
                   raise NoPathError,
                     "Path generation failed to reach destination (#{src} -> #{dst&.type&.inspect})"
                 end
+
                 logger.trace("required vertices list generation complete for path #{src} -> #{dst}")
 
                 # Remove all extraneous vertices
@@ -54,36 +95,10 @@ module VagrantPlugins
                   graph.remove_vertex(vrt)
                 end
 
-                if !graph.acyclic?
-                  logger.debug("cycles detected in graph, removing...")
-                  begin
-                    require 'rgl/dot'
-                    graph.write_to_graphic_file('jpg', 'graph-cyclic')
-                  rescue
-                    #
-                  end
+                graph.reverse!
+                graph.break_cycles!(src) if !graph.acyclic?
 
-                  graph.break_cycles!(src)
-                  logger.debug("cycles removed from graph")
-
-                  if !graph.acyclic?
-                    logger.error("path generation for #{src} -> #{dst} resulted in cyclic graph")
-
-                    begin
-                      # If the graph ends up with a cycle, attempt to
-                      # draw the graph for inspection. We don't care if
-                      # this fails as it's only for debugging and will
-                      # only be successful if graphviz is installed.
-                      require 'rgl/dot'
-                      graph.write_to_graphic_file('jpg', 'vagrant-graph-cyclic')
-                    rescue
-                      # ignore
-                    end
-
-                    raise NoPathError,
-                      "Failed to create an acyclic graph for path generation"
-                  end
-                end
+                logger.debug("graph after acyclic breakage:\n#{graph.reverse.inspect}")
 
                 # Apply topological sort to the graph so we have
                 # a proper order for execution
@@ -105,6 +120,14 @@ module VagrantPlugins
                 end
                 result
               end
+            rescue NoPathError
+              begin
+                require 'rgl/dot'
+                graph.reverse.write_to_graphic_file('jpg', 'graph-no-path')
+              rescue
+                #
+              end
+              raise
             end
 
             protected
@@ -112,15 +135,15 @@ module VagrantPlugins
             def generate_path(src, dst)
               begin
                 path = graph.shortest_path(src, dst)
-                o = Array(path).map { |v|
+                o = Array(path).reverse.map { |v|
                   "  #{v} ->"
                 }.join("\n")
-                logger.trace("path generation #{src} -> #{dst}\n#{o}")
+                logger.trace("path generation #{dst} -> #{src}\n#{o}")
                 if path.nil?
                   raise NoPathError,
-                    "Path generation failed to reach destination (#{src} -> #{dst&.type&.inspect})"
+                    "Path generation failed to reach destination (#{dst} -> #{src})"
                 end
-                expand_path(path, src, graph)
+                expand_path(path, dst, graph)
               rescue InvalidVertex => err
                 logger.trace("invalid vertex in path, removing (#{err.vertex})")
                 graph.remove_vertex(err.vertex)
@@ -128,19 +151,24 @@ module VagrantPlugins
               end
             end
 
-            def expand_path(path, src, graph)
+            def expand_path(path, dst, graph)
               new_path = []
               path.each do |v|
                 new_path << v
                 next if !v.incoming_edges_required
                 logger.trace("validating incoming edges for vertex #{v}")
-                ins = graph.in_vertices(v)
+                outs = graph.out_vertices(v)
                 g = graph.clone
                 g.remove_vertex(v)
-                ins.each do |dst|
+                outs.each do |src|
                   ipath = g.shortest_path(src, dst)
-                  raise InvalidVertex.new(v) if ipath.nil? || ipath.empty?
-                  ipath = expand_path(ipath, src, g)
+                  if ipath.nil? || ipath.empty?
+                    logger.trace("failed to find validating path from #{dst} -> #{src}")
+                    raise InvalidVertex.new(v)
+                  else
+                    logger.trace("found validating path from #{dst} -> #{src}")
+                  end
+                  ipath = expand_path(ipath, dst,  g)
                   new_path += ipath
                 end
                 logger.trace("incoming edge validation complete for vertex #{v}")
