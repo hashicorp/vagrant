@@ -9,19 +9,31 @@ module VagrantPlugins
         # @param args [Array<Object>] List of arguments to generate from
         # @return [SDK::FuncSpec::Args]
         def generate_funcspec_args(spec, *args)
+          logger.trace("generating funcspec args for spec: #{spec}")
           if !spec.is_a?(SDK::FuncSpec)
             raise TypeError,
               "Expected `#{SDK::FuncSpec.name}' but received `#{spec.class.name}'"
           end
           m_args = args.dup
           if respond_to?(:seeds)
-            m_args += seeds
+            m_args = m_args +
+              seeds.typed.to_a +
+              seeds.named.map { |name, val|
+                val = mapper.unany(val)
+                Type::NamedArgument.new(
+                  name: name,
+                  value: val,
+                )
+              }
           end
 
           SDK::FuncSpec::Args.new(
             args: spec.args.map { |farg|
+              logger.trace("starting funcspec generation for #{farg}")
               type = mapper.find_type(farg.type)
-              any = Google::Protobuf::Any.pack(mapper.map(*m_args, named: farg.name, to: type))
+              gen = mapper.generate(*m_args, named: farg.name, type: type)
+              logger.trace("generated value for type #{type.inspect} (name: #{farg.name.inspect}) -> #{gen}")
+              any = Google::Protobuf::Any.pack(gen)
               SDK::FuncSpec::Value.new(
                 type: any.type_name.split("/").last,
                 value: any,
@@ -60,7 +72,7 @@ module VagrantPlugins
         # @param name [String,Symbol] Name of method which provides a spec and callback
         #                             (defaults to name of caller method with `_func` suffix)
         # @param args [Array<Object>] Optional list of arguments
-        def run_func(*args, name: nil)
+        def run_func(*args, name: nil, func_args: [])
           if name.nil?
             name = caller_locations.first.label.to_s
             if name.end_with?("!") || name.end_with?("?")
@@ -72,8 +84,11 @@ module VagrantPlugins
             raise ArgumentError,
               "Class `#{self.class}' does not contain method `##{name}'"
           end
-          spec, cb = send(name)
+          logger.trace("running func #{name} for spec and callback")
+          func_args = [name] + Array(func_args)
+          spec, cb = send(*func_args)
           f_args = generate_funcspec_args(spec, *args)
+          logger.trace("executing func #{name.sub(/_func$/, "")}")
           cb.call(f_args)
         end
       end
