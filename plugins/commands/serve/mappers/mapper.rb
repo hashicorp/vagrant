@@ -99,6 +99,8 @@ module VagrantPlugins
           @@init = true
         end
 
+        include Util::HasLogger
+
         # @return [Array<Input>] list of inputs for mapper
         attr_reader :inputs
         # @return [Class, nil] type of output
@@ -171,6 +173,7 @@ module VagrantPlugins
                 input.valid?(arg)
               end
               if value.nil? && input.type != NilClass
+                logger.error("missing input for type `#{input.type}' - #{args.inspect}")
                 raise ArgumentError,
                   "Failed to locate required argument of type `#{input.type}'"
               end
