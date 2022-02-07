@@ -36,7 +36,7 @@ module VagrantPlugins
       class DurationToProto < Mapper
         def initialize
           super(
-            inputs: [Input.new(type: SDK::Args::TimeDuration)],
+            inputs: [Input.new(type: Type::Duration)],
             output: SDK::Args::TimeDuration,
             func: method(:converter),
           )
