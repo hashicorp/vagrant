@@ -169,7 +169,7 @@ module VagrantPlugins
 
         def converter(proto, mapper)
           begin
-            Vagrant::Util::HashWithIndifferentAccess.new.tap do |result|
+            Hash.new.tap do |result|
               proto.fields.each do |k, v|
                 r = mapper.map(v)
                 # unwrap any wrapper classes here before assigning
