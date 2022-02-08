@@ -92,6 +92,16 @@ $ vagrant ssh
           </TextSplit>
         </div>
       </section>
+      
+      <section className={s.freeSoftware}>
+        <div className="g-grid-container">
+          <div className={s.tag}>Free software</div>
+          <h2 className={s.h2}>Vagrant is free software</h2>
+          <p className="g-type-body">
+            Vagrant is licensed under the <a href="https://spdx.org/licenses/MIT.html">MIT license</a>.
+          </p>
+        </div>
+      </section>
 
       <section className={s.trustedAtScale}>
         <div className="g-grid-container">
