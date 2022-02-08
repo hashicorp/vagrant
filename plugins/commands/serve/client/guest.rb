@@ -20,6 +20,12 @@ module VagrantPlugins
         def parent
           run_func
         end
+
+        # @return [String] plugin name
+        def name
+          c = client.name(Empty.new)
+          c.name
+        end
       end
     end
   end
