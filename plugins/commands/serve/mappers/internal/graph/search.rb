@@ -121,11 +121,13 @@ module VagrantPlugins
                 result
               end
             rescue NoPathError
-              begin
-                require 'rgl/dot'
-                graph.reverse.write_to_graphic_file('jpg', 'graph-no-path')
-              rescue
-                #
+              if ENV["VAGRANT_LOG_MAPPER"].to_s != ""
+                begin
+                  require 'rgl/dot'
+                  graph.reverse.write_to_graphic_file('jpg', 'graph-no-path')
+                rescue
+                  #
+                end
               end
               raise
             end
