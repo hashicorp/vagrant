@@ -72,12 +72,12 @@ module VagrantPlugins
 
                 if !graph.vertices.include?(src)
                   raise NoPathError,
-                    "Graph no longer includes source vertex #{src}"
+                    "Graph no longer includes source vertex #{src} (#{src} -> #{dst})"
                 end
 
                 if !graph.vertices.include?(dst)
                   raise NoPathError,
-                    "Graph no longer includes destination vertex #{dst}"
+                    "Graph no longer includes destination vertex #{dst} (#{src} -> #{dst})"
                 end
                 # Generate list of required vertices from the graph
                 required_vertices = generate_path(dst, src)
