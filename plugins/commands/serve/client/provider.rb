@@ -62,8 +62,14 @@ module VagrantPlugins
 
         # @param [Sdk::Args::Machine]
         # @param [Symbol] name of the action to run
-        def action(machine, name)
-          run_func(Type::Direct.new(value: [machine]), func_args: name)
+        def action(machine, name, opts={})
+          opts = {} if !opts.is_a?(Hash)
+          opts.compact!
+          run_func(
+            Type::Direct.new(value: [machine]),
+            Type::Options.new(value: opts),
+            func_args: name,
+          )
         end
 
         # Generate callback and spec for required arguments
