@@ -220,6 +220,9 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
     add_message "hashicorp.vagrant.sdk.Args.Hash" do
       map :fields, :string, :message, 1, "google.protobuf.Any"
     end
+    add_message "hashicorp.vagrant.sdk.Args.Options" do
+      optional :options, :message, 1, "hashicorp.vagrant.sdk.Args.Hash"
+    end
     add_message "hashicorp.vagrant.sdk.Args.Null" do
     end
     add_message "hashicorp.vagrant.sdk.FuncSpec" do
@@ -891,6 +894,7 @@ module Hashicorp
       Args::Direct = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Args.Direct").msgclass
       Args::Array = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Args.Array").msgclass
       Args::Hash = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Args.Hash").msgclass
+      Args::Options = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Args.Options").msgclass
       Args::Null = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Args.Null").msgclass
       FuncSpec = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.FuncSpec").msgclass
       FuncSpec::Value = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.FuncSpec.Value").msgclass
