@@ -72,6 +72,19 @@ func (m *Machine) Box() (b core.Box, err error) {
 
 // Guest implements core.Machine
 func (m *Machine) Guest() (g core.Guest, err error) {
+	defer func() {
+		if g == nil {
+			return
+		}
+		s, ok := g.(core.Seeder)
+		if !ok {
+			m.logger.Error("synced folder plugin does not implement seeder interface")
+			err = fmt.Errorf("cannot seed synced folder plugin")
+			return
+		}
+		err = m.seedWithMachine(s)
+		return
+	}()
 	// Try to see if a guest has already been found
 	if m.guest != nil {
 		return m.guest, nil
@@ -88,7 +101,8 @@ func (m *Machine) Guest() (g core.Guest, err error) {
 		if guest != nil {
 			m.guest = guest.Value.(core.Guest)
 			m.seedPlugin(m.guest)
-			return m.guest, nil
+			g = m.guest
+			return
 		}
 	}
 
@@ -146,6 +160,7 @@ func (m *Machine) Guest() (g core.Guest, err error) {
 	// TODO(spox): Fix this in the plugin manager
 	m.seedPlugin(result)
 	m.guest = result
+	g = result
 	return result, nil
 }
 
@@ -220,15 +235,32 @@ func (m *Machine) SyncedFolders() (folders []*core.MachineSyncedFolder, err erro
 	machineConfig := config.ConfigVm
 	syncedFolders := machineConfig.SyncedFolders
 
+	// TODO(spox): Synced folders are getting duped in config. The `seen` is just a temporary
+	// hack to prevent duplicate entries
+	seen := map[string]bool{}
 	folders = []*core.MachineSyncedFolder{}
 	for _, folder := range syncedFolders {
+		if _, ok := seen[folder.Destination]; ok {
+			continue
+		}
+		seen[folder.Destination] = true
+
 		// TODO: get default synced folder type
 		folder.Type = "virtualbox"
 		plg, err := m.project.basis.component(m.ctx, component.SyncedFolderType, folder.Type)
 		if err != nil {
 			return nil, err
 		}
-		m.seedPlugin(plg.Value)
+
+		if s, ok := plg.Value.(core.Seeder); ok {
+			if err = m.seedWithMachine(s); err != nil {
+				return nil, err
+			}
+		} else {
+			m.logger.Error("synced folder plugin does not implement seeder interface")
+			return nil, fmt.Errorf("cannot seed synced folder plugin")
+		}
+
 		var f *core.Folder
 		mapstructure.Decode(folder, &f)
 		folders = append(folders, &core.MachineSyncedFolder{
@@ -251,6 +283,41 @@ func (m *Machine) SaveMachine() (err error) {
 
 func (m *Machine) toTarget() core.Target {
 	return m
+}
+
+func (m *Machine) seedWithMachine(s core.Seeder) error {
+	m.logger.Debug("seeding machine into plugin",
+		"plugin", hclog.Fmt("%T", s),
+	)
+	seeds, err := s.Seeds()
+	if err != nil {
+		m.logger.Error("failed to fetch seeds from plugin",
+			"plugin", hclog.Fmt("%T", s),
+			"error", err,
+		)
+
+		return err
+	}
+
+	for _, t := range seeds.Typed {
+		sm, ok := t.(*Machine)
+		if !ok {
+			continue
+		}
+		if m.target.ResourceId == sm.target.ResourceId {
+			return nil
+		}
+	}
+
+	seeds.Typed = append(seeds.Typed, m)
+	if err = s.Seed(seeds); err != nil {
+		m.logger.Error("failed to seed plugin",
+			"plugin", hclog.Fmt("%T", s),
+			"error", err,
+		)
+	}
+
+	return nil
 }
 
 var _ core.Machine = (*Machine)(nil)
