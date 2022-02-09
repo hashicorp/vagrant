@@ -249,6 +249,10 @@ module VagrantPlugins
         end
         logger.debug("map of #{value.class} to #{to.nil? ? 'unknown' : to.inspect} => #{result}")
         result
+      rescue => err
+        logger.debug("mapping failed of #{value.class} to #{to.nil? ? 'unknown' : to.inspect}")
+        logger.debug("#{err.class}: #{err}\n" + err.backtrace.join("\n"))
+        raise
       end
 
       # Generate the given type based on given and/or
