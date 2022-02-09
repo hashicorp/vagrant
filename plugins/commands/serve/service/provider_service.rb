@@ -69,6 +69,10 @@ module VagrantPlugins
               SDK::FuncSpec::Value.new(
                 type: "hashicorp.vagrant.sdk.Args.Direct",
                 name: "",
+              ),
+              SDK::FuncSpec::Value.new(
+                type: "hashicorp.vagrant.sdk.Args.Options",
+                name: "",
               )
             ],
             result: []
@@ -79,10 +83,11 @@ module VagrantPlugins
           plugins = Vagrant.plugin("2").local_manager.providers
           with_plugin(ctx, plugins, broker: broker) do |plugin|
             action_name = req.name.to_sym
-            args = mapper.funcspec_map(
+            args, options = mapper.funcspec_map(
               req.func_args,
               expect: [Type::Direct]
             )
+            options = Type::Options.new(value: {}) if options.nil?
 
             machine = args.arguments.find { |a| a.is_a?(Vagrant::Machine) }
             provider = plugin.new(machine)
@@ -92,7 +97,7 @@ module VagrantPlugins
               action: name,
               provider: @provider.to_s
             end
-            action_raw(machine, action_name, callable)
+            action_raw(machine, action_name, callable, options.value.to_h)
             Empty.new
           end
         end
