@@ -11,7 +11,7 @@ module VagrantPlugins
           caps = Vagrant.plugin("2").local_manager.synced_folder_capabilities
           default_args = {
             Vagrant::Machine => SDK::FuncSpec::Value.new(
-              type: "hashicorp.vagrant.sdk.Args.Target",
+              type: "hashicorp.vagrant.sdk.Args.Target.Machine",
               name: "",
             ),
           }
