@@ -500,11 +500,6 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
     add_message "hashicorp.vagrant.sdk.Communicator.Command" do
       optional :command, :string, 1
     end
-    add_message "hashicorp.vagrant.sdk.Guest" do
-    end
-    add_message "hashicorp.vagrant.sdk.Guest.NameResp" do
-      optional :name, :string, 1
-    end
     add_message "hashicorp.vagrant.sdk.Platform" do
     end
     add_message "hashicorp.vagrant.sdk.Platform.DetectResp" do
@@ -971,8 +966,6 @@ module Hashicorp
       Communicator::ExecuteResp = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Communicator.ExecuteResp").msgclass
       Communicator::TestResp = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Communicator.TestResp").msgclass
       Communicator::Command = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Communicator.Command").msgclass
-      Guest = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Guest").msgclass
-      Guest::NameResp = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Guest.NameResp").msgclass
       Platform = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Platform").msgclass
       Platform::DetectResp = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Platform.DetectResp").msgclass
       Platform::ParentResp = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Platform.ParentResp").msgclass
