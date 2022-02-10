@@ -95,7 +95,7 @@ module VagrantPlugins
           spec = client.ssh_info_spec(Empty.new)
           cb = proc do |args|
             Vagrant::Util::HashWithIndifferentAccess.new(
-              client.ssh_info(args).to_h
+              _cleaned_ssh_info_hash(client.ssh_info(args))
             )
           end
           [spec, cb]
@@ -122,6 +122,21 @@ module VagrantPlugins
         # @return [Vagrant::MachineState] machine state
         def state(machine)
           run_func(machine)
+        end
+
+        private
+
+        # Machine#ssh_info populates defaults only when it sees nil values, but
+        # protobufs send back typed zero values instead (e.g. "" for string, 0 for int,
+        # etc.). So in order to get the caller to properly populate defaults,
+        # we need to clean up the hash before we return it
+        def _cleaned_ssh_info_hash(ssh_info)
+          info_hash = ssh_info.to_h
+          info_hash.delete_if do |k, v|
+            hazzer = :"has_#{k}?"
+            ssh_info.respond_to?(hazzer) && !ssh_info.send(hazzer)
+          end
+          info_hash
         end
       end
     end

@@ -136,8 +136,8 @@ module VagrantPlugins
             ],
             result: [
               SDK::FuncSpec::Value.new(
-              type: "hashicorp.vagrant.sdk.SSHInfo",
-              name: "",
+                type: "hashicorp.vagrant.sdk.Args.Connection.SSHInfo",
+                name: "",
               ),
             ],
           )
@@ -149,12 +149,8 @@ module VagrantPlugins
             machine = mapper.funcspec_map(req, expect: [Vagrant::Machine])
             provider = plugin.new(machine)
             info = provider.ssh_info
-            return SDK::SSHInfo.new(
-              host: info[:host],
-              port: info[:port],
-              username: info[:username],
-              private_key_path: info[:private_key_path]
-            )
+            info[:port] = info[:port].to_s if info.key?(:port)
+            return SDK::Args::Connection::SSHInfo.new(**info)
           end
         end
 
