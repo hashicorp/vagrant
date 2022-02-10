@@ -220,9 +220,6 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
     add_message "hashicorp.vagrant.sdk.Args.Hash" do
       map :fields, :string, :message, 1, "google.protobuf.Any"
     end
-    add_message "hashicorp.vagrant.sdk.Args.Options" do
-      optional :options, :message, 1, "hashicorp.vagrant.sdk.Args.Hash"
-    end
     add_message "hashicorp.vagrant.sdk.Args.Null" do
     end
     add_message "hashicorp.vagrant.sdk.FuncSpec" do
@@ -406,6 +403,9 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
     end
     add_message "hashicorp.vagrant.sdk.PluginInfo.Name" do
       optional :name, :string, 1
+    end
+    add_message "hashicorp.vagrant.sdk.PluginInfo.Priority" do
+      optional :priority, :int32, 1
     end
     add_message "hashicorp.vagrant.sdk.PluginManager" do
     end
@@ -894,7 +894,6 @@ module Hashicorp
       Args::Direct = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Args.Direct").msgclass
       Args::Array = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Args.Array").msgclass
       Args::Hash = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Args.Hash").msgclass
-      Args::Options = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Args.Options").msgclass
       Args::Null = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Args.Null").msgclass
       FuncSpec = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.FuncSpec").msgclass
       FuncSpec::Value = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.FuncSpec.Value").msgclass
@@ -941,6 +940,7 @@ module Hashicorp
       PluginInfo = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.PluginInfo").msgclass
       PluginInfo::ComponentList = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.PluginInfo.ComponentList").msgclass
       PluginInfo::Name = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.PluginInfo.Name").msgclass
+      PluginInfo::Priority = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.PluginInfo.Priority").msgclass
       PluginManager = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.PluginManager").msgclass
       PluginManager::PluginsRequest = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.PluginManager.PluginsRequest").msgclass
       PluginManager::PluginsResponse = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.PluginManager.PluginsResponse").msgclass

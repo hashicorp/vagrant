@@ -137,8 +137,6 @@ module Hashicorp
           rpc :HasCapabilitySpec, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::FuncSpec
           rpc :Seed, ::Hashicorp::Vagrant::Sdk::Args::Seeds, ::Google::Protobuf::Empty
           rpc :Seeds, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::Args::Seeds
-          rpc :SetPluginName, ::Hashicorp::Vagrant::Sdk::PluginInfo::Name, ::Google::Protobuf::Empty
-          rpc :PluginName, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::PluginInfo::Name
         end
 
         Stub = Service.rpc_stub_class
@@ -162,8 +160,6 @@ module Hashicorp
           rpc :Documentation, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::Config::Documentation
           rpc :Seed, ::Hashicorp::Vagrant::Sdk::Args::Seeds, ::Google::Protobuf::Empty
           rpc :Seeds, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::Args::Seeds
-          rpc :SetPluginName, ::Hashicorp::Vagrant::Sdk::PluginInfo::Name, ::Google::Protobuf::Empty
-          rpc :PluginName, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::PluginInfo::Name
         end
 
         Stub = Service.rpc_stub_class
@@ -186,8 +182,6 @@ module Hashicorp
           rpc :CommandInfo, ::Hashicorp::Vagrant::Sdk::FuncSpec::Args, ::Hashicorp::Vagrant::Sdk::Command::CommandInfoResp
           rpc :Seed, ::Hashicorp::Vagrant::Sdk::Args::Seeds, ::Google::Protobuf::Empty
           rpc :Seeds, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::Args::Seeds
-          rpc :SetPluginName, ::Hashicorp::Vagrant::Sdk::PluginInfo::Name, ::Google::Protobuf::Empty
-          rpc :PluginName, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::PluginInfo::Name
         end
 
         Stub = Service.rpc_stub_class
@@ -226,8 +220,6 @@ module Hashicorp
           rpc :Reset, ::Hashicorp::Vagrant::Sdk::FuncSpec::Args, ::Google::Protobuf::Empty
           rpc :Seed, ::Hashicorp::Vagrant::Sdk::Args::Seeds, ::Google::Protobuf::Empty
           rpc :Seeds, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::Args::Seeds
-          rpc :SetPluginName, ::Hashicorp::Vagrant::Sdk::PluginInfo::Name, ::Google::Protobuf::Empty
-          rpc :PluginName, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::PluginInfo::Name
         end
 
         Stub = Service.rpc_stub_class
@@ -270,8 +262,6 @@ module Hashicorp
           rpc :ParentSpec, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::FuncSpec
           rpc :Seed, ::Hashicorp::Vagrant::Sdk::Args::Seeds, ::Google::Protobuf::Empty
           rpc :Seeds, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::Args::Seeds
-          rpc :SetPluginName, ::Hashicorp::Vagrant::Sdk::PluginInfo::Name, ::Google::Protobuf::Empty
-          rpc :PluginName, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::PluginInfo::Name
         end
 
         Stub = Service.rpc_stub_class
@@ -298,8 +288,6 @@ module Hashicorp
           rpc :ParentSpec, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::FuncSpec
           rpc :Seed, ::Hashicorp::Vagrant::Sdk::Args::Seeds, ::Google::Protobuf::Empty
           rpc :Seeds, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::Args::Seeds
-          rpc :SetPluginName, ::Hashicorp::Vagrant::Sdk::PluginInfo::Name, ::Google::Protobuf::Empty
-          rpc :PluginName, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::PluginInfo::Name
         end
 
         Stub = Service.rpc_stub_class
@@ -330,8 +318,7 @@ module Hashicorp
           rpc :HasCapabilitySpec, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::FuncSpec
           rpc :Seed, ::Hashicorp::Vagrant::Sdk::Args::Seeds, ::Google::Protobuf::Empty
           rpc :Seeds, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::Args::Seeds
-          rpc :SetPluginName, ::Hashicorp::Vagrant::Sdk::PluginInfo::Name, ::Google::Protobuf::Empty
-          rpc :PluginName, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::PluginInfo::Name
+          rpc :PluginPriority, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::PluginInfo::Priority
         end
 
         Stub = Service.rpc_stub_class
@@ -567,8 +554,6 @@ module Hashicorp
           rpc :Push, ::Hashicorp::Vagrant::Sdk::FuncSpec::Args, ::Google::Protobuf::Empty
           rpc :Seed, ::Hashicorp::Vagrant::Sdk::Args::Seeds, ::Google::Protobuf::Empty
           rpc :Seeds, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::Args::Seeds
-          rpc :SetPluginName, ::Hashicorp::Vagrant::Sdk::PluginInfo::Name, ::Google::Protobuf::Empty
-          rpc :PluginName, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::PluginInfo::Name
         end
 
         Stub = Service.rpc_stub_class
