@@ -6,6 +6,7 @@ module VagrantPlugins
       class CommandService < SDK::CommandService::Service
         include Util::ServiceInfo
         include Util::HasSeeds::Service
+        include Util::NamedPlugin::Service
 
         prepend Util::HasMapper
         prepend Util::HasBroker

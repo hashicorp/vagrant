@@ -8,6 +8,7 @@ module VagrantPlugins
 
         include Util::ServiceInfo
         include Util::HasSeeds::Service
+        include Util::NamedPlugin::Service
         include Util::ExceptionTransformer
 
         def push(req, ctx)

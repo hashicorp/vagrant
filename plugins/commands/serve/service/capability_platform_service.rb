@@ -8,6 +8,7 @@ module VagrantPlugins
         def self.included(klass)
           klass.include(Util::ServiceInfo)
           klass.include(Util::HasSeeds::Service)
+          klass.include(Util::NamedPlugin::Service)
           klass.prepend(Util::HasMapper)
           klass.prepend(Util::HasBroker)
           klass.prepend(Util::HasLogger)

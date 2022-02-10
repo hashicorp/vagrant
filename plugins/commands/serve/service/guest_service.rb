@@ -6,7 +6,6 @@ module VagrantPlugins
       class GuestService < Hashicorp::Vagrant::Sdk::GuestService::Service
 
         include CapabilityPlatformService
-        include Util::NamedPlugin::Service
 
         def initialize(*args, **opts, &block)
           caps = Vagrant.plugin("2").local_manager.guest_capabilities

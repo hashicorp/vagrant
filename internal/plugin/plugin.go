@@ -12,6 +12,7 @@ import (
 
 	sdk "github.com/hashicorp/vagrant-plugin-sdk"
 	"github.com/hashicorp/vagrant-plugin-sdk/component"
+	"github.com/hashicorp/vagrant-plugin-sdk/core"
 	"github.com/hashicorp/vagrant-plugin-sdk/internal-shared/cacher"
 	"github.com/hashicorp/vagrant/builtin/myplugin"
 	"github.com/hashicorp/vagrant/builtin/otherplugin"
@@ -155,6 +156,13 @@ func (p *Plugin) InstanceOf(
 	// Include any mappers provided by the plugin
 	if cm, ok := raw.(HasMappers); ok {
 		cm.AppendMappers(p.Mappers...)
+	}
+
+	if named, ok := raw.(core.Named); ok {
+		named.SetPluginName(p.Name)
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	// Create our instance

@@ -5,7 +5,6 @@ module VagrantPlugins
     class Client
       class Guest < Client
         include CapabilityPlatform
-        include Util::NamedPlugin::Client
 
         # Generate callback and spec for required arguments
         #
