@@ -259,7 +259,7 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
     end
     add_message "hashicorp.vagrant.Job.InitResult" do
       repeated :actions, :message, 1, "hashicorp.vagrant.Job.Action"
-      repeated :commands, :message, 2, "hashicorp.vagrant.Job.Command"
+      repeated :commands, :message, 2, "hashicorp.vagrant.sdk.Command.CommandInfo"
       repeated :hooks, :message, 3, "hashicorp.vagrant.Job.Hook"
     end
     add_message "hashicorp.vagrant.Job.Action" do
@@ -275,24 +275,6 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
     add_enum "hashicorp.vagrant.Job.Hook.Location" do
       value :BEFORE, 0
       value :AFTER, 1
-    end
-    add_message "hashicorp.vagrant.Job.Flag" do
-      optional :long_name, :string, 1
-      optional :short_name, :string, 2
-      optional :description, :string, 3
-      optional :default_value, :string, 4
-      optional :type, :enum, 5, "hashicorp.vagrant.Job.Flag.Type"
-    end
-    add_enum "hashicorp.vagrant.Job.Flag.Type" do
-      value :STRING, 0
-      value :BOOL, 1
-    end
-    add_message "hashicorp.vagrant.Job.Command" do
-      optional :name, :string, 1
-      optional :synopsis, :string, 2
-      optional :help, :string, 3
-      repeated :flags, :message, 4, "hashicorp.vagrant.Job.Flag"
-      repeated :subcommands, :message, 5, "hashicorp.vagrant.Job.Command"
     end
     add_message "hashicorp.vagrant.Job.RunOp" do
       optional :task, :message, 1, "hashicorp.vagrant.Task"
@@ -937,9 +919,6 @@ module Hashicorp
     Job::Action = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.Job.Action").msgclass
     Job::Hook = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.Job.Hook").msgclass
     Job::Hook::Location = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.Job.Hook.Location").enummodule
-    Job::Flag = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.Job.Flag").msgclass
-    Job::Flag::Type = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.Job.Flag.Type").enummodule
-    Job::Command = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.Job.Command").msgclass
     Job::RunOp = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.Job.RunOp").msgclass
     Job::RunResult = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.Job.RunResult").msgclass
     Job::AuthOp = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.Job.AuthOp").msgclass
