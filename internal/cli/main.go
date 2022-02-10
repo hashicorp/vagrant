@@ -17,10 +17,10 @@ import (
 	"github.com/mitchellh/cli"
 	"github.com/mitchellh/go-glint"
 
+	"github.com/hashicorp/vagrant-plugin-sdk/internal-shared/protomappers"
+	"github.com/hashicorp/vagrant-plugin-sdk/proto/vagrant_plugin_sdk"
 	"github.com/hashicorp/vagrant-plugin-sdk/terminal"
-	"github.com/hashicorp/vagrant/internal/core"
 	"github.com/hashicorp/vagrant/internal/pkg/signalcontext"
-	"github.com/hashicorp/vagrant/internal/server/proto/vagrant_server"
 	"github.com/hashicorp/vagrant/internal/version"
 )
 
@@ -196,12 +196,12 @@ func Commands(
 }
 
 func registerCommand(
-	c *vagrant_server.Job_Command,
+	c *vagrant_plugin_sdk.Command_CommandInfo,
 	cmds map[string]cli.CommandFactory,
 	base *baseCommand,
 	parent *DynamicCommand,
 ) {
-	flgs, err := core.FlagOption(c.Flags)
+	flgs, err := protomappers.Flags(c.Flags)
 	if err != nil {
 		panic(err)
 	}

@@ -119,7 +119,7 @@ func NewBasis(ctx context.Context, opts ...BasisOption) (b *Basis, err error) {
 	// Ensure any modifications to the basis are persisted
 	b.Closer(func() error { return b.Save() })
 
-	// Add in our local mappers
+	// Add in local mappers
 	for _, fn := range Mappers {
 		f, err := argmapper.NewFunc(fn,
 			argmapper.Logger(dynamic.Logger),
@@ -364,7 +364,7 @@ func (b *Basis) Host() (host core.Host, err error) {
 func (b *Basis) Init() (result *vagrant_server.Job_InitResult, err error) {
 	b.logger.Debug("running init for basis")
 	result = &vagrant_server.Job_InitResult{
-		Commands: []*vagrant_server.Job_Command{},
+		Commands: []*vagrant_plugin_sdk.Command_CommandInfo{},
 	}
 	ctx := context.Background()
 
@@ -376,7 +376,7 @@ func (b *Basis) Init() (result *vagrant_server.Job_InitResult, err error) {
 	for _, c := range cmds {
 		fn := c.Value.(component.Command).CommandInfoFunc()
 		raw, err := b.callDynamicFunc(ctx, b.logger, fn,
-			(*[]*vagrant_server.Job_Command)(nil),
+			(*[]*vagrant_plugin_sdk.Command_CommandInfo)(nil),
 			argmapper.Typed(b.ctx),
 		)
 
@@ -385,7 +385,7 @@ func (b *Basis) Init() (result *vagrant_server.Job_InitResult, err error) {
 		}
 
 		result.Commands = append(result.Commands,
-			raw.([]*vagrant_server.Job_Command)...)
+			raw.([]*vagrant_plugin_sdk.Command_CommandInfo)...)
 	}
 
 	return
