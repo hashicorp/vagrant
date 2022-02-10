@@ -78,9 +78,9 @@ func (c *DoThing) Flags() component.CommandFlags {
 	}
 }
 
-func (c *DoThing) Execute(trm terminal.UI, flags map[string]interface{}) int32 {
+func (c *DoThing) Execute(trm terminal.UI, params *component.CommandParams) int32 {
 	trm.Output("Tricked ya! I actually do nothing :P")
-	trm.Output("You gave me the stringflag: " + flags["stringflag"].(string))
+	trm.Output("You gave me the stringflag: " + params.Flags["stringflag"].(string))
 	return 0
 }
 

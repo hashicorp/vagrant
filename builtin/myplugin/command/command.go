@@ -63,11 +63,11 @@ func (c *Command) ExecuteInfo(trm terminal.UI, env plugincore.Project) int32 {
 	return (&Info{Command: c}).Execute(trm, env)
 }
 
-func (c *Command) ExecuteDoThing(trm terminal.UI, flags map[string]interface{}) int32 {
-	return (&DoThing{Command: c}).Execute(trm, flags)
+func (c *Command) ExecuteDoThing(trm terminal.UI, params *component.CommandParams) int32 {
+	return (&DoThing{Command: c}).Execute(trm, params)
 }
 
-func (c *Command) ExecuteInteractive(trm terminal.UI, flags map[string]interface{}) int32 {
+func (c *Command) ExecuteInteractive(trm terminal.UI, params *component.CommandParams) int32 {
 	return (&Interactive{Command: c}).Execute(trm)
 }
 
@@ -110,8 +110,8 @@ func (c *Command) Flags() component.CommandFlags {
 	}
 }
 
-func (c *Command) Execute(trm terminal.UI, flags map[string]interface{}) int32 {
-	trm.Output("You gave me the flag: " + flags["hehe"].(string))
+func (c *Command) Execute(trm terminal.UI, params *component.CommandParams) int32 {
+	trm.Output("You gave me the flag: " + params.Flags["hehe"].(string))
 
 	trm.Output(c.Help())
 	trm.Output("My subcommands are: ")
