@@ -35,11 +35,13 @@ module Vagrant
           @_remote_manager ||= Remote::Manager.new(local_manager)
         end
 
-        def self.enable_remote_manager
+        def self.enable_remote_manager(client)
+          Remote::Manager.client = client
           @manager = remote_manager
         end
 
         def self.disable_remote_manager
+          Remote::Manager.client = nil
           @manager = local_manager
         end
 
