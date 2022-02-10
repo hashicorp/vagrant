@@ -7,6 +7,10 @@ module Vagrant
       # as provides methods that allow querying all registered components of
       # those plugins as a single unit.
       class Manager
+        class << self
+          attr_accessor :client
+        end
+
         WRAPPER_CLASS = proc do |klass|
           class << klass
             attr_accessor :plugin_name, :type
@@ -66,8 +70,7 @@ module Vagrant
         end
 
         def plugin_manager
-          info = Thread.current.thread_variable_get(:service_info)
-          info.plugin_manager if info
+          self.class.client
         end
 
         # Synced folder plugins are registered with an integer priority, but in
