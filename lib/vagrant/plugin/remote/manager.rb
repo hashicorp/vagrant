@@ -33,14 +33,11 @@ module Vagrant
           end
 
           def initialize(*args, **kwargs, &block)
-            info = Thread.current.thread_variable_get(:service_info)
-            if info&.plugin_manager
-              client = info.plugin_manager.get_plugin(
-                name: self.class.plugin_name,
-                type: self.class.type
-              )
-              kwargs[:client] = client
-            end
+            client = Manager.client.get_plugin(
+              name: self.class.plugin_name,
+              type: self.class.type
+            )
+            kwargs[:client] = client
             super(*args, **kwargs, &block)
           end
 
