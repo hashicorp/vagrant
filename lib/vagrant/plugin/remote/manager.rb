@@ -81,8 +81,10 @@ module Vagrant
               sf_class = Class.new(V2::SyncedFolder, &WRAPPER_CLASS)
               sf_class.plugin_name = plg[:name]
               sf_class.type = plg[:type]
+              # TODO: how to keep priority?
+              priority = 10
               result.register(plg[:name].to_sym) do
-                sf_class
+                [sf_class, priority]
               end
             end
           end
