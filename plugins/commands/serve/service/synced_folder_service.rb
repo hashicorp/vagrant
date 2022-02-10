@@ -113,7 +113,7 @@ module VagrantPlugins
           plugins = Vagrant.plugin("2").local_manager.synced_folders
           with_plugin(ctx, plugins, broker: broker) do |plugin|
             machine, folders, opts = mapper.funcspec_map(
-              req.func_args,
+              req,
               expect: [Vagrant::Machine, Hash, Type::Direct]
             )
             # change the top level folders hash key to a string
@@ -148,7 +148,7 @@ module VagrantPlugins
           plugins = Vagrant.plugin("2").local_manager.synced_folders
           with_plugin(ctx, plugins, broker: broker) do |plugin|
             machine, folders, opts = mapper.funcspec_map(
-              req.func_args,
+              req,
               expect: [Vagrant::Machine, Hash, Type::Direct]
             )
             # change the top level folders hash key to a string
@@ -176,14 +176,14 @@ module VagrantPlugins
         end
 
         def cleanup(req, ctx)
-          with_info(ctx, broker: broker) do |info|
-            plugin_name = info.plugin_name
+          plugins = Vagrant.plugin("2").local_manager.synced_folders
+          with_plugin(ctx, plugins, broker: broker) do |plugin|
             machine, opts = mapper.funcspec_map(
-              req.func_args,
+              req,
               expect: [Vagrant::Machine, Type::Direct]
             )
 
-            sf = get_synced_folder_plugin(plugin_name)
+            sf = plugin.new
             sf.cleanup(machine, opts)
             Empty.new
           end

@@ -59,7 +59,9 @@ module VagrantPlugins
         # @param folders [Hash] Synced folders
         # @param opts [Hash] Options for folders
         def enable(machine, folders, opts)
-          run_func(machine, folders, opts)
+          spec, cb = enable_func
+          cb.call(generate_funcspec_args(spec,
+              machine, folders, Type::Direct.new(value: opts)))
         end
 
         # Generate callback and spec for required arguments
@@ -79,7 +81,9 @@ module VagrantPlugins
         # @param folders [Hash] Synced folders
         # @param opts [Hash] Options for folders
         def disable(machine, folders, opts)
-          run_func(machine, folders, opts)
+          spec, cb = disable_func
+          cb.call(generate_funcspec_args(spec,
+              machine, folders, Type::Direct.new(value: opts)))
         end
 
         # Generate callback and spec for required arguments
@@ -98,7 +102,9 @@ module VagrantPlugins
         # @param machine [Vagrant::Machine] Guest machine
         # @param opts [Hash] Options for folders
         def cleanup(machine, opts)
-          run_func(machine, opts)
+          spec, cb = cleanup_func
+          cb.call(generate_funcspec_args(spec,
+              machine, Type::Direct.new(value: opts)))
         end
       end
     end
