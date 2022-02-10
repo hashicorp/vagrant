@@ -190,20 +190,20 @@ module Vagrant
           end
         end
 
-        # def provisioners
-        #   return real_manager.provisioners if plugin_manager.nil?
-        #
-        #   Registry.new.tap do |result|
-        #     plugin_manager.list_plugins(:provisioner).each do |plg|
-        #       sf_class = Class.new(Remote::Provisioner, &WRAPPER_CLASS)
-        #       sf_class.plugin_name = plg[:name]
-        #       sf_class.type = plg[:type]
-        #       result.register(plg[:name].to_sym) do
-        #         sf_class
-        #       end
-        #     end
-        #   end
-        # end
+        def provisioners
+          return real_manager.provisioners if plugin_manager.nil?
+
+          Registry.new.tap do |result|
+            plugin_manager.list_plugins(:provisioner).each do |plg|
+              sf_class = Class.new(Remote::Provisioner, &WRAPPER_CLASS)
+              sf_class.plugin_name = plg[:name]
+              sf_class.type = plg[:type]
+              result.register(plg[:name].to_sym) do
+                sf_class
+              end
+            end
+          end
+        end
 
         def pushes
           return real_manager.pushes if plugin_manager.nil?

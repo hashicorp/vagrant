@@ -35,7 +35,7 @@ module VagrantPlugins
         def with_plugin(context, plugins, broker:, &block)
           with_info(context, broker: broker) do |info|
             plugin_name = info.plugin_name
-            plugin = plugins[plugin_name.to_s.to_sym].to_a.first
+            plugin = Array(plugins[plugin_name.to_s.to_sym]).first
             if !plugin
               raise NameError, "Failed to locate plugin named #{plugin_name}"
             end

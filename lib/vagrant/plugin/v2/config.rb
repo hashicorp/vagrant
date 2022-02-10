@@ -76,6 +76,20 @@ module Vagrant
         def method_missing(name, *args, &block)
           return super if @__finalized
 
+          # There are a few scenarios where ruby will attempt to implicity
+          # coerce a given object into a certain type. Configs can end up
+          # in some of these scenarios when they're being shipped around in
+          # callbacks with splats. If method_missing allows these methods to be
+          # called but continues to return Config back, Ruby will raise a
+          # TypeError. Doing the normal thing of raising NoMethodError allows
+          # Config to behave normally as its being passed through splats.
+          #
+          # For a bit more detail and some keywords for further searching, see:
+          # https://ruby-doc.org/core-2.7.2/doc/implicit_conversion_rdoc.html
+          if [:to_hash, :to_ary].include?(name)
+            return super
+          end
+
           name = name.to_s
           name = name[0...-1] if name.end_with?("=")
 

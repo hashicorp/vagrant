@@ -98,7 +98,7 @@ module VagrantPlugins
 
         [Service::InternalService, Service::ProviderService, Service::GuestService,
           Service::HostService, Service::CommandService, Service::SyncedFolderService,
-          Service::CommunicatorService, Service::PushService,
+          Service::CommunicatorService, Service::PushService, Service::ProvisionerService,
           Broker::Streamer].each do |service_klass|
           service = service_klass.new(broker: broker)
           s.handle(service)

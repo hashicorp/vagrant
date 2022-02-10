@@ -9,6 +9,7 @@ module Vagrant
       autoload :Plugin, "vagrant/plugin/remote/plugin"
       autoload :Provider, "vagrant/plugin/remote/provider"
       autoload :Push, "vagrant/plugin/remote/push"
+      autoload :Provisioner, "vagrant/plugin/remote/provisioner"
       autoload :SyncedFolder, "vagrant/plugin/remote/synced_folder"
     end
   end

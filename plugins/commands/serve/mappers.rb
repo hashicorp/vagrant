@@ -363,6 +363,7 @@ require Vagrant.source_root.join("plugins/commands/serve/mappers/pathname.rb").t
 require Vagrant.source_root.join("plugins/commands/serve/mappers/plugin_manager.rb").to_s
 require Vagrant.source_root.join("plugins/commands/serve/mappers/project.rb").to_s
 require Vagrant.source_root.join("plugins/commands/serve/mappers/provider.rb").to_s
+require Vagrant.source_root.join("plugins/commands/serve/mappers/provisioner.rb").to_s
 require Vagrant.source_root.join("plugins/commands/serve/mappers/push.rb").to_s
 require Vagrant.source_root.join("plugins/commands/serve/mappers/state_bag.rb").to_s
 require Vagrant.source_root.join("plugins/commands/serve/mappers/synced_folder.rb").to_s

@@ -5,6 +5,7 @@ require 'google/protobuf'
 
 require 'google/protobuf/empty_pb'
 require 'google/protobuf/any_pb'
+require 'google/rpc/error_details_pb'
 require 'plugin_pb'
 Google::Protobuf::DescriptorPool.generated_pool.build do
   add_file("proto/ruby_vagrant/ruby-server.proto", :syntax => :proto3) do
