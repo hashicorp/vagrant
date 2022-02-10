@@ -5,6 +5,8 @@ module VagrantPlugins
     class Client
       class Guest < Client
         include CapabilityPlatform
+        include Util::NamedPlugin::Client
+
         # Generate callback and spec for required arguments
         #
         # @return [SDK::FuncSpec, Proc]
@@ -19,12 +21,6 @@ module VagrantPlugins
         # @return [Array<String>] parents
         def parent
           run_func
-        end
-
-        # @return [String] plugin name
-        def name
-          c = client.plugin_name(Empty.new)
-          c.name
         end
       end
     end

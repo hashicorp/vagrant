@@ -6,6 +6,7 @@ module VagrantPlugins
       class GuestService < Hashicorp::Vagrant::Sdk::GuestService::Service
 
         include CapabilityPlatformService
+        include Util::NamedPlugin::Service
 
         def initialize(*args, **opts, &block)
           caps = Vagrant.plugin("2").local_manager.guest_capabilities
@@ -79,20 +80,6 @@ module VagrantPlugins
             end
             SDK::Platform::ParentResp.new(
               parent: guest_hash.last
-            )
-          end
-        end
-
-        def set_plugin_name(req, ctx)
-          logger.debug("setting plugin name to nothing 'cause i don't care")
-          Empty.new
-        end
-
-        def plugin_name(req, ctx)
-          with_info(ctx, broker: broker) do |info|
-            logger.debug("returning plugin name #{info.plugin_name}")
-            SDK::PluginInfo::Name.new(
-              name: info.plugin_name
             )
           end
         end

@@ -10,6 +10,7 @@ module VagrantPlugins
       autoload :HasLogger, Vagrant.source_root.join("plugins/commands/serve/util/has_logger").to_s
       autoload :HasMapper, Vagrant.source_root.join("plugins/commands/serve/util/has_mapper").to_s
       autoload :HasSeeds, Vagrant.source_root.join("plugins/commands/serve/util/has_seeds").to_s
+      autoload :NamedPlugin, Vagrant.source_root.join("plugins/commands/serve/util/named_plugin").to_s
       autoload :ServiceInfo, Vagrant.source_root.join("plugins/commands/serve/util/service_info").to_s
       autoload :UsageTracker, Vagrant.source_root.join("plugins/commands/serve/util/usage_tracker").to_s
     end
