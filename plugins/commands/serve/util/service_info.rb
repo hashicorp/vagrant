@@ -15,11 +15,11 @@ module VagrantPlugins
           )
           if context.metadata["plugin_manager"] && info.broker
             Service::ServiceInfo.manager_tracker.activate do
-              info.plugin_manager = Client::PluginManager.load(
+              client = Client::PluginManager.load(
                 context.metadata["plugin_manager"],
                 broker: info.broker
               )
-              Vagrant.plugin("2").enable_remote_manager
+              Vagrant.plugin("2").enable_remote_manager(client)
             end
           end
           Thread.current.thread_variable_set(:service_info, info)
