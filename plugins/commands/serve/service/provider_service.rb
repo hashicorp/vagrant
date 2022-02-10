@@ -91,6 +91,18 @@ module VagrantPlugins
 
             machine = args.arguments.find { |a| a.is_a?(Vagrant::Machine) }
             provider = plugin.new(machine)
+
+            # Within Ruby, many actions are defined inside provider plugins,
+            # and within their implementations they assume that
+            # `machine.provider` yields an instance of their provider. A common
+            # instance of this assumption would be a call like
+            # `machine.provider.driver.some_implementation_specific_method`.
+            #
+            # Because these assumptions are rampant within the Ruby
+            # implementations of providers, we break encapsulation here to set
+            # the local copy of the provider plugin on the machine.
+            machine.instance_variable_set(:@provider, provider)
+
             callable = provider.action(action_name)
             if callable.nil?
               raise Errors::UnimplementedProviderAction,
