@@ -36,4 +36,15 @@ describe VagrantPlugins::CommandServe::Mappers do
       expect(output).to eq([false])
     end
   end
+
+  context "MachineState" do
+    it "yields an id that's a symbol, not a string" do
+      input = Hashicorp::Vagrant::Sdk::Args::Target::Machine::State.new(
+        id: "running",
+      )
+      output = subject.map(input, to: Vagrant::MachineState)
+
+      expect(output.id).to eq(:running)
+    end
+  end
 end

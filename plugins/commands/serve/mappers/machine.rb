@@ -116,7 +116,7 @@ module VagrantPlugins
 
         def converter(m)
           Vagrant::MachineState.new(
-            m.id, m.short_description, m.long_description
+            m.id.to_sym, m.short_description, m.long_description
           )
         end
       end
