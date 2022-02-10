@@ -275,7 +275,7 @@ message Project {
 }
 
 message Box {
-  // Internal ID of the box 
+  // Internal ID of the box
   string id = 1;
 
   // This is the provider that this box is built for.
@@ -752,7 +752,7 @@ message Job {
 
   message InitResult {
     repeated Action actions = 1;
-    repeated Command commands = 2;
+    repeated sdk.Command.CommandInfo commands = 2;
     repeated Hook hooks = 3;
   }
 
@@ -771,27 +771,6 @@ message Job {
       BEFORE = 0;
       AFTER = 1;
     }
-  }
-
-  message Flag {
-    string long_name = 1;
-    string short_name = 2;
-    string description = 3;
-    string default_value = 4;
-    Type type = 5;
-
-    enum Type {
-      STRING = 0;
-      BOOL = 1;
-    }
-  }
-
-  message Command {
-    string name = 1;
-    string synopsis = 2;
-    string help = 3;
-    repeated Flag flags = 4;
-    repeated Command subcommands = 5;
   }
 
   message RunOp {
