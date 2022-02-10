@@ -160,6 +160,12 @@ func (m *Machine) Guest() (g core.Guest, err error) {
 	// TODO(spox): Fix this in the plugin manager
 	m.seedPlugin(result)
 	m.guest = result
+	if named, ok := result.(core.Named); ok {
+		named.SetPluginName(result_name)
+		if err != nil {
+			return nil, err
+		}
+	}
 	g = result
 	return result, nil
 }

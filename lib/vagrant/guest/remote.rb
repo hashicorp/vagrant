@@ -38,8 +38,6 @@ module Vagrant
       #
       # @param [Symbol] cap_name Name of the capability
       def capability(cap_name, *args)
-        @logger.debug("running name just 'cause:")
-        @logger.debug("neam is: #{name}")
         @logger.debug("running remote guest capability #{cap_name} with args #{args}")
         if !client.has_capability?(cap_name)
           raise Errors::GuestCapabilityNotFound,

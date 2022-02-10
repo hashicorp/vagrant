@@ -23,7 +23,7 @@ module VagrantPlugins
 
         # @return [String] plugin name
         def name
-          c = client.name(Empty.new)
+          c = client.plugin_name(Empty.new)
           c.name
         end
       end

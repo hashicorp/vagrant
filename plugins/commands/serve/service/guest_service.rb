@@ -83,6 +83,20 @@ module VagrantPlugins
           end
         end
 
+        def set_plugin_name(req, ctx)
+          logger.debug("setting plugin name to nothing 'cause i don't care")
+          Empty.new
+        end
+
+        def plugin_name(req, ctx)
+          with_info(ctx, broker: broker) do |info|
+            logger.debug("returning plugin name #{info.plugin_name}")
+            SDK::PluginInfo::Name.new(
+              name: info.plugin_name
+            )
+          end
+        end
+
         def capability_arguments(args)
           target, direct = args
           nargs = direct.args.dup
