@@ -98,6 +98,11 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
       optional :network, :string, 2
       optional :addr, :string, 3
     end
+    add_message "hashicorp.vagrant.sdk.Args.Provisioner" do
+      optional :stream_id, :uint32, 1
+      optional :network, :string, 2
+      optional :addr, :string, 3
+    end
     add_message "hashicorp.vagrant.sdk.Args.Target" do
       optional :stream_id, :uint32, 1
       optional :network, :string, 2
@@ -155,23 +160,23 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
     add_message "hashicorp.vagrant.sdk.Args.Connection" do
     end
     add_message "hashicorp.vagrant.sdk.Args.Connection.SSHInfo" do
-      optional :host, :string, 1
-      optional :port, :string, 2
-      optional :private_key_path, :string, 3
-      optional :keys_only, :bool, 4
-      optional :verify_host_key, :bool, 5
-      optional :username, :string, 6
-      optional :remote_user, :string, 7
-      optional :compression, :bool, 8
-      optional :dsa_authentication, :bool, 9
-      optional :config, :string, 10
+      proto3_optional :host, :string, 1
+      proto3_optional :port, :string, 2
+      proto3_optional :private_key_path, :string, 3
+      proto3_optional :keys_only, :bool, 4
+      proto3_optional :verify_host_key, :bool, 5
+      proto3_optional :username, :string, 6
+      proto3_optional :remote_user, :string, 7
+      proto3_optional :compression, :bool, 8
+      proto3_optional :dsa_authentication, :bool, 9
+      proto3_optional :config, :string, 10
       repeated :extra_args, :string, 11
-      optional :forward_agent, :bool, 12
-      optional :forward_x11, :bool, 13
+      proto3_optional :forward_agent, :bool, 12
+      proto3_optional :forward_x11, :bool, 13
       repeated :forward_env, :string, 14
       optional :connect_timeout, :int64, 15
-      optional :ssh_command, :string, 16
-      optional :proxy_command, :string, 17
+      proto3_optional :ssh_command, :string, 16
+      proto3_optional :proxy_command, :string, 17
     end
     add_message "hashicorp.vagrant.sdk.Args.Connection.WinrmInfo" do
       optional :username, :string, 1
@@ -219,6 +224,9 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
     end
     add_message "hashicorp.vagrant.sdk.Args.Hash" do
       map :fields, :string, :message, 1, "google.protobuf.Any"
+    end
+    add_message "hashicorp.vagrant.sdk.Args.Options" do
+      optional :options, :message, 1, "hashicorp.vagrant.sdk.Args.Hash"
     end
     add_message "hashicorp.vagrant.sdk.Args.Null" do
     end
@@ -403,9 +411,6 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
     end
     add_message "hashicorp.vagrant.sdk.PluginInfo.Name" do
       optional :name, :string, 1
-    end
-    add_message "hashicorp.vagrant.sdk.PluginInfo.Priority" do
-      optional :priority, :int32, 1
     end
     add_message "hashicorp.vagrant.sdk.PluginManager" do
     end
@@ -784,6 +789,7 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
       optional :current_version, :string, 3
       repeated :machine_configs, :message, 4, "hashicorp.vagrant.sdk.Vagrantfile.MachineConfig"
       repeated :push_configs, :message, 5, "hashicorp.vagrant.sdk.Vagrantfile.PushConfig"
+      repeated :provisioners, :message, 6, "hashicorp.vagrant.sdk.Vagrantfile.Provisioner"
     end
     add_message "hashicorp.vagrant.sdk.TargetIndex" do
     end
@@ -872,6 +878,7 @@ module Hashicorp
       Args::Basis = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Args.Basis").msgclass
       Args::Project = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Args.Project").msgclass
       Args::Provider = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Args.Provider").msgclass
+      Args::Provisioner = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Args.Provisioner").msgclass
       Args::Target = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Args.Target").msgclass
       Args::Target::State = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Args.Target.State").msgclass
       Args::Target::State::State = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Args.Target.State.State").enummodule
@@ -894,6 +901,7 @@ module Hashicorp
       Args::Direct = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Args.Direct").msgclass
       Args::Array = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Args.Array").msgclass
       Args::Hash = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Args.Hash").msgclass
+      Args::Options = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Args.Options").msgclass
       Args::Null = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Args.Null").msgclass
       FuncSpec = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.FuncSpec").msgclass
       FuncSpec::Value = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.FuncSpec.Value").msgclass
@@ -940,7 +948,6 @@ module Hashicorp
       PluginInfo = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.PluginInfo").msgclass
       PluginInfo::ComponentList = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.PluginInfo.ComponentList").msgclass
       PluginInfo::Name = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.PluginInfo.Name").msgclass
-      PluginInfo::Priority = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.PluginInfo.Priority").msgclass
       PluginManager = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.PluginManager").msgclass
       PluginManager::PluginsRequest = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.PluginManager.PluginsRequest").msgclass
       PluginManager::PluginsResponse = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.PluginManager.PluginsResponse").msgclass
