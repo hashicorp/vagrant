@@ -62,14 +62,23 @@ module VagrantPlugins
 
         # @param [Sdk::Args::Machine]
         # @param [Symbol] name of the action to run
-        def action(machine, name, opts={})
-          opts = {} if !opts.is_a?(Hash)
-          opts.compact!
-          run_func(
-            Type::Direct.new(value: [machine]),
-            Type::Options.new(value: opts),
-            func_args: name,
-          )
+        def action(machine, name)
+          proc do |opts|
+            opts = {} if !opts.is_a?(Hash)
+            opts.compact!
+            opts.delete(:action_runner)
+            opts.delete(:box_collection)
+            opts.delete(:hook)
+            opts.delete(:host)
+            opts.delete(:machine_index)
+            opts.delete(:triggers)
+            run_func(
+              machine,
+              Type::Options.new(value: opts),
+              func_args: name,
+              name: :action_func,
+            )
+          end
         end
 
         # Generate callback and spec for required arguments

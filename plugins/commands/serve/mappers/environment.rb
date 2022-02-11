@@ -23,6 +23,34 @@ module VagrantPlugins
         end
       end
 
+      class EnvironmentToProject < Mapper
+        def initialize
+          super(
+            inputs: [Input.new(type: Vagrant::Environment)],
+            output: Client::Project,
+            func: method(:converter),
+          )
+        end
+
+        def converter(env)
+          env.client
+        end
+      end
+
+      class EnvironmentToProto < Mapper
+        def initialize
+          super(
+            inputs: [Input.new(type: Vagrant::Environment)],
+            output: SDK::Args::Project,
+            func: method(:converter),
+          )
+        end
+
+        def converter(env)
+          env.client.to_proto
+        end
+      end
+
       class EnvironmentFromProjectNoUI < Mapper
         include Util::HasLogger
 
@@ -45,7 +73,6 @@ module VagrantPlugins
           env
         end
       end
-
     end
   end
 end

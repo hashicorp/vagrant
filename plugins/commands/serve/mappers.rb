@@ -30,6 +30,10 @@ module VagrantPlugins
         SDK::Command::CommandInfo => Type::CommandInfo,
         SDK::Communicator::Command => Type::CommunicatorCommandArguments,
       }
+      REVERSE_MAPS = Hash[DEFAULT_MAPS.values.zip(DEFAULT_MAPS.keys)].merge(
+        Vagrant::UI::Interface => SDK::Args::TerminalUI,
+      )
+      REVERSE_MAPS.delete_if { |k, _| !k.name.include?("::") }
 
       # Constant used for generating value
       GENERATE = Class.new {
@@ -117,10 +121,6 @@ module VagrantPlugins
       # @param to [Class] Resultant type (optional)
       # @return [Object]
       def map(value, *extra_args, named: nil, to: nil)
-        # If we don't have a destination type provided, attempt
-        # to set it using our default maps
-        to = DEFAULT_MAPS[value.class] if to.nil?
-
         extra_args = [value, *extra_args].map do |a|
           if a.is_a?(Type::NamedArgument)
             name = a.name
@@ -137,6 +137,22 @@ module VagrantPlugins
           a
         end
         value = extra_args.shift if value
+
+        # TODO(spox): needs to account for early returns
+        if to == Google::Protobuf::Any
+          any_convert = true
+          to = nil
+        end
+        # If we don't have a destination type provided, attempt
+        # to set it using our default maps
+        to = DEFAULT_MAPS[value.class] if to.nil?
+        if value != GENERATE && to.nil?
+          to = REVERSE_MAPS.detect do |k, v|
+            logger.debug("testing TO match for #{value.class} with #{k}")
+            v if value.class.ancestors.include?(k)
+          end&.last
+        end
+        #to = REVERSE_MAPS[value.class] if to.nil?
 
         # If the value given is the desired type, just return the value
         return value if value != GENERATE && !to.nil? && value.is_a?(to)
@@ -248,6 +264,9 @@ module VagrantPlugins
           result = m_graph.execute
         end
         logger.debug("map of #{value.class} to #{to.nil? ? 'unknown' : to.inspect} => #{result}")
+        if any_convert && !result.is_a?(Google::Protobuf::Any)
+          return Google::Protobuf::Any.pack(result)
+        end
         result
       rescue => err
         logger.debug("mapping failed of #{value.class} to #{to.nil? ? 'unknown' : to.inspect}")

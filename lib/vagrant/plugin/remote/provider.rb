@@ -33,8 +33,8 @@ module Vagrant
             super(machine)
           end
 
-          def action(name, opts={})
-            client.action(@machine.to_proto, name, opts)
+          def action(name)
+            client.action(@machine.to_proto, name)
           end
 
           def machine_id_changed

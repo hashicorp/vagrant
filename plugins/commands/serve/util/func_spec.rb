@@ -88,7 +88,7 @@ module VagrantPlugins
           func_args = [name] + Array(func_args)
           spec, cb = send(*func_args)
           f_args = generate_funcspec_args(spec, *args)
-          logger.trace("executing func #{name.sub(/_func$/, "")}")
+          logger.trace("executing func #{name.to_s.sub(/_func$/, "")}")
           cb.call(f_args)
         end
       end

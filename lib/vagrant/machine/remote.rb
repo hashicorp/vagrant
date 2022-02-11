@@ -124,9 +124,9 @@ module Vagrant
         "<Vagrant::Machine:resource_id=#{client.resource_id}>"
       end
 
-      def action(name, opts={})
-        @provider.action(name, opts)
-      end
+      # def action(name, opts={})
+      #   @provider.action(name)
+      # end
 
       def communicate
         @logger.debug("Getting communicator from client")

@@ -67,7 +67,7 @@ module VagrantPlugins
             name: "action_spec",
             args: [
               SDK::FuncSpec::Value.new(
-                type: "hashicorp.vagrant.sdk.Args.Direct",
+                type: "hashicorp.vagrant.sdk.Args.Target.Machine",
                 name: "",
               ),
               SDK::FuncSpec::Value.new(
@@ -83,13 +83,12 @@ module VagrantPlugins
           plugins = Vagrant.plugin("2").local_manager.providers
           with_plugin(ctx, plugins, broker: broker) do |plugin|
             action_name = req.name.to_sym
-            args, options = mapper.funcspec_map(
+            machine, options = mapper.funcspec_map(
               req.func_args,
-              expect: [Type::Direct]
+              expect: [Vagrant::Machine, Type::Options]
             )
             options = Type::Options.new(value: {}) if options.nil?
 
-            machine = args.arguments.find { |a| a.is_a?(Vagrant::Machine) }
             provider = plugin.new(machine)
 
             # Within Ruby, many actions are defined inside provider plugins,
@@ -193,8 +192,9 @@ module VagrantPlugins
             return mapper.map(machine_state, to: SDK::Args::Target::Machine::State)
           end
         end
-
+require 'pp'
         def action_raw(machine, name, callable, extra_env={})
+          logger.debug("calling action named #{name} with defined env: #{extra_env.pretty_inspect}")
           if !extra_env.is_a?(Hash)
             extra_env = {}
           end
