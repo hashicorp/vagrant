@@ -98,7 +98,7 @@ module VagrantPlugins
                 name: "",
               ),
               SDK::FuncSpec::Value.new(
-                type: "hashicorp.vagrant.sdk.Args.Folder",
+                type: "hashicorp.vagrant.sdk.Args.Hash",
                 name: "",
               ),
               SDK::FuncSpec::Value.new(

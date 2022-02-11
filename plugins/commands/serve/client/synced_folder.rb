@@ -36,12 +36,10 @@ module VagrantPlugins
         # Prepare synced folders on guest
         #
         # @param machine [Vagrant::Machine] Guest machine
-        # @param folders [Array] Synced folders
+        # @param folders [Hash] Synced folders
         # @param opts [Hash] Options for folders
         def prepare(machine, folders, opts)
-          spec, cb = prepare_func
-          cb.call(generate_funcspec_args(spec,
-              machine, folders, Type::Direct.new(value: opts)))
+          run_func(machine, folders, Type::Direct.new(value: opts))
         end
 
         # Generate callback and spec for required arguments
@@ -58,7 +56,7 @@ module VagrantPlugins
         # Enable synced folders on guest
         #
         # @param machine [Vagrant::Machine] Guest machine
-        # @param folders [Array] Synced folders
+        # @param folders [Hash] Synced folders
         # @param opts [Hash] Options for folders
         def enable(machine, folders, opts)
           run_func(machine, folders, opts)
@@ -78,7 +76,7 @@ module VagrantPlugins
         # Disable synced folders on guest
         #
         # @param machine [Vagrant::Machine] Guest machine
-        # @param folders [Array] Synced folders
+        # @param folders [Hash] Synced folders
         # @param opts [Hash] Options for folders
         def disable(machine, folders, opts)
           run_func(machine, folders, opts)
