@@ -231,6 +231,49 @@ func StringToPathFunc() mapstructure.DecodeHookFunc {
 	}
 }
 
+func (m *Machine) defaultSyncedFolderType() (folderType *string, err error) {
+	// Get all available synced folder plugins
+	syncedFolders, err := m.project.basis.typeComponents(m.ctx, component.SyncedFolderType)
+	if err != nil {
+		return
+	}
+
+	// Get all plugin components
+	syncedFoldersComponents := make([]*Component, 0, len(syncedFolders))
+	for _, value := range syncedFolders {
+		syncedFoldersComponents = append(syncedFoldersComponents, value)
+	}
+
+	// Sort by plugin priority. Higher is first
+	// TODO: reintroduce priority
+	// sort.SliceStable(syncedFoldersComponents, func(i, j int) bool {
+	// 	return syncedFoldersComponents[i].Info.Priority > syncedFoldersComponents[j].Info.Priority
+	// })
+
+	// Remove unallowed types
+	config := m.target.Configuration
+	machineConfig := config.ConfigVm
+	if machineConfig.AllowedSyncedFolderTypes != nil {
+		// TODO
+	}
+
+	for _, component := range syncedFoldersComponents {
+		syncedFolder := component.Value.(core.SyncedFolder)
+		usable, err := syncedFolder.Usable(m)
+		if err != nil {
+			m.logger.Error("synced folder error on usable check",
+				"plugin", component.Info.Name,
+				"type", "SyncedFolder",
+				"error", err)
+			continue
+		}
+		if usable {
+			return &component.Info.Name, nil
+		}
+	}
+	return nil, fmt.Errorf("failed to detect guest plugin for current platform")
+}
+
 // SyncedFolders implements core.Machine
 func (m *Machine) SyncedFolders() (folders []*core.MachineSyncedFolder, err error) {
 	config := m.target.Configuration
@@ -239,10 +282,9 @@ func (m *Machine) SyncedFolders() (folders []*core.MachineSyncedFolder, err erro
 
 	folders = []*core.MachineSyncedFolder{}
 	for _, folder := range syncedFolders {
-		if folder.Type == nil {
-			// TODO: get default synced folder type
-			defaultType := "virtualbox"
-			folder.Type = &defaultType
+		folder.Type, err = m.defaultSyncedFolderType()
+		if err != nil {
+			return nil, err
 		}
 		lookup := "syncedfolder_" + *(folder.Type)
 		v := m.cache.Get(lookup)
