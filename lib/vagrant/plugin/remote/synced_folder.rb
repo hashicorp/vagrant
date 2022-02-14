@@ -56,6 +56,14 @@ module Vagrant
           # @param [Hash] folders The folders to remove. This will not contain
           #   any folders that should remain.
           # @param [Hash] opts Any options for the synced folders.
+          def prepare(machine, folders, opts)
+            client.prepare(machine.to_proto, folders, opts)
+          end
+
+          # @param [Machine] machine
+          # @param [Hash] folders The folders to remove. This will not contain
+          #   any folders that should remain.
+          # @param [Hash] opts Any options for the synced folders.
           def enable(machine, folders, opts)
             client.enable(machine.to_proto, folders, opts)
           end

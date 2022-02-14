@@ -37,20 +37,55 @@ module VagrantPlugins
         end
 
         def usable(req, ctx)
-          with_info(ctx, broker: broker) do |info|
-            plugin_name = info.plugin_name
+          plugins = Vagrant.plugin("2").local_manager.synced_folders
+          with_plugin(ctx, plugins, broker: broker) do |plugin|
             target = mapper.funcspec_map(req)
             project = target.project
             env = Vagrant::Environment.new({client: project})
             machine = env.machine(target.name.to_sym, target.provider_name.to_sym)
 
-            sf = get_synced_folder_plugin(plugin_name)
-            logger.debug("got sf #{sf}")
-            usable = sf.usable?(machine)
-            logger.debug("usable: #{usable}")
-            SDK::SyncedFolder::UsableResp.new(
-              usable: usable,
+            sf = plugin.new
+              usable = sf.usable?(machine)
+              logger.debug("usable: #{usable}")
+              SDK::SyncedFolder::UsableResp.new(
+                usable: usable,
+              )
+          end
+        end
+
+
+        def prepare_spec(*_)
+          SDK::FuncSpec.new(
+            name: "prepare_spec",
+            args: [
+              SDK::FuncSpec::Value.new(
+                type: "hashicorp.vagrant.sdk.Args.Target.Machine",
+                name: "",
+              ),
+              SDK::FuncSpec::Value.new(
+                type: "hashicorp.vagrant.sdk.Args.Hash",
+                name: "",
+              ),
+              SDK::FuncSpec::Value.new(
+                type: "hashicorp.vagrant.sdk.Args.Direct",
+                name: "",
+              ),
+            ],
+          )
+        end
+
+        def prepare(req, ctx)
+          plugins = Vagrant.plugin("2").local_manager.synced_folders
+          with_plugin(ctx, plugins, broker: broker) do |plugin|
+            machine, folders, opts = mapper.funcspec_map(
+              req,
+              expect: [Vagrant::Machine, Hash, Type::Direct]
             )
+            # change the top level folders hash key to a string
+            folders.transform_keys!(&:to_s)
+            sf = plugin.new
+            sf.prepare(machine, folders, opts)
+            Empty.new
           end
         end
 
@@ -75,14 +110,15 @@ module VagrantPlugins
         end
 
         def enable(req, ctx)
-          with_info(ctx, broker: broker) do |info|
-            plugin_name = info.plugin_name
+          plugins = Vagrant.plugin("2").local_manager.synced_folders
+          with_plugin(ctx, plugins, broker: broker) do |plugin|
             machine, folders, opts = mapper.funcspec_map(
               req.func_args,
               expect: [Vagrant::Machine, Hash, Type::Direct]
             )
-
-            sf = get_synced_folder_plugin(plugin_name)
+            # change the top level folders hash key to a string
+            folders.transform_keys!(&:to_s)
+            sf = plugin.new
             sf.enable(machine, folders, opts)
             Empty.new
           end
@@ -97,7 +133,7 @@ module VagrantPlugins
                 name: "",
               ),
               SDK::FuncSpec::Value.new(
-                type: "hashicorp.vagrant.sdk.Args.Folder",
+                type: "hashicorp.vagrant.sdk.Args.Hash",
                 name: "",
               ),
               SDK::FuncSpec::Value.new(
@@ -109,14 +145,15 @@ module VagrantPlugins
         end
 
         def disable(req, ctx)
-          with_info(ctx, broker: broker) do |info|
-            plugin_name = info.plugin_name
+          plugins = Vagrant.plugin("2").local_manager.synced_folders
+          with_plugin(ctx, plugins, broker: broker) do |plugin|
             machine, folders, opts = mapper.funcspec_map(
               req.func_args,
               expect: [Vagrant::Machine, Hash, Type::Direct]
             )
-
-            sf = get_synced_folder_plugin(plugin_name)
+            # change the top level folders hash key to a string
+            folders.transform_keys!(&:to_s)
+            sf = plugin.new
             sf.disable(machine, folders, opts)
             Empty.new
           end
@@ -150,18 +187,6 @@ module VagrantPlugins
             sf.cleanup(machine, opts)
             Empty.new
           end
-        end
-
-        private
-
-        def get_synced_folder_plugin(plugin_name)
-          synced_folders = Vagrant.plugin("2").local_manager.synced_folders
-          logger.debug("got synced folders #{synced_folders}")
-          plugin = [plugin_name.to_s.to_sym].to_a.first
-          logger.debug("got plugin #{plugin}")
-          sf = plugin.new
-          logger.debug("got sf #{sf}")
-          sf
         end
       end
     end

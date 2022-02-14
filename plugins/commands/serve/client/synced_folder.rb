@@ -25,6 +25,28 @@ module VagrantPlugins
         # Generate callback and spec for required arguments
         #
         # @return [SDK::FuncSpec, Proc]
+        def prepare_func
+          spec = client.prepare_spec(Empty.new)
+          cb = proc do |args|
+            client.prepare(args)
+          end
+          [spec, cb]
+        end
+
+        # Prepare synced folders on guest
+        #
+        # @param machine [Vagrant::Machine] Guest machine
+        # @param folders [Array] Synced folders
+        # @param opts [Hash] Options for folders
+        def prepare(machine, folders, opts)
+          spec, cb = prepare_func
+          cb.call(generate_funcspec_args(spec,
+              machine, folders, Type::Direct.new(value: opts)))
+        end
+
+        # Generate callback and spec for required arguments
+        #
+        # @return [SDK::FuncSpec, Proc]
         def enable_func
           spec = client.enable_spec(Empty.new)
           cb = proc do |args|
