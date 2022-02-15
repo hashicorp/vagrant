@@ -48,8 +48,8 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
     add_message "hashicorp.vagrant.sdk.Args.Path" do
       optional :path, :string, 1
     end
-    add_message "hashicorp.vagrant.sdk.Args.Folder" do
-      map :folders, :string, :message, 1, "google.protobuf.Any"
+    add_message "hashicorp.vagrant.sdk.Args.Folders" do
+      optional :folders, :message, 1, "hashicorp.vagrant.sdk.Args.Hash"
     end
     add_message "hashicorp.vagrant.sdk.Args.TimeDuration" do
       optional :duration, :int32, 1
@@ -867,7 +867,7 @@ module Hashicorp
       Args::DataDir::Component = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Args.DataDir.Component").msgclass
       Args::MetadataSet = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Args.MetadataSet").msgclass
       Args::Path = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Args.Path").msgclass
-      Args::Folder = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Args.Folder").msgclass
+      Args::Folders = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Args.Folders").msgclass
       Args::TimeDuration = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Args.TimeDuration").msgclass
       Args::TerminalUI = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Args.TerminalUI").msgclass
       Args::Logger = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Args.Logger").msgclass
