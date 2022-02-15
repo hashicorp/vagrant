@@ -1,6 +1,5 @@
 # Always stop when errors are encountered unless instructed not to
 $ErrorActionPreference = "Stop"
-
 # Vagrant VM creation functions
 
 function New-VagrantVM {
@@ -18,7 +17,7 @@ function New-VagrantVM {
         [parameter(Mandatory=$false)]
         [string] $VMName
     )
-    if([IO.Path]::GetExtension($VMConfigFile).ToLower() -eq ".xml") {
+    if($VMConfigFile.EndsWith(".xml", "CurrentCultureIgnoreCase")) {
         return New-VagrantVMXML @PSBoundParameters
     } else {
         return New-VagrantVMVMCX @PSBoundParameters
@@ -85,6 +84,7 @@ function New-VagrantVMVMCX {
         VhdDestinationPath = Join-Path $DataPath "Virtual Hard Disks";
         VirtualMachinePath = $DataPath;
     }
+
     $VMConfig = (Hyper-V\Compare-VM -Copy -GenerateNewID @NewVMConfig -ErrorAction SilentlyContinue)
 
     # If the config is empty it means the import failed. Attempt to provide
@@ -122,7 +122,7 @@ function New-VagrantVMVMCX {
         }
         foreach($Controller in $Controllers) {
             foreach($Drive in $Controller.Drives) {
-                if([System.IO.Path]::GetFileName($Drive.Path) -eq [System.IO.Path]::GetFileName($SourcePath)) {
+                if((Split-Path -Leaf $Drive.Path) -eq (Split-Path -Leaf $SourcePath)) {
                     $Path = $Drive.Path
                     Hyper-V\Remove-VMHardDiskDrive $Drive
                     Hyper-V\New-VHD -Path $DestinationPath -ParentPath $SourcePath -Differencing
@@ -729,8 +729,10 @@ function Check-VagrantHyperVAccess {
         [string] $Path
     )
     $acl = Get-ACL -Path $Path
+    $systemAccount = [wmi]"Win32_SID.SID='S-1-5-18'"
+    $localisedAccount = $systemAccount.ReferencedDomainName + "\" + $systemAccount.AccountName
     $systemACL = $acl.Access | where {
-        try { return $_.IdentityReference.Translate([System.Security.Principal.SecurityIdentifier]).Value -eq "S-1-5-18" } catch { return $false } -and
+        $_.IdentityReference.Value -eq $localisedAccount -and
         $_.FileSystemRights -eq "FullControl" -and
         $_.AccessControlType -eq "Allow" -and
         $_.IsInherited -eq $true}

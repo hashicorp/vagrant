@@ -5,32 +5,14 @@ param(
     [string]$VmId
 )
 
-# Make sure the exception type is loaded
-try
-{
-    # Microsoft.HyperV.PowerShell is present on all versions of Windows with HyperV
-    [void][System.Reflection.Assembly]::LoadWithPartialName('Microsoft.HyperV.PowerShell, Culture=neutral, PublicKeyToken=31bf3856ad364e35')
-    # Microsoft.HyperV.PowerShell.Objects is only present on Windows >= 10.0, so this will fail, and we ignore it since the needed exception
-    # type was loaded in Microsoft.HyperV.PowerShell
-    [void][System.Reflection.Assembly]::LoadWithPartialName('Microsoft.HyperV.PowerShell.Objects, Culture=neutral, PublicKeyToken=31bf3856ad364e35')
-} catch {
-  # Empty catch ok, since if we didn't load the types, we will fail in the next block
-}
-
-$VmmsPath = if ([environment]::Is64BitProcess) { "$($env:SystemRoot)\System32\vmms.exe" } else { "$($env:SystemRoot)\Sysnative\vmms.exe" }
-$HyperVVersion = [version](Get-Item $VmmsPath).VersionInfo.ProductVersion
-
-if($HyperVVersion -lt ([version]'10.0')) {
-  $ExceptionType = [Microsoft.HyperV.PowerShell.VirtualizationOperationFailedException]
-} else {
-  $ExceptionType = [Microsoft.HyperV.PowerShell.VirtualizationException]
-}
 try {
     $VM = Hyper-V\Get-VM -Id $VmId -ErrorAction "Stop"
     $State = $VM.state
     $Status = $VM.status
 } catch [Exception] {
-    if($_.Exception.GetType() -eq $ExceptionType)
+    # "ObjectNotFound" when Hyper-V  >= 10 (Microsoft.HyperV.PowerShell.VirtualizationException)
+    # "NotSpecified" when Hyper-V < 10 (Microsoft.HyperV.PowerShell.VirtualizationOperationFailedException)
+    if(("ObjectNotFound", "NotSpecified") -Contains $_.Exception.ErrorCategory)
     {
         $State = "not_created"
         $Status = $State
