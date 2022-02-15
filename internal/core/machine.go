@@ -235,16 +235,8 @@ func (m *Machine) SyncedFolders() (folders []*core.MachineSyncedFolder, err erro
 	machineConfig := config.ConfigVm
 	syncedFolders := machineConfig.SyncedFolders
 
-	// TODO(spox): Synced folders are getting duped in config. The `seen` is just a temporary
-	// hack to prevent duplicate entries
-	seen := map[string]bool{}
 	folders = []*core.MachineSyncedFolder{}
 	for _, folder := range syncedFolders {
-		if _, ok := seen[folder.Destination]; ok {
-			continue
-		}
-		seen[folder.Destination] = true
-
 		// TODO: get default synced folder type
 		folder.Type = "virtualbox"
 		plg, err := m.project.basis.component(m.ctx, component.SyncedFolderType, folder.Type)
