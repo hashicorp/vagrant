@@ -194,10 +194,13 @@ func (s *State) targetPut(
 			return erro
 		}
 		if foundTarget != nil {
+			// Make sure the config doesn't get merged - we want the config to overwrite the old config
+			finalConfig := proto.Clone(value.Configuration)
 			// Merge found target with provided target
 			proto.Merge(value, foundTarget)
 			value.ResourceId = foundTarget.ResourceId
 			value.Uuid = foundTarget.Uuid
+			value.Configuration = finalConfig.(*vagrant_plugin_sdk.Vagrantfile_MachineConfig)
 		} else {
 			s.log.Trace("target has no resource id and could not find matching target, assuming new target",
 				"target", value)
