@@ -3,6 +3,7 @@ package core
 import (
 	"fmt"
 	"reflect"
+	"sort"
 
 	"github.com/golang/protobuf/ptypes"
 	"github.com/mitchellh/mapstructure"
@@ -112,12 +113,23 @@ func (m *Machine) Guest() (g core.Guest, err error) {
 		return
 	}
 
-	var result core.Guest
-	var result_name string
-	var numParents int
+	names := make([]string, 0, len(guests))
+	pcount := map[string]int{}
 
 	for name, g := range guests {
-		guest := g.Value.(core.Guest)
+		names = append(names, name)
+		pcount[name] = g.plugin.ParentCount()
+	}
+
+	sort.Slice(names, func(i, j int) bool {
+		in := names[i]
+		jn := names[j]
+		// TODO check values exist before use
+		return pcount[in] > pcount[jn]
+	})
+
+	for _, name := range names {
+		guest := guests[name].Value.(core.Guest)
 		detected, err := guest.Detect(m.toTarget())
 		if err != nil {
 			m.logger.Error("guest error on detection check",
@@ -127,41 +139,17 @@ func (m *Machine) Guest() (g core.Guest, err error) {
 
 			continue
 		}
-		if result == nil {
-			if detected {
-				result = guest
-				result_name = name
-				numParents = g.plugin.ParentCount()
-			}
-			continue
-		}
-
 		if detected {
-			gp := g.plugin.ParentCount()
-
-			if gp > numParents {
-				result = guest
-				result_name = name
-				numParents = gp
-			}
+			m.logger.Info("guest detection complete",
+				"name", name,
+			)
+			m.seedPlugin(guest)
+			m.guest = guest
+			return guest, nil
 		}
 	}
 
-	if result == nil {
-		return nil, fmt.Errorf("failed to detect guest plugin for current platform")
-	}
-
-	m.logger.Info("guest detection complete",
-		"name", result_name)
-
-	// NOTE: For guest seeding we need to prevent guest plugin instance
-	// from being cached and reused. Currently, in a multi-machine setup
-	// which are the same guest, the target values will get appended
-	// TODO(spox): Fix this in the plugin manager
-	m.seedPlugin(result)
-	m.guest = result
-	g = result
-	return result, nil
+	return nil, fmt.Errorf("failed to detect guest plugin for current platform")
 }
 
 func (m *Machine) seedPlugin(plg interface{}) (err error) {
