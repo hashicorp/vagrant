@@ -12,6 +12,7 @@ module VagrantPlugins
         Client::SyncedFolder => Vagrant::Plugin::V2::SyncedFolder,
         SDK::Args::Array => Array,
         SDK::Args::Direct => Type::Direct,
+        SDK::Args::Folders => Type::Folders,
         SDK::Args::Guest => Client::Guest,
         SDK::Args::Hash => Hash,
         SDK::Args::Host => Client::Host,
@@ -352,6 +353,7 @@ require Vagrant.source_root.join("plugins/commands/serve/mappers/communicator.rb
 require Vagrant.source_root.join("plugins/commands/serve/mappers/direct.rb").to_s
 require Vagrant.source_root.join("plugins/commands/serve/mappers/duration.rb").to_s
 require Vagrant.source_root.join("plugins/commands/serve/mappers/environment.rb").to_s
+require Vagrant.source_root.join("plugins/commands/serve/mappers/folders.rb").to_s
 require Vagrant.source_root.join("plugins/commands/serve/mappers/guest.rb").to_s
 require Vagrant.source_root.join("plugins/commands/serve/mappers/host.rb").to_s
 require Vagrant.source_root.join("plugins/commands/serve/mappers/known_types.rb").to_s
