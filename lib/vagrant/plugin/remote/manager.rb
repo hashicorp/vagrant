@@ -70,6 +70,13 @@ module Vagrant
           info.plugin_manager if info
         end
 
+        # Synced folder plugins are registered with an integer priority, but in
+        # remote mode this is all captured by InternalService#get_plugins and
+        # handled on the Go sidw. Within the remote manager we return a stub
+        # value to ensure that any callers get the same shape of return value
+        # from the registry and don't blow up.
+        SYNCED_FOLDERS_STUB_PRIORITY = 123
+
         # This returns all synced folder implementations.
         #
         # @return [Registry]
@@ -81,10 +88,8 @@ module Vagrant
               sf_class = Class.new(V2::SyncedFolder, &WRAPPER_CLASS)
               sf_class.plugin_name = plg[:name]
               sf_class.type = plg[:type]
-              # TODO: how to keep priority?
-              priority = 10
               result.register(plg[:name].to_sym) do
-                [sf_class, priority]
+                [sf_class, SYNCED_FOLDERS_STUB_PRIORITY]
               end
             end
           end
