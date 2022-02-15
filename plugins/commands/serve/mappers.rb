@@ -138,11 +138,15 @@ module VagrantPlugins
         end
         value = extra_args.shift if value
 
-        # TODO(spox): needs to account for early returns
-        if to == Google::Protobuf::Any
+        # If our destination type is an Any, mark that the final type should
+        # be any and unset our destination type. This will allow us to
+        # attempt to find a proper destination type using our maps and
+        # then we can pack it into any Any value at the end
+        if to == Google::Protobuf::Any && !value.class.ancestors.include?(Google::Protobuf::MessageExts)
           any_convert = true
           to = nil
         end
+
         # If we don't have a destination type provided, attempt
         # to set it using our default maps
         to = DEFAULT_MAPS[value.class] if to.nil?
@@ -162,7 +166,9 @@ module VagrantPlugins
           val = (extra_args + known_arguments).detect do |item|
             item.is_a?(to)
           end
-          return val if val != GENERATE && val
+          if val && val != GENERATE
+            return any_convert ? Google::Protobuf::Any.pack(val) : val
+          end
         end
 
         # NOTE: We set the cacher instance into the extra args
@@ -249,7 +255,6 @@ module VagrantPlugins
               break
             rescue => err
               logger.debug("typeless mapping failure (non-critical): #{err} (input - #{value.class} / output #{out})")
-              logger.trace("#{err.class}: #{err}\n#{err.backtrace.join("\n")}}}")
               last_error = err
             end
           end
