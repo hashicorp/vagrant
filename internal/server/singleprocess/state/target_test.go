@@ -73,6 +73,39 @@ func TestTarget(t *testing.T) {
 		require.NoError(err)
 		require.Len(resp, 1)
 
+		// Try to insert duplicate config
+		err = s.TargetPut(serverptypes.TestTarget(t, &vagrant_server.Target{
+			Project: projectRef,
+			Name:    "test",
+			Configuration: &vagrant_plugin_sdk.Vagrantfile_MachineConfig{
+				ConfigVm: &vagrant_plugin_sdk.Vagrantfile_ConfigVM{
+					AllowedSyncedFolderTypes: []string{"one"},
+				},
+			},
+		}))
+		require.NoError(err)
+		err = s.TargetPut(serverptypes.TestTarget(t, &vagrant_server.Target{
+			Project: projectRef,
+			Name:    "test",
+			Configuration: &vagrant_plugin_sdk.Vagrantfile_MachineConfig{
+				ConfigVm: &vagrant_plugin_sdk.Vagrantfile_ConfigVM{
+					AllowedSyncedFolderTypes: []string{"one"},
+				},
+			},
+		}))
+		require.NoError(err)
+
+		// Ensure there is still one entry
+		resp, err = s.TargetList()
+		require.NoError(err)
+		require.Len(resp, 1)
+		// Ensure the config did not merge
+		targetResp, err := s.TargetGet(&vagrant_plugin_sdk.Ref_Target{
+			ResourceId: resourceId,
+		})
+		require.NoError(err)
+		require.Len(targetResp.Configuration.ConfigVm.AllowedSyncedFolderTypes, 1)
+
 		// Get exact
 		{
 			resp, err := s.TargetGet(&vagrant_plugin_sdk.Ref_Target{
