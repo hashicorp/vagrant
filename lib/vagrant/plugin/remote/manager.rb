@@ -30,14 +30,18 @@ module Vagrant
               klass.plugin_name = plugin_name
               klass.type = type
             end
+
+            def client
+              return @client if @client
+              @client = Manager.client.get_plugin(
+                name: plugin_name,
+                type: type
+              )
+            end
           end
 
           def initialize(*args, **kwargs, &block)
-            client = Manager.client.get_plugin(
-              name: self.class.plugin_name,
-              type: self.class.type
-            )
-            kwargs[:client] = client
+            kwargs[:client] = self.class.client
             super(*args, **kwargs, &block)
           end
 
@@ -85,7 +89,7 @@ module Vagrant
 
           Registry.new.tap do |result|
             plugin_manager.list_plugins(:synced_folder).each do |plg|
-              sf_class = Class.new(V2::SyncedFolder, &WRAPPER_CLASS)
+              sf_class = Class.new(Remote::SyncedFolder, &WRAPPER_CLASS)
               sf_class.plugin_name = plg[:name]
               sf_class.type = plg[:type]
               result.register(plg[:name].to_sym) do
@@ -100,7 +104,7 @@ module Vagrant
 
           Registry.new.tap do |result|
             plugin_manager.list_plugins(:command).each do |plg|
-              sf_class = Class.new(V2::Command, &WRAPPER_CLASS)
+              sf_class = Class.new(Remote::Command, &WRAPPER_CLASS)
               sf_class.plugin_name = plg[:name]
               sf_class.type = plg[:type]
               result.register(plg[:name].to_sym) do
@@ -115,7 +119,7 @@ module Vagrant
 
         #   Registry.new.tap do |result|
         #     plugin_manager.list_plugins(:communicator).each do |plg|
-        #       sf_class = Class.new(V2::Communicator, &WRAPPER_CLASS)
+        #       sf_class = Class.new(Remote::Communicator, &WRAPPER_CLASS)
         #       sf_class.plugin_name = plg[:name]
         #       sf_class.type = plg[:type]
         #       result.register(plg[:name].to_sym) do
@@ -130,7 +134,7 @@ module Vagrant
 
         #   Registry.new.tap do |result|
         #     plugin_manager.list_plugins(:config).each do |plg|
-        #       sf_class = Class.new(V2::Config, &WRAPPER_CLASS)
+        #       sf_class = Class.new(Remote::Config, &WRAPPER_CLASS)
         #       sf_class.plugin_name = plg[:name]
         #       sf_class.type = plg[:type]
         #       result.register(plg[:name].to_sym) do
@@ -145,7 +149,7 @@ module Vagrant
 
           Registry.new.tap do |result|
             plugin_manager.list_plugins(:guest).each do |plg|
-              sf_class = Class.new(V2::Guest, &WRAPPER_CLASS)
+              sf_class = Class.new(Remote::Guest, &WRAPPER_CLASS)
               sf_class.plugin_name = plg[:name]
               sf_class.type = plg[:type]
               result.register(plg[:name].to_sym) do
@@ -160,7 +164,7 @@ module Vagrant
 
           Registry.new.tap do |result|
             plugin_manager.list_plugins(:host).each do |plg|
-              sf_class = Class.new(V2::Host, &WRAPPER_CLASS)
+              sf_class = Class.new(Remote::Host, &WRAPPER_CLASS)
               sf_class.plugin_name = plg[:name]
               sf_class.type = plg[:type]
               result.register(plg[:name].to_sym) do
@@ -175,7 +179,7 @@ module Vagrant
 
           Registry.new.tap do |result|
             plugin_manager.list_plugins(:provider).each do |plg|
-              sf_class = Class.new(V2::Provider, &WRAPPER_CLASS)
+              sf_class = Class.new(Remote::Provider, &WRAPPER_CLASS)
               sf_class.plugin_name = plg[:name]
               sf_class.type = plg[:type]
               result.register(plg[:name].to_sym) do
@@ -187,15 +191,15 @@ module Vagrant
         end
 
         # def provisioners
-        #   return real_manager.synced_folders if plugin_manager.nil?
-
+        #   return real_manager.provisioners if plugin_manager.nil?
+        #
         #   Registry.new.tap do |result|
         #     plugin_manager.list_plugins(:provisioner).each do |plg|
-        #       sf_class = Class.new(V2::Provisioner, &WRAPPER_CLASS)
+        #       sf_class = Class.new(Remote::Provisioner, &WRAPPER_CLASS)
         #       sf_class.plugin_name = plg[:name]
         #       sf_class.type = plg[:type]
         #       result.register(plg[:name].to_sym) do
-        #         proc{sf_class}
+        #         sf_class
         #       end
         #     end
         #   end
@@ -206,7 +210,7 @@ module Vagrant
 
           Registry.new.tap do |result|
             plugin_manager.list_plugins(:push).each do |plg|
-              sf_class = Class.new(V2::Push, &WRAPPER_CLASS)
+              sf_class = Class.new(Remote::Push, &WRAPPER_CLASS)
               sf_class.plugin_name = plg[:name]
               sf_class.type = plg[:type]
               result.register(plg[:name].to_sym) do
