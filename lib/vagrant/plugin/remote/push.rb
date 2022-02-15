@@ -1,25 +1,23 @@
 module Vagrant
   module Plugin
     module Remote
-      class Push
-        # This module enables Push for server mode
-        module Remote
-          # Add an attribute accesor for the client
-          # when applied to the Push class
-          def self.prepended(klass)
-            klass.class_eval do
-              attr_accessor :client
-            end
-          end
+      # This class enables Push for server mode
+      class Push < V2::Push
+        # Add an attribute accesor for the client
+        # when applied to the Push class
+        attr_accessor :client
 
-          def initialize(env, config, **opts)
-            @client = opts[:client]
-            super(env, config)
+        def initialize(env, config, **opts)
+          if opts[:client].nil?
+            raise ArgumentError,
+              "Remote client is required for `#{self.class.name}`"
           end
+          @client = opts[:client]
+          super(env, config)
+        end
 
-          def push
-            client.push
-          end
+        def push
+          client.push
         end
       end
     end
