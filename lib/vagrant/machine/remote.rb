@@ -131,7 +131,7 @@ module Vagrant
       def communicate
         @logger.debug("Getting communicator from client")
         if !@communicate
-          @communicate = Vagrant::Plugin::V2::Communicator.new(self)
+          @communicate = Vagrant::Plugin::Remote::Communicator.new(self)
         end
         @communicate
       end
@@ -306,7 +306,7 @@ module Vagrant
           next if f[:folder][:disabled]
           # TODO: get type of synced folder
           impl = :virtualbox
-          sf = Vagrant::Plugin::V2::SyncedFolder.new(client: f[:plugin])
+          sf = Vagrant::Plugin::Remote::SyncedFolder.new(client: f[:plugin])
           # Set plugin, guestpath and hostpath from synced folder info
           folders[impl] = {f[:folder][:destination] => f[:folder].merge({
             plugin: sf,
