@@ -19,7 +19,6 @@ module VagrantPlugins
         end
 
         def detect_spec(*_)
-          # TODO: Add statebad as an arg
           SDK::FuncSpec.new(
             name: "detect_spec",
             args: [

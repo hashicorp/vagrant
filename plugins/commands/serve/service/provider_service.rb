@@ -108,7 +108,7 @@ module VagrantPlugins
               action: name,
               provider: @provider.to_s
             end
-            action_raw(machine, action_name, callable, options.value.to_h)
+            action_raw(machine, action_name, callable, options.value)
             Empty.new
           end
         end

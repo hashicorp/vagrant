@@ -191,7 +191,7 @@ module VagrantPlugins
                 name: "",
               ),
               SDK::FuncSpec::Value.new(
-                type: "hashicorp.vagrant.sdk.Args.Hash",
+                type: "hashicorp.vagrant.sdk.Args.Options",
                 name: "",
               )
             ],
@@ -208,14 +208,13 @@ module VagrantPlugins
             logger.debug("got req: #{req}")
             machine, cmd, opts = mapper.funcspec_map(
               req, mapper, broker,
-              expect: [Vagrant::Machine, SDK::Communicator::Command, Hash]
+              expect: [Vagrant::Machine, SDK::Communicator::Command, Type::Options]
             )
 
             plugin = Vagrant.plugin("2").manager.communicators[plugin_name.to_s.to_sym]
             communicator = plugin.new(machine)
-            opts.transform_keys!(&:to_sym)
             output = {stdout: '', stderr: ''}
-            exit_code = communicator.execute(cmd.command, opts) {
+            exit_code = communicator.execute(cmd.command, opts.value) {
               |type, data| output[type] << data if output[type]
             }
 
@@ -240,7 +239,7 @@ module VagrantPlugins
                 name: "",
               ),
               SDK::FuncSpec::Value.new(
-                type: "hashicorp.vagrant.sdk.Args.Hash",
+                type: "hashicorp.vagrant.sdk.Args.Options",
                 name: "",
               )
             ],
@@ -256,14 +255,13 @@ module VagrantPlugins
             plugin_name = info.plugin_name
             machine, cmd, opts = mapper.funcspec_map(
               req, mapper, broker,
-              expect: [Vagrant::Machine, SDK::Communicator::Command, Hash]
+              expect: [Vagrant::Machine, SDK::Communicator::Command, Type::Options]
             )
 
             plugin = Vagrant.plugin("2").manager.communicators[plugin_name.to_s.to_sym]
             communicator = plugin.new(machine)
-            opts.transform_keys!(&:to_sym)
             output = {stdout: '', stderr: ''}
-            exit_code = communicator.sudo(cmd.command, opts) {
+            exit_code = communicator.sudo(cmd.command, opts.value) {
               |type, data| output[type] << data if output[type]
             }
 
@@ -288,7 +286,7 @@ module VagrantPlugins
                 name: "",
               ),
               SDK::FuncSpec::Value.new(
-                type: "hashicorp.vagrant.sdk.Args.Hash",
+                type: "hashicorp.vagrant.sdk.Args.Options",
                 name: "",
               )
             ],
@@ -304,13 +302,12 @@ module VagrantPlugins
             plugin_name = info.plugin_name
             machine, cmd, opts = mapper.funcspec_map(
               req, mapper, broker,
-              expect: [Vagrant::Machine, SDK::Communicator::Command, Hash]
+              expect: [Vagrant::Machine, SDK::Communicator::Command, Type::Options]
             )
 
             plugin = Vagrant.plugin("2").manager.communicators[plugin_name.to_s.to_sym]
             communicator = plugin.new(machine)
-            opts.transform_keys!(&:to_sym)
-            valid = communicator.test(cmd.command, opts)
+            valid = communicator.test(cmd.command, opts.value)
             logger.debug("command is valid?: #{valid}")
 
             SDK::Communicator::TestResp.new(

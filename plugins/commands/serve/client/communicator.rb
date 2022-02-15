@@ -105,7 +105,10 @@ module VagrantPlugins
         # @return [Integer]
         def execute(machine, cmd, opts)
           opts = {} if opts.nil?
-          run_func(machine, opts, Type::CommunicatorCommandArguments.new(value: cmd))
+          run_func(machine,
+            Type::Options.new(value: opts),
+            Type::CommunicatorCommandArguments.new(value: cmd)
+          )
         end
 
         # Generate callback and spec for required arguments
@@ -125,7 +128,10 @@ module VagrantPlugins
         # @return [Integer]
         def privileged_execute(machine, cmd, opts)
           opts = {} if opts.nil?
-          run_func(machine, opts, Type::CommunicatorCommandArguments.new(value: cmd))
+          run_func(machine,
+            Type::Options.new(value: opts),
+            Type::CommunicatorCommandArguments.new(value: cmd)
+          )
         end
 
         # Generate callback and spec for required arguments
@@ -145,7 +151,10 @@ module VagrantPlugins
         # @return [Boolean]
         def test(machine, cmd, opts)
           opts = {} if opts.nil?
-          run_func(machine, opts, Type::CommunicatorCommandArguments.new(value: cmd))
+          run_func(machine,
+            Type::Options.new(value: opts),
+            Type::CommunicatorCommandArguments.new(value: cmd)
+          )
         end
 
         # Generate callback and spec for required arguments

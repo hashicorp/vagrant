@@ -63,11 +63,11 @@ module VagrantPlugins
                 name: "",
               ),
               SDK::FuncSpec::Value.new(
-                type: "hashicorp.vagrant.sdk.Args.Hash",
+                type: "hashicorp.vagrant.sdk.Args.Folders",
                 name: "",
               ),
               SDK::FuncSpec::Value.new(
-                type: "hashicorp.vagrant.sdk.Args.Direct",
+                type: "hashicorp.vagrant.sdk.Args.Options",
                 name: "",
               ),
             ],
@@ -79,12 +79,13 @@ module VagrantPlugins
           with_plugin(ctx, plugins, broker: broker) do |plugin|
             machine, folders, opts = mapper.funcspec_map(
               req,
-              expect: [Vagrant::Machine, Hash, Type::Direct]
+              expect: [Vagrant::Machine, Type::Folders, Type::Options]
             )
             # change the top level folders hash key to a string
+            folders = folders.value
             folders.transform_keys!(&:to_s)
             sf = plugin.new
-            sf.prepare(machine, folders, opts)
+            sf.prepare(machine, folders, opts.value)
             Empty.new
           end
         end
@@ -98,11 +99,11 @@ module VagrantPlugins
                 name: "",
               ),
               SDK::FuncSpec::Value.new(
-                type: "hashicorp.vagrant.sdk.Args.Hash",
+                type: "hashicorp.vagrant.sdk.Args.Folders",
                 name: "",
               ),
               SDK::FuncSpec::Value.new(
-                type: "hashicorp.vagrant.sdk.Args.Direct",
+                type: "hashicorp.vagrant.sdk.Args.Options",
                 name: "",
               ),
             ],
@@ -113,13 +114,14 @@ module VagrantPlugins
           plugins = Vagrant.plugin("2").local_manager.synced_folders
           with_plugin(ctx, plugins, broker: broker) do |plugin|
             machine, folders, opts = mapper.funcspec_map(
-              req,
-              expect: [Vagrant::Machine, Hash, Type::Direct]
+              req.func_args,
+              expect: [Vagrant::Machine, Folders, Type::Options]
             )
             # change the top level folders hash key to a string
+            folders = folders.value
             folders.transform_keys!(&:to_s)
             sf = plugin.new
-            sf.enable(machine, folders, opts)
+            sf.enable(machine, folders, opts.value)
             Empty.new
           end
         end
@@ -133,11 +135,11 @@ module VagrantPlugins
                 name: "",
               ),
               SDK::FuncSpec::Value.new(
-                type: "hashicorp.vagrant.sdk.Args.Hash",
+                type: "hashicorp.vagrant.sdk.Args.Folders",
                 name: "",
               ),
               SDK::FuncSpec::Value.new(
-                type: "hashicorp.vagrant.sdk.Args.Direct",
+                type: "hashicorp.vagrant.sdk.Args.Options",
                 name: "",
               ),
             ],
@@ -148,13 +150,14 @@ module VagrantPlugins
           plugins = Vagrant.plugin("2").local_manager.synced_folders
           with_plugin(ctx, plugins, broker: broker) do |plugin|
             machine, folders, opts = mapper.funcspec_map(
-              req,
-              expect: [Vagrant::Machine, Hash, Type::Direct]
+              req.func_args,
+              expect: [Vagrant::Machine, Type::Folders, Type::Options]
             )
             # change the top level folders hash key to a string
+            folders = folders.value
             folders.transform_keys!(&:to_s)
             sf = plugin.new
-            sf.disable(machine, folders, opts)
+            sf.disable(machine, folders, opts.value)
             Empty.new
           end
         end
@@ -168,7 +171,7 @@ module VagrantPlugins
                 name: "",
               ),
               SDK::FuncSpec::Value.new(
-                type: "hashicorp.vagrant.sdk.Args.Direct",
+                type: "hashicorp.vagrant.sdk.Args.Options",
                 name: "",
               ),
             ],
@@ -179,12 +182,12 @@ module VagrantPlugins
           plugins = Vagrant.plugin("2").local_manager.synced_folders
           with_plugin(ctx, plugins, broker: broker) do |plugin|
             machine, opts = mapper.funcspec_map(
-              req,
-              expect: [Vagrant::Machine, Type::Direct]
+              req.func_args,
+              expect: [Vagrant::Machine, Type::Options]
             )
 
-            sf = plugin.new
-            sf.cleanup(machine, opts)
+            sf = get_synced_folder_plugin(plugin_name)
+            sf.cleanup(machine, opts.value)
             Empty.new
           end
         end
