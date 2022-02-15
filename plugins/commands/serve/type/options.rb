@@ -9,7 +9,7 @@ module VagrantPlugins
             raise TypeError,
               "Expected type `Hash' but received `#{value.class}'"
           end
-          super(value: OpenStruct.new(value))
+          super(value: OpenStruct.new(value).to_h)
         end
       end
     end
