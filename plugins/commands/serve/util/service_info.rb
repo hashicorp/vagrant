@@ -14,6 +14,7 @@ module VagrantPlugins
             broker: broker
           )
           if context.metadata["plugin_manager"] && info.broker
+            activated = true
             Service::ServiceInfo.manager_tracker.activate do
               client = Client::PluginManager.load(
                 context.metadata["plugin_manager"],
@@ -26,8 +27,10 @@ module VagrantPlugins
           return if !block_given?
           yield info
         ensure
-          Service::ServiceInfo.manager_tracker.deactivate do
-            Vagrant.plugin("2").disable_remote_manager
+          if activated
+            Service::ServiceInfo.manager_tracker.deactivate do
+              Vagrant.plugin("2").disable_remote_manager
+            end
           end
           Thread.current.thread_variable_set(:service_info, nil)
         end
