@@ -112,7 +112,7 @@ module VagrantPlugins
           with_plugin(ctx, plugins, broker: broker) do |plugin|
             machine, folders, opts = mapper.funcspec_map(
               req,
-              expect: [Vagrant::Machine, Folders, Type::Options]
+              expect: [Vagrant::Machine, Type::Folders, Type::Options]
             )
             # change the top level folders hash key to a string
             folders = folders.value
