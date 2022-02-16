@@ -64,7 +64,7 @@ module VagrantPlugins
         def enable(machine, folders, opts)
           run_func(machine,
             Type::Folders.new(value: folders),
-            Type::Options.new(opts),
+            Type::Options.new(value: opts),
           )
         end
 
@@ -87,7 +87,7 @@ module VagrantPlugins
         def disable(machine, folders, opts)
           run_func(machine,
             Type::Folders.new(value: folders),
-            Type::Options.new(opts),
+            Type::Options.new(value: opts),
           )
         end
 
@@ -107,7 +107,7 @@ module VagrantPlugins
         # @param machine [Vagrant::Machine] Guest machine
         # @param opts [Hash] Options for folders
         def cleanup(machine, opts)
-          run_func(machine, Type::Options.new(opts))
+          run_func(machine, Type::Options.new(value: opts))
         end
       end
     end

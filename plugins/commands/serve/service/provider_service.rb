@@ -52,7 +52,7 @@ module VagrantPlugins
           )
         end
 
-        def installed(*_)
+        def installed(req, ctx)
           plugins = Vagrant.plugin("2").local_manager.providers
           with_plugin(ctx, plugins, broker: broker) do |plugin|
             is_installed = plugin.installed?

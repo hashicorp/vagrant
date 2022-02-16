@@ -39,17 +39,14 @@ module VagrantPlugins
         def usable(req, ctx)
           plugins = Vagrant.plugin("2").local_manager.synced_folders
           with_plugin(ctx, plugins, broker: broker) do |plugin|
-            target = mapper.funcspec_map(req)
-            project = target.project
-            env = Vagrant::Environment.new({client: project})
-            machine = env.machine(target.name.to_sym, target.provider_name.to_sym)
-
+            machine = mapper.funcspec_map(
+              req, expect: [Vagrant::Machine]
+            )
             sf = plugin.new
-              usable = sf.usable?(machine)
-              logger.debug("usable: #{usable}")
-              SDK::SyncedFolder::UsableResp.new(
-                usable: usable,
-              )
+            usable = sf.usable?(machine)
+            SDK::SyncedFolder::UsableResp.new(
+              usable: usable,
+            )
           end
         end
 
@@ -114,7 +111,7 @@ module VagrantPlugins
           plugins = Vagrant.plugin("2").local_manager.synced_folders
           with_plugin(ctx, plugins, broker: broker) do |plugin|
             machine, folders, opts = mapper.funcspec_map(
-              req.func_args,
+              req,
               expect: [Vagrant::Machine, Folders, Type::Options]
             )
             # change the top level folders hash key to a string
@@ -150,7 +147,7 @@ module VagrantPlugins
           plugins = Vagrant.plugin("2").local_manager.synced_folders
           with_plugin(ctx, plugins, broker: broker) do |plugin|
             machine, folders, opts = mapper.funcspec_map(
-              req.func_args,
+              req,
               expect: [Vagrant::Machine, Type::Folders, Type::Options]
             )
             # change the top level folders hash key to a string
@@ -182,11 +179,11 @@ module VagrantPlugins
           plugins = Vagrant.plugin("2").local_manager.synced_folders
           with_plugin(ctx, plugins, broker: broker) do |plugin|
             machine, opts = mapper.funcspec_map(
-              req.func_args,
+              req,
               expect: [Vagrant::Machine, Type::Options]
             )
 
-            sf = get_synced_folder_plugin(plugin_name)
+            sf = plugin.new
             sf.cleanup(machine, opts.value)
             Empty.new
           end
