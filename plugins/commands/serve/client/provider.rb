@@ -69,8 +69,6 @@ module VagrantPlugins
             opts.delete(:action_runner)
             opts.delete(:box_collection)
             opts.delete(:hook)
-            opts.delete(:host)
-            opts.delete(:machine_index)
             opts.delete(:triggers)
             run_func(
               machine,
