@@ -192,9 +192,8 @@ module VagrantPlugins
             return mapper.map(machine_state, to: SDK::Args::Target::Machine::State)
           end
         end
-require 'pp'
+
         def action_raw(machine, name, callable, extra_env={})
-          logger.debug("calling action named #{name} with defined env: #{extra_env.pretty_inspect}")
           if !extra_env.is_a?(Hash)
             extra_env = {}
           end

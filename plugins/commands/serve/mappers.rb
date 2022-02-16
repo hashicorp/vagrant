@@ -156,7 +156,6 @@ module VagrantPlugins
             v if value.class.ancestors.include?(k)
           end&.last
         end
-        #to = REVERSE_MAPS[value.class] if to.nil?
 
         # If the value given is the desired type, just return the value
         return value if value != GENERATE && !to.nil? && value.is_a?(to)
