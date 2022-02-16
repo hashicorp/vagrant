@@ -66,6 +66,9 @@ module VagrantPlugins
           proc do |opts|
             opts = {} if !opts.is_a?(Hash)
             opts.compact!
+            # TODO: These entries are deleted because they
+            # cannot be mapped. This needs to be revisited
+            # after more of core has been ported.
             opts.delete(:action_runner)
             opts.delete(:box_collection)
             opts.delete(:hook)
