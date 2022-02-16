@@ -3,34 +3,25 @@ require "google/protobuf/well_known_types"
 module VagrantPlugins
   module CommandServe
     module Service
-      class HostService < Hashicorp::Vagrant::Sdk::HostService::Service
+      class HostService < ProtoService(SDK::HostService::Service)
 
         include CapabilityPlatformService
 
         def initialize(*args, **opts, &block)
+          super
           caps = Vagrant.plugin("2").local_manager.host_capabilities
           default_args = {
-            Vagrant::Environment => SDK::FuncSpec::Value.new(
-              type: "hashicorp.vagrant.sdk.Args.Project",
-              name: "",
-            ),
+            Vagrant::Environment => SDK::Args::Project
           }
           initialize_capability_platform!(caps, default_args)
         end
 
         def detect_spec(*_)
-          SDK::FuncSpec.new(
-            name: "detect_spec",
+          funcspec(
             args: [
-              SDK::FuncSpec::Value.new(
-                type: "hashicorp.vagrant.sdk.Args.StateBag",
-                name: "",
-              )
+              SDK::Args::StateBag,
             ],
-            result: [
-              type: "hashicorp.vagrant.sdk.Platform.DetectResp",
-              name: "",
-            ]
+            result: SDK::Platform::DetectResp,
           )
         end
 
@@ -57,12 +48,8 @@ module VagrantPlugins
         end
 
         def parent_spec(*_)
-          SDK::FuncSpec.new(
-            name: "parent_spec",
-            result: [
-              type: "hashicorp.vagrant.sdk.Host.ParentResp",
-              name: "",
-            ]
+          funcspec(
+            result: SDK::Platform::ParentResp
           )
         end
 

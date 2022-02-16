@@ -1,32 +1,21 @@
 module VagrantPlugins
   module CommandServe
     module Service
-      class ProviderService < SDK::ProviderService::Service
+      class ProviderService < ProtoService(SDK::ProviderService::Service)
 
         include CapabilityPlatformService
 
         def initialize(*args, **opts, &block)
+          super
           caps = Vagrant.plugin("2").local_manager.provider_capabilities
           default_args = {
-            Client::Target::Machine => SDK::FuncSpec::Value.new(
-              type: "hashicorp.vagrant.sdk.Args.Target.Machine",
-              name: "",
-            ),
+            Client::Target::Machine => SDK::Args::Target::Machine
           }
           initialize_capability_platform!(caps, default_args)
         end
 
         def usable_spec(*_)
-          SDK::FuncSpec.new(
-            name: "usable_spec",
-            args: [],
-            result: [
-              SDK::FuncSpec::Value.new(
-                type: "hashicorp.vagrant.sdk.Provider.UsableResp",
-                name: "",
-              ),
-            ],
-          )
+          funcspec(result: SDK::Provider::UsableResp)
         end
 
         def usable(req, ctx)
@@ -40,16 +29,7 @@ module VagrantPlugins
         end
 
         def installed_spec(*_)
-          SDK::FuncSpec.new(
-            name: "installed_spec",
-            args: [],
-            result: [
-              SDK::FuncSpec::Value.new(
-                type: "hashicorp.vagrant.sdk.Provider.InstalledResp",
-                name: "",
-              ),
-            ],
-          )
+          funcspec(result: SDK::Provider::InstalledResp)
         end
 
         def installed(req, ctx)
@@ -63,19 +43,11 @@ module VagrantPlugins
         end
 
         def action_spec(req, _unused_call)
-          SDK::FuncSpec.new(
-            name: "action_spec",
+          funcspec(
             args: [
-              SDK::FuncSpec::Value.new(
-                type: "hashicorp.vagrant.sdk.Args.Target.Machine",
-                name: "",
-              ),
-              SDK::FuncSpec::Value.new(
-                type: "hashicorp.vagrant.sdk.Args.Options",
-                name: "",
-              )
-            ],
-            result: []
+              SDK::Args::Target::Machine,
+              SDK::Args::Options,
+            ]
           )
         end
 
@@ -114,15 +86,10 @@ module VagrantPlugins
         end
 
         def machine_id_changed_spec(*_)
-          SDK::FuncSpec.new(
-            name: "machine_id_changed_spec",
+          funcspec(
             args: [
-              SDK::FuncSpec::Value.new(
-                type: "hashicorp.vagrant.sdk.Args.Target.Machine",
-                name: "",
-              )
-            ],
-            result: [],
+              SDK::Args::Target::Machine,
+            ]
           )
         end
 
@@ -137,20 +104,11 @@ module VagrantPlugins
         end
 
         def ssh_info_spec(*_)
-          SDK::FuncSpec.new(
-            name: "ssh_info_spec",
+          funcspec(
             args: [
-              SDK::FuncSpec::Value.new(
-                type: "hashicorp.vagrant.sdk.Args.Target.Machine",
-                name: "",
-              )
+              SDK::Args::Target::Machine,
             ],
-            result: [
-              SDK::FuncSpec::Value.new(
-                type: "hashicorp.vagrant.sdk.Args.Connection.SSHInfo",
-                name: "",
-              ),
-            ],
+            result: SDK::Args::Connection::SSHInfo
           )
         end
 
@@ -166,20 +124,11 @@ module VagrantPlugins
         end
 
         def state_spec(*_)
-          SDK::FuncSpec.new(
-            name: "ssh_info_spec",
+          funcspec(
             args: [
-              SDK::FuncSpec::Value.new(
-                type: "hashicorp.vagrant.sdk.Args.Target.Machine",
-                name: "",
-              )
+              SDK::Args::Target::Machine,
             ],
-            result: [
-              SDK::FuncSpec::Value.new(
-              type: "hashicorp.vagrant.sdk.Args.Target.Machine.State",
-              name: "",
-              ),
-            ],
+            result: SDK::Args::Target::Machine::State,
           )
         end
 

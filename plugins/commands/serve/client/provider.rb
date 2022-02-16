@@ -1,5 +1,3 @@
-require "google/protobuf/well_known_types"
-
 module VagrantPlugins
   module CommandServe
     class Client

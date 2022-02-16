@@ -9,11 +9,7 @@ require 'google/protobuf/well_known_types'
 module VagrantPlugins
   module CommandServe
     module Service
-      class InternalService < Hashicorp::Vagrant::RubyVagrant::Service
-        prepend Util::HasBroker
-        prepend Util::HasLogger
-        include Util::ExceptionTransformer
-
+      class InternalService < ProtoService(Hashicorp::Vagrant::RubyVagrant::Service)
         def get_plugins(req, _unused_call)
           plugins = []
           plugin_manager = Vagrant::Plugin::V2::Plugin.local_manager

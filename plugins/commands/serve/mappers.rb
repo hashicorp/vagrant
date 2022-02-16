@@ -1,15 +1,28 @@
 require "digest/sha2"
+require "google/protobuf/wrappers_pb"
 
 module VagrantPlugins
   module CommandServe
     # Provides value mapping to ease interaction
     # with protobuf and clients
     class Mappers
+      # The default maps define the default mapping of proto
+      # messages to a proper Ruby type. This is used when
+      # mapping a value and a destination type is not provided.
       DEFAULT_MAPS = {
         Client::Project => Vagrant::Environment,
         Client::Target => Vagrant::Machine,
         Client::Terminal => Vagrant::UI::Remote,
         Client::SyncedFolder => Vagrant::Plugin::V2::SyncedFolder,
+        Google::Protobuf::BoolValue => Type::Boolean,
+        Google::Protobuf::BytesValue => String,
+        Google::Protobuf::DoubleValue => Float,
+        Google::Protobuf::FloatValue => Float,
+        Google::Protobuf::Int32Value => Integer,
+        Google::Protobuf::Int64Value => Integer,
+        Google::Protobuf::UInt32Value => Integer,
+        Google::Protobuf::UInt64Value => Integer,
+        Google::Protobuf::StringValue => String,
         SDK::Args::Array => Array,
         SDK::Args::Direct => Type::Direct,
         SDK::Args::Folders => Type::Folders,
@@ -17,11 +30,13 @@ module VagrantPlugins
         SDK::Args::Hash => Hash,
         SDK::Args::Host => Client::Host,
         SDK::Args::NamedCapability => Symbol,
+        SDK::Args::Null => NilClass,
+        SDK::Args::Options => Type::Options,
         SDK::Args::Path => Pathname,
         SDK::Args::Project => Vagrant::Environment,
         SDK::Args::Provider => Client::Provider,
         SDK::Args::StateBag => Client::StateBag,
-        SDK::Args::SyncedFolder => Vagrant::Plugin::V2::SyncedFolder,
+        SDK::Args::SyncedFolder => Vagrant::Plugin::Remote::SyncedFolder,
         SDK::Args::Target => Vagrant::Machine,
         SDK::Args::TargetIndex => Client::TargetIndex,
         SDK::Args::Target::Machine => Vagrant::Machine,
@@ -31,9 +46,16 @@ module VagrantPlugins
         SDK::Command::CommandInfo => Type::CommandInfo,
         SDK::Communicator::Command => Type::CommunicatorCommandArguments,
       }
+
+      # The reverse maps define the default mapping from Ruby types
+      # to proto messages. This map is built by reversing the default
+      # maps. The key values are checked against the source value's
+      # class and its ancestors for a match. This is why the UI interface
+      # is merged into the map.
       REVERSE_MAPS = Hash[DEFAULT_MAPS.values.zip(DEFAULT_MAPS.keys)].merge(
         Vagrant::UI::Interface => SDK::Args::TerminalUI,
       )
+      # Remove any top level classes
       REVERSE_MAPS.delete_if { |k, _| !k.name.include?("::") }
 
       # Constant used for generating value
@@ -153,7 +175,6 @@ module VagrantPlugins
         to = DEFAULT_MAPS[value.class] if to.nil?
         if value != GENERATE && to.nil?
           to = REVERSE_MAPS.detect do |k, v|
-            logger.debug("testing TO match for #{value.class} with #{k}")
             v if value.class.ancestors.include?(k)
           end&.last
         end
@@ -274,8 +295,8 @@ module VagrantPlugins
         end
         result
       rescue => err
-        logger.debug("mapping failed of #{value.class} to #{to.nil? ? 'unknown' : to.inspect}")
-        logger.debug("#{err.class}: #{err}\n" + err.backtrace.join("\n"))
+        logger.debug("mapping failed of #{value.class} to #{to.nil? ? 'unknown' : to.inspect} - #{err}")
+        logger.trace("#{err.class}: #{err}\n" + err.backtrace.join("\n"))
         raise
       end
 

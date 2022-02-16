@@ -1,38 +1,25 @@
-require 'google/protobuf/well_known_types'
-
 module VagrantPlugins
   module CommandServe
     module Service
-      class SyncedFolderService < SDK::SyncedFolderService::Service
+      class SyncedFolderService < ProtoService(SDK::SyncedFolderService::Service)
 
         include CapabilityPlatformService
 
         def initialize(*args, **opts, &block)
+          super
           caps = Vagrant.plugin("2").local_manager.synced_folder_capabilities
           default_args = {
-            Vagrant::Machine => SDK::FuncSpec::Value.new(
-              type: "hashicorp.vagrant.sdk.Args.Target.Machine",
-              name: "",
-            ),
+            Vagrant::Machine => SDK::Args::Target::Machine
           }
           initialize_capability_platform!(caps, default_args)
         end
 
         def usable_spec(*_)
-          SDK::FuncSpec.new(
-            name: "usable_spec",
+          funcspec(
             args: [
-              SDK::FuncSpec::Value.new(
-                type: "hashicorp.vagrant.sdk.Args.Target.Machine",
-                name: "",
-              )
+              SDK::Args::Target::Machine,
             ],
-            result: [
-              SDK::FuncSpec::Value.new(
-                type: "hashicorp.vagrant.sdk.SyncedFolder.UsableResp",
-                name: "",
-              ),
-            ],
+            result: SDK::SyncedFolder::UsableResp
           )
         end
 
@@ -52,22 +39,12 @@ module VagrantPlugins
 
 
         def prepare_spec(*_)
-          SDK::FuncSpec.new(
-            name: "prepare_spec",
+          funcspec(
             args: [
-              SDK::FuncSpec::Value.new(
-                type: "hashicorp.vagrant.sdk.Args.Target.Machine",
-                name: "",
-              ),
-              SDK::FuncSpec::Value.new(
-                type: "hashicorp.vagrant.sdk.Args.Folders",
-                name: "",
-              ),
-              SDK::FuncSpec::Value.new(
-                type: "hashicorp.vagrant.sdk.Args.Options",
-                name: "",
-              ),
-            ],
+              SDK::Args::Target::Machine,
+              SDK::Args::Folders,
+              SDK::Args::Options,
+            ]
           )
         end
 
@@ -88,22 +65,12 @@ module VagrantPlugins
         end
 
         def enable_spec(*_)
-          SDK::FuncSpec.new(
-            name: "enable_spec",
+          funcspec(
             args: [
-              SDK::FuncSpec::Value.new(
-                type: "hashicorp.vagrant.sdk.Args.Target.Machine",
-                name: "",
-              ),
-              SDK::FuncSpec::Value.new(
-                type: "hashicorp.vagrant.sdk.Args.Folders",
-                name: "",
-              ),
-              SDK::FuncSpec::Value.new(
-                type: "hashicorp.vagrant.sdk.Args.Options",
-                name: "",
-              ),
-            ],
+              SDK::Args::Target::Machine,
+              SDK::Args::Folders,
+              SDK::Args::Options,
+            ]
           )
         end
 
@@ -124,22 +91,12 @@ module VagrantPlugins
         end
 
         def disable_spec(*_)
-          SDK::FuncSpec.new(
-            name: "disable_spec",
+          funcspec(
             args: [
-              SDK::FuncSpec::Value.new(
-                type: "hashicorp.vagrant.sdk.Args.Target.Machine",
-                name: "",
-              ),
-              SDK::FuncSpec::Value.new(
-                type: "hashicorp.vagrant.sdk.Args.Folders",
-                name: "",
-              ),
-              SDK::FuncSpec::Value.new(
-                type: "hashicorp.vagrant.sdk.Args.Options",
-                name: "",
-              ),
-            ],
+              SDK::Args::Target::Machine,
+              SDK::Args::Folders,
+              SDK::Args::Direct,
+            ]
           )
         end
 
@@ -160,18 +117,11 @@ module VagrantPlugins
         end
 
         def cleanup_spec(*_)
-          SDK::FuncSpec.new(
-            name: "cleanup_spec",
+          funcspec(
             args: [
-              SDK::FuncSpec::Value.new(
-                type: "hashicorp.vagrant.sdk.Args.Target.Machine",
-                name: "",
-              ),
-              SDK::FuncSpec::Value.new(
-                type: "hashicorp.vagrant.sdk.Args.Options",
-                name: "",
-              ),
-            ],
+              SDK::Args::Target::Machine,
+              SDK::Args::Options,
+            ]
           )
         end
 

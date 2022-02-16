@@ -24,8 +24,8 @@ module VagrantPlugins
       include Util::HasLogger
       include Util::HasSeeds::Client
       include Util::HasMapper
-      include Util::FuncSpec
       include Util::NamedPlugin::Client
+      include Util::FuncSpec::Client
     end
   end
 end

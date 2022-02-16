@@ -95,11 +95,17 @@ module VagrantPlugins
         broker = Broker.new(bind: bind_addr, ports: ports)
         logger.debug("vagrant grpc broker started for grpc service addr=#{bind_addr} ports=#{ports.inspect}")
 
-
-        [Service::InternalService, Service::ProviderService, Service::GuestService,
-          Service::HostService, Service::CommandService, Service::SyncedFolderService,
-          Service::CommunicatorService, Service::PushService, Service::ProvisionerService,
-          Broker::Streamer].each do |service_klass|
+        [Broker::Streamer,
+          Service::CommandService,
+          Service::CommunicatorService,
+          Service::GuestService,
+          Service::HostService,
+          Service::InternalService,
+          Service::ProviderService,
+          Service::ProvisionerService,
+          Service::PushService,
+          Service::SyncedFolderService,
+        ].each do |service_klass|
           service = service_klass.new(broker: broker)
           s.handle(service)
           health_checker.add_status(service_klass,

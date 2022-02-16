@@ -3,16 +3,7 @@ require 'google/protobuf/well_known_types'
 module VagrantPlugins
   module CommandServe
     module Service
-      class CommandService < SDK::CommandService::Service
-        include Util::ServiceInfo
-        include Util::HasSeeds::Service
-        include Util::NamedPlugin::Service
-
-        prepend Util::HasMapper
-        prepend Util::HasBroker
-        prepend Util::HasLogger
-        include Util::ExceptionTransformer
-
+      class CommandService < ProtoService(SDK::CommandService::Service)
         def command_info_spec(*args)
           SDK::FuncSpec.new
         end
@@ -27,28 +18,13 @@ module VagrantPlugins
         end
 
         def execute_spec(req, ctx)
-          SDK::FuncSpec.new(
-            name: "execute_spec",
+          funcspec(
             args: [
-              SDK::FuncSpec::Value.new(
-                type: "hashicorp.vagrant.sdk.Args.TerminalUI",
-                name: "",
-              ),
-              SDK::FuncSpec::Value.new(
-                type: "hashicorp.vagrant.sdk.Args.Project",
-                name: "",
-              ),
-              SDK::FuncSpec::Value.new(
-                type: "hashicorp.vagrant.sdk.Command.Arguments",
-                name: "",
-              )
+              SDK::Args::TerminalUI,
+              SDK::Args::Project,
+              SDK::Command::Arguments,
             ],
-            result: [
-              SDK::FuncSpec::Value.new(
-                type: "hashicorp.vagrant.sdk.Command.ExecuteResp",
-                name: "",
-              ),
-            ],
+            result: SDK::Command::ExecuteResp,
           )
         end
 

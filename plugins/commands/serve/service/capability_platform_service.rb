@@ -6,14 +6,6 @@ module VagrantPlugins
       module CapabilityPlatformService
 
         def self.included(klass)
-          klass.include(Util::ServiceInfo)
-          klass.include(Util::HasSeeds::Service)
-          klass.include(Util::NamedPlugin::Service)
-          klass.prepend(Util::HasMapper)
-          klass.prepend(Util::HasBroker)
-          klass.prepend(Util::HasLogger)
-          klass.include(Util::ExceptionTransformer)
-
           klass.class_eval do
             attr_reader :capabilities, :default_args
           end
@@ -25,20 +17,11 @@ module VagrantPlugins
         end
 
         def has_capability_spec(*_)
-          SDK::FuncSpec.new(
-            name: "has_capability_spec",
+          funcspec(
             args: [
-              SDK::FuncSpec::Value.new(
-                type: "hashicorp.vagrant.sdk.Args.NamedCapability",
-                name: "",
-              )
+              SDK::Args::NamedCapability,
             ],
-            result: [
-              SDK::FuncSpec::Value.new(
-                type: "hashicorp.vagrant.sdk.Platform.Capability.CheckResp",
-                name: "",
-              ),
-            ],
+            result: SDK::Platform::Capability::CheckResp,
           )
         end
 
@@ -58,20 +41,11 @@ module VagrantPlugins
         end
 
         def capability_spec(req, ctx)
-          SDK::FuncSpec.new(
-            name: "capability_spec",
+          funcspec(
             args: default_args.values + [
-              SDK::FuncSpec::Value.new(
-                type: "hashicorp.vagrant.sdk.Args.Direct",
-                name: "",
-              )
+              SDK::Args::Direct
             ],
-            result: [
-              SDK::FuncSpec::Value.new(
-                type: "hashicorp.vagrant.sdk.Platform.Capability.Resp",
-                name: "",
-              )
-            ]
+            result: SDK::Platform::Capability::Resp,
           )
         end
 

@@ -1,16 +1,7 @@
 module VagrantPlugins
   module CommandServe
     module Service
-      class PushService < Hashicorp::Vagrant::Sdk::PushService::Service
-        prepend Util::HasMapper
-        prepend Util::HasBroker
-        prepend Util::HasLogger
-
-        include Util::ServiceInfo
-        include Util::HasSeeds::Service
-        include Util::NamedPlugin::Service
-        include Util::ExceptionTransformer
-
+      class PushService < ProtoService(SDK::PushService::Service)
         def push(req, ctx)
           with_info(ctx, broker: broker) do |info|
             plugin_name = info.plugin_name
@@ -33,19 +24,13 @@ module VagrantPlugins
         end
 
         def push_spec(*_)
-          SDK::FuncSpec.new(
-            name: "push_spec",
+          funcspec(
             args: [
-              SDK::FuncSpec::Value.new(
-                type: "hashicorp.vagrant.sdk.Args.Project",
-                name: "",
-              ),
-            ],
-            result: [],
+              SDK::Args::Project,
+            ]
           )
         end
       end
     end
   end
 end
-

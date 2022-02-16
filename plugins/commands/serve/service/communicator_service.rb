@@ -3,34 +3,14 @@ require "google/protobuf/well_known_types"
 module VagrantPlugins
   module CommandServe
     module Service
-      class CommunicatorService < Hashicorp::Vagrant::Sdk::CommunicatorService::Service
-        include Util::ServiceInfo
-
-        prepend Util::HasMapper
-        prepend Util::HasBroker
-        prepend Util::HasLogger
-        include Util::HasSeeds::Service
-        include Util::NamedPlugin::Service
-        include Util::ExceptionTransformer
-
-        def initialize(*args, **opts, &block)
-          super()
-        end
-
+      class CommunicatorService < ProtoService(SDK::CommunicatorService::Service)
         def ready_spec(*_)
           logger.debug("generating ready spec")
-          SDK::FuncSpec.new(
-            name: "ready_spec",
+          funcspec(
             args: [
-              SDK::FuncSpec::Value.new(
-                type: "hashicorp.vagrant.sdk.Args.Target.Machine",
-                name: "",
-              )
+              SDK::Target::Machine,
             ],
-            result: [
-              type: "hashicorp.vagrant.sdk.Communicator.ReadyResp",
-              name: "",
-            ]
+            result: SDK::Communicator::ReadyResp,
           )
         end
 
@@ -51,22 +31,12 @@ module VagrantPlugins
         end
 
         def wait_for_ready_spec(*_)
-          SDK::FuncSpec.new(
-            name: "ready_spec",
+          funcspec(
             args: [
-              SDK::FuncSpec::Value.new(
-                type: "hashicorp.vagrant.sdk.Args.Target.Machine",
-                name: "",
-              ),
-              SDK::FuncSpec::Value.new(
-                type: "hashicorp.vagrant.sdk.Args.TimeDuration",
-                name: "",
-              )
+              SDK::Args::Target::Machine,
+              SDK::Args::TimeDuration,
             ],
-            result: [
-              type: "hashicorp.vagrant.sdk.Communicator.ReadyResp",
-              name: "",
-            ]
+            result: SDK::Communicator::ReadyResp,
           )
         end
 
@@ -94,24 +64,14 @@ module VagrantPlugins
         end
 
         def download_spec(*_)
-          SDK::FuncSpec.new(
-            name: "download_spec",
+          funcspec(
             args: [
-              SDK::FuncSpec::Value.new(
-                type: "hashicorp.vagrant.sdk.Args.Target.Machine",
-                name: "",
-              ),
-              SDK::FuncSpec::Value.new(
-                name: "source",
-                type: "hashicorp.vagrant.sdk.Args.Path"
-
-              ),
-              SDK::FuncSpec::Value.new(
-                name: "destination",
-                type: "hashicorp.vagrant.sdk.Args.Path"
-              ),
+              SDK::Args::Target::Machine,
             ],
-            result: []
+            named: {
+              source: SDK::Args::Path,
+              destination: SDK::Args::Path,
+            },
           )
         end
 
@@ -137,23 +97,14 @@ module VagrantPlugins
         end
 
         def upload_spec(*_)
-          SDK::FuncSpec.new(
-            name: "upload_spec",
+          funcspec(
             args: [
-              SDK::FuncSpec::Value.new(
-                type: "hashicorp.vagrant.sdk.Args.Target.Machine",
-                name: "",
-              ),
-              SDK::FuncSpec::Value.new(
-                name: "source",
-                type: "hashicorp.vagrant.sdk.Args.Path"
-              ),
-              SDK::FuncSpec::Value.new(
-                name: "destination",
-                type: "hashicorp.vagrant.sdk.Args.Path"
-              ),
+              SDK::Args::Target::Machine,
             ],
-            result: []
+            named: {
+              source: SDK::Args::Path,
+              destination: SDK::Args::Path,
+            }
           )
         end
 
@@ -179,26 +130,13 @@ module VagrantPlugins
         end
 
         def execute_spec(*_)
-          SDK::FuncSpec.new(
-            name: "execute_spec",
+          funcspec(
             args: [
-              SDK::FuncSpec::Value.new(
-                type: "hashicorp.vagrant.sdk.Args.Target.Machine",
-                name: "",
-              ),
-              SDK::FuncSpec::Value.new(
-                type: "hashicorp.vagrant.sdk.Communicator.Command",
-                name: "",
-              ),
-              SDK::FuncSpec::Value.new(
-                type: "hashicorp.vagrant.sdk.Args.Options",
-                name: "",
-              )
+              SDK::Args::Target::Machine,
+              SDK::Communicator::Command,
+              SDK::Args::Options,
             ],
-            result: [
-              type: "hashicorp.vagrant.sdk.Communicator.ExecuteResp",
-              name: "",
-            ]
+            result: SDK::Communicator::ExecuteResp,
           )
         end
 
@@ -227,26 +165,13 @@ module VagrantPlugins
         end
 
         def privileged_execute_spec(*_)
-          SDK::FuncSpec.new(
-            name: "privileged_execute_spec",
+          funcspec(
             args: [
-              SDK::FuncSpec::Value.new(
-                type: "hashicorp.vagrant.sdk.Args.Target.Machine",
-                name: "",
-              ),
-              SDK::FuncSpec::Value.new(
-                type: "hashicorp.vagrant.sdk.Communicator.Command",
-                name: "",
-              ),
-              SDK::FuncSpec::Value.new(
-                type: "hashicorp.vagrant.sdk.Args.Options",
-                name: "",
-              )
+              SDK::Args::Target::Machine,
+              SDK::Communicator::Command,
+              SDK::Args::Options,
             ],
-            result: [
-              type: "hashicorp.vagrant.sdk.Communicator.ExecuteResp",
-              name: "",
-            ]
+            result: SDK::Communicator::ExecuteResp,
           )
         end
 
@@ -274,26 +199,13 @@ module VagrantPlugins
         end
 
         def test_spec(*_)
-          SDK::FuncSpec.new(
-            name: "test_spec",
+          funcspec(
             args: [
-              SDK::FuncSpec::Value.new(
-                type: "hashicorp.vagrant.sdk.Args.Target.Machine",
-                name: "",
-              ),
-              SDK::FuncSpec::Value.new(
-                type: "hashicorp.vagrant.sdk.Communicator.Command",
-                name: "",
-              ),
-              SDK::FuncSpec::Value.new(
-                type: "hashicorp.vagrant.sdk.Args.Options",
-                name: "",
-              )
+              SDK::Args::Target::Machine,
+              SDK::Communicator::Command,
+              SDK::Args::Options,
             ],
-            result: [
-              type: "hashicorp.vagrant.sdk.Communicator.TestResp",
-              name: "",
-            ]
+            result: SDK::Communicator::TestResp,
           )
         end
 
@@ -317,18 +229,10 @@ module VagrantPlugins
         end
 
         def reset_spec(*_)
-          SDK::FuncSpec.new(
-            name: "reset_spec",
+          funcspec(
             args: [
-              SDK::FuncSpec::Value.new(
-                type: "hashicorp.vagrant.sdk.Args.Target.Machine",
-                name: "",
-              ),
+              SDK::Args::Target::Machine,
             ],
-            result: [
-              type: "hashicorp.vagrant.sdk.Communicator.ResetResp",
-              name: "",
-            ]
           )
         end
 

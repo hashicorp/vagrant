@@ -3,6 +3,37 @@ require "ostruct"
 module VagrantPlugins
   module CommandServe
     module Service
+      class << self
+        def method_missing(name, *args)
+          if name == :ProtoService
+            return protoService(*args)
+          end
+          super
+        end
+
+        def protoService(klass)
+          Class.new(klass) do
+            [Util::FuncSpec::Service,
+              Util::HasLogger,
+              Util::HasMapper,
+              Util::HasSeeds::Service,
+              Util::NamedPlugin::Service,
+              Util::ServiceInfo,
+              Util::ExceptionTransformer].each { |m| include m }
+
+            attr_reader :broker
+
+            def initialize(broker:)
+              if broker.nil?
+                raise ArgumentError,
+                  "Broker must be provided"
+              end
+              @broker = broker
+            end
+          end
+        end
+      end
+
       autoload :CapabilityPlatformService, Vagrant.source_root.join("plugins/commands/serve/service/capability_platform_service").to_s
       autoload :CommandService, Vagrant.source_root.join("plugins/commands/serve/service/command_service").to_s
       autoload :CommunicatorService, Vagrant.source_root.join("plugins/commands/serve/service/communicator_service").to_s
