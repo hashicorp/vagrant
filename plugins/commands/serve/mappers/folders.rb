@@ -6,7 +6,7 @@ module VagrantPlugins
           super(
             inputs: [
               Input.new(type: SDK::FuncSpec::Value) { |arg|
-                arg.type == "hashicorp.vagrant.sdk.Args.Folder" &&
+                arg.type == "hashicorp.vagrant.sdk.Args.Folders" &&
                   !arg&.value&.value.nil?
               }
             ],
@@ -33,7 +33,7 @@ module VagrantPlugins
         end
 
         def converter(proto, mappers)
-          h = mappers.map(proto.options, to: Hash)
+          h = mappers.map(proto.folders, to: Hash)
           Type::Folders.new(value: h)
         end
       end
