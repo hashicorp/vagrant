@@ -60,6 +60,18 @@ module VagrantPlugins
             )
           end
 
+          # Return [Provider] provider for the machine
+          def provider
+            p = client.provider(Empty.new)
+            Provider.load(p, broker: broker)
+          end
+
+          # Return [Provider] provider for the machine
+          def provider_name
+            p = client.provider_name(Empty.new)
+            p.name
+          end
+
           # Force a reload of the machine state
           def reload
             client.reload(Empty.new)
