@@ -9,10 +9,9 @@ module VagrantPlugins
           if respond_to?(:broker) && broker
             @mapper.add_argument(broker)
           end
-          if !Thread.current.thread_variable_get(:cacher)
-            Thread.current.thread_variable_set(:cacher, Cacher.new)
+          if respond_to?(:cacher) && cacher
+            @mapper.add_argument(cacher)
           end
-          @mapper.cacher = Thread.current.thread_variable_get(:cacher)
           @mapper
         end
       end
