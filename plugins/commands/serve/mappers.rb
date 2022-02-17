@@ -13,7 +13,7 @@ module VagrantPlugins
         Client::Project => Vagrant::Environment,
         Client::Target => Vagrant::Machine,
         Client::Terminal => Vagrant::UI::Remote,
-        Client::SyncedFolder => Vagrant::Plugin::V2::SyncedFolder,
+        Client::SyncedFolder => Vagrant::Plugin::Remote::SyncedFolder,
         Google::Protobuf::BoolValue => Type::Boolean,
         Google::Protobuf::BytesValue => String,
         Google::Protobuf::DoubleValue => Float,
@@ -175,7 +175,8 @@ module VagrantPlugins
         to = DEFAULT_MAPS[value.class] if to.nil?
         if value != GENERATE && to.nil?
           to = REVERSE_MAPS.detect do |k, v|
-            v if value.class.ancestors.include?(k)
+            v if value.class.ancestors.include?(k) &&
+              (!any_convert || v.ancestors.include?(Google::Protobuf::MessageExts))
           end&.last
         end
 
