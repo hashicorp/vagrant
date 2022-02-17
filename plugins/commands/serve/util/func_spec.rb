@@ -28,6 +28,10 @@ module VagrantPlugins
                 }
             end
 
+            m_args += m_args.find_all { |arg|
+              arg.is_a?(Type::Direct)
+            }.map(&:value).flatten
+
             SDK::FuncSpec::Args.new(
               args: spec.args.map { |farg|
                 logger.trace("starting funcspec generation for #{farg}")
