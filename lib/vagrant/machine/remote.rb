@@ -313,11 +313,16 @@ module Vagrant
           impl = :virtualbox
           sf = Vagrant::Plugin::Remote::SyncedFolder.new(client: f[:plugin])
           # Set plugin, guestpath and hostpath from synced folder info
-          folders[impl] = {f[:folder][:destination] => f[:folder].merge({
+          new_folder = {f[:folder][:destination] => f[:folder].merge({
             plugin: sf,
             guestpath: f[:folder][:destination],
             hostpath: f[:folder][:source],
           })}
+          if folders[impl]
+            folders[impl].merge!(new_folder)
+          else
+            folders[impl] = new_folder
+          end
         end
         folders
       end
