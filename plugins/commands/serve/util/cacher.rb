@@ -1,91 +1,35 @@
-require "mutex_m"
-
 module VagrantPlugins
   module CommandServe
     module Util
       class Cacher
-        include Mutex_m
-
-        class Entry
-          attr_reader :value
-
-          def initialize(value)
-            super()
-            @value = value
-          end
-
-          def value
-            @value
-          end
-        end
 
         def initialize
-          super()
           @registry = {}
         end
 
         def registered?(key)
-          mu_synchronize { @registry.key?(key) }
+          @registry.key?(key)
         end
 
-        def []=(key, value)
-          entry = Entry.new(value)
-          mu_synchronize { @registry[key] = entry }
+        def register(key, value)
+          @registry[key] = value
         end
 
-        def [](key)
-          mu_synchronize { @registry[key] }
+        def get(key)
+          @registry[key]
         end
 
-        def delete(key)
-          entry = @registry[key]
-          return if entry.nil?
-          entry.mu_synchronize do
-            value = entry.value
-            @registry.delete(key)
-            value
-          end
+        def unregister(key)
+          @registry.delete(key)
         end
 
-        # TODO: need to add a lock/unlock for an entry so
-        #       we can "check it out" for use during a request
-        #       and then return it without needing to deal with
-        #       block wrapping to maintain the lock.
         def use(key)
-          entry = self[key]
-          if entry.nil?
+          if !@registry.key?(key)
             raise KeyError,
               "No value cached with key `#{key}'"
           end
 
-          entry.mu_synchronize do
-            yield entry.value
-          end
-        end
-
-        def checkout(key, wait: false)
-          entry = self[key]
-          if entry.nil?
-            raise KeyError,
-              "No value cached with key `#{key}'"
-          end
-          if wait
-            entry.mu_lock
-            entry.value
-          else
-            if !entry.mu_try_lock
-              raise LockError,
-                "Failed to lock cached entry with key `#{key}'"
-            end
-            entry.value
-          end
-        end
-
-        def checkin(key)
-          entry = self[key]
-          return if entry.nil?
-          entry.mu_unlock
-          nil
+          yield @registry[key]
         end
       end
     end

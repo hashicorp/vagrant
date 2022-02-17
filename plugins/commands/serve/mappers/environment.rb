@@ -15,10 +15,10 @@ module VagrantPlugins
 
         def converter(project, ui, cacher)
           cid = project.resource_id
-          return cacher[cid].value if cacher.registered?(cid)
+          return cacher.get(cid) if cacher.registered?(cid)
           logger.warn("cache miss for environment with project resource id #{cid} cache=#{cacher} !!")
           env = Vagrant::Environment.new(ui: ui, client: project)
-          cacher[cid] = env
+          cacher.register(cid, env)
           env
         end
       end
@@ -65,11 +65,11 @@ module VagrantPlugins
 
         def converter(project, cacher, mapper)
           cid = project.resource_id
-          return cacher[cid].value if cacher.registered?(cid)
+          return cacher.get(cid) if cacher.registered?(cid)
           logger.warn("cache miss for environment with project resource id #{cid} cache=#{cacher}")
           ui = mapper.map(project, to: Vagrant::UI::Remote)
           env = Vagrant::Environment.new(client: project, ui: ui)
-          cacher[cid] = env
+          cacher.register(cid, env)
           env
         end
       end
