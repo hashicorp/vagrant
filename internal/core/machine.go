@@ -5,8 +5,8 @@ import (
 	"reflect"
 	"sort"
 
-	"github.com/golang/protobuf/ptypes"
 	"github.com/mitchellh/mapstructure"
+	"google.golang.org/protobuf/types/known/anypb"
 
 	"github.com/hashicorp/go-hclog"
 	"github.com/hashicorp/vagrant-plugin-sdk/component"
@@ -35,12 +35,14 @@ func (m *Machine) ID() (id string, err error) {
 
 // SetID implements core.Machine
 func (m *Machine) SetID(value string) (err error) {
+	m.machine.Id = value
 	if value == "" {
-		return m.Destroy()
+		m.target.Record = nil
+		err = m.Destroy()
 	} else {
-		m.machine.Id = value
-		return m.SaveMachine()
+		err = m.SaveMachine()
 	}
+	return
 }
 
 func (m *Machine) Box() (b core.Box, err error) {
@@ -64,7 +66,7 @@ func (m *Machine) Box() (b core.Box, err error) {
 			}
 		}
 		m.machine.Box = b.(*Box).ToProto()
-		m.Save()
+		m.SaveMachine()
 		m.box = b.(*Box)
 	}
 
@@ -253,7 +255,8 @@ func (m *Machine) SyncedFolders() (folders []*core.MachineSyncedFolder, err erro
 
 func (m *Machine) SaveMachine() (err error) {
 	m.logger.Debug("saving machine to db", "machine", m.machine.Id)
-	m.target.Record, err = ptypes.MarshalAny(m.machine)
+	// Update the target record and uuid to match the machine's new state
+	m.target.Record, err = anypb.New(m.machine)
 	m.target.Uuid = m.machine.Id
 	if err != nil {
 		return nil
