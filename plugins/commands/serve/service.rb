@@ -4,6 +4,8 @@ module VagrantPlugins
   module CommandServe
     module Service
       class << self
+        attr_reader :cache
+
         def method_missing(name, *args)
           if name == :ProtoService
             return protoService(*args)
@@ -30,8 +32,14 @@ module VagrantPlugins
               end
               @broker = broker
             end
+
+            def cache
+              Service.cache
+            end
           end
         end
+
+        @cache = Util::Cacher.new
       end
 
       autoload :CapabilityPlatformService, Vagrant.source_root.join("plugins/commands/serve/service/capability_platform_service").to_s
