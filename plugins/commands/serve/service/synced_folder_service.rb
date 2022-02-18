@@ -24,8 +24,7 @@ module VagrantPlugins
         end
 
         def usable(req, ctx)
-          plugins = Vagrant.plugin("2").local_manager.synced_folders
-          with_plugin(ctx, plugins, broker: broker) do |plugin|
+          with_plugin(ctx, :synced_folders, broker: broker) do |plugin|
             machine = mapper.funcspec_map(
               req, expect: [Vagrant::Machine]
             )
@@ -49,8 +48,7 @@ module VagrantPlugins
         end
 
         def prepare(req, ctx)
-          plugins = Vagrant.plugin("2").local_manager.synced_folders
-          with_plugin(ctx, plugins, broker: broker) do |plugin|
+          with_plugin(ctx, :synced_folders, broker: broker) do |plugin|
             machine, folders, opts = mapper.funcspec_map(
               req,
               expect: [Vagrant::Machine, Type::Folders, Type::Options]
@@ -75,8 +73,7 @@ module VagrantPlugins
         end
 
         def enable(req, ctx)
-          plugins = Vagrant.plugin("2").local_manager.synced_folders
-          with_plugin(ctx, plugins, broker: broker) do |plugin|
+          with_plugin(ctx, :synced_folders, broker: broker) do |plugin|
             machine, folders, opts = mapper.funcspec_map(
               req,
               expect: [Vagrant::Machine, Type::Folders, Type::Options]
@@ -101,8 +98,7 @@ module VagrantPlugins
         end
 
         def disable(req, ctx)
-          plugins = Vagrant.plugin("2").local_manager.synced_folders
-          with_plugin(ctx, plugins, broker: broker) do |plugin|
+          with_plugin(ctx, :synced_folders, broker: broker) do |plugin|
             machine, folders, opts = mapper.funcspec_map(
               req,
               expect: [Vagrant::Machine, Type::Folders, Type::Options]
@@ -126,8 +122,7 @@ module VagrantPlugins
         end
 
         def cleanup(req, ctx)
-          plugins = Vagrant.plugin("2").local_manager.synced_folders
-          with_plugin(ctx, plugins, broker: broker) do |plugin|
+          with_plugin(ctx, :synced_folders, broker: broker) do |plugin|
             machine, opts = mapper.funcspec_map(
               req,
               expect: [Vagrant::Machine, Type::Options]

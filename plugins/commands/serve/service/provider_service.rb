@@ -19,8 +19,7 @@ module VagrantPlugins
         end
 
         def usable(req, ctx)
-          plugins = Vagrant.plugin("2").local_manager.providers
-          with_plugin(ctx, plugins, broker: broker) do |plugin|
+          with_plugin(ctx, :providers, broker: broker) do |plugin|
             is_usable = plugin.usable?
             SDK::Provider::UsableResp.new(
               is_usable: is_usable,
@@ -33,8 +32,7 @@ module VagrantPlugins
         end
 
         def installed(req, ctx)
-          plugins = Vagrant.plugin("2").local_manager.providers
-          with_plugin(ctx, plugins, broker: broker) do |plugin|
+          with_plugin(ctx, :providers, broker: broker) do |plugin|
             is_installed = plugin.installed?
             SDK::Provider::InstalledResp.new(
               is_installed: is_installed,
@@ -52,8 +50,7 @@ module VagrantPlugins
         end
 
         def action(req, ctx)
-          plugins = Vagrant.plugin("2").local_manager.providers
-          with_plugin(ctx, plugins, broker: broker) do |plugin|
+          with_plugin(ctx, :providers, broker: broker) do |plugin|
             action_name = req.name.to_sym
             machine, options = mapper.funcspec_map(
               req.func_args,
@@ -94,8 +91,7 @@ module VagrantPlugins
         end
 
         def machine_id_changed(req, ctx)
-          plugins = Vagrant.plugin("2").local_manager.providers
-          with_plugin(ctx, plugins, broker: broker) do |plugin|
+          with_plugin(ctx, :providers, broker: broker) do |plugin|
             machine = mapper.funcspec_map(req, expect: [Vagrant::Machine])
             provider = plugin.new(machine)
             provider.machine_id_changed
@@ -113,8 +109,7 @@ module VagrantPlugins
         end
 
         def ssh_info(req, ctx)
-          plugins = Vagrant.plugin("2").local_manager.providers
-          with_plugin(ctx, plugins, broker: broker) do |plugin|
+          with_plugin(ctx, :providers, broker: broker) do |plugin|
             machine = mapper.funcspec_map(req, expect: [Vagrant::Machine])
             provider = plugin.new(machine)
             info = provider.ssh_info
@@ -133,8 +128,7 @@ module VagrantPlugins
         end
 
         def state(req, ctx)
-          plugins = Vagrant.plugin("2").local_manager.providers
-          with_plugin(ctx, plugins, broker: broker) do |plugin|
+          with_plugin(ctx, :providers, broker: broker) do |plugin|
             machine = mapper.funcspec_map(req, expect: [Vagrant::Machine])
             provider = plugin.new(machine)
             machine_state = provider.state

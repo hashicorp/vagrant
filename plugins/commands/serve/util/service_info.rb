@@ -4,6 +4,9 @@ module VagrantPlugins
       # Adds service info helper to be used with services
       module ServiceInfo
         def with_info(context, broker:, &block)
+          if broker.nil?
+            raise "NO BROKER FOR INFO"
+          end
           if !context.metadata["plugin_name"]
             raise KeyError,
               "plugin name not defined (metadata content: #{context.metadata.inspect})"
@@ -37,8 +40,7 @@ module VagrantPlugins
 
         def with_plugin(context, plugins, broker:, &block)
           with_info(context, broker: broker) do |info|
-            plugin_name = info.plugin_name
-            plugin = Array(plugins[plugin_name.to_s.to_sym]).first
+            plugin = Vagrant.plugin("2").local_manager.send(plugins)[info.plugin_name].to_a.first
             if !plugin
               raise NameError, "Failed to locate plugin named #{plugin_name}"
             end
