@@ -52,6 +52,38 @@ module VagrantPlugins
           Client::TargetIndex.load(proto, broker: broker)
         end
       end
+
+      class TargetIndexToProto < Mapper
+        def initialize
+          super(
+            inputs: [
+              Input.new(type: Client::TargetIndex),
+            ],
+            output: SDK::Args::TargetIndex,
+            func: method(:converter)
+          )
+        end
+
+        def converter(index)
+          index.to_proto
+        end
+      end
+
+      class MachineIndexToProto < Mapper
+        def initialize
+          super(
+            inputs: [
+              Input.new(type: Vagrant::MachineIndex),
+            ],
+            output: SDK::Args::TargetIndex,
+            func: method(:converter)
+          )
+        end
+
+        def converter(index)
+          index.client.to_proto
+        end
+      end
     end
   end
 end

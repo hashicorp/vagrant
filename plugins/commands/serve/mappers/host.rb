@@ -20,7 +20,7 @@ module VagrantPlugins
       end
 
       # Build a guest client from a FuncSpec value
-      class HostFromSpec < Mapper
+      class HostClientFromSpec < Mapper
         def initialize
           inputs = [].tap do |i|
             i << Input.new(type: SDK::FuncSpec::Value) { |arg|
@@ -38,7 +38,7 @@ module VagrantPlugins
       end
 
       # Build a guest client from a proto instance
-      class HostFromProto < Mapper
+      class HostClientFromProto < Mapper
         def initialize
           inputs = [].tap do |i|
             i << Input.new(type: SDK::Args::Host)
@@ -49,6 +49,59 @@ module VagrantPlugins
 
         def converter(proto, broker)
           Client::Host.load(proto, broker: broker)
+        end
+      end
+
+      class HostFromClient < Mapper
+        def initialize
+          super(
+            inputs: [
+              Input.new(type: Client::Host),
+            ],
+            output: Vagrant::Host,
+            func: method(:converter)
+          )
+        end
+
+        def converter(client)
+          Vagrant::Host.new(
+            client, nil,
+            Vagrant.plugin("2").
+              local_manager.
+              host_capabilities
+          )
+        end
+      end
+
+      class HostProtoFromHost < Mapper
+        def initialize
+          super(
+            inputs: [
+              Input.new(type: Vagrant::Host)
+            ],
+            output: SDK::Args::Host,
+            func: method(:converter),
+          )
+        end
+
+        def converter(host)
+          host.client.to_proto
+        end
+      end
+
+      class HostProtoFromClient < Mapper
+        def initialize
+          super(
+            inputs: [
+              Input.new(type: Client::Host),
+            ],
+            output: SDK::Args::Host,
+            func: method(:converter)
+          )
+        end
+
+        def converter(client)
+          client.to_proto
         end
       end
     end
