@@ -82,7 +82,7 @@ module VagrantPlugins
         def machine_id_changed(req, ctx)
           with_plugin(ctx, :providers, broker: broker) do |plugin|
             machine = mapper.funcspec_map(req, expect: [Vagrant::Machine])
-            provider = plugin.new(machine)
+            provider = load_provider(plugin, machine)
             provider.machine_id_changed
           end
           Empty.new
@@ -100,7 +100,7 @@ module VagrantPlugins
         def ssh_info(req, ctx)
           with_plugin(ctx, :providers, broker: broker) do |plugin|
             machine = mapper.funcspec_map(req, expect: [Vagrant::Machine])
-            provider = plugin.new(machine)
+            provider = load_provider(plugin, machine)
             info = provider.ssh_info
             info[:port] = info[:port].to_s if info.key?(:port)
             return SDK::Args::Connection::SSHInfo.new(**info)
@@ -119,7 +119,7 @@ module VagrantPlugins
         def state(req, ctx)
           with_plugin(ctx, :providers, broker: broker) do |plugin|
             machine = mapper.funcspec_map(req, expect: [Vagrant::Machine])
-            provider = plugin.new(machine)
+            provider = load_provider(plugin, machine)
             machine_state = provider.state
             return mapper.map(machine_state, to: SDK::Args::Target::Machine::State)
           end
@@ -137,6 +137,14 @@ module VagrantPlugins
             machine_action: name
           )
           machine.env.action_runner.run(callable, env)
+        end
+
+        def load_provider(klass, machine)
+          key = cache.key(klass, machine)
+          return cache.get(key) if cache.registered?(key)
+          klass.new(machine).tap do |i|
+            cache.register(key, i)
+          end
         end
       end
     end

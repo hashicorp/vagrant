@@ -28,7 +28,7 @@ module VagrantPlugins
             machine = mapper.funcspec_map(
               req, expect: [Vagrant::Machine]
             )
-            sf = plugin.new
+            sf = load_synced_folder(plugin)
             usable = sf.usable?(machine)
             SDK::SyncedFolder::UsableResp.new(
               usable: usable,
@@ -56,7 +56,7 @@ module VagrantPlugins
             # change the top level folders hash key to a string
             folders = folders.value
             folders.transform_keys!(&:to_s)
-            sf = plugin.new
+            sf = load_synced_folder(plugin)
             sf.prepare(machine, folders, opts.value)
             Empty.new
           end
@@ -81,7 +81,7 @@ module VagrantPlugins
             # change the top level folders hash key to a string
             folders = folders.value
             folders.transform_keys!(&:to_s)
-            sf = plugin.new
+            sf = load_synced_folder(plugin)
             sf.enable(machine, folders, opts.value)
             Empty.new
           end
@@ -106,7 +106,7 @@ module VagrantPlugins
             # change the top level folders hash key to a string
             folders = folders.value
             folders.transform_keys!(&:to_s)
-            sf = plugin.new
+            sf = load_synced_folder(plugin)
             sf.disable(machine, folders, opts.value)
             Empty.new
           end
@@ -128,9 +128,17 @@ module VagrantPlugins
               expect: [Vagrant::Machine, Type::Options]
             )
 
-            sf = plugin.new
+            sf = load_synced_folder(plugin)
             sf.cleanup(machine, opts.value)
             Empty.new
+          end
+        end
+
+        def load_synced_folder(klass)
+          key = cache.key(klass)
+          return cache.get(key) if cache.registered?(key)
+          klass.new.tap do |i|
+            cache.register(key, i)
           end
         end
       end

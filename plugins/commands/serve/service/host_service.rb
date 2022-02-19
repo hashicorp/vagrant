@@ -26,21 +26,16 @@ module VagrantPlugins
         end
 
         def detect(req, ctx)
-          with_info(ctx, broker: broker) do |info|
-            plugin_name = info.plugin_name
+          with_plugin(ctx, :hosts, broker: broker) do |plugin, info|
             statebag = mapper.funcspec_map(req, expect: Client::StateBag)
-            plugin = Vagrant.plugin("2").local_manager.hosts[plugin_name.to_s.to_sym].to_a.first
-            if !plugin
-              raise "Failed to locate host plugin for: #{plugin_name.inspect}"
-            end
-            host = plugin.new
+            host = load_host(plugin)
             begin
               detected = host.detect?(statebag)
             rescue => err
               logger.debug("error encountered detecting host: #{err.class} - #{err}")
               detected = false
             end
-            logger.debug("detected #{detected} for host #{plugin_name}")
+            logger.debug("detected #{detected} for host #{info.plugin_name}")
             SDK::Platform::DetectResp.new(
               detected: detected,
             )
@@ -56,14 +51,22 @@ module VagrantPlugins
         def parent(req, ctx)
           with_info(ctx, broker: broker) do |info|
             plugin_name = info.plugin_name
-            host_hash = Vagrant.plugin("2").local_manager.hosts[plugin_name.to_s.to_sym].to_a
-            plugin = host_hash.first
-            if !plugin
+            host_info = Array(Vagrant.plugin("2").local_manager.hosts[plugin_name])
+            if !host_info.first
               raise "Failed to locate host plugin for: #{plugin_name.inspect}"
             end
+            # TODO: shouldn't this be checking length?
             SDK::Platform::ParentResp.new(
-              parent: host_hash.last
+              parent: host_info.last
             )
+          end
+        end
+
+        def load_host(klass)
+          key = cache.key(klass)
+          return cache.get(key) if cache.registered?(key)
+          klass.new.tap do |i|
+            cache.register(key, i)
           end
         end
       end

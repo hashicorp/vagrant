@@ -15,14 +15,12 @@ module VagrantPlugins
         end
 
         def ready(req, ctx)
-          with_info(ctx, broker: broker) do |info|
-            plugin_name = info.plugin_name
+          with_plugin(ctx, :communicators, broker: broker) do |plugin|
             machine = mapper.funcspec_map(
               req, mapper, broker,
               expect: [Vagrant::Machine]
             )
-            plugin = Vagrant.plugin("2").manager.communicators[plugin_name.to_s.to_sym]
-            communicator = plugin.new(machine)
+            communicator = load_communicator(plugin, machine)
             ready = communicator.ready?
             SDK::Communicator::ReadyResp.new(
               ready: ready
@@ -41,16 +39,15 @@ module VagrantPlugins
         end
 
         def wait_for_ready(req, ctx)
-          with_info(ctx, broker: broker) do |info|
-            plugin_name = info.plugin_name
+          with_plugin(ctx, :communicators, broker: broker) do |plugin|
             machine, wait_duration = mapper.funcspec_map(
               req, mapper, broker,
               expect: [Vagrant::Machine, SDK::Args::TimeDuration]
             )
-            plugin = Vagrant.plugin("2").manager.communicators[plugin_name.to_s.to_sym]
+            communicator = load_communicator(plugin, machine)
 
             begin
-              ready = plugin.new(machine).wait_for_ready(wait_duration.duration)
+              ready = communicator.wait_for_ready(wait_duration.duration)
             rescue => err
               logger.error(err)
               logger.debug("#{err.class}: #{err}\n#{err.backtrace.join("\n")}")
@@ -77,8 +74,7 @@ module VagrantPlugins
 
         def download(req, ctx)
           logger.debug("Downloading")
-          with_info(ctx, broker: broker) do |info|
-            plugin_name = info.plugin_name
+          with_plugin(ctx, :communicators, broker: broker) do |plugin|
             dest_proto = req.args.select{ |a| a.name == "destination" }.first
             to = mapper.map(dest_proto.value, to: Pathname).to_s
             source_proto = req.args.select{ |a| a.name == "source" }.first
@@ -89,8 +85,7 @@ module VagrantPlugins
               expect: [Vagrant::Machine]
             )
 
-            plugin = Vagrant.plugin("2").manager.communicators[plugin_name.to_s.to_sym]
-            communicator = plugin.new(machine)
+            communicator = load_communicator(plugin, machine)
             communicator.download(from, to)
             Empty.new
           end
@@ -110,8 +105,7 @@ module VagrantPlugins
 
         def upload(req, ctx)
           logger.debug("Uploading")
-          with_info(ctx, broker: broker) do |info|
-            plugin_name = info.plugin_name
+          with_plugin(ctx, :communicators, broker: broker) do |plugin|
             dest_proto = req.args.select{ |a| a.name == "destination" }.first
             to = mapper.map(dest_proto.value, to: Pathname).to_s
             source_proto = req.args.select{ |a| a.name == "source" }.first
@@ -122,8 +116,7 @@ module VagrantPlugins
               expect: [Vagrant::Machine]
             )
 
-            plugin = Vagrant.plugin("2").manager.communicators[plugin_name.to_s.to_sym]
-            communicator = plugin.new(machine)
+            communicator = load_communicator(plugin, machine)
             communicator.upload(from, to)
             Empty.new
           end
@@ -141,16 +134,14 @@ module VagrantPlugins
         end
 
         def execute(req, ctx)
-          with_info(ctx, broker: broker) do |info|
-            plugin_name = info.plugin_name
+          with_plugin(ctx, :communicators, broker: broker) do |plugin|
             logger.debug("got req: #{req}")
             machine, cmd, opts = mapper.funcspec_map(
               req, mapper, broker,
               expect: [Vagrant::Machine, SDK::Communicator::Command, Type::Options]
             )
 
-            plugin = Vagrant.plugin("2").manager.communicators[plugin_name.to_s.to_sym]
-            communicator = plugin.new(machine)
+            communicator = load_communicator(plugin, machine)
             output = {stdout: '', stderr: ''}
             exit_code = communicator.execute(cmd.command, opts.value) {
               |type, data| output[type] << data if output[type]
@@ -176,15 +167,13 @@ module VagrantPlugins
         end
 
         def privileged_execute(req, ctx)
-          with_info(ctx, broker: broker) do |info|
-            plugin_name = info.plugin_name
+          with_plugin(ctx, :communicators, broker: broker) do |plugin|
             machine, cmd, opts = mapper.funcspec_map(
               req, mapper, broker,
               expect: [Vagrant::Machine, SDK::Communicator::Command, Type::Options]
             )
 
-            plugin = Vagrant.plugin("2").manager.communicators[plugin_name.to_s.to_sym]
-            communicator = plugin.new(machine)
+            communicator = load_communicator(plugin, machine)
             output = {stdout: '', stderr: ''}
             exit_code = communicator.sudo(cmd.command, opts.value) {
               |type, data| output[type] << data if output[type]
@@ -210,15 +199,13 @@ module VagrantPlugins
         end
 
         def test(req, ctx)
-          with_info(ctx, broker: broker) do |info|
-            plugin_name = info.plugin_name
+          with_plugin(ctx, :communicators, broker: broker) do |plugin|
             machine, cmd, opts = mapper.funcspec_map(
               req, mapper, broker,
               expect: [Vagrant::Machine, SDK::Communicator::Command, Type::Options]
             )
 
-            plugin = Vagrant.plugin("2").manager.communicators[plugin_name.to_s.to_sym]
-            communicator = plugin.new(machine)
+            communicator = load_communicator(plugin, machine)
             valid = communicator.test(cmd.command, opts.value)
             logger.debug("command is valid?: #{valid}")
 
@@ -237,17 +224,23 @@ module VagrantPlugins
         end
 
         def reset(req, ctx)
-          with_info(ctx, broker: broker) do |info|
-            plugin_name = info.plugin_name
+          with_plugin(ctx, :communicators, broker: broker) do |plugin|
             machine = mapper.funcspec_map(
               req, mapper, broker,
               expect: [Vagrant::Machine]
             )
 
-            plugin = Vagrant.plugin("2").manager.communicators[plugin_name.to_s.to_sym]
-            communicator = plugin.new(machine)
+            communicator = load_communicator(plugin, machine)
             communicator.reset
             Empty.new
+          end
+        end
+
+        def load_communicator(klass, machine)
+          key = cache.key(klass, machine)
+          return cache.get(key) if cache.registered?(key)
+          klass.new(machine).tap do |i|
+            cache.register(key, i)
           end
         end
       end

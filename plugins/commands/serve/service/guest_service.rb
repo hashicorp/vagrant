@@ -24,22 +24,16 @@ module VagrantPlugins
         end
 
         def detect(req, ctx)
-          with_info(ctx, broker: broker) do |info|
-            plugin_name = info.plugin_name
+          with_plugin(ctx, :guests, broker: broker) do |plugin, info|
             machine = mapper.funcspec_map(req, expect: Vagrant::Machine)
-            plugin = Vagrant.plugin("2").local_manager.guests[plugin_name.to_s.to_sym].to_a.first
-            if !plugin
-              logger.debug("Failed to locate guest plugin for: #{plugin_name}")
-              raise "Failed to locate guest plugin for: #{plugin_name.inspect}"
-            end
-            guest = plugin.new
+            guest = load_guest(plugin)
             begin
               detected = guest.detect?(machine)
             rescue => err
               logger.debug("error encountered detecting guest: #{err.class} - #{err}")
               detected = false
             end
-            logger.debug("detected #{detected} for guest #{plugin_name}")
+            logger.debug("detected #{detected} for guest #{info.plugin_name}")
             SDK::Platform::DetectResp.new(
               detected: detected,
             )
@@ -53,13 +47,13 @@ module VagrantPlugins
         def parent(req, ctx)
           with_info(ctx, broker: broker) do |info|
             plugin_name = info.plugin_name
-            guest_hash = Vagrant.plugin("2").local_manager.guests[plugin_name.to_s.to_sym].to_a
-            plugin = guest_hash.first
-            if !plugin
+            guest_info = Array(Vagrant.plugin("2").local_manager.guests[plugin_name])
+            if !guest_info.first
               raise "Failed to locate guest plugin for: #{plugin_name.inspect}"
             end
+            # TODO: shouldn't this be checking length?
             SDK::Platform::ParentResp.new(
-              parent: guest_hash.last
+              parent: guest_info.last
             )
           end
         end
@@ -72,6 +66,14 @@ module VagrantPlugins
           end
 
           nargs
+        end
+
+        def load_guest(klass)
+          key = cache.key(klass)
+          return cache.get(key) if cache.registered?(key)
+          klass.new.tap do |i|
+            cache.register(key, i)
+          end
         end
       end
     end
