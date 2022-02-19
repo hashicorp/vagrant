@@ -32,15 +32,6 @@ module Vagrant
         @env = env
         @ui = Vagrant::UI::Prefixed.new(@env.ui, name)
 
-        if Vagrant.server_mode?
-          local_plugin = Vagrant.plugin("2").local_manager.providers[provider_name]
-          if local_plugin
-            @logger.info("Replacing provider with local plugin; was #{provider_cls}; now #{local_plugin[0]}")
-            provider_cls = local_plugin[0]
-            provider_options = local_plugin[1]
-          end
-        end
-
         # TODO: Get provider info from client
         @provider_name = provider_name
         @provider = provider_cls.new(self)
