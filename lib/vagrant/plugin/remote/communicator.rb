@@ -6,11 +6,15 @@ module Vagrant
         # when applied to the Communicator class
         attr_accessor :client
 
-        def initialize(machine)
+        def initialize(machine, **kwargs)
           @logger = Log4r::Logger.new("vagrant::remote::communicator")
           @logger.debug("initializing communicator with remote backend")
           @machine = machine
-          @client = machine.client.communicate
+          @client = kwargs.fetch(:client, machine.client.communicate)
+          if @client.nil?
+            raise ArgumentError,
+              "Remote client is required for `#{self.class.name}`"
+          end
         end
 
         def ready?

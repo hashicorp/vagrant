@@ -1,23 +1,22 @@
 module Vagrant
   module Plugin
     module Remote
-      class Guest
-        # This module enables Guest for server mode
-        module Remote
+      class Guest < V2::Guest
+        attr_accessor :client
 
-          # Add an attribute accesor for the client
-          # when applied to the Guest class
-          def self.prepended(klass)
-            klass.class_eval do
-              attr_accessor :client
-            end
+        def initialize(*_, **kwargs)
+          @client = kwargs.delete(:client)
+          if @client.nil?
+            raise ArgumentError,
+              "Remote client is required for `#{self.class.name}`"
           end
+          super
+        end
 
-          # @return [Boolean]
-          def detect?(machine)
-            client = machine.client.guest
-            client.detect(machine)
-          end
+        # @return [Boolean]
+        def detect?(machine)
+          client = machine.client.guest
+          client.detect(machine)
         end
       end
     end

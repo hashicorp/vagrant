@@ -24,8 +24,7 @@ module Vagrant
             raise ArgumentError,
               "Remote client is required for `#{self.class.name}`"
           end
-          @client = opts[:client]
-          super(machine)
+          @client = opts.delete(:client)
         end
 
         def action(name)
