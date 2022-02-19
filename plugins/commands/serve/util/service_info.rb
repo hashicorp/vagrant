@@ -3,6 +3,13 @@ module VagrantPlugins
     module Util
       # Adds service info helper to be used with services
       module ServiceInfo
+        # Call block and yield information about
+        # the incoming request based on provided
+        # context.
+        #
+        # @param context [GRPC::Context] Request context
+        # @param broker [Broker]
+        # @yieldparam [ServiceInfo]
         def with_info(context, broker:, &block)
           if broker.nil?
             raise "NO BROKER FOR INFO"
@@ -27,8 +34,7 @@ module VagrantPlugins
             end
           end
           Thread.current.thread_variable_set(:service_info, info)
-          return if !block_given?
-          yield info
+          yield info if block_given?
         ensure
           if activated
             Service::ServiceInfo.manager_tracker.deactivate do
@@ -38,13 +44,24 @@ module VagrantPlugins
           Thread.current.thread_variable_set(:service_info, nil)
         end
 
+        # Call given block and yield local plugin class
+        # and information about the incoming request based
+        # on provided context.
+        #
+        # @param context [GRPC::Context] Request context
+        # @param plugins [Symbol] Type of plugins (:providers, :provisioners, etc.)
+        # @param broker [Broker]
         def with_plugin(context, plugins, broker:, &block)
           with_info(context, broker: broker) do |info|
-            plugin = Vagrant.plugin("2").local_manager.send(plugins)[info.plugin_name].to_a.first
+            plugin = Array(
+              Vagrant.plugin("2").
+                local_manager.
+                send(plugins)[info.plugin_name]
+            ).first
             if !plugin
-              raise NameError, "Failed to locate plugin named #{plugin_name}"
+              raise NameError, "Failed to locate plugin '#{plugin_name}' within #{plugins} plugins"
             end
-            yield plugin if block_given?
+            yield plugin, info if block_given?
           end
         end
       end
