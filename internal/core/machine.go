@@ -42,6 +42,7 @@ func (m *Machine) SetID(value string) (err error) {
 	} else {
 		err = m.SaveMachine()
 	}
+
 	return
 }
 
