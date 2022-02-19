@@ -38,9 +38,9 @@ module VagrantPlugins
             end
           end
         end
-
-        @cache = Util::Cacher.new
       end
+
+      @cache = Util::Cacher.new
 
       autoload :CapabilityPlatformService, Vagrant.source_root.join("plugins/commands/serve/service/capability_platform_service").to_s
       autoload :CommandService, Vagrant.source_root.join("plugins/commands/serve/service/command_service").to_s
