@@ -100,8 +100,11 @@ func (m *Machine) Guest() (g core.Guest, err error) {
 	// actually start getting used
 	if m.target.Configuration.ConfigVm.Guest != "" {
 		// Ignore error about guest not being found - will also try detecting the guest
-		guest, _ := m.project.basis.component(
+		guest, cerr := m.project.basis.component(
 			m.ctx, component.GuestType, m.target.Configuration.ConfigVm.Guest)
+		if cerr != nil {
+			return nil, cerr
+		}
 		if guest != nil {
 			m.guest = guest.Value.(core.Guest)
 			m.seedPlugin(m.guest)
