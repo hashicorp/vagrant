@@ -1,14 +1,7 @@
 module VagrantPlugins
   module CommandServe
     module Service
-      class ProvisionerService < Hashicorp::Vagrant::Sdk::ProvisionerService::Service
-        prepend Util::HasMapper
-        prepend Util::HasBroker
-        prepend Util::HasLogger
-
-        include Util::ServiceInfo
-        include Util::HasSeeds::Service
-        include Util::ExceptionTransformer
+      class ProvisionerService < ProtoService(SDK::ProvisionerService::Service)
 
         def cleanup(req, ctx)
           machine, plugin_config = _process_args(req)
@@ -19,19 +12,11 @@ module VagrantPlugins
         end
 
         def cleanup_spec(*_)
-          SDK::FuncSpec.new(
-            name: "cleanup_spec",
+          funcspec(
             args: [
-              SDK::FuncSpec::Value.new(
-                type: "hashicorp.vagrant.sdk.Args.Target.Machine",
-                name: "",
-              ),
-              SDK::FuncSpec::Value.new(
-                type: "hashicorp.vagrant.sdk.Vagrantfile.GeneralConfig",
-                name: "",
-              )
-            ],
-            result: [],
+              SDK::Args::Target::Machine,
+              SDK::Vagrantfile::GeneralConfig,
+            ]
           )
         end
 
@@ -46,22 +31,13 @@ module VagrantPlugins
         end
 
         def configure_spec(*_)
-          SDK::FuncSpec.new(
-            name: "configure_spec",
+          funcspec(
             args: [
-              SDK::FuncSpec::Value.new(
-                type: "hashicorp.vagrant.sdk.Args.Target.Machine",
-                name: "",
-              ),
-              SDK::FuncSpec::Value.new(
-                type: "hashicorp.vagrant.sdk.Vagrantfile.GeneralConfig",
-                name: "",
-              )
-            ],
-            result: [],
+              SDK::Args::Target::Machine,
+              SDK::Vagrantfile::GeneralConfig,
+            ]
           )
         end
-
 
         def provision(req, ctx)
           machine, plugin_config = _process_args(req)
@@ -74,19 +50,11 @@ module VagrantPlugins
         end
 
         def provision_spec(*_)
-          SDK::FuncSpec.new(
-            name: "provision_spec",
+          funcspec(
             args: [
-              SDK::FuncSpec::Value.new(
-                type: "hashicorp.vagrant.sdk.Args.Target.Machine",
-                name: "",
-              ),
-              SDK::FuncSpec::Value.new(
-                type: "hashicorp.vagrant.sdk.Vagrantfile.GeneralConfig",
-                name: "",
-              )
-            ],
-            result: [],
+              SDK::Args::Target::Machine,
+              SDK::Vagrantfile::GeneralConfig,
+            ]
           )
         end
 
