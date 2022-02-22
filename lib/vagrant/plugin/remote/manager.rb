@@ -90,7 +90,7 @@ module Vagrant
             return super if klass.nil?
             @logger.debug("found local plugin class #{self.class.name} -> #{klass.name}")
             c = VagrantPlugins::CommandServe::Service.cache
-            key = c.key(klass, *args)
+            key = c.key(klass, *@init[0])
             if !c.registered?(key)
               @logger.debug("creating new local plugin instance of #{klass} with args: #{@init}")
               c.register(key, klass.new(*@init[0], **@init[1], &@init[2]))
