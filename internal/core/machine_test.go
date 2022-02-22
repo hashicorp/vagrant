@@ -69,3 +69,15 @@ func TestMachineSetEmptyId(t *testing.T) {
 	require.Nil(t, dbTarget)
 	require.Error(t, err)
 }
+
+func TestMachineConfigedGuest(t *testing.T) {
+	tm, _ := TestMachine(t,
+		WithTestTargetConfig(&vagrant_plugin_sdk.Vagrantfile_MachineConfig{
+			ConfigVm: &vagrant_plugin_sdk.Vagrantfile_ConfigVM{Guest: "myguest"},
+		}),
+	)
+	guest, err := tm.Guest()
+	require.NoError(t, err)
+	require.NotNil(t, guest)
+	require.NotNil(t, tm.guest)
+}
