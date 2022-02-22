@@ -4,6 +4,8 @@ module VagrantPlugins
       # Simple container for caching values
       class Cacher
 
+        include HasLogger
+
         def initialize
           @registry = {}
         end
@@ -22,6 +24,7 @@ module VagrantPlugins
         # @param value [Object] Value to register
         # @return [Object] value
         def register(key, value)
+          logger.trace("cache register #{key} = #{value}")
           @registry[key] = value
         end
 
