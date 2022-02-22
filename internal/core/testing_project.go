@@ -6,6 +6,7 @@ import (
 	"os"
 
 	"github.com/hashicorp/go-hclog"
+	"github.com/hashicorp/go-multierror"
 	"github.com/mitchellh/go-testing-interface"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
@@ -37,8 +38,8 @@ var TestingTypeMap = map[component.Type]interface{}{
 // TestTarget returns a fully in-memory and side-effect free Target that
 // can be used for testing. Additional options can be given to provide your own
 // factories, configuration, etc.
-func TestTarget(t testing.T, opts ...BasisOption) (target *Target, err error) {
-	tp := TestProject(t, opts...)
+func TestTarget(t testing.T, opts ...TestTargetOption) (target *Target, err error) {
+	tp := TestProject(t)
 	tp.basis.client.UpsertTarget(
 		context.Background(),
 		&vagrant_server.UpsertTargetRequest{
@@ -53,14 +54,20 @@ func TestTarget(t testing.T, opts ...BasisOption) (target *Target, err error) {
 		WithTargetRef(&vagrant_plugin_sdk.Ref_Target{Project: tp.Ref().(*vagrant_plugin_sdk.Ref_Project), Name: "test-target"}),
 	}...)
 
+	for _, opt := range opts {
+		if oerr := opt(target); oerr != nil {
+			err = multierror.Append(err, oerr)
+		}
+	}
+
 	return
 }
 
 // TestMachine returns a fully in-memory and side-effect free Machine that
 // can be used for testing. Additional options can be given to provide your own
 // factories, configuration, etc.
-func TestMachine(t testing.T, opts ...BasisOption) (machine *Machine, err error) {
-	tt, _ := TestTarget(t)
+func TestMachine(t testing.T, topts ...TestTargetOption) (machine *Machine, err error) {
+	tt, _ := TestTarget(t, topts...)
 	specialized, err := tt.Specialize((*core.Machine)(nil))
 	if err != nil {
 		return nil, err
@@ -132,4 +139,13 @@ func TestFactory(t testing.T, typ component.Type) *factory.Factory {
 // factory for the name n.
 func TestFactoryRegister(t testing.T, f *factory.Factory, n string, v interface{}) {
 	require.NoError(t, f.Register(n, func() interface{} { return v }))
+}
+
+type TestTargetOption func(*Target) error
+
+func WithTestTargetConfig(config *vagrant_plugin_sdk.Vagrantfile_MachineConfig) TestTargetOption {
+	return func(t *Target) (err error) {
+		t.target.Configuration = config
+		return
+	}
 }
