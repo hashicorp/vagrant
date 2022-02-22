@@ -86,7 +86,7 @@ module Vagrant
 
         unknown_sources = @sources.keys - order
         if !unknown_sources.empty?
-          @logger.error("Unknown config sources: #{unknown_sources.inspect}")
+          @logger.warn("Unknown config sources: #{unknown_sources.inspect}")
         end
 
         # Get the current version config class to use
