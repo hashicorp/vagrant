@@ -4,11 +4,13 @@ module VagrantPlugins
       class ProvisionerService < ProtoService(SDK::ProvisionerService::Service)
 
         def cleanup(req, ctx)
-          machine, plugin_config = _process_args(req)
+          with_plugin(ctx, :provisioners, broker: broker) do |plugin|
+            machine, plugin_config = _process_args(req)
+            provisioner = load_provisioner(plugin, machine, plugin_config)
+            provisioner.cleanup
 
-          provisioner =_lookup_or_instantiate_provisioner(req, ctx, machine, plugin_config)
-
-          provisioner.cleanup
+            Empty.new
+          end
         end
 
         def cleanup_spec(*_)
@@ -21,13 +23,13 @@ module VagrantPlugins
         end
 
         def configure(req, ctx)
-          machine, plugin_config = _process_args(req)
+          with_plugin(ctx, :provisioners, broker: broker) do |plugin|
+            machine, plugin_config = _process_args(req)
+            provisioner = load_provisioner(plugin, machine, plugin_config)
+            provisioner.configure(machine.config)
 
-          provisioner =_lookup_or_instantiate_provisioner(req, ctx, machine, plugin_config)
-
-          provisioner.configure(machine.config)
-
-          Empty.new
+            Empty.new
+          end
         end
 
         def configure_spec(*_)
@@ -40,13 +42,13 @@ module VagrantPlugins
         end
 
         def provision(req, ctx)
-          machine, plugin_config = _process_args(req)
+          with_plugin(ctx, :provisioners, broker: broker) do |plugin|
+            machine, plugin_config = _process_args(req)
+            provisioner = load_provisioner(plugin, machine, plugin_config)
+            provisioner.provision
 
-          provisioner =_lookup_or_instantiate_provisioner(req, ctx, machine, plugin_config)
-
-          provisioner.provision
-
-          Empty.new
+            Empty.new
+          end
         end
 
         def provision_spec(*_)
@@ -78,18 +80,11 @@ module VagrantPlugins
           return machine, plugin_config
         end
 
-        def _lookup_or_instantiate_provisioner(req, ctx, machine, plugin_config)
-          @_provisioner_cache ||= {}
-          key = ctx.metadata["plugin_name"]
-          if @_provisioner_cache[key] != nil
-            return @_provisioner_cache[key]
-          else
-            plugins = Vagrant.plugin("2").local_manager.provisioners
-            with_plugin(ctx, plugins, broker: broker) do |plugin|
-              provisioner = plugin.new(machine, plugin_config)
-              @_provisioner_cache[key] = provisioner
-              return provisioner
-            end
+        def load_provisioner(klass, machine, config)
+          key = cache.key(klass, machine)
+          return cache.get(key) if cache.registered?(key)
+          klass.new(machine, config).tap do |i|
+            cache.register(key, i)
           end
         end
       end
