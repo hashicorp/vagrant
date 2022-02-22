@@ -38,7 +38,7 @@ var TestingTypeMap = map[component.Type]interface{}{
 // TestTarget returns a fully in-memory and side-effect free Target that
 // can be used for testing. Additional options can be given to provide your own
 // factories, configuration, etc.
-func TestTarget(t testing.T, opts ...TestTargetOption) (target *Target, err error) {
+func TestTarget(t testing.T, opts ...TargetOption) (target *Target, err error) {
 	tp := TestProject(t)
 	tp.basis.client.UpsertTarget(
 		context.Background(),
@@ -66,13 +66,18 @@ func TestTarget(t testing.T, opts ...TestTargetOption) (target *Target, err erro
 // TestMachine returns a fully in-memory and side-effect free Machine that
 // can be used for testing. Additional options can be given to provide your own
 // factories, configuration, etc.
-func TestMachine(t testing.T, topts ...TestTargetOption) (machine *Machine, err error) {
-	tt, _ := TestTarget(t, topts...)
+func TestMachine(t testing.T, opts ...TestMachineOption) (machine *Machine, err error) {
+	tt, _ := TestTarget(t)
 	specialized, err := tt.Specialize((*core.Machine)(nil))
 	if err != nil {
 		return nil, err
 	}
 	machine = specialized.(*Machine)
+	for _, opt := range opts {
+		if oerr := opt(machine); oerr != nil {
+			err = multierror.Append(err, oerr)
+		}
+	}
 	return
 }
 
@@ -141,11 +146,18 @@ func TestFactoryRegister(t testing.T, f *factory.Factory, n string, v interface{
 	require.NoError(t, f.Register(n, func() interface{} { return v }))
 }
 
-type TestTargetOption func(*Target) error
+type TestMachineOption func(*Machine) error
 
-func WithTestTargetConfig(config *vagrant_plugin_sdk.Vagrantfile_MachineConfig) TestTargetOption {
-	return func(t *Target) (err error) {
-		t.target.Configuration = config
+func WithTestTargetConfig(config *vagrant_plugin_sdk.Vagrantfile_MachineConfig) TestMachineOption {
+	return func(m *Machine) (err error) {
+		m.target.Configuration = config
+		return
+	}
+}
+
+func WithTestTargetConfig(config *vagrant_plugin_sdk.Vagrantfile_MachineConfig) TestMachineOption {
+	return func(m *Machine) (err error) {
+		m.target.Configuration = config
 		return
 	}
 }
