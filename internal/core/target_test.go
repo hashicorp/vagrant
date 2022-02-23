@@ -7,7 +7,7 @@ import (
 )
 
 func TestTargetSpecializeMachine(t *testing.T) {
-	tt, _ := TestTarget(t)
+	tt, _ := TestMinimalTarget(t)
 	specialized, err := tt.Specialize((*core.Machine)(nil))
 
 	if err != nil {
@@ -20,7 +20,7 @@ func TestTargetSpecializeMachine(t *testing.T) {
 }
 
 func TestTargetSpecializeBad(t *testing.T) {
-	tt, _ := TestTarget(t)
+	tt, _ := TestMinimalTarget(t)
 	specialized, err := tt.Specialize((*core.Project)(nil))
 
 	if err != nil {

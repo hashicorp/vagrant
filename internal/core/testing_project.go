@@ -44,29 +44,3 @@ func TestProject(t testing.T, opts ...BasisOption) *Project {
 	}...)
 	return p
 }
-
-// // TestFactorySingle creates a factory for the given component type and
-// // registers a single implementation and returns that mock. This is useful
-// // to create a factory for the WithFactory option that returns a mocked value
-// // that can be tested against.
-// func TestFactorySingle(t testing.T, typ component.Type, n string) (*factory.Factory, *mock.Mock) {
-// 	f := TestFactory(t, typ)
-// 	c := componentmocks.ForType(typ)
-// 	require.NotNil(t, c)
-// 	TestFactoryRegister(t, f, n, c)
-
-// 	return f, componentmocks.Mock(c)
-// }
-
-// // TestFactory creates a factory for the given component type.
-// func TestFactory(t testing.T, typ component.Type) *factory.Factory {
-// 	f, err := factory.New(component.TypeMap[typ])
-// 	require.NoError(t, err)
-// 	return f
-// }
-
-// // TestFactoryRegister registers a singleton value to be returned for the
-// // factory for the name n.
-// func TestFactoryRegister(t testing.T, f *factory.Factory, n string, v interface{}) {
-// 	require.NoError(t, f.Register(n, func() interface{} { return v }))
-// }
