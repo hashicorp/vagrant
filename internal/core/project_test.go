@@ -5,7 +5,7 @@ import (
 )
 
 func TestNewProject(t *testing.T) {
-	tp := TestProject(t)
+	tp := TestMinimalProject(t)
 	vn := tp.Ref()
 	if vn == nil {
 		t.Errorf("Creating project failed")

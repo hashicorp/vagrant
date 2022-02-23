@@ -28,13 +28,25 @@ var TestingTypeMap = map[component.Type]interface{}{
 // can be used for testing. Additional options can be given to provide your own
 // factories, configuration, etc.
 func TestProject(t testing.T, opts ...BasisOption) *Project {
+	b := TestBasis(t, opts...)
+	p, _ := b.LoadProject([]ProjectOption{
+		WithProjectRef(&vagrant_plugin_sdk.Ref_Project{
+			Basis: b.Ref().(*vagrant_plugin_sdk.Ref_Basis),
+			Name:  "test-project"},
+		),
+	}...)
+	return p
+}
+
+// TestMinimalProject uses a minimal basis to setup the most basic project
+// that will work for testing
+func TestMinimalProject(t testing.T) *Project {
 	pluginManager := plugin.NewManager(
 		context.Background(),
 		hclog.New(&hclog.LoggerOptions{}),
 	)
 
-	opts = append(opts, WithPluginManager(pluginManager))
-	b := TestBasis(t, opts...)
+	b := TestBasis(t, WithPluginManager(pluginManager))
 
 	p, _ := b.LoadProject([]ProjectOption{
 		WithProjectRef(&vagrant_plugin_sdk.Ref_Project{

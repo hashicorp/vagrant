@@ -37,10 +37,10 @@ func TestTarget(t testing.T, tp *Project, opts ...TargetOption) (target *Target,
 	return
 }
 
-// TestMinimalTarget uses a minimal project to setup the mose basic target
+// TestMinimalTarget uses a minimal project to setup the most basic target
 // that will work for testing
 func TestMinimalTarget(t testing.T) (target *Target, err error) {
-	tp := TestProject(t)
+	tp := TestMinimalProject(t)
 	tp.basis.client.UpsertTarget(
 		context.Background(),
 		&vagrant_server.UpsertTargetRequest{
@@ -76,10 +76,10 @@ func TestMachine(t testing.T, tp *Project, opts ...TestMachineOption) (machine *
 	return
 }
 
-// TestMinimalMachine uses a minimal project to setup the mose basic machine
+// TestMinimalMachine uses a minimal project to setup the most basic machine
 // that will work for testing
 func TestMinimalMachine(t testing.T) (machine *Machine, err error) {
-	tp := TestProject(t)
+	tp := TestMinimalProject(t)
 	tt, _ := TestTarget(t, tp)
 	specialized, err := tt.Specialize((*core.Machine)(nil))
 	if err != nil {
