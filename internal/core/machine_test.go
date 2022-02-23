@@ -3,7 +3,10 @@ package core
 import (
 	"testing"
 
+	"github.com/hashicorp/vagrant-plugin-sdk/component"
+	coremocks "github.com/hashicorp/vagrant-plugin-sdk/core/mocks"
 	"github.com/hashicorp/vagrant-plugin-sdk/proto/vagrant_plugin_sdk"
+	"github.com/hashicorp/vagrant/internal/plugin"
 	"github.com/hashicorp/vagrant/internal/server/proto/vagrant_server"
 	"github.com/stretchr/testify/require"
 )
@@ -70,19 +73,21 @@ func TestMachineSetEmptyId(t *testing.T) {
 	require.Error(t, err)
 }
 
-// func TestMachineConfigedGuest(t *testing.T) {
-// 	pluginManager := plugin.TestManager(t,
-// 		plugin.TestPlugin(t),
-// 	)
-// 	tp := TestProject(t, WithPluginManager(pluginManager))
+func TestMachineConfigedGuest(t *testing.T) {
+	pluginManager := plugin.TestManager(t,
+		plugin.TestPlugin(t,
+			plugin.WithPluginName("myguest"),
+			plugin.WithPluginComponents(component.GuestType, &coremocks.Guest{})),
+	)
+	tp := TestProject(t, WithPluginManager(pluginManager))
 
-// 	tm, _ := TestMachine(t, tp,
-// 		WithTestTargetConfig(&vagrant_plugin_sdk.Vagrantfile_MachineConfig{
-// 			ConfigVm: &vagrant_plugin_sdk.Vagrantfile_ConfigVM{Guest: "myguest"},
-// 		}),
-// 	)
-// 	guest, err := tm.Guest()
-// 	require.NoError(t, err)
-// 	require.NotNil(t, guest)
-// 	require.NotNil(t, tm.guest)
-// }
+	tm, _ := TestMachine(t, tp,
+		WithTestTargetConfig(&vagrant_plugin_sdk.Vagrantfile_MachineConfig{
+			ConfigVm: &vagrant_plugin_sdk.Vagrantfile_ConfigVM{Guest: "myguest"},
+		}),
+	)
+	guest, err := tm.Guest()
+	require.NoError(t, err)
+	require.NotNil(t, guest)
+	require.NotNil(t, tm.guest)
+}
