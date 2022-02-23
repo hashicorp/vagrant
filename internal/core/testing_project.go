@@ -1,9 +1,6 @@
 package core
 
 import (
-	"context"
-
-	"github.com/hashicorp/go-hclog"
 	"github.com/mitchellh/go-testing-interface"
 
 	"github.com/hashicorp/vagrant-plugin-sdk/component"
@@ -41,11 +38,7 @@ func TestProject(t testing.T, opts ...BasisOption) *Project {
 // TestMinimalProject uses a minimal basis to setup the most basic project
 // that will work for testing
 func TestMinimalProject(t testing.T) *Project {
-	pluginManager := plugin.NewManager(
-		context.Background(),
-		hclog.New(&hclog.LoggerOptions{}),
-	)
-
+	pluginManager := plugin.TestManager(t)
 	b := TestBasis(t, WithPluginManager(pluginManager))
 
 	p, _ := b.LoadProject([]ProjectOption{

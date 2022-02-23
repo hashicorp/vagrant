@@ -1,12 +1,9 @@
 package core
 
 import (
-	"context"
 	"testing"
 
-	"github.com/hashicorp/go-hclog"
 	"github.com/hashicorp/vagrant-plugin-sdk/proto/vagrant_plugin_sdk"
-	"github.com/hashicorp/vagrant/internal/plugin"
 	"github.com/hashicorp/vagrant/internal/server/proto/vagrant_server"
 	"github.com/stretchr/testify/require"
 )
@@ -73,21 +70,19 @@ func TestMachineSetEmptyId(t *testing.T) {
 	require.Error(t, err)
 }
 
-func TestMachineConfigedGuest(t *testing.T) {
-	pluginManager := plugin.NewManager(
-		context.Background(),
-		hclog.New(&hclog.LoggerOptions{}),
-	)
-	tp := TestProject(t,
-		WithPluginManager(pluginManager),
-	)
-	tm, _ := TestMachine(t, tp,
-		WithTestTargetConfig(&vagrant_plugin_sdk.Vagrantfile_MachineConfig{
-			ConfigVm: &vagrant_plugin_sdk.Vagrantfile_ConfigVM{Guest: "myguest"},
-		}),
-	)
-	guest, err := tm.Guest()
-	require.NoError(t, err)
-	require.NotNil(t, guest)
-	require.NotNil(t, tm.guest)
-}
+// func TestMachineConfigedGuest(t *testing.T) {
+// 	pluginManager := plugin.TestManager(t,
+// 		plugin.TestPlugin(t),
+// 	)
+// 	tp := TestProject(t, WithPluginManager(pluginManager))
+
+// 	tm, _ := TestMachine(t, tp,
+// 		WithTestTargetConfig(&vagrant_plugin_sdk.Vagrantfile_MachineConfig{
+// 			ConfigVm: &vagrant_plugin_sdk.Vagrantfile_ConfigVM{Guest: "myguest"},
+// 		}),
+// 	)
+// 	guest, err := tm.Guest()
+// 	require.NoError(t, err)
+// 	require.NotNil(t, guest)
+// 	require.NotNil(t, tm.guest)
+// }
