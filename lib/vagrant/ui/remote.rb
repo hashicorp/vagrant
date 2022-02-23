@@ -19,7 +19,7 @@ module Vagrant
           opts[:new_line] = true
         end
         opts[:style] = type.to_sym
-        @client.output([message.gsub("%", "%%")], **opts)
+        @client.output(message.gsub("%", "%%"), **opts)
       end
 
       [:detail, :info, :warn, :error, :output, :success].each do |method|
