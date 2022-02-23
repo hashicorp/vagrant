@@ -21,7 +21,7 @@ on:
       - 'go.sum'
 
 jobs:
-  unit-tests:
+  unit-tests-go:
     runs-on: ubuntu-18.04
     strategy:
       matrix:
