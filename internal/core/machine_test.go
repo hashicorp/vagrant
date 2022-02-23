@@ -4,10 +4,12 @@ import (
 	"testing"
 
 	"github.com/hashicorp/vagrant-plugin-sdk/component"
+	sdkcore "github.com/hashicorp/vagrant-plugin-sdk/core"
 	coremocks "github.com/hashicorp/vagrant-plugin-sdk/core/mocks"
 	"github.com/hashicorp/vagrant-plugin-sdk/proto/vagrant_plugin_sdk"
 	"github.com/hashicorp/vagrant/internal/plugin"
 	"github.com/hashicorp/vagrant/internal/server/proto/vagrant_server"
+	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 )
 
@@ -74,10 +76,14 @@ func TestMachineSetEmptyId(t *testing.T) {
 }
 
 func TestMachineConfigedGuest(t *testing.T) {
+	guestMock := &coremocks.Guest{}
+	guestMock.On("Seeds").Return(sdkcore.NewSeeds(), nil)
+	guestMock.On("Seed", mock.AnythingOfType("")).Return(nil)
+
 	pluginManager := plugin.TestManager(t,
 		plugin.TestPlugin(t,
 			plugin.WithPluginName("myguest"),
-			plugin.WithPluginComponents(component.GuestType, &coremocks.Guest{})),
+			plugin.WithPluginComponents(component.GuestType, guestMock)),
 	)
 	tp := TestProject(t, WithPluginManager(pluginManager))
 
