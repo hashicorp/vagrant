@@ -12,6 +12,11 @@ module Vagrant
         # no-op
       end
 
+      def ask(message, **opts)
+        opts[:style] ||= :detail
+        @client.input(message.gsub("%", "%%"), **opts)
+      end
+
       # This method handles actually outputting a message of a given type
       # to the console.
       def say(type, message, opts={})
