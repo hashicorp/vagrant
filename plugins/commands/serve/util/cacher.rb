@@ -10,6 +10,10 @@ module VagrantPlugins
           @registry = {}
         end
 
+        def clear
+          @registry = {}
+        end
+
         # Check if the given key is currently registered
         #
         # @param key [Object] Generally String or Symbol

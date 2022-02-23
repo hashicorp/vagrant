@@ -59,7 +59,7 @@ module VagrantPlugins
                 send(plugins)[info.plugin_name]
             ).first
             if !plugin
-              raise NameError, "Failed to locate plugin '#{plugin_name}' within #{plugins} plugins"
+              raise NameError, "Failed to locate plugin '#{info.plugin_name}' within #{plugins} plugins"
             end
             yield plugin, info if block_given?
           end

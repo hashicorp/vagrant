@@ -61,7 +61,7 @@ describe VagrantPlugins::CommandServe::Service::GuestService do
 
     it "raises an error for unknown plugins" do
       ctx = DummyContext.new("idontexisthahaha")
-      expect { subject.parent("", ctx) }.to raise_error
+      expect { subject.parent("", ctx) }.to raise_error(/Failed to locate guest plugin/)
     end
 
     it "requests parent from plugins" do
@@ -84,7 +84,11 @@ describe VagrantPlugins::CommandServe::Service::GuestService do
         p.guest(:test_false) { test_false_guest }
       end
 
-      VagrantPlugins::CommandServe::Mappers.any_instance.stub(:funcspec_map).and_return(machine)
+      allow_any_instance_of(VagrantPlugins::CommandServe::Mappers).to receive(:funcspec_map).and_return(machine)
+    end
+
+    after do
+      VagrantPlugins::CommandServe::Service.cache.clear
     end
 
     it "generates a spec" do
@@ -94,7 +98,7 @@ describe VagrantPlugins::CommandServe::Service::GuestService do
 
     it "raises an error for unknown plugins" do
       ctx = DummyContext.new("idontexisthahaha")
-      expect { subject.detect("", ctx) }.to raise_error
+      expect { subject.detect("", ctx) }.to raise_error(/Failed to locate plugin/)
     end
 
     it "detects true plugins" do
@@ -151,11 +155,6 @@ describe VagrantPlugins::CommandServe::Service::GuestService do
     it "generates a spec" do
       spec = subject.has_capability_spec
       expect(spec).not_to be_nil
-    end
-
-    it "raises an error for unknown plugins" do
-      ctx = DummyContext.new("idontexisthahaha")
-      expect { subject.has_capability(test_cap_name, ctx) }.to raise_error
     end
 
     it "returns true for plugin with capability" do

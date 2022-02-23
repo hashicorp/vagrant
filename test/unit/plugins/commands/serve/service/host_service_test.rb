@@ -88,10 +88,13 @@ describe VagrantPlugins::CommandServe::Service::HostService do
         p.host(:test_false) { test_false_host }
       end
 
-      VagrantPlugins::CommandServe::Client::Target.any_instance.stub(:project).and_return("")
-      VagrantPlugins::CommandServe::Client::Target.any_instance.stub(:name).and_return("dummy")
-      VagrantPlugins::CommandServe::Client::Target.any_instance.stub(:provider_name).and_return("virtualbox")
-      # Vagrant::Environment.any_instance.stub(:machine).and_return(machine)
+      allow_any_instance_of(VagrantPlugins::CommandServe::Client::Target).to receive(:project).and_return("")
+      allow_any_instance_of(VagrantPlugins::CommandServe::Client::Target).to receive(:name).and_return("dummy")
+      allow_any_instance_of(VagrantPlugins::CommandServe::Client::Target).to receive(:provider_name).and_return("virtualbox")
+    end
+
+    after do
+      VagrantPlugins::CommandServe::Service.cache.clear
     end
 
     it "generates a spec" do
