@@ -76,6 +76,16 @@ func TestMachineSetEmptyId(t *testing.T) {
 }
 
 func TestMachineConfigedGuest(t *testing.T) {
+	type test struct {
+		config *vagrant_plugin_sdk.Vagrantfile_ConfigVM
+		errors bool
+	}
+
+	tests := []test{
+		{config: &vagrant_plugin_sdk.Vagrantfile_ConfigVM{Guest: "myguest"}, errors: false},
+		{config: &vagrant_plugin_sdk.Vagrantfile_ConfigVM{Guest: "idontexist"}, errors: true},
+	}
+
 	guestMock := &coremocks.Guest{}
 	guestMock.On("Seeds").Return(sdkcore.NewSeeds(), nil)
 	guestMock.On("Seed", mock.AnythingOfType("")).Return(nil)
@@ -87,13 +97,21 @@ func TestMachineConfigedGuest(t *testing.T) {
 	)
 	tp := TestProject(t, WithPluginManager(pluginManager))
 
-	tm, _ := TestMachine(t, tp,
-		WithTestTargetConfig(&vagrant_plugin_sdk.Vagrantfile_MachineConfig{
-			ConfigVm: &vagrant_plugin_sdk.Vagrantfile_ConfigVM{Guest: "myguest"},
-		}),
-	)
-	guest, err := tm.Guest()
-	require.NoError(t, err)
-	require.NotNil(t, guest)
-	require.NotNil(t, tm.guest)
+	for _, tc := range tests {
+		tm, _ := TestMachine(t, tp,
+			WithTestTargetConfig(&vagrant_plugin_sdk.Vagrantfile_MachineConfig{
+				ConfigVm: tc.config,
+			}),
+		)
+		guest, err := tm.Guest()
+		if tc.errors {
+			require.Error(t, err)
+			require.Nil(t, guest)
+			require.Nil(t, tm.guest)
+		} else {
+			require.NoError(t, err)
+			require.NotNil(t, guest)
+			require.NotNil(t, tm.guest)
+		}
+	}
 }
