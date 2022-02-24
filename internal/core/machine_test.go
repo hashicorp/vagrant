@@ -5,29 +5,12 @@ import (
 
 	"github.com/hashicorp/vagrant-plugin-sdk/component"
 	"github.com/hashicorp/vagrant-plugin-sdk/core"
-	sdkcore "github.com/hashicorp/vagrant-plugin-sdk/core"
-	coremocks "github.com/hashicorp/vagrant-plugin-sdk/core/mocks"
 	"github.com/hashicorp/vagrant-plugin-sdk/proto/vagrant_plugin_sdk"
 	"github.com/hashicorp/vagrant/internal/plugin"
 	"github.com/hashicorp/vagrant/internal/server/proto/vagrant_server"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 )
-
-func seededGuestMock(name string) *coremocks.Guest {
-	guestMock := &coremocks.Guest{}
-	guestMock.On("Seeds").Return(sdkcore.NewSeeds(), nil)
-	guestMock.On("Seed", mock.AnythingOfType("")).Return(nil)
-	guestMock.On("PluginName").Return(name, nil)
-	return guestMock
-}
-
-func seededSyncedFolderMock(name string) *coremocks.SyncedFolder {
-	guestMock := &coremocks.SyncedFolder{}
-	guestMock.On("Seeds").Return(sdkcore.NewSeeds(), nil)
-	guestMock.On("Seed", mock.AnythingOfType("")).Return(nil)
-	return guestMock
-}
 
 func TestMachineSetValidId(t *testing.T) {
 	tm, _ := TestMinimalMachine(t)
