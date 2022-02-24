@@ -3,6 +3,7 @@ package version
 import (
 	"bytes"
 	"fmt"
+	"regexp"
 )
 
 var (
@@ -30,9 +31,13 @@ func GetVersion() *VersionInfo {
 	md := VersionMetadata
 	desc := GitDescribe
 	if desc != "" {
-		ver = desc
+		// git describe is based off tags which always start with v, but
+		// Vagrant has always reported its version number w/o a leading v in
+		// the CLI, so we'll remove it here
+		re := regexp.MustCompile(`^v`)
+		ver = re.ReplaceAllString(desc, "")
 	} else {
-		ver = fmt.Sprintf("v%s", ver)
+		ver = fmt.Sprintf("%s", ver)
 	}
 	if desc == "" && rel == "" && VersionPrerelease != "" {
 		rel = "dev"

@@ -97,6 +97,10 @@ func Main(args []string) int {
 		Autocomplete:               true,
 		AutocompleteNoDefaultFlags: true,
 		HelpFunc:                   GroupedHelpFunc(cli.BasicHelpFunc(cliName)),
+		// Write help to stdout to match Ruby vagrant behavior
+		HelpWriter: os.Stdout,
+		// Need to set Version on the CLI to enable `-v` and `--version` handling
+		Version: vsn.FullVersionNumber(true),
 	}
 
 	// Run the CLI
@@ -253,22 +257,22 @@ func logger(args []string) ([]string, hclog.Logger, io.Writer, error) {
 		}
 
 		switch arg {
-		case "-v":
+		case "-V":
 			if level == hclog.NoLevel || level > hclog.Info {
 				level = hclog.Info
 				_ = os.Setenv("VAGRANT_LOG", "info")
 			}
-		case "-vv":
+		case "-VV":
 			if level == hclog.NoLevel || level > hclog.Debug {
 				level = hclog.Debug
 				_ = os.Setenv("VAGRANT_LOG", "debug")
 			}
-		case "-vvv":
+		case "-VVV":
 			if level == hclog.NoLevel || level > hclog.Trace {
 				level = hclog.Trace
 				_ = os.Setenv("VAGRANT_LOG", "trace")
 			}
-		case "-vvvv":
+		case "-VVVV":
 			if level == hclog.NoLevel || level > hclog.Trace {
 				level = hclog.Trace
 				_ = os.Setenv("VAGRANT_LOG", "trace")
