@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"github.com/hashicorp/vagrant-plugin-sdk/component"
+	"github.com/hashicorp/vagrant-plugin-sdk/core"
 	sdkcore "github.com/hashicorp/vagrant-plugin-sdk/core"
 	coremocks "github.com/hashicorp/vagrant-plugin-sdk/core/mocks"
 	"github.com/hashicorp/vagrant-plugin-sdk/proto/vagrant_plugin_sdk"
@@ -184,5 +185,42 @@ func TestMachineNoConfigGuest(t *testing.T) {
 			require.NotNil(t, guest)
 			require.NotNil(t, tm.guest)
 		}
+	}
+}
+
+func TestMachineSetState(t *testing.T) {
+	tm, _ := TestMinimalMachine(t)
+
+	type test struct {
+		id    string
+		state vagrant_server.Operation_PhysicalState
+	}
+
+	tests := []test{
+		{id: "running", state: vagrant_server.Operation_CREATED},
+		{id: "not_created", state: vagrant_server.Operation_UNKNOWN},
+		{id: "whakhgldksj", state: vagrant_server.Operation_UNKNOWN},
+	}
+
+	for _, tc := range tests {
+		// Set MachineState
+		desiredState := &core.MachineState{ID: tc.id}
+		tm.SetMachineState(desiredState)
+		newState, err := tm.MachineState()
+		if err != nil {
+			t.Errorf("Failed to get id")
+		}
+		require.Equal(t, newState, desiredState)
+
+		// Ensure new id is save to db
+		dbTarget, err := tm.Client().GetTarget(tm.ctx,
+			&vagrant_server.GetTargetRequest{
+				Target: tm.Ref().(*vagrant_plugin_sdk.Ref_Target),
+			},
+		)
+		if err != nil {
+			t.Errorf("Failed to get target")
+		}
+		require.Equal(t, dbTarget.Target.State, tc.state)
 	}
 }
