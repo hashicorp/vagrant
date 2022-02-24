@@ -15,7 +15,7 @@ on:
             - 'main'
 
 jobs:
-  tests:
+  vagrant-spec-tests:
     runs-on: ubuntu-18.04
     strategy:
       matrix:
