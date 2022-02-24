@@ -44,3 +44,10 @@ func WithPluginInstanceComponent(c interface{}) PluginInstanceProperty {
 		return
 	}
 }
+
+func WithPluginInstanceParent(p *Instance) PluginInstanceProperty {
+	return func(i *Instance) (err error) {
+		i.Parent = i
+		return
+	}
+}

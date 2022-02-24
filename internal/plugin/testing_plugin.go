@@ -36,16 +36,29 @@ func WithPluginName(name string) PluginProperty {
 	}
 }
 
-func WithPluginComponents(t component.Type, i interface{}) PluginProperty {
+func WithPluginMinimalComponents(t component.Type, i interface{}) PluginProperty {
 	return func(p *Plugin) (err error) {
 		instance := &Instance{
 			Name:      p.Name,
 			Type:      t,
 			Component: i,
 		}
-		p.components = make(map[component.Type]*Instance)
+		if p.components == nil {
+			p.components = make(map[component.Type]*Instance)
+		}
 		p.components[t] = instance
 		p.Types = append(p.Types, t)
+		return
+	}
+}
+
+func WithPluginInstance(i *Instance) PluginProperty {
+	return func(p *Plugin) (err error) {
+		if p.components == nil {
+			p.components = make(map[component.Type]*Instance)
+		}
+		p.components[i.Type] = i
+		p.Types = append(p.Types, i.Type)
 		return
 	}
 }

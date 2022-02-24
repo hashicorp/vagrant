@@ -97,7 +97,7 @@ func TestMachineConfigedGuest(t *testing.T) {
 	pluginManager := plugin.TestManager(t,
 		plugin.TestPlugin(t,
 			plugin.WithPluginName("myguest"),
-			plugin.WithPluginComponents(component.GuestType, guestMock)),
+			plugin.WithPluginMinimalComponents(component.GuestType, guestMock)),
 	)
 	tp := TestProject(t, WithPluginManager(pluginManager))
 
@@ -125,7 +125,7 @@ func TestMachineNoConfigGuest(t *testing.T) {
 	guestMock.On("Detect", mock.AnythingOfType("*core.Machine")).Return(true, nil)
 	detectingPlugin := plugin.TestPlugin(t,
 		plugin.WithPluginName("myguest"),
-		plugin.WithPluginComponents(component.GuestType, guestMock))
+		plugin.WithPluginMinimalComponents(component.GuestType, guestMock))
 
 	notGuestMock := seededGuestMock()
 	notGuestMock.On("Detect", mock.AnythingOfType("*core.Machine")).Return(false, nil)
