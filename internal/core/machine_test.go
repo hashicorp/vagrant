@@ -13,6 +13,14 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+func seededGuestMock(name string) *coremocks.Guest {
+	guestMock := &coremocks.Guest{}
+	guestMock.On("Seeds").Return(sdkcore.NewSeeds(), nil)
+	guestMock.On("Seed", mock.AnythingOfType("")).Return(nil)
+	guestMock.On("PluginName").Return(name, nil)
+	return guestMock
+}
+
 func TestMachineSetValidId(t *testing.T) {
 	tm, _ := TestMinimalMachine(t)
 
@@ -75,13 +83,6 @@ func TestMachineSetEmptyId(t *testing.T) {
 	require.Error(t, err)
 }
 
-func seededGuestMock() *coremocks.Guest {
-	guestMock := &coremocks.Guest{}
-	guestMock.On("Seeds").Return(sdkcore.NewSeeds(), nil)
-	guestMock.On("Seed", mock.AnythingOfType("")).Return(nil)
-	return guestMock
-}
-
 func TestMachineConfigedGuest(t *testing.T) {
 	type test struct {
 		config *vagrant_plugin_sdk.Vagrantfile_ConfigVM
@@ -93,7 +94,7 @@ func TestMachineConfigedGuest(t *testing.T) {
 		{config: &vagrant_plugin_sdk.Vagrantfile_ConfigVM{Guest: "idontexist"}, errors: true},
 	}
 
-	guestMock := seededGuestMock()
+	guestMock := seededGuestMock("myguest")
 	pluginManager := plugin.TestManager(t,
 		plugin.TestPlugin(t,
 			plugin.WithPluginName("myguest"),
@@ -121,7 +122,7 @@ func TestMachineConfigedGuest(t *testing.T) {
 }
 
 func TestMachineNoConfigGuest(t *testing.T) {
-	guestMock := seededGuestMock()
+	guestMock := seededGuestMock("myguest")
 	guestMock.On("Detect", mock.AnythingOfType("*core.Machine")).Return(true, nil)
 	detectPluginInstance := plugin.TestPluginInstance(t,
 		plugin.WithPluginInstanceName("myguest"),
@@ -131,13 +132,13 @@ func TestMachineNoConfigGuest(t *testing.T) {
 		plugin.WithPluginName("myguest"),
 		plugin.WithPluginInstance(detectPluginInstance))
 
-	notGuestMock := seededGuestMock()
+	notGuestMock := seededGuestMock("mynondetectingguest")
 	notGuestMock.On("Detect", mock.AnythingOfType("*core.Machine")).Return(false, nil)
 	nonDetectingPlugin := plugin.TestPlugin(t,
 		plugin.WithPluginName("mynondetectingguest"),
 		plugin.WithPluginMinimalComponents(component.GuestType, notGuestMock))
 
-	guestChildMock := seededGuestMock()
+	guestChildMock := seededGuestMock("myguest-child")
 	guestChildMock.On("Detect", mock.AnythingOfType("*core.Machine")).Return(true, nil)
 	detectChildPluginInstance := plugin.TestPluginInstance(t,
 		plugin.WithPluginInstanceName("myguest-child"),
@@ -150,15 +151,16 @@ func TestMachineNoConfigGuest(t *testing.T) {
 	)
 
 	type test struct {
-		plugins []*plugin.Plugin
-		errors  bool
+		plugins            []*plugin.Plugin
+		errors             bool
+		expectedPluginName string
 	}
 
 	tests := []test{
-		{plugins: []*plugin.Plugin{detectingPlugin}, errors: false},
-		{plugins: []*plugin.Plugin{detectingChildPlugin}, errors: false},
-		{plugins: []*plugin.Plugin{detectingChildPlugin, detectingPlugin}, errors: false},
-		{plugins: []*plugin.Plugin{detectingPlugin, nonDetectingPlugin}, errors: false},
+		{plugins: []*plugin.Plugin{detectingPlugin}, errors: false, expectedPluginName: "myguest"},
+		{plugins: []*plugin.Plugin{detectingChildPlugin}, errors: false, expectedPluginName: "myguest-child"},
+		{plugins: []*plugin.Plugin{detectingChildPlugin, detectingPlugin}, errors: false, expectedPluginName: "myguest-child"},
+		{plugins: []*plugin.Plugin{detectingPlugin, nonDetectingPlugin}, errors: false, expectedPluginName: "myguest"},
 		{plugins: []*plugin.Plugin{nonDetectingPlugin}, errors: true},
 		{plugins: []*plugin.Plugin{}, errors: true},
 	}
@@ -174,6 +176,10 @@ func TestMachineNoConfigGuest(t *testing.T) {
 			require.Nil(t, guest)
 			require.Nil(t, tm.guest)
 		} else {
+			n, _ := guest.PluginName()
+			if n != tc.expectedPluginName {
+				t.Error("Found unexpected plugin, ", n)
+			}
 			require.NoError(t, err)
 			require.NotNil(t, guest)
 			require.NotNil(t, tm.guest)
