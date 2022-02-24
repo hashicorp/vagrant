@@ -86,10 +86,20 @@ func TestMinimalMachine(t testing.T) (machine *Machine, err error) {
 		return nil, err
 	}
 	machine = specialized.(*Machine)
+	WithTestTargetMinimalConfig()(machine)
 	return
 }
 
 type TestMachineOption func(*Machine) error
+
+func WithTestTargetMinimalConfig() TestMachineOption {
+	return func(m *Machine) (err error) {
+		m.target.Configuration = &vagrant_plugin_sdk.Vagrantfile_MachineConfig{
+			ConfigVm: &vagrant_plugin_sdk.Vagrantfile_ConfigVM{},
+		}
+		return
+	}
+}
 
 func WithTestTargetConfig(config *vagrant_plugin_sdk.Vagrantfile_MachineConfig) TestMachineOption {
 	return func(m *Machine) (err error) {

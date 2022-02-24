@@ -75,6 +75,13 @@ func TestMachineSetEmptyId(t *testing.T) {
 	require.Error(t, err)
 }
 
+func seededGuestMock() *coremocks.Guest {
+	guestMock := &coremocks.Guest{}
+	guestMock.On("Seeds").Return(sdkcore.NewSeeds(), nil)
+	guestMock.On("Seed", mock.AnythingOfType("")).Return(nil)
+	return guestMock
+}
+
 func TestMachineConfigedGuest(t *testing.T) {
 	type test struct {
 		config *vagrant_plugin_sdk.Vagrantfile_ConfigVM
@@ -86,10 +93,7 @@ func TestMachineConfigedGuest(t *testing.T) {
 		{config: &vagrant_plugin_sdk.Vagrantfile_ConfigVM{Guest: "idontexist"}, errors: true},
 	}
 
-	guestMock := &coremocks.Guest{}
-	guestMock.On("Seeds").Return(sdkcore.NewSeeds(), nil)
-	guestMock.On("Seed", mock.AnythingOfType("")).Return(nil)
-
+	guestMock := seededGuestMock()
 	pluginManager := plugin.TestManager(t,
 		plugin.TestPlugin(t,
 			plugin.WithPluginName("myguest"),
@@ -103,6 +107,49 @@ func TestMachineConfigedGuest(t *testing.T) {
 				ConfigVm: tc.config,
 			}),
 		)
+		guest, err := tm.Guest()
+		if tc.errors {
+			require.Error(t, err)
+			require.Nil(t, guest)
+			require.Nil(t, tm.guest)
+		} else {
+			require.NoError(t, err)
+			require.NotNil(t, guest)
+			require.NotNil(t, tm.guest)
+		}
+	}
+}
+
+func TestMachineNoConfigGuest(t *testing.T) {
+	guestMock := seededGuestMock()
+	guestMock.On("Detect", mock.AnythingOfType("*core.Machine")).Return(true, nil)
+	detectingPlugin := plugin.TestPlugin(t,
+		plugin.WithPluginName("myguest"),
+		plugin.WithPluginComponents(component.GuestType, guestMock))
+
+	notGuestMock := seededGuestMock()
+	notGuestMock.On("Detect", mock.AnythingOfType("*core.Machine")).Return(false, nil)
+	nonDetectingPlugin := plugin.TestPlugin(t,
+		plugin.WithPluginName("mynondetectingguest"),
+		plugin.WithPluginComponents(component.GuestType, notGuestMock))
+
+	type test struct {
+		plugins []*plugin.Plugin
+		errors  bool
+	}
+
+	tests := []test{
+		{plugins: []*plugin.Plugin{detectingPlugin}, errors: false},
+		{plugins: []*plugin.Plugin{detectingPlugin, nonDetectingPlugin}, errors: false},
+		{plugins: []*plugin.Plugin{nonDetectingPlugin}, errors: true},
+		{plugins: []*plugin.Plugin{}, errors: true},
+	}
+
+	for _, tc := range tests {
+		pluginManager := plugin.TestManager(t, tc.plugins...)
+		tp := TestProject(t, WithPluginManager(pluginManager))
+
+		tm, _ := TestMachine(t, tp, WithTestTargetMinimalConfig())
 		guest, err := tm.Guest()
 		if tc.errors {
 			require.Error(t, err)
