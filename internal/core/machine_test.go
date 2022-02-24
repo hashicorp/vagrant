@@ -123,15 +123,31 @@ func TestMachineConfigedGuest(t *testing.T) {
 func TestMachineNoConfigGuest(t *testing.T) {
 	guestMock := seededGuestMock()
 	guestMock.On("Detect", mock.AnythingOfType("*core.Machine")).Return(true, nil)
+	detectPluginInstance := plugin.TestPluginInstance(t,
+		plugin.WithPluginInstanceName("myguest"),
+		plugin.WithPluginInstanceType(component.GuestType),
+		plugin.WithPluginInstanceComponent(guestMock))
 	detectingPlugin := plugin.TestPlugin(t,
 		plugin.WithPluginName("myguest"),
-		plugin.WithPluginMinimalComponents(component.GuestType, guestMock))
+		plugin.WithPluginInstance(detectPluginInstance))
 
 	notGuestMock := seededGuestMock()
 	notGuestMock.On("Detect", mock.AnythingOfType("*core.Machine")).Return(false, nil)
 	nonDetectingPlugin := plugin.TestPlugin(t,
 		plugin.WithPluginName("mynondetectingguest"),
-		plugin.WithPluginComponents(component.GuestType, notGuestMock))
+		plugin.WithPluginMinimalComponents(component.GuestType, notGuestMock))
+
+	guestChildMock := seededGuestMock()
+	guestChildMock.On("Detect", mock.AnythingOfType("*core.Machine")).Return(true, nil)
+	detectChildPluginInstance := plugin.TestPluginInstance(t,
+		plugin.WithPluginInstanceName("myguest-child"),
+		plugin.WithPluginInstanceType(component.GuestType),
+		plugin.WithPluginInstanceComponent(guestChildMock),
+		plugin.WithPluginInstanceParent(detectPluginInstance))
+	detectingChildPlugin := plugin.TestPlugin(t,
+		plugin.WithPluginName("myguest-child"),
+		plugin.WithPluginInstance(detectChildPluginInstance),
+	)
 
 	type test struct {
 		plugins []*plugin.Plugin
@@ -140,6 +156,8 @@ func TestMachineNoConfigGuest(t *testing.T) {
 
 	tests := []test{
 		{plugins: []*plugin.Plugin{detectingPlugin}, errors: false},
+		{plugins: []*plugin.Plugin{detectingChildPlugin}, errors: false},
+		{plugins: []*plugin.Plugin{detectingChildPlugin, detectingPlugin}, errors: false},
 		{plugins: []*plugin.Plugin{detectingPlugin, nonDetectingPlugin}, errors: false},
 		{plugins: []*plugin.Plugin{nonDetectingPlugin}, errors: true},
 		{plugins: []*plugin.Plugin{}, errors: true},
