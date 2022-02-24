@@ -231,8 +231,10 @@ func (m *Machine) SyncedFolders() (folders []*core.MachineSyncedFolder, err erro
 
 	folders = []*core.MachineSyncedFolder{}
 	for _, folder := range syncedFolders {
-		// TODO: get default synced folder type
-		folder.Type = "virtualbox"
+		if folder.Type == "" {
+			// TODO: get default synced folder type
+			folder.Type = "virtualbox"
+		}
 		plg, err := m.project.basis.component(m.ctx, component.SyncedFolderType, folder.Type)
 		if err != nil {
 			return nil, err

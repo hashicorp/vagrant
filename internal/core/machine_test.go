@@ -22,6 +22,13 @@ func seededGuestMock(name string) *coremocks.Guest {
 	return guestMock
 }
 
+func seededSyncedFolderMock(name string) *coremocks.SyncedFolder {
+	guestMock := &coremocks.SyncedFolder{}
+	guestMock.On("Seeds").Return(sdkcore.NewSeeds(), nil)
+	guestMock.On("Seed", mock.AnythingOfType("")).Return(nil)
+	return guestMock
+}
+
 func TestMachineSetValidId(t *testing.T) {
 	tm, _ := TestMinimalMachine(t)
 
@@ -222,5 +229,81 @@ func TestMachineSetState(t *testing.T) {
 			t.Errorf("Failed to get target")
 		}
 		require.Equal(t, dbTarget.Target.State, tc.state)
+	}
+}
+
+func syncedFolderPlugin(t *testing.T, name string) *plugin.Plugin {
+	mock := seededSyncedFolderMock(name)
+	plugInst := plugin.TestPluginInstance(t,
+		plugin.WithPluginInstanceName(name),
+		plugin.WithPluginInstanceType(component.SyncedFolderType),
+		plugin.WithPluginInstanceComponent(mock))
+	return plugin.TestPlugin(t,
+		plugin.WithPluginName(name),
+		plugin.WithPluginInstance(plugInst))
+}
+func TestMachineSyncedFolders(t *testing.T) {
+	mySyncedFolder := syncedFolderPlugin(t, "mysyncedfolder")
+	myOtherSyncedFolder := syncedFolderPlugin(t, "myothersyncedfolder")
+
+	type test struct {
+		plugins         []*plugin.Plugin
+		config          *vagrant_plugin_sdk.Vagrantfile_ConfigVM
+		errors          bool
+		expectedFolders int
+	}
+	tests := []test{
+		// One synced folder and plugin available
+		{
+			plugins: []*plugin.Plugin{mySyncedFolder},
+			errors:  false,
+			config: &vagrant_plugin_sdk.Vagrantfile_ConfigVM{
+				SyncedFolders: []*vagrant_plugin_sdk.Vagrantfile_SyncedFolder{
+					{Source: ".", Destination: "/vagrant", Type: "mysyncedfolder"},
+				},
+			},
+			expectedFolders: 1,
+		},
+		// Many synced folders and available plugins
+		{
+			plugins: []*plugin.Plugin{mySyncedFolder, myOtherSyncedFolder},
+			errors:  false,
+			config: &vagrant_plugin_sdk.Vagrantfile_ConfigVM{
+				SyncedFolders: []*vagrant_plugin_sdk.Vagrantfile_SyncedFolder{
+					{Source: ".", Destination: "/vagrant", Type: "mysyncedfolder"},
+					{Source: "./two", Destination: "/vagrant-two", Type: "mysyncedfolder"},
+					{Source: "./three", Destination: "/vagrant-three", Type: "myothersyncedfolder"},
+				},
+			},
+			expectedFolders: 3,
+		},
+		// Synced folder with unavailable plugin
+		{
+			plugins: []*plugin.Plugin{mySyncedFolder, myOtherSyncedFolder},
+			errors:  true,
+			config: &vagrant_plugin_sdk.Vagrantfile_ConfigVM{
+				SyncedFolders: []*vagrant_plugin_sdk.Vagrantfile_SyncedFolder{
+					{Source: ".", Destination: "/vagrant", Type: "idontexist"},
+					{Source: "./two", Destination: "/vagrant-two", Type: "mysyncedfolder"},
+					{Source: "./three", Destination: "/vagrant-three", Type: "myothersyncedfolder"},
+				},
+			},
+		},
+	}
+
+	for _, tc := range tests {
+		pluginManager := plugin.TestManager(t, tc.plugins...)
+		tp := TestProject(t, WithPluginManager(pluginManager))
+		tm, _ := TestMachine(t, tp,
+			WithTestTargetConfig(&vagrant_plugin_sdk.Vagrantfile_MachineConfig{ConfigVm: tc.config}),
+		)
+		folders, err := tm.SyncedFolders()
+		if tc.errors {
+			require.Error(t, err)
+		} else {
+			require.NoError(t, err)
+			require.NotNil(t, folders)
+			require.Len(t, folders, tc.expectedFolders)
+		}
 	}
 }
