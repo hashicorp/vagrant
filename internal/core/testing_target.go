@@ -7,33 +7,26 @@ import (
 	"github.com/hashicorp/vagrant-plugin-sdk/core"
 	"github.com/hashicorp/vagrant-plugin-sdk/proto/vagrant_plugin_sdk"
 	"github.com/hashicorp/vagrant/internal/server/proto/vagrant_server"
+	"github.com/hashicorp/vagrant/internal/server/ptypes"
 	"github.com/mitchellh/go-testing-interface"
 )
 
 // TestTarget returns a fully in-memory and side-effect free Target that
 // can be used for testing. Additional options can be given to provide your own
 // factories, configuration, etc.
-func TestTarget(t testing.T, tp *Project, opts ...TargetOption) (target *Target, err error) {
+func TestTarget(t testing.T, tp *Project, tt *vagrant_server.Target) (target *Target, err error) {
+	testingTarget := ptypes.TestTarget(t, tt)
+	testingTarget.Project = tp.Ref().(*vagrant_plugin_sdk.Ref_Project)
 	tp.basis.client.UpsertTarget(
 		context.Background(),
 		&vagrant_server.UpsertTargetRequest{
 			Project: tp.Ref().(*vagrant_plugin_sdk.Ref_Project),
-			Target: &vagrant_server.Target{
-				Name:    "test-target",
-				Project: tp.Ref().(*vagrant_plugin_sdk.Ref_Project),
-			},
+			Target:  testingTarget,
 		},
 	)
 	target, err = tp.LoadTarget([]TargetOption{
-		WithTargetRef(&vagrant_plugin_sdk.Ref_Target{Project: tp.Ref().(*vagrant_plugin_sdk.Ref_Project), Name: "test-target"}),
+		WithTargetRef(&vagrant_plugin_sdk.Ref_Target{Project: tp.Ref().(*vagrant_plugin_sdk.Ref_Project), Name: testingTarget.Name}),
 	}...)
-
-	for _, opt := range opts {
-		if oerr := opt(target); oerr != nil {
-			err = multierror.Append(err, oerr)
-		}
-	}
-
 	return
 }
 
@@ -62,7 +55,7 @@ func TestMinimalTarget(t testing.T) (target *Target, err error) {
 // can be used for testing. Additional options can be given to provide your own
 // factories, configuration, etc.
 func TestMachine(t testing.T, tp *Project, opts ...TestMachineOption) (machine *Machine, err error) {
-	tt, _ := TestTarget(t, tp)
+	tt, _ := TestTarget(t, tp, &vagrant_server.Target{})
 	specialized, err := tt.Specialize((*core.Machine)(nil))
 	if err != nil {
 		return nil, err
@@ -80,7 +73,7 @@ func TestMachine(t testing.T, tp *Project, opts ...TestMachineOption) (machine *
 // that will work for testing
 func TestMinimalMachine(t testing.T) (machine *Machine, err error) {
 	tp := TestMinimalProject(t)
-	tt, _ := TestTarget(t, tp)
+	tt, _ := TestTarget(t, tp, &vagrant_server.Target{})
 	specialized, err := tt.Specialize((*core.Machine)(nil))
 	if err != nil {
 		return nil, err
