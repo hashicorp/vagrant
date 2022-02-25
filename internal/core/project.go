@@ -218,12 +218,12 @@ func (p *Project) LoadTarget(topts ...TargetOption) (t *Target, err error) {
 	}
 
 	if err != nil {
-		return
+		return nil, err
 	}
 
 	if t.dir == nil {
 		if t.dir, err = p.dir.Target(t.target.Name); err != nil {
-			return
+			return nil, err
 		}
 	}
 

@@ -27,6 +27,7 @@ func TestTarget(t testing.T, tp *Project, tt *vagrant_server.Target) (target *Ta
 	target, err = tp.LoadTarget([]TargetOption{
 		WithTargetRef(&vagrant_plugin_sdk.Ref_Target{Project: tp.Ref().(*vagrant_plugin_sdk.Ref_Project), Name: testingTarget.Name}),
 	}...)
+	tp.project.Targets = append(tp.project.Targets, target.Ref().(*vagrant_plugin_sdk.Ref_Target))
 	return
 }
 
