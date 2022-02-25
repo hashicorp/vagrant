@@ -316,6 +316,7 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
         optional :step_group, :message, 6, "hashicorp.vagrant.sdk.TerminalUI.Event.StepGroup"
         optional :step, :message, 7, "hashicorp.vagrant.sdk.TerminalUI.Event.Step"
         optional :input, :message, 8, "hashicorp.vagrant.sdk.TerminalUI.Event.Input"
+        optional :clear_line, :message, 9, "hashicorp.vagrant.sdk.TerminalUI.Event.ClearLine"
       end
     end
     add_message "hashicorp.vagrant.sdk.TerminalUI.Event.Input" do
@@ -368,6 +369,8 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
       optional :msg, :string, 3
       optional :status, :string, 4
       optional :output, :bytes, 5
+    end
+    add_message "hashicorp.vagrant.sdk.TerminalUI.Event.ClearLine" do
     end
     add_message "hashicorp.vagrant.sdk.Map" do
     end
@@ -933,6 +936,7 @@ module Hashicorp
       TerminalUI::Event::Table = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.TerminalUI.Event.Table").msgclass
       TerminalUI::Event::StepGroup = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.TerminalUI.Event.StepGroup").msgclass
       TerminalUI::Event::Step = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.TerminalUI.Event.Step").msgclass
+      TerminalUI::Event::ClearLine = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.TerminalUI.Event.ClearLine").msgclass
       Map = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Map").msgclass
       Map::Request = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Map.Request").msgclass
       Map::Response = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Map.Response").msgclass
