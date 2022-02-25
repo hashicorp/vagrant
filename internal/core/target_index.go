@@ -29,7 +29,10 @@ type TargetIndex struct {
 func (t *TargetIndex) Delete(uuid string) (err error) {
 	target, err := t.Get(uuid)
 	if err != nil {
-		return
+		if codes.NotFound == status.Code(err) {
+			return nil
+		}
+		return err
 	}
 
 	return target.(*Target).Destroy()
