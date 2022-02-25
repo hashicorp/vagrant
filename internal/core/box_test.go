@@ -12,28 +12,31 @@ import (
 	"github.com/hashicorp/vagrant/internal/plugin"
 	"github.com/hashicorp/vagrant/internal/server/proto/vagrant_server"
 	"github.com/stretchr/testify/require"
+	"google.golang.org/protobuf/types/known/structpb"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 func hashicorpBionicBoxData() *vagrant_server.Box {
+	testMetadata, _ := structpb.NewStruct(make(map[string]interface{}))
 	return &vagrant_server.Box{
 		Id:          "123",
 		Provider:    "virtualbox",
 		Version:     "0.0.282",
 		Directory:   "/tmp/boxes",
-		Metadata:    map[string]string{},
+		Metadata:    testMetadata,
 		MetadataUrl: "https://app.vagrantup.com/hashicorp/boxes/bionic64.json",
 		Name:        "hashicorp/bionic64",
 		LastUpdate:  timestamppb.Now(),
 	}
 }
 func testboxBoxData() *vagrant_server.Box {
+	testMetadata, _ := structpb.NewStruct(make(map[string]interface{}))
 	return &vagrant_server.Box{
 		Id:          "123",
 		Provider:    "virtualbox",
 		Version:     "1.2.3",
 		Directory:   "/tmp/boxes",
-		Metadata:    map[string]string{},
+		Metadata:    testMetadata,
 		MetadataUrl: "http://idontexist",
 		Name:        "test/box",
 		LastUpdate:  timestamppb.Now(),

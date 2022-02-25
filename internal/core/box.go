@@ -20,6 +20,7 @@ import (
 	"github.com/hashicorp/vagrant-plugin-sdk/proto/vagrant_plugin_sdk"
 	"github.com/hashicorp/vagrant/internal/server/proto/vagrant_server"
 	"github.com/mitchellh/mapstructure"
+	"google.golang.org/protobuf/types/known/structpb"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
@@ -63,11 +64,16 @@ func NewBox(opts ...BoxOption) (b *Box, err error) {
 	if err != nil {
 		return nil, err
 	}
-	if err := json.Unmarshal(data, &b.box.Metadata); err != nil {
+	metadata := make(map[string]interface{})
+	if err := json.Unmarshal(data, metadata); err != nil {
 		return nil, err
 	}
-	// The metadata should have provider info
-	b.box.Provider = b.box.Metadata["provider"]
+	b.box.Metadata, err = structpb.NewStruct(metadata)
+	if err != nil {
+		return nil, err
+	}
+	// The metadata should have provider info under the "provider" key
+	b.box.Provider = metadata["provider"].(string)
 	b.box.Id = b.box.Name + "-" + b.box.Version + "-" + b.box.Provider
 	return
 }
