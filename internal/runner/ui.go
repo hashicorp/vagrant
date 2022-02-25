@@ -42,6 +42,10 @@ func (u *runnerUI) Interactive() bool {
 	return false
 }
 
+func (u *runnerUI) ClearLine() {
+	// NO-OP - noninteractive
+}
+
 // Output outputs a message directly to the terminal. The remaining
 // arguments should be interpolations for the format string. After the
 // interpolations you may add Options.

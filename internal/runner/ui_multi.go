@@ -37,6 +37,12 @@ func (u *multiUI) Input(input *terminal.Input) (string, error) {
 	return term.Input(input)
 }
 
+func (u *multiUI) ClearLine() {
+	for _, u := range u.UIs {
+		u.ClearLine()
+	}
+}
+
 func (u *multiUI) Interactive() bool {
 	for _, u := range u.UIs {
 		if u.Interactive() {
