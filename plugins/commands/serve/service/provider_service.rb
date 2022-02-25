@@ -130,11 +130,12 @@ module VagrantPlugins
             extra_env = {}
           end
           # Run the action with the action runner on the environment
-          env = {ui: machine.ui}.merge(extra_env).merge(
+          env = extra_env.merge(
             raw_action_name: name,
             action_name: "machine_action_#{name}".to_sym,
             machine: machine,
-            machine_action: name
+            machine_action: name,
+            ui: machine.ui,
           )
           machine.env.action_runner.run(callable, env)
         end
