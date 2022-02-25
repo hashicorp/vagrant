@@ -1,5 +1,19 @@
 module Vagrant
   module UI
+    module Reformatter
+      def format_message(type, message, **opts)
+        message = super
+        opts[:style] = type
+        [message, opts]
+      end
+    end
+
+    class Interface
+      def self.inherited(klass)
+        klass.prepend(Reformatter)
+      end
+    end
+
     class Remote < Basic
       attr_reader :client
 
@@ -9,7 +23,7 @@ module Vagrant
       end
 
       def clear_line
-        # no-op
+        @client.clear_line
       end
 
       def ask(message, **opts)
@@ -17,22 +31,15 @@ module Vagrant
         @client.input(message.gsub("%", "%%"), **opts)
       end
 
-      # This method handles actually outputting a message of a given type
-      # to the console.
-      def say(type, message, opts={})
-        if !opts.key?(:new_line)
-          opts[:new_line] = true
-        end
-        opts[:style] = type.to_sym
-        @client.output(message.gsub("%", "%%"), **opts)
-      end
+      def safe_puts(message, **opts)
+        message, extra_opts = message
+        opts = {
+          new_line: opts[:printer] == :puts,
+          style: extra_opts[:style],
+          bold: extra_opts[:bold]
+        }
 
-      [:detail, :info, :warn, :error, :output, :success].each do |method|
-        class_eval <<-CODE
-          def #{method}(message, *args)
-            say(#{method.inspect}, message, *args)
-          end
-        CODE
+        client.output(message.gsub("%", "%%"), **opts)
       end
 
       def to_proto
