@@ -6,7 +6,7 @@ module VagrantPlugins
         STYLE = {
           detail: "info",
           info: "info",
-          output: "output",
+          output: "info",
           warn: "warning",
           error: "error",
           success: "success",
@@ -36,14 +36,29 @@ module VagrantPlugins
 
         # @param [Array] lines Lines to print
         def output(line, **opts)
+          style = STYLE[opts[:style]]
+          if opts[:bold] && style != "header"
+            style = "#{style}-bold"
+          end
+
           client.events(
             [
               SDK::TerminalUI::Event.new(
                 line: SDK::TerminalUI::Event::Line.new(
                   msg: line,
-                  style: STYLE[opts[:style]],
+                  style: style,
                   disable_new_line: !opts[:new_line],
                 )
+              )
+            ].each
+          ).each {}
+        end
+
+        def clear_line
+          client.events(
+            [
+              SDK::TerminalUI::Event.new(
+                clear_line: SDK::TerminalUI::Event::ClearLine.new
               )
             ].each
           ).each {}
