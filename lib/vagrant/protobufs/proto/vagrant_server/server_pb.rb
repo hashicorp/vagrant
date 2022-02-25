@@ -49,7 +49,7 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
       optional :provider, :string, 2
       optional :version, :string, 3
       optional :directory, :string, 4
-      map :metadata, :string, :string, 5
+      optional :metadata, :message, 5, "google.protobuf.Struct"
       optional :metadata_url, :string, 6
       optional :name, :string, 7
       optional :last_update, :message, 8, "google.protobuf.Timestamp"
