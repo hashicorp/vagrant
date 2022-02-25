@@ -21,7 +21,7 @@ type TargetIndex struct {
 
 	client *serverclient.VagrantClient
 
-	factory *Factory // used for target loading
+	basis *Basis
 	// The below are resources we need to close when Close is called, if non-nil
 	closers []func() error
 }
@@ -113,14 +113,8 @@ func (t *TargetIndex) loadTarget(tproto *vagrant_plugin_sdk.Ref_Target) (target 
 		return
 	}
 	info := gt.Target
-	// Load the basis
-	b, err := t.factory.New(info.Project.Basis.Name,
-		WithBasisRef(info.Project.Basis))
-	if err != nil {
-		return
-	}
 	// Load the project
-	p, err := b.LoadProject(WithProjectRef(info.Project))
+	p, err := t.basis.LoadProject(WithProjectRef(info.Project))
 	if err != nil {
 		return
 	}

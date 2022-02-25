@@ -12,7 +12,9 @@ func projectTargets(t *testing.T, project *Project, numTargets int) (targets []*
 	targets = make([]*Target, numTargets)
 	for i := 0; i < numTargets; i++ {
 		tt, err := TestTarget(t, project, &vagrant_server.Target{
-			ResourceId: fmt.Sprintf("id-%d", i), Name: fmt.Sprintf("target-%d", i),
+			ResourceId: fmt.Sprintf("id-%d", i),
+			Name:       fmt.Sprintf("target-%d", i),
+			Uuid:       fmt.Sprintf("uuid-%d", i),
 		})
 		if err != nil {
 			t.Error(err)

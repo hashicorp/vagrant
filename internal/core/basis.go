@@ -569,10 +569,10 @@ func (b *Basis) SaveFull() (err error) {
 
 func (b *Basis) TargetIndex() (index core.TargetIndex, err error) {
 	index = &TargetIndex{
-		ctx:     b.ctx,
-		logger:  b.logger,
-		client:  b.client,
-		factory: b.factory,
+		ctx:    b.ctx,
+		logger: b.logger,
+		client: b.client,
+		basis:  b,
 	}
 	b.Closer(func() error { return index.(*TargetIndex).Close() })
 
