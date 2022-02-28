@@ -77,7 +77,7 @@ module Vagrant
   #
   # @return [String]
   def self.log_level
-    ENV["VAGRANT_LOG"]
+    ENV.fetch("VAGRANT_LOG", "fatal").downcase
   end
 
   # Returns the URL prefix to the server.

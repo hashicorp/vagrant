@@ -12,11 +12,6 @@ module VagrantPlugins
       DESC
 
       command(:cloud) do
-        # Set this to match Vagant logging level so we get
-        # desired request/response information within the
-        # logger output
-        ENV["VAGRANT_CLOUD_LOG"] = Vagrant.log_level
-
         require_relative "root"
         init!
         Command::Root
@@ -35,6 +30,11 @@ module VagrantPlugins
       protected
 
       def self.init!
+        # Set this to match Vagant logging level so we get
+        # desired request/response information within the
+        # logger output
+        ENV["VAGRANT_CLOUD_LOG"] = Vagrant.log_level
+        
         return if defined?(@_init)
         I18n.load_path << File.expand_path("../locales/en.yml", __FILE__)
         I18n.reload!
