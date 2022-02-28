@@ -65,7 +65,7 @@ func NewBox(opts ...BoxOption) (b *Box, err error) {
 		return nil, err
 	}
 	metadata := make(map[string]interface{})
-	if err := json.Unmarshal(data, metadata); err != nil {
+	if err := json.Unmarshal(data, &metadata); err != nil {
 		return nil, err
 	}
 	b.box.Metadata, err = structpb.NewStruct(metadata)

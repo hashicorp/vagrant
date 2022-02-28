@@ -66,7 +66,7 @@ func newFullBox(t *testing.T, boxData *vagrant_server.Box, testBasis *Basis) *Bo
 	}
 	td, err := ioutil.TempDir("", "box-metadata")
 	require.NoError(t, err)
-	data := []byte("{\"provider\":\"virtualbox\"}")
+	data := []byte("{\"provider\":\"virtualbox\", \"nested\":{\"key\":\"val\"}}")
 	err = os.WriteFile(filepath.Join(td, "metadata.json"), data, 0644)
 	require.NoError(t, err)
 	t.Cleanup(func() { os.RemoveAll(td) })
