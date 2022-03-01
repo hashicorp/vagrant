@@ -167,6 +167,31 @@ describe VagrantPlugins::SyncedFolderRSync::RsyncHelper do
         expect { subject.rsync_single(machine, ssh_info, opts) }.
           to raise_error(Vagrant::Errors::RSyncPostCommandError)
       end
+
+      it "should populate :owner and :group from ssh_info[:username] when values are nil" do
+        opts[:owner] = nil
+        opts[:group] = nil
+        ssh_info[:username] = "userfromssh"
+
+        expect(guest).to receive(:capability).with(:rsync_post, a_hash_including(
+          owner: "userfromssh",
+          group: "userfromssh",
+        ))
+
+        subject.rsync_single(machine, ssh_info, opts)
+      end
+
+      it "should populate :owner and :group from ssh_info[:username] when values are empty strings" do
+        opts[:owner] = ""
+        opts[:group] = ""
+        ssh_info[:username] = "userfromssh"
+        expect(guest).to receive(:capability).with(:rsync_post, a_hash_including(
+          owner: "userfromssh",
+          group: "userfromssh",
+        ))
+
+        subject.rsync_single(machine, ssh_info, opts)
+      end
     end
 
     context "with rsync_ownership option" do
