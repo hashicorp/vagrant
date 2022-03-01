@@ -300,7 +300,11 @@ module Vagrant
         synced_folder_clients = client.synced_folders
         synced_folder_clients.each do |f|
           next if f[:folder][:disabled]
-          impl = f[:folder][:type].to_sym
+          if f[:folder][:type].to_s != ""
+            impl = f[:folder][:type].to_sym
+          else
+            impl = :virtualbox
+          end
           sf = Vagrant::Plugin::Remote::SyncedFolder.new(client: f[:plugin])
           # Set plugin, guestpath and hostpath from synced folder info
           new_folder = {f[:folder][:destination] => f[:folder].merge({

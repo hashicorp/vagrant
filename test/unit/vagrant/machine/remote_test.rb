@@ -188,5 +188,50 @@ describe Vagrant::Machine::Remote do
       )
       expect(output[:virtualbox]).to_not have_key("/noway")
     end
+
+    it "honors explicitly set folder type" do
+      synced_folder_clients = [
+        {
+          plugin: double("pluginone"),
+          folder: {
+            disabled: false,
+            source: "/imspecial",
+            destination: "/ihaveatype",
+            type: "specialtype",
+          }
+        },
+        {
+          plugin: double("plugintwo"),
+          folder: {
+            disabled: false,
+            source: "/imnormal",
+            destination: "/iamdefaulttype",
+          }
+        },
+      ]
+      allow(client).to receive(:synced_folders) { synced_folder_clients }
+
+      output = subject.synced_folders
+
+      expect(output).to match(
+        virtualbox: a_hash_including(
+          "/iamdefaulttype" => a_hash_including(
+            disabled: false,
+            guestpath: "/iamdefaulttype",
+            hostpath: "/imnormal",
+            plugin: an_instance_of(Vagrant::Plugin::Remote::SyncedFolder),
+          ),
+        ),
+        specialtype: a_hash_including(
+          "/ihaveatype" => a_hash_including(
+            disabled: false,
+            guestpath: "/ihaveatype",
+            hostpath: "/imspecial",
+            plugin: an_instance_of(Vagrant::Plugin::Remote::SyncedFolder),
+          ),
+        )
+      )
+      expect(output[:virtualbox]).to_not have_key("/noway")
+    end
   end
 end
