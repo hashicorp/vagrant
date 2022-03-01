@@ -54,7 +54,10 @@ func (m *Machine) Box() (b core.Box, err error) {
 		boxName := m.Config().ConfigVm.Box
 		// Get the first provider available - that's the one that
 		// will be used to launch the machine
-		provider := m.Config().ConfigVm.Providers[0].Type
+		provider, err := m.ProviderName()
+		if err != nil {
+			return nil, err
+		}
 		b, err := boxes.Find(boxName, "", provider)
 		if err != nil {
 			return nil, err
