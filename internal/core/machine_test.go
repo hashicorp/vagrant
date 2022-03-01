@@ -242,7 +242,7 @@ func TestMachineSyncedFolders(t *testing.T) {
 			errors:  false,
 			config: &vagrant_plugin_sdk.Vagrantfile_ConfigVM{
 				SyncedFolders: []*vagrant_plugin_sdk.Vagrantfile_SyncedFolder{
-					{Source: ".", Destination: "/vagrant", Type: "mysyncedfolder"},
+					{Source: ".", Destination: "/vagrant", Type: stringPtr("mysyncedfolder")},
 				},
 			},
 			expectedFolders: 1,
@@ -253,9 +253,9 @@ func TestMachineSyncedFolders(t *testing.T) {
 			errors:  false,
 			config: &vagrant_plugin_sdk.Vagrantfile_ConfigVM{
 				SyncedFolders: []*vagrant_plugin_sdk.Vagrantfile_SyncedFolder{
-					{Source: ".", Destination: "/vagrant", Type: "mysyncedfolder"},
-					{Source: "./two", Destination: "/vagrant-two", Type: "mysyncedfolder"},
-					{Source: "./three", Destination: "/vagrant-three", Type: "myothersyncedfolder"},
+					{Source: ".", Destination: "/vagrant", Type: stringPtr("mysyncedfolder")},
+					{Source: "./two", Destination: "/vagrant-two", Type: stringPtr("mysyncedfolder")},
+					{Source: "./three", Destination: "/vagrant-three", Type: stringPtr("myothersyncedfolder")},
 				},
 			},
 			expectedFolders: 3,
@@ -266,9 +266,9 @@ func TestMachineSyncedFolders(t *testing.T) {
 			errors:  true,
 			config: &vagrant_plugin_sdk.Vagrantfile_ConfigVM{
 				SyncedFolders: []*vagrant_plugin_sdk.Vagrantfile_SyncedFolder{
-					{Source: ".", Destination: "/vagrant", Type: "idontexist"},
-					{Source: "./two", Destination: "/vagrant-two", Type: "mysyncedfolder"},
-					{Source: "./three", Destination: "/vagrant-three", Type: "myothersyncedfolder"},
+					{Source: ".", Destination: "/vagrant", Type: stringPtr("idontexist")},
+					{Source: "./two", Destination: "/vagrant-two", Type: stringPtr("mysyncedfolder")},
+					{Source: "./three", Destination: "/vagrant-three", Type: stringPtr("myothersyncedfolder")},
 				},
 			},
 		},
@@ -289,4 +289,8 @@ func TestMachineSyncedFolders(t *testing.T) {
 			require.Len(t, folders, tc.expectedFolders)
 		}
 	}
+}
+
+func stringPtr(s string) *string {
+	return &s
 }
