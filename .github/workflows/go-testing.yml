@@ -39,7 +39,6 @@ jobs:
         uses: ruby/setup-ruby@v1
         with:
           ruby-version: ${{matrix.ruby}}
-          architecture: 'x64'
       - name: Setup ruby vagrant
         run: |
           gem install --no-document bundler
