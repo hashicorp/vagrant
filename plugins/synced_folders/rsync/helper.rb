@@ -71,12 +71,8 @@ module VagrantPlugins
         end
 
         # Folder options
-        if opts[:owner].to_s == ""
-          opts[:owner] = ssh_info[:username]
-        end
-        if opts[:group].to_s == ""
-          opts[:group] = ssh_info[:username]
-        end
+        opts[:owner] ||= ssh_info[:username]
+        opts[:group] ||= ssh_info[:username]
 
         # set log level
         log_level = ssh_info[:log_level] || "FATAL"

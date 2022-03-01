@@ -113,7 +113,7 @@ module VagrantPlugins
             folder_protos.map do |fp|
               {
                 plugin: SyncedFolder.load(fp.plugin, broker: broker),
-                folder: fp.folder.to_h,
+                folder: _cleaned_folder_hash(fp.folder),
               }
             end
           end
@@ -121,6 +121,15 @@ module VagrantPlugins
           # @return [Integer] user ID that owns machine
           def uid
             client.uid(Empty.new).uid
+          end
+
+          def _cleaned_folder_hash(folder)
+            folder_hash = folder.to_h
+            folder_hash.delete_if do |k, v|
+              hazzer = :"has_#{k}?"
+              folder.respond_to?(hazzer) && !folder.send(hazzer)
+            end
+            folder_hash
           end
         end
       end

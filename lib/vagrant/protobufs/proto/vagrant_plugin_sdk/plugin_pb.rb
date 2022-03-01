@@ -776,11 +776,11 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
       optional :config, :message, 3, "google.protobuf.Any"
       optional :create, :bool, 4
       optional :disabled, :bool, 5
-      optional :group, :string, 6
+      proto3_optional :group, :string, 6
       optional :id, :string, 7
       repeated :mount_options, :string, 8
-      optional :owner, :string, 9
-      optional :type, :string, 10
+      proto3_optional :owner, :string, 9
+      proto3_optional :type, :string, 10
     end
     add_message "hashicorp.vagrant.sdk.Vagrantfile.PushConfig" do
       optional :name, :string, 1
