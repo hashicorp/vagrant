@@ -21,6 +21,7 @@
 , pkg-config
 , protobufPin
 , protoc-gen-doc
+, protoc-gen-go-grpc
 , ruby
 , zlib
 }:
@@ -41,6 +42,7 @@ mkShell rec {
 
     # Custom packages, added to overlay
     protobufPin
+    protoc-gen-go-grpc
     go-protobuf
     go-protobuf-json
     go-tools
