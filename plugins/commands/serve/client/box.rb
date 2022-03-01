@@ -40,7 +40,7 @@ module VagrantPlugins
           res.path
         end
 
-        # @return [Hash<String, String>] metadata
+        # @return [Hash] metadata
         def metadata
           res = client.metadata(Empty.new)
           res.metadata

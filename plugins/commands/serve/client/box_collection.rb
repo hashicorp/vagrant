@@ -15,6 +15,7 @@ module VagrantPlugins
             box_client.provider.to_sym,
             box_client.version,
             Pathname.new(box_client.directory),
+            metadata_url: box_client.metadata_url,
             client: box_client
           )
           box
@@ -31,6 +32,7 @@ module VagrantPlugins
               box_client.provider.to_sym,
               box_client.version,
               Pathname.new(box_client.directory),
+              metadata_url: box_client.metadata_url,
               client: box_client
             )
           end
@@ -59,6 +61,7 @@ module VagrantPlugins
             box_client.provider.to_sym,
             box_client.version,
             Pathname.new(box_client.directory),
+            metadata_url: box_client.metadata_url,
             client: box_client
           )
           box
