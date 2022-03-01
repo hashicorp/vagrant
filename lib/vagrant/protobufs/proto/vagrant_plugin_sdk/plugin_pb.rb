@@ -820,7 +820,7 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
       optional :in_use, :bool, 1
     end
     add_message "hashicorp.vagrant.sdk.Box.MetadataUrlResponse" do
-      optional :metadataUrl, :string, 1
+      optional :metadata_url, :string, 1
     end
     add_message "hashicorp.vagrant.sdk.Box.NameResponse" do
       optional :name, :string, 1
