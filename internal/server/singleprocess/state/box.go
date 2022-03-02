@@ -198,6 +198,10 @@ func (s *State) boxFind(
 					continue
 				}
 			}
+			// Set first match
+			if match == nil {
+				match = boxIndexEntry
+			}
 			v, _ := version.NewVersion(boxIndexEntry.Version)
 			if v.GreaterThan(highestVersion) {
 				highestVersion = v
