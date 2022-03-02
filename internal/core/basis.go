@@ -292,10 +292,12 @@ func (b *Basis) State() *StateBag {
 
 func (b *Basis) Boxes() (bc core.BoxCollection, err error) {
 	if b.boxCollection == nil {
-		b.boxCollection = &BoxCollection{
-			basis:     b,
-			directory: filepath.Join(b.dir.DataDir().String(), "boxes"),
-			logger:    b.logger,
+		b.boxCollection, err = NewBoxCollection(b,
+			filepath.Join(b.dir.DataDir().String(), "boxes"),
+			b.logger,
+		)
+		if err != nil {
+			return nil, err
 		}
 	}
 	return b.boxCollection, nil

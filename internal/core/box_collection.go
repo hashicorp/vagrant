@@ -32,6 +32,16 @@ type BoxCollection struct {
 	logger    hclog.Logger
 }
 
+func NewBoxCollection(basis *Basis, dir string, logger hclog.Logger) (bc *BoxCollection, err error) {
+	bc = &BoxCollection{
+		basis:     basis,
+		directory: dir,
+		logger:    logger,
+	}
+	err = bc.RecoverBoxes()
+	return
+}
+
 // This adds a new box to the system.
 // There are some exceptional cases:
 // * BoxAlreadyExists - The box you're attempting to add already exists.
