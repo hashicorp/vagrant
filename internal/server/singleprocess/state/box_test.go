@@ -140,6 +140,14 @@ func TestBox(t *testing.T) {
 		})
 		require.NoError(err)
 
+		err = s.BoxPut(&vagrant_server.Box{
+			Id:       "box-0-virtualbox",
+			Name:     "box",
+			Version:  "0",
+			Provider: "virtualbox",
+		})
+		require.NoError(err)
+
 		b, err := s.BoxFind(&vagrant_plugin_sdk.Ref_Box{
 			Name: "hashicorp/bionic",
 		})
@@ -215,5 +223,13 @@ func TestBox(t *testing.T) {
 		})
 		require.NoError(err)
 		require.Nil(b10)
+
+		b11, err := s.BoxFind(&vagrant_plugin_sdk.Ref_Box{
+			Name:    "box",
+			Version: "0",
+		})
+		require.NoError(err)
+		require.Equal(b11.Name, "box")
+		require.Equal(b11.Version, "0")
 	})
 }
