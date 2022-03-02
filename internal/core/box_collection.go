@@ -4,6 +4,8 @@ import (
 	"bytes"
 	"fmt"
 	"io"
+	"io/fs"
+	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strings"
@@ -11,6 +13,7 @@ import (
 	"github.com/h2non/filetype"
 	"github.com/hashicorp/go-getter"
 	"github.com/hashicorp/go-hclog"
+	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/vagrant-plugin-sdk/core"
 	"github.com/hashicorp/vagrant-plugin-sdk/proto/vagrant_plugin_sdk"
 	"github.com/hashicorp/vagrant/internal/server/proto/vagrant_server"
@@ -208,6 +211,64 @@ func (b *BoxCollection) Find(name, version string, providers ...string) (box cor
 func (b *BoxCollection) Clean(name string) (err error) {
 	path := filepath.Join(b.directory, name)
 	return os.RemoveAll(path)
+}
+
+func (b *BoxCollection) RecoverBoxes() (err error) {
+	resp, err := b.basis.client.ListBoxes(
+		b.basis.ctx,
+		&emptypb.Empty{},
+	)
+	if err != nil {
+		return err
+	}
+	dirBoxes, err := b.listBoxDir()
+	if err != nil {
+		return err
+	}
+	// If the number of boxes in the box directory and in the database match then
+	// assume that the box collection is in order (eg. all the boxes in the box
+	// directory and db match)
+	if len(dirBoxes) == len(resp.Boxes) {
+		return
+	}
+
+	// If the number of boxes in the boxes dir is more than in the db then the db
+	// is missing some boxes. The missing boxes should be added to the db, since
+	// they are available.
+	if len(dirBoxes) > len(resp.Boxes) {
+		for _, boxPath := range dirBoxes {
+			box, e := NewBox(BoxWithBasis(b.basis), BoxWithDirectory(boxPath.Name()))
+			err = multierror.Append(err, e)
+			boxPathInDb := func() bool {
+				for _, dbBox := range resp.Boxes {
+					if dbBox.ResourceId == box.box.Id {
+						return true
+					}
+				}
+				return false
+			}()
+			// If the box is not already in the database, then save it!
+			if !boxPathInDb {
+				box.Save()
+			}
+		}
+		return
+	}
+
+	// If the number of boxes in the boxes dir is less than in the db then there are
+	// extra boxes in the db. The extra boxes in the db should be removed from the db
+	// since they are not actually available.
+	if len(dirBoxes) < len(resp.Boxes) {
+		// TODO
+		return
+	}
+
+	return
+}
+
+func (b *BoxCollection) listBoxDir() (boxPaths []fs.FileInfo, err error) {
+	boxPaths, err = ioutil.ReadDir(b.directory)
+	return
 }
 
 func (b *BoxCollection) generateDirectoryName(path string) (out string) {
