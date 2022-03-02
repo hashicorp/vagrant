@@ -5,7 +5,6 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
-	"fmt"
 	"io"
 	"io/ioutil"
 	"net/http"
@@ -157,8 +156,8 @@ func BoxWithBox(box *vagrant_server.Box) BoxOption {
 
 func (b *Box) loadMetadata() (metadata *BoxMetadata, err error) {
 	client := &http.Client{}
-	req, err := http.NewRequest("GET", fmt.Sprintf("%s.json", b.box.MetadataUrl), nil)
-	req.Header.Add("Content-Type", "application/json")
+	req, err := http.NewRequest("GET", b.box.MetadataUrl, nil)
+	req.Header.Add("Accept", "application/json")
 	resp, err := client.Do(req)
 	if err != nil {
 		return nil, err
