@@ -74,6 +74,49 @@ func TestMachineSetEmptyId(t *testing.T) {
 	require.Error(t, err)
 }
 
+func TestMachineGetNonExistentBox(t *testing.T) {
+	tp := TestMinimalProject(t)
+	tm, _ := TestMachine(t, tp,
+		WithTestTargetConfig(&vagrant_plugin_sdk.Vagrantfile_MachineConfig{
+			ConfigVm: &vagrant_plugin_sdk.Vagrantfile_ConfigVM{Box: "somebox"},
+		}),
+	)
+
+	box, err := tm.Box()
+	require.NoError(t, err)
+	name, err := box.Name()
+	require.NoError(t, err)
+	require.Equal(t, name, "somebox")
+	provider, err := box.Provider()
+	require.NoError(t, err)
+	require.NotEmpty(t, provider)
+	metaurl, err := box.MetadataURL()
+	require.NoError(t, err)
+	require.Empty(t, metaurl)
+}
+func TestMachineGetExistentBox(t *testing.T) {
+	tp := TestMinimalProject(t)
+	tm, _ := TestMachine(t, tp,
+		WithTestTargetConfig(&vagrant_plugin_sdk.Vagrantfile_MachineConfig{
+			ConfigVm: &vagrant_plugin_sdk.Vagrantfile_ConfigVM{Box: "test/box"},
+		}),
+	)
+	testBox := newFullBox(t, testboxBoxData(), tp.basis)
+	testBox.Save()
+
+	box, err := tm.Box()
+	require.NoError(t, err)
+	name, err := box.Name()
+	require.NoError(t, err)
+	require.Equal(t, name, "test/box")
+	provider, err := box.Provider()
+	require.NoError(t, err)
+	require.NotEmpty(t, provider)
+	metaurl, err := box.MetadataURL()
+	require.NoError(t, err)
+	require.NotEmpty(t, metaurl)
+}
+
 func TestMachineConfigedGuest(t *testing.T) {
 	type test struct {
 		config *vagrant_plugin_sdk.Vagrantfile_ConfigVM
