@@ -65,7 +65,13 @@ module Vagrant
 
       # @return [Box]
       def box
-        client.box
+        box = client.box
+        # If the version isn't set, then the box has not being tracked
+        # by Vagrant.
+        if box.version.empty?
+          box = nil
+        end
+        return box
       end
 
       # TODO
