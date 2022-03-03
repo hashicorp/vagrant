@@ -290,6 +290,28 @@ func (b *Box) InUse(index core.TargetIndex) (inUse bool, err error) {
 	return false, nil
 }
 
+func (b *Box) Machines(index core.TargetIndex) (machines []core.Machine, err error) {
+	machines = []core.Machine{}
+	targets, err := index.All()
+	if err != nil {
+		return nil, err
+	}
+	for _, t := range targets {
+		m, err := t.Specialize((*core.Machine)(nil))
+		if err != nil {
+			continue
+		}
+		machineBox, err := m.(core.Machine).Box()
+		if err != nil {
+			return nil, err
+		}
+		if ok, _ := b.matches(machineBox); ok {
+			machines = append(machines, m.(core.Machine))
+		}
+	}
+	return
+}
+
 func (b *Box) Metadata() (metadata core.BoxMetadataMap, err error) {
 	meta, err := b.loadMetadata()
 	if err != nil {
