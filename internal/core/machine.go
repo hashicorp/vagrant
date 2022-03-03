@@ -48,8 +48,6 @@ func (m *Machine) SetID(value string) (err error) {
 
 func (m *Machine) Box() (b core.Box, err error) {
 	if m.box == nil {
-		// TODO: get provider info here too/generate full machine config?
-		// We know that these are machines so, save the Machine record
 		boxes, _ := m.project.Boxes()
 		boxName := m.Config().ConfigVm.Box
 		// Get the first provider available - that's the one that
@@ -63,11 +61,13 @@ func (m *Machine) Box() (b core.Box, err error) {
 			return nil, err
 		}
 		if b == nil {
-			// Add the box
-			b, err = addBox(boxName, provider, m.project.basis)
-			if err != nil {
-				return nil, err
-			}
+			return &Box{
+				basis: m.project.basis,
+				box: &vagrant_server.Box{
+					Name:     boxName,
+					Provider: provider,
+				},
+			}, nil
 		}
 		m.machine.Box = b.(*Box).ToProto()
 		m.SaveMachine()
