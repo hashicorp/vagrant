@@ -91,7 +91,7 @@ module Vagrant
       end
 
       def name
-        client.name
+        client.name.to_sym
       end
 
       # TODO
