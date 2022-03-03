@@ -819,6 +819,9 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
     add_message "hashicorp.vagrant.sdk.Box.InUseResponse" do
       optional :in_use, :bool, 1
     end
+    add_message "hashicorp.vagrant.sdk.Box.MachinesResponse" do
+      repeated :machines, :message, 1, "hashicorp.vagrant.sdk.Args.Target.Machine"
+    end
     add_message "hashicorp.vagrant.sdk.Box.MetadataUrlResponse" do
       optional :metadata_url, :string, 1
     end
@@ -1056,6 +1059,7 @@ module Hashicorp
       Box::HasUpdateRequest = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Box.HasUpdateRequest").msgclass
       Box::HasUpdateResponse = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Box.HasUpdateResponse").msgclass
       Box::InUseResponse = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Box.InUseResponse").msgclass
+      Box::MachinesResponse = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Box.MachinesResponse").msgclass
       Box::MetadataUrlResponse = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Box.MetadataUrlResponse").msgclass
       Box::NameResponse = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Box.NameResponse").msgclass
       Box::ProviderResponse = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Box.ProviderResponse").msgclass

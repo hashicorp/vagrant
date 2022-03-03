@@ -527,6 +527,7 @@ module Hashicorp
           rpc :Destroy, ::Google::Protobuf::Empty, ::Google::Protobuf::Empty
           rpc :HasUpdate, ::Hashicorp::Vagrant::Sdk::Box::HasUpdateRequest, ::Hashicorp::Vagrant::Sdk::Box::HasUpdateResponse
           rpc :InUse, ::Hashicorp::Vagrant::Sdk::Args::TargetIndex, ::Hashicorp::Vagrant::Sdk::Box::InUseResponse
+          rpc :Machines, ::Hashicorp::Vagrant::Sdk::Args::TargetIndex, ::Hashicorp::Vagrant::Sdk::Box::MachinesResponse
           rpc :Repackage, ::Hashicorp::Vagrant::Sdk::Args::Path, ::Google::Protobuf::Empty
           rpc :Directory, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::Args::Path
           rpc :Metadata, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::Args::MetadataSet
