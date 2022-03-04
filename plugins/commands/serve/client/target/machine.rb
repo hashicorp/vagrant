@@ -32,7 +32,6 @@ module VagrantPlugins
 
           # @return [Communicator] machine communicator
           def communicate
-            logger.debug("Getting guest from remote machine")
             c = client.communicate(Empty.new)
             Communicator.load(c, broker: broker)
           end
@@ -40,7 +39,6 @@ module VagrantPlugins
           # @return [Guest] machine guest
           # TODO: This needs to be loaded properly
           def guest
-            logger.debug("Getting guest from remote machine")
             g = client.guest(Empty.new)
             Guest.load(g, broker: broker)
           end
@@ -120,7 +118,7 @@ module VagrantPlugins
 
           # @return [Integer] user ID that owns machine
           def uid
-            client.uid(Empty.new).uid
+            client.uid(Empty.new).user_id
           end
 
           def _cleaned_folder_hash(folder)
