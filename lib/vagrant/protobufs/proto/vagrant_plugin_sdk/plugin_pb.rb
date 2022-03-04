@@ -557,6 +557,11 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
       optional :project, :message, 2, "hashicorp.vagrant.sdk.Ref.Project"
       optional :name, :string, 3
     end
+    add_message "hashicorp.vagrant.sdk.Ref.Machine" do
+      optional :resource_id, :string, 1
+      optional :project, :message, 2, "hashicorp.vagrant.sdk.Ref.Project"
+      optional :name, :string, 3
+    end
     add_message "hashicorp.vagrant.sdk.Target" do
     end
     add_message "hashicorp.vagrant.sdk.Target.ResourceIdResponse" do
@@ -994,6 +999,7 @@ module Hashicorp
       Ref::Basis = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Ref.Basis").msgclass
       Ref::Project = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Ref.Project").msgclass
       Ref::Target = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Ref.Target").msgclass
+      Ref::Machine = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Ref.Machine").msgclass
       Target = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Target").msgclass
       Target::ResourceIdResponse = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Target.ResourceIdResponse").msgclass
       Target::RecordResponse = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Target.RecordResponse").msgclass
