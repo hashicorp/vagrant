@@ -40,6 +40,18 @@ module VagrantPlugins
           res.path
         end
 
+        # @param [Sdk::Args::TargetIndex] index
+        # @return [List<MachineIndexEntry>] machines currently using the box
+        def machines(index)
+          res = client.machines(index)
+          machines = []
+          res.machines.each do |m|
+            machine = Target::Machine.load(m, broker: broker)
+            machines << Vagrant::MachineIndex::Entry.load(machine)
+          end
+          return machines
+        end
+
         # @return [Hash] metadata
         def metadata
           res = client.metadata(Empty.new)

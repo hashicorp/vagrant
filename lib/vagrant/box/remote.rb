@@ -41,7 +41,7 @@ module Vagrant
       end
 
       def in_use?(index)
-        client.in_use(index.to_proto)
+        client.machines(index.to_proto)
       end
 
       def has_update?(version=nil, **opts)
