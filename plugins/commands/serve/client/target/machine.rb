@@ -8,7 +8,7 @@ module VagrantPlugins
         class Machine < Target
           # @return [String] resource identifier for this target
           def ref
-            SDK::Ref::Target::Machine.new(resource_id: resource_id)
+            SDK::Ref::Machine.new(resource_id: resource_id)
           end
 
           # @return [Vagrant::Box] box backing machine
