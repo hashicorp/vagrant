@@ -14,7 +14,7 @@ module Vagrant
               vagrantfile_path: machine.project.vagrantfile_path,
               machine: machine
             })
-            self.new(machine.get_uuid, raw)
+            self.new(machine.id, raw)
           end
         end
 
@@ -59,6 +59,11 @@ module Vagrant
                 client: @machine_client&.project,
               }.merge(opts))
             end
+          end
+
+          def valid?(home_path)
+            # Always return true
+            true
           end
         end
       end
