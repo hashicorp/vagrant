@@ -21,6 +21,22 @@ module VagrantPlugins
           res.has_update
         end
 
+        # @param [String] version
+        # @return [Array] if there is an update available return an array of
+        #                 [metadata (hash), version (string), provider (string)],
+        #                  otherwise, return nil
+        def update_info(version)
+          res = client.update_info(SDK::Box::HasUpdateRequest.new(
+            version: version
+          ))
+          if res.has_update
+            meta = mapper.map(res.metadata, to: Hash)
+            return [meta, res.new_version, res.new_provider]
+          else
+            nil
+          end
+        end
+
         # @param [Sdk::Args::TargetIndex] index
         # @return [Bool] is in use
         def in_use(index)

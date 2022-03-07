@@ -46,7 +46,7 @@ module Vagrant
       end
 
       def has_update?(version=nil, **opts)
-        client.has_update(version)
+        client.update_info(version)
       end
 
       def automatic_update_check_allowed?
