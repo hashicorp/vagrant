@@ -846,6 +846,12 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
     add_message "hashicorp.vagrant.sdk.Box.HasUpdateResponse" do
       optional :has_update, :bool, 1
     end
+    add_message "hashicorp.vagrant.sdk.Box.UpdateInfoResponse" do
+      optional :has_update, :bool, 1
+      optional :metadata, :message, 2, "hashicorp.vagrant.sdk.Args.Hash"
+      optional :new_version, :string, 3
+      optional :new_provider, :string, 4
+    end
     add_message "hashicorp.vagrant.sdk.Box.InUseResponse" do
       optional :in_use, :bool, 1
     end
@@ -1144,6 +1150,7 @@ module Hashicorp
       Box::AutomaticUpdateCheckAllowedResponse = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Box.AutomaticUpdateCheckAllowedResponse").msgclass
       Box::HasUpdateRequest = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Box.HasUpdateRequest").msgclass
       Box::HasUpdateResponse = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Box.HasUpdateResponse").msgclass
+      Box::UpdateInfoResponse = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Box.UpdateInfoResponse").msgclass
       Box::InUseResponse = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Box.InUseResponse").msgclass
       Box::MachinesResponse = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Box.MachinesResponse").msgclass
       Box::BoxMetadataResponse = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Box.BoxMetadataResponse").msgclass

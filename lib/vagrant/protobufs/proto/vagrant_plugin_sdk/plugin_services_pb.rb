@@ -546,6 +546,7 @@ module Hashicorp
           rpc :AutomaticUpdateCheckAllowed, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::Box::AutomaticUpdateCheckAllowedResponse
           rpc :Destroy, ::Google::Protobuf::Empty, ::Google::Protobuf::Empty
           rpc :HasUpdate, ::Hashicorp::Vagrant::Sdk::Box::HasUpdateRequest, ::Hashicorp::Vagrant::Sdk::Box::HasUpdateResponse
+          rpc :UpdateInfo, ::Hashicorp::Vagrant::Sdk::Box::HasUpdateRequest, ::Hashicorp::Vagrant::Sdk::Box::UpdateInfoResponse
           rpc :InUse, ::Hashicorp::Vagrant::Sdk::Args::TargetIndex, ::Hashicorp::Vagrant::Sdk::Box::InUseResponse
           rpc :Machines, ::Hashicorp::Vagrant::Sdk::Args::TargetIndex, ::Hashicorp::Vagrant::Sdk::Box::MachinesResponse
           rpc :Repackage, ::Hashicorp::Vagrant::Sdk::Args::Path, ::Google::Protobuf::Empty
