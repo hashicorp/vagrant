@@ -34,6 +34,7 @@ module Vagrant
             "Remote client is required for `#{self.class.name}'"
         end
         @client = client
+        @metadata = client.box_metadata
       end
 
       def destroy!

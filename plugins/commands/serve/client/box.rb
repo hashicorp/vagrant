@@ -52,10 +52,16 @@ module VagrantPlugins
           return machines
         end
 
-        # @return [Hash] metadata
+        # @return [Hash] box metadata
+        def box_metadata
+          res = client.box_metadata(Empty.new)
+          mapper.map(res.metadata, to: Hash)
+        end
+
+        # @return [Hash] metadata (from metadata_url)
         def metadata
           res = client.metadata(Empty.new)
-          res.metadata
+          mapper.map(res.metadata, to: Hash)
         end
 
         # @return [String] metadata url
