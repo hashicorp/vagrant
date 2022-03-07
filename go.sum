@@ -358,6 +358,8 @@ github.com/hashicorp/vagrant-plugin-sdk v0.0.0-20220301220023-7971e7641dac h1:74
 github.com/hashicorp/vagrant-plugin-sdk v0.0.0-20220301220023-7971e7641dac/go.mod h1:B67UN+jezk8F86AslbGozWCIMZXWhIeaYjWWX9BoJCo=
 github.com/hashicorp/vagrant-plugin-sdk v0.0.0-20220302180000-652dc3a7a616 h1:StNIljI6wBEFILufI81dMarr74UNDdr9ysrRCTPPi9E=
 github.com/hashicorp/vagrant-plugin-sdk v0.0.0-20220302180000-652dc3a7a616/go.mod h1:B67UN+jezk8F86AslbGozWCIMZXWhIeaYjWWX9BoJCo=
+github.com/hashicorp/vagrant-plugin-sdk v0.0.0-20220307175610-0ad73d496bdc h1:Z6YDZBt+CNPWATGRlKmI5rvkVEepDCBUQ0GJrOfrOIU=
+github.com/hashicorp/vagrant-plugin-sdk v0.0.0-20220307175610-0ad73d496bdc/go.mod h1:B67UN+jezk8F86AslbGozWCIMZXWhIeaYjWWX9BoJCo=
 github.com/hashicorp/yamux v0.0.0-20180604194846-3520598351bb/go.mod h1:+NfK9FKeTrX5uv1uIXGdwYDTeHna2qgaIlx54MXqjAM=
 github.com/hashicorp/yamux v0.0.0-20200609203250-aecfd211c9ce h1:7UnVY3T/ZnHUrfviiAgIUjg2PXxsQfs5bphsG8F7Keo=
 github.com/hashicorp/yamux v0.0.0-20200609203250-aecfd211c9ce/go.mod h1:+NfK9FKeTrX5uv1uIXGdwYDTeHna2qgaIlx54MXqjAM=
