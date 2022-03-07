@@ -323,6 +323,10 @@ func (b *Box) Metadata() (metadata core.BoxMetadataMap, err error) {
 	return metadata, mapstructure.Decode(meta, &metadata)
 }
 
+func (b *Box) BoxMetadata() (metadata map[string]interface{}, err error) {
+	return b.box.Metadata.AsMap(), nil
+}
+
 func (b *Box) MetadataURL() (url string, err error) {
 	return b.box.MetadataUrl, nil
 }
