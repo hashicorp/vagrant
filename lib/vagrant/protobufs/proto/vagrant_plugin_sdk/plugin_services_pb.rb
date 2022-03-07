@@ -530,7 +530,8 @@ module Hashicorp
           rpc :Machines, ::Hashicorp::Vagrant::Sdk::Args::TargetIndex, ::Hashicorp::Vagrant::Sdk::Box::MachinesResponse
           rpc :Repackage, ::Hashicorp::Vagrant::Sdk::Args::Path, ::Google::Protobuf::Empty
           rpc :Directory, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::Args::Path
-          rpc :Metadata, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::Args::MetadataSet
+          rpc :Metadata, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::Box::MetadataResponse
+          rpc :BoxMetadata, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::Box::BoxMetadataResponse
           rpc :MetadataURL, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::Box::MetadataUrlResponse
           rpc :Name, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::Box::NameResponse
           rpc :Provider, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::Box::ProviderResponse
