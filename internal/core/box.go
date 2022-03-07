@@ -240,9 +240,14 @@ func (b *Box) Directory() (path string, err error) {
 // and provider. If the box doesn't have an update that satisfies the
 // constraints, it will return nil.
 func (b *Box) HasUpdate(version string) (updateAvailable bool, err error) {
+	updateAvailable, _, _, _, err = b.UpdateInfo(version)
+	return
+}
+
+func (b *Box) UpdateInfo(version string) (updateAvailable bool, meta core.BoxMetadataMap, newVersion string, newProvider string, err error) {
 	metadata, err := b.loadMetadata()
 	if err != nil {
-		return false, err
+		return false, nil, "", "", err
 	}
 	versionConstraint := ""
 	if version == "" {
@@ -255,12 +260,14 @@ func (b *Box) HasUpdate(version string) (updateAvailable bool, err error) {
 		&core.BoxProvider{Name: b.box.Provider},
 	)
 	if err != nil {
-		return false, err
+		return false, nil, "", "", err
 	}
 	if result == nil {
-		return false, nil
+		return false, nil, "", "", nil
 	}
-	return true, nil
+	var metadataMap core.BoxMetadataMap
+	mapstructure.Decode(metadata, &metadataMap)
+	return true, metadataMap, result.Version, b.box.Provider, nil
 }
 
 // Checks if this box is in use according to the given machine
