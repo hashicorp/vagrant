@@ -422,11 +422,11 @@ module VagrantPlugins
             if @machine.config.vm.communicator == :winrm
               opts = { elevated: true }
               unless @config.masterless
-                @machine.communicate.execute("C:\\salt\\salt-call.bat saltutil.sync_all", opts)
+                @machine.communicate.execute("salt-call saltutil.sync_all", opts)
               end
               # TODO: something equivalent to { error_key: :ssh_bad_exit_status_muted }?
               options = "#{get_masterless}#{get_loglevel}#{get_colorize}#{get_pillar}#{get_call_args}"
-              @machine.communicate.execute("C:\\salt\\salt-call.bat state.highstate --retcode-passthrough#{options}", opts) do |type, data|
+              @machine.communicate.execute("salt-call state.highstate --retcode-passthrough#{options}", opts) do |type, data|
                 if @config.verbose
                   @machine.env.ui.info(data.rstrip)
                 end
