@@ -18,6 +18,15 @@ type BoxVersionProvider struct {
 	ChecksumType string
 }
 
+func (b *BoxVersionProvider) ToMap() map[string]interface{} {
+	m := make(map[string]interface{})
+	m["Name"] = b.Name
+	m["Url"] = b.Url
+	m["Checksum"] = b.Checksum
+	m["ChecksumType"] = b.ChecksumType
+	return m
+}
+
 func (b *BoxVersionProvider) MatchesAny(p ...*BoxVersionProvider) (matches bool) {
 	for _, provider := range p {
 		if b.Matches(provider) {
@@ -53,6 +62,19 @@ type BoxVersion struct {
 	Providers   []*BoxVersionProvider
 }
 
+func (b *BoxVersion) ToMap() map[string]interface{} {
+	m := make(map[string]interface{})
+	m["Version"] = b.Version
+	m["Status"] = b.Status
+	m["Description"] = b.Description
+	providers := []interface{}{}
+	for _, p := range b.Providers {
+		providers = append(providers, p.ToMap())
+	}
+	m["Providers"] = providers
+	return m
+}
+
 func (b *BoxVersion) Provider(name string) (p *BoxVersionProvider, err error) {
 	for _, provider := range b.Providers {
 		if provider.Name == name {
@@ -74,6 +96,18 @@ type BoxMetadata struct {
 	Name        string
 	Description string
 	Versions    []*BoxVersion
+}
+
+func (b *BoxMetadata) ToMap() map[string]interface{} {
+	m := make(map[string]interface{})
+	m["Name"] = b.Name
+	m["Description"] = b.Description
+	versions := []interface{}{}
+	for _, v := range b.Versions {
+		versions = append(versions, v.ToMap())
+	}
+	m["Versions"] = versions
+	return m
 }
 
 func LoadBoxMetadata(data []byte) (*BoxMetadata, error) {

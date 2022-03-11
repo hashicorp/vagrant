@@ -265,9 +265,7 @@ func (b *Box) UpdateInfo(version string) (updateAvailable bool, meta core.BoxMet
 	if result == nil {
 		return false, nil, "", "", nil
 	}
-	var metadataMap core.BoxMetadataMap
-	mapstructure.Decode(metadata, &metadataMap)
-	return true, metadataMap, result.Version, b.box.Provider, nil
+	return true, metadata.ToMap(), result.Version, b.box.Provider, nil
 }
 
 // Checks if this box is in use according to the given machine
