@@ -45,8 +45,35 @@ module Vagrant
         client.machines(index.to_proto)
       end
 
+      def downcase_stringify_keys(m)
+        m.each do |k,v|
+          if v.is_a?(Array)
+            v.each { |e| downcase_stringify_keys(e) if e.is_a?(Hash) }
+          elsif v.is_a?(Hash)
+            v.transform_keys!(&:to_s)
+            v.transform_keys!(&:downcase)
+          end
+
+        end
+        m.transform_keys!(&:to_s)
+        m.transform_keys!(&:downcase)
+        return m
+      end
+
       def has_update?(version=nil, **opts)
-        client.update_info(version)
+        update_info = client.update_info(version)
+        metadata = update_info[0]
+        new_version = update_info[1]
+        new_provider = update_info[2]
+        # require "pry-remote"; binding.pry_remote
+        
+        m = downcase_stringify_keys(metadata)
+
+        [
+          BoxMetadata.new(StringIO.new(m.to_s)),
+          BoxMetadata::Version.new({"version" => new_version}), 
+          BoxMetadata::Provider.new({"name" => new_provider}),
+        ]
       end
 
       def automatic_update_check_allowed?
