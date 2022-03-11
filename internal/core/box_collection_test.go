@@ -153,3 +153,34 @@ func TestFind(t *testing.T) {
 	require.NoError(t, err)
 	require.NotNil(t, boxes)
 }
+
+func TestRemoveBox(t *testing.T) {
+	// Create initial box collection
+	bc := newBoxCollection(t)
+	td, err := ioutil.TempDir("/tmp", "box")
+	require.NoError(t, err)
+	t.Cleanup(func() { os.RemoveAll(td) })
+	testBoxPath := generateTestBox(t, td, bc.basis)
+	// Insert test box into the collection
+	box, err := bc.Add(testBoxPath, "test/box", "1.2.3", "", true)
+	boxPath, _ := box.Directory()
+	require.NoError(t, err)
+	require.NotNil(t, box)
+
+	// Create new box collection to verify test box is still accessible
+	bc, err = NewBoxCollection(bc.basis, bc.directory, bc.logger)
+	require.NoError(t, err)
+	boxes, err := bc.Find("test/box", "1.2.3")
+	require.NoError(t, err)
+	require.NotNil(t, boxes)
+
+	// Remove box
+	os.RemoveAll(boxPath)
+
+	// Create new box collection to verify test box is no longer accessible
+	bc, err = NewBoxCollection(bc.basis, bc.directory, bc.logger)
+	require.NoError(t, err)
+	boxes, err = bc.Find("test/box", "1.2.3")
+	require.NoError(t, err)
+	require.Nil(t, boxes)
+}
