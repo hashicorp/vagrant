@@ -65,12 +65,9 @@ module Vagrant
         metadata = update_info[0]
         new_version = update_info[1]
         new_provider = update_info[2]
-        # require "pry-remote"; binding.pry_remote
-        
         m = downcase_stringify_keys(metadata)
-
         [
-          BoxMetadata.new(StringIO.new(m.to_s)),
+          BoxMetadata.new(nil, m),
           BoxMetadata::Version.new({"version" => new_version}), 
           BoxMetadata::Provider.new({"name" => new_provider}),
         ]
