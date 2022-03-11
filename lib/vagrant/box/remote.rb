@@ -62,6 +62,9 @@ module Vagrant
 
       def has_update?(version=nil, **opts)
         update_info = client.update_info(version)
+        if update_info.nil?
+          return nil
+        end
         metadata = update_info[0]
         new_version = update_info[1]
         new_provider = update_info[2]
