@@ -4,8 +4,6 @@ import (
 	"bytes"
 	"fmt"
 	"io"
-	"io/fs"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strings"
@@ -13,7 +11,6 @@ import (
 	"github.com/h2non/filetype"
 	"github.com/hashicorp/go-getter"
 	"github.com/hashicorp/go-hclog"
-	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/vagrant-plugin-sdk/core"
 	"github.com/hashicorp/vagrant-plugin-sdk/proto/vagrant_plugin_sdk"
 	"github.com/hashicorp/vagrant/internal/server/proto/vagrant_server"
@@ -242,42 +239,44 @@ func (b *BoxCollection) RecoverBoxes() (err error) {
 		return
 	}
 
-	// If the number of boxes in the boxes dir is more than in the db then the db
-	// is missing some boxes. The missing boxes should be added to the db, since
-	// they are available.
-	if len(dirBoxes) > len(resp.Boxes) {
-		for _, boxPath := range dirBoxes {
-			box, e := NewBox(BoxWithBasis(b.basis), BoxWithDirectory(boxPath.Name()))
-			err = multierror.Append(err, e)
-			boxPathInDb := func() bool {
-				for _, dbBox := range resp.Boxes {
-					if dbBox.ResourceId == box.box.Id {
-						return true
-					}
-				}
-				return false
-			}()
-			// If the box is not already in the database, then save it!
-			if !boxPathInDb {
-				box.Save()
-			}
-		}
-		return
-	}
-
 	// If the number of boxes in the boxes dir is less than in the db then there are
 	// extra boxes in the db. The extra boxes in the db should be removed from the db
 	// since they are not actually available.
+	// If the number of boxes in the boxes dir is more than in the db, then that's ok.
 	if len(dirBoxes) < len(resp.Boxes) {
-		// TODO
-		return
+		for _, boxRef := range resp.Boxes {
+			box, erro := b.basis.client.GetBox(b.basis.ctx, &vagrant_server.GetBoxRequest{Box: boxRef})
+			// If the box directory does not exist, then the box doesn't exist.
+			if _, err := os.Stat(box.Box.Directory); err != nil {
+				// Remove the box
+				_, erro := b.basis.client.DeleteBox(b.basis.ctx, &vagrant_server.DeleteBoxRequest{Box: boxRef})
+				if erro != nil {
+					return erro
+				}
+			}
+			if erro != nil {
+				return erro
+			}
+		}
 	}
 
 	return
 }
 
-func (b *BoxCollection) listBoxDir() (boxPaths []fs.FileInfo, err error) {
-	boxPaths, err = ioutil.ReadDir(b.directory)
+func (b *BoxCollection) listBoxDir() (boxPaths []string, err error) {
+	boxPaths = []string{}
+	err = filepath.Walk(b.directory,
+		func(path string, info os.FileInfo, err error) error {
+			if err != nil {
+				return err
+			}
+			// Each box has a metadata.json file. If that file is found, then
+			// the path belonds to a box.
+			if strings.HasSuffix(path, "metadata.json") {
+				boxPaths = append(boxPaths, strings.ReplaceAll(path, "metadata.json", ""))
+			}
+			return nil
+		})
 	return
 }
 
