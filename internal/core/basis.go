@@ -3,6 +3,7 @@ package core
 import (
 	"context"
 	"fmt"
+	"os"
 	"path/filepath"
 	"strings"
 	"sync"
@@ -292,10 +293,14 @@ func (b *Basis) State() *StateBag {
 
 func (b *Basis) Boxes() (bc core.BoxCollection, err error) {
 	if b.boxCollection == nil {
-		b.boxCollection, err = NewBoxCollection(b,
-			filepath.Join(b.dir.DataDir().String(), "boxes"),
-			b.logger,
-		)
+		boxesDir := filepath.Join(b.dir.DataDir().String(), "boxes")
+		if _, err := os.Stat(boxesDir); os.IsNotExist(err) {
+			err := os.MkdirAll(boxesDir, os.ModePerm)
+			if err != nil {
+				return nil, err
+			}
+		}
+		b.boxCollection, err = NewBoxCollection(b, boxesDir, b.logger)
 		if err != nil {
 			return nil, err
 		}
