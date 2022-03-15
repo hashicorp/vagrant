@@ -228,9 +228,6 @@ func (t *Target) Run(ctx context.Context, task *vagrant_server.Task) (err error)
 		"target", t,
 		"task", task)
 
-	// Set seeds for any plugins that may be used
-	t.seed(nil)
-
 	// Intialize targets
 	if err = t.project.InitTargets(); err != nil {
 		return err

@@ -190,6 +190,9 @@ func NewBasis(ctx context.Context, opts ...BasisOption) (b *Basis, err error) {
 
 	err = b.plugins.Discover(b.dir.ConfigDir().Join("plugins"))
 
+	// Set seeds for any plugins that may be used
+	b.seed(nil)
+
 	b.logger.Info("basis initialized")
 	return
 }
@@ -458,6 +461,9 @@ func (b *Basis) LoadProject(popts ...ProjectOption) (p *Project, err error) {
 		}
 	}
 
+	// Set seeds for any plugins that may be used
+	p.seed(nil)
+
 	// If any targets are defined in the project, load them
 	if len(p.project.Targets) > 0 {
 		for _, tref := range p.project.Targets {
@@ -590,9 +596,6 @@ func (b *Basis) Run(ctx context.Context, task *vagrant_server.Task) (err error) 
 	b.logger.Debug("running new task",
 		"basis", b,
 		"task", task)
-
-	// Set seeds for any plugins that may be used
-	b.seed(nil)
 
 	// Build the component to run
 	cmd, err := b.component(ctx, component.CommandType, task.Component.Name)

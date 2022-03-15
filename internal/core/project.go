@@ -240,6 +240,9 @@ func (p *Project) LoadTarget(topts ...TargetOption) (t *Target, err error) {
 		t.logger = t.logger.ResetNamed("vagrant.core.target")
 	}
 
+	// Set seeds for any plugins that may be used
+	t.seed(nil)
+
 	// Ensure any modifications to the target are persisted
 	t.Closer(func() error { return t.Save() })
 
@@ -264,9 +267,6 @@ func (p *Project) Run(ctx context.Context, task *vagrant_server.Task) (err error
 	p.logger.Debug("running new task",
 		"project", p,
 		"task", task)
-
-	// Set seeds for any plugins that may be used
-	p.seed(nil)
 
 	// Intialize targets
 	if err = p.InitTargets(); err != nil {
