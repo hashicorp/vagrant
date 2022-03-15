@@ -297,7 +297,7 @@ func (b *Box) Machines(index core.TargetIndex) (machines []core.Machine, err err
 		return nil, err
 	}
 	for _, t := range targets {
-		if s, _ := t.State(); s == core.DESTROYED {
+		if s, _ := t.State(); s == core.DESTROYED || s == core.NOT_CREATED {
 			continue
 		}
 		m, err := t.Specialize((*core.Machine)(nil))
