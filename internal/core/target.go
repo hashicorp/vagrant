@@ -133,6 +133,10 @@ func (t *Target) State() (state core.State, err error) {
 		state = core.CREATED
 	case vagrant_server.Operation_DESTROYED:
 		state = core.DESTROYED
+	case vagrant_server.Operation_HALTED:
+		state = core.HALTED
+	case vagrant_server.Operation_NOT_CREATED:
+		state = core.NOT_CREATED
 	case vagrant_server.Operation_PENDING:
 		state = core.PENDING
 	default:
