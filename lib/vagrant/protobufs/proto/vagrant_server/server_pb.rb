@@ -171,6 +171,8 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
       value :PENDING, 1
       value :CREATED, 2
       value :DESTROYED, 3
+      value :HALTED, 4
+      value :NOT_CREATED, 5
     end
     add_message "hashicorp.vagrant.OperationOrder" do
       optional :order, :enum, 2, "hashicorp.vagrant.OperationOrder.Order"

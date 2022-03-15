@@ -537,6 +537,8 @@ message Operation {
     PENDING = 1;
     CREATED = 2;
     DESTROYED = 3;
+    HALTED = 4;
+    NOT_CREATED = 5;
   };
 }
 
