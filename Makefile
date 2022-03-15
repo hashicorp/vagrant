@@ -12,7 +12,11 @@ CGO_ENABLED?=0
 .PHONY: bin
 bin: # bin creates the binaries for Vagrant for the current platform
 	@test -s "thirdparty/proto/api-common-protos/.git" || { echo "git submodules not initialized, run 'git submodule update --init --recursive' and try again"; exit 1; }
-	CGO_ENABLED=$(CGO_ENABLED) go build -ldflags $(GOLDFLAGS) -tags assetsembedded -o ./vagrant ./cmd/vagrant
+	CGO_ENABLED=$(CGO_ENABLED) go build -ldflags $(GOLDFLAGS) -gcflags="$(GCFLAGS)" -tags assetsembedded -o ./vagrant ./cmd/vagrant
+
+.PHONY: debug
+debug: # debug creates an executable with optimizations off, suitable for debugger attachment
+	GCFLAGS="all=-N -l" $(MAKE) bin
 
 .PHONY: bin/windows
 bin/windows: # create windows binaries
