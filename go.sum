@@ -354,14 +354,8 @@ github.com/hashicorp/hcl/v2 v2.7.1-0.20201023000745-3de61ecba298 h1:pLsdnvAlWuZ9
 github.com/hashicorp/hcl/v2 v2.7.1-0.20201023000745-3de61ecba298/go.mod h1:bQTN5mpo+jewjJgh8jr0JUguIi7qPHUF6yIfAEN3jqY=
 github.com/hashicorp/nomad/api v0.0.0-20200814140818-42de70466a9d h1:afuZ/KNbxwUgjEzq2NXO2bRKZgsIJQgFxgIRGETF0/A=
 github.com/hashicorp/nomad/api v0.0.0-20200814140818-42de70466a9d/go.mod h1:DCi2k47yuUDzf2qWAK8E1RVmWgz/lc0jZQeEnICTxmY=
-github.com/hashicorp/vagrant-plugin-sdk v0.0.0-20220301220023-7971e7641dac h1:74PSglbeeOT+qpDQtwYsb/9Lrz2wmj79NnM8pRs9zO4=
-github.com/hashicorp/vagrant-plugin-sdk v0.0.0-20220301220023-7971e7641dac/go.mod h1:B67UN+jezk8F86AslbGozWCIMZXWhIeaYjWWX9BoJCo=
-github.com/hashicorp/vagrant-plugin-sdk v0.0.0-20220302180000-652dc3a7a616 h1:StNIljI6wBEFILufI81dMarr74UNDdr9ysrRCTPPi9E=
-github.com/hashicorp/vagrant-plugin-sdk v0.0.0-20220302180000-652dc3a7a616/go.mod h1:B67UN+jezk8F86AslbGozWCIMZXWhIeaYjWWX9BoJCo=
-github.com/hashicorp/vagrant-plugin-sdk v0.0.0-20220307175610-0ad73d496bdc h1:Z6YDZBt+CNPWATGRlKmI5rvkVEepDCBUQ0GJrOfrOIU=
-github.com/hashicorp/vagrant-plugin-sdk v0.0.0-20220307175610-0ad73d496bdc/go.mod h1:B67UN+jezk8F86AslbGozWCIMZXWhIeaYjWWX9BoJCo=
-github.com/hashicorp/vagrant-plugin-sdk v0.0.0-20220307221513-d4e549e6b1cc h1:uJZl1lXt00uSiLVy522gtgNlZZVaw79gxW+o2QTpcY8=
-github.com/hashicorp/vagrant-plugin-sdk v0.0.0-20220307221513-d4e549e6b1cc/go.mod h1:B67UN+jezk8F86AslbGozWCIMZXWhIeaYjWWX9BoJCo=
+github.com/hashicorp/vagrant-plugin-sdk v0.0.0-20220315231051-ac8f3e672e5b h1:j8DEWi25R0KkD+Tp+NvBWDagytYX+XjC/XhBcw6JZn0=
+github.com/hashicorp/vagrant-plugin-sdk v0.0.0-20220315231051-ac8f3e672e5b/go.mod h1:B67UN+jezk8F86AslbGozWCIMZXWhIeaYjWWX9BoJCo=
 github.com/hashicorp/yamux v0.0.0-20180604194846-3520598351bb/go.mod h1:+NfK9FKeTrX5uv1uIXGdwYDTeHna2qgaIlx54MXqjAM=
 github.com/hashicorp/yamux v0.0.0-20200609203250-aecfd211c9ce h1:7UnVY3T/ZnHUrfviiAgIUjg2PXxsQfs5bphsG8F7Keo=
 github.com/hashicorp/yamux v0.0.0-20200609203250-aecfd211c9ce/go.mod h1:+NfK9FKeTrX5uv1uIXGdwYDTeHna2qgaIlx54MXqjAM=
