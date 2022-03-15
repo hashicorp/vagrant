@@ -350,9 +350,15 @@ module Hashicorp
           self.unmarshal_class_method = :decode
           self.service_name = 'hashicorp.vagrant.sdk.BasisService'
 
+          rpc :CWD, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::Args::Path
           rpc :DataDir, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::Args::DataDir::Basis
+          rpc :DefaultPrivateKey, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::Args::Path
           rpc :UI, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::Args::TerminalUI
           rpc :Host, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::Args::Host
+          rpc :Boxes, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::Args::BoxCollection
+          rpc :TargetIndex, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::Args::TargetIndex
+          rpc :Seed, ::Hashicorp::Vagrant::Sdk::Args::Seeds, ::Google::Protobuf::Empty
+          rpc :Seeds, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::Args::Seeds
         end
 
         Stub = Service.rpc_stub_class

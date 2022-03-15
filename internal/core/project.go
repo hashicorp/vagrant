@@ -110,8 +110,7 @@ func (p *Project) Tmp() (path string, err error) {
 
 // DefaultPrivateKey implements core.Project
 func (p *Project) DefaultPrivateKey() (path string, err error) {
-	defaultPrivateKeyPath := p.dir.DataDir().Join("insecure_private_key")
-	return defaultPrivateKeyPath.String(), nil
+	return p.basis.DefaultPrivateKey()
 }
 
 // Host implements core.Project

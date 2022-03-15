@@ -2,6 +2,18 @@ module VagrantPlugins
   module CommandServe
     class Client
       class Basis < Client
+        def boxes
+          BoxCollection.load(
+            client.boxes(Empty.new),
+            broker: broker
+          )
+        end
+
+        def cwd
+          resp = client.cwd(Empty.new)
+          resp.path
+        end
+
         # return [Sdk::Args::DataDir::Basis]
         def data_dirs
           resp = client.data_dir(Empty.new)
@@ -13,6 +25,18 @@ module VagrantPlugins
           data_dirs.data_dir
         end
 
+        def default_private_key
+          resp = client.default_private_key(Empty.new)
+          resp.path
+        end
+
+        def target_index
+          TargetIndex.load(
+            client.target_index(Empty.new),
+            broker: broker
+          )
+        end
+
         # @return [Terminal]
         def ui
           begin
@@ -21,7 +45,7 @@ module VagrantPlugins
               broker: @broker,
             )
           rescue => err
-            raise "Failed to load terminal via project: #{err}"
+            raise "Failed to load terminal via basis: #{err}"
           end
         end
 
@@ -44,6 +68,14 @@ module VagrantPlugins
             plugins[plg.name.to_sym] = mapper.map(unany_plg, broker)
           end
           plugins
+        end
+
+        def local_data
+          data_dirs.data_dir
+        end
+
+        def temp_dir
+          data_dirs.temp_dir
         end
       end
     end

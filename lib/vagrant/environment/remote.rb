@@ -10,6 +10,7 @@ module Vagrant
         end
       end
 
+      # Client can be either a Project or a Basis
       def initialize(opts={})
         @client = opts[:client]
         if @client.nil?
@@ -23,11 +24,11 @@ module Vagrant
         opts[:ui_class] ||= UI::Remote
 
         @cwd = Pathname.new(@client.cwd)
-        @home_path = Pathname.new(@client.home)
-        @vagrantfile_name = [@client.vagrantfile_name]
+        @home_path = @client.respond_to?(:home) && Pathname.new(@client.home)
+        @vagrantfile_name = @client.respond_to?(:vagrantfile_name) && [@client.vagrantfile_name]
         @ui = opts.fetch(:ui, opts[:ui_class].new(@client.ui))
         @local_data_path = Pathname.new(@client.local_data)
-        @boxes_path = @home_path.join("boxes")
+        @boxes_path = @home_path && @home_path.join("boxes")
         @data_dir = Pathname.new(@client.data_dir)
         @gems_path = Vagrant::Bundler.instance.plugin_gem_path
         @tmp_path = Pathname.new(@client.temp_dir)
@@ -43,7 +44,7 @@ module Vagrant
 
         # TODO: aliases
         @aliases_path = Pathname.new(ENV["VAGRANT_ALIAS_FILE"]).expand_path if ENV.key?("VAGRANT_ALIAS_FILE")
-        @aliases_path ||= @home_path.join("aliases")
+        @aliases_path ||= @home_path && @home_path.join("aliases")
 
         @default_private_key_path = Pathname.new(@client.default_private_key)
         copy_insecure_private_key
@@ -112,20 +113,26 @@ module Vagrant
         @machine_index ||= Vagrant::MachineIndex.new(client: client.target_index)
       end
 
-      def vagrantfile
-        if @vagrantfile.nil?
+      def config_loader
+        return @config_loader if @config_loader
+
+        root_vagrantfile = nil
+        if client.respond_to?(:vagrantfile_path) && client.respond_to?(:vagrantfile_name)
           path = client.vagrantfile_path
           name = client.vagrantfile_name
-          full_path = path.join(name).to_s
-
-          config_loader = Vagrant::Config::Loader.new(
-            Vagrant::Config::VERSIONS, Vagrant::Config::VERSIONS_ORDER)
-          config_loader.set(:root, full_path)
-          @vagrantfile = Vagrant::Vagrantfile.new(config_loader, [:root])
+          root_vagrantfile = path.join(name).to_s
         end
-        @vagrantfile
+        @config_loader = Config::Loader.new(
+          Config::VERSIONS, Config::VERSIONS_ORDER)
+        @config_loader.set(:root, root_vagrantfile) if root_vagrantfile
+        @config_loader
       end
-      
+
+      def vagrantfile
+        # When in remote mode we don't load the "home" vagrantfile
+        @vagrantfile ||= Vagrant::Vagrantfile.new(config_loader, [:root])
+      end
+
       def to_proto
         client.proto
       end

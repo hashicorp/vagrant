@@ -16,6 +16,7 @@ import (
 	"github.com/hashicorp/vagrant-plugin-sdk/core"
 	"github.com/hashicorp/vagrant-plugin-sdk/datadir"
 	"github.com/hashicorp/vagrant-plugin-sdk/helper/path"
+	"github.com/hashicorp/vagrant-plugin-sdk/helper/paths"
 	"github.com/hashicorp/vagrant-plugin-sdk/internal-shared/cacher"
 	"github.com/hashicorp/vagrant-plugin-sdk/internal-shared/dynamic"
 	"github.com/hashicorp/vagrant-plugin-sdk/internal-shared/protomappers"
@@ -201,6 +202,14 @@ func (b *Basis) Config() *vagrant_plugin_sdk.Vagrantfile_Vagrantfile {
 	return b.basis.Configuration
 }
 
+func (p *Basis) CWD() (path string, err error) {
+	cwd, err := paths.VagrantCwd()
+	if err != nil {
+		return "", err
+	}
+	return cwd.String(), nil
+}
+
 // Basis UI is the "default" UI with no prefix modifications
 func (b *Basis) UI() (terminal.UI, error) {
 	return b.ui, nil
@@ -209,6 +218,12 @@ func (b *Basis) UI() (terminal.UI, error) {
 // Data directory used for this basis
 func (b *Basis) DataDir() (*datadir.Basis, error) {
 	return b.dir, nil
+}
+
+// DefaultPrivateKey implements core.Basis
+func (b *Basis) DefaultPrivateKey() (path string, err error) {
+	defaultPrivateKeyPath := b.dir.DataDir().Join("insecure_private_key")
+	return defaultPrivateKeyPath.String(), nil
 }
 
 // Implements core.Basis
@@ -275,7 +290,7 @@ func (b *Basis) State() *StateBag {
 	return b.statebag.(*StateBag)
 }
 
-func (b *Basis) Boxes() (bc *BoxCollection, err error) {
+func (b *Basis) Boxes() (bc core.BoxCollection, err error) {
 	if b.boxCollection == nil {
 		b.boxCollection = &BoxCollection{
 			basis:     b,

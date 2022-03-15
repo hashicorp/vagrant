@@ -21,7 +21,7 @@ module VagrantPlugins
           funcspec(
             args: [
               SDK::Args::TerminalUI,
-              SDK::Args::Project,
+              SDK::Args::Basis,
               SDK::Command::Arguments,
             ],
             result: SDK::Command::ExecuteResp,
@@ -32,14 +32,28 @@ module VagrantPlugins
           with_info(ctx, broker: broker) do |info|
             plugin_name = info.plugin_name
 
-            _, env, arguments = mapper.funcspec_map(
+            ui, basis, arguments = mapper.funcspec_map(
               req.spec,
               expect: [
                 Vagrant::UI::Remote,
-                Vagrant::Environment,
+                SDK::Args::Basis,
                 Type::CommandArguments
               ]
             )
+
+            # We need a Vagrant::Environment to pass to the command. If we got a
+            # Project from seeds we can use that to get an environment.
+            # Otherwise we can initialize a barebones environment from the
+            # Basis we received directly from the funcspec args above.
+            if @seeds && @seeds.named["project"]
+              logger.debug("loading a full environment from project found in seeds")
+              project = mapper.unany(@seeds.named["project"])
+              env = mapper.generate(project, type: Vagrant::Environment)
+            else
+              logger.debug("loading a minimal environment from basis provided in args")
+              client = Client::Basis.load(basis, broker: broker)
+              env = Vagrant::Environment.new(ui: ui, client: client)
+            end
 
             plugin = Vagrant.plugin("2").local_manager.commands[plugin_name.to_sym].to_a.first
             if !plugin
