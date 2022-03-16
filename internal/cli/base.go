@@ -72,8 +72,8 @@ type baseCommand struct {
 	//---------------------------------------------------------------
 	// Internal fields that should not be accessed directly
 
-	// flagPlain is whether the output should be in plain mode.
-	flagPlain bool
+	// flagColor is whether the output should use colors.
+	flagColor bool
 
 	// flagRemote is whether to execute using a remote runner or use
 	// a local runner.
@@ -295,7 +295,7 @@ func (c *baseCommand) Init(opts ...Option) (err error) {
 	}
 
 	// Reset the UI to plain if that was set
-	if c.flagPlain {
+	if !c.flagColor {
 		c.ui = terminal.NonInteractiveUI(c.Ctx)
 	}
 
@@ -378,9 +378,9 @@ func (c *baseCommand) logError(log hclog.Logger, prefix string, err error) {
 func (c *baseCommand) flagSet(bit flagSetBit, f func([]*component.CommandFlag) []*component.CommandFlag) component.CommandFlags {
 	set := []*component.CommandFlag{
 		{
-			LongName:     "plain",
-			Description:  "Plain output: no colors, no animation",
-			DefaultValue: "false",
+			LongName:     "color",
+			Description:  "Can be used to disable colored output",
+			DefaultValue: "true",
 			Type:         component.FlagBool,
 		},
 		{

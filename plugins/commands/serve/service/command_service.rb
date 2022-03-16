@@ -216,7 +216,7 @@ module VagrantPlugins
 
           # Now we need a customized class to get the new behavior
           # that we want
-          optparse_klass = Class.new(VagrantPlugins.const_get(:VagrantOriginalOptionParser)) do
+          optparse_klass = Class.new(::OptionParser) do
             def initialize(*args, &block)
               super(*args, &block)
               Thread.current.thread_variable_set(:command_options, self)
