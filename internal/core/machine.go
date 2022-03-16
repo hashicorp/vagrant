@@ -79,19 +79,6 @@ func (m *Machine) Box() (b core.Box, err error) {
 
 // Guest implements core.Machine
 func (m *Machine) Guest() (g core.Guest, err error) {
-	defer func() {
-		if g == nil {
-			return
-		}
-		s, ok := g.(core.Seeder)
-		if !ok {
-			m.logger.Error("synced folder plugin does not implement seeder interface")
-			err = fmt.Errorf("cannot seed synced folder plugin")
-			return
-		}
-		err = m.seedWithMachine(s)
-		return
-	}()
 	// Try to see if a guest has already been found
 	if m.guest != nil {
 		return m.guest, nil
@@ -110,7 +97,6 @@ func (m *Machine) Guest() (g core.Guest, err error) {
 		}
 		if guest != nil {
 			m.guest = guest.Value.(core.Guest)
-			m.seedPlugin(m.guest)
 			g = m.guest
 			return
 		}
@@ -152,27 +138,12 @@ func (m *Machine) Guest() (g core.Guest, err error) {
 			m.logger.Info("guest detection complete",
 				"name", name,
 			)
-			m.seedPlugin(guest)
 			m.guest = guest
 			return guest, nil
 		}
 	}
 
 	return nil, fmt.Errorf("failed to detect guest plugin for current platform")
-}
-
-func (m *Machine) seedPlugin(plg interface{}) (err error) {
-	if s, ok := plg.(core.Seeder); ok {
-		seeds, err := s.Seeds()
-		if err != nil {
-			return err
-		}
-		seeds.Typed = append(seeds.Typed, m.Target)
-		if err = s.Seed(seeds); err != nil {
-			return err
-		}
-	}
-	return
 }
 
 func (m *Machine) Inspect() (printable string, err error) {
@@ -244,15 +215,6 @@ func (m *Machine) SyncedFolders() (folders []*core.MachineSyncedFolder, err erro
 			return nil, err
 		}
 
-		if s, ok := plg.Value.(core.Seeder); ok {
-			if err = m.seedWithMachine(s); err != nil {
-				return nil, err
-			}
-		} else {
-			m.logger.Error("synced folder plugin does not implement seeder interface")
-			return nil, fmt.Errorf("cannot seed synced folder plugin")
-		}
-
 		var f *core.Folder
 		mapstructure.Decode(folder, &f)
 		folders = append(folders, &core.MachineSyncedFolder{
@@ -276,41 +238,6 @@ func (m *Machine) SaveMachine() (err error) {
 
 func (m *Machine) toTarget() core.Target {
 	return m
-}
-
-func (m *Machine) seedWithMachine(s core.Seeder) error {
-	m.logger.Debug("seeding machine into plugin",
-		"plugin", hclog.Fmt("%T", s),
-	)
-	seeds, err := s.Seeds()
-	if err != nil {
-		m.logger.Error("failed to fetch seeds from plugin",
-			"plugin", hclog.Fmt("%T", s),
-			"error", err,
-		)
-
-		return err
-	}
-
-	for _, t := range seeds.Typed {
-		sm, ok := t.(*Machine)
-		if !ok {
-			continue
-		}
-		if m.target.ResourceId == sm.target.ResourceId {
-			return nil
-		}
-	}
-
-	seeds.Typed = append(seeds.Typed, m)
-	if err = s.Seed(seeds); err != nil {
-		m.logger.Error("failed to seed plugin",
-			"plugin", hclog.Fmt("%T", s),
-			"error", err,
-		)
-	}
-
-	return nil
 }
 
 var _ core.Machine = (*Machine)(nil)
