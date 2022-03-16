@@ -279,7 +279,7 @@ func (t *Target) seed(fn func(*core.Seeds)) {
 	t.project.seed(
 		func(s *core.Seeds) {
 			s.AddNamed("target", t)
-			s.AddNamed("target_ui", t.UI)
+			s.AddNamed("target_ui", t.ui)
 			s.AddTyped(t)
 			if fn != nil {
 				fn(s)
