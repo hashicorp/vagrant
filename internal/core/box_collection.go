@@ -272,7 +272,7 @@ func (b *BoxCollection) listBoxDir() (boxPaths []string, err error) {
 			}
 			// Each box has a metadata.json file. If that file is found, then
 			// the path belonds to a box.
-			if strings.HasSuffix(path, "metadata.json") {
+			if filepath.Base(path) == "metadata.json" {
 				boxPaths = append(boxPaths, strings.ReplaceAll(path, "metadata.json", ""))
 			}
 			return nil
