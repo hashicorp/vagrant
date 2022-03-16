@@ -220,6 +220,9 @@ func (p *Project) LoadTarget(topts ...TargetOption) (t *Target, err error) {
 		return nil, err
 	}
 
+	// Set seeds for any plugins that may be used
+	t.seed(nil)
+
 	if t.dir == nil {
 		if t.dir, err = p.dir.Target(t.target.Name); err != nil {
 			return nil, err
@@ -238,9 +241,6 @@ func (p *Project) LoadTarget(topts ...TargetOption) (t *Target, err error) {
 	} else {
 		t.logger = t.logger.ResetNamed("vagrant.core.target")
 	}
-
-	// Set seeds for any plugins that may be used
-	t.seed(nil)
 
 	// Ensure any modifications to the target are persisted
 	t.Closer(func() error { return t.Save() })
