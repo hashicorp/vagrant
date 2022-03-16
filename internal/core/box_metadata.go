@@ -5,6 +5,7 @@ import (
 	"reflect"
 
 	"github.com/hashicorp/go-version"
+	"github.com/hashicorp/vagrant-plugin-sdk/core"
 	"github.com/mitchellh/mapstructure"
 )
 
@@ -68,9 +69,9 @@ func (b *BoxVersion) ListProviders() ([]string, error) {
 }
 
 type BoxMetadata struct {
-	Name        string
-	Description string
-	Versions    []*BoxVersion
+	name        string
+	description string
+	versions    []*BoxVersion
 }
 
 func LoadBoxMetadata(data []byte) (*BoxMetadata, error) {
@@ -82,13 +83,17 @@ func LoadBoxMetadata(data []byte) (*BoxMetadata, error) {
 	return &result, mapstructure.Decode(metadata, &result)
 }
 
-func (b *BoxMetadata) Version(ver string, providerOpts *BoxVersionProvider) (v *BoxVersion, err error) {
+func (b *BoxMetadata) Name() string {
+	return b.name
+}
+
+func (b *BoxMetadata) Version(ver string, providerOpts *core.BoxProvider) (v *core.BoxVersion, err error) {
 	matchesProvider := false
 	inputVersion, err := version.NewConstraint(ver)
 	if err != nil {
 		return nil, err
 	}
-	for _, boxVer := range b.Versions {
+	for _, boxVer := range b.versions {
 		boxVersion, err := version.NewVersion(boxVer.Version)
 		if err != nil {
 			return nil, err
@@ -99,25 +104,33 @@ func (b *BoxMetadata) Version(ver string, providerOpts *BoxVersionProvider) (v *
 				matchesProvider = true
 			} else {
 				for _, p := range boxVer.Providers {
-					if p.Matches(providerOpts) {
+					boxVersionProvider := &BoxVersionProvider{
+						Name: providerOpts.Name, Url: providerOpts.Url, Checksum: providerOpts.Checksum,
+						ChecksumType: providerOpts.ChecksumType,
+					}
+					if p.Matches(boxVersionProvider) {
 						matchesProvider = true
 					}
 				}
 			}
 			if matchesProvider {
-				return boxVer, nil
+				var coreBoxVersion *core.BoxVersion
+				mapstructure.Decode(boxVer, &coreBoxVersion)
+				return coreBoxVersion, nil
 			}
 		}
 	}
 	return
 }
 
-func (b *BoxMetadata) ListVersions(providerOpts ...*BoxVersionProvider) ([]string, error) {
+func (b *BoxMetadata) ListVersions(providerOpts ...*core.BoxProvider) ([]string, error) {
 	v := []string{}
-	for _, version := range b.Versions {
+	for _, version := range b.versions {
 		if providerOpts != nil {
+			var boxVersionProvider []*BoxVersionProvider
+			mapstructure.Decode(providerOpts, &boxVersionProvider)
 			for _, p := range version.Providers {
-				if p.MatchesAny(providerOpts...) {
+				if p.MatchesAny(boxVersionProvider...) {
 					v = append(v, version.Version)
 				}
 			}
@@ -127,3 +140,13 @@ func (b *BoxMetadata) ListVersions(providerOpts ...*BoxVersionProvider) ([]strin
 	}
 	return v, nil
 }
+
+func (b *BoxMetadata) Provider(version string, name string) (provider *core.BoxProvider, err error) {
+	return
+}
+
+func (b *BoxMetadata) ListProviders(version string) (providers []string, err error) {
+	return
+}
+
+var _ core.BoxMetadata = (*BoxMetadata)(nil)

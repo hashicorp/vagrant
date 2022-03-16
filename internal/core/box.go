@@ -315,7 +315,7 @@ func (b *Box) Machines(index core.TargetIndex) (machines []core.Machine, err err
 	return
 }
 
-func (b *Box) Metadata() (metadata core.BoxMetadataMap, err error) {
+func (b *Box) Metadata() (metadata core.BoxMetadata, err error) {
 	meta, err := b.loadMetadata()
 	if err != nil {
 		return nil, err
