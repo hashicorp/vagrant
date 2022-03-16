@@ -154,7 +154,7 @@ func TestFind(t *testing.T) {
 	require.NotNil(t, boxes)
 }
 
-func TestRemoveBox(t *testing.T) {
+func TestRemoveMissingBox(t *testing.T) {
 	// Create initial box collection
 	bc := newBoxCollection(t)
 	td, err := ioutil.TempDir("/tmp", "box")

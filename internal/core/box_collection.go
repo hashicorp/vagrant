@@ -228,55 +228,22 @@ func (b *BoxCollection) RecoverBoxes() (err error) {
 	if err != nil {
 		return err
 	}
-	dirBoxes, err := b.listBoxDir()
-	if err != nil {
-		return err
-	}
-	// If the number of boxes in the box directory and in the database match then
-	// assume that the box collection is in order (eg. all the boxes in the box
-	// directory and db match)
-	if len(dirBoxes) == len(resp.Boxes) {
-		return
-	}
-
-	// If the number of boxes in the boxes dir is less than in the db then there are
-	// extra boxes in the db. The extra boxes in the db should be removed from the db
-	// since they are not actually available.
-	// If the number of boxes in the boxes dir is more than in the db, then that's ok.
-	if len(dirBoxes) < len(resp.Boxes) {
-		for _, boxRef := range resp.Boxes {
-			box, erro := b.basis.client.GetBox(b.basis.ctx, &vagrant_server.GetBoxRequest{Box: boxRef})
-			// If the box directory does not exist, then the box doesn't exist.
-			if _, err := os.Stat(box.Box.Directory); err != nil {
-				// Remove the box
-				_, erro := b.basis.client.DeleteBox(b.basis.ctx, &vagrant_server.DeleteBoxRequest{Box: boxRef})
-				if erro != nil {
-					return erro
-				}
-			}
+	// Ensure that each box exists
+	for _, boxRef := range resp.Boxes {
+		box, erro := b.basis.client.GetBox(b.basis.ctx, &vagrant_server.GetBoxRequest{Box: boxRef})
+		// If the box directory does not exist, then the box doesn't exist.
+		if _, err := os.Stat(box.Box.Directory); err != nil {
+			// Remove the box
+			_, erro := b.basis.client.DeleteBox(b.basis.ctx, &vagrant_server.DeleteBoxRequest{Box: boxRef})
 			if erro != nil {
 				return erro
 			}
 		}
+		if erro != nil {
+			return erro
+		}
 	}
 
-	return
-}
-
-func (b *BoxCollection) listBoxDir() (boxPaths []string, err error) {
-	boxPaths = []string{}
-	err = filepath.Walk(b.directory,
-		func(path string, info os.FileInfo, err error) error {
-			if err != nil {
-				return err
-			}
-			// Each box has a metadata.json file. If that file is found, then
-			// the path belonds to a box.
-			if filepath.Base(path) == "metadata.json" {
-				boxPaths = append(boxPaths, strings.ReplaceAll(path, "metadata.json", ""))
-			}
-			return nil
-		})
 	return
 }
 
