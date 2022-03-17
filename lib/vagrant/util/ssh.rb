@@ -223,13 +223,21 @@ module Vagrant
         # Invoke SSH with all our options
         if !opts[:subprocess]
           LOGGER.info("Invoking SSH: #{ssh} #{command_options.inspect}")
-          SafeExec.exec(ssh, *command_options)
+          _raw_exec(ssh, command_options, ssh_info, opts)
           return
+        else
+          LOGGER.info("Executing SSH in subprocess: #{ssh} #{command_options.inspect}")
+          return _raw_subprocess(ssh, command_options, ssh_info, opts)
         end
+      end
 
+      def self._raw_exec(ssh, command_options, ssh_info, opts)
+        SafeExec.exec(ssh, *command_options)
+      end
+
+      def self._raw_subprocess(ssh, command_options, ssh_info, opts)
         # If we're still here, it means we're supposed to subprocess
         # out to ssh rather than exec it.
-        LOGGER.info("Executing SSH in subprocess: #{ssh} #{command_options.inspect}")
         process = ChildProcess.build(ssh, *command_options)
         process.io.inherit!
 
