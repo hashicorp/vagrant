@@ -12,6 +12,7 @@ module Vagrant
     module Builtin
       module Remote
         autoload :MixinSyncedFolders, "vagrant/action/builtin/remote/mixin_synced_folders"
+        autoload :SSHRun, "vagrant/action/builtin/remote/ssh_run"
       end
 
       autoload :BoxAdd,    "vagrant/action/builtin/box_add"

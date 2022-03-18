@@ -268,5 +268,7 @@ module Vagrant
     ->{ Vagrant::MachineIndex::Entry.prepend(Vagrant::MachineIndex::Entry::Remote::InstanceMethods) },
     ->{ Vagrant::MachineIndex::Entry.extend(Vagrant::MachineIndex::Entry::Remote::ClassMethods) },
     ->{ Vagrant::Action::Builtin::MixinSyncedFolders.prepend(Vagrant::Action::Builtin::Remote::MixinSyncedFolders) },
+    ->{ Vagrant::Action::Builtin::SSHRun.prepend(Vagrant::Action::Builtin::Remote::SSHRun) },
+    ->{ Vagrant::Util::SSH.prepend(Vagrant::Util::Remote::SSH) },
   ].freeze
 end
