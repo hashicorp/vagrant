@@ -581,6 +581,29 @@ module Hashicorp
 
         Stub = Service.rpc_stub_class
       end
+      module BoxMetadataService
+        # *******************************************************************
+        # BoxMetadata services
+        # ******************************************************************
+        class Service
+
+          include ::GRPC::GenericService
+
+          self.marshal_class_method = :encode
+          self.unmarshal_class_method = :decode
+          self.service_name = 'hashicorp.vagrant.sdk.BoxMetadataService'
+
+          rpc :Name, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::BoxMetadata::NameResponse
+          rpc :Version, ::Hashicorp::Vagrant::Sdk::BoxMetadata::VersionRequest, ::Hashicorp::Vagrant::Sdk::BoxMetadata::VersionResponse
+          rpc :ListVersions, ::Hashicorp::Vagrant::Sdk::BoxMetadata::BoxMetadataOpts, ::Hashicorp::Vagrant::Sdk::BoxMetadata::ListVersionsResponse
+          rpc :Provider, ::Hashicorp::Vagrant::Sdk::BoxMetadata::ProviderRequest, ::Hashicorp::Vagrant::Sdk::BoxMetadata::ProviderResponse
+          rpc :ListProviders, ::Hashicorp::Vagrant::Sdk::BoxMetadata::ListProvidersRequest, ::Hashicorp::Vagrant::Sdk::BoxMetadata::ListProvidersResponse
+          rpc :Matches, ::Hashicorp::Vagrant::Sdk::BoxMetadata::MatchesRequest, ::Hashicorp::Vagrant::Sdk::BoxMetadata::MatchesResponse
+          rpc :MatchesAny, ::Hashicorp::Vagrant::Sdk::BoxMetadata::MatchesAnyRequest, ::Hashicorp::Vagrant::Sdk::BoxMetadata::MatchesResponse
+        end
+
+        Stub = Service.rpc_stub_class
+      end
       module PushService
         class Service
 
