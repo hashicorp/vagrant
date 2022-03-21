@@ -64,7 +64,7 @@ func loadProvider(t *testing.T, d []byte, v string, p string) (core.BoxMetadata,
 
 func TestLoadMetadata(t *testing.T) {
 	metadata := loadMetadata(t, []byte(rawMetadata))
-	if metadata.Name() != "test/box" {
+	if metadata.Name != "test/box" {
 		t.Errorf("Could not parse box info")
 	}
 }

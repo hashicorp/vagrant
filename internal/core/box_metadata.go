@@ -69,9 +69,9 @@ func (b *BoxVersion) ListProviders() ([]string, error) {
 }
 
 type BoxMetadata struct {
-	name        string
-	description string
-	versions    []*BoxVersion
+	Name        string
+	Bescription string
+	Versions    []*BoxVersion
 }
 
 func LoadBoxMetadata(data []byte) (*BoxMetadata, error) {
@@ -80,7 +80,8 @@ func LoadBoxMetadata(data []byte) (*BoxMetadata, error) {
 		return nil, err
 	}
 	var result BoxMetadata
-	return &result, mapstructure.Decode(metadata, &result)
+	err := mapstructure.Decode(metadata, &result)
+	return &result, err
 }
 
 func (b *BoxMetadata) version(ver string, providerOpts *core.BoxProvider) (v *BoxVersion, err error) {
@@ -89,7 +90,7 @@ func (b *BoxMetadata) version(ver string, providerOpts *core.BoxProvider) (v *Bo
 	if err != nil {
 		return nil, err
 	}
-	for _, boxVer := range b.versions {
+	for _, boxVer := range b.Versions {
 		boxVersion, err := version.NewVersion(boxVer.Version)
 		if err != nil {
 			return nil, err
@@ -117,8 +118,8 @@ func (b *BoxMetadata) version(ver string, providerOpts *core.BoxProvider) (v *Bo
 	return
 }
 
-func (b *BoxMetadata) Name() string {
-	return b.name
+func (b *BoxMetadata) BoxName() string {
+	return b.Name
 }
 
 func (b *BoxMetadata) Version(ver string, providerOpts *core.BoxProvider) (v *core.BoxVersion, err error) {
@@ -136,7 +137,7 @@ func (b *BoxMetadata) Version(ver string, providerOpts *core.BoxProvider) (v *co
 
 func (b *BoxMetadata) ListVersions(providerOpts ...*core.BoxProvider) ([]string, error) {
 	v := []string{}
-	for _, version := range b.versions {
+	for _, version := range b.Versions {
 		if providerOpts != nil {
 			var boxVersionProvider []*BoxVersionProvider
 			mapstructure.Decode(providerOpts, &boxVersionProvider)

@@ -165,5 +165,5 @@ func TestMetadata(t *testing.T) {
 		t.Errorf("Failed to get metadata")
 	}
 	require.NotNil(t, result)
-	require.Equal(t, "hashicorp/bionic64", result.Name())
+	require.Equal(t, "hashicorp/bionic64", result.BoxName())
 }
