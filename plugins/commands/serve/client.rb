@@ -4,6 +4,7 @@ module VagrantPlugins
       autoload :Basis, Vagrant.source_root.join("plugins/commands/serve/client/basis").to_s
       autoload :Box, Vagrant.source_root.join("plugins/commands/serve/client/box").to_s
       autoload :BoxCollection, Vagrant.source_root.join("plugins/commands/serve/client/box_collection").to_s
+      autoload :BoxMetadata, Vagrant.source_root.join("plugins/commands/serve/client/box_metadata").to_s
       autoload :CapabilityPlatform, Vagrant.source_root.join("plugins/commands/serve/client/capability_platform").to_s
       autoload :Communicator, Vagrant.source_root.join("plugins/commands/serve/client/communicator").to_s
       autoload :Command, Vagrant.source_root.join("plugins/commands/serve/client/command").to_s
