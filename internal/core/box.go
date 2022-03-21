@@ -252,7 +252,7 @@ func (b *Box) HasUpdate(version string) (updateAvailable bool, err error) {
 	}
 	result, err := metadata.Version(
 		versionConstraint,
-		&BoxVersionProvider{Name: b.box.Provider},
+		&core.BoxProvider{Name: b.box.Provider},
 	)
 	if err != nil {
 		return false, err

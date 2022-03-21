@@ -9,6 +9,8 @@ import (
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/hashicorp/vagrant-plugin-sdk/core"
 )
 
 const VagrantCloudUrl = "http://app.vagrantup.com"
@@ -54,10 +56,10 @@ func addBox(name, provider string, basis *Basis) (box *Box, err error) {
 	if err != nil {
 		return nil, err
 	}
-	versions, _ := metadata.ListVersions(&BoxVersionProvider{Name: provider})
+	versions, _ := metadata.ListVersions(&core.BoxProvider{Name: provider})
 	// latest version is first
-	version, _ := metadata.Version(versions[0], &BoxVersionProvider{Name: provider})
-	providerMeta, err := version.Provider(provider)
+	version, _ := metadata.Version(versions[0], &core.BoxProvider{Name: provider})
+	providerMeta, err := metadata.Provider(version.Version, provider)
 	downloadUrl := providerMeta.Url
 
 	boxTempName := s[0] + "-" + s[1] + "-" + strconv.FormatInt(time.Now().Unix(), 10) + ".box"

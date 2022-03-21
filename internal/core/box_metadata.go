@@ -149,4 +149,21 @@ func (b *BoxMetadata) ListProviders(version string) (providers []string, err err
 	return
 }
 
+func (b *BoxMetadata) Matches(version string, name string, p *core.BoxProvider) (matches bool, err error) {
+	return
+}
+
+func (b *BoxMetadata) MatchesAny(version string, name string, p ...*core.BoxProvider) (matches bool, err error) {
+	for _, provider := range p {
+		m, err := b.Matches(version, name, provider)
+		if err != nil {
+			return false, err
+		}
+		if m {
+			return true, nil
+		}
+	}
+	return false, nil
+}
+
 var _ core.BoxMetadata = (*BoxMetadata)(nil)
