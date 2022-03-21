@@ -158,6 +158,9 @@ func (b *BoxMetadata) Provider(version string, name string) (p *core.BoxProvider
 	if err != nil {
 		return nil, err
 	}
+	if ver == nil {
+		return nil, err
+	}
 	provider, err := ver.Provider(name)
 	if err != nil {
 		return nil, err
@@ -165,6 +168,9 @@ func (b *BoxMetadata) Provider(version string, name string) (p *core.BoxProvider
 	if provider != nil {
 		var coreProvider *core.BoxProvider
 		mapstructure.Decode(provider, &coreProvider)
+		var coreVersion *core.BoxVersion
+		mapstructure.Decode(ver, &coreVersion)
+		coreProvider.Version = coreVersion
 		return coreProvider, nil
 	}
 	return
