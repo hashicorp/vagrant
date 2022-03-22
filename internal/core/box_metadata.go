@@ -2,6 +2,8 @@ package core
 
 import (
 	"encoding/json"
+	"io/ioutil"
+	"net/http"
 	"reflect"
 
 	"github.com/hashicorp/go-version"
@@ -115,6 +117,24 @@ func (b *BoxMetadata) version(ver string, providerOpts *core.BoxProvider) (v *Bo
 			}
 		}
 	}
+	return
+}
+
+func (b *BoxMetadata) LoadMetadata(url string) (err error) {
+	resp, err := http.Get(url)
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+	raw, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return err
+	}
+	var metadata map[string]interface{}
+	if err := json.Unmarshal(raw, &metadata); err != nil {
+		return err
+	}
+	err = mapstructure.Decode(metadata, &b)
 	return
 }
 
