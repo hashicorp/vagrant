@@ -143,50 +143,61 @@ func TestVersionGetProvider(t *testing.T) {
 func TestProviderMatches(t *testing.T) {
 	version := "1.2.3"
 	providerName := "virtualbox"
-	metadata, provider := loadProvider(t, []byte(rawMetadata), version, providerName)
 
-	matches, err := metadata.Matches(version, provider.Name, &core.BoxProvider{Name: "virtualbox"})
+	metadata, err := LoadBoxMetadata([]byte(rawMetadata))
+	if err != nil {
+		t.Error(err)
+	}
+
+	matches, err := metadata.Matches(version, providerName, &core.BoxProvider{Name: "virtualbox"})
 	require.True(t, matches)
 	require.NoError(t, err)
 
-	matches, err = metadata.Matches(version, provider.Name, &core.BoxProvider{Url: "http://doesnotexist"})
+	matches, err = metadata.Matches(version, providerName, &core.BoxProvider{Url: "http://doesnotexist"})
 	require.True(t, matches)
 	require.NoError(t, err)
 
-	matches, err = metadata.Matches(version, provider.Name, &core.BoxProvider{})
+	matches, err = metadata.Matches(version, providerName, &core.BoxProvider{})
 	require.True(t, matches)
 	require.NoError(t, err)
 
-	matches, err = metadata.Matches(version, provider.Name, &core.BoxProvider{Name: "virtualbox", Url: "http://doesnotexist"})
+	matches, err = metadata.Matches(version, providerName, &core.BoxProvider{Name: "virtualbox", Url: "http://doesnotexist"})
 	require.True(t, matches)
 	require.NoError(t, err)
 
-	matches, err = metadata.Matches(version, provider.Name, &core.BoxProvider{Name: "nope", Url: "http://doesnotexist"})
+	matches, err = metadata.Matches(version, providerName, &core.BoxProvider{Name: "nope", Url: "http://doesnotexist"})
 	require.False(t, matches)
 	require.NoError(t, err)
 
-	matches, err = metadata.Matches(version, provider.Name, &core.BoxProvider{Name: "vmware"})
+	matches, err = metadata.Matches(version, providerName, &core.BoxProvider{Name: "vmware"})
 	require.False(t, matches)
 	require.NoError(t, err)
 }
 
 func TestProviderMatchesAny(t *testing.T) {
-	metadata, provider := loadProvider(t, []byte(rawMetadata), "1.2.3", "virtualbox")
-	m, err := metadata.MatchesAny(provider.Version.Version, provider.Name, &core.BoxProvider{Name: "virtualbox"})
+	version := "1.2.3"
+	providerName := "virtualbox"
+
+	metadata, err := LoadBoxMetadata([]byte(rawMetadata))
+	if err != nil {
+		t.Error(err)
+	}
+
+	m, err := metadata.MatchesAny(version, providerName, &core.BoxProvider{Name: "virtualbox"})
 	require.True(t, m)
 	require.NoError(t, err)
 
-	m, err = metadata.MatchesAny(provider.Version.Version, provider.Name,
+	m, err = metadata.MatchesAny(version, providerName,
 		&core.BoxProvider{Name: "virtualbox"}, &core.BoxProvider{Name: "nope"})
 	require.True(t, m)
 	require.NoError(t, err)
 
-	m, err = metadata.MatchesAny(provider.Version.Version, provider.Name,
+	m, err = metadata.MatchesAny(version, providerName,
 		&core.BoxProvider{Url: "nope"}, &core.BoxProvider{Name: "nope"})
 	require.False(t, m)
 	require.NoError(t, err)
 
-	m, err = metadata.MatchesAny(provider.Version.Version, provider.Name)
+	m, err = metadata.MatchesAny(version, providerName)
 	require.False(t, m)
 	require.NoError(t, err)
 }
