@@ -61,7 +61,7 @@ module VagrantPlugins
         # @return [Hash] metadata (from metadata_url)
         def metadata
           res = client.metadata(Empty.new)
-          mapper.map(res.metadata, to: Hash)
+          mapper.map(res.metadata, to: Client::BoxMetadata)
         end
 
         # @return [String] metadata url

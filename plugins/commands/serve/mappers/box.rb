@@ -34,6 +34,20 @@ module VagrantPlugins
           )
         end
       end
+
+      class BoxMetadataFromProto < Mapper
+        def initialize
+          inputs = [].tap do |i|
+            i << Input.new(type: SDK::Args::BoxMetadata)
+            i << Input.new(type: Broker)
+          end
+          super(inputs: inputs, output: Client::BoxMetadata, func: method(:converter))
+        end
+
+        def converter(proto, broker)
+          Client::BoxMetadata.load(proto, broker: broker)
+        end
+      end
     end
   end
 end
