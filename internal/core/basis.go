@@ -40,6 +40,7 @@ type Basis struct {
 	basis         *vagrant_server.Basis
 	logger        hclog.Logger
 	plugins       *plugin.Manager
+	corePlugins   *CoreManager
 	projects      map[string]*Project
 	mappers       []*argmapper.Func
 	dir           *datadir.Basis
@@ -62,13 +63,14 @@ type Basis struct {
 // NewBasis creates a new Basis with the given options.
 func NewBasis(ctx context.Context, opts ...BasisOption) (b *Basis, err error) {
 	b = &Basis{
-		cache:      cacher.New(),
-		ctx:        ctx,
-		logger:     hclog.L(),
-		jobInfo:    &component.JobInfo{},
-		projects:   map[string]*Project{},
-		seedValues: core.NewSeeds(),
-		statebag:   NewStateBag(),
+		cache:       cacher.New(),
+		ctx:         ctx,
+		logger:      hclog.L(),
+		jobInfo:     &component.JobInfo{},
+		projects:    map[string]*Project{},
+		seedValues:  core.NewSeeds(),
+		statebag:    NewStateBag(),
+		corePlugins: &CoreManager{},
 	}
 
 	for _, opt := range opts {
@@ -774,7 +776,7 @@ func (b *Basis) seed(fn func(*core.Seeds)) {
 	s := b.seedValues
 	s.AddNamed("basis", b)
 	s.AddNamed("basis_ui", b.ui)
-	s.AddTyped(b, b.ui)
+	s.AddTyped(b, b.ui, b.corePlugins)
 	if fn != nil {
 		fn(s)
 	}
