@@ -73,6 +73,11 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
       value :PROJECT, 1
       value :TARGET, 2
     end
+    add_message "hashicorp.vagrant.sdk.Args.CorePluginManager" do
+      optional :stream_id, :uint32, 1
+      optional :network, :string, 2
+      optional :addr, :string, 3
+    end
     add_message "hashicorp.vagrant.sdk.Args.PluginManager" do
       optional :stream_id, :uint32, 1
       optional :network, :string, 2
@@ -427,6 +432,14 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
       optional :name, :string, 1
       optional :type, :string, 2
       optional :plugin, :message, 3, "google.protobuf.Any"
+    end
+    add_message "hashicorp.vagrant.sdk.CorePluginManager" do
+    end
+    add_message "hashicorp.vagrant.sdk.CorePluginManager.GetPluginRequest" do
+      optional :type, :string, 1
+    end
+    add_message "hashicorp.vagrant.sdk.CorePluginManager.GetPluginResponse" do
+      optional :plugin, :message, 1, "google.protobuf.Any"
     end
     add_message "hashicorp.vagrant.sdk.Provider" do
     end
@@ -890,6 +903,7 @@ module Hashicorp
       Args::Logger = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Args.Logger").msgclass
       Args::JobInfo = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Args.JobInfo").msgclass
       Args::JobInfo::ResourceType = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Args.JobInfo.ResourceType").enummodule
+      Args::CorePluginManager = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Args.CorePluginManager").msgclass
       Args::PluginManager = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Args.PluginManager").msgclass
       Args::Command = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Args.Command").msgclass
       Args::Basis = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Args.Basis").msgclass
@@ -970,6 +984,9 @@ module Hashicorp
       PluginManager::PluginsRequest = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.PluginManager.PluginsRequest").msgclass
       PluginManager::PluginsResponse = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.PluginManager.PluginsResponse").msgclass
       PluginManager::Plugin = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.PluginManager.Plugin").msgclass
+      CorePluginManager = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.CorePluginManager").msgclass
+      CorePluginManager::GetPluginRequest = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.CorePluginManager.GetPluginRequest").msgclass
+      CorePluginManager::GetPluginResponse = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.CorePluginManager.GetPluginResponse").msgclass
       Provider = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Provider").msgclass
       Provider::UsableResp = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Provider.UsableResp").msgclass
       Provider::InstalledResp = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Provider.InstalledResp").msgclass

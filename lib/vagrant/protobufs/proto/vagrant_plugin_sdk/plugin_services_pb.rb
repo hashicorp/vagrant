@@ -101,6 +101,20 @@ module Hashicorp
 
         Stub = Service.rpc_stub_class
       end
+      module CorePluginManagerService
+        class Service
+
+          include ::GRPC::GenericService
+
+          self.marshal_class_method = :encode
+          self.unmarshal_class_method = :decode
+          self.service_name = 'hashicorp.vagrant.sdk.CorePluginManagerService'
+
+          rpc :GetPlugin, ::Hashicorp::Vagrant::Sdk::CorePluginManager::GetPluginRequest, ::Hashicorp::Vagrant::Sdk::CorePluginManager::GetPluginResponse
+        end
+
+        Stub = Service.rpc_stub_class
+      end
       module ProviderService
         # *******************************************************************
         # Provider Plugin Service
