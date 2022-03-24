@@ -3,7 +3,7 @@ module VagrantPlugins
     class Client
       class CorePluginManager < Client
         def get_plugin(type)
-          resp = client.get_plugins(
+          resp = client.get_plugin(
             SDK::CorePluginManager::GetPluginRequest.new(
               type: type
             )
