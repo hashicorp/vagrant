@@ -7,6 +7,7 @@ module VagrantPlugins
       autoload :CapabilityPlatform, Vagrant.source_root.join("plugins/commands/serve/client/capability_platform").to_s
       autoload :Communicator, Vagrant.source_root.join("plugins/commands/serve/client/communicator").to_s
       autoload :Command, Vagrant.source_root.join("plugins/commands/serve/client/command").to_s
+      autoload :CorePluginManager, Vagrant.source_root.join("plugins/commands/serve/client/core_plugin_manager").to_s
       autoload :Guest, Vagrant.source_root.join("plugins/commands/serve/client/guest").to_s
       autoload :Host, Vagrant.source_root.join("plugins/commands/serve/client/host").to_s
       autoload :TargetIndex, Vagrant.source_root.join("plugins/commands/serve/client/target_index").to_s
