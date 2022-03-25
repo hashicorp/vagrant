@@ -84,7 +84,7 @@ module VagrantPlugins
           if str.length <= len
             str
           else
-            str.gsub(/^(.{#{len-3},}?).*$/m, "\1...")
+            str[0, len-3] + "..."
           end
         end
       end
