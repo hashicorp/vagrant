@@ -63,14 +63,17 @@ type Basis struct {
 // NewBasis creates a new Basis with the given options.
 func NewBasis(ctx context.Context, opts ...BasisOption) (b *Basis, err error) {
 	b = &Basis{
-		cache:       cacher.New(),
-		ctx:         ctx,
-		logger:      hclog.L(),
-		jobInfo:     &component.JobInfo{},
-		projects:    map[string]*Project{},
-		seedValues:  core.NewSeeds(),
-		statebag:    NewStateBag(),
-		corePlugins: &CoreManager{},
+		cache:      cacher.New(),
+		ctx:        ctx,
+		logger:     hclog.L(),
+		jobInfo:    &component.JobInfo{},
+		projects:   map[string]*Project{},
+		seedValues: core.NewSeeds(),
+		statebag:   NewStateBag(),
+		corePlugins: &CoreManager{
+			closers: []func() error{},
+			logger:  hclog.L(),
+		},
 	}
 
 	for _, opt := range opts {
@@ -187,6 +190,33 @@ func NewBasis(ctx context.Context, opts ...BasisOption) (b *Basis, err error) {
 				return nil
 			}
 			s.SetRequestMetadata("plugin_manager", string(srv))
+
+			return nil
+		},
+	)
+
+	// Configure plugins to have a core plugin manager set (used by legacy)
+	b.plugins.Configure(
+		func(i *plugin.Instance, l hclog.Logger) error {
+			s, ok := i.Component.(plugin.HasPluginMetadata)
+			if !ok {
+				l.Warn("plugin does not support metadata, cannot assign plugin manager",
+					"component", i.Type.String(),
+					"name", i.Name,
+				)
+
+				return nil
+			}
+
+			srv, err := b.corePlugins.Servinfo(b.plugins.LegacyBroker())
+			if err != nil {
+				l.Warn("failed to get plugin manager information",
+					"error", err,
+				)
+
+				return nil
+			}
+			s.SetRequestMetadata("core_plugin_manager", string(srv))
 
 			return nil
 		},

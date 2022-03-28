@@ -73,6 +73,10 @@ func (m *Manager) Sub(name string) *Manager {
 	return m
 }
 
+func (m *Manager) LegacyBroker() *plugin.GRPCBroker {
+	return m.legacyBroker
+}
+
 // Load legacy Ruby based Vagrant plugins using a
 // running Vagrant runtime
 func (m *Manager) LoadLegacyPlugins(
