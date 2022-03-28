@@ -36,8 +36,6 @@ module Vagrant
         end
 
         def self.enable_remote_manager(client, core_client: nil)
-          LOGGER.debug("enablinge remote manager with client: #{client}")
-          LOGGER.debug("enablinge remote manager with core client: #{core_client}")
           Remote::Manager.client = client
           Remote::Manager.core_client = core_client
           @manager = remote_manager
