@@ -72,6 +72,7 @@ func NewBasis(ctx context.Context, opts ...BasisOption) (b *Basis, err error) {
 		statebag:   NewStateBag(),
 		corePlugins: &CoreManager{
 			closers: []func() error{},
+			ctx:     ctx,
 			logger:  hclog.L(),
 		},
 	}

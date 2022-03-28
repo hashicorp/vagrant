@@ -145,7 +145,6 @@ module Vagrant
 
         # @return [VagrantPlugins::Command::Serve::Client::CorePluginManager] remote core manager client
         def core_plugin_manager
-          @logger.debug("Returning core plugin manager client #{self.class.core_client}")
           self.class.core_client
         end
 
