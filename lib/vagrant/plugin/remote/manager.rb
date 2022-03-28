@@ -10,6 +10,9 @@ module Vagrant
         class << self
           # @return [VagrantPlugins::Command::Serve::Client::PluginManager] remote manager client
           attr_accessor :client
+
+          # @return [VagrantPlugins::Command::Serve::Client::CorePluginManager] remote manager client for core plugins
+          attr_accessor :core_client
         end
 
         # This wrapper class is used for encapsulating a remote plugin class. This
@@ -138,6 +141,12 @@ module Vagrant
         # @return [VagrantPlugins::Command::Serve::Client::PluginManager] remote manager client
         def plugin_manager
           self.class.client
+        end
+
+        # @return [VagrantPlugins::Command::Serve::Client::CorePluginManager] remote core manager client
+        def core_plugin_manager
+          @logger.debug("Returning core plugin manager client #{self.class.core_client}")
+          self.class.core_client
         end
 
         # Synced folder plugins are registered with an integer priority, but in

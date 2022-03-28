@@ -30,7 +30,14 @@ module VagrantPlugins
                 context.metadata["plugin_manager"],
                 broker: info.broker
               )
-              Vagrant.plugin("2").enable_remote_manager(client)
+              core_client = nil
+              if context.metadata["core_plugin_manager"]
+                core_client = Client::CorePluginManager.load(
+                  context.metadata["core_plugin_manager"],
+                  broker: info.broker
+                )
+              end
+              Vagrant.plugin("2").enable_remote_manager(client, core_client: core_client)
             end
           end
           Thread.current.thread_variable_set(:service_info, info)
