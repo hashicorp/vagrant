@@ -1,3 +1,4 @@
+require 'google/protobuf/well_known_types'
 require 'google/rpc/error_details_pb'
 
 module VagrantPlugins
@@ -5,8 +6,6 @@ module VagrantPlugins
     module Util
       # Adds exception logging to all public instance methods
       module ExceptionTransformer
-        prepend Util::HasMapper
-
         def self.included(klass)
           # Get all the public instance methods. Need to search ancestors as well
           # for modules like the Guest service which includes the CapabilityPlatform
@@ -52,25 +51,25 @@ module VagrantPlugins
                 # headers below the limit in most cases.
                 message = ExceptionTransformer.truncate_to(err.message, 1024)
                 backtrace = ExceptionTransformer.truncate_to(err.backtrace.join("\n"), 1024)
-                localized_msg_details_any = Google::Protobuf::Any.new
-                localized_msg_details_any.pack(
-                  # This is the message we expect to be unpacked and presented
-                  # to the user, as it's sometimes a user-facing error.
-                  Google::Rpc::LocalizedMessage.new(
-                    locale: "en-US", message: message
+                metadata = {}
+
+                # VagrantErrors are user-facing and so get their message packed
+                # into the details.
+                if err.is_a? Vagrant::Errors::VagrantError
+                  localized_msg_details_any = Google::Protobuf::Any.new
+                  localized_msg_details_any.pack(
+                    Google::Rpc::LocalizedMessage.new(locale: "en-US", message: message)
                   )
-                )
-                proto = Google::Rpc::Status.new(
-                  code: GRPC::Core::StatusCodes::UNKNOWN,
-                  message: "#{message}\n#{backtrace}",
-                  details: [localized_msg_details_any]
-                )
-                encoded_proto = Google::Rpc::Status.encode(proto)
-                grpc_status_details_bin_trailer = 'grpc-status-details-bin'
+                  proto = Google::Rpc::Status.new(
+                    code: GRPC::Core::StatusCodes::UNKNOWN,
+                    details: [localized_msg_details_any]
+                  )
+                  metadata[GRPC_DETAILS_METADATA_KEY] = Google::Rpc::Status.encode(proto)
+                end
                 grpc_error = GRPC::BadStatus.new(
                   GRPC::Core::StatusCodes::UNKNOWN,
-                  message,
-                  {grpc_status_details_bin_trailer => encoded_proto},
+                  "#{message}\n#{backtrace}",
+                  metadata,
                 )
                 raise grpc_error
               end
@@ -87,6 +86,8 @@ module VagrantPlugins
             str[0, len-3] + "..."
           end
         end
+
+        GRPC_DETAILS_METADATA_KEY = "grpc-status-details-bin".freeze
       end
     end
   end

@@ -101,14 +101,25 @@ func (c *DynamicCommand) Run(args []string) int {
 		} else if !r.RunResult {
 			runErrorStatus := status.FromProto(r.RunError)
 			details := runErrorStatus.Details()
+			userError := false
 			for _, msg := range details {
 				switch m := msg.(type) {
 				case *errdetails.LocalizedMessage:
-					cl.UI().Output("Error: "+m.Message+"\n", terminal.WithErrorStyle())
+					// Errors from Ruby with LocalizedMessages are user-facing,
+					// so can be output directly.
+					userError = true
+					cl.UI().Output(m.Message, terminal.WithErrorStyle())
+					// All user-facing errors from Ruby use a 1 exit code. See
+					// Vagrant::Errors::VagrantError.
+					r.ExitCode = 1
+
 				}
 			}
-			runErr := status.FromProto(r.RunError)
-			err = fmt.Errorf("execution failed, %w", runErr.Err())
+			if !userError {
+				runErr := status.FromProto(r.RunError)
+				err = runErr.Err()
+				cl.UI().Output("Unexpected Error: "+err.Error()+"\n", terminal.WithErrorStyle())
+			}
 		}
 
 		c.Log.Debug("result from operation", "task", c.name, "result", r)
@@ -117,9 +128,11 @@ func (c *DynamicCommand) Run(args []string) int {
 	})
 
 	if err != nil {
+		c.Log.Error("Got error from task, so exiting 255", "error", err)
 		return int(-1)
 	}
 
+	c.Log.Info("Task did not error, so exiting with provided code", "code", r.ExitCode)
 	return int(r.ExitCode)
 }
 
