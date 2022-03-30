@@ -61,9 +61,13 @@ mkShell rec {
     zlib
   ];
 
-  # workaround for npm/gulp dep compilation
-  # https://github.com/imagemin/optipng-bin/issues/108
   shellHook = ''
+    # workaround for npm/gulp dep compilation
+    # https://github.com/imagemin/optipng-bin/issues/108
     LD=$CC
+
+    # Prepend binstubs to PATH for development, which causes Vagrant-agogo
+    # to use the legacy Vagrant in this repo. See client.initVagrantRubyRuntime
+    PATH=$PWD/binstubs:$PATH
   '';
 }

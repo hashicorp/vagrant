@@ -2,11 +2,12 @@ package client
 
 import (
 	"context"
+	"io/fs"
 	"net"
 	"os"
 	"os/exec"
 	"path/filepath"
-	"runtime"
+	"strings"
 	"time"
 
 	"github.com/golang/protobuf/ptypes/empty"
@@ -180,22 +181,20 @@ func (c *Client) initLocalServer(ctx context.Context) (_ *grpc.ClientConn, err e
 	return client.Conn(), nil
 }
 
+// initVagrantRubyRuntime launches legacy vagrant as a gRPC server using the
+// "serve" command.
+//
+// NOTE: We are assuming that the first executable we find in $PATH that is not
+// _us_ is the legacy vagrant executable. It's up the packaging to ensure
+// that is how things are set up.
 func (c *Client) initVagrantRubyRuntime() (rubyRuntime plugin.ClientProtocol, err error) {
-	// TODO: Update for actual release usage. This is dev only now.
-	_, this_dir, _, _ := runtime.Caller(0)
-	cmd := exec.Command(
-		"bundle", "exec", "vagrant", "serve",
-	)
-	level := os.Getenv("VAGRANT_LOG")
-	cmd.Env = []string{
-		"BUNDLE_GEMFILE=" + filepath.Join(this_dir, "../../..", "Gemfile"),
-		"VAGRANT_I_KNOW_WHAT_IM_DOING_PLEASE_BE_QUIET=true",
-		"VAGRANT_LOG=" + level,
-		"VAGRANT_LOG_FILE=/tmp/vagrant.log",
+	var vagrantPath string
+	vagrantPath, err = lookPathSkippingSelf("vagrant")
+	if err != nil {
+		return
 	}
-
 	config := serverclient.RubyVagrantPluginConfig(c.logger)
-	config.Cmd = cmd
+	config.Cmd = exec.Command(vagrantPath, "serve")
 	rc := plugin.NewClient(config)
 	if _, err = rc.Start(); err != nil {
 		return
@@ -234,4 +233,52 @@ func (c *Client) negotiateApiVersion(ctx context.Context) error {
 
 	c.logger.Info("negotiated api version", "version", vsn)
 	return nil
+}
+
+// lookPathSkippingSelf is a copy of exec.LookPath modified to skip the
+// currently running executable.
+func lookPathSkippingSelf(file string) (string, error) {
+	myselfPath, err := os.Executable()
+	if err != nil {
+		return "", err
+	}
+	myself, err := os.Stat(myselfPath)
+	if err != nil {
+		return "", err
+	}
+	if strings.Contains(file, "/") {
+		err := findExecutable(file, myself)
+		if err == nil {
+			return file, nil
+		}
+		return "", &exec.Error{Name: file, Err: err}
+	}
+	path := os.Getenv("PATH")
+	for _, dir := range filepath.SplitList(path) {
+		if dir == "" {
+			// Unix shell semantics: path element "" means "."
+			dir = "."
+		}
+		path := filepath.Join(dir, file)
+		if err := findExecutable(path, myself); err == nil {
+			return path, nil
+		}
+	}
+	return "", &exec.Error{Name: file, Err: exec.ErrNotFound}
+}
+
+// findExecutableSkippingSelf is a copy of exec.findExecutable modified to skip
+// the provided FileInfo. It's used to power lookPathSkippingSelf.
+func findExecutable(file string, skip os.FileInfo) error {
+	d, err := os.Stat(file)
+	if err != nil {
+		return err
+	}
+	if os.SameFile(d, skip) {
+		return fs.ErrPermission
+	}
+	if m := d.Mode(); !m.IsDir() && m&0111 != 0 {
+		return nil
+	}
+	return fs.ErrPermission
 }
