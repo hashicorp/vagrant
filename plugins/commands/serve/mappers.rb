@@ -24,6 +24,7 @@ module VagrantPlugins
         Google::Protobuf::UInt64Value => Integer,
         Google::Protobuf::StringValue => String,
         SDK::Args::Array => Array,
+        SDK::Args::CorePluginManager => Client::CorePluginManager,
         SDK::Args::Direct => Type::Direct,
         SDK::Args::Folders => Type::Folders,
         SDK::Args::Guest => Client::Guest,
