@@ -95,10 +95,9 @@ func (c *DynamicCommand) Run(args []string) int {
 			modifier,
 		)
 
-		if err != nil {
-			cl.UI().Output("Running of task "+c.name+" failed unexpectedly\n", terminal.WithErrorStyle())
-			cl.UI().Output("Error: "+err.Error(), terminal.WithErrorStyle())
-		} else if !r.RunResult {
+		// If nothing failed but we didn't get a Result back, something may
+		// have gone wrong on the far side so we need to interpret the error.
+		if err == nil && !r.RunResult {
 			runErrorStatus := status.FromProto(r.RunError)
 			details := runErrorStatus.Details()
 			userError := false
@@ -112,14 +111,19 @@ func (c *DynamicCommand) Run(args []string) int {
 					// All user-facing errors from Ruby use a 1 exit code. See
 					// Vagrant::Errors::VagrantError.
 					r.ExitCode = 1
-
 				}
 			}
+			// If there wasn't a user-facing error, just assign the returned
+			// error (if any) from the response and assign that back out so it
+			// can be displayed as an unexpected error.
 			if !userError {
-				runErr := status.FromProto(r.RunError)
-				err = runErr.Err()
-				cl.UI().Output("Unexpected Error: "+err.Error()+"\n", terminal.WithErrorStyle())
+				err = runErrorStatus.Err()
 			}
+		}
+
+		if err != nil {
+			cl.UI().Output("Running of task "+c.name+" failed unexpectedly\n", terminal.WithErrorStyle())
+			cl.UI().Output("Error: "+err.Error(), terminal.WithErrorStyle())
 		}
 
 		c.Log.Debug("result from operation", "task", c.name, "result", r)
