@@ -9,7 +9,6 @@ import (
 	plg "github.com/hashicorp/go-plugin"
 	sdkcore "github.com/hashicorp/vagrant-plugin-sdk/core"
 	"github.com/hashicorp/vagrant-plugin-sdk/internal-shared/protomappers"
-	"github.com/hashicorp/vagrant/internal/plugin"
 	"google.golang.org/protobuf/encoding/protojson"
 )
 
@@ -43,10 +42,6 @@ func (m *CoreManager) generatePlugin(fn func() (plg interface{})) (plg interface
 // Get a fresh instance of a core plugin
 func (m *CoreManager) GetPlugin(pluginType sdkcore.Type) (plg interface{}, err error) {
 	switch pluginType {
-	case sdkcore.BasisType:
-		return m.generatePlugin(func() (plg interface{}) {
-			return &Basis{}
-		})
 	case sdkcore.BoxCollectionType:
 		return m.generatePlugin(func() (plg interface{}) {
 			return &BoxCollection{}
@@ -59,29 +54,9 @@ func (m *CoreManager) GetPlugin(pluginType sdkcore.Type) (plg interface{}, err e
 		return m.generatePlugin(func() (plg interface{}) {
 			return &Box{}
 		})
-	case sdkcore.MachineType:
-		return m.generatePlugin(func() (plg interface{}) {
-			return &Machine{}
-		})
-	case sdkcore.PluginManagerType:
-		return m.generatePlugin(func() (plg interface{}) {
-			return plugin.NewManager(m.ctx, m.logger.Named("plugin-manager"))
-		})
-	case sdkcore.ProjectType:
-		return m.generatePlugin(func() (plg interface{}) {
-			return &Project{}
-		})
 	case sdkcore.StateBagType:
 		return m.generatePlugin(func() (plg interface{}) {
 			return NewStateBag()
-		})
-	case sdkcore.TargetIndexType:
-		return m.generatePlugin(func() (plg interface{}) {
-			return &TargetIndex{}
-		})
-	case sdkcore.TargetType:
-		return m.generatePlugin(func() (plg interface{}) {
-			return &Target{}
 		})
 	}
 	return
