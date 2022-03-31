@@ -59,6 +59,8 @@ module Vagrant
         # @param type [String] a name to put into the type field, e.g. plugin name
         # @return [Hashicorp::Vagrant::Sdk::Vagrantfile::GeneralConfig]
         def to_proto(type)
+          mapper = VagrantPlugins::CommandServe::Mappers.new
+          
           protoize = self.instance_variables_hash
           protoize.delete_if{|k,v| k.start_with?("_") }
           config_struct = Google::Protobuf::Struct.from_hash(protoize)

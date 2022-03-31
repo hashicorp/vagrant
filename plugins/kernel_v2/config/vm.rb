@@ -71,6 +71,9 @@ module VagrantPlugins
       def initialize
         @logger = Log4r::Logger.new("vagrant::config::vm")
 
+        # Mappers are used by functions that produce a proto
+        @mapper = VagrantPlugins::CommandServe::Mappers.new
+
         @allowed_synced_folder_types   = UNSET_VALUE
         @allow_fstab_modification      = UNSET_VALUE
         @base_mac                      = UNSET_VALUE
@@ -1065,12 +1068,11 @@ module VagrantPlugins
         vm_config.define_singleton_method(:compiled_provider_configs) do
           return @__compiled_provider_configs
         end
-      
+
         vm_config.compiled_provider_configs.each do |type, config|
           c = clean_up_config_object(config.instance_variables_hash)
-      
           provider_proto = PROVIDER_PROTO_CLS.new(type: type)
-          config_struct = Google::Protobuf::Struct.from_hash(c)
+          config_struct = @mapper.map(c, to: Hashicorp::Vagrant::Sdk::Args::Hash)
           config_any = Google::Protobuf::Any.pack(config_struct)
           provider_proto.config = config_any
           target << provider_proto
@@ -1088,7 +1090,7 @@ module VagrantPlugins
           network_proto = NETWORK_PROTO_CLS.new(type: type, id: opts.fetch(:id, ""))
           opts.delete(:id)
           opts.transform_keys!(&:to_s)
-          config_struct = Google::Protobuf::Struct.from_hash(opts)
+          config_struct = @mapper.map(opts, to: Hashicorp::Vagrant::Sdk::Args::Hash)
           config_any = Google::Protobuf::Any.pack(config_struct)
           network_proto.config = config_any
           target << network_proto
@@ -1124,7 +1126,7 @@ module VagrantPlugins
       
             sf_proto.send("#{opt.to_s}=", val)
           end
-          config_struct = Google::Protobuf::Struct.from_hash(config_opts)
+          config_struct = @mapper.map(config_opts, to: Hashicorp::Vagrant::Sdk::Args::Hash)
           config_any = Google::Protobuf::Any.pack(config_struct)
           sf_proto.config = config_any
           target << sf_proto
