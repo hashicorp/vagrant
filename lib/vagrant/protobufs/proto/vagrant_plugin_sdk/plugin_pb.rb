@@ -848,9 +848,6 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
     add_message "hashicorp.vagrant.sdk.Box.MachinesResponse" do
       repeated :machines, :message, 1, "hashicorp.vagrant.sdk.Args.Target.Machine"
     end
-    add_message "hashicorp.vagrant.sdk.Box.MetadataResponse" do
-      optional :metadata, :message, 1, "hashicorp.vagrant.sdk.Args.Hash"
-    end
     add_message "hashicorp.vagrant.sdk.Box.BoxMetadataResponse" do
       optional :metadata, :message, 1, "hashicorp.vagrant.sdk.Args.Hash"
     end
@@ -891,6 +888,9 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
       repeated :providers, :string, 3
     end
     add_message "hashicorp.vagrant.sdk.BoxMetadata" do
+    end
+    add_message "hashicorp.vagrant.sdk.BoxMetadata.LoadMetadataRequest" do
+      optional :url, :string, 1
     end
     add_message "hashicorp.vagrant.sdk.BoxMetadata.BoxMetadataOpts" do
       optional :name, :string, 1
@@ -1151,7 +1151,6 @@ module Hashicorp
       Box::HasUpdateResponse = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Box.HasUpdateResponse").msgclass
       Box::InUseResponse = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Box.InUseResponse").msgclass
       Box::MachinesResponse = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Box.MachinesResponse").msgclass
-      Box::MetadataResponse = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Box.MetadataResponse").msgclass
       Box::BoxMetadataResponse = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Box.BoxMetadataResponse").msgclass
       Box::MetadataUrlResponse = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Box.MetadataUrlResponse").msgclass
       Box::NameResponse = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Box.NameResponse").msgclass
@@ -1164,6 +1163,7 @@ module Hashicorp
       BoxCollection::CleanRequest = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.BoxCollection.CleanRequest").msgclass
       BoxCollection::FindRequest = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.BoxCollection.FindRequest").msgclass
       BoxMetadata = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.BoxMetadata").msgclass
+      BoxMetadata::LoadMetadataRequest = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.BoxMetadata.LoadMetadataRequest").msgclass
       BoxMetadata::BoxMetadataOpts = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.BoxMetadata.BoxMetadataOpts").msgclass
       BoxMetadata::NameResponse = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.BoxMetadata.NameResponse").msgclass
       BoxMetadata::VersionRequest = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.BoxMetadata.VersionRequest").msgclass
