@@ -16,6 +16,7 @@ module Vagrant
 
         if Vagrant.server_mode?
           GENERAL_CONFIG_CLS = Hashicorp::Vagrant::Sdk::Vagrantfile::GeneralConfig
+          SYMBOL_PROTO = Hashicorp::Vagrant::Sdk::SpecialTypes::Symbol
         end
 
         # This is called as a last-minute hook that allows the configuration
@@ -156,34 +157,82 @@ module Vagrant
           @__finalized = true
         end
 
-        def stringify_symbols(m)
-          m.each do |k,v|
-            if v.is_a?(Hash)
-              # All keys need to be strings
-              v.transform_keys!{|sk| sk.to_s}
-              stringify_symbols(v)
-              next
+
+        def stringify_map_keys(m)
+          if m.is_a?(Array)
+            m.each do |v|
+              if v.is_a?(Hash)
+                v.transform_keys!{|sk| sk.to_s}
+                stringify_map_keys(v)
+                next
+              end
+              if v.is_a?(Array)
+                stringify_map_keys(v)
+                next
+              end
             end
-            if v.is_a?(Array)
-              v.map!{|sk| sk.is_a?(Symbol) ? sk.to_s : sk}
-              stringify_symbols(v)
-              next
+          elsif m.is_a?(Hash)
+            m.each do |k,v|
+              if v.is_a?(Hash)
+                v.transform_keys!{|sk| sk.to_s}
+                stringify_map_keys(v)
+                next
+              end
+              if v.is_a?(Array)
+                stringify_map_keys(v)
+                next
+              end
+              m[k] = v.to_s if v.is_a?(Symbol)
             end
-            k = k.to_s if k.is_a?(Symbol)
-            m[k] = v.to_s if v.is_a?(Symbol)
+            m.transform_keys!{|sk| sk.to_s}
+          end
+        end
+
+        def transform_symbols(m)
+          if m.is_a?(Array)
+            m.each do |v|
+              if v.is_a?(Hash)
+                v.transform_keys!{|sk| sk.to_s}
+                transform_symbols(v)
+                next
+              end
+              if v.is_a?(Array)
+                v.map!{|sk| sk.is_a?(Symbol) ? SYMBOL_PROTO.new(str: sk.to_s) : sk}
+                transform_symbols(v)
+                next
+              end
+            end
+            m.map!{|sk| sk.is_a?(Symbol) ? SYMBOL_PROTO.new(str: sk.to_s) : sk}
+          elsif m.is_a?(Hash)
+            m.each do |k,v|
+              if v.is_a?(Hash)
+                v.transform_keys!{|sk| sk.to_s}
+                transform_symbols(v)
+                next
+              end
+              if v.is_a?(Array)
+                v.map!{|sk| sk.is_a?(Symbol) ? SYMBOL_PROTO.new(str: sk.to_s) : sk}
+                transform_symbols(v)
+                next
+              end
+              m[k] = SYMBOL_PROTO.new(str: v.to_s) if v.is_a?(Symbol)
+            end
+            m.transform_keys!{|sk| sk.to_s}
           end
         end
 
         def clean_up_config_object(config)
           protoize = config
-          stringify_symbols(protoize)
+          stringify_map_keys(protoize)
+          transform_symbols(protoize)
           # Remote variables that are internal
           protoize.delete_if{|k,v| k.start_with?("_") }
           protoize
         end
 
-
         def to_proto(type)
+          mapper = VagrantPlugins::CommandServe::Mappers.new
+
           protoize = self.instance_variables_hash
           protoize.map do |k,v|
             # Get embedded default struct
@@ -194,7 +243,7 @@ module Vagrant
             end
           end
           protoize = clean_up_config_object(protoize)
-          config_struct = Google::Protobuf::Struct.from_hash(protoize)
+          config_struct =  mapper.map(protoize, to: Hashicorp::Vagrant::Sdk::Args::Hash)
           config_any = Google::Protobuf::Any.pack(config_struct)
           GENERAL_CONFIG_CLS.new(type: type, config: config_any)
         end

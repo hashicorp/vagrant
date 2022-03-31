@@ -197,6 +197,34 @@ module VagrantPlugins
           sym.to_s
         end
       end
+
+      class SpecialTypeSymbolToAny < Mapper
+        def initialize
+          super(
+            inputs: [Input.new(type: SDK::SpecialTypes::Symbol)],
+            output: Google::Protobuf::Any,
+            func: method(:converter),
+          )
+        end
+
+        def converter(input)
+          Google::Protobuf::Any.pack(input)
+        end
+      end
+
+      class SpecialTypeSymbolToSymbol < Mapper
+        def initialize
+          super(
+            inputs: [Input.new(type: SDK::SpecialTypes::Symbol)],
+            output: Symbol,
+            func: method(:converter),
+          )
+        end
+
+        def converter(input)
+          input.str.to_sym
+        end
+      end
     end
   end
 end
