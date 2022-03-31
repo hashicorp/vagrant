@@ -7,7 +7,6 @@ on:
 
 jobs:
   setup-packet:
-    if: github.repository == 'hashicorp/vagrant-acceptance'
     runs-on: self-hosted
     name: Build Packet Instance
     steps:
@@ -20,7 +19,6 @@ jobs:
           VAGRANT_CI_LOADER_BUCKET: ${{ secrets.VAGRANT_CI_LOADER_BUCKET }}
 
   setup-hosts:
-    if: github.repository == 'hashicorp/vagrant-acceptance'
     runs-on: self-hosted
     name: Vagrant-Spec Start Hosts
     needs: setup-packet
@@ -43,7 +41,6 @@ jobs:
           VAGRANT_CI_LOADER_BUCKET: ${{ secrets.VAGRANT_CI_LOADER_BUCKET }}
 
   spec-tests:
-    if: github.repository == 'hashicorp/vagrant-acceptance'
     runs-on: self-hosted
     name: Vagrant-Spec Tests
     needs: setup-hosts
@@ -65,7 +62,6 @@ jobs:
           VAGRANT_CI_LOADER_BUCKET: ${{ secrets.VAGRANT_CI_LOADER_BUCKET }}
 
   cleanup:
-    if: github.repository == 'hashicorp/vagrant-acceptance'
     runs-on: self-hosted
     name: Cleanup Post Vagrant-Spec Tests
     needs: spec-tests
