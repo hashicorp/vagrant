@@ -10,6 +10,11 @@ require 'google/rpc/status_pb'
 require 'protostructure_pb'
 Google::Protobuf::DescriptorPool.generated_pool.build do
   add_file("vagrant_plugin_sdk/plugin.proto", :syntax => :proto3) do
+    add_message "hashicorp.vagrant.sdk.SpecialTypes" do
+    end
+    add_message "hashicorp.vagrant.sdk.SpecialTypes.Symbol" do
+      optional :str, :string, 1
+    end
     add_message "hashicorp.vagrant.sdk.Args" do
     end
     add_message "hashicorp.vagrant.sdk.Args.Seeds" do
@@ -888,6 +893,8 @@ end
 module Hashicorp
   module Vagrant
     module Sdk
+      SpecialTypes = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.SpecialTypes").msgclass
+      SpecialTypes::Symbol = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.SpecialTypes.Symbol").msgclass
       Args = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Args").msgclass
       Args::Seeds = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Args.Seeds").msgclass
       Args::DataDir = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Args.DataDir").msgclass
