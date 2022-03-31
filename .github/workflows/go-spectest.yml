@@ -27,6 +27,9 @@ jobs:
         uses: actions/checkout@v2
         with:
           submodules: 'recursive'
+          # Also fetch all tags, since we need our version number in the build
+          # to be based off a tag
+          fetch-depth: 0
       - name: Setup Go
         uses: actions/setup-go@v2
         with:
@@ -46,17 +49,13 @@ jobs:
         env:
           HASHIBOT_USERNAME: ${{ secrets.HASHIBOT_USERNAME }}
           HASHIBOT_TOKEN: ${{ secrets.HASHIBOT_TOKEN }}
-      - name: Get vagrant-spec repo
-        uses: actions/checkout@v2
-        with:
-          repository: 'hashicorp/vagrant-spec'
-          path: vagrant-spec
-      - name: Install and run vagrant-spec
+      - name: Add binstubs to path
         run: |
-          pushd vagrant-spec
-          gem build vagrant-spec.gemspec
-          gem install vagrant-spec-0.0.1.gem
-          popd
-          VAGRANT_PATH="$GITHUB_WORKSPACE/vagrant" vagrant-spec test --components=cli/version --config test/vagrant-spec/configs/vagrant-spec.config.virtualbox.rb
+          echo "$PWD/binstubs" >> $GITHUB_PATH
+        env:
+          VAGRANT_SPEC_BOX: "hashicorp/bionic64"
+      - name: Run vagrant-spec
+        run: |
+          VAGRANT_PATH="$GITHUB_WORKSPACE/vagrant" bundle exec vagrant-spec test --components=cli/version --config test/vagrant-spec/configs/vagrant-spec.config.virtualbox.rb
         env:
           VAGRANT_SPEC_BOX: "hashicorp/bionic64"
