@@ -6,6 +6,13 @@ module VagrantPlugins
           client.name(Empty.new)
         end
 
+        # @param [String] url for the metadata
+        def load_metadata(url)
+          client.load_metadata(SDK::BoxMetadata::LoadMetadataRequest.new(
+            url: url
+          ))
+        end
+
         # @param [String] version The version to return, this can also
         #   be a constraint.
         # @param [String] (optional) adds a provider constraint to the version 
