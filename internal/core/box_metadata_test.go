@@ -110,7 +110,25 @@ func TestGetVersion(t *testing.T) {
 func TestGetVersionWithQuery(t *testing.T) {
 	metadata := loadMetadata(t, []byte(rawMetadata))
 
-	version, err := metadata.Version("1.2.3", &core.BoxProvider{Name: "virtualbox"})
+	version, err := metadata.Version("1.2.3")
+	if err != nil {
+		t.Errorf("Failed to get version")
+	}
+	require.NotNil(t, version)
+
+	version, err = metadata.Version("1.2.3", &core.BoxProvider{Name: "virtualbox"})
+	if err != nil {
+		t.Errorf("Failed to get version")
+	}
+	require.NotNil(t, version)
+
+	version, err = metadata.Version("1.2.3", &core.BoxProvider{Name: "virtualbox"}, &core.BoxProvider{Name: "idontexist"})
+	if err != nil {
+		t.Errorf("Failed to get version")
+	}
+	require.NotNil(t, version)
+
+	version, err = metadata.Version("1.2.3", &core.BoxProvider{Name: "idontexist"}, &core.BoxProvider{Name: "vmware"})
 	if err != nil {
 		t.Errorf("Failed to get version")
 	}

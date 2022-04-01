@@ -121,7 +121,10 @@ func (b *BoxMetadata) version(ver string, providerOpts *core.BoxProvider) (v *Bo
 }
 
 func (b *BoxMetadata) LoadMetadata(url string) (err error) {
-	resp, err := http.Get(url)
+	client := &http.Client{}
+	req, _ := http.NewRequest("GET", url, nil)
+	req.Header.Set("Accept", "application/json")
+	resp, err := client.Do(req)
 	if err != nil {
 		return err
 	}
@@ -142,15 +145,22 @@ func (b *BoxMetadata) BoxName() string {
 	return b.Name
 }
 
-func (b *BoxMetadata) Version(ver string, providerOpts *core.BoxProvider) (v *core.BoxVersion, err error) {
-	boxVer, err := b.version(ver, providerOpts)
-	if err != nil {
-		return nil, err
+func (b *BoxMetadata) Version(ver string, providerOpts ...*core.BoxProvider) (v *core.BoxVersion, err error) {
+	if len(providerOpts) == 0 {
+		providerOpts = []*core.BoxProvider{
+			nil,
+		}
 	}
-	if boxVer != nil {
-		var coreBoxVersion *core.BoxVersion
-		mapstructure.Decode(boxVer, &coreBoxVersion)
-		return coreBoxVersion, nil
+	for _, p := range providerOpts {
+		boxVer, err := b.version(ver, p)
+		if err != nil {
+			return nil, err
+		}
+		if boxVer != nil {
+			var coreBoxVersion *core.BoxVersion
+			mapstructure.Decode(boxVer, &coreBoxVersion)
+			return coreBoxVersion, nil
+		}
 	}
 	return
 }
