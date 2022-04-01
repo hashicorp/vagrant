@@ -19,6 +19,7 @@ test/vagrant-spec/.vagrant/
 data.db
 vagrant-restore.db.lock
 cmd/vagrant/Vagrantfile
+binstubs/
 
 # Bundler/Rubygems
 *.gem
