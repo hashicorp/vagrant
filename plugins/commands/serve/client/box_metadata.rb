@@ -15,19 +15,23 @@ module VagrantPlugins
 
         # @param [String] version The version to return, this can also
         #   be a constraint.
-        # @param [String] (optional) adds a provider constraint to the version 
+        # @param [Array<String>] (optional) adds a provider constraint to the version 
         def version(version, provider)
-          v = client.version(SDK::BoxMetadata::VersionRequest.new(
-            version: version,
-            opts: SDK::BoxMetadata::BoxMetadataOpts.new(name: provider)
+          opts = []
+          provider.each do |p|
+            opts << SDK::BoxMetadata::BoxMetadataOpts.new(name: p)
+          end
+
+          v = client.version(SDK::BoxMetadata::VersionQuery.new(
+            version: version, opts: opts,
           ))
           v.to_h
         end
 
         # @param [String] (optional) adds a provider constraint to the version list
         def list_versions(provider)
-          v = client.list_version(SDK::BoxMetadata::BoxMetadataOpts.new(
-            name: provider
+          v = client.list_versions(SDK::BoxMetadata::ListVersionsQuery.new(
+            opts: [SDK::BoxMetadata::BoxMetadataOpts.new(name: provider)],
           ))
           v.versions
         end

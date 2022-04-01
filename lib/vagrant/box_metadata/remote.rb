@@ -15,25 +15,30 @@ module Vagrant
       attr_accessor :description
 
       # @param [IO] io An IO object to read the metadata from.
-      def initialize(io, client: nil)
+      def initialize(io, url: nil)
         @logger = Log4r::Logger.new("vagrant::box")
 
-        if client.nil?
+        if url.nil?
           raise ArgumentError,
-            "Remote client is required for `#{self.class.name}'"
+            "Metadata URL is required for `#{self.class.name}'"
         end
-        @client = client
+        @client = Vagrant.plugin("2").remote_manager.core_plugin_manager.get_plugin("boxmetadata")
+        @client.load_metadata(url)
       end
 
       def version(version, **opts)
-        v = client.version(version, opts[:provider])
-        Version.new(v, ver: v["version"], client: @client)
+        providers = nil
+        providers = Array(opts[:provider]).map(&:to_sym) if opts[:provider]
+
+        v = @client.version(version, providers)
+        @logger.debug("found version for #{version}, #{providers}: #{v}")
+        Version.new(v, ver: v[:version], client: @client)
       end
 
       def versions(**opts)
         provider = nil
         provider = opts[:provider].to_sym if opts[:provider]
-        client.versions(provider)
+        @client.versions(provider)
       end
 
       class Version
@@ -41,7 +46,9 @@ module Vagrant
 
         def initialize(raw=nil, ver: nil, client: nil)
           return if raw.nil?
+          @logger = Log4r::Logger.new("vagrant::box::version")
 
+          @logger.debug("creating version with ver #{ver} and client #{client}")
           @version = ver
           if client.nil?
             raise ArgumentError,
@@ -51,12 +58,14 @@ module Vagrant
         end
 
         def provider(name)
-          p = client.provider(@version, name)
-          Provider.new(p, @client)
+          @logger.debug("searching for provider with ver #{@version}")
+          p = @client.provider(@version, name)
+          Provider.new(p, client: @client)
         end
 
         def providers
-          client.providers(@version)
+          @logger.debug("searching for providers with ver #{@version}")
+          @client.providers(@version)
         end
 
         class Provider
@@ -66,10 +75,10 @@ module Vagrant
           attr_accessor :checksum_type
 
           def initialize(raw, client: nil)
-            @name = raw["name"]
-            @url  = raw["url"]
-            @checksum = raw["checksum"]
-            @checksum_type = raw["checksum_type"]
+            @name = raw[:name]
+            @url  = raw[:url]
+            @checksum = raw[:checksum]
+            @checksum_type = raw[:checksum_type]
             if client.nil?
               raise ArgumentError,
                 "Remote client is required for `#{self.class.name}'"

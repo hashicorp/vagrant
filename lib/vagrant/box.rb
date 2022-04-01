@@ -143,7 +143,7 @@ module Vagrant
         @hook.call(:authenticate_box_downloader, downloader: d)
       end
       d.download!
-      BoxMetadata.new(File.open(tf.path, "r"))
+      BoxMetadata.new(File.open(tf.path, "r"), url: url)
     rescue Errors::DownloaderError => e
       raise Errors::BoxMetadataDownloadError,
         message: e.extra_data[:message]

@@ -205,7 +205,7 @@ module Vagrant
             return if @download_interrupted
 
             File.open(metadata_path) do |f|
-              metadata = BoxMetadata.new(f)
+              metadata = BoxMetadata.new(f, url: authenticated_url)
             end
           rescue Errors::DownloaderError => e
             raise if !expanded
@@ -518,7 +518,7 @@ module Vagrant
                   return false
                 end
 
-                BoxMetadata.new(f)
+                BoxMetadata.new(f, url: url)
               end
               return true
             rescue Errors::BoxMetadataMalformed

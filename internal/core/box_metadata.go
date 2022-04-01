@@ -72,7 +72,7 @@ func (b *BoxVersion) ListProviders() ([]string, error) {
 
 type BoxMetadata struct {
 	Name        string
-	Bescription string
+	Description string
 	Versions    []*BoxVersion
 }
 
