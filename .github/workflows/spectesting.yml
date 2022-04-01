@@ -62,6 +62,8 @@ jobs:
           VAGRANT_SPEC_PROVIDERS: ${{matrix.providers}}
           VAGRANT_DOCKER_IMAGES: ${{matrix.docker_images}}
           VAGRANT_CI_LOADER_BUCKET: ${{ secrets.VAGRANT_CI_LOADER_BUCKET }}
+          HASHIBOT_USERNAME: ${{ secrets.HASHIBOT_USERNAME }}
+          HASHIBOT_TOKEN: ${{ secrets.HASHIBOT_TOKEN }}
 
   cleanup:
     runs-on: self-hosted

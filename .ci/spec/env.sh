@@ -14,4 +14,9 @@ export PACKET_EXEC_PERSIST="1"
 # job_id is provided by common.sh
 export PACKET_EXEC_REMOTE_DIRECTORY="${job_id}"
 export PKT_VAGRANT_CLOUD_TOKEN="${VAGRANT_CLOUD_TOKEN}"
+
+# Pass Hashibot Credentials down to packet-exec run commands so they can fetch
+# private github repos during build
+export PKT_HASHIBOT_USERNAME="${HASHIBOT_USERNAME}"
+export PKT_HASHIBOT_TOKEN="${HASHIBOT_TOKEN}"
 ###
