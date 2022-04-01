@@ -593,7 +593,7 @@ module Hashicorp
           self.unmarshal_class_method = :decode
           self.service_name = 'hashicorp.vagrant.sdk.BoxMetadataService'
 
-          rpc :Name, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::BoxMetadata::NameResponse
+          rpc :BoxName, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::BoxMetadata::NameResponse
           rpc :LoadMetadata, ::Hashicorp::Vagrant::Sdk::BoxMetadata::LoadMetadataRequest, ::Google::Protobuf::Empty
           rpc :Version, ::Hashicorp::Vagrant::Sdk::BoxMetadata::VersionQuery, ::Hashicorp::Vagrant::Sdk::BoxMetadata::VersionResponse
           rpc :ListVersions, ::Hashicorp::Vagrant::Sdk::BoxMetadata::ListVersionsQuery, ::Hashicorp::Vagrant::Sdk::BoxMetadata::ListVersionsResponse

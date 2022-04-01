@@ -24,11 +24,12 @@ module Vagrant
         end
         @client = Vagrant.plugin("2").remote_manager.core_plugin_manager.get_plugin("boxmetadata")
         @client.load_metadata(url)
+        @name = @client.name
       end
 
       def version(version, **opts)
         providers = nil
-        providers = Array(opts[:provider]).map(&:to_sym) if opts[:provider]
+        providers = Array(opts[:provider]) || []
 
         v = @client.version(version, providers)
         @logger.debug("found version for #{version}, #{providers}: #{v}")
@@ -65,7 +66,7 @@ module Vagrant
 
         def providers
           @logger.debug("searching for providers with ver #{@version}")
-          @client.providers(@version)
+          @client.list_providers(@version)
         end
 
         class Provider

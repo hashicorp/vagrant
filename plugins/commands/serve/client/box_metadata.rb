@@ -3,7 +3,7 @@ module VagrantPlugins
     class Client
       class BoxMetadata < Client
         def name
-          client.name(Empty.new)
+          client.box_name(Empty.new).name
         end
 
         # @param [String] url for the metadata
