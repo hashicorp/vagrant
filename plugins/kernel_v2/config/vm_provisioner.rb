@@ -202,7 +202,8 @@ module VagrantPlugins
           begin
             if k == "config"
               protoize = clean_up_config_object(c.config.instance_variables_hash)
-              config_struct = mapper.map(protoize, to: Hashicorp::Vagrant::Sdk::Args::Hash)
+              
+              config_struct = @mapper.map(protoize, to: Hashicorp::Vagrant::Sdk::Args::Hash)
               config_any = Google::Protobuf::Any.pack(config_struct)
               proto.config = config_any
               next

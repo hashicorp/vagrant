@@ -63,7 +63,7 @@ module Vagrant
           
           protoize = self.instance_variables_hash
           protoize.delete_if{|k,v| k.start_with?("_") }
-          config_struct = Google::Protobuf::Struct.from_hash(protoize)
+          config_struct = mapper.map(protoize, to: Hashicorp::Vagrant::Sdk::Args::Hash)
           config_any = Google::Protobuf::Any.pack(config_struct)
           Hashicorp::Vagrant::Sdk::Vagrantfile::GeneralConfig.new(type: type, config: config_any)
         end

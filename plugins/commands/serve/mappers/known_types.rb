@@ -198,7 +198,7 @@ module VagrantPlugins
         end
       end
 
-      class SpecialTypeSymbolToAny < Mapper
+      class SymbolToAny < Mapper
         def initialize
           super(
             inputs: [Input.new(type: SDK::SpecialTypes::Symbol)],
@@ -212,7 +212,7 @@ module VagrantPlugins
         end
       end
 
-      class SpecialTypeSymbolToSymbol < Mapper
+      class SymbolProtoToSymbol < Mapper
         def initialize
           super(
             inputs: [Input.new(type: SDK::SpecialTypes::Symbol)],

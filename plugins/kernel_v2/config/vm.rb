@@ -1126,6 +1126,7 @@ module VagrantPlugins
       
             sf_proto.send("#{opt.to_s}=", val)
           end
+          
           config_struct = @mapper.map(config_opts, to: Hashicorp::Vagrant::Sdk::Args::Hash)
           config_any = Google::Protobuf::Any.pack(config_struct)
           sf_proto.config = config_any

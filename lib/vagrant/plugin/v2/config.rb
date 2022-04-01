@@ -230,9 +230,55 @@ module Vagrant
           protoize
         end
 
-        def to_proto(type)
-          mapper = VagrantPlugins::CommandServe::Mappers.new
+        def build_proto_array(a)
+          out = Hashicorp::Vagrant::Sdk::Args::Array.new
+          a.each do |e|
+            if e.is_a?(Hash)
+              out.list << Google::Protobuf::Any.pack(build_proto_hash(e))
+              next
+            end
+  
+            if e.is_a?(Array)
+              out.list << Google::Protobuf::Any.pack(build_proto_array(e))
+              next
+            end
+  
+            if e.class.ancestors.include?(Google::Protobuf::MessageExts)
+              out.list << Google::Protobuf::Any.pack(e)
+            else
+              val = Google::Protobuf::Value.new
+              val.from_ruby(e)
+              out.list << Google::Protobuf::Any.pack(val)
+            end
+          end
+          return out
+        end
+  
+        def build_proto_hash(h)
+          out = Hashicorp::Vagrant::Sdk::Args::Hash.new
+          h.each do |k, v|
+            if v.is_a?(Hash)
+              out.fields[k] = Google::Protobuf::Any.pack(build_proto_hash(v))
+              next
+            end
+  
+            if v.is_a?(Array)
+              out.fields[k] = Google::Protobuf::Any.pack(build_proto_array(v))
+              next
+            end
+  
+            if v.class.ancestors.include?(Google::Protobuf::MessageExts)
+              out.fields[k] = Google::Protobuf::Any.pack(v)
+            else
+              val = Google::Protobuf::Value.new
+              val.from_ruby(v)
+              out.fields[k] = Google::Protobuf::Any.pack(val)
+            end
+          end
+          return out
+        end
 
+        def to_proto(type)
           protoize = self.instance_variables_hash
           protoize.map do |k,v|
             # Get embedded default struct
@@ -243,7 +289,7 @@ module Vagrant
             end
           end
           protoize = clean_up_config_object(protoize)
-          config_struct =  mapper.map(protoize, to: Hashicorp::Vagrant::Sdk::Args::Hash)
+          config_struct = build_proto_hash(protoize)
           config_any = Google::Protobuf::Any.pack(config_struct)
           GENERAL_CONFIG_CLS.new(type: type, config: config_any)
         end
