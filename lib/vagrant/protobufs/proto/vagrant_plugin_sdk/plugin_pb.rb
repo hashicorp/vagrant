@@ -889,26 +889,29 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
     end
     add_message "hashicorp.vagrant.sdk.BoxMetadata" do
     end
-    add_message "hashicorp.vagrant.sdk.BoxMetadata.LoadMetadataRequest" do
-      optional :url, :string, 1
-    end
     add_message "hashicorp.vagrant.sdk.BoxMetadata.BoxMetadataOpts" do
       optional :name, :string, 1
       optional :url, :string, 2
       optional :checksum, :string, 3
       optional :checksum_type, :string, 4
     end
+    add_message "hashicorp.vagrant.sdk.BoxMetadata.LoadMetadataRequest" do
+      optional :url, :string, 1
+    end
     add_message "hashicorp.vagrant.sdk.BoxMetadata.NameResponse" do
       optional :name, :string, 1
     end
-    add_message "hashicorp.vagrant.sdk.BoxMetadata.VersionRequest" do
+    add_message "hashicorp.vagrant.sdk.BoxMetadata.VersionQuery" do
       optional :version, :string, 1
-      optional :opts, :message, 2, "hashicorp.vagrant.sdk.BoxMetadata.BoxMetadataOpts"
+      repeated :opts, :message, 2, "hashicorp.vagrant.sdk.BoxMetadata.BoxMetadataOpts"
     end
     add_message "hashicorp.vagrant.sdk.BoxMetadata.VersionResponse" do
       optional :version, :string, 1
       optional :status, :string, 2
       optional :description, :string, 3
+    end
+    add_message "hashicorp.vagrant.sdk.BoxMetadata.ListVersionsQuery" do
+      repeated :opts, :message, 1, "hashicorp.vagrant.sdk.BoxMetadata.BoxMetadataOpts"
     end
     add_message "hashicorp.vagrant.sdk.BoxMetadata.ListVersionsResponse" do
       repeated :versions, :string, 1
@@ -928,19 +931,6 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
     end
     add_message "hashicorp.vagrant.sdk.BoxMetadata.ListProvidersResponse" do
       repeated :providers, :string, 1
-    end
-    add_message "hashicorp.vagrant.sdk.BoxMetadata.MatchesRequest" do
-      optional :version, :string, 1
-      optional :name, :string, 2
-      optional :provider, :message, 3, "hashicorp.vagrant.sdk.BoxMetadata.BoxMetadataOpts"
-    end
-    add_message "hashicorp.vagrant.sdk.BoxMetadata.MatchesResponse" do
-      optional :matches, :bool, 1
-    end
-    add_message "hashicorp.vagrant.sdk.BoxMetadata.MatchesAnyRequest" do
-      optional :version, :string, 1
-      optional :name, :string, 2
-      repeated :providers, :message, 3, "hashicorp.vagrant.sdk.BoxMetadata.BoxMetadataOpts"
     end
   end
 end
@@ -1163,19 +1153,17 @@ module Hashicorp
       BoxCollection::CleanRequest = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.BoxCollection.CleanRequest").msgclass
       BoxCollection::FindRequest = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.BoxCollection.FindRequest").msgclass
       BoxMetadata = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.BoxMetadata").msgclass
-      BoxMetadata::LoadMetadataRequest = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.BoxMetadata.LoadMetadataRequest").msgclass
       BoxMetadata::BoxMetadataOpts = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.BoxMetadata.BoxMetadataOpts").msgclass
+      BoxMetadata::LoadMetadataRequest = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.BoxMetadata.LoadMetadataRequest").msgclass
       BoxMetadata::NameResponse = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.BoxMetadata.NameResponse").msgclass
-      BoxMetadata::VersionRequest = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.BoxMetadata.VersionRequest").msgclass
+      BoxMetadata::VersionQuery = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.BoxMetadata.VersionQuery").msgclass
       BoxMetadata::VersionResponse = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.BoxMetadata.VersionResponse").msgclass
+      BoxMetadata::ListVersionsQuery = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.BoxMetadata.ListVersionsQuery").msgclass
       BoxMetadata::ListVersionsResponse = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.BoxMetadata.ListVersionsResponse").msgclass
       BoxMetadata::ProviderRequest = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.BoxMetadata.ProviderRequest").msgclass
       BoxMetadata::ProviderResponse = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.BoxMetadata.ProviderResponse").msgclass
       BoxMetadata::ListProvidersRequest = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.BoxMetadata.ListProvidersRequest").msgclass
       BoxMetadata::ListProvidersResponse = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.BoxMetadata.ListProvidersResponse").msgclass
-      BoxMetadata::MatchesRequest = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.BoxMetadata.MatchesRequest").msgclass
-      BoxMetadata::MatchesResponse = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.BoxMetadata.MatchesResponse").msgclass
-      BoxMetadata::MatchesAnyRequest = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.BoxMetadata.MatchesAnyRequest").msgclass
     end
   end
 end

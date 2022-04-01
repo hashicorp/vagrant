@@ -595,8 +595,8 @@ module Hashicorp
 
           rpc :Name, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::BoxMetadata::NameResponse
           rpc :LoadMetadata, ::Hashicorp::Vagrant::Sdk::BoxMetadata::LoadMetadataRequest, ::Google::Protobuf::Empty
-          rpc :Version, ::Hashicorp::Vagrant::Sdk::BoxMetadata::VersionRequest, ::Hashicorp::Vagrant::Sdk::BoxMetadata::VersionResponse
-          rpc :ListVersions, ::Hashicorp::Vagrant::Sdk::BoxMetadata::BoxMetadataOpts, ::Hashicorp::Vagrant::Sdk::BoxMetadata::ListVersionsResponse
+          rpc :Version, ::Hashicorp::Vagrant::Sdk::BoxMetadata::VersionQuery, ::Hashicorp::Vagrant::Sdk::BoxMetadata::VersionResponse
+          rpc :ListVersions, ::Hashicorp::Vagrant::Sdk::BoxMetadata::ListVersionsQuery, ::Hashicorp::Vagrant::Sdk::BoxMetadata::ListVersionsResponse
           rpc :Provider, ::Hashicorp::Vagrant::Sdk::BoxMetadata::ProviderRequest, ::Hashicorp::Vagrant::Sdk::BoxMetadata::ProviderResponse
           rpc :ListProviders, ::Hashicorp::Vagrant::Sdk::BoxMetadata::ListProvidersRequest, ::Hashicorp::Vagrant::Sdk::BoxMetadata::ListProvidersResponse
         end
