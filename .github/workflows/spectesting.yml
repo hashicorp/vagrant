@@ -30,6 +30,8 @@ jobs:
     steps:
       - name: Code Checkout
         uses: actions/checkout@v1
+        with:
+          submodules: 'recursive'
       - name: Create packet host for tests (provider ${{ matrix.providers }})
         run: ./.ci/spec/create-hosts.sh
         working-directory: ${{github.workspace}}
