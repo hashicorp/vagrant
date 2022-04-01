@@ -39,7 +39,9 @@ module Vagrant
       def versions(**opts)
         provider = nil
         provider = opts[:provider].to_sym if opts[:provider]
-        @client.versions(provider)
+        v = @client.list_versions(provider)
+        # Sort so the last element of the list is the latest version. 
+        v.sort.map(&:to_s)
       end
 
       class Version
