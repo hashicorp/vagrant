@@ -86,6 +86,33 @@ func LoadBoxMetadata(data []byte) (*BoxMetadata, error) {
 	return &result, err
 }
 
+func (b *BoxMetadata) matches(version string, name string, p *core.BoxProvider) (matches bool, err error) {
+	ver, err := b.version(version, &core.BoxProvider{Name: name})
+	if err != nil {
+		return false, err
+	}
+	provider, err := ver.Provider(name)
+	if err != nil {
+		return false, err
+	}
+	var boxVersionProvider *BoxVersionProvider
+	mapstructure.Decode(p, &boxVersionProvider)
+	return provider.Matches(boxVersionProvider), nil
+}
+
+func (b *BoxMetadata) matchesAny(version string, name string, p ...*core.BoxProvider) (matches bool, err error) {
+	for _, provider := range p {
+		m, err := b.matches(version, name, provider)
+		if err != nil {
+			return false, err
+		}
+		if m {
+			return true, nil
+		}
+	}
+	return false, nil
+}
+
 func (b *BoxMetadata) version(ver string, providerOpts *core.BoxProvider) (v *BoxVersion, err error) {
 	matchesProvider := false
 	inputVersion, err := version.NewConstraint(ver)
@@ -212,33 +239,6 @@ func (b *BoxMetadata) ListProviders(version string) (providers []string, err err
 		return nil, err
 	}
 	return ver.ListProviders()
-}
-
-func (b *BoxMetadata) Matches(version string, name string, p *core.BoxProvider) (matches bool, err error) {
-	ver, err := b.version(version, &core.BoxProvider{Name: name})
-	if err != nil {
-		return false, err
-	}
-	provider, err := ver.Provider(name)
-	if err != nil {
-		return false, err
-	}
-	var boxVersionProvider *BoxVersionProvider
-	mapstructure.Decode(p, &boxVersionProvider)
-	return provider.Matches(boxVersionProvider), nil
-}
-
-func (b *BoxMetadata) MatchesAny(version string, name string, p ...*core.BoxProvider) (matches bool, err error) {
-	for _, provider := range p {
-		m, err := b.Matches(version, name, provider)
-		if err != nil {
-			return false, err
-		}
-		if m {
-			return true, nil
-		}
-	}
-	return false, nil
 }
 
 var _ core.BoxMetadata = (*BoxMetadata)(nil)

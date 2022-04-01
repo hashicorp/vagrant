@@ -32,7 +32,6 @@ module Vagrant
         providers = Array(opts[:provider]) || []
 
         v = @client.version(version, providers)
-        @logger.debug("found version for #{version}, #{providers}: #{v}")
         Version.new(v, ver: v[:version], client: @client)
       end
 
@@ -51,7 +50,6 @@ module Vagrant
           return if raw.nil?
           @logger = Log4r::Logger.new("vagrant::box::version")
 
-          @logger.debug("creating version with ver #{ver} and client #{client}")
           @version = ver
           if client.nil?
             raise ArgumentError,
@@ -61,13 +59,11 @@ module Vagrant
         end
 
         def provider(name)
-          @logger.debug("searching for provider with ver #{@version}")
           p = @client.provider(@version, name)
           Provider.new(p, client: @client)
         end
 
         def providers
-          @logger.debug("searching for providers with ver #{@version}")
           @client.list_providers(@version)
         end
 
