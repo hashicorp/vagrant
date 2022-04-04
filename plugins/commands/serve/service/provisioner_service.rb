@@ -74,7 +74,7 @@ module VagrantPlugins
           config_klass = config.type.split('::').inject(Kernel) { |memo, obj|
             memo.const_get(obj)
           }
-          config_data = config.config.unpack(Google::Protobuf::Struct).to_h
+          config_data = mapper.map(config.config, to: Hash)
           plugin_config = config_klass.new
           plugin_config.set_options(config_data)
           return machine, plugin_config
