@@ -16,7 +16,7 @@ module Vagrant
 
         if Vagrant.server_mode?
           GENERAL_CONFIG_CLS = Hashicorp::Vagrant::Sdk::Vagrantfile::GeneralConfig
-          SYMBOL_PROTO = Hashicorp::Vagrant::Sdk::SpecialTypes::Symbol
+          SYMBOL_PROTO = Hashicorp::Vagrant::Sdk::Args::Symbol
         end
 
         # This is called as a last-minute hook that allows the configuration

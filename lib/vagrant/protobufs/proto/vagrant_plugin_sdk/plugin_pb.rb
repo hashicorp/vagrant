@@ -10,11 +10,6 @@ require 'google/rpc/status_pb'
 require 'protostructure_pb'
 Google::Protobuf::DescriptorPool.generated_pool.build do
   add_file("vagrant_plugin_sdk/plugin.proto", :syntax => :proto3) do
-    add_message "hashicorp.vagrant.sdk.SpecialTypes" do
-    end
-    add_message "hashicorp.vagrant.sdk.SpecialTypes.Symbol" do
-      optional :str, :string, 1
-    end
     add_message "hashicorp.vagrant.sdk.Args" do
     end
     add_message "hashicorp.vagrant.sdk.Args.Seeds" do
@@ -234,6 +229,9 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
     end
     add_message "hashicorp.vagrant.sdk.Args.Hash" do
       map :fields, :string, :message, 1, "google.protobuf.Any"
+    end
+    add_message "hashicorp.vagrant.sdk.Args.Symbol" do
+      optional :str, :string, 1
     end
     add_message "hashicorp.vagrant.sdk.Args.Options" do
       optional :options, :message, 1, "hashicorp.vagrant.sdk.Args.Hash"
@@ -893,8 +891,6 @@ end
 module Hashicorp
   module Vagrant
     module Sdk
-      SpecialTypes = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.SpecialTypes").msgclass
-      SpecialTypes::Symbol = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.SpecialTypes.Symbol").msgclass
       Args = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Args").msgclass
       Args::Seeds = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Args.Seeds").msgclass
       Args::DataDir = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Args.DataDir").msgclass
@@ -939,6 +935,7 @@ module Hashicorp
       Args::Direct = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Args.Direct").msgclass
       Args::Array = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Args.Array").msgclass
       Args::Hash = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Args.Hash").msgclass
+      Args::Symbol = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Args.Symbol").msgclass
       Args::Options = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Args.Options").msgclass
       Args::Null = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Args.Null").msgclass
       FuncSpec = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.FuncSpec").msgclass

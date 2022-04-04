@@ -184,24 +184,24 @@ module VagrantPlugins
         end
       end
 
-      class SymbolToString < Mapper
+      class SymbolToProto < Mapper
         def initialize
           super(
             inputs: [Input.new(type: Symbol)],
-            output: String,
+            output: SDK::Args::Symbol,
             func: method(:converter),
           )
         end
 
-        def converter(sym)
-          sym.to_s
+        def converter(input)
+          SDK::Args::Symbol.new(str: input.to_s)
         end
       end
 
-      class SymbolToAny < Mapper
+      class SymbolProtoToAny < Mapper
         def initialize
           super(
-            inputs: [Input.new(type: SDK::SpecialTypes::Symbol)],
+            inputs: [Input.new(type: SDK::Args::Symbol)],
             output: Google::Protobuf::Any,
             func: method(:converter),
           )
@@ -215,7 +215,7 @@ module VagrantPlugins
       class SymbolProtoToSymbol < Mapper
         def initialize
           super(
-            inputs: [Input.new(type: SDK::SpecialTypes::Symbol)],
+            inputs: [Input.new(type: SDK::Args::Symbol)],
             output: Symbol,
             func: method(:converter),
           )
