@@ -26,7 +26,7 @@ jobs:
       matrix:
         host_os: ['hashicorp/bionic64']
         guest_os: ['hashicorp-vagrant/ubuntu-16.04']
-        providers: ['docker', 'virtualbox']
+        providers: ['virtualbox']
     steps:
       - name: Code Checkout
         uses: actions/checkout@v1
@@ -51,7 +51,7 @@ jobs:
         host_os: ['hashicorp/bionic64']
         guest_os: ['hashicorp-vagrant/ubuntu-16.04']
         docker_images: ['nginx']
-        providers: ['docker', 'virtualbox']
+        providers: ['virtualbox']
     steps:
       - name: Run Tests with host ${{ matrix.host_os }} using provider ${{ matrix.providers }}
         run: ./.ci/spec/run-test.sh
