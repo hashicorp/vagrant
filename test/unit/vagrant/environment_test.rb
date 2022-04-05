@@ -641,6 +641,12 @@ VF
     it "uses a directory within the home directory by default" do
       klass = double("machine_index")
       stub_const("Vagrant::MachineIndex", klass)
+      # Need to stub the mappers here since the Vagrant::MachineIndex module is getting
+      # stubbed as a double. This is causing the mapper definition to fail on account
+      # of the Input to the mapper not being a module. The mapper has no impact on this 
+      # test otherwise.
+      stub_mapper = Class.new {}
+      stub_const("VagrantPlugins::CommandServe::Mappers", stub_mapper)
 
       expect(klass).to receive(:new).with(any_args) do |path|
         expect(path.to_s.start_with?(subject.home_path.to_s)).to be(true)

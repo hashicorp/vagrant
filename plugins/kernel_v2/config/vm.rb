@@ -16,6 +16,9 @@ require "vagrant/protobufs/proto/protostructure_pb"
 require "vagrant/protobufs/proto/vagrant_plugin_sdk/plugin_pb"
 require "vagrant/protobufs/proto/vagrant_plugin_sdk/plugin_services_pb"
 
+# Include mappers
+require Vagrant.source_root.join("plugins/commands/serve/command").to_s
+
 require File.expand_path("../vm_provisioner", __FILE__)
 require File.expand_path("../vm_subvm", __FILE__)
 require File.expand_path("../disk", __FILE__)
