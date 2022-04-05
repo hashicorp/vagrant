@@ -23,7 +23,8 @@ git config --global url."https://${HASHIBOT_USERNAME}:${HASHIBOT_TOKEN}@github.c
 gem install bundler -v "$(grep -A 1 "BUNDLED WITH" Gemfile.lock | tail -n 1)"
 make
 bundle install
-ln -s /vagrant/vagrant /bin/vagrant
+gem build vagrant.gemspec
+gem install vagrant*.gem
 
 popd
 
