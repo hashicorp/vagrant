@@ -16,7 +16,7 @@ module VagrantPlugins
         # @param [String] version The version to return, this can also
         #   be a constraint.
         # @param [Array<String>] (optional) adds a provider constraint to the version 
-        def version(version, provider)
+        def version(version, provider=[])
           opts = []
           provider.each do |p|
             opts << SDK::BoxMetadata::BoxMetadataOpts.new(name: p)

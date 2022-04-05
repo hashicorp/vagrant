@@ -22,7 +22,7 @@ module Vagrant
     # IO.
     #
     # @param [IO] io An IO object to read the metadata from.
-    def initialize(io)
+    def initialize(io, **_)
       begin
         @raw = JSON.load(io)
       rescue JSON::ParserError => e
