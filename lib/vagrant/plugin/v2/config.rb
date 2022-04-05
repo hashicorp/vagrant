@@ -157,37 +157,6 @@ module Vagrant
           @__finalized = true
         end
 
-
-        def stringify_map_keys(m)
-          if m.is_a?(Array)
-            m.each do |v|
-              if v.is_a?(Hash)
-                v.transform_keys!{|sk| sk.to_s}
-                stringify_map_keys(v)
-                next
-              end
-              if v.is_a?(Array)
-                stringify_map_keys(v)
-                next
-              end
-            end
-          elsif m.is_a?(Hash)
-            m.each do |k,v|
-              if v.is_a?(Hash)
-                v.transform_keys!{|sk| sk.to_s}
-                stringify_map_keys(v)
-                next
-              end
-              if v.is_a?(Array)
-                stringify_map_keys(v)
-                next
-              end
-              m[k] = v.to_s if v.is_a?(Symbol)
-            end
-            m.transform_keys!{|sk| sk.to_s}
-          end
-        end
-
         def transform_symbols(m)
           if m.is_a?(Array)
             m.each do |v|
@@ -223,7 +192,6 @@ module Vagrant
 
         def clean_up_config_object(config)
           protoize = config
-          stringify_map_keys(protoize)
           transform_symbols(protoize)
           # Remote variables that are internal
           protoize.delete_if{|k,v| k.start_with?("_") }
