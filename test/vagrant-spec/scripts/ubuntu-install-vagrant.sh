@@ -11,8 +11,12 @@ go version
 curl -sSL https://rvm.io/pkuczynski.asc | sudo gpg --import -
 curl -sSL https://get.rvm.io | bash -s stable
 source /usr/local/rvm/scripts/rvm
-rvm install ruby-2.7
-rvm --default use ruby-2.7
+rvm install ruby-2.7.2
+rvm --default use ruby-2.7.2
+
+# Remove RVM's automatically installed bundler integration, which messes w/
+# Vagrant's ruby binary invocation
+gem uninstall -i /usr/local/rvm/rubies/ruby-2.7.2/lib/ruby/gems/2.7.0 rubygems-bundler
 
 pushd /vagrant
 
