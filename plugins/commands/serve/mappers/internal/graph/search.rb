@@ -36,7 +36,8 @@ module VagrantPlugins
             # @raises [NoPathError] when no path can be determined
             def path(src, dst)
               @m.synchronize do
-                logger.debug("finding path #{src} -> #{dst}")
+                logger.debug { "finding path #{src} -> #{dst}" }
+
                 @root = src
 
                 # We know the root is our final destination, so flop the graph before searching
@@ -67,8 +68,8 @@ module VagrantPlugins
                   graph.remove_vertex(v)
                 }
 
-                logger.trace("graph after DFS reduction:\n#{graph.reverse.inspect}")
-                logger.trace("generating list of required vertices for path #{src} -> #{dst}")
+                logger.trace { "graph after DFS reduction:\n#{graph.reverse.inspect}" }
+                logger.trace { "generating list of required vertices for path #{src} -> #{dst}" }
 
                 if !graph.vertices.include?(src)
                   raise NoPathError,
@@ -88,7 +89,7 @@ module VagrantPlugins
                     "Path generation failed to reach destination (#{src} -> #{dst&.type&.inspect})"
                 end
 
-                logger.trace("required vertices list generation complete for path #{src} -> #{dst}")
+                logger.trace { "required vertices list generation complete for path #{src} -> #{dst}" }
 
                 # Remove all extraneous vertices
                 (graph.vertices - required_vertices).each do |vrt|
@@ -98,7 +99,7 @@ module VagrantPlugins
                 graph.reverse!
                 graph.break_cycles!(src) if !graph.acyclic?
 
-                logger.debug("graph after acyclic breakage:\n#{graph.reverse.inspect}")
+                logger.debug { "graph after acyclic breakage:\n#{graph.reverse.inspect}" }
 
                 # Apply topological sort to the graph so we have
                 # a proper order for execution
@@ -137,17 +138,19 @@ module VagrantPlugins
             def generate_path(src, dst)
               begin
                 path = graph.shortest_path(src, dst)
-                o = Array(path).reverse.map { |v|
-                  "  #{v} ->"
-                }.join("\n")
-                logger.trace("path generation #{dst} -> #{src}\n#{o}")
+                logger.trace {
+                  o = Array(path).reverse.map { |v|
+                    "  #{v} ->"
+                  }.join("\n")
+                  "path generation #{dst} -> #{src}\n#{o}"
+                }
                 if path.nil?
                   raise NoPathError,
                     "Path generation failed to reach destination (#{dst} -> #{src})"
                 end
                 expand_path(path, dst, graph)
               rescue InvalidVertex => err
-                logger.trace("invalid vertex in path, removing (#{err.vertex})")
+                logger.trace { "invalid vertex in path, removing (#{err.vertex})" }
                 graph.remove_vertex(err.vertex)
                 retry
               end
@@ -158,22 +161,22 @@ module VagrantPlugins
               path.each do |v|
                 new_path << v
                 next if !v.incoming_edges_required
-                logger.trace("validating incoming edges for vertex #{v}")
+                logger.trace { "validating incoming edges for vertex #{v}" }
                 outs = graph.out_vertices(v)
                 g = graph.clone
                 g.remove_vertex(v)
                 outs.each do |src|
                   ipath = g.shortest_path(src, dst)
                   if ipath.nil? || ipath.empty?
-                    logger.trace("failed to find validating path from #{dst} -> #{src}")
+                    logger.trace { "failed to find validating path from #{dst} -> #{src}" }
                     raise InvalidVertex.new(v)
                   else
-                    logger.trace("found validating path from #{dst} -> #{src}")
+                    logger.trace { "found validating path from #{dst} -> #{src}" }
                   end
                   ipath = expand_path(ipath, dst,  g)
                   new_path += ipath
                 end
-                logger.trace("incoming edge validation complete for vertex #{v}")
+                logger.trace { "incoming edge validation complete for vertex #{v}" }
               end
               new_path
             end

@@ -53,7 +53,7 @@ module VagrantPlugins
             end
             SDK::Args::Array.new(list: r)
           rescue => err
-            logger.error("array mapping to proto failed: #{err}")
+            logger.error { "array mapping to proto failed: #{err}" }
             raise
           end
         end
@@ -83,7 +83,7 @@ module VagrantPlugins
               r
             end
           rescue => err
-            logger.error("proto mapping to array failed: #{err}")
+            logger.error { "proto mapping to array failed: #{err}" }
             raise
           end
         end
@@ -128,7 +128,7 @@ module VagrantPlugins
             end
             SDK::Args::Hash.new(fields: fields)
           rescue => err
-            logger.error("hash mapping to proto failed: #{err}")
+            logger.error { "hash mapping to proto failed: #{err}" }
             raise
           end
         end
@@ -178,7 +178,7 @@ module VagrantPlugins
               end
             end
           rescue => err
-            logger.error("proto mapping to hash failed: #{err}")
+            logger.error { "proto mapping to hash failed: #{err}" }
             raise
           end
         end

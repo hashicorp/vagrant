@@ -152,7 +152,7 @@ module VagrantPlugins
           end
           if a.is_a?(Google::Protobuf::Any)
             non_any = unany(a)
-            logger.debug("extracted any proto message #{a.class} -> #{non_any}")
+            logger.debug { "extracted any proto message #{a.class} -> #{non_any}" }
             a = non_any
           end
           if name
@@ -184,7 +184,7 @@ module VagrantPlugins
         # If the value given is the desired type, just return the value
         return value if value != GENERATE && !to.nil? && value.is_a?(to)
 
-        logger.debug("starting value mapping process #{value.class} -> #{to.nil? ? 'unknown' : to.inspect}")
+        logger.debug { "starting value mapping process #{value.class} -> #{to.nil? ? 'unknown' : to.inspect}" }
         if value.nil? && to
           val = (extra_args + known_arguments).detect do |item|
             item.is_a?(to)
@@ -202,7 +202,7 @@ module VagrantPlugins
 
         # If the provided value is a protobuf value, just return that value
         if value.is_a?(Google::Protobuf::Value)
-          logger.debug("direct return of protobuf value contents - #{value.to_ruby}")
+          logger.debug { "direct return of protobuf value contents - #{value.to_ruby}" }
           return value.to_ruby
         end
 
@@ -218,7 +218,7 @@ module VagrantPlugins
               m.output.ancestors.include?(Google::Protobuf::MessageExts)
             next m if !m.inputs.first.valid?(SDK::FuncSpec::Value) ||
               m.inputs.first.valid?(value)
-            logger.trace("removing mapper - invalid funcspec match - #{m}")
+            logger.trace { "removing mapper - invalid funcspec match - #{m}" }
             nil
           end.compact
           map_mapper.mappers.replace(valid_mappers)
@@ -329,7 +329,7 @@ module VagrantPlugins
         # Now send the arguments through the mapping process
         result = Array.new.tap do |result_args|
           args.each_with_index do |arg, i|
-            logger.debug("mapping funcspec value #{arg.inspect} to expected type #{expect[i]}")
+            logger.debug { "mapping funcspec value #{arg.inspect} to expected type #{expect[i]}" }
             result_args << map(arg, *(extra_args + result_args), to: expect[i])
           end
         end
@@ -358,7 +358,7 @@ module VagrantPlugins
             "FuncSpec value of type `#{v.class}' has no valid mappers"
         end
         result = m.first.call(v)
-        logger.trace("converted funcspec argument #{v} -> #{result}")
+        logger.trace { "converted funcspec argument #{v} -> #{result}" }
         result
       end
     end

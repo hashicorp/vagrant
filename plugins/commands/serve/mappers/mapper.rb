@@ -72,7 +72,7 @@ module VagrantPlugins
             if m.output.ancestors.include?(Google::Protobuf::MessageExts)
               names = registered.map(&:name)
               next if names.include?("#{m.output.name}ToAny")
-              logger.trace("generating new Any converter #{m.output.name}ToAny")
+              logger.trace { "generating new Any converter #{m.output.name}ToAny" }
               Class.new(Mapper).class_eval("
                 def self.name
                   '#{m.output.name}' + 'ToAny'
@@ -173,7 +173,7 @@ module VagrantPlugins
                 input.valid?(arg)
               end
               if value.nil? && input.type != NilClass
-                logger.error("missing input for type `#{input.type}' - #{args.inspect}")
+                logger.error { "missing input for type `#{input.type}' - #{args.inspect}" }
                 raise ArgumentError,
                   "Failed to locate required argument of type `#{input.type}'"
               end

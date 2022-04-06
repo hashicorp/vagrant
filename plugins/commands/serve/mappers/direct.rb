@@ -40,7 +40,7 @@ module VagrantPlugins
             begin
               mappers.map(v)
             rescue => err
-              logger.debug("Failed to map value #{v} - #{err}\n#{err.backtrace.join("\n")}")
+              logger.debug { "Failed to map value #{v} - #{err}\n#{err.backtrace.join("\n")}" }
               raise
             end
           end
@@ -64,7 +64,7 @@ module VagrantPlugins
             begin
               mappers.map(a, to: Google::Protobuf::Any)
             rescue => err
-              logger.debug("Failed to map value #{a} - #{err}\n#{err.backtrace.join("\n")}")
+              logger.debug { "Failed to map value #{a} - #{err}\n#{err.backtrace.join("\n")}" }
               raise
             end
           end
