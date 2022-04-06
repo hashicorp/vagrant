@@ -377,7 +377,7 @@ module VagrantPlugins
         end
         if m.empty?
           raise ArgumentError,
-            "FuncSpec value of type `#{v.class}' has no valid mappers"
+            "FuncSpec value of type `#{v.class}' has no valid mappers (#{v})"
         end
         result = m.first.call(v)
         logger.trace { "converted funcspec argument #{v} -> #{result}" }
