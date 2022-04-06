@@ -87,7 +87,7 @@ module VagrantPlugins
 
       class << self
         def mappers
-          @mappers ||= Mapper.registered.map(&:new)
+          @mappers ||= Mapper.registered.map(&:new).freeze
         end
 
         def cache
