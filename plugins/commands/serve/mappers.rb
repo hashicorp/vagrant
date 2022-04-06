@@ -248,6 +248,11 @@ module VagrantPlugins
         # If we don't have a desired final type, test for mappers
         # that are satisfied by the arguments we have and run that
         # directly
+        if blind_to = @@blind_maps[value.class]
+          logger.debug { "found existing blind mapping for type #{value.class} -> #{blind_to}" }
+          to = blind_to
+        end
+
         if to.nil?
           valid_outputs = []
           cb = lambda do |k|
