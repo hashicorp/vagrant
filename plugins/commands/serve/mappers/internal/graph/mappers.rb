@@ -9,10 +9,10 @@ module VagrantPlugins
             include Util::HasLogger
             # Weight given to root vertex
             ROOT_WEIGHT = 0
+            # Weight given to source vertex or initial value
+            SOURCE_WEIGHT = 0
             # Weight given to the destination vertex
             FINAL_WEIGHT = 0
-            # Weight given to first input value vertex
-            BASE_WEIGHT = 0
             # Weight given to output types matching final
             DST_WEIGHT = 0
             # Weight given to named input value vertices
@@ -26,6 +26,8 @@ module VagrantPlugins
 
             # @return [Graph] graph instance representing mappers
             attr_reader :graph
+            # @return [Object] source input value
+            attr_reader :source
             # @return [Array<Object>] input values
             attr_reader :inputs
             # @return [String] named input to prefer
@@ -34,6 +36,52 @@ module VagrantPlugins
             attr_reader :mappers
             # @return [Class] expected return type
             attr_reader :final
+            # @return [Boolean] graph is fresh (not using cached vertex list)
+            attr_reader :fresh
+            # @return [Array<Proc>] list of callables used for Method vertices
+            attr_reader :callables
+
+            @previous = {}
+
+            class << self
+              # Register a valid path for a given source
+              # and destination
+              #
+              # @param src [Class] source type
+              # @param dst [Class] destination type
+              # @param path [Array<Vertex>]
+              def register(src, dst, path)
+                begin
+                  @previous[generate_key(src, dst)] = path
+                rescue KeyError
+                  nil
+                end
+              end
+
+              # Fetch a path for a given source and destination
+              # if it has been registered
+              #
+              # @param src [Class] source type
+              # @param dst [Class] destination type
+              # @return [Array<Vertex>, NilClass]
+              def previous(src, dst)
+                begin
+                  @previous[generate_key(src, dst)]
+                rescue KeyError
+                  nil
+                end
+              end
+
+              # Generate lookup key for given source
+              # and destination
+              #
+              # @param src [Class] source
+              # @param dst [Class] destination
+              # @return [String]
+              def generate_key(src, dst)
+                "#{src} -> #{dst}"
+              end
+            end
 
             # Wrap a mappers instance into a graph with input values
             # and determine and execute required path for desired output
@@ -42,24 +90,41 @@ module VagrantPlugins
             # @param input_values [Array<Object>] Values provided for execution
             # @param mappers [Mappers] Mappers instance to use
             # @param named [String] Named input to prefer
-            def initialize(output_type:, input_values:, mappers:, named: nil)
+            # @param source [Object] Source value for conversion (optional)
+            def initialize(output_type:, input_values:, mappers:, named: nil, source: nil)
               if !output_type.nil? && !output_type.is_a?(Class) && !output_type.is_a?(Module)
                 raise TypeError,
                   "Expected output type to be `Class', got `#{output_type.class}' (#{output_type})"
               end
               @final = output_type
+              @source = source
               @inputs = Array(input_values)
               if !mappers.is_a?(CommandServe::Mappers)
                 raise TypeError,
                   "Expected mapper to be `Mappers', got `#{mappers.class}'"
               end
               @mappers = mappers
+              @callables = mappers.mappers
               @named = named.to_s
+              @fresh = true
+
+              # If we have a valid source type (and are not generating a value) check
+              # if a path has already been registered for this source/destination
+              # pair. If it has, we can fetch the callables out of the registered
+              # path and build our graph only using that subset of callables
+              if source != GENERATE_CLASS && self.class.previous(source, final)
+                @callables = self.class.previous(source, final).find_all { |v|
+                  v.is_a?(Vertex::Method)
+                }.map(&:callable)
+                # Since we built the graph using a registered path lookup, mark
+                # this as non-fresh
+                @fresh = false
+              end
 
               setup!
 
-              logger.debug("new graph mappers instance created #{self}")
-              logger.trace("graph: #{graph.inspect}")
+              logger.debug { "new graph mappers instance created #{self}" }
+              logger.trace { "graph: #{graph.inspect}" }
             end
 
             # Generate path and execute required mappers
@@ -69,7 +134,7 @@ module VagrantPlugins
               # Generate list of vertices to reach destination
               # from root, if possible
               search = Search.new(graph: graph)
-              logger.debug("searching for conversion path #{inputs.first} -> #{final}")
+              logger.debug { "searching for conversion path #{source ? source.class : inputs.first.class} -> #{final}" }
               p = search.path(@root, @dst)
 
               logger.debug {
@@ -79,12 +144,19 @@ module VagrantPlugins
                 }.join(" ->\n  ")
                 "found execution path:\n  #{sp}"
               }
+
               # Call root first and validate it was
               # actually root. The value is a stub,
               # so it's not saved.
               result = p.shift.call
               if result != :root
                 raise "Initial vertex is not root. Expected `:root', got `#{result}'"
+              end
+
+              # If we were not generating a value and the graph was fresh,
+              # register this path lookup for future use.
+              if source != GENERATE_CLASS && fresh
+                self.class.register(source, final, p)
               end
 
               # Execute each vertex in the path
@@ -117,8 +189,10 @@ module VagrantPlugins
               @root = graph.add_vertex(Graph::Vertex::Root.new(value: :root))
               @root.weight = ROOT_WEIGHT
               # Add the provided input values
-              root_value = true
-              input_vertices = inputs.map do |input_value|
+              input_vertices = []
+              initial_value = true
+
+              input_vertices += inputs.map do |input_value|
                 next if input_value == GENERATE
                 if input_value.is_a?(Type::NamedArgument)
                   iv = graph.add_vertex(
@@ -130,9 +204,9 @@ module VagrantPlugins
                   iv.weight = input_value.name.to_s == named ? NAMED_VALUE_WEIGHT : VALUE_WEIGHT
                 else
                   iv = graph.add_vertex(Graph::Vertex::Value.new(value: input_value))
-                  iv.weight = root_value ? BASE_WEIGHT : VALUE_WEIGHT
+                  iv.weight = initial_value ? SOURCE_WEIGHT : VALUE_WEIGHT
                 end
-                root_value = false
+                initial_value = false
                 graph.add_edge(@root, iv)
                 iv
               end.compact
@@ -147,7 +221,7 @@ module VagrantPlugins
               fn_outputs = Array.new
               # Create vertices for all our registered mappers,
               # as well as their inputs and outputs
-              mappers.mappers.each do |mapper|
+              callables.each do |mapper|
                 fn = graph.add_vertex(Graph::Vertex::Method.new(callable: mapper))
                 fn_inputs += mapper.inputs.map do |i|
                   iv = graph.add_vertex(Graph::Vertex::Input.new(type: i.type))
