@@ -282,40 +282,44 @@ module VagrantPlugins
           end
           last_error = nil
           valid_outputs.each do |out|
-            logger.debug("attempting blind map #{value} -> #{out}")
+            logger.debug { "attempting blind map #{value} -> #{out}" }
             begin
               m_graph = Internal::Graph::Mappers.new(
                 output_type: out,
                 mappers: map_mapper,
                 named: named,
                 input_values: args,
+                source: value != GENERATE ? value.class : nil,
               )
               result = m_graph.execute
               to = out
               break
             rescue => err
-              logger.debug("typeless mapping failure (non-critical): #{err} (input - #{value.class} / output #{out})")
+              logger.debug { "typeless mapping failure (non-critical): #{err} (input - #{value.class} / output #{out})" }
               last_error = err
             end
           end
           raise last_error if result.nil? && last_error
+          @@blind_maps[value.class] = to
         else
           m_graph = Internal::Graph::Mappers.new(
             output_type: to,
             mappers: map_mapper,
             named: named,
             input_values: args,
+            source: value != GENERATE ? value.class : nil
           )
           result = m_graph.execute
+          @@blind_maps[value.class] = to
         end
-        logger.debug("map of #{value.class} to #{to.nil? ? 'unknown' : to.inspect} => #{result}")
+        logger.debug { "map of #{value.class} to #{to.nil? ? 'unknown' : to.inspect} => #{result}" }
         if any_convert && !result.is_a?(Google::Protobuf::Any)
           return Google::Protobuf::Any.pack(result)
         end
         result
       rescue => err
-        logger.debug("mapping failed of #{value.class} to #{to.nil? ? 'unknown' : to.inspect} - #{err}")
-        logger.trace("#{err.class}: #{err}\n" + err.backtrace.join("\n"))
+        logger.debug { "mapping failed of #{value.class} to #{to.nil? ? 'unknown' : to.inspect} - #{err}" }
+        logger.trace { "#{err.class}: #{err}\n" + err.backtrace.join("\n") }
         raise
       end
 
