@@ -6,6 +6,8 @@ module VagrantPlugins
           class Vertex
             # Vertex that represents a method
             class Method < Vertex
+              attr_reader :callable
+
               def initialize(callable:)
                 @callable = callable
               end
@@ -16,6 +18,10 @@ module VagrantPlugins
               # are required
               def incoming_edges_required
                 true
+              end
+
+              def hash_code
+                @callable.object_id
               end
 
               # When a method vertex is called,
