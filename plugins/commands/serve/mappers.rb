@@ -85,13 +85,24 @@ module VagrantPlugins
       # @return [Util::Cacher] cached mapped values
       attr_accessor :cacher
 
+      class << self
+        def mappers
+          @mappers ||= Mapper.registered.map(&:new)
+        end
+
+        def cache
+          @cache ||= Util::Cacher.new
+        end
+      end
+
       # Create a new mappers instance. Any arguments provided will be
       # available to all mapper calls
       def initialize(*args)
         @known_arguments = Array(args).compact
         Mapper.generate_anys
-        @mappers = Mapper.registered.map(&:new)
-        @cacher = Util::Cacher.new
+        @mappers = self.class.mappers
+        @cacher = self.class.cache
+        @@blind_maps ||= {}
       end
 
       # Create a clone of this mappers instance
