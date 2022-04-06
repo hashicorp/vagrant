@@ -60,7 +60,7 @@ module VagrantPlugins
       REVERSE_MAPS.delete_if { |k, _| !k.name.include?("::") }
 
       # Constant used for generating value
-      GENERATE = Class.new {
+      GENERATE_CLASS = Class.new {
         def self.to_s
           "[Value Generation]"
         end
@@ -70,7 +70,8 @@ module VagrantPlugins
         def inspect
           to_s
         end
-      }.new.freeze
+      }
+      GENERATE = GENERATE_CLASS.new.freeze
 
       include Util::HasLogger
 
