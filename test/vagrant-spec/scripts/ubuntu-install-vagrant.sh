@@ -35,6 +35,11 @@ popd
 # Install vagrant-spec
 git clone https://github.com/hashicorp/vagrant-spec.git
 pushd vagrant-spec
+
+# TEMP: We are using a branch of vagrant-spec while we stabilize the changes
+# necessary. Once this branch lands we can remove this line and build from main.
+git checkout vagrant-ruby
+
 gem build vagrant-spec.gemspec
 gem install vagrant-spec*.gem
 popd
