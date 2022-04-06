@@ -45,21 +45,6 @@ module Vagrant
         client.machines(index.to_proto)
       end
 
-      def downcase_stringify_keys(m)
-        m.each do |k,v|
-          if v.is_a?(Array)
-            v.each { |e| downcase_stringify_keys(e) if e.is_a?(Hash) }
-          elsif v.is_a?(Hash)
-            v.transform_keys!(&:to_s)
-            v.transform_keys!(&:downcase)
-          end
-
-        end
-        m.transform_keys!(&:to_s)
-        m.transform_keys!(&:downcase)
-        return m
-      end
-
       def has_update?(version=nil, **opts)
         update_info = client.update_info(version)
         if update_info.nil?
@@ -68,7 +53,6 @@ module Vagrant
         metadata = update_info[0]
         new_version = update_info[1]
         new_provider = update_info[2]
-        # m = downcase_stringify_keys(metadata)
         [
           BoxMetadata.new(nil, client: metadata),
           BoxMetadata::Version.new({"version" => new_version}, ver: new_version, client: metadata), 
