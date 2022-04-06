@@ -92,6 +92,9 @@ func NewBasis(ctx context.Context, opts ...BasisOption) (b *Basis, err error) {
 	} else {
 		b.logger = b.logger.ResetNamed("vagrant.core.basis")
 	}
+	// Whatever the logger ended up being named, chain the coreplugins logger
+	// off of that
+	b.corePlugins.logger = b.logger.Named("coreplugins")
 
 	if b.basis == nil {
 		return nil, fmt.Errorf("basis data was not properly loaded")
