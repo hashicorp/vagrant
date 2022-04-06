@@ -785,7 +785,8 @@ func (b *Basis) callDynamicFunc(
 
 	// Add seed arguments
 	for _, v := range b.seedValues.Typed {
-		b.logger.Info("seeding typed value into dynamic call",
+		b.logger.Trace("seeding typed value into dynamic call",
+			"fn", hclog.Fmt("%p", f),
 			"value", hclog.Fmt("%T", v),
 		)
 
@@ -793,7 +794,8 @@ func (b *Basis) callDynamicFunc(
 	}
 
 	for k, v := range b.seedValues.Named {
-		b.logger.Info("seeding named value into dynamic call",
+		b.logger.Trace("seeding named value into dynamic call",
+			"fn", hclog.Fmt("%p", f),
 			"name", k,
 			"value", hclog.Fmt("%T", v),
 		)
