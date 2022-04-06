@@ -68,11 +68,11 @@ module Vagrant
         metadata = update_info[0]
         new_version = update_info[1]
         new_provider = update_info[2]
-        m = downcase_stringify_keys(metadata)
+        # m = downcase_stringify_keys(metadata)
         [
-          BoxMetadata.new(nil, m),
-          BoxMetadata::Version.new({"version" => new_version}), 
-          BoxMetadata::Provider.new({"name" => new_provider}),
+          BoxMetadata.new(nil, client: metadata),
+          BoxMetadata::Version.new({"version" => new_version}, ver: new_version, client: metadata), 
+          BoxMetadata::Provider.new({"name" => new_provider}, client: metadata),
         ]
       end
 

@@ -30,7 +30,7 @@ module VagrantPlugins
             version: version
           ))
           if res.has_update
-            meta = mapper.map(res.metadata, to: Hash)
+            meta = mapper.map(res.metadata, to: Client::BoxMetadata)
             return [meta, res.new_version, res.new_provider]
           else
             nil

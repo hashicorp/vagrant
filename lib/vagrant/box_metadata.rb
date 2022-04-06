@@ -99,7 +99,7 @@ module Vagrant
       # @return [String]
       attr_accessor :version
 
-      def initialize(raw=nil)
+      def initialize(raw=nil, **_)
         return if !raw
 
         @version = raw["version"]
@@ -149,7 +149,7 @@ module Vagrant
       # @return [String]
       attr_accessor :checksum_type
 
-      def initialize(raw)
+      def initialize(raw, **_)
         @name = raw["name"]
         @url  = raw["url"]
         @checksum = raw["checksum"]

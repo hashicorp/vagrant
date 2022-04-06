@@ -848,7 +848,7 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
     end
     add_message "hashicorp.vagrant.sdk.Box.UpdateInfoResponse" do
       optional :has_update, :bool, 1
-      optional :metadata, :message, 2, "hashicorp.vagrant.sdk.Args.Hash"
+      optional :metadata, :message, 2, "hashicorp.vagrant.sdk.Args.BoxMetadata"
       optional :new_version, :string, 3
       optional :new_provider, :string, 4
     end

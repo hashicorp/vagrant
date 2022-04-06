@@ -244,7 +244,7 @@ func (b *Box) HasUpdate(version string) (updateAvailable bool, err error) {
 	return
 }
 
-func (b *Box) UpdateInfo(version string) (updateAvailable bool, meta core.BoxMetadataMap, newVersion string, newProvider string, err error) {
+func (b *Box) UpdateInfo(version string) (updateAvailable bool, meta core.BoxMetadata, newVersion string, newProvider string, err error) {
 	metadata, err := b.loadMetadata()
 	if err != nil {
 		return false, nil, "", "", err
@@ -265,7 +265,7 @@ func (b *Box) UpdateInfo(version string) (updateAvailable bool, meta core.BoxMet
 	if result == nil {
 		return false, nil, "", "", nil
 	}
-	return true, metadata.ToMap(), result.Version, b.box.Provider, nil
+	return true, metadata, result.Version, b.box.Provider, nil
 }
 
 // Checks if this box is in use according to the given machine

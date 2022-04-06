@@ -15,15 +15,21 @@ module Vagrant
       attr_accessor :description
 
       # @param [IO] io An IO object to read the metadata from.
-      def initialize(io, url: nil)
+      def initialize(io, url: nil, client: nil)
         @logger = Log4r::Logger.new("vagrant::box")
 
-        if url.nil?
-          raise ArgumentError,
-            "Metadata URL is required for `#{self.class.name}'"
+        if !client.nil? 
+          # Use client if available
+          @client = client
+        else
+          # If client is not available, then try to load from url
+          if url.nil?
+            raise ArgumentError,
+              "Metadata URL is required for `#{self.class.name}' if a client is not provided"
+          end
+          @client = Vagrant.plugin("2").remote_manager.core_plugin_manager.get_plugin("boxmetadata")
+          @client.load_metadata(url)
         end
-        @client = Vagrant.plugin("2").remote_manager.core_plugin_manager.get_plugin("boxmetadata")
-        @client.load_metadata(url)
         @name = @client.name
       end
 
