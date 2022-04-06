@@ -105,14 +105,10 @@ module VagrantPlugins
         @@blind_maps ||= {}
       end
 
-      # Create a clone of this mappers instance
-      #
-      # @return [Mappers]
-      def clone
-        self.class.new(*known_arguments).tap do |m|
-          m.cacher = cacher
-          m.mappers.replace(mappers.dup)
-        end
+      def initialize_copy(orig)
+        @mappers = orig.mappers.dup
+        @cacher = orig.cacher
+        @known_arguments = orig.known_arguments
       end
 
       # Add an argument to be included with mapping calls
