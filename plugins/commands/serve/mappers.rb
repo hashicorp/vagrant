@@ -86,14 +86,36 @@ module VagrantPlugins
       attr_accessor :cacher
 
       class << self
+        # @return [Array<Mapper>] frozen list of available mappers
         def mappers
           @mappers ||= Mapper.registered.map(&:new).freeze
         end
 
+        # @return [Util::Cacher]
         def cache
           @cache ||= Util::Cacher.new
         end
+
+        # Register a destination type for blind mappings
+        #
+        # @param src [Class] source type
+        # @param dst [Class] destination type
+        # @return [Class] destination type
+        def register_blind_map(src, dst)
+          @blind_map_registry[src] = dst
+        end
+
+        # Get a destination type for blind mapping if registered
+        #
+        # @param src [Class] source type
+        # @return [Class, NilClass] destination type or nil
+        def blind_map_for(src)
+          @blind_map_registry[src]
+        end
       end
+
+      # Initialize our lookup table
+      @blind_map_registry = {}
 
       # Create a new mappers instance. Any arguments provided will be
       # available to all mapper calls
@@ -102,7 +124,6 @@ module VagrantPlugins
         Mapper.generate_anys
         @mappers = self.class.mappers
         @cacher = self.class.cache
-        @@blind_maps ||= {}
       end
 
       def initialize_copy(orig)
@@ -235,8 +256,8 @@ module VagrantPlugins
         # If we don't have a desired final type, test for mappers
         # that are satisfied by the arguments we have and run that
         # directly
-        if value != GENERATE && @@blind_maps[value.class]
-          blind_to = @@blind_maps[value.class]
+        if to.nil? && value != GENERATE && self.class.blind_map_for(value.class)
+          blind_to = self.class.blind_map_for(value.class)
           logger.debug { "found existing blind mapping for type #{value.class} -> #{blind_to}" }
           to = blind_to
         end
@@ -288,7 +309,7 @@ module VagrantPlugins
             end
           end
           raise last_error if result.nil? && last_error
-          @@blind_maps[value.class] = to
+          self.class.register_blind_map(value.class, to)
         else
           m_graph = Internal::Graph::Mappers.new(
             output_type: to,
@@ -298,11 +319,11 @@ module VagrantPlugins
             source: value != GENERATE ? value.class : nil
           )
           result = m_graph.execute
-          @@blind_maps[value.class] = to
         end
         logger.debug { "map of #{value.class} to #{to.nil? ? 'unknown' : to.inspect} => #{result}" }
-        if any_convert && !result.is_a?(Google::Protobuf::Any)
-          return Google::Protobuf::Any.pack(result)
+        if !result.is_a?(to)
+          raise TypeError,
+            "Value is not expected destination type `#{to}' (actual type: #{result.class})"
         end
         result
       rescue => err
