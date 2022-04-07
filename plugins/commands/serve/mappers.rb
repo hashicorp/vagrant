@@ -170,22 +170,13 @@ module VagrantPlugins
         end
         value = extra_args.shift if value
 
-        # If our destination type is an Any, mark that the final type should
-        # be any and unset our destination type. This will allow us to
-        # attempt to find a proper destination type using our maps and
-        # then we can pack it into any Any value at the end
-        if to == Google::Protobuf::Any && !value.class.ancestors.include?(Google::Protobuf::MessageExts)
-          any_convert = true
-          to = nil
-        end
-
         # If we don't have a destination type provided, attempt
         # to set it using our default maps
         to = DEFAULT_MAPS[value.class] if to.nil?
         if value != GENERATE && to.nil?
           to = REVERSE_MAPS.detect do |k, v|
             v if value.class.ancestors.include?(k) &&
-              (!any_convert || v.ancestors.include?(Google::Protobuf::MessageExts))
+              v.ancestors.include?(Google::Protobuf::MessageExts)
           end&.last
         end
 
@@ -198,7 +189,7 @@ module VagrantPlugins
             item.is_a?(to)
           end
           if val && val != GENERATE
-            return any_convert ? Google::Protobuf::Any.pack(val) : val
+            return val
           end
         end
 
