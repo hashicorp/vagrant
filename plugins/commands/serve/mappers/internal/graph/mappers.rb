@@ -58,6 +58,16 @@ module VagrantPlugins
                 end
               end
 
+              # Remove an existing path registration
+              #
+              # @param src [Class] source type
+              # @param dst [Class] destination type
+              # @return [NilClass]
+              def unregister(src, dst)
+                @previous.delete(generate_key(src, dst))
+                nil
+              end
+
               # Fetch a path for a given source and destination
               # if it has been registered
               #
@@ -170,6 +180,22 @@ module VagrantPlugins
               # The resultant value will be stored within the
               # destination vertex
               @dst.value
+            rescue => err
+              # If a failure was encountered and the graph was fresh
+              # allow the error to continue bubbling up
+              raise if fresh
+
+              # If the graph is not fresh, unregister the cached path
+              # and retry the mapping with the full graph
+              logger.trace("search execution using cached path failed, retrying with full graph (#{err})")
+              self.class.unregister(source, final)
+              self.class.new(
+                output_type: final,
+                input_values: inputs,
+                mappers: mappers,
+                named: named,
+                source: source
+              ).execute
             end
 
             def to_s
