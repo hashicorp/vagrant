@@ -40,7 +40,7 @@ module Vagrant
         #   any folders that should remain.
         # @param [Hash] opts Any options for the synced folders.
         def prepare(machine, folders, opts)
-          client.prepare(machine.to_proto, folders, opts)
+          client.prepare(machine, folders, opts)
         end
 
         # @param [Machine] machine
@@ -49,7 +49,7 @@ module Vagrant
         # @return [Boolean]
         def usable?(machine, raise_error=false)
           begin
-            client.usable(machine.to_proto)
+            client.usable(machine)
           rescue
             raise if raise_error
           end
