@@ -464,7 +464,11 @@ module VagrantPlugins
                 @logger.info("  - Key Path: #{ssh_info[:private_key_path]}")
                 @logger.debug("  - connect_opts: #{connect_opts}")
 
-                Net::SSH.start(ssh_info[:host], ssh_info[:username], connect_opts)
+                if machine_config_ssh.shell.eql?("voss")
+                  voss(ssh_info[:host], ssh_info[:username], connect_opts)
+                else
+                  Net::SSH.start(ssh_info[:host], ssh_info[:username], connect_opts)
+                end
               ensure
                 # Make sure we output the connection log
                 @logger.debug("== Net-SSH connection debug-level log START ==")
@@ -771,6 +775,17 @@ module VagrantPlugins
 
       def machine_config_ssh
         @machine.config.ssh
+      end
+
+      def voss(host, user, options, cmd = "")
+        ssh = Net::SSH.start(host, user, options)
+        ssh.open_channel do |channel|
+          channel.send_channel_request("shell")
+          channel.send_data(cmd)
+          channel.send_data("exit\r\n")
+        end
+        ssh.loop
+        return ssh
       end
     end
   end
