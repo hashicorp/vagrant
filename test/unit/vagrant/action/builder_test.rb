@@ -251,8 +251,8 @@ describe Vagrant::Action::Builder do
     end
 
     it "applies them properly" do
-      hook_proc = proc{ |h| h.append(appender_proc(2)) }
-      expect(manager).to receive(:action_hooks).with(:test_action).
+      hook_proc = proc{ |h| h.append(appender_proc(:hook)) }
+      allow(manager).to receive(:action_hooks).with(:test_action).
         and_return([hook_proc])
 
       data[:action_name] = :test_action
@@ -260,7 +260,23 @@ describe Vagrant::Action::Builder do
       subject.use appender_proc(1)
       subject.call(data)
 
-      expect(data[:data]).to eq([1, 2])
+      expect(data[:data]).to eq([1, :hook])
+    end
+
+    it "applies them properly even with nested stacks" do
+      hook_proc = proc{ |h| h.append(appender_proc(:hook)) }
+      allow(manager).to receive(:action_hooks).with(:test_action).
+        and_return([hook_proc])
+
+      data[:action_name] = :test_action
+
+      subject.use appender_proc(1)
+      subject.use Vagrant::Action::Builtin::Call, proc {} do |env, b2|
+        b2.use appender_proc(2)
+      end
+      subject.call(data)
+
+      expect(data[:data]).to eq([1, 2, :hook])
     end
   end
 
