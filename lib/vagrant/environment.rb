@@ -190,10 +190,10 @@ module Vagrant
 
       # Call the hooks that does not require configurations to be loaded
       # by using a "clean" action runner
-      hook(:environment_plugins_loaded, runner: Action::Runner.new(env: self))
+      hook(:environment_plugins_loaded, runner: Action::PrimaryRunner.new(env: self))
 
       # Call the environment load hooks
-      hook(:environment_load, runner: Action::Runner.new(env: self))
+      hook(:environment_load, runner: Action::PrimaryRunner.new(env: self))
     end
 
     # Return a human-friendly string for pretty printed or inspected
@@ -208,7 +208,7 @@ module Vagrant
     #
     # @return [Action::Runner]
     def action_runner
-      @action_runner ||= Action::Runner.new do
+      @action_runner ||= Action::PrimaryRunner.new do
         {
           action_runner:  action_runner,
           box_collection: boxes,

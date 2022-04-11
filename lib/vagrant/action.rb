@@ -2,10 +2,11 @@ require 'vagrant/action/builder'
 
 module Vagrant
   module Action
-    autoload :Builder,     'vagrant/action/builder'
-    autoload :Hook,        'vagrant/action/hook'
-    autoload :Runner,      'vagrant/action/runner'
-    autoload :Warden,      'vagrant/action/warden'
+    autoload :Builder,       'vagrant/action/builder'
+    autoload :Hook,          'vagrant/action/hook'
+    autoload :Runner,        'vagrant/action/runner'
+    autoload :PrimaryRunner, 'vagrant/action/primary_runner'
+    autoload :Warden,        'vagrant/action/warden'
 
     # Builtin contains middleware classes that are shipped with Vagrant-core
     # and are thus available to all plugins as a "standard library" of sorts.
