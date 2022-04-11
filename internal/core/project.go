@@ -54,18 +54,33 @@ type Project struct {
 	ui terminal.UI
 }
 
-func (b *Project) Config() (*vagrant_plugin_sdk.Vagrantfile_Vagrantfile, error) {
-	return b.project.Configuration, nil
-}
-
-// UI implements core.Project
-func (p *Project) UI() (terminal.UI, error) {
-	return p.ui, nil
+// ActiveTargets implements core.Project
+func (p *Project) ActiveTargets() (activeTargets []core.Target, err error) {
+	targets, err := p.Targets()
+	if err != nil {
+		return nil, err
+	}
+	activeTargets = []core.Target{}
+	for _, t := range targets {
+		st, err := t.State()
+		if err != nil {
+			return nil, err
+		}
+		if st == core.CREATED {
+			activeTargets = append(activeTargets, t)
+		}
+	}
+	return
 }
 
 // Boxes implements core.Project
 func (p *Project) Boxes() (bc core.BoxCollection, err error) {
 	return p.basis.Boxes()
+}
+
+// Config implements core.Project
+func (b *Project) Config() (*vagrant_plugin_sdk.Vagrantfile_Vagrantfile, error) {
+	return b.project.Configuration, nil
 }
 
 // CWD implements core.Project
@@ -82,15 +97,14 @@ func (p *Project) DataDir() (*datadir.Project, error) {
 	return p.dir, nil
 }
 
-// VagrantfileName implements core.Project
-func (p *Project) VagrantfileName() (name string, err error) {
-	fullPath := path.NewPath(p.project.Configuration.Path)
-	return fullPath.Base().String(), nil
+// DefaultPrivateKey implements core.Project
+func (p *Project) DefaultPrivateKey() (path string, err error) {
+	return p.basis.DefaultPrivateKey()
 }
 
-// VagrantfilePath implements core.Project
-func (p *Project) VagrantfilePath() (pp path.Path, err error) {
-	pp = path.NewPath(p.project.Configuration.Path).Parent()
+// DefaultProvider implements core.Project
+func (p *Project) DefaultProvider() (name string, err error) {
+	// TODO
 	return
 }
 
@@ -99,29 +113,31 @@ func (p *Project) Home() (path string, err error) {
 	return p.project.Path, nil
 }
 
-// LocalData implements core.Project
-func (p *Project) LocalData() (path string, err error) {
-	return p.dir.DataDir().String(), nil
-}
-
-// Tmp implements core.Project
-func (p *Project) Tmp() (path string, err error) {
-	return p.dir.TempDir().String(), nil
-}
-
-// DefaultPrivateKey implements core.Project
-func (p *Project) DefaultPrivateKey() (path string, err error) {
-	return p.basis.DefaultPrivateKey()
-}
-
 // Host implements core.Project
 func (p *Project) Host() (host core.Host, err error) {
 	return p.basis.Host()
 }
 
-// MachineIndex implements core.Project
-func (p *Project) TargetIndex() (index core.TargetIndex, err error) {
-	return p.basis.TargetIndex()
+// LocalData implements core.Project
+func (p *Project) LocalData() (path string, err error) {
+	return p.dir.DataDir().String(), nil
+}
+
+// PrimaryTargetName implements core.Project
+func (p *Project) PrimaryTargetName() (name string, err error) {
+	// TODO: This needs the Vagrantfile service to be implemented
+	return
+}
+
+// Resource implements core.Project
+func (p *Project) ResourceId() (string, error) {
+	return p.project.ResourceId, nil
+}
+
+// RootPath implements core.Project
+func (p *Project) RootPath() (path string, err error) {
+	// TODO: need vagrantfile loading to be completed in order to implement
+	return
 }
 
 // Target implements core.Project
@@ -150,6 +166,20 @@ func (p *Project) Target(nameOrId string) (core.Target, error) {
 	)
 }
 
+// TargetIds implements core.Project
+func (p *Project) TargetIds() ([]string, error) {
+	var ids []string
+	for _, t := range p.project.Targets {
+		ids = append(ids, t.ResourceId)
+	}
+	return ids, nil
+}
+
+// TargetIndex implements core.Project
+func (p *Project) TargetIndex() (index core.TargetIndex, err error) {
+	return p.basis.TargetIndex()
+}
+
 // TargetNames implements core.Project
 func (p *Project) TargetNames() ([]string, error) {
 	var names []string
@@ -159,13 +189,26 @@ func (p *Project) TargetNames() ([]string, error) {
 	return names, nil
 }
 
-// TargetIds implements core.Project
-func (p *Project) TargetIds() ([]string, error) {
-	var ids []string
-	for _, t := range p.project.Targets {
-		ids = append(ids, t.ResourceId)
-	}
-	return ids, nil
+// Tmp implements core.Project
+func (p *Project) Tmp() (path string, err error) {
+	return p.dir.TempDir().String(), nil
+}
+
+// UI implements core.Project
+func (p *Project) UI() (terminal.UI, error) {
+	return p.ui, nil
+}
+
+// VagrantfileName implements core.Project
+func (p *Project) VagrantfileName() (name string, err error) {
+	fullPath := path.NewPath(p.project.Configuration.Path)
+	return fullPath.Base().String(), nil
+}
+
+// VagrantfilePath implements core.Project
+func (p *Project) VagrantfilePath() (pp path.Path, err error) {
+	pp = path.NewPath(p.project.Configuration.Path).Parent()
+	return
 }
 
 // Targets
@@ -184,11 +227,6 @@ func (p *Project) Targets() ([]core.Target, error) {
 // Custom name defined for this project
 func (p *Project) Name() string {
 	return p.project.Name
-}
-
-// Resource ID for this project
-func (p *Project) ResourceId() (string, error) {
-	return p.project.ResourceId, nil
 }
 
 // Returns the job info if currently set
