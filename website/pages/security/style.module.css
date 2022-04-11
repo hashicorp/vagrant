@@ -1,5 +1,0 @@
-.root {
-  composes: g-grid-container from global;
-  max-width: 950px;
-  margin-top: 90px;
-}
