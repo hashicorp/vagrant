@@ -63,10 +63,10 @@ module Vagrant
 
         # Call the hooks that does not require configurations to be loaded
         # by using a "clean" action runner
-        hook(:environment_plugins_loaded, runner: Action::Runner.new(env: self))
+        hook(:environment_plugins_loaded, runner: Action::PrimaryRunner.new(env: self))
 
         # Call the environment load hooks
-        hook(:environment_load, runner: Action::Runner.new(env: self))
+        hook(:environment_load, runner: Action::PrimaryRunner.new(env: self))
       end
 
       # Returns the collection of boxes for the environment.
