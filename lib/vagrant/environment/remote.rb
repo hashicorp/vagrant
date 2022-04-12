@@ -69,6 +69,15 @@ module Vagrant
         hook(:environment_load, runner: Action::PrimaryRunner.new(env: self))
       end
 
+      def active_machines
+        targets = client.active_targets
+        names = []
+        targets.each do |t|
+          names << t.name
+        end
+        names
+      end
+
       # Returns the collection of boxes for the environment.
       #
       # @return [BoxCollection]
@@ -76,6 +85,27 @@ module Vagrant
         box_colletion_client = client.boxes
         @_boxes ||= BoxCollection.new(nil, client: box_colletion_client)
       end
+
+      def config_loader
+        return @config_loader if @config_loader
+
+        root_vagrantfile = nil
+        if client.respond_to?(:vagrantfile_path) && client.respond_to?(:vagrantfile_name)
+          path = client.vagrantfile_path
+          name = client.vagrantfile_name
+          root_vagrantfile = path.join(name).to_s
+        end
+        @config_loader = Config::Loader.new(
+          Config::VERSIONS, Config::VERSIONS_ORDER)
+        @config_loader.set(:root, root_vagrantfile) if root_vagrantfile
+        @config_loader
+      end
+
+      # TODO: for now don't interfere with the default_provider method
+      #  once it is implemented on the Go side then this can be uncommented
+      # def default_provider(**opts)
+      #   client.default_provider
+      # end
 
       # Returns the host object associated with this environment.
       #
@@ -96,14 +126,14 @@ module Vagrant
         client.target(name)
       end
 
-      def setup_home_path
-        # no-op
-        # Don't setup a home path in ruby
+      # @param [String] machine name
+      # return [Vagrant::Machine]
+      def machine(name, *_, **_)
+        client.machine(name)
       end
 
-      def setup_local_data_path(force=false)
-        # no-op
-        # Don't setup a home path in ruby
+      def machine_names
+        client.target_names
       end
 
       # The {MachineIndex} to store information about the machines.
@@ -113,19 +143,23 @@ module Vagrant
         @machine_index ||= Vagrant::MachineIndex.new(client: client.target_index)
       end
 
-      def config_loader
-        return @config_loader if @config_loader
+      def primary_machine_name
+        client.primary_target_name
+      end
 
-        root_vagrantfile = nil
-        if client.respond_to?(:vagrantfile_path) && client.respond_to?(:vagrantfile_name)
-          path = client.vagrantfile_path
-          name = client.vagrantfile_name
-          root_vagrantfile = path.join(name).to_s
-        end
-        @config_loader = Config::Loader.new(
-          Config::VERSIONS, Config::VERSIONS_ORDER)
-        @config_loader.set(:root, root_vagrantfile) if root_vagrantfile
-        @config_loader
+      # def root_path
+      # TODO: need the vagrantfile service to be in place in order to be 
+      # implemented on the Go side
+      # end
+
+      def setup_home_path
+        # no-op
+        # Don't setup a home path in ruby
+      end
+
+      def setup_local_data_path(force=false)
+        # no-op
+        # Don't setup a home path in ruby
       end
 
       def vagrantfile

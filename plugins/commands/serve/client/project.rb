@@ -7,8 +7,8 @@ module VagrantPlugins
         def active_targets
           t = client.active_targets(Empty.new)
           targets = []
-          t.each do |target|
-            targets << Target.load(target)
+          t.targets.each do |target|
+            targets << Target.load(target, broker: broker)
           end
           targets
         end
@@ -78,6 +78,13 @@ module VagrantPlugins
           resp.path
         end
 
+        # return [Vagrant::Machine]
+        def machine(name)
+          t = client.target(SDK::Project::TargetRequest.new(name: name))
+          machine = mapper.map(t, to: Vagrant::Machine)
+          return machine
+        end
+
         # return [String]
         def primary_target_name
           resp = client.primary_target_name(Empty.new)
@@ -118,7 +125,6 @@ module VagrantPlugins
         # Returns a machine client for the given name
         # return [VagrantPlugins::CommandServe::Client::Target::Machine]
         def target(name)
-          logger.debug("searching for target #{name}")
           target = Target.load(
             client.target(SDK::Project::TargetRequest.new(name: name)),
             broker: broker
