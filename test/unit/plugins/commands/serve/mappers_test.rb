@@ -10,11 +10,16 @@ describe VagrantPlugins::CommandServe::Mappers do
   context "Hash" do
     it "unwraps wrapper types when they show up in the Hash" do
       input = Hashicorp::Vagrant::Sdk::Args::Hash.new(
-        fields: {
-          "error_check" => Google::Protobuf::Any.pack(
-            Google::Protobuf::BoolValue.new(value: false)
+        entries: [
+          Hashicorp::Vagrant::Sdk::Args::HashEntry.new(
+            key: Google::Protobuf::Any.pack(
+              Hashicorp::Vagrant::Sdk::Args::Symbol.new(str: "error_check")
+            ),
+            value: Google::Protobuf::Any.pack(
+              Google::Protobuf::BoolValue.new(value: false)
+            )
           )
-        }
+        ]
       )
       output = subject.map(input, to: Hash)
 
