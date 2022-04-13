@@ -12,6 +12,7 @@ module VagrantPlugins
             autoload :Output, Vagrant.source_root.join("plugins/commands/serve/mappers/internal/graph/vertex/output").to_s
             autoload :Root, Vagrant.source_root.join("plugins/commands/serve/mappers/internal/graph/vertex/root").to_s
             autoload :Value, Vagrant.source_root.join("plugins/commands/serve/mappers/internal/graph/vertex/value").to_s
+
             # @return [Object] value of vertex
             attr_reader :value
 
@@ -40,6 +41,15 @@ module VagrantPlugins
             # Executes the vertex if applicable
             def call(*_)
               value
+            end
+
+            def ==(v)
+              v.hash_code == hash_code
+            end
+            alias_method :eql?, :==
+
+            def hash
+              hash_code.to_s.chars.map(&:ord).sum.hash
             end
 
             def to_s
