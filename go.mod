@@ -34,7 +34,7 @@ require (
 	github.com/gorilla/websocket v1.4.2 // indirect
 	github.com/h2non/filetype v1.1.1
 	github.com/hashicorp/errwrap v1.1.0 // indirect
-	github.com/hashicorp/go-argmapper v0.2.2-0.20210810211021-b2c94a138ec3
+	github.com/hashicorp/go-argmapper v0.2.3
 	github.com/hashicorp/go-getter v1.5.9
 	github.com/hashicorp/go-hclog v0.16.2
 	github.com/hashicorp/go-memdb v1.2.0
