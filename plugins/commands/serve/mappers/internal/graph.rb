@@ -116,6 +116,10 @@ module VagrantPlugins
             @vertices_dict.keys
           end
 
+          def each_vertex(&block)
+            vertices.each(&block)
+          end
+
           def num_vertices
             @vertices_dict.size
           end
