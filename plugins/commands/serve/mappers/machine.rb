@@ -58,17 +58,13 @@ module VagrantPlugins
         def initialize
           inputs = [].tap do |i|
             i << Input.new(type: Client::Target)
-            i << Input.new(type: Mappers)
           end
           super(inputs: inputs, output: Vagrant::Machine, func: method(:converter))
         end
 
-        def converter(target, mappers)
-          env = mappers.map(target.project, to: Vagrant::Environment)
-          env.machine(
-            target.name.to_sym,
-            target.provider_name.to_sym,
-          )
+        def converter(target)
+          m = target.to_machine
+          Vagrant::Machine.new(client=m)
         end
       end
 
