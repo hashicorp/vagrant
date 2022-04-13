@@ -116,14 +116,6 @@ module Vagrant
         @host
       end
 
-      # Gets a target (machine) by name
-      #
-      # @param [String] machine name
-      # return [VagrantPlugins::CommandServe::Client::Machine]
-      def get_target(name)
-        client.target(name)
-      end
-
       # @param [String] machine name
       # return [Vagrant::Machine]
       def machine(name, *_, **_)
