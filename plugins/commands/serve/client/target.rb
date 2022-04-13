@@ -35,6 +35,11 @@ module VagrantPlugins
           true
         end
 
+        # @return [Vagrant::Environment]
+        def environment
+          mapper.map(project, to: Vagrant::Environment)
+        end
+
         # @return [String] Unique identifier of machine
         def get_uuid
           client.get_uuid(Empty.new).uuid
@@ -57,7 +62,6 @@ module VagrantPlugins
         end
 
         # @return [Provider] provider for target
-        # TODO: This needs to be loaded proeprly
         def provider
           client.provider(Empty.new)
         end
@@ -102,6 +106,15 @@ module VagrantPlugins
         # @return [Symbol] state of the target
         def state
           client.state(Empty.new).state
+        end
+
+        # @return [Terminal]
+        def ui
+          t = Terminal.load(
+            client.ui(Google::Protobuf::Empty.new),
+            broker: @broker,
+          )
+          mapper.map(t, to: Vagrant::UI::Remote)
         end
 
         # @return [Time] time target was last updated
