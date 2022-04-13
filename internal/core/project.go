@@ -79,8 +79,9 @@ func (p *Project) Boxes() (bc core.BoxCollection, err error) {
 }
 
 // Config implements core.Project
-func (b *Project) Config() (*vagrant_plugin_sdk.Vagrantfile_Vagrantfile, error) {
-	return b.project.Configuration, nil
+func (p *Project) Config() (*vagrant_plugin_sdk.Vagrantfile_Vagrantfile, error) {
+	p.refreshProject()
+	return p.project.Configuration, nil
 }
 
 // CWD implements core.Project
@@ -107,6 +108,7 @@ func (p *Project) DefaultProvider() (name string, err error) {
 
 // Home implements core.Project
 func (p *Project) Home() (dir path.Path, err error) {
+	p.refreshProject()
 	return path.NewPath(p.project.Path), nil
 }
 
@@ -128,6 +130,7 @@ func (p *Project) PrimaryTargetName() (name string, err error) {
 
 // Resource implements core.Project
 func (p *Project) ResourceId() (string, error) {
+	p.refreshProject()
 	return p.project.ResourceId, nil
 }
 
@@ -165,6 +168,7 @@ func (p *Project) Target(nameOrId string) (core.Target, error) {
 
 // TargetIds implements core.Project
 func (p *Project) TargetIds() ([]string, error) {
+	p.refreshProject()
 	var ids []string
 	for _, t := range p.project.Targets {
 		ids = append(ids, t.ResourceId)
@@ -179,6 +183,7 @@ func (p *Project) TargetIndex() (index core.TargetIndex, err error) {
 
 // TargetNames implements core.Project
 func (p *Project) TargetNames() ([]string, error) {
+	p.refreshProject()
 	var names []string
 	for _, t := range p.project.Targets {
 		names = append(names, t.Name)
@@ -198,18 +203,21 @@ func (p *Project) UI() (terminal.UI, error) {
 
 // VagrantfileName implements core.Project
 func (p *Project) VagrantfileName() (name string, err error) {
+	p.refreshProject()
 	fullPath := path.NewPath(p.project.Configuration.Path)
 	return fullPath.Base().String(), nil
 }
 
 // VagrantfilePath implements core.Project
 func (p *Project) VagrantfilePath() (pp path.Path, err error) {
+	p.refreshProject()
 	pp = path.NewPath(p.project.Configuration.Path).Parent()
 	return
 }
 
 // Targets
 func (p *Project) Targets() ([]core.Target, error) {
+	p.refreshProject()
 	var targets []core.Target
 	for _, ref := range p.project.Targets {
 		t, err := p.LoadTarget(WithTargetRef(ref))
@@ -223,6 +231,7 @@ func (p *Project) Targets() ([]core.Target, error) {
 
 // Custom name defined for this project
 func (p *Project) Name() string {
+	p.refreshProject()
 	return p.project.Name
 }
 
@@ -289,6 +298,7 @@ func (p *Project) Client() *serverclient.VagrantClient {
 
 // Ref returns the project ref for API calls.
 func (p *Project) Ref() interface{} {
+	p.refreshProject()
 	return &vagrant_plugin_sdk.Ref_Project{
 		ResourceId: p.project.ResourceId,
 		Name:       p.project.Name,
@@ -502,6 +512,12 @@ func (p *Project) InitTargets() (err error) {
 		return
 	}
 
+	err = p.refreshProject()
+	return
+}
+
+// Get's the latest project from the DB and caches is
+func (p *Project) refreshProject() (err error) {
 	result, err := p.Client().FindProject(p.ctx,
 		&vagrant_server.FindProjectRequest{
 			Project: &vagrant_server.Project{
@@ -519,7 +535,6 @@ func (p *Project) InitTargets() (err error) {
 	}
 
 	p.project = result.Project
-
 	return
 }
 
