@@ -120,15 +120,16 @@ module VagrantPlugins
 
         def converter(hash, mapper)
           begin
-            fields = Hash.new.tap do |f|
-              hash.each_pair do |k, v|
-                r = mapper.map(v, to: Google::Protobuf::Any)
-                f[k] = r
-              end
+            entries = hash.map do |k, v|
+              SDK::Args::HashEntry.new(
+                key: mapper.map(k, to: Google::Protobuf::Any),
+                value: mapper.map(v, to: Google::Protobuf::Any),
+              )
             end
-            SDK::Args::Hash.new(fields: fields)
+            SDK::Args::Hash.new(entries: entries)
           rescue => err
             logger.error { "hash mapping to proto failed: #{err}" }
+            logger.trace { "#{err}\n#{err.backtrace.join("\n")}" }
             raise
           end
         end
@@ -170,11 +171,15 @@ module VagrantPlugins
         def converter(proto, mapper)
           begin
             Hash.new.tap do |result|
-              proto.fields.each do |k, v|
-                r = mapper.map(v)
-                # unwrap any wrapper classes here before assigning
-                r = r.value if r.is_a?(Type)
-                result[k.to_sym] = r
+              proto.entries.each do |entry|
+                # Convert our key and value to native types
+                k = mapper.map(entry.key)
+                v = mapper.map(entry.value)
+                # If the key or the value is a wrapper type,
+                # extract the value from it
+                k = k.value if k.is_a?(Type)
+                v = v.value if v.is_a?(Type)
+                result[k] = v
               end
             end
           rescue => err
