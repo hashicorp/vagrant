@@ -281,6 +281,18 @@ module VagrantPlugins
             # applied. After the given block is executed, the value
             # vertices will have their original weights re-applied.
             #
+            # Since value vertices are identified by type, only
+            # one value of any type may exist in the graph. However,
+            # if the value is named, then multiple values of the same
+            # type may exist in the graph. For instance, with named
+            # values two strings could be provided, one named "local_path"
+            # and another named "remote_path". If a mapper function is
+            # only interested in the value of the "remote_path", it
+            # can include that name within its input definition. Then
+            # this method can be used to prefer the name string argument
+            # "remote_path" over the "local_path" named argument, or
+            # just a regular string value.
+            #
             # @param vertex [Vertex] source vertex
             # @param graph [Graph] graph to modify
             # @yieldparam [Graph] modified graph (passed instance, not a copy)

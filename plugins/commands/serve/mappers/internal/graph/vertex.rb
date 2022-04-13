@@ -43,19 +43,29 @@ module VagrantPlugins
               value
             end
 
+            # Determine if provided vertex is equivalent
+            #
+            # @param [Vertex]
+            # @return [Boolean]
             def ==(v)
               v.hash_code == hash_code
             end
             alias_method :eql?, :==
 
+            # Generate a hash for the given vertex. This is used
+            # to uniquely identify a vertex within a Hash.
+            #
+            # @return [Integer]
             def hash
               hash_code.to_s.chars.map(&:ord).sum.hash
             end
 
+            # @return [String]
             def to_s
               "<Vertex value=#{value} hash=#{hash_code}>"
             end
 
+            # @return [String]
             def inspect
               "<#{self.class.name} value=#{value} hash=#{hash_code}>"
             end
