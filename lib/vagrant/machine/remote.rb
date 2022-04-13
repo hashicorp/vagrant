@@ -60,6 +60,7 @@ module Vagrant
         @name            = name
         @ui_mutex        = Mutex.new
         @state_mutex     = Mutex.new
+        # TODO: pass in trigger config (@config.trigger)
         @triggers        = Vagrant::Plugin::V2::Trigger.new(@env, nil, self, @ui)
 
         # If the ID is the special not created ID, then set our ID to
