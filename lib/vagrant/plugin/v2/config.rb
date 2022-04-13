@@ -157,45 +157,10 @@ module Vagrant
           @__finalized = true
         end
 
-        def transform_symbols(m)
-          if m.is_a?(Array)
-            m.each do |v|
-              if v.is_a?(Hash)
-                v.transform_keys!{|sk| sk.to_s}
-                transform_symbols(v)
-                next
-              end
-              if v.is_a?(Array)
-                v.map!{|sk| sk.is_a?(Symbol) ? SYMBOL_PROTO.new(str: sk.to_s) : sk}
-                transform_symbols(v)
-                next
-              end
-            end
-            m.map!{|sk| sk.is_a?(Symbol) ? SYMBOL_PROTO.new(str: sk.to_s) : sk}
-          elsif m.is_a?(Hash)
-            m.each do |k,v|
-              if v.is_a?(Hash)
-                v.transform_keys!{|sk| sk.to_s}
-                transform_symbols(v)
-                next
-              end
-              if v.is_a?(Array)
-                v.map!{|sk| sk.is_a?(Symbol) ? SYMBOL_PROTO.new(str: sk.to_s) : sk}
-                transform_symbols(v)
-                next
-              end
-              m[k] = SYMBOL_PROTO.new(str: v.to_s) if v.is_a?(Symbol)
-            end
-            m.transform_keys!{|sk| sk.to_s}
-          end
-        end
-
         def clean_up_config_object(config)
-          protoize = config
-          transform_symbols(protoize)
           # Remote variables that are internal
-          protoize.delete_if{|k,v| k.start_with?("_") }
-          protoize
+          config.delete_if{|k,_| k.start_with?("_") }
+          config
         end
 
         def to_proto(type)
