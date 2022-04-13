@@ -16,6 +16,8 @@ module VagrantPlugins
 
         # Represents an input argument for a mapper
         class Input
+          # @return [String] optional name for input
+          attr_reader :name
           # @return [Class] type of the argument
           attr_reader :type
           # @return [Callable] callable that can validate argument

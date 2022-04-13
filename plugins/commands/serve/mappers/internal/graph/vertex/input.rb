@@ -8,9 +8,11 @@ module VagrantPlugins
             # for a method
             class Input < Vertex
               attr_reader :type
+              attr_reader :name
 
-              def initialize(type:)
+              def initialize(type:, name: nil)
                 @type = type
+                @name = name
               end
 
               # When an input Vertex is called,
@@ -20,11 +22,26 @@ module VagrantPlugins
               end
 
               def to_s
-                "<Vertex:Input type=#{type} hash=#{hash_code}>"
+                info = {
+                  name: name,
+                  type: type,
+                  hash: hash_code,
+                }.compact.map { |k, v|
+                  "#{k} = #{v}"
+                }.join(" ")
+                "<Vertex:Input #{info}>"
               end
 
               def inspect
-                "<#{self.class.name} type=#{type} value=#{value} hash=#{hash_code}>"
+                info = {
+                  name: name,
+                  type: type,
+                  value: value,
+                  hash: hash_code,
+                }.map { |k, v|
+                  "#{k} = #{v}"
+                }.join(" ")
+                "<#{self.class.name} #{info}>"
               end
             end
           end
