@@ -100,8 +100,9 @@ func (p *Project) DefaultPrivateKey() (path path.Path, err error) {
 
 // DefaultProvider implements core.Project
 func (p *Project) DefaultProvider() (name string, err error) {
-	// TODO
-	return
+	// TODO: This needs to implement the default provider algorithm
+	// from https://www.vagrantup.com/docs/providers/basic_usage.html#default-provider
+	return "virtualbox", nil
 }
 
 // Home implements core.Project

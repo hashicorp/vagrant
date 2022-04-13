@@ -24,8 +24,8 @@ module Vagrant
         opts[:ui_class] ||= UI::Remote
 
         @cwd = Pathname.new(@client.cwd)
-        @home_path = @client.respond_to?(:home) && Pathname.new(@client.home)
-        @vagrantfile_name = @client.respond_to?(:vagrantfile_name) && [@client.vagrantfile_name]
+        @home_path = Pathname.new(@client.home)
+        @vagrantfile_name = Array(@client.vagrantfile_name)
         @ui = opts.fetch(:ui, opts[:ui_class].new(@client.ui))
         @local_data_path = Pathname.new(@client.local_data)
         @boxes_path = @home_path && @home_path.join("boxes")
@@ -101,11 +101,9 @@ module Vagrant
         @config_loader
       end
 
-      # TODO: for now don't interfere with the default_provider method
-      #  once it is implemented on the Go side then this can be uncommented
-      # def default_provider(**opts)
-      #   client.default_provider
-      # end
+      def default_provider(**opts)
+        client.default_provider.to_sym
+      end
 
       # Returns the host object associated with this environment.
       #
