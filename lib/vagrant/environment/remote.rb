@@ -105,6 +105,14 @@ module Vagrant
         client.default_provider.to_sym
       end
 
+      # Gets a target (machine) by name
+      #
+      # @param [String] machine name
+      # return [VagrantPlugins::CommandServe::Client::Machine]
+      def get_target(name)
+        client.target(name)
+      end
+
       # Returns the host object associated with this environment.
       #
       # @return [Class]

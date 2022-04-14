@@ -64,7 +64,7 @@ module VagrantPlugins
 
         def converter(target)
           m = target.to_machine
-          Vagrant::Machine.new(client=m)
+          Vagrant::Machine.new(nil, nil, nil, {}, {}, nil, nil, nil, nil, nil, base=false, client=m)
         end
       end
 

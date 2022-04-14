@@ -80,6 +80,7 @@ describe Vagrant::Machine::Remote do
 
 
   before do
+    allow(env).to receive(:get_target) { client }
     allow(client).to receive(:box) { box }
     allow(client).to receive(:data_dir) { data_dir }
     allow(client).to receive(:name) { name }
