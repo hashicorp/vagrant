@@ -116,14 +116,14 @@ func (c *Command) ExecuteInfo(trm terminal.UI, p plugincore.Project) int32 {
 	defaultPrivateKeyPath, _ := p.DefaultPrivateKey()
 
 	trm.Output("\nEnvironment information")
-	trm.Output("Working directory: " + cwd)
+	trm.Output("Working directory: " + cwd.String())
 	if datadir != nil && datadir.DataDir() != nil {
 		trm.Output("Data directory: " + datadir.DataDir().String())
 	}
 	trm.Output("Vagrantfile name: " + vagrantfileName)
-	trm.Output("Home directory: " + home)
-	trm.Output("Local data directory: " + localDataPath)
-	trm.Output("Default private key path: " + defaultPrivateKeyPath)
+	trm.Output("Home directory: " + home.String())
+	trm.Output("Local data directory: " + localDataPath.String())
+	trm.Output("Default private key path: " + defaultPrivateKeyPath.String())
 
 	ptrm, err := p.UI()
 	if err != nil {

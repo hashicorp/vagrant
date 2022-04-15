@@ -239,12 +239,8 @@ func (b *Basis) Config() *vagrant_plugin_sdk.Vagrantfile_Vagrantfile {
 	return b.basis.Configuration
 }
 
-func (p *Basis) CWD() (path string, err error) {
-	cwd, err := paths.VagrantCwd()
-	if err != nil {
-		return "", err
-	}
-	return cwd.String(), nil
+func (p *Basis) CWD() (path path.Path, err error) {
+	return paths.VagrantCwd()
 }
 
 // Basis UI is the "default" UI with no prefix modifications
@@ -258,9 +254,8 @@ func (b *Basis) DataDir() (*datadir.Basis, error) {
 }
 
 // DefaultPrivateKey implements core.Basis
-func (b *Basis) DefaultPrivateKey() (path string, err error) {
-	defaultPrivateKeyPath := b.dir.DataDir().Join("insecure_private_key")
-	return defaultPrivateKeyPath.String(), nil
+func (b *Basis) DefaultPrivateKey() (path path.Path, err error) {
+	return b.dir.DataDir().Join("insecure_private_key"), nil
 }
 
 // Implements core.Basis
