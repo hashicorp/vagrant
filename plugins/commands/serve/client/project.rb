@@ -40,7 +40,7 @@ module VagrantPlugins
         # return [String]
         def default_private_key
           resp = client.default_private_key(Empty.new)
-          resp.key
+          resp.path
         end
 
         # return [String]
