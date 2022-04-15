@@ -11,6 +11,7 @@ import (
 	"github.com/hashicorp/go-hclog"
 	"github.com/hashicorp/vagrant-plugin-sdk/component"
 	"github.com/hashicorp/vagrant-plugin-sdk/core"
+	"github.com/hashicorp/vagrant-plugin-sdk/helper/path"
 	"github.com/hashicorp/vagrant-plugin-sdk/internal-shared/cacher"
 	"github.com/hashicorp/vagrant-plugin-sdk/proto/vagrant_plugin_sdk"
 	"github.com/hashicorp/vagrant/internal/server/proto/vagrant_server"
@@ -206,6 +207,23 @@ func (m *Machine) UID() (userId string, err error) {
 	return m.machine.Uid, nil
 }
 
+func StringToPathFunc() mapstructure.DecodeHookFunc {
+	return func(
+		f reflect.Type,
+		t reflect.Type,
+		data interface{}) (interface{}, error) {
+		if f.Kind() != reflect.String {
+			return data, nil
+		}
+		if !t.Implements(reflect.TypeOf((*path.Path)(nil)).Elem()) {
+			return data, nil
+		}
+
+		// Convert it
+		return path.NewPath(data.(string)), nil
+	}
+}
+
 // SyncedFolders implements core.Machine
 func (m *Machine) SyncedFolders() (folders []*core.MachineSyncedFolder, err error) {
 	config := m.target.Configuration
@@ -237,7 +255,18 @@ func (m *Machine) SyncedFolders() (folders []*core.MachineSyncedFolder, err erro
 		}
 
 		var f *core.Folder
-		mapstructure.Decode(folder, &f)
+		c := &mapstructure.DecoderConfig{
+			DecodeHook: StringToPathFunc(),
+			Result:     &f,
+		}
+		decoder, err := mapstructure.NewDecoder(c)
+		if err != nil {
+			return nil, err
+		}
+		err = decoder.Decode(folder)
+		if err != nil {
+			return nil, err
+		}
 		folders = append(folders, &core.MachineSyncedFolder{
 			Plugin: v.(core.SyncedFolder),
 			Folder: f,
