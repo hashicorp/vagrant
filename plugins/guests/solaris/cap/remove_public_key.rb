@@ -5,14 +5,14 @@ module VagrantPlugins
     module Cap
       class RemovePublicKey
         def self.remove_public_key(machine, contents)
-          # TODO: code is identical to linux/cap/remove_public_key
+          # "sed -i" is specific to GNU sed and is not a posix standard option
           contents = contents.chomp
           contents = Vagrant::Util::ShellQuote.escape(contents, "'")
 
           machine.communicate.tap do |comm|
             if comm.test("test -f ~/.ssh/authorized_keys")
               comm.execute(
-                "sed -i '/^.*#{contents}.*$/d' ~/.ssh/authorized_keys")
+                "cp ~/.ssh/authorized_keys ~/.ssh/authorized_keys.temp && sed '/^.*#{contents}.*$/d' ~/.ssh/authorized_keys.temp > ~/.ssh/authorized_keys && rm ~/.ssh/authorized_keys.temp")
             end
           end
         end
