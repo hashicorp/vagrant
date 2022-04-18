@@ -17,6 +17,7 @@ import (
 	"github.com/hashicorp/vagrant-plugin-sdk/datadir"
 	"github.com/hashicorp/vagrant-plugin-sdk/helper/path"
 	"github.com/hashicorp/vagrant-plugin-sdk/helper/paths"
+	"github.com/hashicorp/vagrant-plugin-sdk/internal-shared/cacher"
 	"github.com/hashicorp/vagrant-plugin-sdk/proto/vagrant_plugin_sdk"
 	"github.com/hashicorp/vagrant-plugin-sdk/terminal"
 
@@ -203,6 +204,7 @@ func (p *Project) LoadTarget(topts ...TargetOption) (t *Target, err error) {
 
 	// Create our target
 	t = &Target{
+		cache:   cacher.New(),
 		ctx:     p.ctx,
 		project: p,
 		logger:  p.logger,
@@ -219,9 +221,6 @@ func (p *Project) LoadTarget(topts ...TargetOption) (t *Target, err error) {
 	if err != nil {
 		return nil, err
 	}
-
-	// Set seeds for any plugins that may be used
-	t.seed(nil)
 
 	if t.dir == nil {
 		if t.dir, err = p.dir.Target(t.target.Name); err != nil {

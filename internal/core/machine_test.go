@@ -146,11 +146,11 @@ func TestMachineConfigedGuest(t *testing.T) {
 		if tc.errors {
 			require.Error(t, err)
 			require.Nil(t, guest)
-			require.Nil(t, tm.guest)
+			require.Nil(t, tm.cache.Get("guest"))
 		} else {
 			require.NoError(t, err)
 			require.NotNil(t, guest)
-			require.NotNil(t, tm.guest)
+			require.NotNil(t, tm.cache.Get("guest"))
 		}
 	}
 }
@@ -208,7 +208,7 @@ func TestMachineNoConfigGuest(t *testing.T) {
 		if tc.errors {
 			require.Error(t, err)
 			require.Nil(t, guest)
-			require.Nil(t, tm.guest)
+			require.Nil(t, tm.cache.Get("guest"))
 		} else {
 			n, _ := guest.PluginName()
 			if n != tc.expectedPluginName {
@@ -216,7 +216,7 @@ func TestMachineNoConfigGuest(t *testing.T) {
 			}
 			require.NoError(t, err)
 			require.NotNil(t, guest)
-			require.NotNil(t, tm.guest)
+			require.NotNil(t, tm.cache.Get("guest"))
 		}
 	}
 }

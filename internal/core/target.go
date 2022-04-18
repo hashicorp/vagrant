@@ -20,6 +20,7 @@ import (
 	"github.com/hashicorp/vagrant-plugin-sdk/component"
 	"github.com/hashicorp/vagrant-plugin-sdk/core"
 	"github.com/hashicorp/vagrant-plugin-sdk/datadir"
+	"github.com/hashicorp/vagrant-plugin-sdk/internal-shared/cacher"
 	"github.com/hashicorp/vagrant-plugin-sdk/proto/vagrant_plugin_sdk"
 	"github.com/hashicorp/vagrant-plugin-sdk/terminal"
 
@@ -37,8 +38,7 @@ type Target struct {
 	jobInfo *component.JobInfo
 	closers []func() error
 	ui      terminal.UI
-
-	communicator core.Communicator
+	cache   cacher.Cache
 }
 
 func (b *Target) Config() *vagrant_plugin_sdk.Vagrantfile_MachineConfig {
@@ -79,6 +79,31 @@ func (t *Target) SetName(value string) (err error) {
 
 // Provider implements core.Target
 func (t *Target) Provider() (p core.Provider, err error) {
+	i := t.cache.Get("provider")
+	if i != nil {
+		p = i.(core.Provider)
+		return
+	}
+
+	// TODO: get provider name from Vagrantfile
+	providerName := "virtualbox"
+	provider, err := t.project.basis.component(
+		t.ctx, component.ProviderType, providerName)
+
+	if err != nil {
+		return
+	}
+	p = provider.Value.(core.Provider)
+
+	if err = seedPlugin(p, t); err != nil {
+		t.logger.Error("failed to seed provider plugin",
+			"error", err,
+		)
+
+		return
+	}
+	t.cache.Register("provider", p)
+
 	return
 }
 
@@ -91,18 +116,32 @@ func (t *Target) ProviderName() (string, error) {
 
 // Communicate implements core.Target
 func (t *Target) Communicate() (c core.Communicator, err error) {
-	if t.communicator != nil {
-		return t.communicator, nil
+	i := t.cache.Get("communicator")
+	if i != nil {
+		c = i.(core.Communicator)
+		return
 	}
 	// TODO: get the communicator name from the Vagrantfile
 	//       eg. t.target.Configuration.ConfigVm.Communicator
 	communicatorName := "ssh"
-	communicator, err := t.project.basis.component(t.ctx, component.CommunicatorType, communicatorName)
+	communicator, err := t.project.basis.component(
+		t.ctx, component.CommunicatorType, communicatorName)
+
 	if err != nil {
-		return nil, err
+		return
 	}
-	t.communicator = communicator.Value.(core.Communicator)
-	return t.communicator, nil
+	c = communicator.Value.(core.Communicator)
+
+	if err = seedPlugin(c, t); err != nil {
+		t.logger.Error("failed to seed communicator plugin",
+			"error", err,
+		)
+
+		return
+	}
+	t.cache.Register("communicator", c)
+
+	return
 }
 
 // UpdatedAt implements core.Target
@@ -296,6 +335,7 @@ func (t *Target) Machine() core.Machine {
 		Target:  t,
 		logger:  t.logger,
 		machine: targetMachine,
+		cache:   cacher.New(),
 	}
 }
 

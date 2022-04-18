@@ -11,6 +11,7 @@ import (
 	"github.com/hashicorp/go-hclog"
 	"github.com/hashicorp/vagrant-plugin-sdk/component"
 	"github.com/hashicorp/vagrant-plugin-sdk/core"
+	"github.com/hashicorp/vagrant-plugin-sdk/internal-shared/cacher"
 	"github.com/hashicorp/vagrant-plugin-sdk/proto/vagrant_plugin_sdk"
 	"github.com/hashicorp/vagrant/internal/server/proto/vagrant_server"
 )
@@ -20,7 +21,7 @@ type Machine struct {
 	box     *Box
 	machine *vagrant_server.Target_Machine
 	logger  hclog.Logger
-	guest   core.Guest
+	cache   cacher.Cache
 }
 
 // Close implements core.Machine
@@ -79,9 +80,18 @@ func (m *Machine) Box() (b core.Box, err error) {
 
 // Guest implements core.Machine
 func (m *Machine) Guest() (g core.Guest, err error) {
-	// Try to see if a guest has already been found
-	if m.guest != nil {
-		return m.guest, nil
+	defer func() {
+		if g != nil {
+			err = seedPlugin(g, m)
+			if err == nil {
+				m.cache.Register("guest", g)
+			}
+		}
+	}()
+
+	i := m.cache.Get("guest")
+	if i != nil {
+		return i.(core.Guest), nil
 	}
 
 	// Check if a guest is provided by the Vagrantfile. If it is, then try
@@ -96,8 +106,7 @@ func (m *Machine) Guest() (g core.Guest, err error) {
 			return nil, cerr
 		}
 		if guest != nil {
-			m.guest = guest.Value.(core.Guest)
-			g = m.guest
+			g = guest.Value.(core.Guest)
 			return
 		}
 	}
@@ -125,8 +134,8 @@ func (m *Machine) Guest() (g core.Guest, err error) {
 
 	for _, name := range names {
 		guest := guests[name].Value.(core.Guest)
-		detected, err := guest.Detect(m.toTarget())
-		if err != nil {
+		detected, gerr := guest.Detect(m.toTarget())
+		if gerr != nil {
 			m.logger.Error("guest error on detection check",
 				"plugin", name,
 				"type", "Guest",
@@ -138,8 +147,8 @@ func (m *Machine) Guest() (g core.Guest, err error) {
 			m.logger.Info("guest detection complete",
 				"name", name,
 			)
-			m.guest = guest
-			return guest, nil
+			g = guest
+			return
 		}
 	}
 
@@ -210,15 +219,27 @@ func (m *Machine) SyncedFolders() (folders []*core.MachineSyncedFolder, err erro
 			defaultType := "virtualbox"
 			folder.Type = &defaultType
 		}
-		plg, err := m.project.basis.component(m.ctx, component.SyncedFolderType, *folder.Type)
-		if err != nil {
+		lookup := "syncedfolder_" + *(folder.Type)
+		v := m.cache.Get(lookup)
+		if v == nil {
+			plg, err := m.project.basis.component(m.ctx, component.SyncedFolderType, *folder.Type)
+			if err != nil {
+				return nil, err
+			}
+
+			v = plg.Value.(core.SyncedFolder)
+
+			m.cache.Register(lookup, v)
+		}
+
+		if err = seedPlugin(v, m); err != nil {
 			return nil, err
 		}
 
 		var f *core.Folder
 		mapstructure.Decode(folder, &f)
 		folders = append(folders, &core.MachineSyncedFolder{
-			Plugin: plg.Value.(core.SyncedFolder),
+			Plugin: v.(core.SyncedFolder),
 			Folder: f,
 		})
 	}
