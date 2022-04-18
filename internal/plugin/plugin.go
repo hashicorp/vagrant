@@ -33,6 +33,14 @@ var (
 		"myplugin":    myplugin.CommandOptions,
 		"otherplugin": otherplugin.CommandOptions,
 	}
+	CacheableComponents = []component.Type{
+		component.CommandType,
+		component.ConfigType,
+		component.HostType,
+		component.MapperType,
+		component.PluginInfoType,
+		component.PushType,
+	}
 )
 
 type Plugin struct {
@@ -186,8 +194,10 @@ func (p *Plugin) InstanceOf(
 		return
 	}
 
-	// Store the instance for later usage
-	p.components[c] = i
+	if p.isCacheable(c) {
+		// Store the instance for later usage
+		p.components[c] = i
+	}
 
 	return
 }
@@ -257,4 +267,14 @@ func (p *Plugin) loadParent(i *Instance) error {
 	c.SetParentComponent(pi.Component)
 
 	return nil
+}
+
+// Check if component type can be cached
+func (p *Plugin) isCacheable(t component.Type) bool {
+	for _, v := range CacheableComponents {
+		if t == v {
+			return true
+		}
+	}
+	return false
 }
