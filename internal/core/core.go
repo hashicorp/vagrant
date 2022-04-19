@@ -10,9 +10,12 @@ type closer interface {
 	Closer(func() error)
 }
 
+// Seed value into plugin as a typed value. This is generally used
+// for adding a target or machine to the seeds of a non-cacheable
+// plugin
 func seedPlugin(
-	plugin interface{},
-	seed interface{},
+	plugin interface{}, // plugin which implements core.Seeder
+	seed interface{}, // value to seed
 ) (err error) {
 	s, ok := plugin.(core.Seeder)
 	if !ok {
