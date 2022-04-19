@@ -64,6 +64,12 @@ jobs:
           VAGRANT_CI_LOADER_BUCKET: ${{ secrets.VAGRANT_CI_LOADER_BUCKET }}
           HASHIBOT_USERNAME: ${{ secrets.HASHIBOT_USERNAME }}
           HASHIBOT_TOKEN: ${{ secrets.HASHIBOT_TOKEN }}
+      - name: Upload log
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: vagrant-spec-${{matrix.providers}}.log
+          path: ${{ github.workspace }}/vagrant-spec.log
 
   cleanup:
     runs-on: self-hosted

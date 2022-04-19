@@ -156,6 +156,9 @@ Vagrant.configure(2) do |global_config|
                   "VAGRANT_SPEC_ARGS" => "test --components provider/#{provider_name}/basic".strip,
                   "VAGRANT_SPEC_BOX" => "/vagrant/test/vagrant-spec/boxes/#{guest_box.sub('/', '_')}.#{provider_name}.#{box_version}.box",
                   "VAGRANT_SPEC_GUEST_PLATFORM" => guest_platform,
+                  "VAGRANT_LOG" => "trace",
+                  "VAGRANT_LOG_LEVEL" => "trace",
+                  "VAGRANT_SPEC_LOG_PATH" => "/tmp/vagrant-spec.log",
                 }
               )
             end

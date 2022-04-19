@@ -29,4 +29,8 @@ echo "Running vagrant spec tests..."
 wrap_stream packet-exec run "vagrant provision" \
                 "Vagrant Acceptance testing command failed"
 
+echo "Pulling log..."
+packet-exec run "vagrant ssh -c \"cat /tmp/vagrant-spec.log\" > vagrant-spec.log"
+packet-exec run "cat vagrant-spec.log" > vagrant-spec.log
+
 echo "Finished vagrant spec tests"
