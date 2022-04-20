@@ -18,6 +18,8 @@ import (
 	"github.com/hashicorp/vagrant-plugin-sdk/component"
 	"github.com/hashicorp/vagrant-plugin-sdk/core"
 	"github.com/hashicorp/vagrant-plugin-sdk/helper/path"
+	"github.com/hashicorp/vagrant-plugin-sdk/internal-shared/cacher"
+	"github.com/hashicorp/vagrant-plugin-sdk/internal-shared/cleanup"
 	"github.com/hashicorp/vagrant-plugin-sdk/internal-shared/protomappers"
 	"github.com/hashicorp/vagrant/internal/serverclient"
 )
@@ -30,6 +32,7 @@ type Manager struct {
 
 	builtins        *Builtin             // Buitin plugins when using in process plugins
 	builtinsLoaded  bool                 // Flag that builtin plugins are loaded
+	cache           cacher.Cache         // Cache used for named plugin requests
 	closers         []func() error       // List of functions to execute on close
 	ctx             context.Context      // Context for the manager
 	discoveredPaths []path.Path          // List of paths this manager has loaded
@@ -47,6 +50,7 @@ func NewManager(ctx context.Context, l hclog.Logger) *Manager {
 	return &Manager{
 		Plugins:       []*Plugin{},
 		builtins:      NewBuiltins(ctx, l),
+		cache:         cacher.New(),
 		closers:       []func() error{},
 		ctx:           ctx,
 		dispenseFuncs: []PluginConfigurator{},
@@ -61,6 +65,7 @@ func (m *Manager) Sub(name string) *Manager {
 	}
 	s := &Manager{
 		builtinsLoaded:  true,
+		cache:           m.cache,
 		closers:         []func() error{},
 		ctx:             m.ctx,
 		discoveredPaths: m.discoveredPaths,
@@ -380,6 +385,10 @@ func (m *Manager) GetPlugin(name, typ string) (*core.NamedPlugin, error) {
 	if err != nil {
 		return nil, err
 	}
+	cid := t.String() + "-" + name
+	if c := m.cache.Get(cid); c != nil {
+		return c.(*core.NamedPlugin), nil
+	}
 	p, err := m.Find(name, t)
 	if err != nil {
 		return nil, err
@@ -388,11 +397,14 @@ func (m *Manager) GetPlugin(name, typ string) (*core.NamedPlugin, error) {
 	if err != nil {
 		return nil, err
 	}
-	return &core.NamedPlugin{
+	v := &core.NamedPlugin{
 		Name:   p.Name,
 		Type:   t.String(),
 		Plugin: c.Component,
-	}, nil
+	}
+	m.cache.Register(cid, v)
+
+	return v, nil
 }
 
 // Loads builtin plugins using in process strategy
