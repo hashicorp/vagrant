@@ -285,7 +285,7 @@ func (b *Basis) Plugins(types ...string) (plugins []*core.NamedPlugin, err error
 // Generic function for providing ref to a scope
 func (b *Basis) Ref() interface{} {
 	return &vagrant_plugin_sdk.Ref_Basis{
-		ResourceId: b.ResourceId(),
+		ResourceId: b.basis.ResourceId,
 		Name:       b.Name(),
 	}
 }
@@ -300,12 +300,8 @@ func (b *Basis) Name() string {
 }
 
 // Resource ID for this basis
-func (b *Basis) ResourceId() string {
-	if b.basis == nil {
-		return ""
-	}
-
-	return b.basis.ResourceId
+func (b *Basis) ResourceId() (string, error) {
+	return b.basis.ResourceId, nil
 }
 
 // Returns the job info if currently set
@@ -552,7 +548,7 @@ func (b *Basis) Closer(c func() error) {
 // This should be called and blocked on to gracefully stop the basis.
 func (b *Basis) Close() (err error) {
 	b.logger.Debug("closing basis",
-		"basis", b.ResourceId())
+		"basis", b.basis.ResourceId)
 
 	// Close down any projects that were loaded
 	for name, p := range b.projects {
@@ -584,7 +580,7 @@ func (b *Basis) Save() (err error) {
 	defer b.m.Unlock()
 
 	b.logger.Debug("saving basis to db",
-		"basis", b.ResourceId())
+		"basis", b.basis.ResourceId)
 
 	result, err := b.Client().UpsertBasis(b.ctx,
 		&vagrant_server.UpsertBasisRequest{
@@ -592,7 +588,7 @@ func (b *Basis) Save() (err error) {
 
 	if err != nil {
 		b.logger.Trace("failed to save basis",
-			"basis", b.ResourceId(),
+			"basis", b.basis.ResourceId,
 			"error", err)
 	}
 
@@ -605,11 +601,11 @@ func (b *Basis) Save() (err error) {
 // be called on the project.
 func (b *Basis) SaveFull() (err error) {
 	b.logger.Debug("performing full save",
-		"basis", b.ResourceId())
+		"basis", b.basis.ResourceId)
 
 	for _, p := range b.projects {
 		b.logger.Trace("saving project",
-			"basis", b.ResourceId(),
+			"basis", b.basis.ResourceId,
 			"project", p.project.ResourceId)
 
 		if perr := p.SaveFull(); perr != nil {
