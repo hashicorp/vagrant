@@ -10,6 +10,7 @@ import (
 	"strings"
 	"sync"
 
+	"github.com/hashicorp/go-argmapper"
 	"github.com/hashicorp/go-hclog"
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/go-plugin"
@@ -471,7 +472,15 @@ func (m *Manager) Servinfo() ([]byte, error) {
 		return nil, fmt.Errorf("legacy broker is unset, cannot create server")
 	}
 
-	p, closer, err := protomappers.PluginManagerProtoDirect(m, m.logger, m.legacyBroker)
+	i := &internal{
+		broker:  m.legacyBroker,
+		cache:   cacher.New(),
+		cleanup: cleanup.New(),
+		logger:  m.logger,
+		mappers: []*argmapper.Func{},
+	}
+
+	p, err := protomappers.PluginManagerProto(m, m.logger, i)
 	if err != nil {
 		m.logger.Warn("failed to create plugin manager grpc server",
 			"error", err,
@@ -481,10 +490,8 @@ func (m *Manager) Servinfo() ([]byte, error) {
 	}
 
 	fn := func() error {
-		m.logger.Info("closing the GRPC server instance")
-		closer()
-		m.srv = nil
-		return nil
+		m.logger.Info("closing the plugin manager GRPC server instance")
+		return i.cleanup.Close()
 	}
 	m.closer(fn)
 
