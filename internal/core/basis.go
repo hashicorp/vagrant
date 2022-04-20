@@ -70,11 +70,6 @@ func NewBasis(ctx context.Context, opts ...BasisOption) (b *Basis, err error) {
 		projects:   map[string]*Project{},
 		seedValues: core.NewSeeds(),
 		statebag:   NewStateBag(),
-		corePlugins: &CoreManager{
-			closers: []func() error{},
-			ctx:     ctx,
-			logger:  hclog.L(),
-		},
 	}
 
 	for _, opt := range opts {
@@ -92,9 +87,9 @@ func NewBasis(ctx context.Context, opts ...BasisOption) (b *Basis, err error) {
 	} else {
 		b.logger = b.logger.ResetNamed("vagrant.core.basis")
 	}
-	// Whatever the logger ended up being named, chain the coreplugins logger
-	// off of that
-	b.corePlugins.logger = b.logger.Named("coreplugins")
+
+	// Create the manager for handling core plugins
+	b.corePlugins = NewCoreManager(ctx, b.logger)
 
 	if b.basis == nil {
 		return nil, fmt.Errorf("basis data was not properly loaded")
@@ -130,6 +125,11 @@ func NewBasis(ctx context.Context, opts ...BasisOption) (b *Basis, err error) {
 	// Ensure any modifications to the basis are persisted
 	b.Closer(func() error { return b.Save() })
 
+	// Close the core manager
+	b.Closer(func() error {
+		return b.corePlugins.Close()
+	})
+
 	// Add in local mappers
 	for _, fn := range Mappers {
 		f, err := argmapper.NewFunc(fn,
@@ -153,7 +153,16 @@ func NewBasis(ctx context.Context, opts ...BasisOption) (b *Basis, err error) {
 			if c, ok := i.Component.(interface {
 				SetCache(cacher.Cache)
 			}); ok {
+				b.logger.Warn("setting cache on plugin instance",
+					"name", i.Name,
+					"component", hclog.Fmt("%T", i.Component),
+				)
 				c.SetCache(b.cache)
+			} else {
+				b.logger.Warn("cannot set cache on plugin instance",
+					"name", i.Name,
+					"component", hclog.Fmt("%T", i.Component),
+				)
 			}
 
 			return nil
@@ -172,59 +181,62 @@ func NewBasis(ctx context.Context, opts ...BasisOption) (b *Basis, err error) {
 		},
 	)
 
-	// Configure plugins to have plugin manager set (used by legacy)
-	b.plugins.Configure(
-		func(i *plugin.Instance, l hclog.Logger) error {
-			s, ok := i.Component.(plugin.HasPluginMetadata)
-			if !ok {
-				l.Warn("plugin does not support metadata, cannot assign plugin manager",
-					"component", i.Type.String(),
-					"name", i.Name,
-				)
+	// If we have legacy vagrant loaded, configure managers
+	if b.plugins.LegacyBroker() != nil {
+		// Configure plugins to have plugin manager set (used by legacy)
+		b.plugins.Configure(
+			func(i *plugin.Instance, l hclog.Logger) error {
+				s, ok := i.Component.(plugin.HasPluginMetadata)
+				if !ok {
+					l.Warn("plugin does not support metadata, cannot assign plugin manager",
+						"component", i.Type.String(),
+						"name", i.Name,
+					)
+
+					return nil
+				}
+
+				srv, err := b.plugins.Servinfo()
+				if err != nil {
+					l.Warn("failed to get plugin manager information",
+						"error", err,
+					)
+
+					return nil
+				}
+				s.SetRequestMetadata("plugin_manager", string(srv))
 
 				return nil
-			}
+			},
+		)
 
-			srv, err := b.plugins.Servinfo()
-			if err != nil {
-				l.Warn("failed to get plugin manager information",
-					"error", err,
-				)
+		// Configure plugins to have a core plugin manager set (used by legacy)
+		b.plugins.Configure(
+			func(i *plugin.Instance, l hclog.Logger) error {
+				s, ok := i.Component.(plugin.HasPluginMetadata)
+				if !ok {
+					l.Warn("plugin does not support metadata, cannot assign plugin manager",
+						"component", i.Type.String(),
+						"name", i.Name,
+					)
 
-				return nil
-			}
-			s.SetRequestMetadata("plugin_manager", string(srv))
+					return nil
+				}
 
-			return nil
-		},
-	)
+				srv, err := b.corePlugins.Servinfo(b.plugins.LegacyBroker())
+				if err != nil {
+					l.Warn("failed to get plugin manager information",
+						"error", err,
+					)
 
-	// Configure plugins to have a core plugin manager set (used by legacy)
-	b.plugins.Configure(
-		func(i *plugin.Instance, l hclog.Logger) error {
-			s, ok := i.Component.(plugin.HasPluginMetadata)
-			if !ok {
-				l.Warn("plugin does not support metadata, cannot assign plugin manager",
-					"component", i.Type.String(),
-					"name", i.Name,
-				)
-
-				return nil
-			}
-
-			srv, err := b.corePlugins.Servinfo(b.plugins.LegacyBroker())
-			if err != nil {
-				l.Warn("failed to get plugin manager information",
-					"error", err,
-				)
+					return nil
+				}
+				s.SetRequestMetadata("core_plugin_manager", string(srv))
 
 				return nil
-			}
-			s.SetRequestMetadata("core_plugin_manager", string(srv))
-
-			return nil
-		},
-	)
+			},
+		)
+	}
 
 	err = b.plugins.Discover(b.dir.ConfigDir().Join("plugins"))
 
