@@ -151,6 +151,21 @@ func (p *Plugin) InstanceOf(
 		return
 	}
 
+	// Register cleanup for the instance
+	p.Closer(func() error {
+		p.logger.Warn("closing plugin instance",
+			"plugin", p.Name,
+			"instance", hclog.Fmt("%T", raw),
+		)
+		if c, ok := raw.(interface {
+			Close() error
+		}); ok {
+			return c.Close()
+		}
+
+		return nil
+	})
+
 	// Extract the GRPC broker if possible
 	b, ok := raw.(HasGRPCBroker)
 	if !ok {
@@ -166,6 +181,7 @@ func (p *Plugin) InstanceOf(
 		cm.AppendMappers(p.Mappers...)
 	}
 
+	// Set the plugin name if possible
 	if named, ok := raw.(core.Named); ok {
 		named.SetPluginName(p.Name)
 		if err != nil {
