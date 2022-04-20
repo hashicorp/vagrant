@@ -24,8 +24,8 @@ describe VagrantPlugins::Chef::Cap::Windows::ChefInstalled do
 
   describe "#chef_installed" do
     describe "when chef-workstation" do
-      let(:version) { "15.0.0" }
-      let(:command) { "if ((&chef --version) -Match \"15.0.0\"){ exit 0 } else { exit 1 }" }
+      let(:version) { "17.0.0" }
+      let(:command) { "if ((&chef --version) -Match \"17.0.0\"){ exit 0 } else { exit 1 }" }
 
       it "returns true if installed" do
         expect(machine.communicate).to receive(:test).
@@ -40,9 +40,43 @@ describe VagrantPlugins::Chef::Cap::Windows::ChefInstalled do
       end
     end
 
-    describe "when chef-workstation" do
-      let(:version) { "15.0.0" }
-      let(:command) { "if ((&chef-client --version) -Match \"15.0.0\"){ exit 0 } else { exit 1 }" }
+    describe "when cinc-workstation" do
+      let(:version) { "17.0.0" }
+      let(:command) { "if ((&cinc --version) -Match \"17.0.0\"){ exit 0 } else { exit 1 }" }
+
+      it "returns true if installed" do
+        expect(machine.communicate).to receive(:test).
+          with(command, sudo: true).and_return(true)
+        subject.chef_installed(machine, "cinc-workstation", version)
+      end
+
+      it "returns false if not installed" do
+        expect(machine.communicate).to receive(:test).
+          with(command, sudo: true).and_return(false)
+        expect(subject.chef_installed(machine, "cinc-workstation", version)).to be_falsey
+      end
+    end
+
+    describe "when cinc" do
+      let(:version) { "17.0.0" }
+      let(:command) { "if ((&cinc-client --version) -Match \"17.0.0\"){ exit 0 } else { exit 1 }" }
+
+      it "returns true if installed" do
+        expect(machine.communicate).to receive(:test).
+          with(command, sudo: true).and_return(true)
+        subject.chef_installed(machine, "cinc", version)
+      end
+
+      it "returns false if not installed" do
+        expect(machine.communicate).to receive(:test).
+          with(command, sudo: true).and_return(false)
+        expect(subject.chef_installed(machine, "cinc", version)).to be_falsey
+      end
+    end
+
+    describe "when default (chef)" do
+      let(:version) { "17.0.0" }
+      let(:command) { "if ((&chef-client --version) -Match \"17.0.0\"){ exit 0 } else { exit 1 }" }
 
       it "returns true if installed" do
         expect(machine.communicate).to receive(:test).

@@ -24,8 +24,8 @@ describe VagrantPlugins::Chef::Cap::FreeBSD::ChefInstalled do
 
   describe "#chef_installed" do
     describe "when chef-workstation" do
-      let(:version) { "15.0.0" }
-      let(:command) { "test -x /opt/chef-workstation/bin/chef&& /opt/chef-workstation/bin/chef --version | grep '15.0.0'" }
+      let(:version) { "17.0.0" }
+      let(:command) { "test -x /opt/chef-workstation/bin/chef&& /opt/chef-workstation/bin/chef --version | grep '17.0.0'" }
 
       it "returns true if installed" do
         expect(machine.communicate).to receive(:test).
@@ -40,20 +40,54 @@ describe VagrantPlugins::Chef::Cap::FreeBSD::ChefInstalled do
       end
     end
 
-    describe "when not chef-workstation" do
-      let(:version) { "15.0.0" }
-      let(:command) { "test -x /opt/chef/bin/chef-client&& /opt/chef/bin/chef-client --version | grep '15.0.0'" }
+    describe "when cinc-workstation" do
+      let(:version) { "17.0.0" }
+      let(:command) { "test -x /opt/cinc-workstation/bin/cinc&& /opt/cinc-workstation/bin/cinc --version | grep '17.0.0'" }
 
       it "returns true if installed" do
         expect(machine.communicate).to receive(:test).
           with(command, sudo: true).and_return(true)
-        subject.chef_installed(machine, "chef_solo", version)
+        subject.chef_installed(machine, "cinc-workstation", version)
       end
 
       it "returns false if not installed" do
         expect(machine.communicate).to receive(:test).
           with(command, sudo: true).and_return(false)
-        expect(subject.chef_installed(machine, "chef_solo", version)).to be_falsey
+        expect(subject.chef_installed(machine, "cinc-workstation", version)).to be_falsey
+      end
+    end
+
+    describe "when cinc" do
+      let(:version) { "17.0.0" }
+      let(:command) { "test -x /opt/cinc/bin/cinc-client&& /opt/cinc/bin/cinc-client --version | grep '17.0.0'" }
+
+      it "returns true if installed" do
+        expect(machine.communicate).to receive(:test).
+          with(command, sudo: true).and_return(true)
+        subject.chef_installed(machine, "cinc", version)
+      end
+
+      it "returns false if not installed" do
+        expect(machine.communicate).to receive(:test).
+          with(command, sudo: true).and_return(false)
+        expect(subject.chef_installed(machine, "cinc", version)).to be_falsey
+      end
+    end
+
+    describe "when default (chef)" do
+      let(:version) { "17.0.0" }
+      let(:command) { "test -x /opt/chef/bin/chef-client&& /opt/chef/bin/chef-client --version | grep '17.0.0'" }
+
+      it "returns true if installed" do
+        expect(machine.communicate).to receive(:test).
+          with(command, sudo: true).and_return(true)
+        subject.chef_installed(machine, "chef", version)
+      end
+
+      it "returns false if not installed" do
+        expect(machine.communicate).to receive(:test).
+          with(command, sudo: true).and_return(false)
+        expect(subject.chef_installed(machine, "chef", version)).to be_falsey
       end
     end
   end
