@@ -1,8 +1,8 @@
 #!/bin/bash
-set -xe
+set -e
 
 # Install Go
-wget -O go.tar.gz https://go.dev/dl/go1.17.6.linux-amd64.tar.gz
+wget -qO go.tar.gz https://go.dev/dl/go1.17.6.linux-amd64.tar.gz
 tar -xzf go.tar.gz --directory /usr/local
 export PATH=$PATH:/usr/local/go/bin
 go version
