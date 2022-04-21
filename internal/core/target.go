@@ -39,9 +39,6 @@ type Target struct {
 	closers []func() error
 	ui      terminal.UI
 	cache   cacher.Cache
-
-	communicator core.Communicator
-	provider     core.Provider
 }
 
 func (b *Target) Config() *vagrant_plugin_sdk.Vagrantfile_MachineConfig {
