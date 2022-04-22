@@ -4,6 +4,9 @@ on:
       - 'main'
   repository_dispatch:
     types: [prerelease]
+  schedule:
+    # Run nightly on weekdays at 05:00 UTC or midnight-ish in US time zones
+    - cron: '0 5 * * 1-5'
 
 jobs:
   setup-packet:
