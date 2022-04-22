@@ -78,10 +78,9 @@ jobs:
     runs-on: self-hosted
     name: Cleanup Post Vagrant-Spec Tests
     needs: spec-tests
+    if: always()
     steps:
       - name: Clean Packet
-        if: always()
         run: ./.ci/spec/clean-packet.sh
       - name: Clean Workspace
-        if: always()
         run: rm -rf ${{ github.workspace }}
