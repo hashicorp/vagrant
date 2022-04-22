@@ -39,7 +39,6 @@ module Vagrant
         @provider_options = provider_options
         @provider_config = provider_config
 
-        @box             = @client.box
         @config          = config
         @data_dir        = @client.data_dir
         @vagrantfile     = vagrantfile
@@ -47,10 +46,6 @@ module Vagrant
         @ui_mutex        = Mutex.new
         @state_mutex     = Mutex.new
         @triggers        = Vagrant::Plugin::V2::Trigger.new(@env, @config.trigger, self, @ui)
-
-        # Keep track of where our UUID should be placed
-        @index_uuid_file = nil
-        @index_uuid_file = @data_dir.join("index_uuid") if @data_dir
 
         # If the ID is the special not created ID, then set our ID to
         # nil so that we destroy all our data.
@@ -79,39 +74,49 @@ module Vagrant
       #   raise NotImplementedError, "TODO"
       # end
 
-      # TODO
-      # @return [Pathname]
-      # def data_dir
-      #   Pathname.new(client.get_data_dir)
-      # end
+      def communicate
+        if !@communicate
+          @communicate = Vagrant::Plugin::Remote::Communicator.new(self)
+        end
+        @communicate
+      end
+
+      def data_dir
+        client.data_dir
+      end
+
+      def guest
+        if !@guest
+          @guest = Guest.new(self, nil, nil)
+        end
+        @guest
+      end
 
       def id
         result = client.id
         result.to_s.empty? ? nil : result
       end
 
+      def id=(value)
+        @logger.info("New machine ID: #{value.inspect}")
+        client.set_id(value.to_s)
+        # Store the ID locally
+        @id = value.nil? ? nil : value.to_s
+        # Notify the provider that the ID changed in case it needs to do
+        # any accounting from it.
+        @provider.machine_id_changed
+      end
+
+      def inspect
+        "<Vagrant::Machine:resource_id=#{client.resource_id}>"
+      end
+
+      def index_uuid
+        id
+      end
+
       def name
         client.name.to_sym
-      end
-
-      # TODO
-      # def index_uuid
-      #   client.get_uuid
-      # end
-
-      def recover_machine(*_)
-        nil
-      end
-
-      def state
-        # TODO: this should be using the vagrant go core (client.machine_state).
-        # Since there is currently no way to access providers in the go machine
-        # leave this here for now. Once the provider has been ported, this should
-        # be updated.
-        s = @provider.state
-        raise Errors::MachineStateInvalid if !s.is_a?(MachineState)
-        client.set_machine_state(s) unless s.nil?
-        return s
       end
 
       def provider
@@ -126,39 +131,19 @@ module Vagrant
         @provider_options
       end
 
-      def inspect
-        "<Vagrant::Machine:resource_id=#{client.resource_id}>"
+      def recover_machine(*_)
+        nil
       end
 
-      def communicate
-        @logger.debug("Getting communicator from client")
-        if !@communicate
-          @communicate = Vagrant::Plugin::Remote::Communicator.new(self)
-        end
-        @communicate
-      end
-
-      def guest
-        if !@guest
-          @guest = Guest.new(self, nil, nil)
-        end
-        @guest
-      end
-
-      def id=(value)
-        @logger.info("New machine ID: #{value.inspect}")
-        client.set_id(value.to_s)
-        # Store the ID locally
-        @id = value.nil? ? nil : value.to_s
-        # Notify the provider that the ID changed in case it needs to do
-        # any accounting from it.
-        @provider.machine_id_changed
-      end
-
-      def index_uuid
-        return nil if !@index_uuid_file
-        return @index_uuid_file.read.chomp if @index_uuid_file.file?
-        return nil
+      def state
+        # TODO: this should be using the vagrant go core (client.machine_state).
+        # Since there is currently no way to access providers in the go machine
+        # leave this here for now. Once the provider has been ported, this should
+        # be updated.
+        s = @provider.state
+        raise Errors::MachineStateInvalid if !s.is_a?(MachineState)
+        client.set_machine_state(s) unless s.nil?
+        return s
       end
 
       def ssh_info
@@ -249,10 +234,6 @@ module Vagrant
 
         # Return the final compiled SSH info data
         info
-      end
-
-      def recover_machine(state)
-        # no-op
       end
 
       def uid
