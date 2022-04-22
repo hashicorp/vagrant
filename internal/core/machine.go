@@ -173,12 +173,6 @@ func (m *Machine) Inspect() (printable string, err error) {
 	return
 }
 
-// Reload implements core.Machine
-func (m *Machine) Reload() (err error) {
-	// TODO
-	return
-}
-
 // ConnectionInfo implements core.Machine
 func (m *Machine) ConnectionInfo() (info *core.ConnectionInfo, err error) {
 	// TODO: need Vagrantfile

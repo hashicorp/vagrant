@@ -135,6 +135,10 @@ module Vagrant
         nil
       end
 
+      def reload
+        id
+      end
+
       def state
         client.machine_state
       end

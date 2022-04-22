@@ -70,11 +70,6 @@ module VagrantPlugins
             p.name
           end
 
-          # Force a reload of the machine state
-          def reload
-            client.reload(Empty.new)
-          end
-
           # Set ID for machine
           #
           # @param [String] new_id New machine ID
