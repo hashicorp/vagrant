@@ -699,12 +699,7 @@ func (b *Basis) component(
 	if typ == component.CommandType {
 		name = strings.Split(name, " ")[0]
 	}
-	p, err := b.plugins.Find(name, typ)
-	if err != nil {
-		return nil, err
-	}
-
-	c, err := p.InstanceOf(typ)
+	c, err := b.plugins.Find(name, typ)
 	if err != nil {
 		return nil, err
 	}
@@ -716,11 +711,11 @@ func (b *Basis) component(
 		Value: c.Component,
 		Info: &vagrant_server.Component{
 			Type:       vagrant_server.Component_Type(typ),
-			Name:       p.Name,
+			Name:       name,
 			ServerAddr: b.Client().ServerTarget(),
 		},
 		hooks:   hooks,
-		mappers: append(b.mappers, p.Mappers...),
+		mappers: append(b.mappers, c.Mappers...),
 		plugin:  c,
 	}, nil
 }
@@ -736,13 +731,28 @@ func (b *Basis) typeComponents(
 		return nil, err
 	}
 
+	b.logger.Info("fetching all typed plugins",
+		"type", typ.String(),
+	)
 	for _, p := range plugins {
-		c, err := b.component(ctx, typ, p.Name)
+		b.logger.Info("fetching typed component",
+			"plugin", p,
+			"type", typ.String(),
+		)
+		c, err := b.component(ctx, typ, p)
 		if err != nil {
+			b.logger.Error("failed to fetch component",
+				"plugin", p,
+				"type", typ.String(),
+			)
 			return nil, err
 		}
-		result[p.Name] = c
+		result[p] = c
 	}
+	b.logger.Info("fetched all typed plugins",
+		"type", typ.String(),
+		"count", len(result),
+	)
 	return result, nil
 }
 
