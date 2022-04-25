@@ -12,6 +12,7 @@ import (
 	"github.com/hashicorp/go-plugin"
 
 	"github.com/hashicorp/vagrant-plugin-sdk/component"
+	"github.com/hashicorp/vagrant-plugin-sdk/internal-shared/cleanup"
 	"github.com/hashicorp/vagrant-plugin-sdk/internal-shared/pluginclient"
 )
 
@@ -98,15 +99,15 @@ func Factory(
 		)
 
 		p = &Plugin{
-			Builtin:    false,
-			Client:     rpcClient,
-			Location:   cmd.Path,
-			Name:       info.Name(),
-			Types:      info.ComponentTypes(),
-			Mappers:    mappers,
-			components: map[component.Type]*Instance{},
-			logger:     nlog.Named(info.Name()),
-			src:        client,
+			Builtin:  false,
+			Client:   rpcClient,
+			Location: cmd.Path,
+			Name:     info.Name(),
+			Types:    info.ComponentTypes(),
+			Mappers:  mappers,
+			cleaner:  cleanup.New(),
+			logger:   nlog.Named(info.Name()),
+			src:      client,
 		}
 
 		// Close the rpcClient when plugin is closed
@@ -138,13 +139,15 @@ func RubyFactory(
 ) PluginRegistration {
 	return func(log hclog.Logger) (*Plugin, error) {
 		return &Plugin{
-			Builtin:    false,
-			Client:     rubyClient,
-			Location:   "ruby-runtime",
-			Name:       name,
-			Types:      []component.Type{typ},
-			components: map[component.Type]*Instance{},
-			logger:     log.ResetNamed("vagrant.legacy." + strings.ToLower(typ.String())),
+			Builtin:  false,
+			Client:   rubyClient,
+			Location: "ruby-runtime",
+			Name:     name,
+			Types:    []component.Type{typ},
+			cleaner:  cleanup.New(),
+			logger: log.ResetNamed(
+				fmt.Sprintf("vagrant.legacy-plugin.%s.%s", strings.ToLower(typ.String()), name),
+			),
 		}, nil
 	}
 }
@@ -172,7 +175,7 @@ type Instance struct {
 
 	// Closer is a function that should be called to clean up resources
 	// associated with this plugin.
-	Close func()
+	Close func() error
 }
 
 func (i *Instance) Parents() []string {

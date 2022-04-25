@@ -2,18 +2,19 @@ package plugin
 
 import (
 	"fmt"
+	"io"
 	"strings"
 	"sync"
 
 	"github.com/hashicorp/go-argmapper"
 	"github.com/hashicorp/go-hclog"
-	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/go-plugin"
 
 	sdk "github.com/hashicorp/vagrant-plugin-sdk"
 	"github.com/hashicorp/vagrant-plugin-sdk/component"
 	"github.com/hashicorp/vagrant-plugin-sdk/core"
 	"github.com/hashicorp/vagrant-plugin-sdk/internal-shared/cacher"
+	"github.com/hashicorp/vagrant-plugin-sdk/internal-shared/cleanup"
 	"github.com/hashicorp/vagrant/builtin/myplugin"
 	"github.com/hashicorp/vagrant/builtin/otherplugin"
 )
@@ -44,12 +45,11 @@ type Plugin struct {
 	Name     string                // Name of the plugin
 	Types    []component.Type      // Component types supported by this plugin
 
-	closers    []func() error               // Functions to be called when manager is closed
-	components map[component.Type]*Instance // Map of created instances
-	logger     hclog.Logger
-	m          sync.Mutex
-	manager    *Manager       // Plugin manager this plugin belongs to
-	src        *plugin.Client // Client for the plugin
+	cleaner cleanup.Cleanup // Cleanup tasks to perform on closing
+	logger  hclog.Logger
+	m       sync.Mutex
+	manager *Manager       // Plugin manager this plugin belongs to
+	src     *plugin.Client // Client for the plugin
 }
 
 // Interface for plugins with mapper support
@@ -88,7 +88,7 @@ func (p *Plugin) HasType(
 
 // Add a callback to execute when plugin is closed
 func (p *Plugin) Closer(c func() error) {
-	p.closers = append(p.closers, c)
+	p.cleaner.Do(c)
 }
 
 // Calls all registered close callbacks
@@ -96,17 +96,13 @@ func (p *Plugin) Close() (err error) {
 	p.m.Lock()
 	defer p.m.Unlock()
 
-	for _, c := range p.closers {
-		if e := c(); e != nil {
-			multierror.Append(err, e)
-		}
-	}
-	return
+	return p.cleaner.Close()
 }
 
 // Get specific component type from plugin
 func (p *Plugin) InstanceOf(
 	c component.Type,
+	cfns []PluginConfigurator,
 ) (i *Instance, err error) {
 	p.m.Lock()
 	defer p.m.Unlock()
@@ -133,21 +129,6 @@ func (p *Plugin) InstanceOf(
 
 		return
 	}
-
-	// Register cleanup for the instance
-	p.Closer(func() error {
-		p.logger.Warn("closing plugin instance",
-			"plugin", p.Name,
-			"instance", hclog.Fmt("%T", raw),
-		)
-		if c, ok := raw.(interface {
-			Close() error
-		}); ok {
-			return c.Close()
-		}
-
-		return nil
-	})
 
 	// Extract the GRPC broker if possible
 	b, ok := raw.(HasGRPCBroker)

@@ -125,14 +125,13 @@ func (b *Builtin) Factory(name string) PluginRegistration {
 		}
 
 		p = &Plugin{
-			Builtin:    false,
-			Client:     rpcClient,
-			Location:   fmt.Sprintf("builtin::%s", name),
-			Name:       info.Name(),
-			Types:      info.ComponentTypes(),
-			components: map[component.Type]*Instance{},
-			logger:     log,
-			src:        client,
+			Builtin:  false,
+			Client:   rpcClient,
+			Location: fmt.Sprintf("builtin::%s", name),
+			Name:     info.Name(),
+			Types:    info.ComponentTypes(),
+			logger:   log,
+			src:      client,
 		}
 
 		// Close the rpcClient when plugin is closed
