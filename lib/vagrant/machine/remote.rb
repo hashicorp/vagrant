@@ -237,10 +237,7 @@ module Vagrant
       end
 
       def uid
-        path = uid_file
-        return nil if !path
-        return nil if !path.file?
-        return uid_file.read.chomp
+        client.uid
       end
 
       def with_ui(ui)
@@ -253,11 +250,6 @@ module Vagrant
             @ui = old_ui
           end
         end
-      end
-
-      def uid_file
-        return nil if !@data_dir
-        @data_dir.join("creator_uid")
       end
 
       def check_cwd

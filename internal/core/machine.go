@@ -2,6 +2,7 @@ package core
 
 import (
 	"fmt"
+	"os/user"
 	"reflect"
 	"sort"
 
@@ -38,6 +39,15 @@ func (m *Machine) ID() (id string, err error) {
 // SetID implements core.Machine
 func (m *Machine) SetID(value string) (err error) {
 	m.machine.Id = value
+
+	// Also set uid
+	user, err := user.Current()
+	if err != nil {
+		return err
+	}
+	m.machine.Uid = user.Uid
+
+	// Persist changes
 	if value == "" {
 		m.target.Record = nil
 		err = m.Destroy()

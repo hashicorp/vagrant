@@ -118,7 +118,9 @@ module VagrantPlugins
 
           # @return [Integer] user ID that owns machine
           def uid
-            client.uid(Empty.new).user_id
+            user_id = client.uid(Empty.new).user_id
+            return nil if user_id == ""
+            return user_id
           end
 
           def _cleaned_folder_hash(folder)
