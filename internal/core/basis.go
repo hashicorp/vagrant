@@ -155,7 +155,7 @@ func NewBasis(ctx context.Context, opts ...BasisOption) (b *Basis, err error) {
 			if c, ok := i.Component.(interface {
 				SetCache(cacher.Cache)
 			}); ok {
-				b.logger.Warn("setting cache on plugin instance",
+				b.logger.Trace("setting cache on plugin instance",
 					"name", i.Name,
 					"component", hclog.Fmt("%T", i.Component),
 				)
