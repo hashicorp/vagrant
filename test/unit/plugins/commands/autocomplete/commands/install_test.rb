@@ -13,6 +13,16 @@ describe VagrantPlugins::CommandAutocomplete::Command::Install do
     env.create_vagrant_env
   end
 
+  let(:homedir) { Dir.mktmpdir("homedir") }
+
+  before {
+    allow(Dir).to receive(:home) { homedir }
+  }
+
+  after {
+    FileUtils.rm_rf(homedir)
+  }
+
   subject { described_class.new(argv, iso_env) }
 
   let(:action_runner) { double("action_runner") }
