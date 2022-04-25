@@ -2,7 +2,6 @@ package plugin
 
 import (
 	"github.com/hashicorp/go-hclog"
-	"github.com/hashicorp/vagrant-plugin-sdk/component"
 	"github.com/mitchellh/go-testing-interface"
 )
 
@@ -32,33 +31,6 @@ type PluginProperty func(*Plugin) error
 func WithPluginName(name string) PluginProperty {
 	return func(p *Plugin) (err error) {
 		p.Name = name
-		return
-	}
-}
-
-func WithPluginMinimalComponents(t component.Type, i interface{}) PluginProperty {
-	return func(p *Plugin) (err error) {
-		instance := &Instance{
-			Name:      p.Name,
-			Type:      t,
-			Component: i,
-		}
-		if p.components == nil {
-			p.components = make(map[component.Type]*Instance)
-		}
-		p.components[t] = instance
-		p.Types = append(p.Types, t)
-		return
-	}
-}
-
-func WithPluginInstance(i *Instance) PluginProperty {
-	return func(p *Plugin) (err error) {
-		if p.components == nil {
-			p.components = make(map[component.Type]*Instance)
-		}
-		p.components[i.Type] = i
-		p.Types = append(p.Types, i.Type)
 		return
 	}
 }
