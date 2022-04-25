@@ -77,17 +77,13 @@ func (m *CoreManager) Servinfo(broker *plugin.GRPCBroker) ([]byte, error) {
 		return m.srv, nil
 	}
 
-	cleaner := cleanup.New()
-
 	i := intplugin.NewInternal(
 		broker,
 		cacher.New(),
-		cleaner,
+		m.cleanup,
 		m.logger,
 		[]*argmapper.Func{},
 	)
-
-	m.cleanup.Do(func() error { return cleaner.Close() })
 
 	p, err := protomappers.CorePluginManagerProto(m, m.logger, i)
 	if err != nil {
