@@ -19,6 +19,7 @@ import (
 	"github.com/hashicorp/vagrant-plugin-sdk/helper/path"
 	"github.com/hashicorp/vagrant-plugin-sdk/helper/paths"
 	"github.com/hashicorp/vagrant-plugin-sdk/internal-shared/cacher"
+	"github.com/hashicorp/vagrant-plugin-sdk/internal-shared/cleanup"
 	"github.com/hashicorp/vagrant-plugin-sdk/internal-shared/dynamic"
 	"github.com/hashicorp/vagrant-plugin-sdk/internal-shared/protomappers"
 	"github.com/hashicorp/vagrant-plugin-sdk/proto/vagrant_plugin_sdk"
@@ -52,7 +53,7 @@ type Basis struct {
 	client *serverclient.VagrantClient
 
 	jobInfo *component.JobInfo
-	closers []func() error
+	cleaner cleanup.Cleanup
 	ui      terminal.UI
 
 	factory    *Factory
@@ -64,6 +65,7 @@ type Basis struct {
 func NewBasis(ctx context.Context, opts ...BasisOption) (b *Basis, err error) {
 	b = &Basis{
 		cache:      cacher.New(),
+		cleaner:    cleanup.New(),
 		ctx:        ctx,
 		logger:     hclog.L(),
 		jobInfo:    &component.JobInfo{},
@@ -553,7 +555,7 @@ func (b *Basis) LoadProject(popts ...ProjectOption) (p *Project, err error) {
 
 // Register functions to be called when closing this basis
 func (b *Basis) Closer(c func() error) {
-	b.closers = append(b.closers, c)
+	b.cleaner.Do(c)
 }
 
 // Close is called to clean up resources allocated by the basis.
@@ -574,13 +576,8 @@ func (b *Basis) Close() (err error) {
 		}
 	}
 
-	// Call any closers that were registered locally
-	for _, c := range b.closers {
-		if cerr := c(); cerr != nil {
-			b.logger.Warn("error executing closer",
-				"error", cerr)
-			err = multierror.Append(err, cerr)
-		}
+	if cerr := b.cleaner.Close(); cerr != nil {
+		err = multierror.Append(err, cerr)
 	}
 
 	return
