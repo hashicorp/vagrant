@@ -184,7 +184,7 @@ func NewBasis(ctx context.Context, opts ...BasisOption) (b *Basis, err error) {
 	)
 
 	// If we have legacy vagrant loaded, configure managers
-	if b.plugins.LegacyBroker() != nil {
+	if b.plugins.LegacyEnabled() {
 		// Configure plugins to have plugin manager set (used by legacy)
 		b.plugins.Configure(
 			func(i *plugin.Instance, l hclog.Logger) error {
