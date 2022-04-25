@@ -10,6 +10,7 @@ import (
 	"testing"
 
 	"github.com/hashicorp/go-hclog"
+	"github.com/hashicorp/vagrant-plugin-sdk/helper/path"
 	"github.com/hashicorp/vagrant/internal/plugin"
 	"github.com/stretchr/testify/require"
 )
@@ -74,10 +75,10 @@ func TestAddErrors(t *testing.T) {
 	require.NoError(t, err)
 	t.Cleanup(func() { os.RemoveAll(td) })
 
-	_, err = bc.Add("/path/that/doesntexist", "test", "1.2.3", "", true)
+	_, err = bc.Add(path.NewPath("/path/that/doesntexist"), "test", "1.2.3", "", true)
 	require.Error(t, err)
 
-	_, err = bc.Add(td, "test/box", "1.2.3", "", false)
+	_, err = bc.Add(path.NewPath(td), "test/box", "1.2.3", "", false)
 	require.Error(t, err)
 }
 
@@ -89,7 +90,7 @@ func TestAddNoProviders(t *testing.T) {
 	t.Cleanup(func() { os.RemoveAll(td) })
 
 	testBoxPath := generateTestBox(t, td, bc.basis)
-	box, err := bc.Add(testBoxPath, "test/box", "1.2.3", "", true)
+	box, err := bc.Add(path.NewPath(testBoxPath), "test/box", "1.2.3", "", true)
 	require.NoError(t, err)
 	require.NotNil(t, box)
 }
@@ -102,7 +103,7 @@ func TestAddWithProviders(t *testing.T) {
 	t.Cleanup(func() { os.RemoveAll(td) })
 
 	testBoxPath := generateTestBox(t, td, bc.basis)
-	box, err := bc.Add(testBoxPath, "test/box", "1.2.3", "", true, "virtualbox", "vmware")
+	box, err := bc.Add(path.NewPath(testBoxPath), "test/box", "1.2.3", "", true, "virtualbox", "vmware")
 	require.NoError(t, err)
 	require.NotNil(t, box)
 }
@@ -115,7 +116,7 @@ func TestAddBadProviders(t *testing.T) {
 	t.Cleanup(func() { os.RemoveAll(td) })
 
 	testBoxPath := generateTestBox(t, td, bc.basis)
-	_, err = bc.Add(testBoxPath, "test/box", "1.2.4", "", true, "vmware")
+	_, err = bc.Add(path.NewPath(testBoxPath), "test/box", "1.2.4", "", true, "vmware")
 	require.Error(t, err)
 }
 
@@ -162,7 +163,7 @@ func TestRemoveMissingBox(t *testing.T) {
 	t.Cleanup(func() { os.RemoveAll(td) })
 	testBoxPath := generateTestBox(t, td, bc.basis)
 	// Insert test box into the collection
-	box, err := bc.Add(testBoxPath, "test/box", "1.2.3", "", true)
+	box, err := bc.Add(path.NewPath(testBoxPath), "test/box", "1.2.3", "", true)
 	boxPath, _ := box.Directory()
 	require.NoError(t, err)
 	require.NotNil(t, box)
@@ -175,7 +176,7 @@ func TestRemoveMissingBox(t *testing.T) {
 	require.NotNil(t, boxes)
 
 	// Remove box
-	os.RemoveAll(boxPath)
+	os.RemoveAll(boxPath.String())
 
 	// Create new box collection to verify test box is no longer accessible
 	bc, err = NewBoxCollection(bc.basis, bc.directory, bc.logger)

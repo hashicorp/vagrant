@@ -17,6 +17,7 @@ import (
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/go-version"
 	"github.com/hashicorp/vagrant-plugin-sdk/core"
+	"github.com/hashicorp/vagrant-plugin-sdk/helper/path"
 	"github.com/hashicorp/vagrant-plugin-sdk/proto/vagrant_plugin_sdk"
 	"github.com/hashicorp/vagrant/internal/server/proto/vagrant_server"
 	"github.com/mitchellh/mapstructure"
@@ -232,8 +233,8 @@ func (b *Box) Destroy() (err error) {
 	return
 }
 
-func (b *Box) Directory() (path string, err error) {
-	return b.box.Directory, nil
+func (b *Box) Directory() (path.Path, error) {
+	return path.NewPath(b.box.Directory), nil
 }
 
 // Checks if the box has an update and returns the metadata, version,
@@ -345,11 +346,11 @@ func (b *Box) Provider() (name string, err error) {
 }
 
 // This repackages this box and outputs it to the given path.
-func (b *Box) Repackage(outputPath string) (err error) {
+func (b *Box) Repackage(outputPath path.Path) (err error) {
 	b.logger.Trace("repackaging box", b.box.Name,
 		"to", outputPath)
 
-	tarFile, err := os.Create(outputPath)
+	tarFile, err := os.Create(outputPath.String())
 	if err != nil {
 		return err
 	}

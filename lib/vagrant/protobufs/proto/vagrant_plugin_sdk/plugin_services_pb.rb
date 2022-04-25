@@ -469,24 +469,24 @@ module Hashicorp
           rpc :ActiveTargets, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::Project::ActiveTargetsResponse
           rpc :Boxes, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::Args::BoxCollection
           rpc :Config, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::Project::ConfigResponse
-          rpc :CWD, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::Project::CwdResponse
+          rpc :CWD, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::Args::Path
           rpc :DataDir, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::Args::DataDir::Project
-          rpc :DefaultPrivateKey, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::Project::DefaultPrivateKeyResponse
+          rpc :DefaultPrivateKey, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::Args::Path
           rpc :DefaultProvider, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::Project::DefaultProviderResponse
-          rpc :Home, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::Project::HomeResponse
+          rpc :Home, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::Args::Path
           rpc :Host, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::Args::Host
-          rpc :LocalData, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::Project::LocalDataResponse
+          rpc :LocalData, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::Args::Path
           rpc :PrimaryTargetName, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::Project::PrimaryTargetNameResponse
           rpc :ResourceId, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::Project::ResourceIdResponse
-          rpc :RootPath, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::Project::RootPathResponse
+          rpc :RootPath, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::Args::Path
           rpc :Target, ::Hashicorp::Vagrant::Sdk::Project::TargetRequest, ::Hashicorp::Vagrant::Sdk::Args::Target
           rpc :TargetIds, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::Project::TargetIdsResponse
           rpc :TargetIndex, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::Args::TargetIndex
           rpc :TargetNames, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::Project::TargetNamesResponse
-          rpc :Tmp, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::Project::TmpResponse
+          rpc :Tmp, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::Args::Path
           rpc :UI, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::Args::TerminalUI
           rpc :VagrantfileName, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::Project::VagrantfileNameResponse
-          rpc :VagrantfilePath, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::Project::VagrantfilePathResponse
+          rpc :VagrantfilePath, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::Args::Path
         end
 
         Stub = Service.rpc_stub_class

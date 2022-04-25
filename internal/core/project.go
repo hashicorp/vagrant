@@ -84,12 +84,8 @@ func (b *Project) Config() (*vagrant_plugin_sdk.Vagrantfile_Vagrantfile, error) 
 }
 
 // CWD implements core.Project
-func (p *Project) CWD() (path string, err error) {
-	cwd, err := paths.VagrantCwd()
-	if err != nil {
-		return "", err
-	}
-	return cwd.String(), nil
+func (p *Project) CWD() (path path.Path, err error) {
+	return paths.VagrantCwd()
 }
 
 // DataDir implements core.Project
@@ -98,7 +94,7 @@ func (p *Project) DataDir() (*datadir.Project, error) {
 }
 
 // DefaultPrivateKey implements core.Project
-func (p *Project) DefaultPrivateKey() (path string, err error) {
+func (p *Project) DefaultPrivateKey() (path path.Path, err error) {
 	return p.basis.DefaultPrivateKey()
 }
 
@@ -109,8 +105,8 @@ func (p *Project) DefaultProvider() (name string, err error) {
 }
 
 // Home implements core.Project
-func (p *Project) Home() (path string, err error) {
-	return p.project.Path, nil
+func (p *Project) Home() (dir path.Path, err error) {
+	return path.NewPath(p.project.Path), nil
 }
 
 // Host implements core.Project
@@ -119,8 +115,8 @@ func (p *Project) Host() (host core.Host, err error) {
 }
 
 // LocalData implements core.Project
-func (p *Project) LocalData() (path string, err error) {
-	return p.dir.DataDir().String(), nil
+func (p *Project) LocalData() (d path.Path, err error) {
+	return p.dir.DataDir(), nil
 }
 
 // PrimaryTargetName implements core.Project
@@ -135,7 +131,7 @@ func (p *Project) ResourceId() (string, error) {
 }
 
 // RootPath implements core.Project
-func (p *Project) RootPath() (path string, err error) {
+func (p *Project) RootPath() (path path.Path, err error) {
 	// TODO: need vagrantfile loading to be completed in order to implement
 	return
 }
@@ -190,8 +186,8 @@ func (p *Project) TargetNames() ([]string, error) {
 }
 
 // Tmp implements core.Project
-func (p *Project) Tmp() (path string, err error) {
-	return p.dir.TempDir().String(), nil
+func (p *Project) Tmp() (path path.Path, err error) {
+	return p.dir.TempDir(), nil
 }
 
 // UI implements core.Project

@@ -5,8 +5,9 @@ module VagrantPlugins
         # @return [Vagrant::Box] box added
         def add(path, name, version, force=false, metadata_url=nil, providers=[])
           logger.debug("adding box at path #{path}")
+          args_path = SDK::Args::Path.new(path: path.to_s)
           res = client.add(SDK::BoxCollection::AddRequest.new(
-            path: path.to_s, name: name, version: version, metadataUrl: metadata_url,
+            path: args_path, name: name, version: version, metadataUrl: metadata_url,
             force: force, providers: Array(providers)
           ))
           box_client = Box.load(res, broker: broker)

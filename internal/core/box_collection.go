@@ -12,6 +12,7 @@ import (
 	"github.com/hashicorp/go-getter"
 	"github.com/hashicorp/go-hclog"
 	"github.com/hashicorp/vagrant-plugin-sdk/core"
+	"github.com/hashicorp/vagrant-plugin-sdk/helper/path"
 	"github.com/hashicorp/vagrant-plugin-sdk/proto/vagrant_plugin_sdk"
 	"github.com/hashicorp/vagrant/internal/server/proto/vagrant_server"
 	"google.golang.org/protobuf/types/known/emptypb"
@@ -45,9 +46,9 @@ func NewBoxCollection(basis *Basis, dir string, logger hclog.Logger) (bc *BoxCol
 // * BoxProviderDoesntMatch - If the given box provider doesn't match the
 // 	actual box provider in the untarred box.
 // * BoxUnpackageFailure - An invalid tar file.
-func (b *BoxCollection) Add(path, name, version, metadataURL string, force bool, providers ...string) (box core.Box, err error) {
-	if _, err := os.Stat(path); err != nil {
-		return nil, fmt.Errorf("Could not add box, unable to find path %s", path)
+func (b *BoxCollection) Add(p path.Path, name, version, metadataURL string, force bool, providers ...string) (box core.Box, err error) {
+	if _, err := os.Stat(p.String()); err != nil {
+		return nil, fmt.Errorf("Could not add box, unable to find path %s", p.String())
 	}
 	exists, err := b.Find(name, version, providers...)
 	if err != nil {
@@ -70,7 +71,7 @@ func (b *BoxCollection) Add(path, name, version, metadataURL string, force bool,
 	} // delete tempdir when finished
 	defer os.RemoveAll(tempDir)
 	b.logger.Debug("Unpacking box")
-	boxFile, err := os.Open(path)
+	boxFile, err := os.Open(p.String())
 	if err != nil {
 		return nil, err
 	}
@@ -86,7 +87,7 @@ func (b *BoxCollection) Add(path, name, version, metadataURL string, force bool,
 		ext = "tar.gz"
 	}
 	decompressor := getter.Decompressors[ext]
-	err = decompressor.Decompress(tempDir, path, true, os.ModeDir)
+	err = decompressor.Decompress(tempDir, p.String(), true, os.ModeDir)
 	if err != nil {
 		return nil, err
 	}
@@ -112,7 +113,7 @@ func (b *BoxCollection) Add(path, name, version, metadataURL string, force bool,
 			}
 		}
 		if !foundProvider {
-			return nil, fmt.Errorf("could not add box %s, provider '%s' does not match the expected providers %s", path, provider, providers)
+			return nil, fmt.Errorf("could not add box %s, provider '%s' does not match the expected providers %s", p.String(), provider, providers)
 		}
 	}
 
