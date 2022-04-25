@@ -49,6 +49,10 @@ func (f *Factory) New(name string, opts ...BasisOption) (*Basis, error) {
 		}
 	}
 
+	// Create a child plugin manager for the basis
+	// which we will close when the basis is closed
+	pm := f.plugins.Sub(name)
+
 	// Update the options to include this factory and
 	// our settings when creating the new basis
 	opts = append(opts,
@@ -58,7 +62,7 @@ func (f *Factory) New(name string, opts ...BasisOption) (*Basis, error) {
 				ctx:     f.ctx,
 				client:  f.client,
 				logger:  f.logger,
-				plugins: f.plugins.Sub(name),
+				plugins: pm,
 				ui:      f.ui,
 			},
 		),
@@ -80,11 +84,17 @@ func (f *Factory) New(name string, opts ...BasisOption) (*Basis, error) {
 	}
 
 	f.registered[b.Name()] = b
+	// Remove the basis from the registered list when closed
 	b.Closer(func() error {
 		f.m.Lock()
 		defer f.m.Unlock()
 		delete(f.registered, b.Name())
 		return nil
+	})
+
+	// Close the child plugin manager
+	b.Closer(func() error {
+		return pm.Close()
 	})
 
 	return b, nil
