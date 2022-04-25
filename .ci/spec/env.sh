@@ -4,6 +4,7 @@
 export SLACK_USERNAME="Vagrant"
 export SLACK_ICON="https://media.giphy.com/media/yIQ5glQeheYE0/200.gif"
 export SLACK_TITLE="Vagrant-Spec Test Runner"
+export SLACK_CHANNEL="CLYRTANRH" # CLYRTANRH is ID of #team-vagrant-spam-channel
 export PACKET_EXEC_DEVICE_NAME="${PACKET_EXEC_DEVICE_NAME:-spec-ci-boxes}"
 export PACKET_EXEC_DEVICE_SIZE="${PACKET_EXEC_DEVICE_SIZE:-c3.small.x86,c3.medium.x86}"
 export PACKET_EXEC_PREFER_FACILITIES="${PACKET_EXEC_PREFER_FACILITIES:-la4,dc10,dc13,ny7,pa4,md2}"

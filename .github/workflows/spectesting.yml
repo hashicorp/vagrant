@@ -29,7 +29,7 @@ jobs:
       matrix:
         host_os: ['hashicorp/bionic64']
         guest_os: ['hashicorp-vagrant/ubuntu-16.04']
-        providers: ['virtualbox']
+        providers: ['virtualbox', 'docker']
     steps:
       - name: Code Checkout
         uses: actions/checkout@v1
@@ -54,7 +54,7 @@ jobs:
         host_os: ['hashicorp/bionic64']
         guest_os: ['hashicorp-vagrant/ubuntu-16.04']
         docker_images: ['nginx']
-        providers: ['virtualbox']
+        providers: ['virtualbox', 'docker']
     steps:
       - name: Run Tests with host ${{ matrix.host_os }} using provider ${{ matrix.providers }}
         run: ./.ci/spec/run-test.sh
@@ -78,10 +78,9 @@ jobs:
     runs-on: self-hosted
     name: Cleanup Post Vagrant-Spec Tests
     needs: spec-tests
+    if: always()
     steps:
       - name: Clean Packet
-        if: always()
         run: ./.ci/spec/clean-packet.sh
       - name: Clean Workspace
-        if: always()
         run: rm -rf ${{ github.workspace }}

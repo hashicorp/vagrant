@@ -27,8 +27,8 @@ git config --global url."https://${HASHIBOT_USERNAME}:${HASHIBOT_TOKEN}@github.c
 gem install bundler -v "$(grep -A 1 "BUNDLED WITH" Gemfile.lock | tail -n 1)"
 make
 bundle install
-gem build vagrant.gemspec
-gem install vagrant*.gem
+gem build -o /tmp/vagrant.gem vagrant.gemspec
+gem install /tmp/vagrant.gem
 
 popd
 
@@ -40,6 +40,6 @@ pushd vagrant-spec
 # necessary. Once this branch lands we can remove this line and build from main.
 git checkout vagrant-ruby
 
-gem build vagrant-spec.gemspec
-gem install vagrant-spec*.gem
+gem build -o /tmp/vagrant-spec.gem vagrant-spec.gemspec
+gem install /tmp/vagrant-spec.gem
 popd

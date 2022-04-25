@@ -119,7 +119,10 @@ Vagrant.configure(2) do |global_config|
                 keep_color: true,
                 env: {
                   "VAGRANT_SPEC_ARGS" => "test --components provider/docker/docker/* #{spec_cmd_args}".strip,
-                  "VAGRANT_SPEC_DOCKER_IMAGE" => docker_image
+                  "VAGRANT_SPEC_DOCKER_IMAGE" => docker_image,
+                  "VAGRANT_LOG" => "trace",
+                  "VAGRANT_LOG_LEVEL" => "trace",
+                  "VAGRANT_SPEC_LOG_PATH" => "/tmp/vagrant-spec.log",
                 }
               )
             end
