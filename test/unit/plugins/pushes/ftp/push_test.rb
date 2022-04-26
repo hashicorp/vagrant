@@ -70,7 +70,7 @@ describe VagrantPlugins::FTPPush::Push do
 
     it "pushes the files to the server" do
       subject.push
-      expect(server.files).to eq(%w(Gemfile data.txt))
+      expect(server.files).to eq(%w[/var/www/site/Gemfile /var/www/site/data.txt])
     end
 
     it "raises informative exception when too many files to process" do
