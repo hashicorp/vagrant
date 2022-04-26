@@ -136,14 +136,7 @@ module Vagrant
       end
 
       def state
-        # TODO: this should be using the vagrant go core (client.machine_state).
-        # Since there is currently no way to access providers in the go machine
-        # leave this here for now. Once the provider has been ported, this should
-        # be updated.
-        s = @provider.state
-        raise Errors::MachineStateInvalid if !s.is_a?(MachineState)
-        client.set_machine_state(s) unless s.nil?
-        return s
+        client.machine_state
       end
 
       def ssh_info

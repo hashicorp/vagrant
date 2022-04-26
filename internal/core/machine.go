@@ -187,8 +187,11 @@ func (m *Machine) ConnectionInfo() (info *core.ConnectionInfo, err error) {
 
 // MachineState implements core.Machine
 func (m *Machine) MachineState() (state *core.MachineState, err error) {
-	var result core.MachineState
-	return &result, mapstructure.Decode(m.machine.State, &result)
+	p, err := m.Provider()
+	if err != nil {
+		return nil, err
+	}
+	return p.State()
 }
 
 // SetMachineState implements core.Machine
