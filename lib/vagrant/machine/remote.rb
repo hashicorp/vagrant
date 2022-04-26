@@ -26,22 +26,37 @@ module Vagrant
       # @param [Box] box The box that is backing this virtual machine.
       # @param [Environment] env The environment that this machine is a
       #   part of.
-      def initialize(name, provider_name, provider_cls, provider_config, provider_options, config, data_dir, box, env, vagrantfile, base=false)
+      def initialize(name, provider_name, provider_cls, provider_config, provider_options, config, data_dir, box, env, vagrantfile, base=false, client: nil)
         @logger = Log4r::Logger.new("vagrant::machine")
-        @client = env.get_target(name)
-        @env = env
-        @ui = Vagrant::UI::Prefixed.new(@env.ui, name)
+        if !env.nil? && client.nil?
+          @env = env
+          @client = env.get_target(name)
+        else
+          @client = client
+          @env = client.environment
+        end
 
-        # TODO: Get provider info from client
-        @provider_name = provider_name
-        @provider = provider_cls.new(self)
-        @provider._initialize(provider_name, self)
-        @provider_options = provider_options
-        @provider_config = provider_config
+        if @client.nil?
+          raise ArgumentError,
+            "Remote client is required for `#{self.class.name}'"
+        end
 
-        @config          = config
+        @name = @client.name
+        @ui = Vagrant::UI::Prefixed.new(@env.ui, @name)
+        # TODO: get vagrantfile from go
+        @vagrantfile = @env.vagrantfile
+        @provider_name = @client.provider_name
+        provider_cls = Array(
+          Vagrant.plugin("2").remote_manager.providers[@provider_name.to_sym]
+        ).first
+        @provider = provider_cls.new(self, {client: @client.provider})
+        # TODO: get machine config info from go
+        mc = @vagrantfile.machine_config(@name.to_sym, @provider_name.to_sym, nil)
+        @config = mc[:config]
+        @provider_options = mc[:provider_options]
+        @provider_config = @config.vm.get_provider_config(@provider_name.to_sym)
+
         @data_dir        = @client.data_dir
-        @vagrantfile     = vagrantfile
         @name            = name
         @ui_mutex        = Mutex.new
         @state_mutex     = Mutex.new
@@ -103,7 +118,7 @@ module Vagrant
         # Store the ID locally
         @id = value.nil? ? nil : value.to_s
         # Notify the provider that the ID changed in case it needs to do
-        # any accounting from it.
+        # any accounting from it. This is only used for local Ruby providers
         @provider.machine_id_changed
       end
 
