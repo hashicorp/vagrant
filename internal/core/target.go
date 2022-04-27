@@ -399,7 +399,6 @@ func WithTargetName(name string) TargetOption {
 				return
 			}
 			t.target = result.Target
-			t.project.targets[t.target.Name] = t
 			return
 		}
 		return fmt.Errorf("target `%s' is not registered in project", name)
@@ -452,7 +451,6 @@ func WithTargetRef(r *vagrant_plugin_sdk.Ref_Target) TargetOption {
 			return fmt.Errorf("target project configuration is invalid")
 		}
 		t.target = target
-		t.project.targets[t.target.ResourceId] = t
 		return
 	}
 }
