@@ -331,14 +331,27 @@ func (t *Target) seed(fn func(*core.Seeds)) {
 
 // Specializes target into a machine
 func (t *Target) Machine() core.Machine {
+	cm := t.cache.Get("machine")
+	if cm != nil {
+		return cm.(core.Machine)
+	}
+
 	targetMachine := &vagrant_server.Target_Machine{}
 	ptypes.UnmarshalAny(t.target.Record, targetMachine)
-	return &Machine{
+	m := &Machine{
 		Target:  t,
 		logger:  t.logger,
 		machine: targetMachine,
 		cache:   cacher.New(),
 	}
+
+	t.Closer(func() error {
+		return m.Save()
+	})
+
+	t.cache.Register("machine", m)
+
+	return m
 }
 
 // Calls the function provided and converts the
