@@ -242,7 +242,9 @@ func (t *Target) Save() (err error) {
 	defer t.m.Unlock()
 
 	t.logger.Debug("saving target to db",
-		"target", t.target.ResourceId)
+		"target", t.target.ResourceId,
+		"name", t.target.Name,
+	)
 
 	result, err := t.Client().UpsertTarget(t.ctx, &vagrant_server.UpsertTargetRequest{
 		Target: t.target})
