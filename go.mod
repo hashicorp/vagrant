@@ -64,6 +64,7 @@ require (
 	github.com/mr-tron/base58 v1.2.0
 	github.com/mwitkow/go-conntrack v0.0.0-20161129095857-cc309e4a2223 // indirect
 	github.com/natefinch/atomic v0.0.0-20200526193002-18c0533a5b09
+	github.com/nicksnyder/go-i18n/v2 v2.2.0 // indirect
 	github.com/oklog/run v1.1.0
 	github.com/oklog/ulid v1.3.1
 	github.com/oklog/ulid/v2 v2.0.2
@@ -84,6 +85,7 @@ require (
 	golang.org/x/net v0.0.0-20211112202133-69e39bad7dc2 // indirect
 	golang.org/x/oauth2 v0.0.0-20211104180415-d3ed0bb246c8 // indirect
 	golang.org/x/sys v0.0.0-20211116061358-0a5406a5449c
+	golang.org/x/text v0.3.7 // indirect
 	golang.org/x/time v0.0.0-20200630173020-3af7569d3a1e // indirect
 	google.golang.org/api v0.60.0 // indirect
 	google.golang.org/genproto v0.0.0-20211116182654-e63d96a377c4
@@ -96,7 +98,7 @@ require (
 )
 
 //replace github.com/hashicorp/go-argmapper => ../go-argmapper
-//replace github.com/hashicorp/vagrant-plugin-sdk => ../vagrant-plugin-sdk
+replace github.com/hashicorp/vagrant-plugin-sdk => ../vagrant-plugin-sdk
 
 replace (
 	// v0.3.11 panics for some reason on our tests
