@@ -242,7 +242,9 @@ func (t *Target) Save() (err error) {
 	defer t.m.Unlock()
 
 	t.logger.Debug("saving target to db",
-		"target", t.target.ResourceId)
+		"target", t.target.ResourceId,
+		"name", t.target.Name,
+	)
 
 	result, err := t.Client().UpsertTarget(t.ctx, &vagrant_server.UpsertTargetRequest{
 		Target: t.target})
@@ -329,14 +331,27 @@ func (t *Target) seed(fn func(*core.Seeds)) {
 
 // Specializes target into a machine
 func (t *Target) Machine() core.Machine {
+	cm := t.cache.Get("machine")
+	if cm != nil {
+		return cm.(core.Machine)
+	}
+
 	targetMachine := &vagrant_server.Target_Machine{}
 	ptypes.UnmarshalAny(t.target.Record, targetMachine)
-	return &Machine{
+	m := &Machine{
 		Target:  t,
 		logger:  t.logger,
 		machine: targetMachine,
 		cache:   cacher.New(),
 	}
+
+	t.Closer(func() error {
+		return m.Save()
+	})
+
+	t.cache.Register("machine", m)
+
+	return m
 }
 
 // Calls the function provided and converts the
@@ -399,7 +414,6 @@ func WithTargetName(name string) TargetOption {
 				return
 			}
 			t.target = result.Target
-			t.project.targets[t.target.Name] = t
 			return
 		}
 		return fmt.Errorf("target `%s' is not registered in project", name)
@@ -452,7 +466,6 @@ func WithTargetRef(r *vagrant_plugin_sdk.Ref_Target) TargetOption {
 			return fmt.Errorf("target project configuration is invalid")
 		}
 		t.target = target
-		t.project.targets[t.target.ResourceId] = t
 		return
 	}
 }

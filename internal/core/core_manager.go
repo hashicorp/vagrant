@@ -2,37 +2,47 @@ package core
 
 import (
 	"context"
+	"io"
 	"sync"
 
+	"github.com/hashicorp/go-argmapper"
 	"github.com/hashicorp/go-hclog"
-	"github.com/hashicorp/go-multierror"
-	plg "github.com/hashicorp/go-plugin"
+	"github.com/hashicorp/go-plugin"
 	sdkcore "github.com/hashicorp/vagrant-plugin-sdk/core"
+	"github.com/hashicorp/vagrant-plugin-sdk/internal-shared/cacher"
+	"github.com/hashicorp/vagrant-plugin-sdk/internal-shared/cleanup"
 	"github.com/hashicorp/vagrant-plugin-sdk/internal-shared/protomappers"
+	intplugin "github.com/hashicorp/vagrant/internal/plugin"
 	"google.golang.org/protobuf/encoding/protojson"
 )
 
 type CoreManager struct {
-	closers []func() error // List of functions to execute on close
+	cleanup cleanup.Cleanup
 	ctx     context.Context
 	logger  hclog.Logger // Logger for the manager
 	m       sync.Mutex
 	srv     []byte // Marshalled proto message for plugin manager
 }
 
-func (m *CoreManager) closer(f func() error) {
-	m.closers = append(m.closers, f)
-}
+func NewCoreManager(ctx context.Context, l hclog.Logger) *CoreManager {
+	var logger hclog.Logger
+	if l.IsTrace() {
+		logger = l.Named("coremanager")
+	} else {
+		logger = l.ResetNamed("coremanager")
+	}
 
-// Interface for plugins which allow broker access
-type Closer interface {
-	Close() error
+	return &CoreManager{
+		cleanup: cleanup.New(),
+		ctx:     ctx,
+		logger:  logger,
+	}
 }
 
 func (m *CoreManager) generatePlugin(fn func() (plg interface{})) (plg interface{}, err error) {
 	plg = fn()
-	if p, ok := plg.(Closer); ok {
-		m.closer(func() error {
+	if p, ok := plg.(io.Closer); ok {
+		m.cleanup.Do(func() error {
 			return p.Close()
 		})
 	}
@@ -62,12 +72,20 @@ func (m *CoreManager) GetPlugin(pluginType sdkcore.Type) (plg interface{}, err e
 	return
 }
 
-func (m *CoreManager) Servinfo(broker *plg.GRPCBroker) ([]byte, error) {
+func (m *CoreManager) Servinfo(broker *plugin.GRPCBroker) ([]byte, error) {
 	if m.srv != nil {
 		return m.srv, nil
 	}
 
-	p, closer, err := protomappers.CorePluginManagerProtoDirect(m, m.logger, broker)
+	i := intplugin.NewInternal(
+		broker,
+		cacher.New(),
+		m.cleanup,
+		m.logger,
+		[]*argmapper.Func{},
+	)
+
+	p, err := protomappers.CorePluginManagerProto(m, m.logger, i)
 	if err != nil {
 		m.logger.Warn("failed to create plugin manager grpc server",
 			"error", err,
@@ -75,14 +93,6 @@ func (m *CoreManager) Servinfo(broker *plg.GRPCBroker) ([]byte, error) {
 
 		return nil, err
 	}
-
-	fn := func() error {
-		m.logger.Info("closing the GRPC server instance")
-		closer()
-		m.srv = nil
-		return nil
-	}
-	m.closer(fn)
 
 	m.logger.Info("new GRPC server instance started",
 		"address", p.Addr,
@@ -94,17 +104,12 @@ func (m *CoreManager) Servinfo(broker *plg.GRPCBroker) ([]byte, error) {
 }
 
 // Close the manager (and all managed plugins)
-func (m *CoreManager) Close() (err error) {
+func (m *CoreManager) Close() error {
 	m.m.Lock()
 	defer m.m.Unlock()
 
-	m.logger.Warn("closing the plugin manager")
-	for _, c := range m.closers {
-		if e := c(); err != nil {
-			err = multierror.Append(err, e)
-		}
-	}
-	return
+	m.logger.Warn("closing the core plugin manager")
+	return m.cleanup.Close()
 }
 
 var _ sdkcore.CorePluginManager = (*CoreManager)(nil)

@@ -19,6 +19,7 @@ import (
 	"github.com/hashicorp/vagrant-plugin-sdk/helper/path"
 	"github.com/hashicorp/vagrant-plugin-sdk/helper/paths"
 	"github.com/hashicorp/vagrant-plugin-sdk/internal-shared/cacher"
+	"github.com/hashicorp/vagrant-plugin-sdk/internal-shared/cleanup"
 	"github.com/hashicorp/vagrant-plugin-sdk/internal-shared/dynamic"
 	"github.com/hashicorp/vagrant-plugin-sdk/internal-shared/protomappers"
 	"github.com/hashicorp/vagrant-plugin-sdk/proto/vagrant_plugin_sdk"
@@ -52,7 +53,7 @@ type Basis struct {
 	client *serverclient.VagrantClient
 
 	jobInfo *component.JobInfo
-	closers []func() error
+	cleaner cleanup.Cleanup
 	ui      terminal.UI
 
 	factory    *Factory
@@ -64,17 +65,13 @@ type Basis struct {
 func NewBasis(ctx context.Context, opts ...BasisOption) (b *Basis, err error) {
 	b = &Basis{
 		cache:      cacher.New(),
+		cleaner:    cleanup.New(),
 		ctx:        ctx,
 		logger:     hclog.L(),
 		jobInfo:    &component.JobInfo{},
 		projects:   map[string]*Project{},
 		seedValues: core.NewSeeds(),
 		statebag:   NewStateBag(),
-		corePlugins: &CoreManager{
-			closers: []func() error{},
-			ctx:     ctx,
-			logger:  hclog.L(),
-		},
 	}
 
 	for _, opt := range opts {
@@ -92,9 +89,9 @@ func NewBasis(ctx context.Context, opts ...BasisOption) (b *Basis, err error) {
 	} else {
 		b.logger = b.logger.ResetNamed("vagrant.core.basis")
 	}
-	// Whatever the logger ended up being named, chain the coreplugins logger
-	// off of that
-	b.corePlugins.logger = b.logger.Named("coreplugins")
+
+	// Create the manager for handling core plugins
+	b.corePlugins = NewCoreManager(ctx, b.logger)
 
 	if b.basis == nil {
 		return nil, fmt.Errorf("basis data was not properly loaded")
@@ -130,6 +127,11 @@ func NewBasis(ctx context.Context, opts ...BasisOption) (b *Basis, err error) {
 	// Ensure any modifications to the basis are persisted
 	b.Closer(func() error { return b.Save() })
 
+	// Close the core manager
+	b.Closer(func() error {
+		return b.corePlugins.Close()
+	})
+
 	// Add in local mappers
 	for _, fn := range Mappers {
 		f, err := argmapper.NewFunc(fn,
@@ -153,7 +155,16 @@ func NewBasis(ctx context.Context, opts ...BasisOption) (b *Basis, err error) {
 			if c, ok := i.Component.(interface {
 				SetCache(cacher.Cache)
 			}); ok {
+				b.logger.Trace("setting cache on plugin instance",
+					"name", i.Name,
+					"component", hclog.Fmt("%T", i.Component),
+				)
 				c.SetCache(b.cache)
+			} else {
+				b.logger.Warn("cannot set cache on plugin instance",
+					"name", i.Name,
+					"component", hclog.Fmt("%T", i.Component),
+				)
 			}
 
 			return nil
@@ -172,59 +183,62 @@ func NewBasis(ctx context.Context, opts ...BasisOption) (b *Basis, err error) {
 		},
 	)
 
-	// Configure plugins to have plugin manager set (used by legacy)
-	b.plugins.Configure(
-		func(i *plugin.Instance, l hclog.Logger) error {
-			s, ok := i.Component.(plugin.HasPluginMetadata)
-			if !ok {
-				l.Warn("plugin does not support metadata, cannot assign plugin manager",
-					"component", i.Type.String(),
-					"name", i.Name,
-				)
+	// If we have legacy vagrant loaded, configure managers
+	if b.plugins.LegacyEnabled() {
+		// Configure plugins to have plugin manager set (used by legacy)
+		b.plugins.Configure(
+			func(i *plugin.Instance, l hclog.Logger) error {
+				s, ok := i.Component.(plugin.HasPluginMetadata)
+				if !ok {
+					l.Warn("plugin does not support metadata, cannot assign plugin manager",
+						"component", i.Type.String(),
+						"name", i.Name,
+					)
+
+					return nil
+				}
+
+				srv, err := b.plugins.Servinfo()
+				if err != nil {
+					l.Warn("failed to get plugin manager information",
+						"error", err,
+					)
+
+					return nil
+				}
+				s.SetRequestMetadata("plugin_manager", string(srv))
 
 				return nil
-			}
+			},
+		)
 
-			srv, err := b.plugins.Servinfo()
-			if err != nil {
-				l.Warn("failed to get plugin manager information",
-					"error", err,
-				)
+		// Configure plugins to have a core plugin manager set (used by legacy)
+		b.plugins.Configure(
+			func(i *plugin.Instance, l hclog.Logger) error {
+				s, ok := i.Component.(plugin.HasPluginMetadata)
+				if !ok {
+					l.Warn("plugin does not support metadata, cannot assign plugin manager",
+						"component", i.Type.String(),
+						"name", i.Name,
+					)
 
-				return nil
-			}
-			s.SetRequestMetadata("plugin_manager", string(srv))
+					return nil
+				}
 
-			return nil
-		},
-	)
+				srv, err := b.corePlugins.Servinfo(b.plugins.LegacyBroker())
+				if err != nil {
+					l.Warn("failed to get plugin manager information",
+						"error", err,
+					)
 
-	// Configure plugins to have a core plugin manager set (used by legacy)
-	b.plugins.Configure(
-		func(i *plugin.Instance, l hclog.Logger) error {
-			s, ok := i.Component.(plugin.HasPluginMetadata)
-			if !ok {
-				l.Warn("plugin does not support metadata, cannot assign plugin manager",
-					"component", i.Type.String(),
-					"name", i.Name,
-				)
-
-				return nil
-			}
-
-			srv, err := b.corePlugins.Servinfo(b.plugins.LegacyBroker())
-			if err != nil {
-				l.Warn("failed to get plugin manager information",
-					"error", err,
-				)
+					return nil
+				}
+				s.SetRequestMetadata("core_plugin_manager", string(srv))
 
 				return nil
-			}
-			s.SetRequestMetadata("core_plugin_manager", string(srv))
-
-			return nil
-		},
-	)
+			},
+		)
+	}
 
 	err = b.plugins.Discover(b.dir.ConfigDir().Join("plugins"))
 
@@ -285,7 +299,7 @@ func (b *Basis) Plugins(types ...string) (plugins []*core.NamedPlugin, err error
 // Generic function for providing ref to a scope
 func (b *Basis) Ref() interface{} {
 	return &vagrant_plugin_sdk.Ref_Basis{
-		ResourceId: b.ResourceId(),
+		ResourceId: b.basis.ResourceId,
 		Name:       b.Name(),
 	}
 }
@@ -300,12 +314,8 @@ func (b *Basis) Name() string {
 }
 
 // Resource ID for this basis
-func (b *Basis) ResourceId() string {
-	if b.basis == nil {
-		return ""
-	}
-
-	return b.basis.ResourceId
+func (b *Basis) ResourceId() (string, error) {
+	return b.basis.ResourceId, nil
 }
 
 // Returns the job info if currently set
@@ -545,14 +555,14 @@ func (b *Basis) LoadProject(popts ...ProjectOption) (p *Project, err error) {
 
 // Register functions to be called when closing this basis
 func (b *Basis) Closer(c func() error) {
-	b.closers = append(b.closers, c)
+	b.cleaner.Do(c)
 }
 
 // Close is called to clean up resources allocated by the basis.
 // This should be called and blocked on to gracefully stop the basis.
 func (b *Basis) Close() (err error) {
 	b.logger.Debug("closing basis",
-		"basis", b.ResourceId())
+		"basis", b.basis.ResourceId)
 
 	// Close down any projects that were loaded
 	for name, p := range b.projects {
@@ -566,13 +576,8 @@ func (b *Basis) Close() (err error) {
 		}
 	}
 
-	// Call any closers that were registered locally
-	for _, c := range b.closers {
-		if cerr := c(); cerr != nil {
-			b.logger.Warn("error executing closer",
-				"error", cerr)
-			err = multierror.Append(err, cerr)
-		}
+	if cerr := b.cleaner.Close(); cerr != nil {
+		err = multierror.Append(err, cerr)
 	}
 
 	return
@@ -584,7 +589,7 @@ func (b *Basis) Save() (err error) {
 	defer b.m.Unlock()
 
 	b.logger.Debug("saving basis to db",
-		"basis", b.ResourceId())
+		"basis", b.basis.ResourceId)
 
 	result, err := b.Client().UpsertBasis(b.ctx,
 		&vagrant_server.UpsertBasisRequest{
@@ -592,7 +597,7 @@ func (b *Basis) Save() (err error) {
 
 	if err != nil {
 		b.logger.Trace("failed to save basis",
-			"basis", b.ResourceId(),
+			"basis", b.basis.ResourceId,
 			"error", err)
 	}
 
@@ -605,11 +610,11 @@ func (b *Basis) Save() (err error) {
 // be called on the project.
 func (b *Basis) SaveFull() (err error) {
 	b.logger.Debug("performing full save",
-		"basis", b.ResourceId())
+		"basis", b.basis.ResourceId)
 
 	for _, p := range b.projects {
 		b.logger.Trace("saving project",
-			"basis", b.ResourceId(),
+			"basis", b.basis.ResourceId,
 			"project", p.project.ResourceId)
 
 		if perr := p.SaveFull(); perr != nil {
@@ -694,12 +699,7 @@ func (b *Basis) component(
 	if typ == component.CommandType {
 		name = strings.Split(name, " ")[0]
 	}
-	p, err := b.plugins.Find(name, typ)
-	if err != nil {
-		return nil, err
-	}
-
-	c, err := p.InstanceOf(typ)
+	c, err := b.plugins.Find(name, typ)
 	if err != nil {
 		return nil, err
 	}
@@ -711,11 +711,11 @@ func (b *Basis) component(
 		Value: c.Component,
 		Info: &vagrant_server.Component{
 			Type:       vagrant_server.Component_Type(typ),
-			Name:       p.Name,
+			Name:       name,
 			ServerAddr: b.Client().ServerTarget(),
 		},
 		hooks:   hooks,
-		mappers: append(b.mappers, p.Mappers...),
+		mappers: append(b.mappers, c.Mappers...),
 		plugin:  c,
 	}, nil
 }
@@ -731,13 +731,28 @@ func (b *Basis) typeComponents(
 		return nil, err
 	}
 
+	b.logger.Info("fetching all typed plugins",
+		"type", typ.String(),
+	)
 	for _, p := range plugins {
-		c, err := b.component(ctx, typ, p.Name)
+		b.logger.Info("fetching typed component",
+			"plugin", p,
+			"type", typ.String(),
+		)
+		c, err := b.component(ctx, typ, p)
 		if err != nil {
+			b.logger.Error("failed to fetch component",
+				"plugin", p,
+				"type", typ.String(),
+			)
 			return nil, err
 		}
-		result[p.Name] = c
+		result[p] = c
 	}
+	b.logger.Info("fetched all typed plugins",
+		"type", typ.String(),
+		"count", len(result),
+	)
 	return result, nil
 }
 

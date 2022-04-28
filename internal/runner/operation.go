@@ -65,7 +65,6 @@ func (r *Runner) executeJob(
 	opts := []core.BasisOption{
 		core.WithLogger(log),
 		core.WithUI(ui),
-		core.WithPluginManager(r.plugins),
 		core.WithClient(r.client),
 		core.WithJobInfo(jobInfo),
 	}
@@ -84,7 +83,7 @@ func (r *Runner) executeJob(
 	opts = append(opts, core.WithBasisRef(ref))
 
 	// Load our basis
-	b, err := r.factory.New("", opts...)
+	b, err := r.factory.New(job.Id, opts...)
 	if err != nil {
 		return
 	}

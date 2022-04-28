@@ -2,18 +2,19 @@ package plugin
 
 import (
 	"fmt"
+	"io"
 	"strings"
 	"sync"
 
 	"github.com/hashicorp/go-argmapper"
 	"github.com/hashicorp/go-hclog"
-	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/go-plugin"
 
 	sdk "github.com/hashicorp/vagrant-plugin-sdk"
 	"github.com/hashicorp/vagrant-plugin-sdk/component"
 	"github.com/hashicorp/vagrant-plugin-sdk/core"
 	"github.com/hashicorp/vagrant-plugin-sdk/internal-shared/cacher"
+	"github.com/hashicorp/vagrant-plugin-sdk/internal-shared/cleanup"
 	"github.com/hashicorp/vagrant/builtin/myplugin"
 	"github.com/hashicorp/vagrant/builtin/otherplugin"
 )
@@ -33,14 +34,6 @@ var (
 		"myplugin":    myplugin.CommandOptions,
 		"otherplugin": otherplugin.CommandOptions,
 	}
-	CacheableComponents = []component.Type{
-		component.CommandType,
-		component.ConfigType,
-		component.HostType,
-		component.MapperType,
-		component.PluginInfoType,
-		component.PushType,
-	}
 )
 
 type Plugin struct {
@@ -52,12 +45,11 @@ type Plugin struct {
 	Name     string                // Name of the plugin
 	Types    []component.Type      // Component types supported by this plugin
 
-	closers    []func() error               // Functions to be called when manager is closed
-	components map[component.Type]*Instance // Map of created instances
-	logger     hclog.Logger
-	m          sync.Mutex
-	manager    *Manager       // Plugin manager this plugin belongs to
-	src        *plugin.Client // Client for the plugin
+	cleaner cleanup.Cleanup // Cleanup tasks to perform on closing
+	logger  hclog.Logger
+	m       sync.Mutex
+	manager *Manager       // Plugin manager this plugin belongs to
+	src     *plugin.Client // Client for the plugin
 }
 
 // Interface for plugins with mapper support
@@ -96,7 +88,7 @@ func (p *Plugin) HasType(
 
 // Add a callback to execute when plugin is closed
 func (p *Plugin) Closer(c func() error) {
-	p.closers = append(p.closers, c)
+	p.cleaner.Do(c)
 }
 
 // Calls all registered close callbacks
@@ -104,17 +96,13 @@ func (p *Plugin) Close() (err error) {
 	p.m.Lock()
 	defer p.m.Unlock()
 
-	for _, c := range p.closers {
-		if e := c(); e != nil {
-			multierror.Append(err, e)
-		}
-	}
-	return
+	return p.cleaner.Close()
 }
 
 // Get specific component type from plugin
 func (p *Plugin) InstanceOf(
 	c component.Type,
+	cfns []PluginConfigurator,
 ) (i *Instance, err error) {
 	p.m.Lock()
 	defer p.m.Unlock()
@@ -130,15 +118,6 @@ func (p *Plugin) InstanceOf(
 			"valid", p.types())
 
 		return nil, fmt.Errorf("plugin does not support %s component type", c.String())
-	}
-
-	// If it's cached, return that
-	if i, ok := p.components[c]; ok {
-		p.logger.Trace("using cached component",
-			"name", p.Name,
-			"type", c.String())
-
-		return i, nil
 	}
 
 	// Build the instance
@@ -166,6 +145,7 @@ func (p *Plugin) InstanceOf(
 		cm.AppendMappers(p.Mappers...)
 	}
 
+	// Set the plugin name if possible
 	if named, ok := raw.(core.Named); ok {
 		named.SetPluginName(p.Name)
 		if err != nil {
@@ -176,27 +156,28 @@ func (p *Plugin) InstanceOf(
 	// Create our instance
 	i = &Instance{
 		Component: raw,
-		Broker:    b.GRPCBroker(),
-		Mappers:   p.Mappers,
-		Name:      p.Name,
-		Type:      c,
+		Close: func() error {
+			if cl, ok := raw.(io.Closer); ok {
+				return cl.Close()
+			}
+			return nil
+		},
+		Broker:  b.GRPCBroker(),
+		Mappers: p.Mappers,
+		Name:    p.Name,
+		Type:    c,
 	}
 
-	// Apply configurations if no errors encountered
-	for _, fn := range p.manager.Configurators() {
+	// Be sure the instance is close when the plugin is closed
+	p.Closer(func() error {
+		return i.Close()
+	})
+
+	// Apply configurators to the instance
+	for _, fn := range cfns {
 		if err = fn(i, p.logger); err != nil {
 			return
 		}
-	}
-
-	// Load the parent plugin if available
-	if err = p.loadParent(i); err != nil {
-		return
-	}
-
-	if p.isCacheable(c) {
-		// Store the instance for later usage
-		p.components[c] = i
 	}
 
 	return
@@ -209,72 +190,4 @@ func (p *Plugin) types() []string {
 		result = append(result, t.String())
 	}
 	return result
-}
-
-func (p *Plugin) loadParent(i *Instance) error {
-	c, ok := i.Component.(HasParent)
-	if !ok {
-		p.logger.Debug("component component does not support parents",
-			"type", i.Type.String(),
-			"name", i.Name,
-		)
-
-		return nil
-	}
-
-	parentName, err := c.Parent()
-	if err != nil {
-		p.logger.Error("component parent request failed",
-			"type", i.Type.String(),
-			"name", i.Name,
-			"error", err,
-		)
-
-		return err
-	}
-
-	// If the parent name is empty, there is no parent
-	if parentName == "" {
-		return nil
-	}
-
-	parentPlugin, err := p.manager.Find(parentName, i.Type)
-	if err != nil {
-		p.logger.Error("failed to find parent component",
-			"type", i.Type.String(),
-			"name", i.Name,
-			"parent_name", parentName,
-			"error", err,
-		)
-
-		return err
-	}
-
-	pi, err := parentPlugin.InstanceOf(i.Type)
-	if err != nil {
-		p.logger.Error("failed to load parent component",
-			"type", i.Type.String(),
-			"name", i.Name,
-			"parent_name", parentName,
-			"error", err,
-		)
-
-		return err
-	}
-
-	// Set the parent
-	i.Parent = pi
-	c.SetParentComponent(pi.Component)
-
-	return nil
-}
-
-// Check if component type can be cached
-func (p *Plugin) isCacheable(t component.Type) bool {
-	for _, v := range CacheableComponents {
-		if t == v {
-			return true
-		}
-	}
-	return false
 }

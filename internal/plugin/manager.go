@@ -10,6 +10,7 @@ import (
 	"strings"
 	"sync"
 
+	"github.com/hashicorp/go-argmapper"
 	"github.com/hashicorp/go-hclog"
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/go-plugin"
@@ -18,22 +19,42 @@ import (
 	"github.com/hashicorp/vagrant-plugin-sdk/component"
 	"github.com/hashicorp/vagrant-plugin-sdk/core"
 	"github.com/hashicorp/vagrant-plugin-sdk/helper/path"
+	"github.com/hashicorp/vagrant-plugin-sdk/internal-shared/cacher"
+	"github.com/hashicorp/vagrant-plugin-sdk/internal-shared/cleanup"
 	"github.com/hashicorp/vagrant-plugin-sdk/internal-shared/protomappers"
 	"github.com/hashicorp/vagrant/internal/serverclient"
 )
 
+var (
+	// This is the list of components which may be cached
+	// locally and re-used when requested
+	CacheableComponents = []component.Type{
+		component.CommandType,
+		component.ConfigType,
+		component.HostType,
+		component.MapperType,
+		component.PluginInfoType,
+		component.PushType,
+	}
+)
+
 type PluginRegistration func(hclog.Logger) (*Plugin, error)
 type PluginConfigurator func(*Instance, hclog.Logger) error
+
+type componentCache map[string]componentEntry
+type componentEntry map[component.Type]*Instance
 
 type Manager struct {
 	Plugins []*Plugin // Plugins managed by this manager
 
 	builtins        *Builtin             // Buitin plugins when using in process plugins
 	builtinsLoaded  bool                 // Flag that builtin plugins are loaded
-	closers         []func() error       // List of functions to execute on close
+	cache           cacher.Cache         // Cache used for named plugin requests
+	cleaner         cleanup.Cleanup      // Cleanup tasks to perform on closing
 	ctx             context.Context      // Context for the manager
 	discoveredPaths []path.Path          // List of paths this manager has loaded
 	dispenseFuncs   []PluginConfigurator // Configuration functions applied to instances
+	instances       componentCache       // Cache for prevlous generated components
 	legacyLoaded    bool                 // Flag that legacy plugins have been loaded
 	legacyBroker    *plugin.GRPCBroker   // Broker for legacy runtime
 	logger          hclog.Logger         // Logger for the manager
@@ -47,9 +68,11 @@ func NewManager(ctx context.Context, l hclog.Logger) *Manager {
 	return &Manager{
 		Plugins:       []*Plugin{},
 		builtins:      NewBuiltins(ctx, l),
-		closers:       []func() error{},
+		cache:         cacher.New(),
+		cleaner:       cleanup.New(),
 		ctx:           ctx,
 		dispenseFuncs: []PluginConfigurator{},
+		instances:     make(componentCache),
 		logger:        l,
 	}
 }
@@ -61,20 +84,38 @@ func (m *Manager) Sub(name string) *Manager {
 	}
 	s := &Manager{
 		builtinsLoaded:  true,
-		closers:         []func() error{},
+		cache:           cacher.New(),
+		cleaner:         cleanup.New(),
 		ctx:             m.ctx,
 		discoveredPaths: m.discoveredPaths,
 		legacyLoaded:    true,
+		instances:       make(componentCache),
 		logger:          m.logger.Named(name),
 		parent:          m,
 	}
 	m.closer(func() error { return s.Close() })
 
-	return m
+	return s
 }
 
+// Returns the legacy broker if legacy is enabled. If
+// manager is a sub manager, it will request from
+// the parent
 func (m *Manager) LegacyBroker() *plugin.GRPCBroker {
-	return m.legacyBroker
+	if m.legacyBroker != nil {
+		return m.legacyBroker
+	}
+
+	if m.parent != nil {
+		return m.parent.LegacyBroker()
+	}
+
+	return nil
+}
+
+// Returns true if legacy Vagrant (Ruby runtime) is enabled
+func (m *Manager) LegacyEnabled() bool {
+	return m.LegacyBroker() != nil
 }
 
 // Load legacy Ruby based Vagrant plugins using a
@@ -288,31 +329,24 @@ func (m *Manager) Configure(fn PluginConfigurator) error {
 func (m *Manager) Find(
 	n string, // Name of the plugin
 	t component.Type, // component type of plugin
-) (p *Plugin, err error) {
-	for _, p = range m.Plugins {
-		if p.Name == n && p.HasType(t) {
-			return
-		}
-	}
+) (*Instance, error) {
+	m.m.Lock()
+	defer m.m.Unlock()
 
-	if m.parent != nil {
-		return m.parent.Find(n, t)
-	}
-
-	return nil, fmt.Errorf("failed to locate plugin `%s`", n)
+	return m.find(n, t)
 }
 
 // Find all plugins which support a specific component type
 func (m *Manager) Typed(
 	t component.Type, // Type of plugins
-) ([]*Plugin, error) {
+) ([]string, error) {
 	m.logger.Trace("searching for plugins",
 		"type", t.String())
 
-	result := []*Plugin{}
+	result := []string{}
 	for _, p := range m.Plugins {
 		if p.HasType(t) {
-			result = append(result, p)
+			result = append(result, p.Name)
 		}
 	}
 
@@ -336,18 +370,21 @@ func (m *Manager) Close() (err error) {
 	m.m.Lock()
 	defer m.m.Unlock()
 
-	m.logger.Warn("closing the plugin manager")
-	for _, c := range m.closers {
-		if e := c(); err != nil {
-			err = multierror.Append(err, e)
-		}
-	}
-
+	m.logger.Info("closing the plugin manager")
 	for _, p := range m.Plugins {
+		m.logger.Trace("closing plugin",
+			"plugin", p.Name,
+		)
+
 		if e := p.Close(); e != nil {
 			err = multierror.Append(err, e)
 		}
 	}
+
+	if cerr := m.cleaner.Close(); cerr != nil {
+		err = multierror.Append(err, cerr)
+	}
+
 	return
 }
 
@@ -366,7 +403,7 @@ func (m *Manager) ListPlugins(typeNames ...string) ([]*core.NamedPlugin, error) 
 		for _, p := range list {
 			i := &core.NamedPlugin{
 				Type: t.String(),
-				Name: p.Name,
+				Name: p,
 			}
 			result = append(result, i)
 		}
@@ -380,19 +417,57 @@ func (m *Manager) GetPlugin(name, typ string) (*core.NamedPlugin, error) {
 	if err != nil {
 		return nil, err
 	}
-	p, err := m.Find(name, t)
+	cid := t.String() + "-" + name
+	if c := m.cache.Get(cid); c != nil {
+		return c.(*core.NamedPlugin), nil
+	}
+	c, err := m.Find(name, t)
 	if err != nil {
 		return nil, err
 	}
-	c, err := p.InstanceOf(t)
-	if err != nil {
-		return nil, err
-	}
-	return &core.NamedPlugin{
-		Name:   p.Name,
+	v := &core.NamedPlugin{
+		Name:   name,
 		Type:   t.String(),
 		Plugin: c.Component,
-	}, nil
+	}
+	m.cache.Register(cid, v)
+
+	return v, nil
+}
+
+// Get (and setup if needed) GRPC server connection information
+func (m *Manager) Servinfo() ([]byte, error) {
+	if m.srv != nil {
+		return m.srv, nil
+	}
+	if m.LegacyBroker() == nil {
+		return nil, fmt.Errorf("legacy broker is unset, cannot create server")
+	}
+
+	i := &internal{
+		broker:  m.LegacyBroker(),
+		cache:   cacher.New(),
+		cleanup: m.cleaner,
+		logger:  m.logger,
+		mappers: []*argmapper.Func{},
+	}
+
+	p, err := protomappers.PluginManagerProto(m, m.logger, i)
+	if err != nil {
+		m.logger.Warn("failed to create plugin manager grpc server",
+			"error", err,
+		)
+
+		return nil, err
+	}
+
+	m.logger.Info("new GRPC server instance started",
+		"address", p.Addr,
+	)
+
+	m.srv, err = protojson.Marshal(p)
+
+	return m.srv, err
 }
 
 // Loads builtin plugins using in process strategy
@@ -427,6 +502,8 @@ func (m *Manager) loadInProcessBuiltins() (err error) {
 }
 
 // Registers plugin
+// TODO(spox): Need to do a name check and error if
+//             name is already in use here or in parent
 func (m *Manager) register(
 	factory PluginRegistration, // Function to generate plugin
 ) (err error) {
@@ -447,40 +524,169 @@ func (m *Manager) register(
 	return
 }
 
-func (m *Manager) closer(f func() error) {
-	m.closers = append(m.closers, f)
-}
-
-func (m *Manager) Servinfo() ([]byte, error) {
-	if m.srv != nil {
-		return m.srv, nil
+// Returns an instance of the requested component. If
+// the instance has already been found previously, it
+// will return a cached value. If it has not previously
+// been found, it will be generated and parent loaded
+// if applicable. If the component type is allowed to
+// be cached, it will be cached locally before being
+// returned.
+func (m *Manager) find(
+	n string, // name of plugin
+	t component.Type, // type of component
+) (*Instance, error) {
+	// Ensure we have a valid entry in the cache map
+	if _, ok := m.instances[n]; !ok {
+		m.instances[n] = make(componentEntry)
 	}
-	if m.legacyBroker == nil {
-		return nil, fmt.Errorf("legacy broker is unset, cannot create server")
-	}
 
-	p, closer, err := protomappers.PluginManagerProtoDirect(m, m.logger, m.legacyBroker)
-	if err != nil {
-		m.logger.Warn("failed to create plugin manager grpc server",
-			"error", err,
+	// If we already have this instance cached, return it
+	if i, ok := m.instances[n][t]; ok {
+		m.logger.Debug("requested component found in local cache",
+			"name", n,
+			"type", t.String(),
 		)
+		return i, nil
+	}
 
+	// Try to fetch the instance
+	i, err := m.fetch(n, t, nil)
+
+	if err != nil {
 		return nil, err
 	}
 
-	fn := func() error {
-		m.logger.Info("closing the GRPC server instance")
-		closer()
-		m.srv = nil
+	// Attempt to load the parent if the component has one
+	if err := m.loadParent(i); err != nil {
+		return nil, err
+	}
+
+	// If we got it, store it in the cache and make sure
+	// it gets closed when we do
+	if m.isCacheable(t) {
+		m.instances[n][t] = i
+	}
+
+	m.closer(func() error {
+		m.logger.Trace("closing plugin instance",
+			"name", n,
+			"type", t.String(),
+		)
+
+		return i.Close()
+	})
+
+	return i, nil
+}
+
+// This handles fetching a component from this manager or
+// the parent manager. It will prepend any PluginConfigurators
+// defined on this manager to the list it is provided. The result
+// is that components which are generated in a parent will have
+// the parent's PluginConfigurators applied first, with the
+// child PluginConfigurators applied after.
+//
+// It should be noted that this only handles generating the instance
+// of a component. It does not cache it or load parents.
+func (m *Manager) fetch(
+	n string, // name of plugin
+	t component.Type, // type of component
+	c []PluginConfigurator,
+) (i *Instance, err error) {
+	m.logger.Info("configurators for use by fetch function",
+		"passed-count", len(c),
+		"local-count", len(m.dispenseFuncs),
+	)
+	var cfns []PluginConfigurator
+	if len(c) > 0 {
+		l := len(c) + len(m.dispenseFuncs)
+		cfns = make([]PluginConfigurator, l)
+		copy(cfns, m.dispenseFuncs)
+		copy(cfns[len(m.dispenseFuncs):l], c)
+	} else {
+		cfns = m.dispenseFuncs
+	}
+
+	// Find the plugin with the matching name and type
+	// and generate the component instance
+	for _, p := range m.Plugins {
+		if p.Name == n && p.HasType(t) {
+			return p.InstanceOf(t, cfns)
+		}
+	}
+
+	// If we have a parent, check if we can fetch it
+	// from the parent
+	if m.parent != nil {
+		return m.parent.fetch(n, t, cfns)
+	}
+
+	return nil, fmt.Errorf("failed to locate plugin `%s`", n)
+}
+
+// Add a cleanup function to be executed when this
+// manager is closed
+func (m *Manager) closer(f func() error) {
+	m.cleaner.Do(f)
+}
+
+// Check if component type can be cached
+func (m *Manager) isCacheable(t component.Type) bool {
+	for _, v := range CacheableComponents {
+		if t == v {
+			return true
+		}
+	}
+	return false
+}
+
+// Check if an instance's component supports having a parent
+// and, if so, loading that parent instance and setting it
+// into the current instance.
+func (m *Manager) loadParent(i *Instance) error {
+	c, ok := i.Component.(HasParent)
+	if !ok {
+		m.logger.Debug("component component does not support parents",
+			"type", i.Type.String(),
+			"name", i.Name,
+		)
+
 		return nil
 	}
-	m.closer(fn)
 
-	m.logger.Info("new GRPC server instance started",
-		"address", p.Addr,
-	)
+	parentName, err := c.Parent()
+	if err != nil {
+		m.logger.Error("component parent request failed",
+			"type", i.Type.String(),
+			"name", i.Name,
+			"error", err,
+		)
 
-	m.srv, err = protojson.Marshal(p)
+		return err
+	}
 
-	return m.srv, err
+	// If the parent name is empty, there is no parent
+	if parentName == "" {
+		return nil
+	}
+
+	// Use find() here so the parent instance can be retrieved
+	// from the local cache (or can be cached if not yet created).
+	pi, err := m.find(parentName, i.Type)
+	if err != nil {
+		m.logger.Error("failed to find parent component",
+			"type", i.Type.String(),
+			"name", i.Name,
+			"parent_name", parentName,
+			"error", err,
+		)
+
+		return err
+	}
+
+	// Set the parent
+	i.Parent = pi
+	c.SetParentComponent(pi.Component)
+
+	return nil
 }
