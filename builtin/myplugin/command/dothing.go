@@ -3,7 +3,10 @@ package command
 import (
 	"github.com/hashicorp/vagrant-plugin-sdk/component"
 	"github.com/hashicorp/vagrant-plugin-sdk/docs"
+	"github.com/hashicorp/vagrant-plugin-sdk/localizer"
 	"github.com/hashicorp/vagrant-plugin-sdk/terminal"
+	"github.com/hashicorp/vagrant/builtin/myplugin/locales"
+	"golang.org/x/text/language"
 )
 
 // DoThing is a Command implementation for myplugin
@@ -75,12 +78,42 @@ func (c *DoThing) Flags() component.CommandFlags {
 			DefaultValue: "a default message value",
 			Type:         component.FlagString,
 		},
+		{
+			LongName:     "spanish",
+			ShortName:    "e",
+			Description:  "make messages spanish",
+			DefaultValue: "false",
+			Type:         component.FlagBool,
+		},
 	}
 }
 
 func (c *DoThing) Execute(trm terminal.UI, params *component.CommandParams) int32 {
-	trm.Output("Tricked ya! I actually do nothing :P")
-	trm.Output("You gave me the stringflag: " + params.Flags["stringflag"].(string))
+	isSpanish := false
+	if val, ok := params.Flags["spanish"]; ok {
+		isSpanish = val.(bool)
+	}
+	var l *localizer.Localizer
+	if isSpanish {
+		localeData, err := locales.Asset("locales/assets/es.json")
+		if err != nil {
+			return 1
+		}
+		l, err = localizer.NewPluginLocalizer(language.Spanish, localeData, "locales/assets/es.json", trm)
+		if err != nil {
+			return 1
+		}
+	} else {
+		localeData, err := locales.Asset("locales/assets/en.json")
+		if err != nil {
+			return 1
+		}
+		l, err = localizer.NewPluginLocalizer(language.English, localeData, "locales/assets/en.json", trm)
+		if err != nil {
+			return 1
+		}
+	}
+	l.Output("dothing", nil)
 	return 0
 }
 
