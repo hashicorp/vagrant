@@ -10,9 +10,8 @@ on:
       - '.github/workflows**'
       - 'go.mod'
       - 'go.sum'
+  # Allows manual trigger on arbitrary branches via GitHub UI/API
   workflow_dispatch:
-      branches:
-            - 'main'
 
 jobs:
   vagrant-spec-tests:

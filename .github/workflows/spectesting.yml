@@ -1,7 +1,6 @@
 on:
+  # Allows manual trigger on arbitrary branches via GitHub UI/API
   workflow_dispatch:
-    branches:
-      - 'main'
   repository_dispatch:
     types: [prerelease]
   schedule:
