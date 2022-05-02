@@ -130,7 +130,7 @@ func TestMachineConfigedGuest(t *testing.T) {
 
 	pluginManager := plugin.TestManager(t,
 		plugin.TestPlugin(t,
-			BuildTestGuestPlugin("myguest"),
+			BuildTestGuestPlugin("myguest", ""),
 			plugin.WithPluginName("myguest"),
 			plugin.WithPluginTypes(component.GuestType),
 		),
@@ -157,15 +157,16 @@ func TestMachineConfigedGuest(t *testing.T) {
 }
 
 func TestMachineNoConfigGuest(t *testing.T) {
-	guestMock := BuildTestGuestPlugin("myguest")
+	guestMock := BuildTestGuestPlugin("myguest", "")
 	guestMock.On("Detect", mock.AnythingOfType("*core.Machine")).Return(true, nil)
+	guestMock.On("Parent").Return("", nil)
 	detectingPlugin := plugin.TestPlugin(t,
 		guestMock,
 		plugin.WithPluginName("myguest"),
 		plugin.WithPluginTypes(component.GuestType),
 	)
 
-	notGuestMock := BuildTestGuestPlugin("mynondetectingguest")
+	notGuestMock := BuildTestGuestPlugin("mynondetectingguest", "")
 	notGuestMock.On("Detect", mock.AnythingOfType("*core.Machine")).Return(false, nil)
 	nonDetectingPlugin := plugin.TestPlugin(t,
 		notGuestMock,
@@ -173,9 +174,9 @@ func TestMachineNoConfigGuest(t *testing.T) {
 		plugin.WithPluginTypes(component.GuestType),
 	)
 
-	guestChildMock := BuildTestGuestPlugin("myguest-child")
+	guestChildMock := BuildTestGuestPlugin("myguest-child", "myguest")
 	guestChildMock.On("Detect", mock.AnythingOfType("*core.Machine")).Return(true, nil)
-	guestChildMock.On("Parent").Return("myguest", nil)
+	guestChildMock.SetParentComponent(guestMock)
 	detectingChildPlugin := plugin.TestPlugin(t,
 		guestChildMock,
 		plugin.WithPluginName("myguest-child"),
@@ -190,7 +191,7 @@ func TestMachineNoConfigGuest(t *testing.T) {
 
 	tests := []test{
 		{plugins: []*plugin.Plugin{detectingPlugin}, errors: false, expectedPluginName: "myguest"},
-		{plugins: []*plugin.Plugin{detectingChildPlugin}, errors: false, expectedPluginName: "myguest-child"},
+		{plugins: []*plugin.Plugin{detectingChildPlugin}, errors: true, expectedPluginName: "myguest-child"},
 		{plugins: []*plugin.Plugin{detectingChildPlugin, detectingPlugin}, errors: false, expectedPluginName: "myguest-child"},
 		{plugins: []*plugin.Plugin{detectingPlugin, nonDetectingPlugin}, errors: false, expectedPluginName: "myguest"},
 		{plugins: []*plugin.Plugin{nonDetectingPlugin}, errors: true},
@@ -258,7 +259,7 @@ func TestMachineSetState(t *testing.T) {
 
 func syncedFolderPlugin(t *testing.T, name string) *plugin.Plugin {
 	return plugin.TestPlugin(t,
-		BuildTestSyncedFolderPlugin(),
+		BuildTestSyncedFolderPlugin(""),
 		plugin.WithPluginName(name),
 		plugin.WithPluginTypes(component.SyncedFolderType),
 	)

@@ -10,22 +10,22 @@ import (
 
 func TestBasisPlugins(t *testing.T) {
 	myguest := plugin.TestPlugin(t,
-		BuildTestGuestPlugin("myguest"),
+		BuildTestGuestPlugin("myguest", ""),
 		plugin.WithPluginName("myguest"),
 		plugin.WithPluginTypes(component.GuestType),
 	)
 	myguesttwo := plugin.TestPlugin(t,
-		BuildTestGuestPlugin("myguesttwo"),
+		BuildTestGuestPlugin("myguesttwo", ""),
 		plugin.WithPluginName("myguesttwo"),
 		plugin.WithPluginTypes(component.GuestType),
 	)
 	myhost := plugin.TestPlugin(t,
-		BuildTestHostPlugin("myhost"),
+		BuildTestHostPlugin("myhost", ""),
 		plugin.WithPluginName("myhost"),
 		plugin.WithPluginTypes(component.HostType),
 	)
 	mysf := plugin.TestPlugin(t,
-		BuildTestSyncedFolderPlugin(),
+		BuildTestSyncedFolderPlugin(""),
 		plugin.WithPluginName("mysf"),
 		plugin.WithPluginTypes(component.SyncedFolderType),
 	)

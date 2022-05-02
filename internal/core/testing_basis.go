@@ -16,44 +16,61 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+type PluginWithParent struct {
+	parentPlugin interface{}
+}
+
+func (p *PluginWithParent) GetParentComponent() interface{} {
+	return p.parentPlugin
+}
+func (p *PluginWithParent) SetParentComponent(in interface{}) {
+	p.parentPlugin = in
+}
+
 type TestGuestPlugin struct {
+	PluginWithParent
 	plugin.TestPluginWithFakeBroker
 	coremocks.Guest
 }
 
 type TestHostPlugin struct {
+	PluginWithParent
 	plugin.TestPluginWithFakeBroker
 	coremocks.Host
 }
 
 type TestSyncedFolderPlugin struct {
+	PluginWithParent
 	plugin.TestPluginWithFakeBroker
 	coremocks.SyncedFolder
 }
 
-func BuildTestGuestPlugin(name string) *TestGuestPlugin {
+func BuildTestGuestPlugin(name string, parent string) *TestGuestPlugin {
 	p := &TestGuestPlugin{}
 	p.On("SetPluginName", mock.AnythingOfType("string")).Return(nil)
 	p.On("Seed", mock.AnythingOfType("*core.Seeds")).Return(nil)
 	p.On("Seeds").Return(core.NewSeeds(), nil)
 	p.On("PluginName").Return(name, nil)
+	p.On("Parent").Return(parent, nil)
 	return p
 }
 
-func BuildTestHostPlugin(name string) *TestHostPlugin {
+func BuildTestHostPlugin(name string, parent string) *TestHostPlugin {
 	p := &TestHostPlugin{}
 	p.On("SetPluginName", mock.AnythingOfType("string")).Return(nil)
 	p.On("Seed", mock.AnythingOfType("*core.Seeds")).Return(nil)
 	p.On("Seeds").Return(core.NewSeeds(), nil)
 	p.On("PluginName").Return(name, nil)
+	p.On("Parent").Return(parent, nil)
 	return p
 }
 
-func BuildTestSyncedFolderPlugin() *TestSyncedFolderPlugin {
+func BuildTestSyncedFolderPlugin(parent string) *TestSyncedFolderPlugin {
 	p := &TestSyncedFolderPlugin{}
 	p.On("SetPluginName", mock.AnythingOfType("string")).Return(nil)
 	p.On("Seed", mock.AnythingOfType("*core.Seeds")).Return(nil)
 	p.On("Seeds").Return(core.NewSeeds(), nil)
+	p.On("Parent").Return(parent, nil)
 	return p
 }
 
