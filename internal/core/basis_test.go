@@ -5,6 +5,7 @@ import (
 
 	"github.com/hashicorp/vagrant-plugin-sdk/component"
 	componentmocks "github.com/hashicorp/vagrant-plugin-sdk/component/mocks"
+	"github.com/hashicorp/vagrant-plugin-sdk/core"
 	coremocks "github.com/hashicorp/vagrant-plugin-sdk/core/mocks"
 	"github.com/hashicorp/vagrant/internal/plugin"
 	"github.com/stretchr/testify/mock"
@@ -30,6 +31,8 @@ func BuildTestGuestPlugin() *TestGuestPlugin {
 	p := &TestGuestPlugin{}
 	p.On("SetPluginName", mock.AnythingOfType("string")).Return(nil)
 	p.On("Seed", mock.AnythingOfType("*core.Seeds")).Return(nil)
+	p.On("Seeds").Return(core.NewSeeds(), nil)
+
 	return p
 }
 
@@ -37,6 +40,8 @@ func BuildTestHostPlugin() *TestHostPlugin {
 	p := &TestHostPlugin{}
 	p.On("SetPluginName", mock.AnythingOfType("string")).Return(nil)
 	p.On("Seed", mock.AnythingOfType("*core.Seeds")).Return(nil)
+	p.On("Seeds").Return(core.NewSeeds(), nil)
+
 	return p
 }
 
@@ -44,6 +49,8 @@ func BuildTestSyncedFolderPlugin() *TestSyncedFolderPlugin {
 	p := &TestSyncedFolderPlugin{}
 	p.On("SetPluginName", mock.AnythingOfType("string")).Return(nil)
 	p.On("Seed", mock.AnythingOfType("*core.Seeds")).Return(nil)
+	p.On("Seeds").Return(core.NewSeeds(), nil)
+
 	return p
 }
 
