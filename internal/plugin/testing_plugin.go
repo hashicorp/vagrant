@@ -9,7 +9,6 @@ import (
 )
 
 type TestPluginWithFakeBroker struct {
-	client interface{}
 }
 
 func (p *TestPluginWithFakeBroker) GRPCBroker() *plugin.GRPCBroker {
@@ -47,7 +46,7 @@ func TestMinimalPlugin(t testing.T, client interface{}) *Plugin {
 // factories, configuration, etc.
 func TestPlugin(t testing.T, plg interface{}, opts ...PluginProperty) (plugin *Plugin) {
 	mockClient := &MockClientProtocol{
-		plg: &TestPluginWithFakeBroker{client: plg},
+		plg: plg,
 	}
 	plugin = TestMinimalPlugin(t, mockClient)
 	for _, opt := range opts {
