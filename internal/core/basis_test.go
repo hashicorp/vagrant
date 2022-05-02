@@ -27,21 +27,21 @@ type TestSyncedFolderPlugin struct {
 	componentmocks.SyncedFolder
 }
 
-func BuildTestGuestPlugin() *TestGuestPlugin {
+func BuildTestGuestPlugin(name string) *TestGuestPlugin {
 	p := &TestGuestPlugin{}
 	p.On("SetPluginName", mock.AnythingOfType("string")).Return(nil)
 	p.On("Seed", mock.AnythingOfType("*core.Seeds")).Return(nil)
 	p.On("Seeds").Return(core.NewSeeds(), nil)
-
+	p.On("PluginName").Return(name, nil)
 	return p
 }
 
-func BuildTestHostPlugin() *TestHostPlugin {
+func BuildTestHostPlugin(name string) *TestHostPlugin {
 	p := &TestHostPlugin{}
 	p.On("SetPluginName", mock.AnythingOfType("string")).Return(nil)
 	p.On("Seed", mock.AnythingOfType("*core.Seeds")).Return(nil)
 	p.On("Seeds").Return(core.NewSeeds(), nil)
-
+	p.On("PluginName").Return(name, nil)
 	return p
 }
 
@@ -50,23 +50,22 @@ func BuildTestSyncedFolderPlugin() *TestSyncedFolderPlugin {
 	p.On("SetPluginName", mock.AnythingOfType("string")).Return(nil)
 	p.On("Seed", mock.AnythingOfType("*core.Seeds")).Return(nil)
 	p.On("Seeds").Return(core.NewSeeds(), nil)
-
 	return p
 }
 
 func TestBasisPlugins(t *testing.T) {
 	myguest := plugin.TestPlugin(t,
-		BuildTestGuestPlugin(),
+		BuildTestGuestPlugin("myguest"),
 		plugin.WithPluginName("myguest"),
 		plugin.WithPluginTypes(component.GuestType),
 	)
 	myguesttwo := plugin.TestPlugin(t,
-		BuildTestGuestPlugin(),
+		BuildTestGuestPlugin("myguesttwo"),
 		plugin.WithPluginName("myguesttwo"),
 		plugin.WithPluginTypes(component.GuestType),
 	)
 	myhost := plugin.TestPlugin(t,
-		BuildTestHostPlugin(),
+		BuildTestHostPlugin("myhost"),
 		plugin.WithPluginName("myhost"),
 		plugin.WithPluginTypes(component.HostType),
 	)
