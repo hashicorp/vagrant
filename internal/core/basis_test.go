@@ -4,54 +4,9 @@ import (
 	"testing"
 
 	"github.com/hashicorp/vagrant-plugin-sdk/component"
-	componentmocks "github.com/hashicorp/vagrant-plugin-sdk/component/mocks"
-	"github.com/hashicorp/vagrant-plugin-sdk/core"
-	coremocks "github.com/hashicorp/vagrant-plugin-sdk/core/mocks"
 	"github.com/hashicorp/vagrant/internal/plugin"
-	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 )
-
-type TestGuestPlugin struct {
-	plugin.TestPluginWithFakeBroker
-	coremocks.Guest
-}
-
-type TestHostPlugin struct {
-	plugin.TestPluginWithFakeBroker
-	componentmocks.Host
-}
-
-type TestSyncedFolderPlugin struct {
-	plugin.TestPluginWithFakeBroker
-	componentmocks.SyncedFolder
-}
-
-func BuildTestGuestPlugin(name string) *TestGuestPlugin {
-	p := &TestGuestPlugin{}
-	p.On("SetPluginName", mock.AnythingOfType("string")).Return(nil)
-	p.On("Seed", mock.AnythingOfType("*core.Seeds")).Return(nil)
-	p.On("Seeds").Return(core.NewSeeds(), nil)
-	p.On("PluginName").Return(name, nil)
-	return p
-}
-
-func BuildTestHostPlugin(name string) *TestHostPlugin {
-	p := &TestHostPlugin{}
-	p.On("SetPluginName", mock.AnythingOfType("string")).Return(nil)
-	p.On("Seed", mock.AnythingOfType("*core.Seeds")).Return(nil)
-	p.On("Seeds").Return(core.NewSeeds(), nil)
-	p.On("PluginName").Return(name, nil)
-	return p
-}
-
-func BuildTestSyncedFolderPlugin() *TestSyncedFolderPlugin {
-	p := &TestSyncedFolderPlugin{}
-	p.On("SetPluginName", mock.AnythingOfType("string")).Return(nil)
-	p.On("Seed", mock.AnythingOfType("*core.Seeds")).Return(nil)
-	p.On("Seeds").Return(core.NewSeeds(), nil)
-	return p
-}
 
 func TestBasisPlugins(t *testing.T) {
 	myguest := plugin.TestPlugin(t,

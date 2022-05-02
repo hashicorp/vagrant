@@ -5,37 +5,56 @@ import (
 	"io/ioutil"
 	"os"
 
-	sdkcore "github.com/hashicorp/vagrant-plugin-sdk/core"
+	"github.com/hashicorp/vagrant-plugin-sdk/core"
 	coremocks "github.com/hashicorp/vagrant-plugin-sdk/core/mocks"
 	"github.com/hashicorp/vagrant-plugin-sdk/datadir"
 	"github.com/hashicorp/vagrant-plugin-sdk/proto/vagrant_plugin_sdk"
+	"github.com/hashicorp/vagrant/internal/plugin"
 	"github.com/hashicorp/vagrant/internal/server/singleprocess"
 	"github.com/mitchellh/go-testing-interface"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 )
 
-func seededHostMock(name string) *coremocks.Host {
-	guestMock := &coremocks.Host{}
-	guestMock.On("Seeds").Return(sdkcore.NewSeeds(), nil)
-	guestMock.On("Seed", mock.AnythingOfType("")).Return(nil)
-	guestMock.On("PluginName").Return(name, nil)
-	return guestMock
+type TestGuestPlugin struct {
+	plugin.TestPluginWithFakeBroker
+	coremocks.Guest
 }
 
-func seededGuestMock(name string) *coremocks.Guest {
-	guestMock := &coremocks.Guest{}
-	guestMock.On("Seeds").Return(sdkcore.NewSeeds(), nil)
-	guestMock.On("Seed", mock.AnythingOfType("")).Return(nil)
-	guestMock.On("PluginName").Return(name, nil)
-	return guestMock
+type TestHostPlugin struct {
+	plugin.TestPluginWithFakeBroker
+	coremocks.Host
 }
 
-func seededSyncedFolderMock(name string) *coremocks.SyncedFolder {
-	guestMock := &coremocks.SyncedFolder{}
-	guestMock.On("Seeds").Return(sdkcore.NewSeeds(), nil)
-	guestMock.On("Seed", mock.AnythingOfType("")).Return(nil)
-	return guestMock
+type TestSyncedFolderPlugin struct {
+	plugin.TestPluginWithFakeBroker
+	coremocks.SyncedFolder
+}
+
+func BuildTestGuestPlugin(name string) *TestGuestPlugin {
+	p := &TestGuestPlugin{}
+	p.On("SetPluginName", mock.AnythingOfType("string")).Return(nil)
+	p.On("Seed", mock.AnythingOfType("*core.Seeds")).Return(nil)
+	p.On("Seeds").Return(core.NewSeeds(), nil)
+	p.On("PluginName").Return(name, nil)
+	return p
+}
+
+func BuildTestHostPlugin(name string) *TestHostPlugin {
+	p := &TestHostPlugin{}
+	p.On("SetPluginName", mock.AnythingOfType("string")).Return(nil)
+	p.On("Seed", mock.AnythingOfType("*core.Seeds")).Return(nil)
+	p.On("Seeds").Return(core.NewSeeds(), nil)
+	p.On("PluginName").Return(name, nil)
+	return p
+}
+
+func BuildTestSyncedFolderPlugin() *TestSyncedFolderPlugin {
+	p := &TestSyncedFolderPlugin{}
+	p.On("SetPluginName", mock.AnythingOfType("string")).Return(nil)
+	p.On("Seed", mock.AnythingOfType("*core.Seeds")).Return(nil)
+	p.On("Seeds").Return(core.NewSeeds(), nil)
+	return p
 }
 
 func TestBasis(t testing.T, opts ...BasisOption) (b *Basis) {
