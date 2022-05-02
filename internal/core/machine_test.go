@@ -128,15 +128,16 @@ func TestMachineConfigedGuest(t *testing.T) {
 		{config: &vagrant_plugin_sdk.Vagrantfile_ConfigVM{Guest: "idontexist"}, errors: true},
 	}
 
-	guestMock := seededGuestMock("myguest")
 	pluginManager := plugin.TestManager(t,
 		plugin.TestPlugin(t,
+			BuildTestGuestPlugin("myguest"),
 			plugin.WithPluginName("myguest"),
-			plugin.WithPluginMinimalComponents(component.GuestType, guestMock)),
+			plugin.WithPluginTypes(component.GuestType),
+		),
 	)
-	tp := TestProject(t, WithPluginManager(pluginManager))
 
 	for _, tc := range tests {
+		tp := TestProject(t, WithPluginManager(pluginManager))
 		tm, _ := TestMachine(t, tp,
 			WithTestTargetConfig(&vagrant_plugin_sdk.Vagrantfile_MachineConfig{
 				ConfigVm: tc.config,
@@ -156,32 +157,29 @@ func TestMachineConfigedGuest(t *testing.T) {
 }
 
 func TestMachineNoConfigGuest(t *testing.T) {
-	guestMock := seededGuestMock("myguest")
+	guestMock := BuildTestGuestPlugin("myguest")
 	guestMock.On("Detect", mock.AnythingOfType("*core.Machine")).Return(true, nil)
-	detectPluginInstance := plugin.TestPluginInstance(t,
-		plugin.WithPluginInstanceName("myguest"),
-		plugin.WithPluginInstanceType(component.GuestType),
-		plugin.WithPluginInstanceComponent(guestMock))
 	detectingPlugin := plugin.TestPlugin(t,
+		guestMock,
 		plugin.WithPluginName("myguest"),
-		plugin.WithPluginInstance(detectPluginInstance))
+		plugin.WithPluginTypes(component.GuestType),
+	)
 
-	notGuestMock := seededGuestMock("mynondetectingguest")
+	notGuestMock := BuildTestGuestPlugin("mynondetectingguest")
 	notGuestMock.On("Detect", mock.AnythingOfType("*core.Machine")).Return(false, nil)
 	nonDetectingPlugin := plugin.TestPlugin(t,
+		notGuestMock,
 		plugin.WithPluginName("mynondetectingguest"),
-		plugin.WithPluginMinimalComponents(component.GuestType, notGuestMock))
+		plugin.WithPluginTypes(component.GuestType),
+	)
 
-	guestChildMock := seededGuestMock("myguest-child")
+	guestChildMock := BuildTestGuestPlugin("myguest-child")
 	guestChildMock.On("Detect", mock.AnythingOfType("*core.Machine")).Return(true, nil)
-	detectChildPluginInstance := plugin.TestPluginInstance(t,
-		plugin.WithPluginInstanceName("myguest-child"),
-		plugin.WithPluginInstanceType(component.GuestType),
-		plugin.WithPluginInstanceComponent(guestChildMock),
-		plugin.WithPluginInstanceParent(detectPluginInstance))
+	guestChildMock.On("Parent").Return("myguest", nil)
 	detectingChildPlugin := plugin.TestPlugin(t,
+		guestChildMock,
 		plugin.WithPluginName("myguest-child"),
-		plugin.WithPluginInstance(detectChildPluginInstance),
+		plugin.WithPluginTypes(component.GuestType),
 	)
 
 	type test struct {
@@ -259,14 +257,11 @@ func TestMachineSetState(t *testing.T) {
 }
 
 func syncedFolderPlugin(t *testing.T, name string) *plugin.Plugin {
-	mock := seededSyncedFolderMock(name)
-	plugInst := plugin.TestPluginInstance(t,
-		plugin.WithPluginInstanceName(name),
-		plugin.WithPluginInstanceType(component.SyncedFolderType),
-		plugin.WithPluginInstanceComponent(mock))
 	return plugin.TestPlugin(t,
+		BuildTestSyncedFolderPlugin(),
 		plugin.WithPluginName(name),
-		plugin.WithPluginInstance(plugInst))
+		plugin.WithPluginTypes(component.SyncedFolderType),
+	)
 }
 func TestMachineSyncedFolders(t *testing.T) {
 	mySyncedFolder := syncedFolderPlugin(t, "mysyncedfolder")
