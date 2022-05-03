@@ -14,11 +14,11 @@ describe Vagrant::Machine::Remote do
   let(:provider) { new_provider_mock }
   let(:provider_cls) do
     obj = double("provider_cls")
-    allow(obj).to receive(:new).and_return(provider)
+    allow(obj).to receive(:new).with(anything(), anything()) {}.and_return(provider)
     obj
   end
   let(:provider_config) { Object.new }
-  let(:provider_name) { :test }
+  let(:provider_name) { :dummy }
   let(:provider_options) { {} }
   let(:base)     { false }
   let(:box) do
@@ -34,7 +34,13 @@ describe Vagrant::Machine::Remote do
   let(:env)      do
     # We need to create a Vagrantfile so that this test environment
     # has a proper root path
-    test_env.vagrantfile("")
+    test_env.vagrantfile("""
+      Vagrant.configure('2') do |config|
+        config.vm.define 'foo' do |c|
+          c.vm.box = 'foo'
+        end
+      end
+""")
 
     # Create the Vagrant::Environment instance
     test_env.create_vagrant_env
@@ -77,6 +83,10 @@ describe Vagrant::Machine::Remote do
     allow(env).to receive(:get_target) { client }
     allow(client).to receive(:box) { box }
     allow(client).to receive(:data_dir) { data_dir }
+    allow(client).to receive(:name) { name }
+    allow(client).to receive(:provider_name) { provider_name }
+    allow(client).to receive(:provider) { nil }
+    allow(Vagrant.plugin("2").remote_manager).to receive(:providers) { {provider_name => provider_cls} }
   end
 
   describe "#synced_folders" do
