@@ -49,6 +49,7 @@ dmitri.shuralyov.com/gpu/mtl v0.0.0-20190408044501-666a987793e9/go.mod h1:H6x//7
 github.com/Azure/go-ansiterm v0.0.0-20170929234023-d6e3b3328b78 h1:w+iIsaOQNcT7OZ575w+acHgRric5iCyQh+xv+KJ4HB8=
 github.com/Azure/go-ansiterm v0.0.0-20170929234023-d6e3b3328b78/go.mod h1:LmzpDX56iTiv29bbRTIsUNlaFfuhWRQBWjQdVyAevI8=
 github.com/BurntSushi/toml v0.3.1/go.mod h1:xHWCNGjB5oqiDr8zfno3MHue2Ht5sIBksp03qcyfWMU=
+github.com/BurntSushi/toml v1.0.0 h1:dtDWrepsVPfW9H/4y7dDgFc2MBUSeJhlaDtK13CxFlU=
 github.com/BurntSushi/toml v1.0.0/go.mod h1:CxXYINrC8qIiEnFrOxCa7Jy5BFHlXnUU2pbicEuybxQ=
 github.com/BurntSushi/xgb v0.0.0-20160522181843-27f122750802/go.mod h1:IVnqGOEym/WlBOVXweHU+Q+/VP0lqqI8lqeDx9IjBqo=
 github.com/DATA-DOG/go-sqlmock v1.3.3/go.mod h1:f/Ixk793poVmq4qj/V1dPUg2JEAKC73Q5eFN3EC/SaM=
@@ -182,8 +183,6 @@ github.com/ghodss/yaml v0.0.0-20150909031657-73d445a93680/go.mod h1:4dBDuWmgqj2H
 github.com/ghodss/yaml v1.0.0/go.mod h1:4dBDuWmgqj2HViK6kFavaiC9ZROes6MMH2rRYeMEF04=
 github.com/gliderlabs/ssh v0.2.2 h1:6zsha5zo/TWhRhwqCD3+EarCAgZ2yN28ipRnGPnwkI0=
 github.com/gliderlabs/ssh v0.2.2/go.mod h1:U7qILu1NlMHj9FlMhZLlkCdDnU1DBEAqr0aevW3Awn0=
-github.com/go-bindata/go-bindata v3.1.2+incompatible h1:5vjJMVhowQdPzjE1LdxyFF7YFTXg5IgGVW4gBr5IbvE=
-github.com/go-bindata/go-bindata v3.1.2+incompatible/go.mod h1:xK8Dsgwmeed+BBsSy2XTopBn/8uK2HWuGSnA11C3Joo=
 github.com/go-git/gcfg v1.5.0 h1:Q5ViNfGF8zFgyJWPqYwA7qGFoMTEiBmdlkcfRmpIMa4=
 github.com/go-git/gcfg v1.5.0/go.mod h1:5m20vg6GwYabIxaOonVkTdrILxQMpEShl1xiMF4ua+E=
 github.com/go-git/go-billy/v5 v5.0.0 h1:7NQHvd9FVid8VL4qVUMm8XifBK+2xCoZ2lSk0agRrHM=
@@ -356,18 +355,6 @@ github.com/hashicorp/hcl/v2 v2.7.1-0.20201023000745-3de61ecba298 h1:pLsdnvAlWuZ9
 github.com/hashicorp/hcl/v2 v2.7.1-0.20201023000745-3de61ecba298/go.mod h1:bQTN5mpo+jewjJgh8jr0JUguIi7qPHUF6yIfAEN3jqY=
 github.com/hashicorp/nomad/api v0.0.0-20200814140818-42de70466a9d h1:afuZ/KNbxwUgjEzq2NXO2bRKZgsIJQgFxgIRGETF0/A=
 github.com/hashicorp/nomad/api v0.0.0-20200814140818-42de70466a9d/go.mod h1:DCi2k47yuUDzf2qWAK8E1RVmWgz/lc0jZQeEnICTxmY=
-github.com/hashicorp/vagrant-plugin-sdk v0.0.0-20220413221234-5a2ea827c231 h1:sav2Rd47P0b7Q1QTL3ptGkLqUph8z3OAcG6FzxAN8gk=
-github.com/hashicorp/vagrant-plugin-sdk v0.0.0-20220413221234-5a2ea827c231/go.mod h1:AagbbSR/HMGxUYevXHeUxi2mRoBptRG1gtJnR/qnxt4=
-github.com/hashicorp/vagrant-plugin-sdk v0.0.0-20220415142437-b1ba1997074b h1:nFiqe4GaqFvAF3erknpFc/Yn/KYdaqjiOL+dOE/oF60=
-github.com/hashicorp/vagrant-plugin-sdk v0.0.0-20220415142437-b1ba1997074b/go.mod h1:AagbbSR/HMGxUYevXHeUxi2mRoBptRG1gtJnR/qnxt4=
-github.com/hashicorp/vagrant-plugin-sdk v0.0.0-20220421183549-595b2c45b428 h1:EMa9XxpBROw+UEbCIDcS+HmyboU2HB/KvB4F8FoEPdA=
-github.com/hashicorp/vagrant-plugin-sdk v0.0.0-20220421183549-595b2c45b428/go.mod h1:AagbbSR/HMGxUYevXHeUxi2mRoBptRG1gtJnR/qnxt4=
-github.com/hashicorp/vagrant-plugin-sdk v0.0.0-20220425220513-71bbd1c1237a h1:8nvqkl3fl88gjPlL+ygPO8lEiaeslk+fNpod1KDyRDc=
-github.com/hashicorp/vagrant-plugin-sdk v0.0.0-20220425220513-71bbd1c1237a/go.mod h1:AagbbSR/HMGxUYevXHeUxi2mRoBptRG1gtJnR/qnxt4=
-github.com/hashicorp/vagrant-plugin-sdk v0.0.0-20220428165417-47b0f98908ec h1:Xrn9wsDaoqjBcfWitoISlt0r1e3ZA+hroNi2i7dlrh0=
-github.com/hashicorp/vagrant-plugin-sdk v0.0.0-20220428165417-47b0f98908ec/go.mod h1:xOBGSu24lRHmLlm459L6lrQKge92IGwJiOcXkC6WM74=
-github.com/hashicorp/vagrant-plugin-sdk v0.0.0-20220429182128-d57b4f4e1606 h1:+vvXuMpYW3AE0fZMJFSe8kZmlrQclyIVuq2lTv0OYag=
-github.com/hashicorp/vagrant-plugin-sdk v0.0.0-20220429182128-d57b4f4e1606/go.mod h1:xOBGSu24lRHmLlm459L6lrQKge92IGwJiOcXkC6WM74=
 github.com/hashicorp/yamux v0.0.0-20180604194846-3520598351bb/go.mod h1:+NfK9FKeTrX5uv1uIXGdwYDTeHna2qgaIlx54MXqjAM=
 github.com/hashicorp/yamux v0.0.0-20200609203250-aecfd211c9ce h1:7UnVY3T/ZnHUrfviiAgIUjg2PXxsQfs5bphsG8F7Keo=
 github.com/hashicorp/yamux v0.0.0-20200609203250-aecfd211c9ce/go.mod h1:+NfK9FKeTrX5uv1uIXGdwYDTeHna2qgaIlx54MXqjAM=
