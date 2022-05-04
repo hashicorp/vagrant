@@ -5,37 +5,73 @@ import (
 	"io/ioutil"
 	"os"
 
-	sdkcore "github.com/hashicorp/vagrant-plugin-sdk/core"
+	"github.com/hashicorp/vagrant-plugin-sdk/core"
 	coremocks "github.com/hashicorp/vagrant-plugin-sdk/core/mocks"
 	"github.com/hashicorp/vagrant-plugin-sdk/datadir"
 	"github.com/hashicorp/vagrant-plugin-sdk/proto/vagrant_plugin_sdk"
+	"github.com/hashicorp/vagrant/internal/plugin"
 	"github.com/hashicorp/vagrant/internal/server/singleprocess"
 	"github.com/mitchellh/go-testing-interface"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 )
 
-func seededHostMock(name string) *coremocks.Host {
-	guestMock := &coremocks.Host{}
-	guestMock.On("Seeds").Return(sdkcore.NewSeeds(), nil)
-	guestMock.On("Seed", mock.AnythingOfType("")).Return(nil)
-	guestMock.On("PluginName").Return(name, nil)
-	return guestMock
+type PluginWithParent struct {
+	parentPlugin interface{}
 }
 
-func seededGuestMock(name string) *coremocks.Guest {
-	guestMock := &coremocks.Guest{}
-	guestMock.On("Seeds").Return(sdkcore.NewSeeds(), nil)
-	guestMock.On("Seed", mock.AnythingOfType("")).Return(nil)
-	guestMock.On("PluginName").Return(name, nil)
-	return guestMock
+func (p *PluginWithParent) GetParentComponent() interface{} {
+	return p.parentPlugin
+}
+func (p *PluginWithParent) SetParentComponent(in interface{}) {
+	p.parentPlugin = in
 }
 
-func seededSyncedFolderMock(name string) *coremocks.SyncedFolder {
-	guestMock := &coremocks.SyncedFolder{}
-	guestMock.On("Seeds").Return(sdkcore.NewSeeds(), nil)
-	guestMock.On("Seed", mock.AnythingOfType("")).Return(nil)
-	return guestMock
+type TestGuestPlugin struct {
+	PluginWithParent
+	plugin.TestPluginWithFakeBroker
+	coremocks.Guest
+}
+
+type TestHostPlugin struct {
+	PluginWithParent
+	plugin.TestPluginWithFakeBroker
+	coremocks.Host
+}
+
+type TestSyncedFolderPlugin struct {
+	PluginWithParent
+	plugin.TestPluginWithFakeBroker
+	coremocks.SyncedFolder
+}
+
+func BuildTestGuestPlugin(name string, parent string) *TestGuestPlugin {
+	p := &TestGuestPlugin{}
+	p.On("SetPluginName", mock.AnythingOfType("string")).Return(nil)
+	p.On("Seed", mock.AnythingOfType("*core.Seeds")).Return(nil)
+	p.On("Seeds").Return(core.NewSeeds(), nil)
+	p.On("PluginName").Return(name, nil)
+	p.On("Parent").Return(parent, nil)
+	return p
+}
+
+func BuildTestHostPlugin(name string, parent string) *TestHostPlugin {
+	p := &TestHostPlugin{}
+	p.On("SetPluginName", mock.AnythingOfType("string")).Return(nil)
+	p.On("Seed", mock.AnythingOfType("*core.Seeds")).Return(nil)
+	p.On("Seeds").Return(core.NewSeeds(), nil)
+	p.On("PluginName").Return(name, nil)
+	p.On("Parent").Return(parent, nil)
+	return p
+}
+
+func BuildTestSyncedFolderPlugin(parent string) *TestSyncedFolderPlugin {
+	p := &TestSyncedFolderPlugin{}
+	p.On("SetPluginName", mock.AnythingOfType("string")).Return(nil)
+	p.On("Seed", mock.AnythingOfType("*core.Seeds")).Return(nil)
+	p.On("Seeds").Return(core.NewSeeds(), nil)
+	p.On("Parent").Return(parent, nil)
+	return p
 }
 
 func TestBasis(t testing.T, opts ...BasisOption) (b *Basis) {
