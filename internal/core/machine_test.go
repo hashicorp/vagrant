@@ -94,6 +94,7 @@ func TestMachineGetNonExistentBox(t *testing.T) {
 	require.NoError(t, err)
 	require.Empty(t, metaurl)
 }
+
 func TestMachineGetExistentBox(t *testing.T) {
 	tp := TestMinimalProject(t)
 	tm, _ := TestMachine(t, tp,
@@ -238,11 +239,8 @@ func TestMachineSetState(t *testing.T) {
 		// Set MachineState
 		desiredState := &core.MachineState{ID: tc.id}
 		tm.SetMachineState(desiredState)
-		newState, err := tm.MachineState()
-		if err != nil {
-			t.Errorf("Failed to get id")
-		}
-		require.Equal(t, newState, desiredState)
+		require.Equal(t, tm.machine.State.Id, tc.id)
+		require.Equal(t, tm.target.State, tc.state)
 
 		// Ensure new id is save to db
 		dbTarget, err := tm.Client().GetTarget(tm.ctx,

@@ -79,6 +79,14 @@ func (t *Target) SetName(value string) (err error) {
 
 // Provider implements core.Target
 func (t *Target) Provider() (p core.Provider, err error) {
+	defer func() {
+		if p != nil {
+			err = seedPlugin(p, t)
+			if err == nil {
+				t.cache.Register("provider", p)
+			}
+		}
+	}()
 	i := t.cache.Get("provider")
 	if i != nil {
 		p = i.(core.Provider)
@@ -94,15 +102,6 @@ func (t *Target) Provider() (p core.Provider, err error) {
 		return
 	}
 	p = provider.Value.(core.Provider)
-
-	if err = seedPlugin(p, t); err != nil {
-		t.logger.Error("failed to seed provider plugin",
-			"error", err,
-		)
-
-		return
-	}
-	t.cache.Register("provider", p)
 
 	return
 }

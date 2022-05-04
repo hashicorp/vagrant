@@ -2,6 +2,7 @@ package core
 
 import (
 	"fmt"
+	"os/user"
 	"reflect"
 	"sort"
 
@@ -38,6 +39,15 @@ func (m *Machine) ID() (id string, err error) {
 // SetID implements core.Machine
 func (m *Machine) SetID(value string) (err error) {
 	m.machine.Id = value
+
+	// Also set uid
+	user, err := user.Current()
+	if err != nil {
+		return err
+	}
+	m.machine.Uid = user.Uid
+
+	// Persist changes
 	if value == "" {
 		m.target.Record = nil
 		err = m.Destroy()
@@ -163,12 +173,6 @@ func (m *Machine) Inspect() (printable string, err error) {
 	return
 }
 
-// Reload implements core.Machine
-func (m *Machine) Reload() (err error) {
-	// TODO
-	return
-}
-
 // ConnectionInfo implements core.Machine
 func (m *Machine) ConnectionInfo() (info *core.ConnectionInfo, err error) {
 	// TODO: need Vagrantfile
@@ -177,8 +181,11 @@ func (m *Machine) ConnectionInfo() (info *core.ConnectionInfo, err error) {
 
 // MachineState implements core.Machine
 func (m *Machine) MachineState() (state *core.MachineState, err error) {
-	var result core.MachineState
-	return &result, mapstructure.Decode(m.machine.State, &result)
+	p, err := m.Provider()
+	if err != nil {
+		return nil, err
+	}
+	return p.State()
 }
 
 // SetMachineState implements core.Machine
