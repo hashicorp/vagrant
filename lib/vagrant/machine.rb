@@ -466,6 +466,7 @@ module Vagrant
       info[:username] ||= @config.ssh.default.username
       info[:remote_user] ||= @config.ssh.default.remote_user
       info[:compression] ||= @config.ssh.default.compression
+      info[:pubkey_authentication] ||= @config.ssh.default.pubkey_authentication
       info[:dsa_authentication] ||= @config.ssh.default.dsa_authentication
       info[:extra_args] ||= @config.ssh.default.extra_args
       info[:config] ||= @config.ssh.default.config
@@ -477,6 +478,7 @@ module Vagrant
       info[:keys_only] = @config.ssh.keys_only
       info[:verify_host_key] = @config.ssh.verify_host_key
       info[:compression] = @config.ssh.compression
+      info[:pubkey_authentication] = @config.ssh.pubkey_authentication
       info[:dsa_authentication] = @config.ssh.dsa_authentication
       info[:username] = @config.ssh.username if @config.ssh.username
       info[:password] = @config.ssh.password if @config.ssh.password

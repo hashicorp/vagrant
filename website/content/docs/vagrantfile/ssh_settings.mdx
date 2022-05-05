@@ -27,9 +27,16 @@ defaults are typically fine, but you can fine tune whatever you would like.
 - `config.ssh.config` (string) - Path to a custom ssh_config file to use for configuring
   the SSH connections.
 
+- `config.ssh.pubkey_authentication` (boolean) - If `false`, this setting will not include
+  `PubkeyAuthentication` when ssh'ing into a machine. If this is not set, it will
+  default to `true` and `PubkeyAuthentication=yes` will be used with ssh.
+
 - `config.ssh.dsa_authentication` (boolean) - If `false`, this setting will not include
   `DSAAuthentication` when ssh'ing into a machine. If this is not set, it will
   default to `true` and `DSAAuthentication=yes` will be used with ssh.
+
+  !> **Deprecation:** The `config.ssh.dsa_authentication` option is deprecated and will be removed
+  in a future release. Please use the `config.ssh.pubkey_authentication` option instead.
 
 - `config.ssh.export_command_template` (string) - The template used to generate
   exported environment variables in the active session. This can be useful

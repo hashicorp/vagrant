@@ -110,6 +110,10 @@ module VagrantPlugins
         ]
         rsh += ssh_info[:extra_args] if ssh_info[:extra_args]
 
+        if ssh_info[:pubkey_authentication]
+          rsh += ["-o", "PubkeyAuthentication=yes"]
+        end
+
         if ssh_info[:dsa_authentication]
           rsh += ["-o", "DSAAuthentication=yes"]
         end

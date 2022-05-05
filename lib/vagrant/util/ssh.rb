@@ -127,6 +127,10 @@ module Vagrant
           command_options += ["-o", "Compression=yes"]
         end
 
+        if ssh_info[:pubkey_authentication]
+          command_options += ["-o", "PubkeyAuthentication=yes"]
+        end
+
         if ssh_info[:dsa_authentication]
           command_options += ["-o", "DSAAuthentication=yes"]
         end

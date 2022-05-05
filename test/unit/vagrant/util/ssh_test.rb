@@ -36,6 +36,7 @@ describe Vagrant::Util::SSH do
       username: "vagrant",
       private_key_path: [private_key_path],
       compression: true,
+      pubkey_authentication: true,
       dsa_authentication: true
     }}
 
@@ -87,7 +88,7 @@ describe Vagrant::Util::SSH do
 
       expect(described_class.exec(ssh_info)).to eq(nil)
       expect(Vagrant::Util::SafeExec).to have_received(:exec)
-        .with(ssh_path, "vagrant@localhost", "-p", "2222", "-o", "LogLevel=FATAL","-o", "Compression=yes", "-o", "DSAAuthentication=yes", "-o", "StrictHostKeyChecking=no", "-o", "UserKnownHostsFile=/dev/null", "-i", ssh_info[:private_key_path][0])
+        .with(ssh_path, "vagrant@localhost", "-p", "2222", "-o", "LogLevel=FATAL","-o", "Compression=yes", "-o", "PubkeyAuthentication=yes", "-o", "DSAAuthentication=yes", "-o", "StrictHostKeyChecking=no", "-o", "UserKnownHostsFile=/dev/null", "-i", ssh_info[:private_key_path][0])
     end
 
     context "when using '%' in a private_key_path" do
@@ -98,6 +99,7 @@ describe Vagrant::Util::SSH do
         username: "vagrant",
         private_key_path: [private_key_path],
         compression: true,
+        pubkey_authentication: true,
         dsa_authentication: true
       }}
 
@@ -106,21 +108,22 @@ describe Vagrant::Util::SSH do
         described_class.exec(ssh_info)
 
         expect(Vagrant::Util::SafeExec).to have_received(:exec)
-          .with(ssh_path, "vagrant@localhost", "-p", "2222", "-o", "LogLevel=FATAL","-o", "Compression=yes", "-o", "DSAAuthentication=yes", "-o", "StrictHostKeyChecking=no", "-o", "UserKnownHostsFile=/dev/null", "-o", "IdentityFile=\"/tmp/percent%%folder\"")
+          .with(ssh_path, "vagrant@localhost", "-p", "2222", "-o", "LogLevel=FATAL","-o", "Compression=yes", "-o", "PubkeyAuthentication=yes", "-o", "DSAAuthentication=yes", "-o", "StrictHostKeyChecking=no", "-o", "UserKnownHostsFile=/dev/null", "-o", "IdentityFile=\"/tmp/percent%%folder\"")
       end
     end
 
-    context "when disabling compression or dsa_authentication flags" do
+    context "when disabling compression, pubkey_authentication or dsa_authentication flags" do
       let(:ssh_info) {{
         host: "localhost",
         port: 2222,
         username: "vagrant",
         private_key_path: [private_key_path],
         compression: false,
+        pubkey_authentication: false,
         dsa_authentication: false
       }}
 
-      it "does not include compression or dsa_authentication flags if disabled" do
+      it "does not include compression, pubkey_authentication or dsa_authentication flags if disabled" do
         allow(Vagrant::Util::SafeExec).to receive(:exec).and_return(nil)
 
         expect(described_class.exec(ssh_info)).to eq(nil)

@@ -4,6 +4,8 @@ FEATURES:
 
 IMPROVEMENTS:
 
+- SSH adds the configurable PubkeyAuthentication flag option in case that is disabled on the user's system. [GH-8183]
+
 BUG FIXES:
 
 - synced_folders/rsync: Adds DSAAuthentication=yes to rsh command in case that is disabled on the user's system. [GH-8183]

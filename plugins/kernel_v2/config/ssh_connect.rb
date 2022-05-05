@@ -15,6 +15,7 @@ module VagrantPlugins
       attr_accessor :paranoid
       attr_accessor :verify_host_key
       attr_accessor :compression
+      attr_accessor :pubkey_authentication
       attr_accessor :dsa_authentication
       attr_accessor :extra_args
       attr_accessor :remote_user
@@ -32,6 +33,7 @@ module VagrantPlugins
         @paranoid         = UNSET_VALUE
         @verify_host_key  = UNSET_VALUE
         @compression      = UNSET_VALUE
+        @pubkey_authentication = UNSET_VALUE
         @dsa_authentication = UNSET_VALUE
         @extra_args       = UNSET_VALUE
         @remote_user      = UNSET_VALUE
@@ -48,6 +50,7 @@ module VagrantPlugins
         @paranoid         = false if @paranoid == UNSET_VALUE
         @verify_host_key  = :never if @verify_host_key == UNSET_VALUE
         @compression      = true if @compression == UNSET_VALUE
+        @pubkey_authentication = true if @pubkey_authentication == UNSET_VALUE
         @dsa_authentication = true if @dsa_authentication == UNSET_VALUE
         @extra_args       = nil if @extra_args == UNSET_VALUE
         @config           = nil if @config == UNSET_VALUE
