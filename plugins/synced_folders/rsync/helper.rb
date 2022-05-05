@@ -110,6 +110,10 @@ module VagrantPlugins
         ]
         rsh += ssh_info[:extra_args] if ssh_info[:extra_args]
 
+        if ssh_info[:dsa_authentication]
+          rsh += ["-o", "DSAAuthentication=yes"]
+        end
+
         # Solaris/OpenSolaris/Illumos uses SunSSH which doesn't support the
         # IdentitiesOnly option. Also, we don't enable it if keys_only is false
         # so that SSH properly searches our identities and tries to do it itself.

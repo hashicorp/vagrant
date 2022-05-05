@@ -6,6 +6,8 @@ IMPROVEMENTS:
 
 BUG FIXES:
 
+- synced_folders/rsync: Adds DSAAuthentication=yes to rsh command in case that is disabled on the user's system. [GH-8183]
+
 VAGRANT-GO:
 
 ## 2.3.4 (December 9, 2022)
