@@ -25,7 +25,7 @@ module Vagrant
 
         @cwd = Pathname.new(@client.cwd)
         @home_path = @client.respond_to?(:home) && Pathname.new(@client.home)
-        @vagrantfile_name = @client.respond_to?(:vagrantfile_name) && [@client.vagrantfile_name]
+        @vagrantfile_name = @client.respond_to?(:vagrantfile_name) && Array(@client.vagrantfile_name)
         @ui = opts.fetch(:ui, opts[:ui_class].new(@client.ui))
         @local_data_path = Pathname.new(@client.local_data)
         @boxes_path = @home_path && @home_path.join("boxes")
@@ -69,48 +69,21 @@ module Vagrant
         hook(:environment_load, runner: Action::PrimaryRunner.new(env: self))
       end
 
+      def active_machines
+        targets = client.active_targets
+        names = []
+        targets.each do |t|
+          names << t.name
+        end
+        names
+      end
+
       # Returns the collection of boxes for the environment.
       #
       # @return [BoxCollection]
       def boxes
         box_colletion_client = client.boxes
         @_boxes ||= BoxCollection.new(nil, client: box_colletion_client)
-      end
-
-      # Returns the host object associated with this environment.
-      #
-      # @return [Class]
-      def host
-        if !@host
-          h = @client.host
-          @host = Vagrant::Host.new(h, nil, nil, self)
-        end
-        @host
-      end
-
-      # Gets a target (machine) by name
-      #
-      # @param [String] machine name
-      # return [VagrantPlugins::CommandServe::Client::Machine]
-      def get_target(name)
-        client.target(name)
-      end
-
-      def setup_home_path
-        # no-op
-        # Don't setup a home path in ruby
-      end
-
-      def setup_local_data_path(force=false)
-        # no-op
-        # Don't setup a home path in ruby
-      end
-
-      # The {MachineIndex} to store information about the machines.
-      #
-      # @return [MachineIndex]
-      def machine_index
-        @machine_index ||= Vagrant::MachineIndex.new(client: client.target_index)
       end
 
       def config_loader
@@ -126,6 +99,65 @@ module Vagrant
           Config::VERSIONS, Config::VERSIONS_ORDER)
         @config_loader.set(:root, root_vagrantfile) if root_vagrantfile
         @config_loader
+      end
+
+      def default_provider(**opts)
+        client.respond_to?(:default_provider) && client.default_provider.to_sym
+      end
+
+      # Gets a target (machine) by name
+      #
+      # @param [String] machine name
+      # return [VagrantPlugins::CommandServe::Client::Machine]
+      def get_target(name)
+        client.target(name)
+      end
+
+      # Returns the host object associated with this environment.
+      #
+      # @return [Class]
+      def host
+        if !@host
+          h = @client.host
+          @host = Vagrant::Host.new(h, nil, nil, self)
+        end
+        @host
+      end
+
+      # @param [String] machine name
+      # return [Vagrant::Machine]
+      def machine(name, *_, **_)
+        client.machine(name)
+      end
+
+      def machine_names
+        client.target_names
+      end
+
+      # The {MachineIndex} to store information about the machines.
+      #
+      # @return [MachineIndex]
+      def machine_index
+        @machine_index ||= Vagrant::MachineIndex.new(client: client.target_index)
+      end
+
+      def primary_machine_name
+        client.primary_target_name
+      end
+
+      # def root_path
+      # TODO: need the vagrantfile service to be in place in order to be 
+      # implemented on the Go side
+      # end
+
+      def setup_home_path
+        # no-op
+        # Don't setup a home path in ruby
+      end
+
+      def setup_local_data_path(force=false)
+        # no-op
+        # Don't setup a home path in ruby
       end
 
       def vagrantfile

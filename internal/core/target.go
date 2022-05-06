@@ -93,8 +93,10 @@ func (t *Target) Provider() (p core.Provider, err error) {
 		return
 	}
 
-	// TODO: get provider name from Vagrantfile
-	providerName := "virtualbox"
+	providerName, err := t.ProviderName()
+	if err != nil {
+		return nil, err
+	}
 	provider, err := t.project.basis.component(
 		t.ctx, component.ProviderType, providerName)
 

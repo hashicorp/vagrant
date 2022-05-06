@@ -2,6 +2,17 @@ module VagrantPlugins
   module CommandServe
     class Client
       class Project < Client
+
+        # returns [List<VagrantPlugins::CommandServe::Client::Target>]
+        def active_targets
+          t = client.active_targets(Empty.new)
+          targets = []
+          t.targets.each do |target|
+            targets << Target.load(target, broker: broker)
+          end
+          targets
+        end
+
         # return [VagrantPlugins::CommandServe::Client::BoxCollection]
         def boxes
           BoxCollection.load(
@@ -44,9 +55,9 @@ module VagrantPlugins
         end
 
         # return [String]
-        def local_data
-          resp = client.local_data(Empty.new)
-          resp.path
+        def default_provider
+          resp = client.default_provider(Empty.new)
+          resp.provider_name
         end
 
         # return [String]
@@ -55,15 +66,40 @@ module VagrantPlugins
           resp.path
         end
 
-        # TODO
+        # returns [VagrantPlugins::CommandServe::Client::Host]
         def host
           h = client.host(Empty.new)
           Host.load(h, broker: broker)
         end
 
+        # return [String]
+        def local_data
+          resp = client.local_data(Empty.new)
+          resp.path
+        end
+
+        # return [Vagrant::Machine]
+        def machine(name)
+          t = client.target(SDK::Project::TargetRequest.new(name: name))
+          machine = mapper.map(t, to: Vagrant::Machine)
+          return machine
+        end
+
+        # return [String]
+        def primary_target_name
+          resp = client.primary_target_name(Empty.new)
+          resp.name
+        end
+
         # @return [String] resource identifier for this target
         def resource_id
           client.resource_id(Empty.new).resource_id
+        end
+
+        # return [String]
+        def root_path
+          resp = client.root_parh(Empty.new)
+          resp.path
         end
 
         # return [<String>]
@@ -89,7 +125,6 @@ module VagrantPlugins
         # Returns a machine client for the given name
         # return [VagrantPlugins::CommandServe::Client::Target::Machine]
         def target(name)
-          logger.debug("searching for target #{name}")
           target = Target.load(
             client.target(SDK::Project::TargetRequest.new(name: name)),
             broker: broker
