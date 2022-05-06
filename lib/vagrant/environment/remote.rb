@@ -24,8 +24,8 @@ module Vagrant
         opts[:ui_class] ||= UI::Remote
 
         @cwd = Pathname.new(@client.cwd)
-        @home_path = Pathname.new(@client.home)
-        @vagrantfile_name = Array(@client.vagrantfile_name)
+        @home_path = @client.respond_to?(:home) && Pathname.new(@client.home)
+        @vagrantfile_name = @client.respond_to?(:vagrantfile_name) && Array(@client.vagrantfile_name)
         @ui = opts.fetch(:ui, opts[:ui_class].new(@client.ui))
         @local_data_path = Pathname.new(@client.local_data)
         @boxes_path = @home_path && @home_path.join("boxes")
@@ -102,7 +102,7 @@ module Vagrant
       end
 
       def default_provider(**opts)
-        client.default_provider.to_sym
+        client.respond_to?(:default_provider) && client.default_provider.to_sym
       end
 
       # Gets a target (machine) by name
