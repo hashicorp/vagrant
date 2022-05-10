@@ -24,5 +24,4 @@ export PKT_VAGRANT_SPEC_PROVIDERS="${VAGRANT_SPEC_PROVIDERS}"
 export PKT_VAGRANT_DOCKER_IMAGES="${VAGRANT_DOCKER_IMAGES}"
 
 echo "Pulling log..."
-packet-exec run "vagrant ssh -c \"cat /tmp/vagrant-spec.log\" > vagrant-spec.log"
-packet-exec run "cat vagrant-spec.log" > vagrant-spec.log
+packet-exec run -download vagrant-spec.log "vagrant ssh -c \"cat /tmp/vagrant-spec.log\" > vagrant-spec.log"
