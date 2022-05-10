@@ -66,6 +66,17 @@ jobs:
           VAGRANT_CI_LOADER_BUCKET: ${{ secrets.VAGRANT_CI_LOADER_BUCKET }}
           HASHIBOT_USERNAME: ${{ secrets.HASHIBOT_USERNAME }}
           HASHIBOT_TOKEN: ${{ secrets.HASHIBOT_TOKEN }}
+      - name: Pull log from guest
+        if: always()
+        run: ./.ci/spec/pull-log.sh
+        env:
+          VAGRANT_HOST_BOXES: ${{matrix.host_os}}
+          VAGRANT_GUEST_BOXES: ${{matrix.guest_os}}
+          VAGRANT_SPEC_PROVIDERS: ${{matrix.providers}}
+          VAGRANT_DOCKER_IMAGES: ${{matrix.docker_images}}
+          VAGRANT_CI_LOADER_BUCKET: ${{ secrets.VAGRANT_CI_LOADER_BUCKET }}
+          HASHIBOT_USERNAME: ${{ secrets.HASHIBOT_USERNAME }}
+          HASHIBOT_TOKEN: ${{ secrets.HASHIBOT_TOKEN }}
       - name: Upload log
         if: always()
         uses: actions/upload-artifact@v3
@@ -83,3 +94,12 @@ jobs:
         run: ./.ci/spec/clean-packet.sh
       - name: Clean Workspace
         run: rm -rf ${{ github.workspace }}
+
+  notify-on-success:
+    runs-on: self-hosted
+    name: Notify on Success
+    needs: spec-tests
+    if: success()
+    steps:
+      - name: Notify on Success
+        run: ./.ci/spec/notify-success.sh
