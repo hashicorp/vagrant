@@ -103,6 +103,3 @@ jobs:
     steps:
       - name: Notify on Success
         run: ./.ci/spec/notify-success.sh
-        env:
-          HASHIBOT_USERNAME: ${{ secrets.HASHIBOT_USERNAME }}
-          HASHIBOT_TOKEN: ${{ secrets.HASHIBOT_TOKEN }}
