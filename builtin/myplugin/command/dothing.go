@@ -78,42 +78,39 @@ func (c *DoThing) Flags() component.CommandFlags {
 			DefaultValue: "a default message value",
 			Type:         component.FlagString,
 		},
-		{
-			LongName:     "spanish",
-			ShortName:    "e",
-			Description:  "make messages spanish",
-			DefaultValue: "false",
-			Type:         component.FlagBool,
-		},
 	}
 }
 
 func (c *DoThing) Execute(trm terminal.UI, params *component.CommandParams) int32 {
-	isSpanish := false
-	if val, ok := params.Flags["spanish"]; ok {
-		isSpanish = val.(bool)
+	localeDataEN, err := locales.Asset("locales/assets/en.json")
+	if err != nil {
+		return 1
 	}
-	var l *localizer.Localizer
-	if isSpanish {
-		localeData, err := locales.Asset("locales/assets/es.json")
-		if err != nil {
-			return 1
-		}
-		l, err = localizer.NewPluginLocalizer(language.Spanish, localeData, "locales/assets/es.json", trm)
-		if err != nil {
-			return 1
-		}
-	} else {
-		localeData, err := locales.Asset("locales/assets/en.json")
-		if err != nil {
-			return 1
-		}
-		l, err = localizer.NewPluginLocalizer(language.English, localeData, "locales/assets/en.json", trm)
-		if err != nil {
-			return 1
-		}
+	localeDataES, err := locales.Asset("locales/assets/es.json")
+	if err != nil {
+		return 1
 	}
-	l.Output("dothing", nil)
+	d := []localizer.LocaleData{
+		{
+			LocaleData: localeDataEN,
+			LocalePath: "locales/assets/en.json",
+			Languages:  []language.Tag{language.English, language.AmericanEnglish, language.BritishEnglish},
+		},
+		{
+			LocaleData: localeDataES,
+			LocalePath: "locales/assets/es.json",
+			Languages:  []language.Tag{language.Spanish},
+		},
+	}
+	l, err := localizer.NewPluginLocalizer(trm, d...)
+	if err != nil {
+		return 1
+	}
+	err = l.Output("dothing", nil)
+	if err != nil {
+		trm.Output(err.Error())
+		return 1
+	}
 	return 0
 }
 
