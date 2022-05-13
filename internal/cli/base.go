@@ -75,18 +75,21 @@ type baseCommand struct {
 	// flagColor is whether the output should use colors.
 	flagColor bool
 
-	// flagRemote is whether to execute using a remote runner or use
-	// a local runner.
-	flagRemote bool
-
 	// flagBasis is the basis to work within.
 	flagBasis string
 
 	// flagProject is the project to work within.
 	flagProject string
 
+	// flagRemote is whether to execute using a remote runner or use
+	// a local runner.
+	flagRemote bool
+
 	// flagTarget is the machine to target.
 	flagTarget string
+
+	// flagTTY is whether the output is interactive
+	flagTTY bool
 
 	// flagConnection contains manual flag-based connection info.
 	flagConnection clicontext.Config
@@ -279,12 +282,19 @@ func (c *baseCommand) Init(opts ...Option) (err error) {
 		opt(&baseCfg)
 	}
 
-	// Init our UI first so we can write output to the user immediately.
-	ui := baseCfg.UI
+	// Set UI
+	var ui terminal.UI
+	// Set non interactive if the --no-tty flag is provided
+	if !c.flagTTY {
+		ui = terminal.NonInteractiveUI(c.Ctx)
+	} else {
+		// If no ui related flags are set, use the base config ui
+		ui = baseCfg.UI
+	}
+	// If no ui is provided, then build a new UI
 	if ui == nil {
 		ui = terminal.ConsoleUI(c.Ctx)
 	}
-
 	c.ui = ui
 
 	// Parse flags
@@ -292,11 +302,6 @@ func (c *baseCommand) Init(opts ...Option) (err error) {
 	if c.args, err = c.Parse(baseCfg.Flags, baseCfg.Args, false); err != nil {
 		c.ui.Output(clierrors.Humanize(err), terminal.WithErrorStyle())
 		return err
-	}
-
-	// Reset the UI to plain if that was set
-	if !c.flagColor {
-		c.ui = terminal.NonInteractiveUI(c.Ctx)
 	}
 
 	// Parse the configuration (config does not need to exist)
@@ -393,6 +398,12 @@ func (c *baseCommand) flagSet(bit flagSetBit, f func([]*component.CommandFlag) [
 			LongName:    "target",
 			Description: "Target to apply command",
 			Type:        component.FlagString,
+		},
+		{
+			LongName:     "tty",
+			Description:  "Enable non-interactive output",
+			DefaultValue: "true",
+			Type:         component.FlagBool,
 		},
 	}
 
