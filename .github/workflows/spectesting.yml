@@ -84,6 +84,15 @@ jobs:
           name: vagrant-spec-${{matrix.providers}}.log
           path: ${{ github.workspace }}/vagrant-spec.log
 
+  notify-on-success:
+    runs-on: self-hosted
+    name: Notify on Success
+    needs: spec-tests
+    if: success()
+    steps:
+      - name: Notify on Success
+        run: ./.ci/spec/notify-success.sh
+
   cleanup:
     runs-on: self-hosted
     name: Cleanup Post Vagrant-Spec Tests
@@ -95,11 +104,3 @@ jobs:
       - name: Clean Workspace
         run: rm -rf ${{ github.workspace }}
 
-  notify-on-success:
-    runs-on: self-hosted
-    name: Notify on Success
-    needs: spec-tests
-    if: success()
-    steps:
-      - name: Notify on Success
-        run: ./.ci/spec/notify-success.sh
