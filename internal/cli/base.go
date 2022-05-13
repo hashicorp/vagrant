@@ -147,12 +147,8 @@ func BaseCommand(ctx context.Context, log hclog.Logger, logOutput io.Writer, opt
 		opt(c)
 	}
 
-	if c.UI == nil {
-		c.UI = terminal.ConsoleUI(context.Background())
-	}
-
 	if c.Args, err = bc.Parse(c.Flags, c.Args, true); err != nil {
-		c.UI.Output(clierrors.Humanize(err), terminal.WithErrorStyle())
+		log.Error(clierrors.Humanize(err))
 		return nil, err
 	}
 
@@ -161,6 +157,17 @@ func BaseCommand(ctx context.Context, log hclog.Logger, logOutput io.Writer, opt
 	if bc.flagBasis == "" {
 		bc.flagBasis = "default"
 	}
+
+	// Set UI
+	var ui terminal.UI
+	// Set non interactive if the --no-tty flag is provided
+	if !bc.flagTTY {
+		ui = terminal.NonInteractiveUI(ctx)
+	} else {
+		// If no ui related flags are set, create a new one
+		ui = terminal.ConsoleUI(ctx)
+	}
+	bc.ui = ui
 
 	homeConfigPath, err := paths.NamedVagrantConfig(bc.flagBasis)
 	if err != nil {
