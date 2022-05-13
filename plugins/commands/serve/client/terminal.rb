@@ -18,8 +18,12 @@ module VagrantPlugins
           "TerminalUI"
         end
 
+        def is_interactive
+          client.is_interactive.interactive
+        end
+
         def input(prompt, **opts)
-          client.events(
+          event_resp = client.events(
             [
               SDK::TerminalUI::Event.new(
                 input: SDK::TerminalUI::Event::Input.new(
@@ -29,8 +33,13 @@ module VagrantPlugins
                 )
               ),
             ].each
-          ).map { |resp|
-            resp.input.input
+          )
+          event_resp.map { |resp|
+            input = resp.input
+            if !input.error.nil?
+              raise Vagrant::Errors::VagrantRemoteError, msg: input.error.message
+            end
+            input.input
           }.first
         end
 
