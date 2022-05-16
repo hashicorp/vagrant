@@ -304,6 +304,12 @@ module Vagrant
     # This returns the provider name for the default provider for this
     # environment.
     #
+    # @param check_usable [Boolean] (true) whether to filter for `.usable?` providers
+    # @param exclude [Array<Symbol>] ([]) list of provider names to exclude from
+    #   consideration
+    # @param force_default [Boolean] (true) whether to prefer the value of
+    #   VAGRANT_DEFAULT_PROVIDER over other strategies if it is set
+    # @param machine [Symbol] (nil) a machine name to scope this lookup
     # @return [Symbol] Name of the default provider.
     def default_provider(**opts)
       opts[:exclude]       = Set.new(opts[:exclude]) if opts[:exclude]
@@ -974,7 +980,7 @@ module Vagrant
       provider = guess_provider
       vagrantfile.machine_names.each do |mname|
         ldp = @local_data_path.join("machines/#{mname}/#{provider}") if @local_data_path
-        plugins << vagrantfile.machine_config(mname, guess_provider, boxes, ldp, false)[:config]
+        plugins << vagrantfile.machine_config(mname, provider, boxes, ldp, false)[:config]
       end
       result = plugins.reverse.inject(Vagrant::Util::HashWithIndifferentAccess.new) do |memo, val|
         Vagrant::Util::DeepMerge.deep_merge(memo, val.vagrant.plugins)
