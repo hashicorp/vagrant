@@ -489,7 +489,7 @@ func WithTargetRef(r *vagrant_plugin_sdk.Ref_Target) TargetOption {
 
 func WithProvider(provider string) TargetOption {
 	return func(t *Target) (err error) {
-		if provider != "" {
+		if t != nil && t.target != nil && provider != "" {
 			t.target.Provider = provider
 		}
 		return nil
