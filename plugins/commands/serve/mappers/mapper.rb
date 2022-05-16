@@ -20,14 +20,14 @@ module VagrantPlugins
           attr_reader :name
           # @return [Class] type of the argument
           attr_reader :type
-          # @return [Callable] callable that can validate argument
+          # @return [#call] callable that can validate argument
           attr_reader :validator
 
           # Create a new input
           #
           # @param type [Class] Type of the input
-          # @param validator [Callable] Callable to validate argument (optional)
-          # @yield Callable to validate argument (optional)
+          # @param validator [#call] Callable to validate argument (optional)
+          # @yield #call to validate argument (optional)
           def initialize(type:, validator: nil, &block)
             if !type.is_a?(Class) && !type.is_a?(Module)
               raise ArgumentError,
@@ -107,14 +107,14 @@ module VagrantPlugins
         attr_reader :inputs
         # @return [Class, nil] type of output
         attr_reader :output
-        # @return [Callable] callable to perform mapping
+        # @return [#call] callable to perform mapping
         attr_reader :func
 
         # Create a new mapper instance
         #
         # @param inputs [Array<Input>] List of inputs for mapper
         # @param output [Class] Type of output value
-        # @param func [Callable] Callable to perform mapping
+        # @param func [#call] Callable to perform mapping
         def initialize(inputs:, output:, func:)
           Array(inputs).each do |i|
             if !i.is_a?(Input)

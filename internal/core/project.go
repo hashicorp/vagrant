@@ -3,6 +3,8 @@ package core
 import (
 	"context"
 	"errors"
+	"fmt"
+	"os"
 	"strings"
 	"sync"
 
@@ -99,10 +101,159 @@ func (p *Project) DefaultPrivateKey() (path path.Path, err error) {
 }
 
 // DefaultProvider implements core.Project
-func (p *Project) DefaultProvider() (name string, err error) {
-	// TODO: This needs to implement the default provider algorithm
-	// from https://www.vagrantup.com/docs/providers/basic_usage.html#default-provider
-	return "virtualbox", nil
+func (p *Project) DefaultProvider(opts *core.DefaultProviderOptions) (string, error) {
+	logger := p.logger.Named("default-provider")
+	logger.Debug("Searching for default provider", "options", fmt.Sprintf("%#v", opts))
+	// Algorithm ported from Vagrant::Environment#default_provider; structure
+	// and comments mirrored from there.
+
+	// Implement the algorithm from
+	// https://www.vagrantup.com/docs/providers/basic_usage.html#default-provider
+	// with additional steps 2.5 and 3.5 from
+	// https://bugzilla.redhat.com/show_bug.cgi?id=1444492
+	// to allow system-configured provider priorities.
+	//
+	// 1. The --provider flag on a vagrant up is chosen above all else, if it is
+	//    present.
+	//
+	// (Step 1 is done by the caller; this method is only called if --provider
+	// wasn't given.)
+	//
+	// 2. If the VAGRANT_DEFAULT_PROVIDER environmental variable is set, it
+	//    takes next priority and will be the provider chosen.
+	defaultProvider := os.Getenv("VAGRANT_DEFAULT_PROVIDER")
+	if defaultProvider != "" && opts.ForceDefault {
+		logger.Debug("Using forced default provider", "provider", defaultProvider)
+		return defaultProvider, nil
+	}
+
+	// Get the list of providers in our configuration, in order
+	configProviders := []string{}
+	for _, m := range p.project.GetConfiguration().GetMachineConfigs() {
+		// If a MachineName is provided - we're only looking at providers
+		// scoped to that machine name
+		if opts.MachineName != "" && opts.MachineName != m.GetName() {
+			continue
+		}
+		for _, p := range m.GetConfigVm().GetProviders() {
+			configProviders = append(configProviders, p.GetType())
+		}
+	}
+
+	usableProviders := []string{}
+	pluginProviders, err := p.basis.plugins.ListPlugins("provider")
+	if err != nil {
+		return "", err
+	}
+	for _, pp := range pluginProviders {
+		// Skip excluded providers
+		if opts.IsExcluded(pp.Name) {
+			continue
+		}
+
+		// TODO: how to check for defaultable?
+
+		// Skip the providers that aren't usable.
+		if opts.CheckUsable {
+			logger.Debug("Checking usable on provider", "provider", pp.Name)
+			plug, err := p.basis.plugins.GetPlugin(pp.Name, pp.Type)
+			if err != nil {
+				return "", err
+			}
+			pluginImpl := plug.Plugin.(core.Provider)
+			usable, err := pluginImpl.Usable()
+			if err != nil {
+				return "", err
+			}
+			if !usable {
+				continue
+			}
+		}
+
+		// If we made it here we have a candidate usable provider
+		usableProviders = append(usableProviders, pp.Name)
+	}
+	logger.Debug("Initial usable provider list", "usableProviders", usableProviders)
+
+	// TODO: how to get and sort by provider priority?
+
+	// If we're not forcing the default, but it's usable and hasn't been
+	// otherwise excluded, return it now.
+	for _, u := range usableProviders {
+		if u == defaultProvider {
+			logger.Debug("Using default provider as it was found in usable list",
+				"provider", u)
+			return u, nil
+		}
+	}
+
+	// 2.5. Vagrant will go through all of the config.vm.provider calls in the
+	//      Vagrantfile and try each in order. It will choose the first
+	//      provider that is usable and listed in VAGRANT_PREFERRED_PROVIDERS.
+	preferredProviders := strings.Split(os.Getenv("VAGRANT_PREFERRED_PROVIDERS"), ",")
+	k := 0
+	for _, pp := range preferredProviders {
+		spp := strings.TrimSpace(pp) // .map { s.strip }
+		if spp != "" {               // .select { !s.empty? }
+			preferredProviders[k] = spp
+			k++
+		}
+	}
+	preferredProviders = preferredProviders[:k]
+
+	for _, cp := range configProviders {
+		for _, up := range usableProviders {
+			if cp == up {
+				for _, pp := range preferredProviders {
+					if cp == pp {
+						logger.Debug("Using preferred provider detected in configuration and usable",
+							"provider", pp)
+						return pp, nil
+					}
+				}
+			}
+		}
+	}
+
+	// 3. Vagrant will go through all of the config.vm.provider calls in the
+	//    Vagrantfile and try each in order. It will choose the first provider
+	//    that is usable. For example, if you configure Hyper-V, it will never
+	//    be chosen on Mac this way. It must be both configured and usable.
+	for _, cp := range configProviders {
+		for _, up := range usableProviders {
+			if cp == up {
+				logger.Debug("Using provider detected in configuration and usable",
+					"provider", cp)
+				return cp, nil
+			}
+		}
+	}
+
+	// 3.5. Vagrant will go through VAGRANT_PREFERRED_PROVIDERS and find the
+	//      first plugin that reports it is usable.
+	for _, pp := range preferredProviders {
+		for _, up := range usableProviders {
+			if pp == up {
+				logger.Debug("Using preffered provider found in usable list",
+					"provider", pp)
+				return pp, nil
+			}
+		}
+	}
+
+	// 4. Vagrant will go through all installed provider plugins (including the
+	//    ones that come with Vagrant), and find the first plugin that reports
+	//    it is usable. There is a priority system here: systems that are known
+	//    better have a higher priority than systems that are worse. For
+	//    example, if you have the VMware provider installed, it will always
+	//    take priority over VirtualBox.
+	if len(usableProviders) > 0 {
+		logger.Debug("Using the first provider from the usable list",
+			"provider", usableProviders[0])
+		return usableProviders[0], nil
+	}
+
+	return "", errors.New("No default provider.")
 }
 
 // Home implements core.Project
@@ -138,13 +289,22 @@ func (p *Project) RootPath() (path path.Path, err error) {
 }
 
 // Target implements core.Project
-func (p *Project) Target(nameOrId string) (core.Target, error) {
+func (p *Project) Target(nameOrId string, provider string) (core.Target, error) {
 	if t, ok := p.targets[nameOrId]; ok {
 		return t, nil
 	}
 	// Check for name or id
 	for _, t := range p.targets {
 		if t.target.Name == nameOrId {
+			// TODO: Because we don't have provider selection fully ported
+			// over, there are cases where a target is loaded without a
+			// provider being set on it. For now we're just handling that here
+			// on lookup, but once we know for sure that any Target that exists
+			// already knows what its provider is, this should be able to be
+			// removed.
+			if t.target.Provider == "" && provider != "" {
+				t.target.Provider = provider
+			}
 			return t, nil
 		}
 		if t.target.ResourceId == nameOrId {
@@ -160,6 +320,7 @@ func (p *Project) Target(nameOrId string) (core.Target, error) {
 				ResourceId: nameOrId,
 			},
 		),
+		WithProvider(provider),
 	)
 }
 

@@ -132,7 +132,7 @@ func (c *Command) ExecuteInfo(trm terminal.UI, p plugincore.Project) int32 {
 		ptrm.Output("YAY! This is project specific output!")
 	}
 
-	t, err := p.Target("one")
+	t, err := p.Target("one", "")
 	if err != nil {
 		trm.Output("Failed to load `one' target -- " + err.Error())
 		return 1

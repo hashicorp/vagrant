@@ -2,6 +2,7 @@ package core
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -98,6 +99,9 @@ func (t *Target) Provider() (p core.Provider, err error) {
 	if err != nil {
 		return nil, err
 	}
+	if providerName == "" {
+		return nil, errors.New("cannot fetch provider for target when provider name is blank")
+	}
 	provider, err := t.project.basis.component(
 		t.ctx, component.ProviderType, providerName)
 
@@ -112,8 +116,7 @@ func (t *Target) Provider() (p core.Provider, err error) {
 // ProviderName implements core.Target
 // TODO: Use actual value once provider is set on the go side
 func (t *Target) ProviderName() (string, error) {
-	// return t.target.Provider, nil
-	return "virtualbox", nil
+	return t.target.Provider, nil
 }
 
 // Communicate implements core.Target
@@ -410,7 +413,7 @@ type TargetOption func(*Target) error
 
 func WithTargetName(name string) TargetOption {
 	return func(t *Target) (err error) {
-		if ex, _ := t.project.Target(name); ex != nil {
+		if ex, _ := t.project.Target(name, ""); ex != nil {
 			if et, ok := ex.(*Target); ok {
 				t.target = et.target
 			}
@@ -481,6 +484,15 @@ func WithTargetRef(r *vagrant_plugin_sdk.Ref_Target) TargetOption {
 		}
 		t.target = target
 		return
+	}
+}
+
+func WithProvider(provider string) TargetOption {
+	return func(t *Target) (err error) {
+		if provider != "" {
+			t.target.Provider = provider
+		}
+		return nil
 	}
 }
 

@@ -102,7 +102,7 @@ module Vagrant
       end
 
       def default_provider(**opts)
-        client.respond_to?(:default_provider) && client.default_provider.to_sym
+        client.respond_to?(:default_provider) && client.default_provider(opts)
       end
 
       # Gets a target (machine) by name
@@ -126,8 +126,8 @@ module Vagrant
 
       # @param [String] machine name
       # return [Vagrant::Machine]
-      def machine(name, *_, **_)
-        client.machine(name)
+      def machine(name, provider, **_)
+        client.machine(name, provider)
       end
 
       def machine_names

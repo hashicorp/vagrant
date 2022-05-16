@@ -13,7 +13,7 @@ module VagrantPlugins
           :DESTROYED,
         ].freeze
 
-        # @return [SDK::Ref::Target] proto reference for this target
+        # @return [Hashicorp::Vagrant::Sdk::Ref::Target] proto reference for this target
         def ref
           SDK::Ref::Target.new(resource_id: resource_id)
         end
