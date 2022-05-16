@@ -88,8 +88,8 @@ type baseCommand struct {
 	// flagTarget is the machine to target.
 	flagTarget string
 
-	// flagNoTTY is whether the output is interactive
-	flagNoTTY bool
+	// flagTTY is whether the output is interactive
+	flagTTY bool
 
 	// flagConnection contains manual flag-based connection info.
 	flagConnection clicontext.Config
@@ -152,16 +152,10 @@ func BaseCommand(ctx context.Context, log hclog.Logger, logOutput io.Writer, opt
 		return nil, err
 	}
 
-	// From the command side, the basis is simply where an extra Vagrantfile can
-	// live, as well as our storage context
-	if bc.flagBasis == "" {
-		bc.flagBasis = "default"
-	}
-
 	// Set UI
 	var ui terminal.UI
 	// Set non interactive if the --no-tty flag is provided
-	if bc.flagNoTTY {
+	if !bc.flagTTY {
 		ui = terminal.NonInteractiveUI(ctx)
 	} else {
 		// If no ui related flags are set, create a new one
@@ -292,7 +286,7 @@ func (c *baseCommand) Init(opts ...Option) (err error) {
 	// Set UI
 	var ui terminal.UI
 	// Set non interactive if the --no-tty flag is provided
-	if c.flagNoTTY {
+	if !c.flagTTY {
 		ui = terminal.NonInteractiveUI(c.Ctx)
 	} else {
 		// If no ui related flags are set, use the base config ui
@@ -402,14 +396,15 @@ func (c *baseCommand) flagSet(bit flagSetBit, f func([]*component.CommandFlag) [
 			Type:         component.FlagString,
 		},
 		{
-			LongName:    "target",
-			Description: "Target to apply command",
-			Type:        component.FlagString,
+			LongName:     "target",
+			Description:  "Target to apply command",
+			DefaultValue: "",
+			Type:         component.FlagString,
 		},
 		{
-			LongName:     "no-tty",
+			LongName:     "tty",
 			Description:  "Enable non-interactive output",
-			DefaultValue: "false",
+			DefaultValue: "true",
 			Type:         component.FlagBool,
 		},
 	}
@@ -484,25 +479,38 @@ func (c *baseCommand) Parse(
 		if err != nil {
 			return nil, err
 		}
+		// Set the default flag values
+		switch f.LongName {
+		case "basis":
+			c.flagBasis = pf.DefaultValue().(string)
+		case "color":
+			c.flagColor = pf.DefaultValue().(bool)
+		case "target":
+			if v := pf.DefaultValue(); v != nil {
+				c.flagTarget = pf.DefaultValue().(string)
+			}
+		case "remote":
+			c.flagRemote = pf.DefaultValue().(bool)
+		case "tty":
+			c.flagTTY = pf.DefaultValue().(bool)
+		}
 		if !pf.Updated() {
 			continue
 		}
-		c.flagData[f] = pf.Value()
-		// Set the flag values
+		// Set the given flag values
 		switch f.LongName {
 		case "basis":
 			c.flagBasis = pf.Value().(string)
 		case "color":
-			c.flagColor = true
-		case "no-color":
-			c.flagColor = false
+			c.flagColor = pf.Value().(bool)
 		case "target":
 			c.flagTarget = pf.Value().(string)
 		case "remote":
-			c.flagRemote = true
-		case "no-remote":
-			c.flagRemote = false
+			c.flagRemote = pf.Value().(bool)
+		case "tty":
+			c.flagTTY = pf.Value().(bool)
 		}
+		c.flagData[f] = pf.Value()
 	}
 	return remainArgs, nil
 }
