@@ -488,8 +488,22 @@ func (c *baseCommand) Parse(
 			continue
 		}
 		c.flagData[f] = pf.Value()
+		// Set the flag values
+		switch f.LongName {
+		case "basis":
+			c.flagBasis = pf.Value().(string)
+		case "color":
+			c.flagColor = true
+		case "no-color":
+			c.flagColor = false
+		case "target":
+			c.flagTarget = pf.Value().(string)
+		case "remote":
+			c.flagRemote = true
+		case "no-remote":
+			c.flagRemote = false
+		}
 	}
-
 	return remainArgs, nil
 }
 
