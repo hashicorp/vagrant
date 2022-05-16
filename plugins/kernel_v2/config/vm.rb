@@ -755,7 +755,12 @@ module VagrantPlugins
           @allow_fstab_modification = true if @allow_fstab_modification == UNSET_VALUE
         end
 
-        if !box && !clone && !machine.provider_options[:box_optional]
+        # HACK(phinze): We cannot honor box_optional in gogo yet so we are
+        # temporarily hacking in a workaround which explicitly looks for docker
+        # instead of the option itself. Once plugin metadata is implemented
+        # this conditional should be reverted to the commented line below
+        # if !box && !clone && !machine.provider_options[:box_optional]
+        if !box && !clone && machine.provider_name != :docker
           errors << I18n.t("vagrant.config.vm.box_missing")
         end
 
