@@ -159,20 +159,6 @@ func (p *Project) LoadTarget(n string) (*Target, error) {
 	}, nil
 }
 
-// TODO: Determine default provider by implementing algorithm from
-//       https://www.vagrantup.com/docs/providers/basic_usage#default-provider
-//
-//       Currently blocked on being able to parse Vagrantfile
-func (p *Project) GetDefaultProvider(exclude []string, forceDefault bool, checkUsable bool) (provider string, err error) {
-	defaultProvider := os.Getenv("VAGRANT_DEFAULT_PROVIDER")
-	if defaultProvider != "" && forceDefault {
-		return defaultProvider, nil
-	}
-
-	// HACK: This should throw an error if no default provider is found
-	return "virtualbox", nil
-}
-
 func (p *Project) UI() terminal.UI {
 	return p.ui
 }
