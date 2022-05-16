@@ -108,9 +108,10 @@ module Vagrant
       # Gets a target (machine) by name
       #
       # @param [String] machine name
+      # @param [String] provider name
       # return [VagrantPlugins::CommandServe::Client::Machine]
-      def get_target(name)
-        client.target(name)
+      def get_target(name, provider)
+        client.target(name, provider)
       end
 
       # Returns the host object associated with this environment.

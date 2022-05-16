@@ -30,7 +30,7 @@ module Vagrant
         @logger = Log4r::Logger.new("vagrant::machine")
         if !env.nil? && client.nil?
           @env = env
-          @client = env.get_target(name)
+          @client = env.get_target(name, provider_name)
         else
           @client = client
           @env = client.environment
