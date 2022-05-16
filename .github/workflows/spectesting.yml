@@ -96,7 +96,7 @@ jobs:
   cleanup:
     runs-on: self-hosted
     name: Cleanup Post Vagrant-Spec Tests
-    needs: spec-tests
+    needs: [spec-tests, notify-on-success]
     if: always()
     steps:
       - name: Clean Packet
