@@ -88,8 +88,8 @@ type baseCommand struct {
 	// flagTarget is the machine to target.
 	flagTarget string
 
-	// flagTTY is whether the output is interactive
-	flagTTY bool
+	// flagNoTTY is whether the output is interactive
+	flagNoTTY bool
 
 	// flagConnection contains manual flag-based connection info.
 	flagConnection clicontext.Config
@@ -161,7 +161,7 @@ func BaseCommand(ctx context.Context, log hclog.Logger, logOutput io.Writer, opt
 	// Set UI
 	var ui terminal.UI
 	// Set non interactive if the --no-tty flag is provided
-	if !bc.flagTTY {
+	if bc.flagNoTTY {
 		ui = terminal.NonInteractiveUI(ctx)
 	} else {
 		// If no ui related flags are set, create a new one
@@ -292,7 +292,7 @@ func (c *baseCommand) Init(opts ...Option) (err error) {
 	// Set UI
 	var ui terminal.UI
 	// Set non interactive if the --no-tty flag is provided
-	if !c.flagTTY {
+	if c.flagNoTTY {
 		ui = terminal.NonInteractiveUI(c.Ctx)
 	} else {
 		// If no ui related flags are set, use the base config ui
@@ -407,9 +407,9 @@ func (c *baseCommand) flagSet(bit flagSetBit, f func([]*component.CommandFlag) [
 			Type:        component.FlagString,
 		},
 		{
-			LongName:     "tty",
+			LongName:     "no-tty",
 			Description:  "Enable non-interactive output",
-			DefaultValue: "true",
+			DefaultValue: "false",
 			Type:         component.FlagBool,
 		},
 	}
