@@ -281,6 +281,21 @@ func logger(args []string) ([]string, hclog.Logger, io.Writer, error) {
 				_ = os.Setenv("VAGRANT_LOG", "trace")
 			}
 			verbose = true
+		case "--debug":
+			if level == hclog.NoLevel || level > hclog.Debug {
+				level = hclog.Debug
+				_ = os.Setenv("VAGRANT_LOG", "debug")
+			}
+		case "--timestamp":
+			t := terminal.NonInteractiveUI(context.Background())
+			t.Output("Deprecated")
+		case "--debug-timestamp":
+			if level == hclog.NoLevel || level > hclog.Debug {
+				level = hclog.Debug
+				_ = os.Setenv("VAGRANT_LOG", "debug")
+			}
+			t := terminal.NonInteractiveUI(context.Background())
+			t.Output("Deprecated")
 		default:
 			outArgs = append(outArgs, arg)
 		}
