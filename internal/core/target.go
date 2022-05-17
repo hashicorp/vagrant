@@ -114,7 +114,6 @@ func (t *Target) Provider() (p core.Provider, err error) {
 }
 
 // ProviderName implements core.Target
-// TODO: Use actual value once provider is set on the go side
 func (t *Target) ProviderName() (string, error) {
 	return t.target.Provider, nil
 }

@@ -68,7 +68,7 @@ func (p *Project) ActiveTargets() (activeTargets []core.Target, err error) {
 		if err != nil {
 			return nil, err
 		}
-		if st == core.CREATED {
+		if st.IsActive() {
 			activeTargets = append(activeTargets, t)
 		}
 	}
@@ -302,7 +302,11 @@ func (p *Project) Target(nameOrId string, provider string) (core.Target, error) 
 			// on lookup, but once we know for sure that any Target that exists
 			// already knows what its provider is, this should be able to be
 			// removed.
-			if t.target.Provider == "" && provider != "" {
+			st, err := t.State()
+			if err != nil {
+				return nil, err
+			}
+			if provider != "" && !st.IsActive() {
 				t.target.Provider = provider
 			}
 			return t, nil
