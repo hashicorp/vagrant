@@ -88,10 +88,15 @@ module VagrantPlugins
             flags = options.top.list.find_all { |o|
               o.is_a?(OptionParser::Switch)
             }.map { |o|
+              aliases = []
+              if o.long.first.match?(/^--\[no-\]/)
+                aliases << "no-#{o.switch_name.to_s.gsub(/^-/, '')}"
+              end
               SDK::Command::Flag.new(
                 description: o.desc.join(" "),
                 long_name: o.switch_name.to_s.gsub(/^-/, ''),
                 short_name: o.short.first.to_s.gsub(/^-/, ''),
+                aliases: aliases,
                 type: o.is_a?(OptionParser::Switch::NoArgument) ?
                   SDK::Command::Flag::Type::BOOL :
                   SDK::Command::Flag::Type::STRING
