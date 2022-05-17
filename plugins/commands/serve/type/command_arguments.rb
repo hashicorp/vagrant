@@ -52,7 +52,7 @@ module VagrantPlugins
               if v == true
                 "--#{k}"
               elsif v == false
-                "--no-#{k}"
+                "--#{k}"
               else
                 "--#{k}=#{v}"
               end

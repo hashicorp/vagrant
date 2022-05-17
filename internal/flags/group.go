@@ -260,7 +260,17 @@ func (g *Group) Display(
 		}
 		switch f.kind {
 		case BooleanType:
-			opts[i] = fmt.Sprintf("%s --[no-]%s", opts[i], f.longName)
+			foundNoAlias := false
+			for _, a := range f.aliases {
+				if a == fmt.Sprintf("no-%s", f.longName) {
+					foundNoAlias = true
+					opts[i] = fmt.Sprintf("%s --[no-]%s", opts[i], f.longName)
+					break
+				}
+			}
+			if !foundNoAlias {
+				opts[i] = fmt.Sprintf("%s --%s", opts[i], f.longName)
+			}
 		case IncrementType:
 			opts[i] = fmt.Sprintf("%s --%s", opts[i], f.longName)
 		default:

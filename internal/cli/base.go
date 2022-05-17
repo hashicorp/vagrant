@@ -388,6 +388,7 @@ func (c *baseCommand) flagSet(bit flagSetBit, f func([]*component.CommandFlag) [
 			Description:  "Can be used to disable colored output",
 			DefaultValue: "true",
 			Type:         component.FlagBool,
+			Aliases:      []string{"no-color"},
 		},
 		{
 			LongName:     "basis",
@@ -529,7 +530,9 @@ func (c *baseCommand) generateCliFlags(set []*component.CommandFlag) *flags.Set 
 		if f.ShortName != "" {
 			opts = append(opts, flags.ShortName(rune(f.ShortName[0])))
 		}
-
+		if len(f.Aliases) > 0 {
+			opts = append(opts, flags.Alias(f.Aliases...))
+		}
 		switch f.Type {
 		case component.FlagBool:
 			b, _ := strconv.ParseBool(f.DefaultValue)

@@ -158,9 +158,6 @@ func newFlag(
 	for _, fn := range modifiers {
 		fn(f)
 	}
-	if kind == BooleanType {
-		Alias(fmt.Sprintf("no-%s", f.longName))(f)
-	}
 
 	return f
 }
