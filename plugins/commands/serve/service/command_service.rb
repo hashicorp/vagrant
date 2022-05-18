@@ -60,8 +60,28 @@ module VagrantPlugins
               raise "Failed to locate command plugin for: #{plugin_name}"
             end
 
-            cmd_klass = plugin.call
+            # This bit does some sanitizing of input flags. Vagrant (core) accepts boolean flags 
+            # as both --flag-name and --[no]-flag-name. Legacy Vagrant does not need to follow
+            # this pattern, so there exists boolean flags that don't have a negative flag defined.
+            # If a flag that is not defined in the legacy Vagrant api (but is defined in Vagrant core)
+            # then providing this flag over the cli will cause an error when it is passed onto the 
+            # Vagrant legacy side. This bit of code extracts all the flags defined in the Vagrant legacy
+            # commands and ensures that no undefined flags are being passed in.
+            # Get all the flags defined for the command
+            available_flags = get_flag_set(info.plugin_name, [])
+            # Get all the flags passed in from the cli
+            provided_flags = arguments.value
+              .find_all { |t| t.start_with?("-") }
+              .map { |m| m.gsub(/^[-]+/, "") }
+              .map{ |m| m.split("=")[0]}
+            # Build up a list of flags that are allowable. This list must not be prefixed with "no"
+            # since the arguments.flag structure only holds to base name for the flag.
+            pass_flags = (available_flags & provided_flags).map{ |p| p.gsub(/^no-/, "")}
+            # Filter out flags that are not included in the list of allowable flags
+            arguments.flags.delete_if { |k,v| !pass_flags.include?(k) }
+
             cmd_args = req.command_args.to_a[1..] + arguments.value
+            cmd_klass = plugin.call
             cmd = cmd_klass.new(cmd_args, env)
             result = cmd.execute
             if !result.is_a?(Integer)
@@ -76,6 +96,17 @@ module VagrantPlugins
 
         protected
 
+        def get_flag_set(plugin_name, subcommand_names)
+          logger.debug("collecting command information for #{plugin_name} #{subcommand_names}")
+          options = command_options_for(plugin_name, subcommand_names)
+          if options.nil?
+            flags = []
+          else
+            flags = options.top.long.keys + options.top.short.keys
+          end
+          return flags
+        end
+
         def collect_command_info(plugin_name, subcommand_names)
           logger.debug("collecting command information for #{plugin_name} #{subcommand_names}")
           options = command_options_for(plugin_name, subcommand_names)
@@ -88,15 +119,10 @@ module VagrantPlugins
             flags = options.top.list.find_all { |o|
               o.is_a?(OptionParser::Switch)
             }.map { |o|
-              aliases = []
-              if o.long.first.match?(/^--\[no-\]/)
-                aliases << "no-#{o.switch_name.to_s.gsub(/^-/, '')}"
-              end
               SDK::Command::Flag.new(
                 description: o.desc.join(" "),
                 long_name: o.switch_name.to_s.gsub(/^-/, ''),
                 short_name: o.short.first.to_s.gsub(/^-/, ''),
-                aliases: aliases,
                 type: o.is_a?(OptionParser::Switch::NoArgument) ?
                   SDK::Command::Flag::Type::BOOL :
                   SDK::Command::Flag::Type::STRING
