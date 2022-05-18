@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"os"
+	"path/filepath"
 	"strings"
 	"sync"
 	"time"
@@ -265,7 +266,19 @@ func (t *Target) Destroy() (err error) {
 	_, err = t.Client().DeleteTarget(t.ctx, &vagrant_server.DeleteTargetRequest{
 		Target: t.Ref().(*vagrant_plugin_sdk.Ref_Target),
 	})
-	os.RemoveAll(t.dir.DataDir().String())
+
+	// Remove all the files inside the datadir without wiping the datadir itself
+	files, err := filepath.Glob(filepath.Join(t.dir.DataDir().String(), "*"))
+	if err != nil {
+		return err
+	}
+	for _, file := range files {
+		rerr := os.RemoveAll(file)
+		if rerr != nil {
+			err = multierror.Append(err, rerr)
+		}
+	}
+
 	return
 }
 

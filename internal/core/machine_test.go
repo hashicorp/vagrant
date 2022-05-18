@@ -74,6 +74,22 @@ func TestMachineSetEmptyId(t *testing.T) {
 	require.Error(t, err)
 }
 
+func TestMachineSetIdBlankThenSomethingRecreatesDataDir(t *testing.T) {
+	tm, _ := TestMinimalMachine(t)
+
+	// Set empty id, followed by a temp id. This is the same thing that happens
+	// in the Docker provider's InitState action
+	require.NoError(t, tm.SetID(""))
+	require.NoError(t, tm.SetID("preparing"))
+
+	// The DataDir should still exist; the Docker provider relies on this
+	// behavior in order for its provisioning sentinel file handling to work
+	// properly.
+	dir, err := tm.DataDir()
+	require.NoError(t, err)
+	require.DirExists(t, dir.DataDir().String())
+}
+
 func TestMachineGetNonExistentBox(t *testing.T) {
 	tp := TestMinimalProject(t)
 	tm, _ := TestMachine(t, tp,

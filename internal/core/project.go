@@ -231,8 +231,8 @@ func (p *Project) JobInfo() *component.JobInfo {
 	return p.jobInfo
 }
 
-// Load a project within the current basis. If the project is not found, it
-// will be created.
+// LoadTarget loads a target within the current project. If the target is not
+// found, it will be created.
 func (p *Project) LoadTarget(topts ...TargetOption) (t *Target, err error) {
 	p.m.Lock()
 	defer p.m.Unlock()
