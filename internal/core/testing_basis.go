@@ -4,6 +4,7 @@ import (
 	"context"
 	"io/ioutil"
 	"os"
+	"path/filepath"
 
 	"github.com/hashicorp/vagrant-plugin-sdk/core"
 	coremocks "github.com/hashicorp/vagrant-plugin-sdk/core/mocks"
@@ -79,8 +80,20 @@ func TestBasis(t testing.T, opts ...BasisOption) (b *Basis) {
 	require.NoError(t, err)
 	t.Cleanup(func() { os.RemoveAll(td) })
 
-	projDir, err := datadir.NewBasis(td)
-	require.NoError(t, err)
+	mkSubdir := func(root, sub string) string {
+		sd := filepath.Join(root, sub)
+		require.NoError(t, os.Mkdir(sd, 0755))
+		return sd
+	}
+
+	projDir := &datadir.Basis{
+		Dir: datadir.NewBasicDir(
+			mkSubdir(td, "config"),
+			mkSubdir(td, "cache"),
+			mkSubdir(td, "data"),
+			mkSubdir(td, "temp"),
+		),
+	}
 
 	defaultOpts := []BasisOption{
 		WithClient(singleprocess.TestServer(t)),
