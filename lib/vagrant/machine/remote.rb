@@ -62,16 +62,6 @@ module Vagrant
         @state_mutex     = Mutex.new
         # TODO: get trigger config from go
         @triggers        = Vagrant::Plugin::V2::Trigger.new(@env, @config.trigger, self, @ui)
-
-        # If the ID is the special not created ID, then set our ID to
-        # nil so that we destroy all our data.
-        # if state.id == MachineState::NOT_CREATED_ID
-        #   self.id = nil
-        # end
-
-        # Output a bunch of information about this machine in
-        # machine-readable format in case someone is listening.
-        @ui.machine("metadata", "provider", provider_name)
       end
 
       # @return [Box]
