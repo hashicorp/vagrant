@@ -407,6 +407,12 @@ func (c *baseCommand) flagSet(bit flagSetBit, f func([]*component.CommandFlag) [
 			DefaultValue: "true",
 			Type:         component.FlagBool,
 		},
+		{
+			LongName:     "machine-readable",
+			Description:  "Target to apply command",
+			DefaultValue: "false",
+			Type:         component.FlagBool,
+		},
 	}
 
 	if bit&flagSetOperation != 0 {
