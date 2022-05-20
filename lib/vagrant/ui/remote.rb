@@ -42,6 +42,28 @@ module Vagrant
         client.output(message.gsub("%", "%%"), **opts)
       end
 
+      def machine(type, *data)
+        opts = {}
+        opts = data.pop if data.last.kind_of?(Hash)
+
+        target = opts[:target] || ""
+
+        # Prepare the data by replacing characters that aren't outputted
+        data.each_index do |i|
+          data[i] = data[i].to_s.dup
+          data[i].gsub!(",", "%!(VAGRANT_COMMA)")
+          data[i].gsub!("\n", "\\n")
+          data[i].gsub!("\r", "\\r")
+        end
+
+        # Avoid locks in a trap context introduced from Ruby 2.0
+        Thread.new do
+          @lock.synchronize do
+            safe_puts(["#{Time.now.utc.to_i},#{target},#{type},#{data.join(",")}", {}], {})
+          end
+        end.join(THREAD_MAX_JOIN_TIMEOUT)
+      end
+
       def to_proto
         @client.proto
       end
