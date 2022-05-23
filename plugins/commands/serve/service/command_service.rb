@@ -68,17 +68,22 @@ module VagrantPlugins
             # Vagrant legacy side. This bit of code extracts all the flags defined in the Vagrant legacy
             # commands and ensures that no undefined flags are being passed in.
             # Get all the flags defined for the command
-            available_flags = get_flag_set(info.plugin_name, [])
+            available_flags = get_flag_set(info.plugin_name, req.command_args.to_a[1..])
             # Get all the flags passed in from the cli
             provided_flags = arguments.value
               .find_all { |t| t.start_with?("-") }
               .map { |m| m.gsub(/^[-]+/, "") }
               .map{ |m| m.split("=")[0]}
             # Build up a list of flags that are allowable. This list must not be prefixed with "no"
-            # since the arguments.flag structure only holds to base name for the flag.
+            # since the arguments.flag structure only holds to base name for the flag. eg. the form
+            # of argument.flag is {"my-flag": true, "my-other-flag": false}.
             pass_flags = (available_flags & provided_flags).map{ |p| p.gsub(/^no-/, "")}
+
             # Filter out flags that are not included in the list of allowable flags
-            arguments.flags.delete_if { |k,v| !pass_flags.include?(k) }
+            arguments.flags.delete_if do |k,v|
+              logger.debug("deleting flag #{k}") if !pass_flags.include?(k)
+              !pass_flags.include?(k)
+            end
 
             cmd_args = req.command_args.to_a[1..] + arguments.value
             cmd_klass = plugin.call
@@ -121,7 +126,7 @@ module VagrantPlugins
             }.map { |o|
               SDK::Command::Flag.new(
                 description: o.desc.join(" "),
-                long_name: o.switch_name.to_s.gsub(/^-/, ''),
+                long_name: o.switch_name.to_s.gsub(/^-/, '').gsub(/^no-/, ''),
                 short_name: o.short.first.to_s.gsub(/^-/, ''),
                 type: o.is_a?(OptionParser::Switch::NoArgument) ?
                   SDK::Command::Flag::Type::BOOL :
