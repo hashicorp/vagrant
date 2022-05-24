@@ -627,6 +627,25 @@ module Hashicorp
 
         Stub = Service.rpc_stub_class
       end
+      module DownloaderService
+        class Service
+
+          include ::GRPC::GenericService
+
+          self.marshal_class_method = :encode
+          self.unmarshal_class_method = :decode
+          self.service_name = 'hashicorp.vagrant.sdk.DownloaderService'
+
+          rpc :DownloadSpec, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::FuncSpec
+          rpc :Download, ::Hashicorp::Vagrant::Sdk::FuncSpec::Args, ::Google::Protobuf::Empty
+          rpc :Seed, ::Hashicorp::Vagrant::Sdk::Args::Seeds, ::Google::Protobuf::Empty
+          rpc :Seeds, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::Args::Seeds
+          rpc :SetPluginName, ::Hashicorp::Vagrant::Sdk::PluginInfo::Name, ::Google::Protobuf::Empty
+          rpc :PluginName, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::PluginInfo::Name
+        end
+
+        Stub = Service.rpc_stub_class
+      end
     end
   end
 end
