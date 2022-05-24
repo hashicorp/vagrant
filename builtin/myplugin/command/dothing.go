@@ -102,15 +102,16 @@ func (c *DoThing) Execute(trm terminal.UI, params *component.CommandParams) int3
 			Languages:  []language.Tag{language.Spanish},
 		},
 	}
-	l, err := localizer.NewPluginLocalizer(trm, d...)
+	l, err := localizer.NewPluginLocalizer(d...)
 	if err != nil {
 		return 1
 	}
-	err = l.Output("dothing", nil)
+	msg, err := l.LocalizeMsg("dothing", nil)
 	if err != nil {
 		trm.Output(err.Error())
 		return 1
 	}
+	trm.Output(msg)
 	return 0
 }
 

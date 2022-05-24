@@ -478,6 +478,7 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
       optional :description, :string, 3
       optional :default_value, :string, 4
       optional :type, :enum, 5, "hashicorp.vagrant.sdk.Command.Flag.Type"
+      repeated :aliases, :string, 6
     end
     add_enum "hashicorp.vagrant.sdk.Command.Flag.Type" do
       value :STRING, 0
