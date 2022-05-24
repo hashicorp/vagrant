@@ -18,6 +18,7 @@ import (
 	"github.com/mitchellh/go-glint"
 
 	"github.com/hashicorp/vagrant-plugin-sdk/internal-shared/protomappers"
+	"github.com/hashicorp/vagrant-plugin-sdk/localizer"
 	"github.com/hashicorp/vagrant-plugin-sdk/proto/vagrant_plugin_sdk"
 	"github.com/hashicorp/vagrant-plugin-sdk/terminal"
 	"github.com/hashicorp/vagrant/internal/pkg/signalcontext"
@@ -281,6 +282,25 @@ func logger(args []string) ([]string, hclog.Logger, io.Writer, error) {
 				_ = os.Setenv("VAGRANT_LOG", "trace")
 			}
 			verbose = true
+		case "--debug":
+			if level == hclog.NoLevel || level > hclog.Debug {
+				level = hclog.Debug
+				_ = os.Setenv("VAGRANT_LOG", "debug")
+			}
+		case "--timestamp":
+			t := terminal.NonInteractiveUI(context.Background())
+			t.Output(
+				localizer.LocalizeMsg("deprecated_flag", map[string]string{"Flag": "--timestamp"}),
+			)
+		case "--debug-timestamp":
+			if level == hclog.NoLevel || level > hclog.Debug {
+				level = hclog.Debug
+				_ = os.Setenv("VAGRANT_LOG", "debug")
+			}
+			t := terminal.NonInteractiveUI(context.Background())
+			t.Output(
+				localizer.LocalizeMsg("deprecated_flag", map[string]string{"Flag": "--debug-timestamp"}),
+			)
 		default:
 			outArgs = append(outArgs, arg)
 		}
