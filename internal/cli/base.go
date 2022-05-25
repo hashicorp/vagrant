@@ -88,8 +88,8 @@ type baseCommand struct {
 	// flagTarget is the machine to target.
 	flagTarget string
 
-	// flagTTY is whether the output is interactive
-	flagTTY bool
+	// flagInteractive is whether the output is interactive
+	flagInteractive bool
 
 	// flagConnection contains manual flag-based connection info.
 	flagConnection clicontext.Config
@@ -154,8 +154,8 @@ func BaseCommand(ctx context.Context, log hclog.Logger, logOutput io.Writer, opt
 
 	// Set UI
 	var ui terminal.UI
-	// Set non interactive if the --no-tty flag is provided
-	if !bc.flagTTY {
+	// Set non interactive if the --no-interactive flag is provided
+	if !bc.flagInteractive {
 		ui = terminal.NonInteractiveUI(ctx)
 	} else {
 		// If no ui related flags are set, create a new one
@@ -285,8 +285,8 @@ func (c *baseCommand) Init(opts ...Option) (err error) {
 
 	// Set UI
 	var ui terminal.UI
-	// Set non interactive if the --no-tty flag is provided
-	if !c.flagTTY {
+	// Set non interactive if the --no-interactive flag is provided
+	if !c.flagInteractive {
 		ui = terminal.NonInteractiveUI(c.Ctx)
 	} else {
 		// If no ui related flags are set, use the base config ui
@@ -402,7 +402,7 @@ func (c *baseCommand) flagSet(bit flagSetBit, f func([]*component.CommandFlag) [
 			Type:         component.FlagString,
 		},
 		{
-			LongName:     "tty",
+			LongName:     "interactive",
 			Description:  "Enable non-interactive output",
 			DefaultValue: "true",
 			Type:         component.FlagBool,
@@ -491,8 +491,8 @@ func (c *baseCommand) Parse(
 			}
 		case "remote":
 			c.flagRemote = pf.DefaultValue().(bool)
-		case "tty":
-			c.flagTTY = pf.DefaultValue().(bool)
+		case "interactive":
+			c.flagInteractive = pf.DefaultValue().(bool)
 		}
 		if !pf.Updated() {
 			continue
@@ -507,8 +507,8 @@ func (c *baseCommand) Parse(
 			c.flagTarget = pf.Value().(string)
 		case "remote":
 			c.flagRemote = pf.Value().(bool)
-		case "tty":
-			c.flagTTY = pf.Value().(bool)
+		case "interactive":
+			c.flagInteractive = pf.Value().(bool)
 		}
 		c.flagData[f] = pf.Value()
 	}
