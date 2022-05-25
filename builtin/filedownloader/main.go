@@ -7,7 +7,7 @@ import (
 
 //go:generate protoc -I ../../.. --go_opt=plugins=grpc --go_out=../../.. vagrant-ruby/builtin/filedownloader/proto/plugin.proto
 
-var CommandOptions = []sdk.Option{
+var PluginOptions = []sdk.Option{
 	sdk.WithComponents(
 		&downloader.Downloader{},
 	),
