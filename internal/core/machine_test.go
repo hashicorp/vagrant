@@ -60,6 +60,11 @@ func TestMachineSetEmptyId(t *testing.T) {
 	require.Nil(t, dbTarget)
 	require.Error(t, err)
 
+	// Verify the DataDir still exists (see below test for more detail on why)
+	dir, err := tm.DataDir()
+	require.NoError(t, err)
+	require.DirExists(t, dir.DataDir().String())
+
 	// Also check new id
 	dbTarget, err = tm.Client().GetTarget(tm.ctx,
 		&vagrant_server.GetTargetRequest{
@@ -74,7 +79,7 @@ func TestMachineSetEmptyId(t *testing.T) {
 	require.Error(t, err)
 }
 
-func TestMachineSetIdBlankThenSomethingRecreatesDataDir(t *testing.T) {
+func TestMachineSetIdBlankThenSomethingPreservesDataDir(t *testing.T) {
 	tm, _ := TestMinimalMachine(t)
 
 	// Set empty id, followed by a temp id. This is the same thing that happens
