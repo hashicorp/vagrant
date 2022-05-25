@@ -101,3 +101,10 @@ func WithTestTargetConfig(config *vagrant_plugin_sdk.Vagrantfile_MachineConfig) 
 		return
 	}
 }
+
+func WithTestTargetProvider(provider string) TestMachineOption {
+	return func(m *Machine) (err error) {
+		m.target.Provider = provider
+		return
+	}
+}

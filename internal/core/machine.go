@@ -321,9 +321,11 @@ func (m *Machine) SyncedFolders() (folders []*core.MachineSyncedFolder, err erro
 
 	folders = []*core.MachineSyncedFolder{}
 	for _, folder := range syncedFolders {
-		folder.Type, err = m.defaultSyncedFolderType()
-		if err != nil {
-			return nil, err
+		if folder.GetType() == "" {
+			folder.Type, err = m.defaultSyncedFolderType()
+			if err != nil {
+				return nil, err
+			}
 		}
 		lookup := "syncedfolder_" + *(folder.Type)
 		v := m.cache.Get(lookup)

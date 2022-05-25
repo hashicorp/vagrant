@@ -72,6 +72,7 @@ func BuildTestSyncedFolderPlugin(parent string) *TestSyncedFolderPlugin {
 	p.On("Seed", mock.AnythingOfType("*core.Seeds")).Return(nil)
 	p.On("Seeds").Return(core.NewSeeds(), nil)
 	p.On("Parent").Return(parent, nil)
+	p.On("Usable", mock.AnythingOfType("*core.Machine")).Return(true, nil)
 	return p
 }
 
