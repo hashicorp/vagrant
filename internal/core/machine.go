@@ -231,7 +231,24 @@ func StringToPathFunc() mapstructure.DecodeHookFunc {
 	}
 }
 
+// TEMP: until we have plugin priority being sent along at registration, we are
+// manually mirroring the plugin priorities from legacy vagrant
+func syncedFolderPriority(name string) int {
+	switch name {
+	case "nfs":
+		return 5
+	case "rsync":
+		return 5
+	case "smb":
+		return 7
+	default: // covers virtualbox, docker, vmware
+		return 10
+	}
+}
+
 func (m *Machine) defaultSyncedFolderType() (folderType *string, err error) {
+	logger := m.logger.Named("default-synced-folder-type")
+
 	// Get all available synced folder plugins
 	syncedFolders, err := m.project.basis.typeComponents(m.ctx, component.SyncedFolderType)
 	if err != nil {
@@ -239,38 +256,60 @@ func (m *Machine) defaultSyncedFolderType() (folderType *string, err error) {
 	}
 
 	// Get all plugin components
-	syncedFoldersComponents := make([]*Component, 0, len(syncedFolders))
+	components := make([]*Component, 0, len(syncedFolders))
 	for _, value := range syncedFolders {
-		syncedFoldersComponents = append(syncedFoldersComponents, value)
+		components = append(components, value)
 	}
 
 	// Sort by plugin priority. Higher is first
-	// TODO: reintroduce priority
-	// sort.SliceStable(syncedFoldersComponents, func(i, j int) bool {
-	// 	return syncedFoldersComponents[i].Info.Priority > syncedFoldersComponents[j].Info.Priority
-	// })
+	sort.SliceStable(components, func(i, j int) bool {
+		return syncedFolderPriority(components[i].Info.Name) > syncedFolderPriority(components[j].Info.Name)
+	})
+
+	names := make([]string, 0, len(components))
+	for _, c := range components {
+		names = append(names, c.Info.Name)
+	}
+	logger.Debug("Sorted synced folder plugins", "names", names)
 
 	// Remove unallowed types
 	config := m.target.Configuration
 	machineConfig := config.ConfigVm
-	if machineConfig.AllowedSyncedFolderTypes != nil {
-		// TODO
+	if len(machineConfig.AllowedSyncedFolderTypes) > 0 {
+		allowed := make(map[string]struct{})
+		for _, a := range machineConfig.AllowedSyncedFolderTypes {
+			allowed[a] = struct{}{}
+		}
+		k := 0
+		for _, c := range components {
+			if _, ok := allowed[c.Info.Name]; ok {
+				components[k] = c
+				k++
+			} else {
+				logger.Debug("removing disallowed plugin", "type", c.Info.Name)
+			}
+		}
+		components = components[:k]
 	}
 
-	for _, component := range syncedFoldersComponents {
+	for _, component := range components {
 		syncedFolder := component.Value.(core.SyncedFolder)
 		usable, err := syncedFolder.Usable(m)
 		if err != nil {
-			m.logger.Error("synced folder error on usable check",
+			logger.Error("synced folder error on usable check",
 				"plugin", component.Info.Name,
 				"type", "SyncedFolder",
 				"error", err)
 			continue
 		}
 		if usable {
+			logger.Info("returning default", "name", component.Info.Name)
 			return &component.Info.Name, nil
+		} else {
+			logger.Debug("skipping unusable plugin", "name", component.Info.Name)
 		}
 	}
+
 	return nil, fmt.Errorf("failed to detect guest plugin for current platform")
 }
 
