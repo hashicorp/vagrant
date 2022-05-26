@@ -5,7 +5,7 @@ import (
 	"github.com/hashicorp/vagrant/builtin/httpdownloader/downloader"
 )
 
-//go:generate protoc -I ../../.. --go_opt=plugins=grpc --go_out=../../.. vagrant-ruby/builtin/httpdownloader/proto/plugin.proto
+//go:generate stringer -type=HTTPMethod -linecomment ./downloader
 
 var PluginOptions = []sdk.Option{
 	sdk.WithComponents(

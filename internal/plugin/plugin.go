@@ -15,7 +15,7 @@ import (
 	"github.com/hashicorp/vagrant-plugin-sdk/core"
 	"github.com/hashicorp/vagrant-plugin-sdk/internal-shared/cacher"
 	"github.com/hashicorp/vagrant-plugin-sdk/internal-shared/cleanup"
-	"github.com/hashicorp/vagrant/builtin/filedownloader"
+	"github.com/hashicorp/vagrant/builtin/httpdownloader"
 	"github.com/hashicorp/vagrant/builtin/myplugin"
 	"github.com/hashicorp/vagrant/builtin/otherplugin"
 )
@@ -34,7 +34,7 @@ var (
 	Builtins = map[string][]sdk.Option{
 		"myplugin":       myplugin.CommandOptions,
 		"otherplugin":    otherplugin.CommandOptions,
-		"filedownloader": filedownloader.PluginOptions,
+		"httpdownloader": httpdownloader.PluginOptions,
 	}
 )
 

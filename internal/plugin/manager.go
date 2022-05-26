@@ -35,6 +35,7 @@ var (
 		component.MapperType,
 		component.PluginInfoType,
 		component.PushType,
+		component.DownloaderType,
 	}
 )
 
