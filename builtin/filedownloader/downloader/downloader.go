@@ -1,10 +1,10 @@
 package downloader
 
 import (
+	"io/ioutil"
 	"net/http"
-	"time"
+	"os"
 
-	"github.com/hashicorp/go-getter"
 	"github.com/hashicorp/vagrant-plugin-sdk/component"
 )
 
@@ -28,19 +28,20 @@ func (d *Downloader) DownloadFunc() interface{} {
 }
 
 func (d *Downloader) Download() (err error) {
-	httpGetter := &getter.HttpGetter{
-		Netrc:            false,
-		HeadFirstTimeout: 10 * time.Second,
-		Header:           d.config.Headers,
-		ReadTimeout:      30 * time.Second,
-		MaxBytes:         500000000, // 500 MB
+	client := &http.Client{}
+	req, err := http.NewRequest("GET", d.config.Src, nil)
+	req.Header = d.config.Headers
+	resp, err := client.Do(req)
+	if err != nil {
+		return err
 	}
-	err = getter.Get(d.config.Dest, d.config.Src, getter.WithGetters(
-		map[string]getter.Getter{
-			"https": httpGetter,
-			"http":  httpGetter,
-		},
-	))
+	defer resp.Body.Close()
+
+	data, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return err
+	}
+	err = os.WriteFile(d.config.Dest, data, 0644)
 	return
 }
 
