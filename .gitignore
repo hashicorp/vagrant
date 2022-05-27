@@ -63,3 +63,10 @@ cover.out
 
 # nektos/act secrets file
 .secrets
+
+# delve debug binary
+__debug_bin
+
+# solargraph (ruby lsp) & rubocop
+.solargraph.yml
+.rubocop.yml

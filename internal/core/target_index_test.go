@@ -44,12 +44,6 @@ func TestTargetIndexGet(t *testing.T) {
 	// Add targets
 	projectTargets(t, tp, 3)
 
-	// Get by target name
-	target, err = ti.Get("target-1")
-	require.NoError(t, err)
-	rid, _ := target.ResourceId()
-	require.Equal(t, rid, "id-1")
-
 	// Get by target id
 	target, err = ti.Get("uuid-1")
 	require.NoError(t, err)
@@ -71,11 +65,6 @@ func TestTargetIndexIncludes(t *testing.T) {
 
 	// Add targets
 	projectTargets(t, tp, 3)
-
-	// Includes by target name
-	exists, err = ti.Includes("target-1")
-	require.NoError(t, err)
-	require.True(t, exists)
 
 	// Includes by target id
 	exists, err = ti.Includes("uuid-1")

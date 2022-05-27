@@ -9,7 +9,7 @@ module VagrantPlugins
           super
           caps = Vagrant.plugin("2").local_manager.provider_capabilities
           default_args = {
-            Client::Target::Machine => SDK::Args::Target::Machine
+            Vagrant::Machine => SDK::Args::Target::Machine
           }
           initialize_capability_platform!(caps, default_args)
         end

@@ -81,7 +81,6 @@ module Vagrant
       return Machine.new(name, provider, provider_cls, provider_config,
         provider_options, config, data_path, box, env, self)
     end
-
     # Returns the configuration for a single machine.
     #
     # When loading a box Vagrantfile, it will be prepended to the

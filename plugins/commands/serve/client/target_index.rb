@@ -2,7 +2,7 @@ module VagrantPlugins
   module CommandServe
     class Client
       class TargetIndex < Client
-        # @param [string]
+        # @param [String]
         # @return [Boolean] true if delete is successful
         def delete(ident)
           logger.debug("deleting machine with id #{ident} from index")
@@ -14,8 +14,8 @@ module VagrantPlugins
           true
         end
 
-        # @param [string]
-        # @return [MachineIndex::Entry]
+        # @param [String]
+        # @return [Vagrant::MachineIndex::Entry]
         def get(ident)
           logger.debug("getting machine with id #{ident} from index")
           begin
@@ -31,7 +31,7 @@ module VagrantPlugins
           end
         end
 
-        # @param [string]
+        # @param [String]
         # @return [Boolean]
         def include?(ident)
           logger.debug("checking for machine with id #{ident} in index")
@@ -42,8 +42,8 @@ module VagrantPlugins
           ).exists
         end
 
-        # @param [MachineIndex::Entry]
-        # @return [MachineIndex::Entry]
+        # @param [Vagrant::MachineIndex::Entry]
+        # @return [Vagrant::MachineIndex::Entry]
         def set(entry)
           logger.debug("setting machine #{entry} in index")
           if entry.id.to_s.empty?
@@ -62,7 +62,7 @@ module VagrantPlugins
         end
 
         # Get all targets
-        # @return [Array<MachineIndex::Entry>]
+        # @return [Array<Vagrant::MachineIndex::Entry>]
         def all
           logger.debug("getting all machines")
           client.all(Empty.new).targets.map do |t_ref|

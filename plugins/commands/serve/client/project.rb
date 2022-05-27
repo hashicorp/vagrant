@@ -54,10 +54,15 @@ module VagrantPlugins
           resp.path
         end
 
-        # return [String]
-        def default_provider
-          resp = client.default_provider(Empty.new)
-          resp.provider_name
+        def default_provider(opts)
+          req = ::Hashicorp::Vagrant::Sdk::Project::DefaultProviderRequest.new(
+            exclude: opts.fetch(:exclude, []),
+            force_default: opts.fetch(:force_default, true),
+            check_usable: opts.fetch(:check_usable, true),
+            machine_name: opts[:machine],
+          )
+          resp = client.default_provider(req)
+          resp.provider_name.to_sym
         end
 
         # return [String]
@@ -79,8 +84,11 @@ module VagrantPlugins
         end
 
         # return [Vagrant::Machine]
-        def machine(name)
-          t = client.target(SDK::Project::TargetRequest.new(name: name))
+        def machine(name, provider)
+          t = client.target(SDK::Project::TargetRequest.new(
+            name: name,
+            provider: provider,
+          ))
           machine = mapper.map(t, to: Vagrant::Machine)
           return machine
         end
@@ -124,9 +132,14 @@ module VagrantPlugins
 
         # Returns a machine client for the given name
         # return [VagrantPlugins::CommandServe::Client::Target::Machine]
-        def target(name)
+        def target(name, provider)
           target = Target.load(
-            client.target(SDK::Project::TargetRequest.new(name: name)),
+            client.target(
+              SDK::Project::TargetRequest.new(
+                name: name,
+                provider: provider,
+              )
+            ),
             broker: broker
           )
           target.to_machine

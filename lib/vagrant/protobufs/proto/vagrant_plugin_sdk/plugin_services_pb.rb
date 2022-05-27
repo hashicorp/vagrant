@@ -472,7 +472,7 @@ module Hashicorp
           rpc :CWD, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::Args::Path
           rpc :DataDir, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::Args::DataDir::Project
           rpc :DefaultPrivateKey, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::Args::Path
-          rpc :DefaultProvider, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::Project::DefaultProviderResponse
+          rpc :DefaultProvider, ::Hashicorp::Vagrant::Sdk::Project::DefaultProviderRequest, ::Hashicorp::Vagrant::Sdk::Project::DefaultProviderResponse
           rpc :Home, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::Args::Path
           rpc :Host, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::Args::Host
           rpc :LocalData, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::Args::Path

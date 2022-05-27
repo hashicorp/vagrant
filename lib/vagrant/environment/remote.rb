@@ -102,15 +102,16 @@ module Vagrant
       end
 
       def default_provider(**opts)
-        client.respond_to?(:default_provider) && client.default_provider.to_sym
+        client.respond_to?(:default_provider) && client.default_provider(opts)
       end
 
       # Gets a target (machine) by name
       #
       # @param [String] machine name
+      # @param [String] provider name
       # return [VagrantPlugins::CommandServe::Client::Machine]
-      def get_target(name)
-        client.target(name)
+      def get_target(name, provider)
+        client.target(name, provider)
       end
 
       # Returns the host object associated with this environment.
@@ -126,8 +127,8 @@ module Vagrant
 
       # @param [String] machine name
       # return [Vagrant::Machine]
-      def machine(name, *_, **_)
-        client.machine(name)
+      def machine(name, provider, **_)
+        client.machine(name, provider)
       end
 
       def machine_names

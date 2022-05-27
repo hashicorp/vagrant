@@ -101,6 +101,7 @@ func TestMachineGetNonExistentBox(t *testing.T) {
 		WithTestTargetConfig(&vagrant_plugin_sdk.Vagrantfile_MachineConfig{
 			ConfigVm: &vagrant_plugin_sdk.Vagrantfile_ConfigVM{Box: "somebox"},
 		}),
+		WithTestTargetProvider("testprovider"),
 	)
 
 	box, err := tm.Box()
@@ -110,7 +111,7 @@ func TestMachineGetNonExistentBox(t *testing.T) {
 	require.Equal(t, name, "somebox")
 	provider, err := box.Provider()
 	require.NoError(t, err)
-	require.NotEmpty(t, provider)
+	require.Equal(t, provider, "testprovider")
 	metaurl, err := box.MetadataURL()
 	require.NoError(t, err)
 	require.Empty(t, metaurl)
@@ -283,6 +284,7 @@ func syncedFolderPlugin(t *testing.T, name string) *plugin.Plugin {
 		plugin.WithPluginTypes(component.SyncedFolderType),
 	)
 }
+
 func TestMachineSyncedFolders(t *testing.T) {
 	mySyncedFolder := syncedFolderPlugin(t, "mysyncedfolder")
 	myOtherSyncedFolder := syncedFolderPlugin(t, "myothersyncedfolder")

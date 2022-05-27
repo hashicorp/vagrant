@@ -47,15 +47,7 @@ func (t *TargetIndex) Get(uuid string) (entry core.Target, err error) {
 		},
 	})
 	if err != nil {
-		// Search name if not found by uuid
-		result, err = t.client.FindTarget(t.ctx, &vagrant_server.FindTargetRequest{
-			Target: &vagrant_server.Target{
-				Name: uuid,
-			},
-		})
-		if err != nil {
-			return
-		}
+		return
 	}
 	return t.loadTarget(&vagrant_plugin_sdk.Ref_Target{
 		ResourceId: result.Target.ResourceId,

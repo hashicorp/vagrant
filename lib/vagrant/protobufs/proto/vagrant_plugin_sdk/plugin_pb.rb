@@ -668,6 +668,12 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
     add_message "hashicorp.vagrant.sdk.Project.CwdResponse" do
       optional :path, :string, 1
     end
+    add_message "hashicorp.vagrant.sdk.Project.DefaultProviderRequest" do
+      optional :check_usable, :bool, 1
+      repeated :exclude, :string, 2
+      optional :force_default, :bool, 3
+      optional :machine_name, :string, 4
+    end
     add_message "hashicorp.vagrant.sdk.Project.DefaultProviderResponse" do
       optional :provider_name, :string, 1
     end
@@ -685,6 +691,7 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
     end
     add_message "hashicorp.vagrant.sdk.Project.TargetRequest" do
       optional :name, :string, 1
+      optional :provider, :string, 2
     end
     add_message "hashicorp.vagrant.sdk.Project.TargetNamesResponse" do
       repeated :names, :string, 1
@@ -1114,6 +1121,7 @@ module Hashicorp
       Project::ActiveTargetsResponse = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Project.ActiveTargetsResponse").msgclass
       Project::ConfigResponse = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Project.ConfigResponse").msgclass
       Project::CwdResponse = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Project.CwdResponse").msgclass
+      Project::DefaultProviderRequest = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Project.DefaultProviderRequest").msgclass
       Project::DefaultProviderResponse = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Project.DefaultProviderResponse").msgclass
       Project::HomeResponse = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Project.HomeResponse").msgclass
       Project::LocalDataResponse = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Project.LocalDataResponse").msgclass

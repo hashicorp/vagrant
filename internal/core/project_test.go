@@ -45,17 +45,17 @@ func TestProjectGetTarget(t *testing.T) {
 	}
 
 	// Get by id
-	one, err := tp.Target("id-one")
+	one, err := tp.Target("id-one", "")
 	require.NoError(t, err)
 	require.Equal(t, targetOne, one)
 
 	// Get by name
-	two, err := tp.Target("target-two")
+	two, err := tp.Target("target-two", "")
 	require.NoError(t, err)
 	require.Equal(t, targetTwo, two)
 
 	// Get target that doesn't exist
-	noexist, err := tp.Target("ohnooooo")
+	noexist, err := tp.Target("ohnooooo", "")
 	require.Error(t, err)
 	require.Nil(t, noexist)
 }
