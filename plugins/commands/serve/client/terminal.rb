@@ -19,7 +19,7 @@ module VagrantPlugins
         end
 
         def is_interactive
-          client.is_interactive.interactive
+          client.is_interactive(Empty.new).interactive
         end
 
         def input(prompt, **opts)

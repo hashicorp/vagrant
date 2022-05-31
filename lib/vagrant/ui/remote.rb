@@ -20,6 +20,7 @@ module Vagrant
       def initialize(client)
         super()
         @client = client
+        @logger = Log4r::Logger.new("vagrant::ui")
       end
 
       def clear_line
@@ -43,6 +44,11 @@ module Vagrant
       end
 
       def machine(type, *data)
+        if client.is_interactive
+          @logger.info("Machine: #{type} #{data.inspect}")
+          return
+        end
+
         opts = {}
         opts = data.pop if data.last.kind_of?(Hash)
         target = opts[:target] || ""
