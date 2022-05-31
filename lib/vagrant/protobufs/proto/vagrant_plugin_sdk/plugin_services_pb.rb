@@ -26,6 +26,7 @@ module Hashicorp
           rpc :Output, ::Hashicorp::Vagrant::Sdk::TerminalUI::OutputRequest, ::Google::Protobuf::Empty
           rpc :Events, stream(::Hashicorp::Vagrant::Sdk::TerminalUI::Event), stream(::Hashicorp::Vagrant::Sdk::TerminalUI::Response)
           rpc :IsInteractive, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::TerminalUI::IsInteractiveResponse
+          rpc :IsMachineReadable, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::TerminalUI::IsMachineReadableResponse
         end
 
         Stub = Service.rpc_stub_class
