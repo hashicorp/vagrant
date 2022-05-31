@@ -44,7 +44,7 @@ module Vagrant
       end
 
       def machine(type, *data)
-        if client.is_interactive
+        if !client.is_machine_readable
           @logger.info("Machine: #{type} #{data.inspect}")
           return
         end

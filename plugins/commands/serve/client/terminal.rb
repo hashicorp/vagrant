@@ -22,6 +22,10 @@ module VagrantPlugins
           client.is_interactive(Empty.new).interactive
         end
 
+        def is_machine_readable
+          client.is_machine_readable(Empty.new).machine_readable
+        end
+
         def input(prompt, **opts)
           event_resp = client.events(
             [
