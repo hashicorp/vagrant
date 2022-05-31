@@ -72,6 +72,36 @@ module VagrantPlugins
             ].each
           ).each {}
         end
+
+        # @params [Map] data has the table data for the event. The form of
+        # this map is:
+        #   { headers: List<string>, rows: List<List<string>> }
+        def table(data, **opts)
+          rows = data[:rows].map { |r|
+            SDK::TerminalUI::Event::TableRow.new(
+              entries: r.map { |e|
+                SDK::TerminalUI::Event::TableEntry.new(value: e.to_s)
+              }
+            )
+          }
+          event_resp = client.events(
+            [
+              SDK::TerminalUI::Event.new(
+                table: SDK::TerminalUI::Event::Table.new(
+                  headers: data[:headers],
+                  rows: rows
+                )
+              ),
+            ].each
+          )
+
+          event_resp.map { |resp|
+            input = resp.input
+            if !input.error.nil?
+              raise Vagrant::Errors::VagrantRemoteError, msg: input.error.message
+            end
+          }
+        end
       end
     end
   end

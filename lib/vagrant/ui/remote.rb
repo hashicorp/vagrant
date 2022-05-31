@@ -45,7 +45,6 @@ module Vagrant
       def machine(type, *data)
         opts = {}
         opts = data.pop if data.last.kind_of?(Hash)
-
         target = opts[:target] || ""
 
         # Prepare the data by replacing characters that aren't outputted
@@ -55,13 +54,11 @@ module Vagrant
           data[i].gsub!("\n", "\\n")
           data[i].gsub!("\r", "\\r")
         end
+        table_data = {
+          rows: [[Time.now.utc.to_i, target, type, data.join(",")]]
+        }
 
-        # Avoid locks in a trap context introduced from Ruby 2.0
-        Thread.new do
-          @lock.synchronize do
-            safe_puts(["#{Time.now.utc.to_i},#{target},#{type},#{data.join(",")}", {}], {})
-          end
-        end.join(THREAD_MAX_JOIN_TIMEOUT)
+        client.table(table_data, **opts)
       end
 
       def to_proto
