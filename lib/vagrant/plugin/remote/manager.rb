@@ -174,18 +174,18 @@ module Vagrant
         # This returns all command implementations.
         #
         # @return [Registry]
-        # def commands
-        #   Registry.new.tap do |result|
-        #     plugin_manager.list_plugins(:command).each do |plg|
-        #       sf_class = Class.new(Remote::Command, &WRAPPER_CLASS)
-        #       sf_class.plugin_name = plg[:name]
-        #       sf_class.type = plg[:type]
-        #       result.register(plg[:name].to_sym) do
-        #         [proc{sf_class}, {}] # TODO(spox): Options hash should be what?
-        #       end
-        #     end
-        #   end
-        # end
+        def commands
+          Registry.new.tap do |result|
+            plugin_manager.list_plugins(:command).each do |plg|
+              sf_class = Class.new(Remote::Command, &WRAPPER_CLASS)
+              sf_class.plugin_name = plg[:name]
+              sf_class.type = plg[:type]
+              result.register(plg[:name].to_sym) do
+                [proc{sf_class}]
+              end
+            end
+          end
+        end
 
         # This returns all communicator implementations.
         #

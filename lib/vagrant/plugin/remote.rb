@@ -3,6 +3,7 @@ require "log4r"
 module Vagrant
   module Plugin
     module Remote
+      autoload :Command, "vagrant/plugin/remote/command"
       autoload :Communicator, "vagrant/plugin/remote/communicator"
       autoload :Guest, "vagrant/plugin/remote/guest"
       autoload :Manager, "vagrant/plugin/remote/manager"
