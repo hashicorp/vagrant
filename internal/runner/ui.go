@@ -42,6 +42,10 @@ func (u *runnerUI) Interactive() bool {
 	return false
 }
 
+func (u *runnerUI) MachineReadable() bool {
+	return false
+}
+
 func (u *runnerUI) ClearLine() {
 	// NO-OP - noninteractive
 }

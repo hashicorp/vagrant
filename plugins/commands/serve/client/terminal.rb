@@ -19,7 +19,11 @@ module VagrantPlugins
         end
 
         def is_interactive
-          client.is_interactive.interactive
+          client.is_interactive(Empty.new).interactive
+        end
+
+        def is_machine_readable
+          client.is_machine_readable(Empty.new).machine_readable
         end
 
         def input(prompt, **opts)
@@ -71,6 +75,36 @@ module VagrantPlugins
               )
             ].each
           ).each {}
+        end
+
+        # @params [Map] data has the table data for the event. The form of
+        # this map is:
+        #   { headers: List<string>, rows: List<List<string>> }
+        def table(data, **opts)
+          rows = data[:rows].map { |r|
+            SDK::TerminalUI::Event::TableRow.new(
+              entries: r.map { |e|
+                SDK::TerminalUI::Event::TableEntry.new(value: e.to_s)
+              }
+            )
+          }
+          event_resp = client.events(
+            [
+              SDK::TerminalUI::Event.new(
+                table: SDK::TerminalUI::Event::Table.new(
+                  headers: data[:headers],
+                  rows: rows
+                )
+              ),
+            ].each
+          )
+
+          event_resp.map { |resp|
+            input = resp.input
+            if !input.error.nil?
+              raise Vagrant::Errors::VagrantRemoteError, msg: input.error.message
+            end
+          }
         end
       end
     end

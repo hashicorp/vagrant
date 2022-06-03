@@ -52,6 +52,15 @@ func (u *multiUI) Interactive() bool {
 	return false
 }
 
+func (u *multiUI) MachineReadable() bool {
+	for _, u := range u.UIs {
+		if u.MachineReadable() {
+			return true
+		}
+	}
+	return false
+}
+
 func (u *multiUI) Output(msg string, raw ...interface{}) {
 	for _, u := range u.UIs {
 		u.Output(msg, raw...)

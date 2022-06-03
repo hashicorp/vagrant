@@ -308,6 +308,9 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
     add_message "hashicorp.vagrant.sdk.TerminalUI.IsInteractiveResponse" do
       optional :interactive, :bool, 1
     end
+    add_message "hashicorp.vagrant.sdk.TerminalUI.IsMachineReadableResponse" do
+      optional :machine_readable, :bool, 1
+    end
     add_message "hashicorp.vagrant.sdk.TerminalUI.OutputRequest" do
       repeated :lines, :string, 1
       optional :style, :enum, 2, "hashicorp.vagrant.sdk.TerminalUI.OutputRequest.Style"
@@ -1020,6 +1023,7 @@ module Hashicorp
       ImplementsResp = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.ImplementsResp").msgclass
       TerminalUI = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.TerminalUI").msgclass
       TerminalUI::IsInteractiveResponse = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.TerminalUI.IsInteractiveResponse").msgclass
+      TerminalUI::IsMachineReadableResponse = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.TerminalUI.IsMachineReadableResponse").msgclass
       TerminalUI::OutputRequest = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.TerminalUI.OutputRequest").msgclass
       TerminalUI::OutputRequest::Style = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.TerminalUI.OutputRequest.Style").enummodule
       TerminalUI::Response = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.TerminalUI.Response").msgclass

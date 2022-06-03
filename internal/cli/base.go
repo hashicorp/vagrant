@@ -91,6 +91,9 @@ type baseCommand struct {
 	// flagInteractive is whether the output is interactive
 	flagInteractive bool
 
+	// flagMachineReadable is whether the terminal ui should only output machine readable data
+	flagMachineReadable bool
+
 	// flagConnection contains manual flag-based connection info.
 	flagConnection clicontext.Config
 
@@ -154,8 +157,11 @@ func BaseCommand(ctx context.Context, log hclog.Logger, logOutput io.Writer, opt
 
 	// Set UI
 	var ui terminal.UI
-	// Set non interactive if the --no-interactive flag is provided
-	if !bc.flagInteractive {
+	if bc.flagMachineReadable {
+		// Set machine readable ui if the --machine-readable flag is provided
+		ui = terminal.MachineReadableUI(ctx, terminal.TableFormat)
+	} else if !bc.flagInteractive {
+		// Set non interactive if the --no-interactive flag is provided
 		ui = terminal.NonInteractiveUI(ctx)
 	} else {
 		// If no ui related flags are set, create a new one
@@ -285,8 +291,11 @@ func (c *baseCommand) Init(opts ...Option) (err error) {
 
 	// Set UI
 	var ui terminal.UI
-	// Set non interactive if the --no-interactive flag is provided
-	if !c.flagInteractive {
+	if c.flagMachineReadable {
+		// Set machine readable ui if the --machine-readable flag is provided
+		ui = terminal.MachineReadableUI(c.Ctx, terminal.TableFormat)
+	} else if !c.flagInteractive {
+		// Set non interactive if the --no-interactive flag is provided
 		ui = terminal.NonInteractiveUI(c.Ctx)
 	} else {
 		// If no ui related flags are set, use the base config ui
@@ -407,6 +416,12 @@ func (c *baseCommand) flagSet(bit flagSetBit, f func([]*component.CommandFlag) [
 			DefaultValue: "true",
 			Type:         component.FlagBool,
 		},
+		{
+			LongName:     "machine-readable",
+			Description:  "Target to apply command",
+			DefaultValue: "false",
+			Type:         component.FlagBool,
+		},
 	}
 
 	if bit&flagSetOperation != 0 {
@@ -493,6 +508,8 @@ func (c *baseCommand) Parse(
 			c.flagRemote = pf.DefaultValue().(bool)
 		case "interactive":
 			c.flagInteractive = pf.DefaultValue().(bool)
+		case "machine-readable":
+			c.flagMachineReadable = pf.DefaultValue().(bool)
 		}
 		if !pf.Updated() {
 			continue
@@ -509,6 +526,8 @@ func (c *baseCommand) Parse(
 			c.flagRemote = pf.Value().(bool)
 		case "interactive":
 			c.flagInteractive = pf.Value().(bool)
+		case "machine-readable":
+			c.flagMachineReadable = pf.Value().(bool)
 		}
 		c.flagData[f] = pf.Value()
 	}
