@@ -32,6 +32,9 @@ message Plugin {
   // type of the plugin
   Type type = 2;
 
+  // options for the plugin
+  google.protobuf.Any options = 3;
+
   // Supported plugin types, the values here MUST match the enum values
   // in the Go sdk/component package exactly. A test in internal/server
   // validates this.

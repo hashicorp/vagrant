@@ -22,7 +22,13 @@ module VagrantPlugins
             [:pushes, :PUSH],
             [:synced_folders, :SYNCEDFOLDER]].map do |method, const|
             plugin_manager.send(method).map do |k, v|
-              Hashicorp::Vagrant::Plugin.new(name: k, type: Hashicorp::Vagrant::Plugin::Type.const_get(const))
+              Hashicorp::Vagrant::Plugin.new(
+                name: k,
+                type: Hashicorp::Vagrant::Plugin::Type.const_get(const),
+                options: Google::Protobuf::Any.pack(
+                  _convert_options_to_proto(const, v)
+                )
+              )
             end
           end.flatten
           Hashicorp::Vagrant::GetPluginsResponse.new(
@@ -78,6 +84,39 @@ module VagrantPlugins
           Hashicorp::Vagrant::ParseVagrantfileResponse.new(
             vagrantfile: vagrantfile
           )
+        end
+
+        def _convert_options_to_proto(type, class_or_tuple_with_class_and_options)
+          case type
+          when :COMMAND
+            # _, command_options = class_or_tuple_with_class_and_options
+            return Google::Protobuf::Empty.new
+          when :COMMUNICATOR
+            # No options for communicators
+            return Google::Protobuf::Empty.new
+          when :GUEST
+            # No options for guests
+            return Google::Protobuf::Empty.new
+          when :HOST
+            # _, parent = class_or_tuple_with_class_and_options
+            return Google::Protobuf::Empty.new
+          when :PROVIDER
+            _, popts = class_or_tuple_with_class_and_options
+            return SDK::PluginInfo::ProviderOptions.new(
+              priority:     popts[:priority],
+              parallel:     !!popts[:parallel],
+              box_optional: !!popts[:box_optional],
+              defaultable:  !!popts[:defaultable],
+            )
+          when :PROVISIONER
+            return Google::Protobuf::Empty.new
+          when :PUSH
+            return Google::Protobuf::Empty.new
+          when :SYNCEDFOLDER
+            return Google::Protobuf::Empty.new
+          else
+            raise "Cannot convert options for unknown component type: #{type}"
+          end
         end
       end
     end

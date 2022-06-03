@@ -440,6 +440,15 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
     add_message "hashicorp.vagrant.sdk.PluginInfo.Name" do
       optional :name, :string, 1
     end
+    add_message "hashicorp.vagrant.sdk.PluginInfo.ComponentOptionsMap" do
+      map :options, :uint32, :message, 1, "google.protobuf.Any"
+    end
+    add_message "hashicorp.vagrant.sdk.PluginInfo.ProviderOptions" do
+      optional :priority, :int32, 1
+      optional :parallel, :bool, 2
+      optional :box_optional, :bool, 3
+      optional :defaultable, :bool, 4
+    end
     add_message "hashicorp.vagrant.sdk.PluginManager" do
     end
     add_message "hashicorp.vagrant.sdk.PluginManager.PluginsRequest" do
@@ -1056,6 +1065,8 @@ module Hashicorp
       PluginInfo = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.PluginInfo").msgclass
       PluginInfo::ComponentList = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.PluginInfo.ComponentList").msgclass
       PluginInfo::Name = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.PluginInfo.Name").msgclass
+      PluginInfo::ComponentOptionsMap = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.PluginInfo.ComponentOptionsMap").msgclass
+      PluginInfo::ProviderOptions = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.PluginInfo.ProviderOptions").msgclass
       PluginManager = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.PluginManager").msgclass
       PluginManager::PluginsRequest = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.PluginManager.PluginsRequest").msgclass
       PluginManager::PluginsResponse = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.PluginManager.PluginsResponse").msgclass

@@ -2,9 +2,11 @@ package myplugin
 
 import (
 	sdk "github.com/hashicorp/vagrant-plugin-sdk"
+	"github.com/hashicorp/vagrant-plugin-sdk/component"
 	"github.com/hashicorp/vagrant/builtin/myplugin/command"
-	communincator "github.com/hashicorp/vagrant/builtin/myplugin/communicator"
+	"github.com/hashicorp/vagrant/builtin/myplugin/communicator"
 	"github.com/hashicorp/vagrant/builtin/myplugin/host"
+	"github.com/hashicorp/vagrant/builtin/myplugin/provider"
 	"github.com/hashicorp/vagrant/builtin/myplugin/push"
 )
 
@@ -19,9 +21,12 @@ var CommandOptions = []sdk.Option{
 		// &Provider{},
 		&command.Command{},
 		&host.AlwaysTrueHost{},
-		&communincator.DummyCommunicator{},
+		&communicator.DummyCommunicator{},
 		&push.Encouragement{},
 	),
+	sdk.WithComponent(&provider.Happy{}, &component.ProviderOptions{
+		Priority: 100,
+	}),
 	sdk.WithMappers(StructToCommunincatorOptions),
 	sdk.WithName("myplugin"),
 }

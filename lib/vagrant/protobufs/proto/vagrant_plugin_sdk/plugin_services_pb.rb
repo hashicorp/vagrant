@@ -82,6 +82,7 @@ module Hashicorp
           self.service_name = 'hashicorp.vagrant.sdk.PluginInfoService'
 
           rpc :ComponentTypes, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::PluginInfo::ComponentList
+          rpc :ComponentOptions, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::PluginInfo::ComponentOptionsMap
           rpc :Name, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::PluginInfo::Name
         end
 
