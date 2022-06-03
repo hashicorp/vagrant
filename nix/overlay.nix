@@ -1,6 +1,6 @@
 final: prev: rec {
   # This is the pinned protoc version we have for this project.
-  protobufPin = prev.protobuf3_15;
+  protobufPin = prev.protobuf3_19;
 
   ruby = final.ruby_2_7;
 
