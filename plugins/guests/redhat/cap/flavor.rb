@@ -14,6 +14,8 @@ module VagrantPlugins
             return :rhel_7
           elsif output =~ /(Red Hat Enterprise|Scientific|Cloud|Virtuozzo)\s*Linux( .+)? release 8/i
             return :rhel_8
+          elsif output =~ /(Red Hat Enterprise|Scientific|Cloud|Virtuozzo)\s*Linux( .+)? release 9/i
+            return :rhel_9
           else
             return :rhel
           end

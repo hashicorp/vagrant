@@ -14,6 +14,8 @@ module VagrantPlugins
             return :centos_7
           elsif output =~ /(CentOS)( .+)? 8/i
             return :centos_8
+          elsif output =~ /(CentOS)( .+)? 9/i
+            return :centos_9
           else
             return :centos
           end
