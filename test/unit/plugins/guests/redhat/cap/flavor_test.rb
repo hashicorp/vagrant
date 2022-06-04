@@ -21,22 +21,31 @@ describe "VagrantPlugins::GuestRedHat::Cap::Flavor" do
   describe ".flavor" do
     let(:cap) { caps.get(:flavor) }
 
-    {
-      "Red Hat Enterprise Linux 2.4 release 7" => :rhel_7,
-      "Red Hat Enterprise Linux release 7" => :rhel_7,
-      "Scientific Linux release 7" => :rhel_7,
-      "CloudLinux release 7.2 (Valeri Kubasov)" => :rhel_7,
-
-      "CloudLinux release 8.1.1911 (Valeri Kubasov)" => :rhel_8,
-      "Red Hat Enterprise Linux release 8" => :rhel_8,
-
-      "Red Hat Enterprise Linux" => :rhel,
-      "RHEL 6" => :rhel,
-      "banana" => :rhel,
-    }.each do |str, expected|
-      it "returns #{expected} for #{str}" do
-        comm.stub_command("cat /etc/redhat-release", stdout: str)
-        expect(cap.flavor(machine)).to be(expected)
+    # /etc/os-release was added in EL7+
+    context "without /etc/os-release file" do
+      {
+        "" => :rhel
+      }.each do |str, expected|
+        it "returns #{expected} for #{str}" do
+          comm.stub_command("test -f /etc/os-release", exit_code: 1)
+          expect(cap.flavor(machine)).to be(expected)
+        end
+      end
+    end
+    context "with /etc/os-release file" do
+      {
+        "7" => :rhel_7,
+        "8" => :rhel_8,
+        "9.0" => :rhel_9,
+        "9.1" => :rhel_9,
+        "" => :rhel,
+        "banana" => :rhel,
+      }.each do |str, expected|
+        it "returns #{expected} for #{str}" do
+          comm.stub_command("test -f /etc/os-release", exit_code: 0)
+          comm.stub_command("source /etc/os-release && printf $VERSION_ID", stdout: str)
+          expect(cap.flavor(machine)).to be(expected)
+        end
       end
     end
   end
