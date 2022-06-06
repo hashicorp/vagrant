@@ -231,46 +231,33 @@ func StringToPathFunc() mapstructure.DecodeHookFunc {
 	}
 }
 
-// TEMP: until we have plugin priority being sent along at registration, we are
-// manually mirroring the plugin priorities from legacy vagrant
-func syncedFolderPriority(name string) int {
-	switch name {
-	case "nfs":
-		return 5
-	case "rsync":
-		return 5
-	case "smb":
-		return 7
-	default: // covers virtualbox, docker, vmware
-		return 10
-	}
-}
-
 func (m *Machine) defaultSyncedFolderType() (folderType *string, err error) {
 	logger := m.logger.Named("default-synced-folder-type")
 
 	// Get all available synced folder plugins
-	syncedFolders, err := m.project.basis.typeComponents(m.ctx, component.SyncedFolderType)
+	sfPlugins, err := m.project.basis.plugins.ListPlugins("synced_folder")
 	if err != nil {
 		return
 	}
 
-	// Get all plugin components
-	components := make([]*Component, 0, len(syncedFolders))
-	for _, value := range syncedFolders {
-		components = append(components, value)
+	// Load full plugins so we can read options
+	for i, sfp := range sfPlugins {
+		fullPlugin, err := m.project.basis.plugins.GetPlugin(sfp.Name, sfp.Type)
+		if err != nil {
+			logger.Error("error while loading synced folder plugin: name", sfp.Name, "err", err)
+			return nil, fmt.Errorf("error while loading synced folder plugin: name = %s, err = %s", sfp.Name, err)
+		}
+		sfPlugins[i] = fullPlugin
 	}
 
 	// Sort by plugin priority. Higher is first
-	sort.SliceStable(components, func(i, j int) bool {
-		return syncedFolderPriority(components[i].Info.Name) > syncedFolderPriority(components[j].Info.Name)
+	sort.SliceStable(sfPlugins, func(i, j int) bool {
+		iPriority := sfPlugins[i].Options.(*component.SyncedFolderOptions).Priority
+		jPriority := sfPlugins[j].Options.(*component.SyncedFolderOptions).Priority
+		return iPriority > jPriority
 	})
 
-	names := make([]string, 0, len(components))
-	for _, c := range components {
-		names = append(names, c.Info.Name)
-	}
-	logger.Debug("Sorted synced folder plugins", "names", names)
+	logger.Debug("sorted synced folder plugins", "names", sfPlugins)
 
 	// Remove unallowed types
 	config := m.target.Configuration
@@ -281,32 +268,30 @@ func (m *Machine) defaultSyncedFolderType() (folderType *string, err error) {
 			allowed[a] = struct{}{}
 		}
 		k := 0
-		for _, c := range components {
-			if _, ok := allowed[c.Info.Name]; ok {
-				components[k] = c
+		for _, sfp := range sfPlugins {
+			if _, ok := allowed[sfp.Name]; ok {
+				sfPlugins[k] = sfp
 				k++
 			} else {
-				logger.Debug("removing disallowed plugin", "type", c.Info.Name)
+				logger.Debug("removing disallowed plugin", "type", sfp.Name)
 			}
 		}
-		components = components[:k]
+		sfPlugins = sfPlugins[:k]
 	}
 
-	for _, component := range components {
-		syncedFolder := component.Value.(core.SyncedFolder)
+	// Check for first usable plugin
+	for _, sfp := range sfPlugins {
+		syncedFolder := sfp.Plugin.(core.SyncedFolder)
 		usable, err := syncedFolder.Usable(m)
 		if err != nil {
-			logger.Error("synced folder error on usable check",
-				"plugin", component.Info.Name,
-				"type", "SyncedFolder",
-				"error", err)
+			logger.Error("error on usable check", "plugin", sfp.Name, "error", err)
 			continue
 		}
 		if usable {
-			logger.Info("returning default", "name", component.Info.Name)
-			return &component.Info.Name, nil
+			logger.Info("returning default", "name", sfp.Name)
+			return &sfp.Name, nil
 		} else {
-			logger.Debug("skipping unusable plugin", "name", component.Info.Name)
+			logger.Debug("skipping unusable plugin", "name", sfp.Name)
 		}
 	}
 
