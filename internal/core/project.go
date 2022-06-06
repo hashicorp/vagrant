@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"sort"
 	"strings"
 	"sync"
 
@@ -140,26 +141,33 @@ func (p *Project) DefaultProvider(opts *core.DefaultProviderOptions) (string, er
 		}
 	}
 
-	usableProviders := []string{}
+	usableProviders := []*core.NamedPlugin{}
 	pluginProviders, err := p.basis.plugins.ListPlugins("provider")
 	if err != nil {
 		return "", err
 	}
 	for _, pp := range pluginProviders {
+		logger.Debug("considering plugin", "provider", pp.Name)
+
 		// Skip excluded providers
 		if opts.IsExcluded(pp.Name) {
+			logger.Debug("skipping excluded provider", "provider", pp.Name)
 			continue
 		}
 
-		// TODO: how to check for defaultable?
+		plug, err := p.basis.plugins.GetPlugin(pp.Name, pp.Type)
+		if err != nil {
+			return "", err
+		}
+
+		plugOpts := plug.Options.(*component.ProviderOptions)
+		if !plugOpts.Defaultable {
+			logger.Debug("skipping non-defaultable provider", "provider", pp.Name)
+		}
 
 		// Skip the providers that aren't usable.
 		if opts.CheckUsable {
 			logger.Debug("Checking usable on provider", "provider", pp.Name)
-			plug, err := p.basis.plugins.GetPlugin(pp.Name, pp.Type)
-			if err != nil {
-				return "", err
-			}
 			pluginImpl := plug.Plugin.(core.Provider)
 			usable, err := pluginImpl.Usable()
 			if err != nil {
@@ -171,19 +179,25 @@ func (p *Project) DefaultProvider(opts *core.DefaultProviderOptions) (string, er
 		}
 
 		// If we made it here we have a candidate usable provider
-		usableProviders = append(usableProviders, pp.Name)
+		usableProviders = append(usableProviders, plug)
 	}
 	logger.Debug("Initial usable provider list", "usableProviders", usableProviders)
 
-	// TODO: how to get and sort by provider priority?
+	// Sort by plugin priority, higher is first
+	sort.SliceStable(usableProviders, func(i, j int) bool {
+		iPriority := usableProviders[i].Options.(*component.ProviderOptions).Priority
+		jPriority := usableProviders[j].Options.(*component.ProviderOptions).Priority
+		return iPriority > jPriority
+	})
+	logger.Debug("Priority sorted usable provider list", "usableProviders", usableProviders)
 
 	// If we're not forcing the default, but it's usable and hasn't been
 	// otherwise excluded, return it now.
 	for _, u := range usableProviders {
-		if u == defaultProvider {
+		if u.Name == defaultProvider {
 			logger.Debug("Using default provider as it was found in usable list",
 				"provider", u)
-			return u, nil
+			return u.Name, nil
 		}
 	}
 
@@ -203,7 +217,7 @@ func (p *Project) DefaultProvider(opts *core.DefaultProviderOptions) (string, er
 
 	for _, cp := range configProviders {
 		for _, up := range usableProviders {
-			if cp == up {
+			if cp == up.Name {
 				for _, pp := range preferredProviders {
 					if cp == pp {
 						logger.Debug("Using preferred provider detected in configuration and usable",
@@ -221,7 +235,7 @@ func (p *Project) DefaultProvider(opts *core.DefaultProviderOptions) (string, er
 	//    be chosen on Mac this way. It must be both configured and usable.
 	for _, cp := range configProviders {
 		for _, up := range usableProviders {
-			if cp == up {
+			if cp == up.Name {
 				logger.Debug("Using provider detected in configuration and usable",
 					"provider", cp)
 				return cp, nil
@@ -233,7 +247,7 @@ func (p *Project) DefaultProvider(opts *core.DefaultProviderOptions) (string, er
 	//      first plugin that reports it is usable.
 	for _, pp := range preferredProviders {
 		for _, up := range usableProviders {
-			if pp == up {
+			if pp == up.Name {
 				logger.Debug("Using preffered provider found in usable list",
 					"provider", pp)
 				return pp, nil
@@ -250,7 +264,7 @@ func (p *Project) DefaultProvider(opts *core.DefaultProviderOptions) (string, er
 	if len(usableProviders) > 0 {
 		logger.Debug("Using the first provider from the usable list",
 			"provider", usableProviders[0])
-		return usableProviders[0], nil
+		return usableProviders[0].Name, nil
 	}
 
 	return "", errors.New("No default provider.")

@@ -37,13 +37,14 @@ var (
 )
 
 type Plugin struct {
-	Builtin  bool                  // Flags if this plugin is a builtin plugin
-	Cache    cacher.Cache          // Cache for plugins to utilize in mappers
-	Client   plugin.ClientProtocol // Client connection to plugin
-	Location string                // Location of the plugin (generally path to binary)
-	Mappers  []*argmapper.Func     // Plugin specific mappers
-	Name     string                // Name of the plugin
-	Types    []component.Type      // Component types supported by this plugin
+	Builtin  bool                           // Flags if this plugin is a builtin plugin
+	Cache    cacher.Cache                   // Cache for plugins to utilize in mappers
+	Client   plugin.ClientProtocol          // Client connection to plugin
+	Location string                         // Location of the plugin (generally path to binary)
+	Mappers  []*argmapper.Func              // Plugin specific mappers
+	Name     string                         // Name of the plugin
+	Types    []component.Type               // Component types supported by this plugin
+	Options  map[component.Type]interface{} // Options for supported components
 
 	cleaner cleanup.Cleanup // Cleanup tasks to perform on closing
 	logger  hclog.Logger
@@ -166,6 +167,7 @@ func (p *Plugin) InstanceOf(
 		Mappers: p.Mappers,
 		Name:    p.Name,
 		Type:    c,
+		Options: p.Options[c],
 	}
 
 	// Be sure the instance is close when the plugin is closed

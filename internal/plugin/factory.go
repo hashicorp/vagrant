@@ -98,12 +98,18 @@ func Factory(
 			"mappers", mappers,
 		)
 
+		log.Info("plugin components and options",
+			"components", info.ComponentTypes(),
+			"options", info.ComponentOptions(),
+		)
+
 		p = &Plugin{
 			Builtin:  false,
 			Client:   rpcClient,
 			Location: cmd.Path,
 			Name:     info.Name(),
 			Types:    info.ComponentTypes(),
+			Options:  info.ComponentOptions(),
 			Mappers:  mappers,
 			cleaner:  cleanup.New(),
 			logger:   nlog.Named(info.Name()),
@@ -136,14 +142,20 @@ func RubyFactory(
 	rubyClient plugin.ClientProtocol,
 	name string,
 	typ component.Type,
+	optsProto interface{},
 ) PluginRegistration {
 	return func(log hclog.Logger) (*Plugin, error) {
+		options, err := component.UnmarshalOptionsProto(typ, optsProto)
+		if err != nil {
+			return nil, err
+		}
 		return &Plugin{
 			Builtin:  false,
 			Client:   rubyClient,
 			Location: "ruby-runtime",
 			Name:     name,
 			Types:    []component.Type{typ},
+			Options:  map[component.Type]interface{}{typ: options},
 			cleaner:  cleanup.New(),
 			logger: log.ResetNamed(
 				fmt.Sprintf("vagrant.legacy-plugin.%s.%s", strings.ToLower(typ.String()), name),
@@ -163,6 +175,9 @@ type Instance struct {
 
 	// Component is the dispensed component
 	Component interface{}
+
+	// Options for component type, see PluginInfo.ComponentOptions
+	Options interface{}
 
 	// Mappers is the list of mappers that this plugin is providing.
 	Mappers []*argmapper.Func

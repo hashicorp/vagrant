@@ -11,7 +11,7 @@ import (
 	_ "google.golang.org/genproto/googleapis/rpc/errdetails"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
-	_ "google.golang.org/protobuf/types/known/anypb"
+	anypb "google.golang.org/protobuf/types/known/anypb"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
 	reflect "reflect"
 	sync "sync"
@@ -168,6 +168,8 @@ type Plugin struct {
 	Name string `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
 	// type of the plugin
 	Type Plugin_Type `protobuf:"varint,2,opt,name=type,proto3,enum=hashicorp.vagrant.Plugin_Type" json:"type,omitempty"`
+	// options for the plugin
+	Options *anypb.Any `protobuf:"bytes,3,opt,name=options,proto3" json:"options,omitempty"`
 }
 
 func (x *Plugin) Reset() {
@@ -214,6 +216,13 @@ func (x *Plugin) GetType() Plugin_Type {
 		return x.Type
 	}
 	return Plugin_UNKNOWN
+}
+
+func (x *Plugin) GetOptions() *anypb.Any {
+	if x != nil {
+		return x.Options
+	}
+	return nil
 }
 
 type ParseVagrantfileRequest struct {
@@ -329,12 +338,15 @@ var file_proto_ruby_vagrant_ruby_server_proto_rawDesc = []byte{
 	0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x33, 0x0a, 0x07, 0x70, 0x6c, 0x75, 0x67, 0x69, 0x6e, 0x73,
 	0x18, 0x01, 0x20, 0x03, 0x28, 0x0b, 0x32, 0x19, 0x2e, 0x68, 0x61, 0x73, 0x68, 0x69, 0x63, 0x6f,
 	0x72, 0x70, 0x2e, 0x76, 0x61, 0x67, 0x72, 0x61, 0x6e, 0x74, 0x2e, 0x50, 0x6c, 0x75, 0x67, 0x69,
-	0x6e, 0x52, 0x07, 0x70, 0x6c, 0x75, 0x67, 0x69, 0x6e, 0x73, 0x22, 0xb0, 0x02, 0x0a, 0x06, 0x50,
+	0x6e, 0x52, 0x07, 0x70, 0x6c, 0x75, 0x67, 0x69, 0x6e, 0x73, 0x22, 0xe0, 0x02, 0x0a, 0x06, 0x50,
 	0x6c, 0x75, 0x67, 0x69, 0x6e, 0x12, 0x12, 0x0a, 0x04, 0x6e, 0x61, 0x6d, 0x65, 0x18, 0x01, 0x20,
 	0x01, 0x28, 0x09, 0x52, 0x04, 0x6e, 0x61, 0x6d, 0x65, 0x12, 0x32, 0x0a, 0x04, 0x74, 0x79, 0x70,
 	0x65, 0x18, 0x02, 0x20, 0x01, 0x28, 0x0e, 0x32, 0x1e, 0x2e, 0x68, 0x61, 0x73, 0x68, 0x69, 0x63,
 	0x6f, 0x72, 0x70, 0x2e, 0x76, 0x61, 0x67, 0x72, 0x61, 0x6e, 0x74, 0x2e, 0x50, 0x6c, 0x75, 0x67,
-	0x69, 0x6e, 0x2e, 0x54, 0x79, 0x70, 0x65, 0x52, 0x04, 0x74, 0x79, 0x70, 0x65, 0x22, 0xdd, 0x01,
+	0x69, 0x6e, 0x2e, 0x54, 0x79, 0x70, 0x65, 0x52, 0x04, 0x74, 0x79, 0x70, 0x65, 0x12, 0x2e, 0x0a,
+	0x07, 0x6f, 0x70, 0x74, 0x69, 0x6f, 0x6e, 0x73, 0x18, 0x03, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x14,
+	0x2e, 0x67, 0x6f, 0x6f, 0x67, 0x6c, 0x65, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x62, 0x75, 0x66,
+	0x2e, 0x41, 0x6e, 0x79, 0x52, 0x07, 0x6f, 0x70, 0x74, 0x69, 0x6f, 0x6e, 0x73, 0x22, 0xdd, 0x01,
 	0x0a, 0x04, 0x54, 0x79, 0x70, 0x65, 0x12, 0x0b, 0x0a, 0x07, 0x55, 0x4e, 0x4b, 0x4e, 0x4f, 0x57,
 	0x4e, 0x10, 0x00, 0x12, 0x0b, 0x0a, 0x07, 0x43, 0x4f, 0x4d, 0x4d, 0x41, 0x4e, 0x44, 0x10, 0x01,
 	0x12, 0x10, 0x0a, 0x0c, 0x43, 0x4f, 0x4d, 0x4d, 0x55, 0x4e, 0x49, 0x43, 0x41, 0x54, 0x4f, 0x52,
@@ -398,22 +410,24 @@ var file_proto_ruby_vagrant_ruby_server_proto_goTypes = []interface{}{
 	(*Plugin)(nil),                                     // 2: hashicorp.vagrant.Plugin
 	(*ParseVagrantfileRequest)(nil),                    // 3: hashicorp.vagrant.ParseVagrantfileRequest
 	(*ParseVagrantfileResponse)(nil),                   // 4: hashicorp.vagrant.ParseVagrantfileResponse
-	(*vagrant_plugin_sdk.Vagrantfile_Vagrantfile)(nil), // 5: hashicorp.vagrant.sdk.Vagrantfile.Vagrantfile
-	(*emptypb.Empty)(nil),                              // 6: google.protobuf.Empty
+	(*anypb.Any)(nil),                                  // 5: google.protobuf.Any
+	(*vagrant_plugin_sdk.Vagrantfile_Vagrantfile)(nil), // 6: hashicorp.vagrant.sdk.Vagrantfile.Vagrantfile
+	(*emptypb.Empty)(nil),                              // 7: google.protobuf.Empty
 }
 var file_proto_ruby_vagrant_ruby_server_proto_depIdxs = []int32{
 	2, // 0: hashicorp.vagrant.GetPluginsResponse.plugins:type_name -> hashicorp.vagrant.Plugin
 	0, // 1: hashicorp.vagrant.Plugin.type:type_name -> hashicorp.vagrant.Plugin.Type
-	5, // 2: hashicorp.vagrant.ParseVagrantfileResponse.vagrantfile:type_name -> hashicorp.vagrant.sdk.Vagrantfile.Vagrantfile
-	6, // 3: hashicorp.vagrant.RubyVagrant.GetPlugins:input_type -> google.protobuf.Empty
-	3, // 4: hashicorp.vagrant.RubyVagrant.ParseVagrantfile:input_type -> hashicorp.vagrant.ParseVagrantfileRequest
-	1, // 5: hashicorp.vagrant.RubyVagrant.GetPlugins:output_type -> hashicorp.vagrant.GetPluginsResponse
-	4, // 6: hashicorp.vagrant.RubyVagrant.ParseVagrantfile:output_type -> hashicorp.vagrant.ParseVagrantfileResponse
-	5, // [5:7] is the sub-list for method output_type
-	3, // [3:5] is the sub-list for method input_type
-	3, // [3:3] is the sub-list for extension type_name
-	3, // [3:3] is the sub-list for extension extendee
-	0, // [0:3] is the sub-list for field type_name
+	5, // 2: hashicorp.vagrant.Plugin.options:type_name -> google.protobuf.Any
+	6, // 3: hashicorp.vagrant.ParseVagrantfileResponse.vagrantfile:type_name -> hashicorp.vagrant.sdk.Vagrantfile.Vagrantfile
+	7, // 4: hashicorp.vagrant.RubyVagrant.GetPlugins:input_type -> google.protobuf.Empty
+	3, // 5: hashicorp.vagrant.RubyVagrant.ParseVagrantfile:input_type -> hashicorp.vagrant.ParseVagrantfileRequest
+	1, // 6: hashicorp.vagrant.RubyVagrant.GetPlugins:output_type -> hashicorp.vagrant.GetPluginsResponse
+	4, // 7: hashicorp.vagrant.RubyVagrant.ParseVagrantfile:output_type -> hashicorp.vagrant.ParseVagrantfileResponse
+	6, // [6:8] is the sub-list for method output_type
+	4, // [4:6] is the sub-list for method input_type
+	4, // [4:4] is the sub-list for extension type_name
+	4, // [4:4] is the sub-list for extension extendee
+	0, // [0:4] is the sub-list for field type_name
 }
 
 func init() { file_proto_ruby_vagrant_ruby_server_proto_init() }

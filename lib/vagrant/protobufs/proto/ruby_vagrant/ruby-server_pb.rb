@@ -15,6 +15,7 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
     add_message "hashicorp.vagrant.Plugin" do
       optional :name, :string, 1
       optional :type, :enum, 2, "hashicorp.vagrant.Plugin.Type"
+      optional :options, :message, 3, "google.protobuf.Any"
     end
     add_enum "hashicorp.vagrant.Plugin.Type" do
       value :UNKNOWN, 0

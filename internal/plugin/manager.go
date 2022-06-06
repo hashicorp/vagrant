@@ -149,7 +149,7 @@ func (m *Manager) LoadLegacyPlugins(
 			"type", p.Type,
 		)
 
-		if err = m.register(RubyFactory(r, p.Name, component.Type(p.Type))); err != nil {
+		if err = m.register(RubyFactory(r, p.Name, component.Type(p.Type), p.Options)); err != nil {
 			return
 		}
 	}
@@ -388,7 +388,9 @@ func (m *Manager) Close() (err error) {
 	return
 }
 
-// Implements core.PluginManager
+// Implements core.PluginManager. Note this returns a slice of core.NamedPlugin
+// with only the Type and Name fields populated. To get a NamedPlugin with
+// instance of the plugin you need to call GetPlugin.
 func (m *Manager) ListPlugins(typeNames ...string) ([]*core.NamedPlugin, error) {
 	result := []*core.NamedPlugin{}
 	for _, n := range typeNames {
@@ -426,9 +428,10 @@ func (m *Manager) GetPlugin(name, typ string) (*core.NamedPlugin, error) {
 		return nil, err
 	}
 	v := &core.NamedPlugin{
-		Name:   name,
-		Type:   t.String(),
-		Plugin: c.Component,
+		Name:    name,
+		Type:    t.String(),
+		Plugin:  c.Component,
+		Options: c.Options,
 	}
 	m.cache.Register(cid, v)
 
