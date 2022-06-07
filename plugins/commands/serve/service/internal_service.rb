@@ -113,7 +113,10 @@ module VagrantPlugins
           when :PUSH
             return Google::Protobuf::Empty.new
           when :SYNCEDFOLDER
-            return Google::Protobuf::Empty.new
+            _, sf_priority = class_or_tuple_with_class_and_options
+            return SDK::PluginInfo::SyncedFolderOptions.new(
+              priority: sf_priority,
+            )
           else
             raise "Cannot convert options for unknown component type: #{type}"
           end
