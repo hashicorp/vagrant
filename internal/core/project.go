@@ -161,8 +161,21 @@ func (p *Project) DefaultProvider(opts *core.DefaultProviderOptions) (string, er
 		}
 
 		plugOpts := plug.Options.(*component.ProviderOptions)
+		logger.Debug("got provider options", "options", fmt.Sprintf("%#v", plugOpts))
+
+		// Skip providers that can't be defaulted, unless they're in our
+		// config, in which case someone made our decision for us.
 		if !plugOpts.Defaultable {
-			logger.Debug("skipping non-defaultable provider", "provider", pp.Name)
+			inConfig := false
+			for _, cp := range configProviders {
+				if cp == pp.Name {
+					inConfig = true
+				}
+			}
+			if !inConfig {
+				logger.Debug("skipping non-defaultable provider", "provider", pp.Name)
+				continue
+			}
 		}
 
 		// Skip the providers that aren't usable.
@@ -174,6 +187,7 @@ func (p *Project) DefaultProvider(opts *core.DefaultProviderOptions) (string, er
 				return "", err
 			}
 			if !usable {
+				logger.Debug("Skipping unusable provider", "provider", pp.Name)
 				continue
 			}
 		}
