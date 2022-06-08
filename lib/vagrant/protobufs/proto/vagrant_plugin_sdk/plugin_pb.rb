@@ -252,6 +252,9 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
     end
     add_message "hashicorp.vagrant.sdk.Args.Null" do
     end
+    add_message "hashicorp.vagrant.sdk.Args.URL" do
+      optional :url, :string, 1
+    end
     add_message "hashicorp.vagrant.sdk.FuncSpec" do
       optional :name, :string, 1
       repeated :args, :message, 2, "hashicorp.vagrant.sdk.FuncSpec.Value"
@@ -1021,6 +1024,7 @@ module Hashicorp
       Args::Symbol = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Args.Symbol").msgclass
       Args::Options = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Args.Options").msgclass
       Args::Null = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Args.Null").msgclass
+      Args::URL = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Args.URL").msgclass
       FuncSpec = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.FuncSpec").msgclass
       FuncSpec::Value = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.FuncSpec.Value").msgclass
       FuncSpec::Args = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.FuncSpec.Args").msgclass
