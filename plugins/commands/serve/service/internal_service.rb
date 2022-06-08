@@ -103,14 +103,20 @@ module VagrantPlugins
           when :PROVIDER
             _, popts = class_or_tuple_with_class_and_options
             return SDK::PluginInfo::ProviderOptions.new(
+              # Priority is always set in V2::Plugin.provider
               priority:     popts[:priority],
-              parallel:     !!popts[:parallel],
-              box_optional: !!popts[:box_optional],
-              defaultable:  !!popts[:defaultable],
+              # Parallel is passed along to Environment#batch which defaults it to true
+              parallel:     popts.fetch(:parallel, true),
+              # BoxOptional defaults to falsy when it's used in Kernel_V2::VMConfig
+              box_optional: popts.fetch(:box_optional, false),
+              # Defaultable is considered true when it is not specified in Environment#default_provider
+              defaultable:  popts.fetch(:defaultable, true),
             )
           when :PROVISIONER
+            # No options for provisioners
             return Google::Protobuf::Empty.new
           when :PUSH
+            # Push plugins accept an options hash but it's never used.
             return Google::Protobuf::Empty.new
           when :SYNCEDFOLDER
             _, sf_priority = class_or_tuple_with_class_and_options
