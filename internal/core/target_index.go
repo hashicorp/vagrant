@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/golang/protobuf/ptypes/empty"
 	"github.com/hashicorp/go-hclog"
 	"github.com/hashicorp/vagrant-plugin-sdk/core"
 	"github.com/hashicorp/vagrant-plugin-sdk/proto/vagrant_plugin_sdk"
@@ -12,6 +11,7 @@ import (
 	"github.com/hashicorp/vagrant/internal/serverclient"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+	"google.golang.org/protobuf/types/known/emptypb"
 )
 
 // TargetIndex represents
@@ -79,7 +79,7 @@ func (t *TargetIndex) Set(entry core.Target) (updatedEntry core.Target, err erro
 }
 
 func (t *TargetIndex) All() (targets []core.Target, err error) {
-	list, err := t.client.ListTargets(t.ctx, &empty.Empty{})
+	list, err := t.client.ListTargets(t.ctx, &emptypb.Empty{})
 	if err != nil {
 		return
 	}

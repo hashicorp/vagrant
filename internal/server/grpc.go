@@ -3,10 +3,10 @@ package server
 import (
 	"time"
 
-	"github.com/golang/protobuf/ptypes/empty"
 	"github.com/oklog/run"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
+	"google.golang.org/protobuf/types/known/emptypb"
 
 	"github.com/hashicorp/vagrant/internal/server/proto/vagrant_server"
 )
@@ -16,7 +16,7 @@ func grpcInit(group *run.Group, opts *options) error {
 	log := opts.Logger.Named("grpc")
 
 	// Get our server info immediately
-	resp, err := opts.Service.GetVersionInfo(opts.Context, &empty.Empty{})
+	resp, err := opts.Service.GetVersionInfo(opts.Context, &emptypb.Empty{})
 	if err != nil {
 		return err
 	}

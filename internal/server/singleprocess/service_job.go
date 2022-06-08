@@ -4,12 +4,12 @@ import (
 	"context"
 	"time"
 
-	"github.com/golang/protobuf/ptypes"
-	"github.com/golang/protobuf/ptypes/empty"
 	"github.com/hashicorp/go-hclog"
 	"github.com/hashicorp/go-memdb"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+	"google.golang.org/protobuf/types/known/emptypb"
+	"google.golang.org/protobuf/types/known/timestamppb"
 
 	"github.com/hashicorp/vagrant/internal/server"
 	"github.com/hashicorp/vagrant/internal/server/logbuffer"
@@ -24,10 +24,10 @@ const (
 
 func (s *service) PruneOldJobs(
 	ctx context.Context,
-	_ *empty.Empty,
-) (*empty.Empty, error) {
+	_ *emptypb.Empty,
+) (*emptypb.Empty, error) {
 	_, err := s.state.JobsDBPruneOld(maximumJobsIndexed)
-	return &empty.Empty{}, err
+	return &emptypb.Empty{}, err
 }
 
 // TODO: test
@@ -64,12 +64,12 @@ func (s *service) XListJobs(
 func (s *service) CancelJob(
 	ctx context.Context,
 	req *vagrant_server.CancelJobRequest,
-) (*empty.Empty, error) {
+) (*emptypb.Empty, error) {
 	if err := s.state.JobCancel(req.JobId, false); err != nil {
 		return nil, err
 	}
 
-	return &empty.Empty{}, nil
+	return &emptypb.Empty{}, nil
 }
 
 func (s *service) QueueJob(
@@ -138,10 +138,7 @@ func (s *service) QueueJob(
 				"Invalid expiry duration: %s", err.Error())
 		}
 
-		job.ExpireTime, err = ptypes.TimestampProto(time.Now().Add(dur))
-		if err != nil {
-			return nil, status.Errorf(codes.Aborted, "error configuring expiration: %s", err)
-		}
+		job.ExpireTime = timestamppb.New(time.Now().Add(dur))
 	}
 
 	// Queue the job

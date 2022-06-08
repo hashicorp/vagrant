@@ -10,11 +10,11 @@ import (
 	"strings"
 	"time"
 
-	"github.com/golang/protobuf/ptypes/empty"
 	"github.com/hashicorp/go-plugin"
 	"github.com/hashicorp/vagrant-plugin-sdk/helper/paths"
 	bolt "go.etcd.io/bbolt"
 	"google.golang.org/grpc"
+	"google.golang.org/protobuf/types/known/emptypb"
 
 	"github.com/hashicorp/vagrant/internal/protocolversion"
 	"github.com/hashicorp/vagrant/internal/server"
@@ -213,7 +213,7 @@ func (c *Client) initVagrantRubyRuntime() (rubyRuntime plugin.ClientProtocol, er
 // that we are compatible to talk to the server.
 func (c *Client) negotiateApiVersion(ctx context.Context) error {
 	c.logger.Trace("requesting version info from server")
-	resp, err := c.client.GetVersionInfo(ctx, &empty.Empty{})
+	resp, err := c.client.GetVersionInfo(ctx, &emptypb.Empty{})
 	if err != nil {
 		return err
 	}

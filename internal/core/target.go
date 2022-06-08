@@ -10,13 +10,12 @@ import (
 	"sync"
 	"time"
 
-	"github.com/golang/protobuf/proto"
-	"github.com/golang/protobuf/ptypes"
 	"github.com/hashicorp/go-argmapper"
 	"github.com/hashicorp/go-hclog"
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/vagrant/internal/config"
 	"github.com/hashicorp/vagrant/internal/serverclient"
+	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/types/known/anypb"
 
 	"github.com/hashicorp/vagrant-plugin-sdk/component"
@@ -353,7 +352,7 @@ func (t *Target) Machine() core.Machine {
 	}
 
 	targetMachine := &vagrant_server.Target_Machine{}
-	ptypes.UnmarshalAny(t.target.Record, targetMachine)
+	t.target.Record.UnmarshalTo(targetMachine)
 	m := &Machine{
 		Target:  t,
 		logger:  t.logger,

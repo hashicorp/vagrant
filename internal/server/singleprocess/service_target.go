@@ -3,7 +3,6 @@ package singleprocess
 import (
 	"context"
 
-	"github.com/golang/protobuf/ptypes/empty"
 	"google.golang.org/protobuf/types/known/emptypb"
 
 	"github.com/hashicorp/vagrant/internal/server/proto/vagrant_server"
@@ -25,7 +24,7 @@ func (s *service) UpsertTarget(
 func (s *service) DeleteTarget(
 	ctx context.Context,
 	req *vagrant_server.DeleteTargetRequest,
-) (empt *empty.Empty, err error) {
+) (empt *emptypb.Empty, err error) {
 	err = s.state.TargetDelete(req.Target)
 	return &emptypb.Empty{}, err
 }
@@ -57,7 +56,7 @@ func (s *service) FindTarget(
 // TODO: test
 func (s *service) ListTargets(
 	ctx context.Context,
-	req *empty.Empty,
+	req *emptypb.Empty,
 ) (*vagrant_server.ListTargetsResponse, error) {
 	result, err := s.state.TargetList()
 	if err != nil {

@@ -1,7 +1,7 @@
 package state
 
 import (
-	"github.com/golang/protobuf/proto"
+	"google.golang.org/protobuf/proto"
 	"github.com/google/uuid"
 	"github.com/hashicorp/go-memdb"
 	bolt "go.etcd.io/bbolt"

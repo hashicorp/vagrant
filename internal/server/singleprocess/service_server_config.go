@@ -3,9 +3,9 @@ package singleprocess
 import (
 	"context"
 
-	"github.com/golang/protobuf/ptypes/empty"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+	"google.golang.org/protobuf/types/known/emptypb"
 
 	"github.com/hashicorp/vagrant/internal/server/proto/vagrant_server"
 	serverptypes "github.com/hashicorp/vagrant/internal/server/ptypes"
@@ -18,7 +18,7 @@ type Targeter interface {
 func (s *service) SetServerConfig(
 	ctx context.Context,
 	req *vagrant_server.SetServerConfigRequest,
-) (*empty.Empty, error) {
+) (*emptypb.Empty, error) {
 	if err := serverptypes.ValidateServerConfig(req.Config); err != nil {
 		return nil, status.Errorf(codes.FailedPrecondition, err.Error())
 	}
@@ -27,12 +27,12 @@ func (s *service) SetServerConfig(
 		return nil, err
 	}
 
-	return &empty.Empty{}, nil
+	return &emptypb.Empty{}, nil
 }
 
 func (s *service) GetServerConfig(
 	ctx context.Context,
-	req *empty.Empty,
+	req *emptypb.Empty,
 ) (*vagrant_server.GetServerConfigResponse, error) {
 	cfg, err := s.state.ServerConfigGet()
 	if err != nil {

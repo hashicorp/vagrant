@@ -6,10 +6,10 @@ import (
 	"io"
 	"testing"
 
-	"github.com/golang/protobuf/ptypes/empty"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+	"google.golang.org/protobuf/types/known/emptypb"
 
 	"github.com/hashicorp/vagrant/internal/server"
 	"github.com/hashicorp/vagrant/internal/server/proto/vagrant_server"
@@ -52,7 +52,7 @@ func TestServiceRestoreSnapshot_full(t *testing.T) {
 	// Take a snapshot and write the contents to a buf
 	var snapshotBuf bytes.Buffer
 	{
-		stream, err := client.CreateSnapshot(ctx, &empty.Empty{})
+		stream, err := client.CreateSnapshot(ctx, &emptypb.Empty{})
 		require.NoError(err)
 
 		// Should get the open message
