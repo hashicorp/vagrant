@@ -8,11 +8,10 @@ import (
 	"sync/atomic"
 	"time"
 
-	"github.com/golang/protobuf/proto"
-	"github.com/golang/protobuf/ptypes"
 	"github.com/hashicorp/go-memdb"
 	"github.com/mitchellh/go-testing-interface"
 	bolt "go.etcd.io/bbolt"
+	"google.golang.org/protobuf/proto"
 
 	//	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc/codes"
@@ -575,21 +574,21 @@ func (op *genericOperation) indexPut(s *State, txn *memdb.Txn, value proto.Messa
 		statusVal := statusRaw.(*vagrant_server.Status)
 		if statusVal != nil {
 			if t := statusVal.StartTime; t != nil {
-				st, err := ptypes.Timestamp(t)
+				err := t.CheckValid()
 				if err != nil {
 					return status.Errorf(codes.Internal, "time for operation can't be parsed")
 				}
 
-				startTime = st
+				startTime = t.AsTime()
 			}
 
 			if t := statusVal.CompleteTime; t != nil {
-				ct, err := ptypes.Timestamp(statusVal.CompleteTime)
+				err := t.CheckValid()
 				if err != nil {
 					return status.Errorf(codes.Internal, "time for operation can't be parsed")
 				}
 
-				completeTime = ct
+				completeTime = t.AsTime()
 			}
 		}
 	}

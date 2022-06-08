@@ -3,7 +3,6 @@ package push
 import (
 	"encoding/json"
 
-	"github.com/golang/protobuf/ptypes"
 	"github.com/hashicorp/vagrant-plugin-sdk/component"
 	"github.com/hashicorp/vagrant-plugin-sdk/core"
 	"github.com/hashicorp/vagrant-plugin-sdk/proto/vagrant_plugin_sdk"
@@ -72,7 +71,7 @@ func findPushConfig(proj core.Project, name string) (*vagrant_plugin_sdk.Vagrant
 func unpackConfig(pc *vagrant_plugin_sdk.Vagrantfile_PushConfig) (map[string]interface{}, error) {
 	gc := pc.GetConfig()
 	s := &structpb.Struct{}
-	err := ptypes.UnmarshalAny(gc.GetConfig(), s)
+	err := gc.GetConfig().UnmarshalTo(s)
 	if err != nil {
 		return nil, err
 	}

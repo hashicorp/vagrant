@@ -7,16 +7,16 @@ import (
 	"io"
 	"os"
 
-	"github.com/golang/protobuf/ptypes/empty"
 	"github.com/hashicorp/go-hclog"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+	"google.golang.org/protobuf/types/known/emptypb"
 
 	"github.com/hashicorp/vagrant/internal/server/proto/vagrant_server"
 )
 
 func (s *service) CreateSnapshot(
-	req *empty.Empty,
+	req *emptypb.Empty,
 	srv vagrant_server.Vagrant_CreateSnapshotServer,
 ) error {
 	// Always send the open message. In the future we'll send some metadata here.
@@ -108,7 +108,7 @@ func (s *service) RestoreSnapshot(
 				return err
 			}
 
-			return srv.SendAndClose(&empty.Empty{})
+			return srv.SendAndClose(&emptypb.Empty{})
 
 		case err := <-restoreCloseCh:
 			// The restore ended
@@ -123,7 +123,7 @@ func (s *service) RestoreSnapshot(
 				os.Exit(2) // kind of a weird exit code to note this was manufactured
 			}
 
-			return srv.SendAndClose(&empty.Empty{})
+			return srv.SendAndClose(&emptypb.Empty{})
 
 		case req, active := <-clientEventCh:
 			// If we aren't active anymore, then the client closed the connection

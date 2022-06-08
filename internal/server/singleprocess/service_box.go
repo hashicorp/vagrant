@@ -3,13 +3,13 @@ package singleprocess
 import (
 	"context"
 
-	"github.com/golang/protobuf/ptypes/empty"
 	"github.com/hashicorp/vagrant/internal/server/proto/vagrant_server"
+	"google.golang.org/protobuf/types/known/emptypb"
 )
 
 func (s *service) ListBoxes(
 	ctx context.Context,
-	req *empty.Empty,
+	req *emptypb.Empty,
 ) (*vagrant_server.ListBoxesResponse, error) {
 	result, err := s.state.BoxList()
 	if err != nil {
@@ -22,9 +22,9 @@ func (s *service) ListBoxes(
 func (s *service) DeleteBox(
 	ctx context.Context,
 	req *vagrant_server.DeleteBoxRequest,
-) (empt *empty.Empty, err error) {
+) (empt *emptypb.Empty, err error) {
 	err = s.state.BoxDelete(req.Box)
-	return &empty.Empty{}, nil
+	return &emptypb.Empty{}, nil
 }
 
 func (s *service) GetBox(

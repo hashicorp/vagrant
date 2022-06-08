@@ -3,8 +3,6 @@ package logviewer
 import (
 	"context"
 
-	"github.com/golang/protobuf/ptypes"
-
 	"github.com/hashicorp/vagrant-plugin-sdk/component"
 	"github.com/hashicorp/vagrant/internal/server/proto/vagrant_server"
 )
@@ -30,7 +28,7 @@ func (v *Viewer) NextLogBatch(ctx context.Context) ([]component.LogEvent, error)
 
 	events := make([]component.LogEvent, len(batch.Lines))
 	for i, entry := range batch.Lines {
-		ts, _ := ptypes.Timestamp(entry.Timestamp)
+		ts := entry.Timestamp.AsTime()
 
 		events[i] = component.LogEvent{
 			Partition: batch.InstanceId,

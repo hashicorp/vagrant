@@ -6,14 +6,14 @@ import (
 	"testing"
 	"time"
 
-	"github.com/golang/protobuf/proto"
-	"github.com/golang/protobuf/ptypes/empty"
 	"github.com/mr-tron/base58"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"golang.org/x/crypto/blake2b"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+	"google.golang.org/protobuf/proto"
+	"google.golang.org/protobuf/types/known/emptypb"
 
 	"github.com/hashicorp/vagrant/internal/server/proto/vagrant_server"
 )
@@ -167,14 +167,14 @@ func TestServiceBootstrapToken(t *testing.T) {
 
 	{
 		// Initial bootstrap should return a token
-		resp, err := impl.BootstrapToken(ctx, &empty.Empty{})
+		resp, err := impl.BootstrapToken(ctx, &emptypb.Empty{})
 		require.NoError(err)
 		require.NotEmpty(resp.Token)
 	}
 
 	{
 		// Subs calls should fail
-		resp, err := impl.BootstrapToken(ctx, &empty.Empty{})
+		resp, err := impl.BootstrapToken(ctx, &emptypb.Empty{})
 		require.Error(err)
 		require.Equal(codes.PermissionDenied, status.Code(err))
 		require.Nil(resp)

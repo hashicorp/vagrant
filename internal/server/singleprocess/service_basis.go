@@ -3,9 +3,8 @@ package singleprocess
 import (
 	"context"
 
-	"github.com/golang/protobuf/ptypes/empty"
-
 	"github.com/hashicorp/vagrant/internal/server/proto/vagrant_server"
+	"google.golang.org/protobuf/types/known/emptypb"
 )
 
 func (s *service) UpsertBasis(
@@ -45,7 +44,7 @@ func (s *service) FindBasis(
 
 func (s *service) ListBasis(
 	ctx context.Context,
-	req *empty.Empty,
+	req *emptypb.Empty,
 ) (*vagrant_server.ListBasisResponse, error) {
 	result, err := s.state.BasisList()
 	if err != nil {

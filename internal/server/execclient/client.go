@@ -9,7 +9,7 @@ package execclient
 // 	"os/signal"
 
 // 	"github.com/containerd/console"
-// 	"github.com/golang/protobuf/proto"
+// 	"google.golang.org/protobuf/proto"
 // 	"github.com/hashicorp/go-hclog"
 // 	grpc_net_conn "github.com/mitchellh/go-grpc-net-conn"
 // 	sshterm "golang.org/x/crypto/ssh/terminal"

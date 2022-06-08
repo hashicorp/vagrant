@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"reflect"
 
-	"github.com/golang/protobuf/proto"
-	"github.com/golang/protobuf/ptypes/any"
 	"github.com/hashicorp/go-hclog"
+	"google.golang.org/protobuf/proto"
+	"google.golang.org/protobuf/types/known/anypb"
 
 	"github.com/hashicorp/vagrant-plugin-sdk/component"
 	"github.com/hashicorp/vagrant-plugin-sdk/terminal"
@@ -47,7 +47,7 @@ type operation interface {
 	// StatusPtr and ValuePtr return pointers to the fields in the message
 	// for the status and values respectively.
 	StatusPtr(proto.Message) **vagrant_server.Status
-	ValuePtr(proto.Message) **any.Any
+	ValuePtr(proto.Message) **anypb.Any
 
 	// Hooks are the hooks to execute as part of this operation keyed by "when"
 	Hooks(scope) map[string][]*config.Hook
@@ -107,7 +107,7 @@ func doOperation(
 	// to a local value if we get nil so that we can avoid nil checks.
 	valuePtr := op.ValuePtr(msg)
 	if valuePtr == nil {
-		var value *any.Any
+		var value *anypb.Any
 		valuePtr = &value
 	}
 

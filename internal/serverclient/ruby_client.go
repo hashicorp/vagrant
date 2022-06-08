@@ -4,10 +4,10 @@ import (
 	"context"
 	"errors"
 
-	"github.com/golang/protobuf/ptypes/empty"
 	"github.com/hashicorp/go-hclog"
 	"github.com/hashicorp/go-plugin"
 	"google.golang.org/grpc"
+	"google.golang.org/protobuf/types/known/emptypb"
 
 	"github.com/hashicorp/vagrant-plugin-sdk/internal-shared/pluginclient"
 	"github.com/hashicorp/vagrant-plugin-sdk/proto/vagrant_plugin_sdk"
@@ -58,7 +58,7 @@ func (r *RubyVagrantClient) GRPCBroker() *plugin.GRPCBroker {
 }
 
 func (r *RubyVagrantClient) GetPlugins() ([]*ruby_vagrant.Plugin, error) {
-	plugins, err := r.client.GetPlugins(context.Background(), &empty.Empty{})
+	plugins, err := r.client.GetPlugins(context.Background(), &emptypb.Empty{})
 	if err != nil {
 		return nil, err
 	}

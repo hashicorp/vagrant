@@ -9,14 +9,14 @@ import (
 	"strings"
 	"time"
 
-	"github.com/golang/protobuf/proto"
-	"github.com/golang/protobuf/ptypes/empty"
-	"github.com/golang/protobuf/ptypes/timestamp"
 	"github.com/mr-tron/base58"
 	"github.com/pkg/errors"
 	"golang.org/x/crypto/blake2b"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+	"google.golang.org/protobuf/proto"
+	"google.golang.org/protobuf/types/known/emptypb"
+	"google.golang.org/protobuf/types/known/timestamppb"
 
 	"github.com/hashicorp/vagrant/internal/server/proto/vagrant_server"
 )
@@ -199,7 +199,7 @@ func (s *service) NewLoginToken(
 }
 
 // Create a new login token. This is just a gRPC wrapper around NewLoginToken.
-func (s *service) GenerateLoginToken(ctx context.Context, _ *empty.Empty) (*vagrant_server.NewTokenResponse, error) {
+func (s *service) GenerateLoginToken(ctx context.Context, _ *emptypb.Empty) (*vagrant_server.NewTokenResponse, error) {
 	token, err := s.NewLoginToken(DefaultKeyId, nil, nil)
 	if err != nil {
 		return nil, err
@@ -223,7 +223,7 @@ func (s *service) NewInviteToken(
 	body.Entrypoint = entrypoint
 
 	now := time.Now().UTC().Add(duration)
-	body.ValidUntil = &timestamp.Timestamp{
+	body.ValidUntil = &timestamppb.Timestamp{
 		Seconds: now.Unix(),
 		Nanos:   int32(now.Nanosecond()),
 	}
@@ -275,7 +275,7 @@ func (s *service) ConvertInviteToken(ctx context.Context, req *vagrant_server.Co
 	return &vagrant_server.NewTokenResponse{Token: token}, nil
 }
 
-func (s *service) BootstrapToken(ctx context.Context, req *empty.Empty) (*vagrant_server.NewTokenResponse, error) {
+func (s *service) BootstrapToken(ctx context.Context, req *emptypb.Empty) (*vagrant_server.NewTokenResponse, error) {
 	if !s.state.HMACKeyEmpty() {
 		return nil, status.Errorf(codes.PermissionDenied, "server is already bootstrapped")
 	}

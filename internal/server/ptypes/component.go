@@ -3,7 +3,7 @@ package ptypes
 // import (
 // 	"time"
 
-// 	"github.com/golang/protobuf/ptypes"
+// 	"google.golang.org/protobuf/ptypes"
 // 	"github.com/imdario/mergo"
 // 	"github.com/mitchellh/go-testing-interface"
 // 	"github.com/stretchr/testify/require"

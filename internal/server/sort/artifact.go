@@ -3,7 +3,7 @@ package sort
 // import (
 // 	"sort"
 
-// 	"github.com/golang/protobuf/ptypes"
+// 	"google.golang.org/protobuf/ptypes"
 
 // 	pb "github.com/hashicorp/vagrant/internal/server/gen"
 // )
