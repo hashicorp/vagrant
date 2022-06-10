@@ -2,9 +2,12 @@ package runner
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/hashicorp/vagrant/internal/core"
 	"github.com/hashicorp/vagrant/internal/server/proto/vagrant_server"
+	"google.golang.org/genproto/googleapis/rpc/status"
+	"google.golang.org/grpc/codes"
 )
 
 type Runs interface {
@@ -35,10 +38,18 @@ func (r *Runner) executeRunOp(
 
 	jrr.RunResult = err == nil
 	if err != nil {
-		jrr.RunError = err.(core.CommandError).Status()
 		if cmdErr, ok := err.(core.CommandError); ok {
+			jrr.RunError = err.(core.CommandError).Status()
 			jrr.ExitCode = int32(cmdErr.ExitCode())
+		} else {
+			// If we have an error without a status we'll make one here
+			jrr.RunError = &status.Status{
+				Code:    int32(codes.Unknown),
+				Message: fmt.Sprintf("Unexpected error from run operation: %s", err),
+			}
+			jrr.ExitCode = 1
 		}
+
 	}
 
 	r.logger.Info("run operation is complete!")
