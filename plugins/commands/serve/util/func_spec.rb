@@ -101,7 +101,7 @@ module VagrantPlugins
         module Service
           def funcspec(args: [], named: {}, name: nil, result: nil)
             if name.nil?
-              name = caller_locations.first.label.to_s
+              name = caller_locations[1].label.to_s
               if name.end_with?("!") || name.end_with?("?")
                 name = name[0, name.length - 1]
               end
@@ -124,7 +124,7 @@ module VagrantPlugins
             result = make_proto(result)
 
             SDK::FuncSpec.new(
-              name: name,
+              name: name.to_s.sub(/_spec$/, ""),
               args: fargs,
               result: [
                 SDK::FuncSpec::Value.new(
