@@ -3,18 +3,25 @@ package client
 import (
 	"context"
 	"errors"
+	"io"
+	"os"
+	"path/filepath"
 
 	"github.com/hashicorp/go-hclog"
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/go-plugin"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
+
+	vconfig "github.com/hashicorp/vagrant-plugin-sdk/config"
+	"github.com/hashicorp/vagrant-plugin-sdk/helper/path"
 	"github.com/hashicorp/vagrant-plugin-sdk/helper/paths"
+	"github.com/hashicorp/vagrant-plugin-sdk/proto/vagrant_plugin_sdk"
 	"github.com/hashicorp/vagrant-plugin-sdk/terminal"
 	"github.com/hashicorp/vagrant/internal/config"
 	"github.com/hashicorp/vagrant/internal/runner"
 	"github.com/hashicorp/vagrant/internal/server/proto/vagrant_server"
 	"github.com/hashicorp/vagrant/internal/serverclient"
-	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/status"
 )
 
 var (
@@ -263,4 +270,64 @@ func WithConfig(cfg *config.Config) Option {
 		c.config = cfg
 		return nil
 	}
+}
+
+// Load a Vagrantfile
+func LoadVagrantfile(
+	file path.Path, // path to the Vagrantfile
+	l hclog.Logger, // logger
+	c serverclient.RubyVagrantClient, // vagrant ruby runtime for ruby based Vagrantfiles
+) (p *vagrant_server.Vagrantfile, err error) {
+	var v *vconfig.Vagrantfile
+
+	p = &vagrant_server.Vagrantfile{}
+	format := vconfig.JSON
+	protoFormat := vagrant_server.Vagrantfile_JSON
+
+	// We support three types of Vagrantfiles:
+	//   * Ruby (original)
+	//   * HCL
+	//   * JSON (which is HCL in JSON form)
+	ext := filepath.Ext(file.String())
+	if ext == ".hcl" {
+		format = vconfig.HCL
+		protoFormat = vagrant_server.Vagrantfile_HCL
+	}
+
+	switch ext {
+	case ".hcl", ".json":
+		f, err := os.Open(file.String())
+		if err != nil {
+			return nil, err
+		}
+		p.Raw, err = io.ReadAll(f)
+		if err != nil {
+			return nil, err
+		}
+
+		v, err = vconfig.LoadVagrantfile(p.Raw, file.String(), format)
+		if err != nil {
+			return nil, err
+		}
+		if p.Unfinalized, err = vconfig.EncodeVagrantfile(v); err != nil {
+			return nil, err
+		}
+	default:
+		p.Unfinalized, err = c.ParseVagrantfile(file.String())
+		if err != nil {
+			l.Error("failed to parse vagrantfile",
+				"error", err,
+			)
+			return nil, err
+		}
+		l.Info("initial vagrantfile value set",
+			"path", file.String(),
+			"value", p.Unfinalized,
+		)
+		protoFormat = vagrant_server.Vagrantfile_RUBY
+	}
+	p.Path = &vagrant_plugin_sdk.Args_Path{Path: file.String()}
+	p.Format = protoFormat
+
+	return
 }
