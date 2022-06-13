@@ -12,7 +12,7 @@ module VagrantPlugins
         # @yieldparam [ServiceInfo]
         def with_info(context, broker:, &block)
           if broker.nil?
-            raise "NO BROKER FOR INFO"
+            raise "Broker is required but was not provided"
           end
           if !context.metadata["plugin_name"]
             raise KeyError,
@@ -60,11 +60,10 @@ module VagrantPlugins
         # @param broker [Broker]
         def with_plugin(context, plugins, broker:, &block)
           with_info(context, broker: broker) do |info|
-            plugin = Array(
-              Vagrant.plugin("2").
-                local_manager.
-                send(plugins)[info.plugin_name]
-            ).first
+            list = Array(plugins).inject({}) do |memo, key|
+              memo.merge(Vagrant.plugin("2").local_manager.send(key))
+            end
+            plugin = Array(list[info.plugin_name]).first
             if !plugin
               raise NameError, "Failed to locate plugin '#{info.plugin_name}' within #{plugins} plugins"
             end
