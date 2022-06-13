@@ -147,19 +147,6 @@ module VagrantPlugins
         raise "Must finalize first!" if !@__finalized
         @__compiled_pushes.dup
       end
-
-
-      def to_proto
-        raise "Must finalize first!" if !@__finalized
-        __compiled_pushes.map do |name, (strategy, config)|
-          @logger.info("making a proto! name: #{name.inspect}, strategy: #{strategy.inspect}, config: #{config.inspect}")
-          @logger.info("protofied config #{config.to_proto(strategy).inspect}")
-          Hashicorp::Vagrant::Sdk::Vagrantfile::PushConfig.new(
-            name: name,
-            config: config.to_proto(strategy)
-          )
-        end
-      end
     end
   end
 end

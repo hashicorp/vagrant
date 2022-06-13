@@ -65,7 +65,6 @@ module VagrantPlugins
       def initialize(name, type, **options)
         @logger = Log4r::Logger.new("vagrant::config::vm::provisioner")
         @logger.debug("Provisioner defined: #{name}")
-        @mapper = VagrantPlugins::CommandServe::Mappers.new
 
         @id = name || SecureRandom.uuid
         @config  = nil
@@ -194,29 +193,6 @@ module VagrantPlugins
       # @return [Boolean]
       def invalid?
         @invalid
-      end
-
-      def to_proto
-        proto = Hashicorp::Vagrant::Sdk::Vagrantfile::Provisioner.new()
-        self.instance_variables_hash.each do |k, v|
-          begin
-            if k == "config"
-              protoize = clean_up_config_object(c.config.instance_variables_hash)
-              
-              config_struct = @mapper.map(protoize, to: Hashicorp::Vagrant::Sdk::Args::Hash)
-              config_any = Google::Protobuf::Any.pack(config_struct)
-              proto.config = config_any
-              next
-            end
-            if !v.nil?
-              v = v.to_s if v.is_a?(Symbol)
-              proto.send("#{k}=", v)
-            end
-          rescue NoMethodError
-            # this is ok
-          end
-        end
-        proto
       end
     end
   end

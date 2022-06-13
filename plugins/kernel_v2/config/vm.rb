@@ -74,9 +74,6 @@ module VagrantPlugins
       def initialize
         @logger = Log4r::Logger.new("vagrant::config::vm")
 
-        # Mappers are used by functions that produce a proto
-        @mapper = VagrantPlugins::CommandServe::Mappers.new
-
         @allowed_synced_folder_types   = UNSET_VALUE
         @allow_fstab_modification      = UNSET_VALUE
         @base_mac                      = UNSET_VALUE
@@ -629,12 +626,20 @@ module VagrantPlugins
 
         # Compile all the provider configurations
         @__providers.each do |name, blocks|
+          # TODO(spox): this is a hack that needs to be resolved elsewhere
+
+          name = name.to_sym
+
+
           # If we don't have any configuration blocks, then ignore it
           next if blocks.empty?
 
           # Find the configuration class for this provider
           config_class = Vagrant.plugin("2").manager.provider_configs[name]
           config_class ||= Vagrant::Config::V2::DummyConfig
+
+          l = Log4r::Logger.new(self.class.name.downcase)
+          l.info("config class lookup for provider #{name.inspect} gave us base class: #{config_class}")
 
           # Load it up
           config = config_class.new
@@ -705,12 +710,19 @@ module VagrantPlugins
       def get_provider_config(name)
         raise "Must finalize first." if !@__finalized
 
+        @logger = Log4r::Logger.new(self.class.name.downcase)
+        @logger.info("looking up provider config for: #{name.inspect}")
+
         result = @__compiled_provider_configs[name]
+
+        @logger.info("provider config value that was stored: #{result.inspect}")
 
         # If no compiled configuration was found, then we try to just
         # use the default configuration from the plugin.
         if !result
+          @logger.info("no result so doing plugin config lookup using name: #{name.inspect}")
           config_class = Vagrant.plugin("2").manager.provider_configs[name]
+          @logger.info("config class that we got for the lookup: #{config_class}")
           if config_class
             result = config_class.new
             result.finalize!
@@ -1067,138 +1079,138 @@ module VagrantPlugins
         @__provider_order
       end
 
-      # Providers take the form
-      # {
-      #   :type=> #<VagrantPlugins::PluginClass::Config:Object>, ...
-      # }
-      def extract_provider(target, vm_config)
-        #WARNING: hacks ahead
-        vm_config.define_singleton_method(:compiled_provider_configs) do
-          return @__compiled_provider_configs
-        end
+      # # Providers take the form
+      # # {
+      # #   :type=> #<VagrantPlugins::PluginClass::Config:Object>, ...
+      # # }
+      # def extract_provider(target, vm_config)
+      #   #WARNING: hacks ahead
+      #   vm_config.define_singleton_method(:compiled_provider_configs) do
+      #     return @__compiled_provider_configs
+      #   end
 
-        vm_config.compiled_provider_configs.each do |type, config|
-          c = clean_up_config_object(config.instance_variables_hash)
-          provider_proto = PROVIDER_PROTO_CLS.new(type: type)
-          config_struct = @mapper.map(c, to: Hashicorp::Vagrant::Sdk::Args::Hash)
-          config_any = Google::Protobuf::Any.pack(config_struct)
-          provider_proto.config = config_any
-          target << provider_proto
-        end
-      end 
+      #   vm_config.compiled_provider_configs.each do |type, config|
+      #     c = clean_up_config_object(config.instance_variables_hash)
+      #     provider_proto = PROVIDER_PROTO_CLS.new(type: type)
+      #     config_struct = @mapper.map(c, to: Hashicorp::Vagrant::Sdk::Args::Hash)
+      #     config_any = Google::Protobuf::Any.pack(config_struct)
+      #     provider_proto.config = config_any
+      #     target << provider_proto
+      #   end
+      # end
 
-      # Network configs take the form
-      # [
-      #   [:type, {:id=>"tcp8080", ...}], ...
-      # ]
-      def extract_network(target, networks)
-        networks.each do |n|
-          type = n[0]
-          opts = n[1]
-          network_proto = NETWORK_PROTO_CLS.new(type: type, id: opts.fetch(:id, ""))
-          opts.delete(:id)
-          opts.transform_keys!(&:to_s)
-          config_struct = @mapper.map(opts, to: Hashicorp::Vagrant::Sdk::Args::Hash)
-          config_any = Google::Protobuf::Any.pack(config_struct)
-          network_proto.config = config_any
-          target << network_proto
-        end
-      end
+      # # Network configs take the form
+      # # [
+      # #   [:type, {:id=>"tcp8080", ...}], ...
+      # # ]
+      # def extract_network(target, networks)
+      #   networks.each do |n|
+      #     type = n[0]
+      #     opts = n[1]
+      #     network_proto = NETWORK_PROTO_CLS.new(type: type, id: opts.fetch(:id, ""))
+      #     opts.delete(:id)
+      #     opts.transform_keys!(&:to_s)
+      #     config_struct = @mapper.map(opts, to: Hashicorp::Vagrant::Sdk::Args::Hash)
+      #     config_any = Google::Protobuf::Any.pack(config_struct)
+      #     network_proto.config = config_any
+      #     target << network_proto
+      #   end
+      # end
 
-      # Synced folders take the form of a hash map
-      # {
-      #   "name"=>{:type=>:rsync, ...},  ...
-      # },
-      def extract_synced_folders(target, synced_folders)
-        synced_folders.each do |k,v|
-          sf_proto = SYNCED_FOLDER_PROTO_CLS.new()
-      
-          # Need to set source and destination since they don't exactly map
-          sf_proto.source = v[:hostpath]
-          sf_proto.destination = v[:guestpath]
-      
-          # config_opts keep track of the config options specific to the synced
-          # folder type. They are in the form `type`__`option`
-          config_opts = {}
-      
-          v.each do |opt, val|
-            # already accounted for above
-            next if ["guestpath", "hostpath"].include?(opt.to_s)
-      
-            # match the synced folder specific options and store them in the
-            # config_opts
-            if opt.to_s.match(/#{v[:type]}__/)
-              config_opts[opt.to_s.split("__")[1]] = val
-              next
-            end
-      
-            sf_proto.send("#{opt.to_s}=", val)
-          end
-          
-          config_struct = @mapper.map(config_opts, to: Hashicorp::Vagrant::Sdk::Args::Hash)
-          config_any = Google::Protobuf::Any.pack(config_struct)
-          sf_proto.config = config_any
-          target << sf_proto
-        end
-      end
+      # # Synced folders take the form of a hash map
+      # # {
+      # #   "name"=>{:type=>:rsync, ...},  ...
+      # # },
+      # def extract_synced_folders(target, synced_folders)
+      #   synced_folders.each do |k,v|
+      #     sf_proto = SYNCED_FOLDER_PROTO_CLS.new()
 
-      def to_proto
-        config_proto = CONFIG_VM_CLS.new()
-        self.instance_variables_hash.each do |k, v|
-          # Skip config that has not be set
-          next if v.class == Object 
+      #     # Need to set source and destination since they don't exactly map
+      #     sf_proto.source = v[:hostpath]
+      #     sf_proto.destination = v[:guestpath]
 
-          # Going to deal with these seperately because they are a little different
-          next if ["networks", "synced_folders"].include?(k)
+      #     # config_opts keep track of the config options specific to the synced
+      #     # folder type. They are in the form `type`__`option`
+      #     config_opts = {}
 
-          # Extract a proto!
-          if ["provisioners", "disks", "cloud_init_configs"].include?(k)
-            v.each do |el|
-              config_proto[k] << el.to_proto
-            end
-            next
-          end
+      #     v.each do |opt, val|
+      #       # already accounted for above
+      #       next if ["guestpath", "hostpath"].include?(opt.to_s)
 
-          # Skip all variables that are internal
-          next if k.start_with?("_")
+      #       # match the synced folder specific options and store them in the
+      #       # config_opts
+      #       if opt.to_s.match(/#{v[:type]}__/)
+      #         config_opts[opt.to_s.split("__")[1]] = val
+      #         next
+      #       end
 
-          if v.nil? 
-            # If v is nil, set it to the default value defined by the proto
-            v = config_proto.send(k)
-          end
+      #       sf_proto.send("#{opt.to_s}=", val)
+      #     end
 
-          if v.is_a?(Range)
-            v = v.to_a
-          end
+      #     config_struct = @mapper.map(config_opts, to: Hashicorp::Vagrant::Sdk::Args::Hash)
+      #     config_any = Google::Protobuf::Any.pack(config_struct)
+      #     sf_proto.config = config_any
+      #     target << sf_proto
+      #   end
+      # end
 
-          if v.is_a?(Hash)
-            m = config_proto.send(k)
-            v.each do |k2,v2|
-              m[k2] = v2
-            end 
-            v = m
-          end
+      # def to_proto
+      #   config_proto = CONFIG_VM_CLS.new()
+      #   self.instance_variables_hash.each do |k, v|
+      #     # Skip config that has not be set
+      #     next if v.class == Object
 
-          if v.is_a?(Array)
-            m = config_proto.send(k)
-            v.each do |v2|
-              m << v2
-            end 
-            v = m
-          end
+      #     # Going to deal with these seperately because they are a little different
+      #     next if ["networks", "synced_folders"].include?(k)
 
-          begin
-            config_proto.send("#{k}=", v)
-          rescue NoMethodError
-            # Reach here when Hashicorp::Vagrant::VagrantfileComponents::ConfigVM does not
-            # have a config variable for one of the instance methods. This is ok.
-          end
-        end
-        extract_provider(config_proto.providers, self)
-        extract_network(config_proto.networks, self.networks)
-        extract_synced_folders(config_proto.synced_folders, self.synced_folders)
-        config_proto
-      end
+      #     # Extract a proto!
+      #     if ["provisioners", "disks", "cloud_init_configs"].include?(k)
+      #       v.each do |el|
+      #         config_proto[k] << el.to_proto
+      #       end
+      #       next
+      #     end
+
+      #     # Skip all variables that are internal
+      #     next if k.start_with?("_")
+
+      #     if v.nil?
+      #       # If v is nil, set it to the default value defined by the proto
+      #       v = config_proto.send(k)
+      #     end
+
+      #     if v.is_a?(Range)
+      #       v = v.to_a
+      #     end
+
+      #     if v.is_a?(Hash)
+      #       m = config_proto.send(k)
+      #       v.each do |k2,v2|
+      #         m[k2] = v2
+      #       end
+      #       v = m
+      #     end
+
+      #     if v.is_a?(Array)
+      #       m = config_proto.send(k)
+      #       v.each do |v2|
+      #         m << v2
+      #       end
+      #       v = m
+      #     end
+
+      #     begin
+      #       config_proto.send("#{k}=", v)
+      #     rescue NoMethodError
+      #       # Reach here when Hashicorp::Vagrant::VagrantfileComponents::ConfigVM does not
+      #       # have a config variable for one of the instance methods. This is ok.
+      #     end
+      #   end
+      #   extract_provider(config_proto.providers, self)
+      #   extract_network(config_proto.networks, self.networks)
+      #   extract_synced_folders(config_proto.synced_folders, self.synced_folders)
+      #   config_proto
+      # end
     end
   end
 end

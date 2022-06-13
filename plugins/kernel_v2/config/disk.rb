@@ -216,10 +216,6 @@ module VagrantPlugins
       def to_s
         "disk config"
       end
-
-      def to_proto
-        # TODO
-      end
     end
   end
 end
