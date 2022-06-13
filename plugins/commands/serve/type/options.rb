@@ -1,4 +1,4 @@
-require "ostruct"
+#require "ostruct"
 
 module VagrantPlugins
   module CommandServe
@@ -9,7 +9,7 @@ module VagrantPlugins
             raise TypeError,
               "Expected type `Hash' but received `#{value.class}'"
           end
-          super(value: OpenStruct.new(value).to_h)
+          super(value: value)
         end
       end
     end
