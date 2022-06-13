@@ -5,6 +5,7 @@ import (
 
 	"github.com/hashicorp/vagrant/internal/server/proto/vagrant_server"
 	"google.golang.org/protobuf/types/known/emptypb"
+	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 func (s *service) ListBoxes(
@@ -44,6 +45,7 @@ func (s *service) UpsertBox(
 	req *vagrant_server.UpsertBoxRequest,
 ) (*vagrant_server.UpsertBoxResponse, error) {
 	result := req.Box
+	result.LastUpdate = timestamppb.Now()
 	if err := s.state.BoxPut(result); err != nil {
 		return nil, err
 	}
