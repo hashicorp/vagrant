@@ -110,6 +110,7 @@ func New(opts ...Option) (*Runner, error) {
 	if runner.plugins == nil {
 		runner.plugins = plugin.NewManager(
 			runner.ctx,
+			runner.vagrantRubyClient,
 			runner.logger.Named("plugin-manager"),
 		)
 		runner.cleanup(func() { runner.plugins.Close() })
