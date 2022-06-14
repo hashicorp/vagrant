@@ -11,6 +11,7 @@ import (
 
 	"github.com/hashicorp/go-hclog"
 	"github.com/hashicorp/vagrant-plugin-sdk/component"
+	vconfig "github.com/hashicorp/vagrant-plugin-sdk/config"
 	"github.com/hashicorp/vagrant-plugin-sdk/core"
 	"github.com/hashicorp/vagrant-plugin-sdk/helper/path"
 	"github.com/hashicorp/vagrant-plugin-sdk/internal-shared/cacher"
@@ -61,14 +62,19 @@ func (m *Machine) SetID(value string) (err error) {
 func (m *Machine) Box() (b core.Box, err error) {
 	if m.box == nil {
 		boxes, _ := m.project.Boxes()
-		boxName := m.Config().ConfigVm.Box
-		// Get the first provider available - that's the one that
-		// will be used to launch the machine
+		boxName, err := m.vagrantfile.GetValue("vm", "box")
+		if err != nil {
+			m.logger.Error("failed to get machine box name from config",
+				"error", err,
+			)
+
+			return nil, err
+		}
 		provider, err := m.ProviderName()
 		if err != nil {
 			return nil, err
 		}
-		b, err := boxes.Find(boxName, "", provider)
+		b, err := boxes.Find(boxName.(string), "", provider)
 		if err != nil {
 			return nil, err
 		}
@@ -76,7 +82,7 @@ func (m *Machine) Box() (b core.Box, err error) {
 			return &Box{
 				basis: m.project.basis,
 				box: &vagrant_server.Box{
-					Name:     boxName,
+					Name:     boxName.(string),
 					Provider: provider,
 				},
 			}, nil
@@ -107,19 +113,27 @@ func (m *Machine) Guest() (g core.Guest, err error) {
 
 	// Check if a guest is provided by the Vagrantfile. If it is, then try
 	// to use that guest
-	// TODO: This check maybe needs to get reworked when the Vagrantfile bits
-	// actually start getting used
-	if m.target.Configuration.ConfigVm.Guest != "" {
-		// Ignore error about guest not being found - will also try detecting the guest
-		guest, cerr := m.project.basis.component(
-			m.ctx, component.GuestType, m.target.Configuration.ConfigVm.Guest)
-		if cerr != nil {
-			return nil, cerr
+	vg, err := m.vagrantfile.GetValue("vm", "guest")
+	if err != nil {
+		m.logger.Trace("failed to get guest value from vagrantfile",
+			"error", err,
+		)
+	} else {
+		guestName, ok := vg.(string)
+		if ok {
+			guest, err := m.project.basis.component(m.ctx, component.GuestType, guestName)
+			if err != nil {
+				return nil, err
+			}
+			if guest != nil {
+				return guest.Value.(core.Guest), nil
+			}
+		} else {
+			m.logger.Debug("guest name was not a valid string value",
+				"guest", vg,
+			)
 		}
-		if guest != nil {
-			g = guest.Value.(core.Guest)
-			return
-		}
+
 	}
 
 	// Try to detect a guest
@@ -300,8 +314,7 @@ func (m *Machine) defaultSyncedFolderType() (folderType *string, err error) {
 
 // SyncedFolders implements core.Machine
 func (m *Machine) SyncedFolders() (folders []*core.MachineSyncedFolder, err error) {
-	config := m.target.Configuration
-	machineConfig := config.ConfigVm
+	machineConfig := m.MachineConfig()
 	syncedFolders := machineConfig.SyncedFolders
 
 	folders = []*core.MachineSyncedFolder{}

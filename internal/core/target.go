@@ -13,19 +13,21 @@ import (
 	"github.com/hashicorp/go-argmapper"
 	"github.com/hashicorp/go-hclog"
 	"github.com/hashicorp/go-multierror"
-	"github.com/hashicorp/vagrant/internal/config"
-	"github.com/hashicorp/vagrant/internal/serverclient"
-	"google.golang.org/protobuf/proto"
+	goplugin "github.com/hashicorp/go-plugin"
 	"google.golang.org/protobuf/types/known/anypb"
 
 	"github.com/hashicorp/vagrant-plugin-sdk/component"
+	vconfig "github.com/hashicorp/vagrant-plugin-sdk/config"
 	"github.com/hashicorp/vagrant-plugin-sdk/core"
 	"github.com/hashicorp/vagrant-plugin-sdk/datadir"
 	"github.com/hashicorp/vagrant-plugin-sdk/internal-shared/cacher"
+	"github.com/hashicorp/vagrant-plugin-sdk/internal-shared/dynamic"
 	"github.com/hashicorp/vagrant-plugin-sdk/proto/vagrant_plugin_sdk"
 	"github.com/hashicorp/vagrant-plugin-sdk/terminal"
-
+	"github.com/hashicorp/vagrant/internal/config"
+	"github.com/hashicorp/vagrant/internal/plugin"
 	"github.com/hashicorp/vagrant/internal/server/proto/vagrant_server"
+	"github.com/hashicorp/vagrant/internal/serverclient"
 )
 
 type Target struct {
@@ -35,15 +37,25 @@ type Target struct {
 	logger  hclog.Logger
 	dir     *datadir.Target
 
-	m       sync.Mutex
-	jobInfo *component.JobInfo
-	closers []func() error
-	ui      terminal.UI
-	cache   cacher.Cache
+	m             sync.Mutex
+	jobInfo       *component.JobInfo
+	closers       []func() error
+	ui            terminal.UI
+	cache         cacher.Cache
+	configuration *component.ConfigData
+	vagrantfile   *Vagrantfile
 }
 
-func (b *Target) Config() *vagrant_plugin_sdk.Vagrantfile_MachineConfig {
-	return b.target.Configuration
+func (t *Target) String() string {
+	return fmt.Sprintf("core.Target[basis: %s, project: %s, resource_id: %s, address: %p]",
+		t.project.basis.Name(), t.project.Name(), t.target.ResourceId, t,
+	)
+}
+
+func (t *Target) Config() (c interface{}, err error) {
+	c = &vconfig.Target{}
+	//	err = vconfig.DecodeConfiguration(b.target.Configuration.Serialized, c)
+	return nil, fmt.Errorf("not implemented")
 }
 
 func (t *Target) GetUUID() (id string, err error) {
@@ -331,6 +343,31 @@ func (t *Target) Run(ctx context.Context, task *vagrant_server.Task) (err error)
 	return
 }
 
+// LoadTarget implements originScope
+func (t *Target) LoadTarget(topts ...TargetOption) (*Target, error) {
+	return nil, fmt.Errorf("targets cannot be loaded from a target")
+}
+
+// Boxes implements originScope
+func (t *Target) Boxes() (core.BoxCollection, error) {
+	return nil, fmt.Errorf("boxes cannot be loaded from a target")
+}
+
+// Vagrantfile implements originScope / core.Target
+func (t *Target) Vagrantfile() (core.Vagrantfile, error) {
+	return t.vagrantfile, nil
+}
+
+// Cache implements originScope
+func (t *Target) Cache() cacher.Cache {
+	return t.project.basis.cache
+}
+
+// Broker implements originScope
+func (t *Target) Broker() *goplugin.GRPCBroker {
+	return t.project.basis.plugins.LegacyBroker()
+}
+
 func (t *Target) seed(fn func(*core.Seeds)) {
 	t.project.seed(
 		func(s *core.Seeds) {
@@ -407,34 +444,129 @@ func (t *Target) doOperation(
 	return doOperation(ctx, log, t, op)
 }
 
+// Initialize the target instance
+func (t *Target) init() (err error) {
+	// Name or resource id is required for a target to be loaded
+	if t.target.Name == "" && t.target.ResourceId == "" {
+		return fmt.Errorf("cannot load a target without name or resource id")
+	}
+
+	// A parent project is also required
+	if t.project == nil {
+		return fmt.Errorf("cannot load a target without defined project")
+	}
+
+	// If the configuration was updated during load, save it so
+	// we can re-apply after loading stored data
+	var conf *vagrant_plugin_sdk.Args_ConfigData
+	if t.configuration != nil {
+		conf = t.target.Configuration
+	}
+
+	// First we want to run a lookup if this target already exists
+	if t.target.ResourceId != "" {
+		resp, err := t.Client().FindTarget(t.ctx,
+			&vagrant_server.FindTargetRequest{
+				Target: &vagrant_server.Target{
+					ResourceId: t.target.ResourceId,
+				},
+			},
+		)
+		if err != nil {
+			return err
+		}
+
+		t.target = resp.Target
+	} else {
+		for _, pt := range t.project.project.Targets {
+			if t.target.Name == pt.Name {
+				resp, err := t.Client().FindTarget(t.ctx,
+					&vagrant_server.FindTargetRequest{
+						Target: &vagrant_server.Target{
+							ResourceId: pt.ResourceId,
+						},
+					},
+				)
+				if err != nil {
+					return err
+				}
+				t.target = resp.Target
+			}
+		}
+	}
+
+	// If we have configuration data, re-apply it
+	if conf != nil {
+		t.target.Configuration = conf
+	}
+
+	// Set the project into the target
+	t.target.Project = t.project.Ref().(*vagrant_plugin_sdk.Ref_Project)
+
+	// If the configuration is loaded, then we are done here
+	if t.configuration != nil {
+		return
+	}
+
+	// If we don't have configuration data, just stub
+	if t.target.Configuration == nil {
+		t.configuration = &component.ConfigData{}
+		return
+	}
+
+	internal := plugin.NewInternal(
+		t.project.basis.plugins.LegacyBroker(),
+		t.project.basis.cache,
+		t.project.basis.cleaner,
+		t.logger,
+		t.project.basis.mappers,
+	)
+
+	// Load the configuration data we have
+	raw, err := dynamic.Map(
+		t.target.Configuration,
+		(**component.ConfigData)(nil),
+		argmapper.ConverterFunc(t.project.basis.mappers...),
+		argmapper.Typed(
+			t.ctx,
+			t.logger,
+			internal,
+		),
+	)
+
+	if err != nil {
+		return
+	}
+
+	t.configuration = raw.(*component.ConfigData)
+	t.vagrantfile = t.project.vagrantfile.clone("target", t)
+	t.vagrantfile.root = t.configuration
+
+	return
+}
+
+// Options type for target loading
 type TargetOption func(*Target) error
 
-func WithTargetName(name string) TargetOption {
+// Set a vagrantfile instance on target
+func WithTargetVagrantfile(v *Vagrantfile) TargetOption {
 	return func(t *Target) (err error) {
-		if ex, _ := t.project.Target(name, ""); ex != nil {
-			if et, ok := ex.(*Target); ok {
-				t.target = et.target
-			}
-			return
-		}
-		for _, target := range t.project.targets {
-			if target.target.Name != name {
-				continue
-			}
-			var result *vagrant_server.GetTargetResponse
-			result, err = t.Client().GetTarget(t.ctx,
-				&vagrant_server.GetTargetRequest{
-					Target: target.Ref().(*vagrant_plugin_sdk.Ref_Target)})
-			if err != nil {
-				return
-			}
-			t.target = result.Target
-			return
-		}
-		return fmt.Errorf("target `%s' is not registered in project", name)
+		t.vagrantfile = v
+		t.configuration = v.root
+		t.target.Configuration, err = v.rootToStore()
+		return
 	}
 }
 
+// Set name on target
+func WithTargetName(name string) TargetOption {
+	return func(t *Target) (err error) {
+		t.target.Name = name
+		return nil
+	}
+}
+
+// Configure target with proto ref
 func WithTargetRef(r *vagrant_plugin_sdk.Ref_Target) TargetOption {
 	return func(t *Target) (err error) {
 		// Project must be set before we continue
@@ -452,9 +584,11 @@ func WithTargetRef(r *vagrant_plugin_sdk.Ref_Target) TargetOption {
 				},
 			},
 		)
-		if err != nil {
-			return err
-		}
+
+		// TODO(spox): check for not found and error if something different
+		// if err != nil {
+		// 	return err
+		// }
 		if result != nil {
 			target = result.Target
 		} else {

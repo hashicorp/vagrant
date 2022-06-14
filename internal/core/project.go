@@ -9,11 +9,12 @@ import (
 	"strings"
 	"sync"
 
-	"google.golang.org/protobuf/proto"
 	"github.com/hashicorp/go-argmapper"
 	"github.com/hashicorp/go-hclog"
 	"github.com/hashicorp/go-multierror"
+	goplugin "github.com/hashicorp/go-plugin"
 	"google.golang.org/grpc/status"
+	"google.golang.org/protobuf/proto"
 
 	"github.com/hashicorp/vagrant-plugin-sdk/component"
 	"github.com/hashicorp/vagrant-plugin-sdk/core"
@@ -34,13 +35,14 @@ import (
 // The Close function should be called when finished with the project
 // to properly clean up any open resources.
 type Project struct {
-	project *vagrant_server.Project
-	ctx     context.Context
-	basis   *Basis
-	logger  hclog.Logger
-	targets map[string]*Target
-	dir     *datadir.Project
-	mappers []*argmapper.Func
+	project     *vagrant_server.Project
+	ctx         context.Context
+	basis       *Basis
+	logger      hclog.Logger
+	targets     map[string]*Target
+	dir         *datadir.Project
+	mappers     []*argmapper.Func
+	vagrantfile *Vagrantfile
 
 	// jobInfo is the base job info for executed functions.
 	jobInfo *component.JobInfo
@@ -55,6 +57,26 @@ type Project struct {
 	// as a whole. These messages will show up unprefixed for example compared
 	// to the app-specific UI.
 	ui terminal.UI
+}
+
+func (p *Project) String() string {
+	return fmt.Sprintf("core.Project:[basis: %s, name: %s, resource_id: %s, address: %p]",
+		p.basis.Name(), p.project.Name, p.project.ResourceId, p)
+}
+
+// Cache implements originScope
+func (p *Project) Cache() cacher.Cache {
+	return p.basis.cache
+}
+
+// Broker implements originScope
+func (p *Project) Broker() *goplugin.GRPCBroker {
+	return p.basis.plugins.LegacyBroker()
+}
+
+// Vagrantfile implements originScope
+func (p *Project) Vagrantfile() (core.Vagrantfile, error) {
+	return p.vagrantfile, nil
 }
 
 // ActiveTargets implements core.Project
@@ -76,14 +98,14 @@ func (p *Project) ActiveTargets() (activeTargets []core.Target, err error) {
 	return
 }
 
+// Config implements core.Project
+func (p *Project) Config() (core.Vagrantfile, error) {
+	return p.vagrantfile, nil
+}
+
 // Boxes implements core.Project
 func (p *Project) Boxes() (bc core.BoxCollection, err error) {
 	return p.basis.Boxes()
-}
-
-// Config implements core.Project
-func (p *Project) Config() (*vagrant_plugin_sdk.Vagrantfile_Vagrantfile, error) {
-	return p.project.Configuration, nil
 }
 
 // CWD implements core.Project
@@ -99,6 +121,12 @@ func (p *Project) DataDir() (*datadir.Project, error) {
 // DefaultPrivateKey implements core.Project
 func (p *Project) DefaultPrivateKey() (path path.Path, err error) {
 	return p.basis.DefaultPrivateKey()
+}
+
+// VagrantfileName implements core.Project
+func (p *Project) VagrantfileName() (name string, err error) {
+	fullPath := path.NewPath(p.project.Configuration.Path.Path)
+	return fullPath.Base().String(), nil
 }
 
 // DefaultProvider implements core.Project
@@ -284,6 +312,12 @@ func (p *Project) DefaultProvider(opts *core.DefaultProviderOptions) (string, er
 	return "", errors.New("No default provider.")
 }
 
+// VagrantfilePath implements core.Project
+func (p *Project) VagrantfilePath() (pp path.Path, err error) {
+	pp = path.NewPath(p.project.Configuration.Path.Path).Parent()
+	return
+}
+
 // Home implements core.Project
 func (p *Project) Home() (dir path.Path, err error) {
 	return path.NewPath(p.project.Path), nil
@@ -317,7 +351,9 @@ func (p *Project) RootPath() (path path.Path, err error) {
 }
 
 // Target implements core.Project
+
 func (p *Project) Target(nameOrId string, provider string) (core.Target, error) {
+	// TODO(spox): need to validate name based on config, then create/load or reject with error
 	if t, ok := p.targets[nameOrId]; ok {
 		return t, nil
 	}
@@ -389,18 +425,6 @@ func (p *Project) UI() (terminal.UI, error) {
 	return p.ui, nil
 }
 
-// VagrantfileName implements core.Project
-func (p *Project) VagrantfileName() (name string, err error) {
-	fullPath := path.NewPath(p.project.Configuration.Path)
-	return fullPath.Base().String(), nil
-}
-
-// VagrantfilePath implements core.Project
-func (p *Project) VagrantfilePath() (pp path.Path, err error) {
-	pp = path.NewPath(p.project.Configuration.Path).Parent()
-	return
-}
-
 // Targets
 func (p *Project) Targets() ([]core.Target, error) {
 	var targets []core.Target
@@ -436,7 +460,10 @@ func (p *Project) LoadTarget(topts ...TargetOption) (t *Target, err error) {
 		ctx:     p.ctx,
 		project: p,
 		logger:  p.logger,
-		ui:      p.ui,
+		target: &vagrant_server.Target{
+			Project: p.Ref().(*vagrant_plugin_sdk.Ref_Project),
+		},
+		ui: p.ui,
 	}
 
 	// Apply any options provided
@@ -450,19 +477,46 @@ func (p *Project) LoadTarget(topts ...TargetOption) (t *Target, err error) {
 		return nil, err
 	}
 
+	if c, ok := p.targets[t.target.Name]; ok {
+		if c.vagrantfile != nil {
+			return c, nil
+		}
+	}
+
+	if c, ok := p.targets[t.target.ResourceId]; ok {
+		// If the vagrantfile hasn't been set on the cached
+		// value, re-apply the options before returning
+		if c.vagrantfile == nil {
+			// If it hasn't, re-apply the opts before returning
+			for _, opt := range topts {
+				if oerr := opt(c); oerr != nil {
+					err = multierror.Append(err, oerr)
+				}
+			}
+			if err != nil {
+				return nil, err
+			}
+		}
+		return c, nil
+	}
+
+	// If this is the first time through, re-init the target
+	if err = t.init(); err != nil {
+		return
+	}
+
+	// If the data directory is set, set it
 	if t.dir == nil {
 		if t.dir, err = p.dir.Target(t.target.Name); err != nil {
 			return nil, err
 		}
 	}
 
-	// If the machine is already loaded, return that
-	if target, ok := p.targets[t.target.ResourceId]; ok {
-		return target, nil
-	}
-
+	// Add the target to target list in project
 	p.targets[t.target.ResourceId] = t
+	p.targets[t.target.Name] = t
 
+	// Update the logger name based on the level
 	if t.logger.IsTrace() {
 		t.logger = t.logger.Named("target")
 	} else {
@@ -471,6 +525,19 @@ func (p *Project) LoadTarget(topts ...TargetOption) (t *Target, err error) {
 
 	// Ensure any modifications to the target are persisted
 	t.Closer(func() error { return t.Save() })
+
+	// Remove the target from the list when closed
+	t.Closer(func() error {
+		p.m.Lock()
+		defer p.m.Lock()
+		delete(p.targets, t.target.ResourceId)
+		return nil
+	})
+
+	// Close the target when the project is closed
+	p.Closer(func() error {
+		return t.Close()
+	})
 
 	return
 }
@@ -544,7 +611,7 @@ func (p *Project) seed(fn func(*core.Seeds)) {
 		func(s *core.Seeds) {
 			s.AddNamed("project", p)
 			s.AddNamed("project_ui", p.ui)
-			s.AddTyped(p)
+			s.AddTyped(p, p.vagrantfile)
 			if fn != nil {
 				fn(s)
 			}
@@ -645,10 +712,23 @@ func (p *Project) InitTargets() (err error) {
 	p.m.Lock()
 	defer p.m.Unlock()
 
+	defer func() {
+		if err != nil {
+			p.logger.Error("failed to initialize targets",
+				"error", err,
+			)
+		}
+	}()
+
 	p.logger.Trace("initializing targets defined within project",
 		"project", p.Name())
 
-	if p.project.Configuration == nil || p.project.Configuration.MachineConfigs == nil {
+	targets, err := p.vagrantfile.TargetNames()
+	if err != nil {
+		return
+	}
+
+	if len(targets) == 0 {
 		p.logger.Trace("no targets defined within current project",
 			"project", p.Name())
 
@@ -666,23 +746,19 @@ func (p *Project) InitTargets() (err error) {
 	)
 
 	updated := false
-	for _, t := range p.project.Configuration.MachineConfigs {
-		if t == nil {
-			continue
-		}
+	for _, t := range targets {
 		_, err = p.Client().UpsertTarget(p.ctx,
 			&vagrant_server.UpsertTargetRequest{
 				Target: &vagrant_server.Target{
-					Name:          t.Name,
-					Project:       p.Ref().(*vagrant_plugin_sdk.Ref_Project),
-					Configuration: t,
+					Name:    t,
+					Project: p.Ref().(*vagrant_plugin_sdk.Ref_Project),
 				},
 			},
 		)
 		if err != nil {
 			p.logger.Error("failed to initialize target with project",
 				"project", p.Name(),
-				"target", t.Name,
+				"target", t,
 				"error", err,
 			)
 
