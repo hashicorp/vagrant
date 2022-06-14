@@ -13,7 +13,13 @@ module VagrantPlugins
           :DESTROYED,
         ].freeze
 
-        # @return [Hashicorp::Vagrant::Sdk::Ref::Target] proto reference for this target
+
+        # @return [SDK::Ref::Target] proto reference for this target
+        def vagrantfile
+          client.vagrantfile(Empty.new).to_ruby
+        end
+
+        # @return [SDK::Ref::Target] proto reference for this target
         def ref
           SDK::Ref::Target.new(resource_id: resource_id)
         end
@@ -59,6 +65,10 @@ module VagrantPlugins
         # @return [Project] project this target is within
         def project
           Project.load(client.project(Empty.new), broker: broker)
+        end
+
+        def environment
+          client.project(Empty.new).to_ruby
         end
 
         # @return [Provider] provider for target
