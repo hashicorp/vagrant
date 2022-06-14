@@ -1,3 +1,5 @@
+require 'ostruct'
+
 module Vagrant
   class Machine
     # This module enables the Machine for server mode
@@ -26,42 +28,34 @@ module Vagrant
       # @param [Box] box The box that is backing this virtual machine.
       # @param [Environment] env The environment that this machine is a
       #   part of.
-      def initialize(name, provider_name, provider_cls, provider_config, provider_options, config, data_dir, box, env, vagrantfile, base=false, client: nil)
+      def initialize(*args, client:)
         @logger = Log4r::Logger.new("vagrant::machine")
-        if !env.nil? && client.nil?
-          @env = env
-          @client = env.get_target(name, provider_name)
-        else
-          @client = client
-          @env = client.environment
-        end
-
-        if @client.nil?
-          raise ArgumentError,
-            "Remote client is required for `#{self.class.name}'"
-        end
-
-        @name = @client.name
-        @ui = Vagrant::UI::Prefixed.new(@env.ui, @name)
-        # TODO: get vagrantfile from go
-        @vagrantfile = @env.vagrantfile
-        @provider_name = @client.provider_name
-        provider_cls = Array(
-          Vagrant.plugin("2").remote_manager.providers[@provider_name.to_sym]
-        ).first
-        @provider = provider_cls.new(self, {client: @client.provider})
-        # TODO: get machine config info from go
-        mc = @vagrantfile.machine_config(@name.to_sym, @provider_name.to_sym, nil)
-        @config = mc[:config]
-        @provider_options = mc[:provider_options]
-        @provider_config = @config.vm.get_provider_config(@provider_name.to_sym)
-
-        @data_dir        = @client.data_dir
-        @name            = name
+        @client = client
+        @env = client.environment
+        @ui = Vagrant::UI::Prefixed.new(@env.ui, name)
+        @box             = client.box
+        @config          = client.vagrantfile.config
+        @data_dir        = client.data_dir
+        @vagrantfile     = client.vagrantfile
         @ui_mutex        = Mutex.new
         @state_mutex     = Mutex.new
         # TODO: get trigger config from go
         @triggers        = Vagrant::Plugin::V2::Trigger.new(@env, @config.trigger, self, @ui)
+        @provider_name = client.provider_name.to_sym
+        @provider = Vagrant.plugin("2").local_manager.providers[@provider_name].first.new(self)
+        @provider_options = {} # @config.vm.get_provider_overrides(@provider_name)
+        @provider_config = @config.vm.get_provider_config(@provider_name)
+        @logger.info("provider config data for machine: #{@provider_config.class} - #{@provider_config}")
+        @logger.info("root config data: #{@config.vm.inspect}")
+        @logger.info("compiled provider configs: #{@config.vm.instance_variable_get(:@__compiled_provider_configs).inspect}")
+
+        # Keep track of where our UUID should be placed
+        @index_uuid_file = nil
+        @index_uuid_file = @data_dir.join("index_uuid") if @data_dir
+
+        # Output a bunch of information about this machine in
+        # machine-readable format in case someone is listening.
+        @ui.machine("metadata", "provider", provider_name)
       end
 
       # @return [Box]
@@ -123,6 +117,22 @@ module Vagrant
 
       def name
         client.name.to_sym
+      end
+
+      # TODO
+      # def index_uuid
+      #   client.get_uuid
+      # end
+
+      def recover_machine(*_)
+        nil
+      end
+
+      def state
+        s = @provider.state
+        raise Errors::MachineStateInvalid if !s.is_a?(MachineState)
+        client.set_machine_state(s) unless s.nil?
+        return s
       end
 
       def provider
