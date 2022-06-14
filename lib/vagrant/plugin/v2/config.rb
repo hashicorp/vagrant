@@ -12,7 +12,8 @@ module Vagrant
         # was never set, and a value that is nil (explicitly). Best practice
         # is to initialize all variables to this value, then the {#merge}
         # method below will "just work" in many cases.
-        UNSET_VALUE = Object.new
+
+        UNSET_VALUE = :__UNSET__VALUE__
 
         if Vagrant.server_mode?
           GENERAL_CONFIG_CLS = Hashicorp::Vagrant::Sdk::Vagrantfile::GeneralConfig
@@ -161,24 +162,6 @@ module Vagrant
           # Remote variables that are internal
           config.delete_if{|k,_| k.start_with?("_") }
           config
-        end
-
-        def to_proto(type)
-          mapper = VagrantPlugins::CommandServe::Mappers.new
-
-          protoize = self.instance_variables_hash
-          protoize.map do |k,v|
-            # Get embedded default struct
-            if v.is_a?(Vagrant.plugin("2", :config))
-              hashed_config = v.instance_variables_hash
-              hashed_config.delete_if{|k,v| k.start_with?("_") }
-              protoize[k] = hashed_config
-            end
-          end
-          protoize = clean_up_config_object(protoize)
-          config_struct = mapper.map(protoize, to: Hashicorp::Vagrant::Sdk::Args::Hash)
-          config_any = Google::Protobuf::Any.pack(config_struct)
-          GENERAL_CONFIG_CLS.new(type: type, config: config_any)
         end
       end
     end
