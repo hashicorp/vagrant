@@ -16,6 +16,8 @@ require 'grpc'
 require 'grpc/health/checker'
 require 'grpc/health/v1/health_services_pb'
 
+require Vagrant.source_root.join("plugins/commands/serve/util/direct_conversions.rb").to_s
+
 module VagrantPlugins
   module CommandServe
     # Simple constant aliases to reduce namespace typing
@@ -29,6 +31,12 @@ module VagrantPlugins
     autoload :Service, Vagrant.source_root.join("plugins/commands/serve/service").to_s
     autoload :Type, Vagrant.source_root.join("plugins/commands/serve/type").to_s
     autoload :Util, Vagrant.source_root.join("plugins/commands/serve/util").to_s
+
+    class << self
+      attr_accessor :broker
+      attr_reader :cache
+    end
+    @cache = Util::Cacher.new
 
     class Command < Vagrant.plugin("2", :command)
 
@@ -93,11 +101,13 @@ module VagrantPlugins
 
         health_checker = Grpc::Health::Checker.new
         broker = Broker.new(bind: bind_addr, ports: ports)
+        CommandServe.broker = broker
         logger.debug("vagrant grpc broker started for grpc service addr=#{bind_addr} ports=#{ports.inspect}")
 
         [Broker::Streamer,
           Service::CommandService,
           Service::CommunicatorService,
+          Service::ConfigService,
           Service::GuestService,
           Service::HostService,
           Service::InternalService,
