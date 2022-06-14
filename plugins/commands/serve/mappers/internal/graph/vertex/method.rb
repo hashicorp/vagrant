@@ -40,6 +40,13 @@ module VagrantPlugins
                 "<Vertex:Method callable=#{@callable} hash=#{hash_code}>"
               end
 
+              def extra_weight
+                if callable.respond_to?(:extra_weight)
+                  return callable.extra_weight
+                end
+                0
+              end
+
               def inspect
                 "<#{self.class.name} callable=#{@callable} value=#{value} hash=#{hash_code}>"
               end
