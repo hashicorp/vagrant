@@ -289,7 +289,7 @@ module Vagrant
         protected
 
         # Sentinel value denoting that a value has not been set.
-        UNSET_VALUE = Object.new
+        UNSET_VALUE = :__UNSET__VALUE__
 
         # Helper method that will set a value if a value is given, or otherwise
         # return the already set value.
