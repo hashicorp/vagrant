@@ -162,8 +162,7 @@ module Vagrant
       end
 
       def vagrantfile
-        # When in remote mode we don't load the "home" vagrantfile
-        @vagrantfile ||= Vagrant::Vagrantfile.new(config_loader, [:root])
+        client.vagrantfile
       end
 
       def to_proto
