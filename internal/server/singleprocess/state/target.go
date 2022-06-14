@@ -140,7 +140,7 @@ func (s *State) targetFind(
 	}
 
 	if match == nil {
-		return nil, status.Errorf(codes.NotFound, "record not found for Target")
+		return nil, status.Errorf(codes.NotFound, "record not found for Target (name: %s resource_id: %s)", m.Name, m.ResourceId)
 	}
 
 	return s.targetGet(dbTxn, memTxn, &vagrant_plugin_sdk.Ref_Target{
@@ -200,7 +200,7 @@ func (s *State) targetPut(
 			proto.Merge(value, foundTarget)
 			value.ResourceId = foundTarget.ResourceId
 			value.Uuid = foundTarget.Uuid
-			value.Configuration = finalConfig.(*vagrant_plugin_sdk.Vagrantfile_MachineConfig)
+			value.Configuration = finalConfig.(*vagrant_plugin_sdk.Args_ConfigData)
 		} else {
 			s.log.Trace("target has no resource id and could not find matching target, assuming new target",
 				"target", value)
