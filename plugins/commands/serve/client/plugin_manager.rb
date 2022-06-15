@@ -18,7 +18,7 @@ module VagrantPlugins
         end
 
         def get_plugin(name:, type:)
-          @logger.info("fetching plugin from vagrant-agogo name: #{name}, type: #{type}")
+          logger.info("fetching plugin from vagrant-agogo name: #{name}, type: #{type}")
           resp = client.get_plugin(
             SDK::PluginManager::Plugin.new(
               name: name,
