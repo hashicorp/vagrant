@@ -219,7 +219,7 @@ module Vagrant
         # Get the proper version loader for this version and load
         version_loader = @versions.get(version)
         raise KeyError,
-              "Failed to create loader for requested version: #{version}"
+              "Failed to create loader for requested version: #{version}" if version_loader.nil?
 
         begin
           version_config = version_loader.load(proc)
