@@ -138,6 +138,10 @@ func (p *Project) LoadTarget(n string) (*Target, error) {
 		return nil, err
 	}
 
+	p.logger.Trace("encoded configuration value",
+		"config", s,
+	)
+
 	uresult, err := p.vagrant.UpsertTarget(p.ctx,
 		&vagrant_server.UpsertTargetRequest{
 			Target: &vagrant_server.Target{
