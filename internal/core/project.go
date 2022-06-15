@@ -477,27 +477,22 @@ func (p *Project) LoadTarget(topts ...TargetOption) (t *Target, err error) {
 		return nil, err
 	}
 
+	// Lookup target in cached list by name
 	if c, ok := p.targets[t.target.Name]; ok {
-		if c.vagrantfile != nil {
-			return c, nil
-		}
+		return c, nil
 	}
 
+	// Lookup target in cached list by resource id
 	if c, ok := p.targets[t.target.ResourceId]; ok {
-		// If the vagrantfile hasn't been set on the cached
-		// value, re-apply the options before returning
-		if c.vagrantfile == nil {
-			// If it hasn't, re-apply the opts before returning
-			for _, opt := range topts {
-				if oerr := opt(c); oerr != nil {
-					err = multierror.Append(err, oerr)
-				}
-			}
-			if err != nil {
-				return nil, err
-			}
-		}
 		return c, nil
+	}
+
+	// Only store cache the local target if the vagrantfile
+	// has been set
+	if t.vagrantfile != nil {
+		// Add the target to target list in project
+		p.targets[t.target.ResourceId] = t
+		p.targets[t.target.Name] = t
 	}
 
 	// If this is the first time through, re-init the target
@@ -511,10 +506,6 @@ func (p *Project) LoadTarget(topts ...TargetOption) (t *Target, err error) {
 			return nil, err
 		}
 	}
-
-	// Add the target to target list in project
-	p.targets[t.target.ResourceId] = t
-	p.targets[t.target.Name] = t
 
 	// Update the logger name based on the level
 	if t.logger.IsTrace() {
@@ -560,11 +551,6 @@ func (p *Project) Run(ctx context.Context, task *vagrant_server.Task) (err error
 	p.logger.Debug("running new task",
 		"project", p,
 		"task", task)
-
-	// Intialize targets
-	if err = p.InitTargets(); err != nil {
-		return err
-	}
 
 	cmd, err := p.basis.component(
 		ctx, component.CommandType, task.Component.Name)
