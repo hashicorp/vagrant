@@ -42,7 +42,7 @@ class Object
       )
     end
   rescue => err
-    PROTO_LOGGER.warn("failed to proto #{self.class} with value: #{value} | reason: #{err}")
+    PROTO_LOGGER.warn("failed to proto #{self.class} | reason: #{err}")
     raise
   end
 end
@@ -337,8 +337,8 @@ class Hashicorp::Vagrant::Sdk::Args::ConfigData
     # is finalized data, finalize the config before we forcibly
     # set the instance variables
     if d.key?("__service_finalized")
-      PROTO_LOGGER.trace("config data is finalized, so finalizing instance (Class: #{base_klass})")
       instance.finalize!
+      instance._finalize!
     end
 
     # Now set our data into the instance
