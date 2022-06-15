@@ -16,8 +16,6 @@ require 'grpc'
 require 'grpc/health/checker'
 require 'grpc/health/v1/health_services_pb'
 
-require Vagrant.source_root.join("plugins/commands/serve/util/direct_conversions.rb").to_s
-
 module VagrantPlugins
   module CommandServe
     # Simple constant aliases to reduce namespace typing
@@ -136,3 +134,6 @@ module VagrantPlugins
     end
   end
 end
+
+# Load in our conversions down here so all the autoload stuff is in place
+require Vagrant.source_root.join("plugins/commands/serve/util/direct_conversions.rb").to_s
