@@ -16,5 +16,8 @@ package main
 // Builds the Ruby GRPC for the Vagrant Plugin SDK
 //go:generate sh -c "grpc_tools_ruby_protoc -I`go list -m -f \"{{.Dir}}\" github.com/hashicorp/vagrant-plugin-sdk`/proto -I`go list -m -f \"{{.Dir}}\" github.com/mitchellh/protostructure` -I`go list -m -f \"{{.Dir}}\" github.com/hashicorp/vagrant-plugin-sdk`/3rdparty/proto/api-common-protos -I`go list -m -f \"{{.Dir}}\" github.com/hashicorp/go-plugin`/internal --grpc_out=./lib/vagrant/protobufs/proto/ --ruby_out=./lib/vagrant/protobufs/proto/ plugin/grpc_broker.proto vagrant_plugin_sdk/plugin.proto protostructure.proto"
 
-// Generate strings for flag types
+// Generate strings for flag type
 //go:generate stringer -type=Type -linecomment ./internal/flags
+
+// Generate strings for load location
+//go:generate stringer -type=LoadLocation -linecomment ./internal/core
