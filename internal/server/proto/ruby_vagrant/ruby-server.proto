@@ -15,6 +15,8 @@ service RubyVagrant {
   // Gets available ruby plugins
   rpc GetPlugins(google.protobuf.Empty) returns (GetPluginsResponse);
   rpc ParseVagrantfile(ParseVagrantfileRequest) returns (ParseVagrantfileResponse);
+  rpc ParseVagrantfileProc(ParseVagrantfileProcRequest) returns (ParseVagrantfileResponse);
+  rpc ParseVagrantfileSubvm(ParseVagrantfileSubvmRequest) returns (ParseVagrantfileResponse);
 }
 
 /********************************************************************
@@ -64,10 +66,17 @@ message Plugin {
 message ParseVagrantfileRequest {
   // Path to the Vagrantfile
   string path = 1;
-  // TODO: might be good to add an option for passing cmd line args
+}
+
+message ParseVagrantfileProcRequest {
+  sdk.Args.ProcRef proc = 1;
 }
 
 message ParseVagrantfileResponse {
   // Vagrantfile representation
-  sdk.Vagrantfile.Vagrantfile vagrantfile = 1;
+  sdk.Args.Hash data = 1;
+}
+
+message ParseVagrantfileSubvmRequest {
+  sdk.Config.RawRubyValue subvm = 1;
 }
