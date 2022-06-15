@@ -28,6 +28,11 @@ func (p *PluginWithParent) SetParentComponent(in interface{}) {
 	p.parentPlugin = in
 }
 
+type TestCommunicatorPlugin struct {
+	plugin.TestPluginWithFakeBroker
+	coremocks.Communicator
+}
+
 type TestGuestPlugin struct {
 	PluginWithParent
 	plugin.TestPluginWithFakeBroker
@@ -44,6 +49,14 @@ type TestSyncedFolderPlugin struct {
 	PluginWithParent
 	plugin.TestPluginWithFakeBroker
 	coremocks.SyncedFolder
+}
+
+func BuildTestCommunicatorPlugin(name string) *TestCommunicatorPlugin {
+	c := &TestCommunicatorPlugin{}
+	c.On("Seed", mock.AnythingOfType("*core.Seeds")).Return(nil)
+	c.On("Seeds").Return(core.NewSeeds(), nil)
+	c.On("PluginName").Return(name, nil)
+	return c
 }
 
 func BuildTestGuestPlugin(name string, parent string) *TestGuestPlugin {
