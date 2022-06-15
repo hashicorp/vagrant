@@ -85,6 +85,8 @@ module Vagrant
       end
 
       def guest
+        # require "pry-remote"; binding.pry_remote
+        raise Errors::MachineGuestNotReady if !communicate.ready?
         if !@guest
           @guest = Guest.new(self, nil, nil)
         end
