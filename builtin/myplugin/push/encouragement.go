@@ -2,6 +2,7 @@ package push
 
 import (
 	"encoding/json"
+	"fmt"
 
 	"github.com/hashicorp/vagrant-plugin-sdk/component"
 	"github.com/hashicorp/vagrant-plugin-sdk/core"
@@ -51,16 +52,17 @@ func (e *Encouragement) Push(ui terminal.UI, proj core.Project) error {
 // For now, there are no config related helpers, so each push plugin needs to
 // walk its way down to its relevant config in the Vagrantfile.
 func findPushConfig(proj core.Project, name string) (*vagrant_plugin_sdk.Vagrantfile_PushConfig, error) {
-	v, err := proj.Config()
-	if err != nil {
-		return nil, err
-	}
-	for _, p := range v.GetPushConfigs() {
-		if p.GetName() == name {
-			return p, nil
-		}
-	}
-	return nil, nil
+	return nil, fmt.Errorf("unimplemented")
+	// v, err := proj.Config()
+	// if err != nil {
+	// 	return nil, err
+	// }
+	// for _, p := range v.GetPushConfigs() {
+	// 	if p.GetName() == name {
+	// 		return p, nil
+	// 	}
+	// }
+	// return nil, nil
 }
 
 // unpackConfig takes a PushConfig and unpack the underlying map of config
