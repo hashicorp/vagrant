@@ -48,8 +48,10 @@ const (
 // These are the locations which can be used for
 // populating the root value in the vagrantfile
 var ValidRootLocations = []LoadLocation{
+	VAGRANTFILE_BOX,
 	VAGRANTFILE_BASIS,
 	VAGRANTFILE_PROJECT,
+	VAGRANTFILE_TARGET,
 }
 
 // Registration entry for a config component
@@ -61,7 +63,7 @@ type registration struct {
 }
 
 func (r *registration) String() string {
-	return fmt.Sprintf("core.Vagrantfile.registration[identifier: %s, plugin %s, set: %s, subregistrations: %s]",
+	return fmt.Sprintf("core.Vagrantfile.registration[identifier: %s, plugin %v, set: %v, subregistrations: %s]",
 		r.identifier, r.plugin, r.set, r.subregistrations)
 }
 
@@ -89,7 +91,7 @@ type subregistration struct {
 }
 
 func (r *subregistration) String() string {
-	return fmt.Sprintf("core.Vagrantfile.subregistration[scope: %s, plugins: %s]", r.scope, r.plugins)
+	return fmt.Sprintf("core.Vagrantfile.subregistration[scope: %s, plugins: %v]", r.scope, r.plugins)
 }
 
 // Collection of config component registrations
@@ -148,7 +150,7 @@ type Vagrantfile struct {
 }
 
 func (v *Vagrantfile) String() string {
-	return fmt.Sprintf("core.Vagrantfile[origin: %s, registrations: %s, sources: %s]",
+	return fmt.Sprintf("core.Vagrantfile[origin: %v, registrations: %s, sources: %v]",
 		v.origin, v.registrations, v.sources)
 }
 
