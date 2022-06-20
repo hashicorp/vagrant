@@ -41,13 +41,7 @@ module Vagrant
         @state_mutex     = Mutex.new
         # TODO: get trigger config from go
         @triggers        = Vagrant::Plugin::V2::Trigger.new(@env, @config.trigger, self, @ui)
-        @provider_name = client.provider_name.to_sym
-        @provider = Vagrant.plugin("2").local_manager.providers[@provider_name].first.new(self)
         @provider_options = {} # @config.vm.get_provider_overrides(@provider_name)
-        @provider_config = @config.vm.get_provider_config(@provider_name)
-        @logger.info("provider config data for machine: #{@provider_config.class} - #{@provider_config}")
-        @logger.info("root config data: #{@config.vm.inspect}")
-        @logger.info("compiled provider configs: #{@config.vm.instance_variable_get(:@__compiled_provider_configs).inspect}")
 
         # Keep track of where our UUID should be placed
         @index_uuid_file = nil
@@ -56,6 +50,11 @@ module Vagrant
         # Output a bunch of information about this machine in
         # machine-readable format in case someone is listening.
         @ui.machine("metadata", "provider", provider_name)
+      end
+
+      def provider_config
+        return @provider_config if @provider_config
+        @provider_config = @config.vm.get_provider_config(provider_name)
       end
 
       # @return [Box]
@@ -136,11 +135,14 @@ module Vagrant
       end
 
       def provider
+        return @provider if @provider
+        @provider = Vagrant.plugin("2").local_manager.providers[provider_name].first.new(self)
         @provider
       end
 
       def provider_name
-        client.provider_name.to_sym
+        return @provider_name if @provider_name
+        @provider_name = client.provider_name.to_sym
       end
 
       def provider_options
@@ -163,7 +165,7 @@ module Vagrant
         # First, ask the provider for their information. If the provider
         # returns nil, then the machine is simply not ready for SSH, and
         # we return nil as well.
-        info = @provider.ssh_info
+        info = provider.ssh_info
         return nil if info.nil?
 
         # Delete out the nil entries.
