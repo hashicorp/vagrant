@@ -37,8 +37,18 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
     add_message "hashicorp.vagrant.ParseVagrantfileRequest" do
       optional :path, :string, 1
     end
+    add_message "hashicorp.vagrant.ParseVagrantfileProcRequest" do
+      optional :proc, :message, 1, "hashicorp.vagrant.sdk.Args.ProcRef"
+    end
     add_message "hashicorp.vagrant.ParseVagrantfileResponse" do
-      optional :vagrantfile, :message, 1, "hashicorp.vagrant.sdk.Vagrantfile.Vagrantfile"
+      optional :data, :message, 1, "hashicorp.vagrant.sdk.Args.Hash"
+    end
+    add_message "hashicorp.vagrant.ParseVagrantfileSubvmRequest" do
+      optional :subvm, :message, 1, "hashicorp.vagrant.sdk.Config.RawRubyValue"
+    end
+    add_message "hashicorp.vagrant.ParseVagrantfileProviderRequest" do
+      optional :subvm, :message, 1, "hashicorp.vagrant.sdk.Config.RawRubyValue"
+      optional :provider, :string, 2
     end
   end
 end
@@ -49,6 +59,9 @@ module Hashicorp
     Plugin = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.Plugin").msgclass
     Plugin::Type = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.Plugin.Type").enummodule
     ParseVagrantfileRequest = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.ParseVagrantfileRequest").msgclass
+    ParseVagrantfileProcRequest = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.ParseVagrantfileProcRequest").msgclass
     ParseVagrantfileResponse = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.ParseVagrantfileResponse").msgclass
+    ParseVagrantfileSubvmRequest = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.ParseVagrantfileSubvmRequest").msgclass
+    ParseVagrantfileProviderRequest = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.ParseVagrantfileProviderRequest").msgclass
   end
 end

@@ -26,6 +26,9 @@ type RubyVagrantClient interface {
 	// Gets available ruby plugins
 	GetPlugins(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetPluginsResponse, error)
 	ParseVagrantfile(ctx context.Context, in *ParseVagrantfileRequest, opts ...grpc.CallOption) (*ParseVagrantfileResponse, error)
+	ParseVagrantfileProc(ctx context.Context, in *ParseVagrantfileProcRequest, opts ...grpc.CallOption) (*ParseVagrantfileResponse, error)
+	ParseVagrantfileSubvm(ctx context.Context, in *ParseVagrantfileSubvmRequest, opts ...grpc.CallOption) (*ParseVagrantfileResponse, error)
+	ParseVagrantfileProvider(ctx context.Context, in *ParseVagrantfileProviderRequest, opts ...grpc.CallOption) (*ParseVagrantfileResponse, error)
 }
 
 type rubyVagrantClient struct {
@@ -54,6 +57,33 @@ func (c *rubyVagrantClient) ParseVagrantfile(ctx context.Context, in *ParseVagra
 	return out, nil
 }
 
+func (c *rubyVagrantClient) ParseVagrantfileProc(ctx context.Context, in *ParseVagrantfileProcRequest, opts ...grpc.CallOption) (*ParseVagrantfileResponse, error) {
+	out := new(ParseVagrantfileResponse)
+	err := c.cc.Invoke(ctx, "/hashicorp.vagrant.RubyVagrant/ParseVagrantfileProc", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *rubyVagrantClient) ParseVagrantfileSubvm(ctx context.Context, in *ParseVagrantfileSubvmRequest, opts ...grpc.CallOption) (*ParseVagrantfileResponse, error) {
+	out := new(ParseVagrantfileResponse)
+	err := c.cc.Invoke(ctx, "/hashicorp.vagrant.RubyVagrant/ParseVagrantfileSubvm", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *rubyVagrantClient) ParseVagrantfileProvider(ctx context.Context, in *ParseVagrantfileProviderRequest, opts ...grpc.CallOption) (*ParseVagrantfileResponse, error) {
+	out := new(ParseVagrantfileResponse)
+	err := c.cc.Invoke(ctx, "/hashicorp.vagrant.RubyVagrant/ParseVagrantfileProvider", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // RubyVagrantServer is the server API for RubyVagrant service.
 // All implementations must embed UnimplementedRubyVagrantServer
 // for forward compatibility
@@ -61,6 +91,9 @@ type RubyVagrantServer interface {
 	// Gets available ruby plugins
 	GetPlugins(context.Context, *emptypb.Empty) (*GetPluginsResponse, error)
 	ParseVagrantfile(context.Context, *ParseVagrantfileRequest) (*ParseVagrantfileResponse, error)
+	ParseVagrantfileProc(context.Context, *ParseVagrantfileProcRequest) (*ParseVagrantfileResponse, error)
+	ParseVagrantfileSubvm(context.Context, *ParseVagrantfileSubvmRequest) (*ParseVagrantfileResponse, error)
+	ParseVagrantfileProvider(context.Context, *ParseVagrantfileProviderRequest) (*ParseVagrantfileResponse, error)
 	mustEmbedUnimplementedRubyVagrantServer()
 }
 
@@ -73,6 +106,15 @@ func (UnimplementedRubyVagrantServer) GetPlugins(context.Context, *emptypb.Empty
 }
 func (UnimplementedRubyVagrantServer) ParseVagrantfile(context.Context, *ParseVagrantfileRequest) (*ParseVagrantfileResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ParseVagrantfile not implemented")
+}
+func (UnimplementedRubyVagrantServer) ParseVagrantfileProc(context.Context, *ParseVagrantfileProcRequest) (*ParseVagrantfileResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ParseVagrantfileProc not implemented")
+}
+func (UnimplementedRubyVagrantServer) ParseVagrantfileSubvm(context.Context, *ParseVagrantfileSubvmRequest) (*ParseVagrantfileResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ParseVagrantfileSubvm not implemented")
+}
+func (UnimplementedRubyVagrantServer) ParseVagrantfileProvider(context.Context, *ParseVagrantfileProviderRequest) (*ParseVagrantfileResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ParseVagrantfileProvider not implemented")
 }
 func (UnimplementedRubyVagrantServer) mustEmbedUnimplementedRubyVagrantServer() {}
 
@@ -123,6 +165,60 @@ func _RubyVagrant_ParseVagrantfile_Handler(srv interface{}, ctx context.Context,
 	return interceptor(ctx, in, info, handler)
 }
 
+func _RubyVagrant_ParseVagrantfileProc_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ParseVagrantfileProcRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(RubyVagrantServer).ParseVagrantfileProc(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/hashicorp.vagrant.RubyVagrant/ParseVagrantfileProc",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(RubyVagrantServer).ParseVagrantfileProc(ctx, req.(*ParseVagrantfileProcRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _RubyVagrant_ParseVagrantfileSubvm_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ParseVagrantfileSubvmRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(RubyVagrantServer).ParseVagrantfileSubvm(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/hashicorp.vagrant.RubyVagrant/ParseVagrantfileSubvm",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(RubyVagrantServer).ParseVagrantfileSubvm(ctx, req.(*ParseVagrantfileSubvmRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _RubyVagrant_ParseVagrantfileProvider_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ParseVagrantfileProviderRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(RubyVagrantServer).ParseVagrantfileProvider(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/hashicorp.vagrant.RubyVagrant/ParseVagrantfileProvider",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(RubyVagrantServer).ParseVagrantfileProvider(ctx, req.(*ParseVagrantfileProviderRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // RubyVagrant_ServiceDesc is the grpc.ServiceDesc for RubyVagrant service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -137,6 +233,18 @@ var RubyVagrant_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "ParseVagrantfile",
 			Handler:    _RubyVagrant_ParseVagrantfile_Handler,
+		},
+		{
+			MethodName: "ParseVagrantfileProc",
+			Handler:    _RubyVagrant_ParseVagrantfileProc_Handler,
+		},
+		{
+			MethodName: "ParseVagrantfileSubvm",
+			Handler:    _RubyVagrant_ParseVagrantfileSubvm_Handler,
+		},
+		{
+			MethodName: "ParseVagrantfileProvider",
+			Handler:    _RubyVagrant_ParseVagrantfileProvider_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

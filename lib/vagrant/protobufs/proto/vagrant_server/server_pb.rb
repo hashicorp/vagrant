@@ -8,6 +8,7 @@ require 'google/protobuf/empty_pb'
 require 'google/protobuf/timestamp_pb'
 require 'google/rpc/status_pb'
 require 'google/protobuf/struct_pb'
+require 'protostructure_pb'
 require 'plugin_pb'
 Google::Protobuf::DescriptorPool.generated_pool.build do
   add_file("proto/vagrant_server/server.proto", :syntax => :proto3) do
@@ -23,13 +24,25 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
       optional :current, :uint32, 1
       optional :minimum, :uint32, 2
     end
+    add_message "hashicorp.vagrant.Vagrantfile" do
+      optional :unfinalized, :message, 1, "hashicorp.vagrant.sdk.Args.Hash"
+      optional :finalized, :message, 2, "hashicorp.vagrant.sdk.Args.Hash"
+      optional :raw, :bytes, 3
+      optional :format, :enum, 4, "hashicorp.vagrant.Vagrantfile.Format"
+      optional :path, :message, 5, "hashicorp.vagrant.sdk.Args.Path"
+    end
+    add_enum "hashicorp.vagrant.Vagrantfile.Format" do
+      value :JSON, 0
+      value :HCL, 1
+      value :RUBY, 2
+    end
     add_message "hashicorp.vagrant.Basis" do
       optional :resource_id, :string, 1
       optional :name, :string, 2
       optional :path, :string, 3
       repeated :projects, :message, 4, "hashicorp.vagrant.sdk.Ref.Project"
       optional :metadata, :message, 5, "hashicorp.vagrant.sdk.Args.MetadataSet"
-      optional :configuration, :message, 6, "hashicorp.vagrant.sdk.Vagrantfile.Vagrantfile"
+      optional :configuration, :message, 6, "hashicorp.vagrant.Vagrantfile"
       optional :remote_enabled, :bool, 100
       optional :data_source, :message, 101, "hashicorp.vagrant.Job.DataSource"
     end
@@ -40,7 +53,7 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
       repeated :targets, :message, 4, "hashicorp.vagrant.sdk.Ref.Target"
       optional :basis, :message, 5, "hashicorp.vagrant.sdk.Ref.Basis"
       optional :metadata, :message, 6, "hashicorp.vagrant.sdk.Args.MetadataSet"
-      optional :configuration, :message, 7, "hashicorp.vagrant.sdk.Vagrantfile.Vagrantfile"
+      optional :configuration, :message, 7, "hashicorp.vagrant.Vagrantfile"
       optional :remote_enabled, :bool, 100
       optional :data_source, :message, 101, "hashicorp.vagrant.Job.DataSource"
     end
@@ -64,7 +77,7 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
       optional :parent, :message, 7, "hashicorp.vagrant.Target"
       optional :uuid, :string, 8
       optional :metadata, :message, 9, "hashicorp.vagrant.sdk.Args.MetadataSet"
-      optional :configuration, :message, 10, "hashicorp.vagrant.sdk.Vagrantfile.MachineConfig"
+      optional :configuration, :message, 10, "hashicorp.vagrant.sdk.Args.ConfigData"
       optional :record, :message, 11, "google.protobuf.Any"
       optional :provider, :string, 12
       optional :remote_enabled, :bool, 100
@@ -75,11 +88,6 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
       optional :box, :message, 7, "hashicorp.vagrant.Box"
       optional :uid, :string, 9
       optional :state, :message, 10, "hashicorp.vagrant.sdk.Args.Target.Machine.State"
-    end
-    add_message "hashicorp.vagrant.Vagrantfile" do
-      optional :resource_id, :string, 1
-      optional :path, :string, 2
-      optional :vagrantfile, :message, 3, "hashicorp.vagrant.sdk.Vagrantfile.Vagrantfile"
     end
     add_message "hashicorp.vagrant.Ref" do
     end
@@ -877,12 +885,13 @@ module Hashicorp
     GetVersionInfoResponse = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.GetVersionInfoResponse").msgclass
     VersionInfo = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.VersionInfo").msgclass
     VersionInfo::ProtocolVersion = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.VersionInfo.ProtocolVersion").msgclass
+    Vagrantfile = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.Vagrantfile").msgclass
+    Vagrantfile::Format = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.Vagrantfile.Format").enummodule
     Basis = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.Basis").msgclass
     Project = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.Project").msgclass
     Box = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.Box").msgclass
     Target = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.Target").msgclass
     Target::Machine = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.Target.Machine").msgclass
-    Vagrantfile = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.Vagrantfile").msgclass
     Ref = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.Ref").msgclass
     Ref::Component = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.Ref.Component").msgclass
     Ref::Operation = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.Ref.Operation").msgclass
