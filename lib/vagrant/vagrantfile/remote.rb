@@ -57,9 +57,8 @@ module Vagrant
         begin
           @client.get_config(namespace)
         rescue => err
-          val = @root.send(*args)
-          @logger.warn("failed to get config value, reason: #{err} - returning val: #{val}")
-          val
+          @logger.warn("config wrapper failed to process request: #{args} Reason: #{err}")
+          @root.send(*args)
         end
       end
     end
