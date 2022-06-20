@@ -416,21 +416,8 @@ func (m *Manager) Close() (err error) {
 	defer m.m.Unlock()
 
 	m.logger.Info("closing the plugin manager")
-	for _, p := range m.Plugins {
-		m.logger.Trace("closing plugin",
-			"plugin", p.Name,
-		)
 
-		if e := p.Close(); e != nil {
-			err = multierror.Append(err, e)
-		}
-	}
-
-	if cerr := m.cleaner.Close(); cerr != nil {
-		err = multierror.Append(err, cerr)
-	}
-
-	return
+	return m.cleaner.Close()
 }
 
 // Implements core.PluginManager. Note this returns a slice of core.NamedPlugin
