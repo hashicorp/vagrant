@@ -7,7 +7,6 @@ import (
 
 	"github.com/hashicorp/go-hclog"
 
-	"github.com/hashicorp/vagrant-plugin-sdk/config"
 	"github.com/hashicorp/vagrant-plugin-sdk/helper/path"
 	vagrant_plugin_sdk "github.com/hashicorp/vagrant-plugin-sdk/proto/vagrant_plugin_sdk"
 	"github.com/hashicorp/vagrant-plugin-sdk/terminal"
@@ -114,54 +113,10 @@ func (p *Project) LoadTarget(n string) (*Target, error) {
 		}, nil
 	}
 
-	v, err := config.DecodeVagrantfile(p.project.Configuration.Unfinalized)
-	if err != nil {
-		return nil, err
-	}
-
-	var vm *config.VM
-	for _, pvm := range v.ListVMs {
-		if true {
-			vm = pvm
-			break
-		}
-	}
-
-	// If the target hasn't been defined in the Vagrantfile configuration
-	// then we don't create it
-	if vm == nil {
-		return nil, fmt.Errorf("requested target '%s' is not defined", n)
-	}
-
-	s, err := config.EncodeConfiguration(vm)
-	if err != nil {
-		return nil, err
-	}
-
-	p.logger.Trace("encoded configuration value",
-		"config", s,
-	)
-
-	uresult, err := p.vagrant.UpsertTarget(p.ctx,
-		&vagrant_server.UpsertTargetRequest{
-			Target: &vagrant_server.Target{
-				Name:    n,
-				Project: p.Ref(),
-			},
-		},
-	)
-	if err != nil {
-		return nil, err
-	}
-
-	return &Target{
-		client:  p.client,
-		ctx:     p.ctx,
-		logger:  p.logger.Named("project"),
-		target:  uresult.Target,
-		ui:      p.ui,
-		vagrant: p.vagrant,
-	}, nil
+	// TODO(spox): Some adjustment is needed on how targets
+	//             should be loaded here when their origin
+	//             will be the vagrantfile
+	return nil, fmt.Errorf("cannot load target")
 }
 
 func (p *Project) UI() terminal.UI {
