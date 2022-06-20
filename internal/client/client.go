@@ -126,7 +126,11 @@ func New(ctx context.Context, opts ...Option) (c *Client, err error) {
 			},
 		}
 
-		c.Cleanup(func() error {
+		// Prepend our runner cleanup so that it
+		// can properly shutdown everything before
+		// the server is halted if we are running
+		// a local server
+		c.cleanup.Prepend(func() error {
 			c.logger.Info("stopping local runner",
 				"runner-id", c.runner.Id())
 
