@@ -135,7 +135,6 @@ module VagrantPlugins
 
         def execute(req, ctx)
           with_plugin(ctx, :communicators, broker: broker) do |plugin|
-            logger.debug("got req: #{req}")
             machine, cmd, opts = mapper.funcspec_map(
               req, mapper, broker,
               expect: [Vagrant::Machine, SDK::Communicator::Command, Type::Options]

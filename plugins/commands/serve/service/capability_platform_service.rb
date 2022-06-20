@@ -69,11 +69,9 @@ module VagrantPlugins
               req.func_args,
               expect: default_args.keys + [Type::Direct]
             )
+
             args = capability_arguments(args)
             cap_method = target_cap.method(cap_name)
-
-            arg_list = args.join("\n  - ")
-            logger.debug("arguments to be passed to #{cap_name} on plugin #{plugin_name}:\n  - #{arg_list}")
 
             result = cap_method.call(*args)
 
