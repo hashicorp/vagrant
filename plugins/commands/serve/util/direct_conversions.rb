@@ -114,15 +114,21 @@ class Range
   end
 end
 
-class Symbol
+class Set
   def to_proto
-    Hashicorp::Vagrant::Sdk::Args::Symbol.new(str: to_s)
+    Hashicorp::Vagrant::Sdk::Args::Set.new(list: to_a.to_proto)
   end
 end
 
 class String
   def to_proto
     Google::Protobuf::StringValue.new(value: to_s)
+  end
+end
+
+class Symbol
+  def to_proto
+    Hashicorp::Vagrant::Sdk::Args::Symbol.new(str: to_s)
   end
 end
 
@@ -223,10 +229,9 @@ class VagrantPlugins::CommandServe::Type::Options
   end
 end
 
-# Disable logger conversions
 class Log4r::Logger
   def to_proto
-    nil.to_proto
+    Hashicorp::Vagrant::Sdk::Args::RubyLogger.new(name: fullname)
   end
 end
 
@@ -477,6 +482,18 @@ class Hashicorp::Vagrant::Sdk::Config::RawRubyValue
     end
 
     instance
+  end
+end
+
+class Hashicorp::Vagrant::Sdk::Args::RubyLogger
+  def to_ruby
+    Log4r::Logger.new(name)
+  end
+end
+
+class Hashicorp::Vagrant::Sdk::Args::Set
+  def to_ruby
+    ::Set.new(list.to_ruby)
   end
 end
 

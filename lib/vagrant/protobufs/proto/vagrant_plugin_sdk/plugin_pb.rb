@@ -261,6 +261,12 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
       optional :start, :int32, 1
       optional :end, :int32, 2
     end
+    add_message "hashicorp.vagrant.sdk.Args.RubyLogger" do
+      optional :name, :string, 1
+    end
+    add_message "hashicorp.vagrant.sdk.Args.Set" do
+      optional :list, :message, 1, "hashicorp.vagrant.sdk.Args.Array"
+    end
     add_message "hashicorp.vagrant.sdk.Args.Options" do
       optional :options, :message, 1, "hashicorp.vagrant.sdk.Args.Hash"
     end
@@ -1048,6 +1054,8 @@ module Hashicorp
       Args::ProcRef = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Args.ProcRef").msgclass
       Args::Symbol = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Args.Symbol").msgclass
       Args::Range = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Args.Range").msgclass
+      Args::RubyLogger = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Args.RubyLogger").msgclass
+      Args::Set = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Args.Set").msgclass
       Args::Options = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Args.Options").msgclass
       Args::Null = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Args.Null").msgclass
       Args::URL = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Args.URL").msgclass

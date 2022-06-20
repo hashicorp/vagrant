@@ -294,6 +294,68 @@ module VagrantPlugins
           Range.new(r.start, r.end)
         end
       end
+
+      class SetToProto < Mapper
+        def initialize
+          super(
+            inputs: [
+              Input.new(type: Set),
+              Input.new(type: Mappers)
+            ],
+            output: SDK::Args::Set,
+            func: method(:converter),
+          )
+        end
+
+        def converter(s, m)
+          SDK::Args::Set.new(list: m.map(s.to_a, to: SDK::Args::Array))
+        end
+      end
+
+      class SetFromProto < Mapper
+        def initialize
+          super(
+            inputs: [
+              Input.new(type: SDK::Args::Set),
+              Input.new(type: Mappers)
+            ],
+            output: Set,
+            func: method(:converter)
+          )
+        end
+
+        def converter(s, m)
+          Set.new(m.map(s.list, to: Array))
+        end
+      end
+
+      class LoggerToProto < Mapper
+        def initialize
+          super(
+            inputs: [Input.new(type: Log4r::Logger)],
+            output: SDK::Args::RubyLogger,
+            func: method(:converter),
+          )
+        end
+
+        def converter(l)
+          SDK::Args::RubyLogger.new(name: l.fullname)
+        end
+      end
+
+      class LoggerFromProto < Mapper
+        def initialize
+          super(
+            inputs: [Input.new(type: SDK::Args::RubyLogger)],
+            output: Log4r::Logger,
+            func: method(:converter)
+          )
+        end
+
+        def converter(l)
+          Log4r::Logger.new(l.name)
+        end
+      end
     end
   end
 end
