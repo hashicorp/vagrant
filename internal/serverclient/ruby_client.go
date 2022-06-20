@@ -105,3 +105,19 @@ func (r *RubyVagrantClient) ParseVagrantfileSubvm(subvm *vagrant_plugin_sdk.Conf
 
 	return resp.Data, nil
 }
+
+func (r *RubyVagrantClient) ParseVagrantfileProvider(provider string, subvm *vagrant_plugin_sdk.Config_RawRubyValue) (*vagrant_plugin_sdk.Args_Hash, error) {
+	resp, err := r.client.ParseVagrantfileProvider(
+		context.Background(),
+		&ruby_vagrant.ParseVagrantfileProviderRequest{
+			Provider: provider,
+			Subvm:    subvm,
+		},
+	)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return resp.Data, nil
+}

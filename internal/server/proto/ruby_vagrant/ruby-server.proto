@@ -17,6 +17,7 @@ service RubyVagrant {
   rpc ParseVagrantfile(ParseVagrantfileRequest) returns (ParseVagrantfileResponse);
   rpc ParseVagrantfileProc(ParseVagrantfileProcRequest) returns (ParseVagrantfileResponse);
   rpc ParseVagrantfileSubvm(ParseVagrantfileSubvmRequest) returns (ParseVagrantfileResponse);
+  rpc ParseVagrantfileProvider(ParseVagrantfileProviderRequest) returns (ParseVagrantfileResponse);
 }
 
 /********************************************************************
@@ -79,4 +80,9 @@ message ParseVagrantfileResponse {
 
 message ParseVagrantfileSubvmRequest {
   sdk.Config.RawRubyValue subvm = 1;
+}
+
+message ParseVagrantfileProviderRequest {
+  sdk.Config.RawRubyValue subvm = 1;
+  string provider = 2;
 }

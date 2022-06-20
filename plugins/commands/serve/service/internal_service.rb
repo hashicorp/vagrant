@@ -41,43 +41,47 @@ module VagrantPlugins
         end
 
         def parse_vagrantfile(req, _)
-          path = req.path
-
-          # Load up/parse the vagrantfile
-          config_loader = loader
-          config_loader.set(:root, path.to_s)
-          config = config_loader.partial_load(:root)
-          Hashicorp::Vagrant::ParseVagrantfileResponse.new(
-            data: config.to_proto,
-          )
+          parse_item_to_proto(req.path.to_s)
         end
 
         def parse_vagrantfile_proc(req, _)
           callable = mapper.map(req.proc, to: Proc)
 
-          config_loader = loader
-          config_loader.set(:root, [[2, callable]])
-          config = config_loader.partial_load(:root)
-          Hashicorp::Vagrant::ParseVagrantfileResponse.new(
-            data: config.to_proto,
-          )
+          parse_item_to_proto([["2", callable]])
         end
 
         def parse_vagrantfile_subvm(req, _)
           subvm = mapper.map(req.subvm)
 
-          config_loader = loader
-          config_loader.set(:root, subvm.config_procs)
-          config = config_loader.partial_load(:root)
-          Hashicorp::Vagrant::ParseVagrantfileResponse.new(
-            data: config.to_proto,
-          )
+          parse_item_to_proto(subvm.config_procs)
         end
 
-        def loader
-          Vagrant::Config::Loader.new(
+        def parse_vagrantfile_provider(req, _)
+          subvm = mapper.map(req.subvm)
+          provider = req.provider.to_sym
+          config = parse_item(subvm.config_procs)
+
+          overrides = config.vm.get_provider_overrides(provider)
+
+          return Hashicorp::Vagrant::ParseVagrantfileResponse.new(data: SDK::Args::Hash.new(entries: [])) if
+            overrides.empty?
+
+          parse_item_to_proto(config.vm.get_provider_overrides(provider))
+        end
+
+        def parse_item(item)
+          loader = Vagrant::Config::Loader.new(
             Vagrant::Config::VERSIONS,
             Vagrant::Config::VERSIONS_ORDER
+          )
+          loader.set(:item, item)
+          loader.partial_load(:item)
+        end
+
+        def parse_item_to_proto(item)
+          config = parse_item(item)
+          Hashicorp::Vagrant::ParseVagrantfileResponse.new(
+            data: config.to_proto,
           )
         end
 
@@ -88,6 +92,9 @@ module VagrantPlugins
             return Google::Protobuf::Empty.new
           when :COMMUNICATOR
             # No options for communicators
+            return Google::Protobuf::Empty.new
+          when :CONFIG
+            # No options for configs
             return Google::Protobuf::Empty.new
           when :GUEST
             # No options for guests
