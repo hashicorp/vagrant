@@ -16,6 +16,7 @@ import (
 	vconfig "github.com/hashicorp/vagrant-plugin-sdk/config"
 	"github.com/hashicorp/vagrant-plugin-sdk/helper/path"
 	"github.com/hashicorp/vagrant-plugin-sdk/helper/paths"
+	"github.com/hashicorp/vagrant-plugin-sdk/internal-shared/cleanup"
 	"github.com/hashicorp/vagrant-plugin-sdk/proto/vagrant_plugin_sdk"
 	"github.com/hashicorp/vagrant-plugin-sdk/terminal"
 	"github.com/hashicorp/vagrant/internal/config"
@@ -30,7 +31,7 @@ var (
 
 type Client struct {
 	config      *config.Config
-	cleanupFns  []func() error
+	cleanup     cleanup.Cleanup
 	client      *serverclient.VagrantClient
 	ctx         context.Context
 	localRunner bool
@@ -44,8 +45,9 @@ type Client struct {
 
 func New(ctx context.Context, opts ...Option) (c *Client, err error) {
 	c = &Client{
-		ctx:    ctx,
-		logger: hclog.L().Named("vagrant.client"),
+		cleanup: cleanup.New(),
+		ctx:     ctx,
+		logger:  hclog.L().Named("vagrant.client"),
 		runnerRef: &vagrant_server.Ref_Runner{
 			Target: &vagrant_server.Ref_Runner_Any{
 				Any: &vagrant_server.Ref_RunnerAny{},
@@ -184,17 +186,11 @@ func (c *Client) LoadBasis(n string) (*Basis, error) {
 // Close the client and call any cleanup functions
 // that have been defined
 func (c *Client) Close() (err error) {
-	for _, f := range c.cleanupFns {
-		if e := f(); e != nil {
-			err = multierror.Append(err, e)
-		}
-	}
-
-	return
+	return c.cleanup.Close()
 }
 
-func (c *Client) Cleanup(f ...func() error) {
-	c.cleanupFns = append(c.cleanupFns, f...)
+func (c *Client) Cleanup(fn cleanup.CleanupFn) {
+	c.cleanup.Do(fn)
 }
 
 func (c *Client) UI() terminal.UI {
