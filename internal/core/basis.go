@@ -8,11 +8,11 @@ import (
 	"strings"
 	"sync"
 
-	"google.golang.org/protobuf/proto"
 	"github.com/hashicorp/go-argmapper"
 	"github.com/hashicorp/go-hclog"
 	"github.com/hashicorp/go-multierror"
 	goplugin "github.com/hashicorp/go-plugin"
+	"google.golang.org/protobuf/proto"
 
 	"github.com/hashicorp/vagrant-plugin-sdk/component"
 	"github.com/hashicorp/vagrant-plugin-sdk/core"
@@ -643,9 +643,6 @@ func (b *Basis) LoadProject(popts ...ProjectOption) (p *Project, err error) {
 		return project, nil
 	}
 
-	// Set our loaded project into the basis
-	b.projects[p.project.ResourceId] = p
-
 	if p.logger.IsTrace() {
 		p.logger = p.logger.Named("project")
 	} else {
@@ -707,6 +704,9 @@ func (b *Basis) LoadProject(popts ...ProjectOption) (p *Project, err error) {
 
 	// Set seeds for any plugins that may be used
 	p.seed(nil)
+
+	// Set our loaded project into the basis
+	b.projects[p.project.ResourceId] = p
 
 	b.logger.Info("done setting up new project instance")
 
