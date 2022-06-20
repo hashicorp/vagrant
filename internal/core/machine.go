@@ -21,10 +21,11 @@ import (
 
 type Machine struct {
 	*Target
-	box     *Box
-	machine *vagrant_server.Target_Machine
-	logger  hclog.Logger
-	cache   cacher.Cache
+	box         *Box
+	machine     *vagrant_server.Target_Machine
+	logger      hclog.Logger
+	cache       cacher.Cache
+	vagrantfile *Vagrantfile
 }
 
 // Close implements core.Machine
@@ -273,26 +274,43 @@ func (m *Machine) defaultSyncedFolderType() (folderType *string, err error) {
 
 	logger.Debug("sorted synced folder plugins", "names", sfPlugins)
 
-	// Remove unallowed types
-	config := m.target.Configuration
-	machineConfig := config.ConfigVm
-	if len(machineConfig.AllowedSyncedFolderTypes) > 0 {
-		allowed := make(map[string]struct{})
-		for _, a := range machineConfig.AllowedSyncedFolderTypes {
-			allowed[a] = struct{}{}
+	allowedTypesRaw, err := m.vagrantfile.GetValue("vm", "allowed_synced_folder_types")
+	if err != nil {
+		m.logger.Warn("failed to fetch allowed synced folder types, ignoring",
+			"error", err,
+		)
+		err = nil
+	} else {
+		allowedTypes, ok := allowedTypesRaw.([]interface{})
+		if !ok {
+			m.logger.Warn("unexpected type for allowed synced folder types",
+				"type", hclog.Fmt("%T", allowedTypesRaw),
+			)
 		}
-		k := 0
-		for _, sfp := range sfPlugins {
-			if _, ok := allowed[sfp.Name]; ok {
-				sfPlugins[k] = sfp
-				k++
-			} else {
-				logger.Debug("removing disallowed plugin", "type", sfp.Name)
+		// Remove unallowed types
+		if len(allowedTypes) > 0 {
+			allowed := make(map[string]struct{})
+			for _, a := range allowedTypes {
+				typ, err := optionToString(a)
+				if err != nil {
+					m.logger.Warn("failed to convert synced folder type to string",
+						"type", hclog.Fmt("%T", a),
+					)
+				}
+				allowed[typ] = struct{}{}
 			}
+			k := 0
+			for _, sfp := range sfPlugins {
+				if _, ok := allowed[sfp.Name]; ok {
+					sfPlugins[k] = sfp
+					k++
+				} else {
+					logger.Debug("removing disallowed plugin", "type", sfp.Name)
+				}
+			}
+			sfPlugins = sfPlugins[:k]
 		}
-		sfPlugins = sfPlugins[:k]
 	}
-
 	// Check for first usable plugin
 	for _, sfp := range sfPlugins {
 		syncedFolder := sfp.Plugin.(core.SyncedFolder)
