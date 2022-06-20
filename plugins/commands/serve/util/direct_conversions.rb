@@ -272,7 +272,7 @@ module Google::Protobuf::MessageExts
           "Proto is not a valid client message type (#{self.class})" if
       !respond_to?(:addr)
 
-    cid = "_vagrant_"+addr.to_s
+    cid = "client+" + addr.to_s
     return VagrantPlugins::CommandServe.cache.get(cid) if
       VagrantPlugins::CommandServe.cache.registered?(cid)
 
@@ -422,7 +422,7 @@ end
 
 class Hashicorp::Vagrant::Sdk::Args::Project
   def to_ruby
-    cid = addr.to_s
+    cid = "environment"+addr.to_s
     return VagrantPlugins::CommandServe.cache.get(cid) if
       VagrantPlugins::CommandServe.cache.registered?(cid)
 
@@ -488,7 +488,7 @@ end
 
 class Hashicorp::Vagrant::Sdk::Args::SyncedFolder
   def to_ruby
-    cid = addr.to_s
+    cid = "syncedfolder+" + addr.to_s
     return VagrantPlugins::CommandServe.cache.get(cid) if
       VagrantPlugins::CommandServe.cache.registered?(cid)
 
@@ -507,7 +507,7 @@ end
 
 class Hashicorp::Vagrant::Sdk::Args::Target
   def to_ruby
-    cid = addr.to_s
+    cid = "machine+" + addr.to_s
     return VagrantPlugins::CommandServe.cache.get(cid) if
       VagrantPlugins::CommandServe.cache.registered?(cid)
 
@@ -519,23 +519,22 @@ class Hashicorp::Vagrant::Sdk::Args::Target
   end
 end
 
-class Hashicorp::Vagrant::Sdk::Args::TargetIndex
-  def to_ruby
-    _vagrant_load_client(VagrantPlugins::CommandServe::Client::TargetIndex)
-  end
-end
-
 class Hashicorp::Vagrant::Sdk::Args::Target::Machine
   def to_ruby
-    cid = addr.to_s
+    cid = "machine+" + addr.to_s
     return VagrantPlugins::CommandServe.cache.get(cid) if
       VagrantPlugins::CommandServe.cache.registered?(cid)
 
-    client = _vagrant_load_client(VagrantPlugins::CommandServe::Client::Target)
-    env = client.project.to_ui
-    machine = env.machine(client.name.to_sym, client.provider_name.to_sym)
-    VagrantPlugins::CommandServe.cache.register(cid, machine)
-    machine
+    client = _vagrant_load_client(VagrantPlugins::CommandServe::Client::Target::Machine)
+    m = Vagrant::Machine.new(client: client)
+    VagrantPlugins::CommandServe.cache.register(cid, m)
+    m
+  end
+end
+
+class Hashicorp::Vagrant::Sdk::Args::TargetIndex
+  def to_ruby
+    _vagrant_load_client(VagrantPlugins::CommandServe::Client::TargetIndex)
   end
 end
 
