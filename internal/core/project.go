@@ -158,14 +158,29 @@ func (p *Project) DefaultProvider(opts *core.DefaultProviderOptions) (string, er
 
 	// Get the list of providers in our configuration, in order
 	configProviders := []string{}
-	for _, m := range p.project.GetConfiguration().GetMachineConfigs() {
-		// If a MachineName is provided - we're only looking at providers
-		// scoped to that machine name
-		if opts.MachineName != "" && opts.MachineName != m.GetName() {
-			continue
+	targets, err := p.vagrantfile.TargetNames()
+	if err != nil {
+		return "", err
+	}
+
+	for _, n := range targets {
+		targetConfig, err := p.vagrantfile.TargetConfig(n, "", false)
+		if err != nil {
+			return "", err
 		}
-		for _, p := range m.GetConfigVm().GetProviders() {
-			configProviders = append(configProviders, p.GetType())
+		tv := targetConfig.(*Vagrantfile)
+
+		pRaw, err := tv.GetValue("vm", "__provider_order")
+		providers, ok := pRaw.([]interface{})
+		if !ok {
+			return "", fmt.Errorf("unexpected type for target provider list (%T)", pRaw)
+		}
+		for _, pint := range providers {
+			pstring, err := optionToString(pint)
+			if err != nil {
+				return "", fmt.Errorf("unexpected type for target provider (%T)", pint)
+			}
+			configProviders = append(configProviders, pstring)
 		}
 	}
 
@@ -353,43 +368,14 @@ func (p *Project) RootPath() (path path.Path, err error) {
 // Target implements core.Project
 
 func (p *Project) Target(nameOrId string, provider string) (core.Target, error) {
-	// TODO(spox): need to validate name based on config, then create/load or reject with error
+	// TODO(spox): do we need to add a check here if the
+	//             already loaded target doesn't match the
+	//             provided provider name?
 	if t, ok := p.targets[nameOrId]; ok {
 		return t, nil
 	}
-	// Check for name or id
-	for _, t := range p.targets {
-		if t.target.Name == nameOrId {
-			// TODO: Because we don't have provider selection fully ported
-			// over, there are cases where a target is loaded without a
-			// provider being set on it. For now we're just handling that here
-			// on lookup, but once we know for sure that any Target that exists
-			// already knows what its provider is, this should be able to be
-			// removed.
-			st, err := t.State()
-			if err != nil {
-				return nil, err
-			}
-			if provider != "" && !st.IsActive() {
-				t.target.Provider = provider
-			}
-			return t, nil
-		}
-		if t.target.ResourceId == nameOrId {
-			return t, nil
-		}
-	}
-	// Finally try loading it
-	return p.LoadTarget(
-		WithTargetRef(
-			&vagrant_plugin_sdk.Ref_Target{
-				Project:    p.Ref().(*vagrant_plugin_sdk.Ref_Project),
-				Name:       nameOrId,
-				ResourceId: nameOrId,
-			},
-		),
-		WithProvider(provider),
-	)
+
+	return p.vagrantfile.Target(nameOrId, provider)
 }
 
 // TargetIds implements core.Project
@@ -487,12 +473,15 @@ func (p *Project) LoadTarget(topts ...TargetOption) (t *Target, err error) {
 		return c, nil
 	}
 
-	// Only store cache the local target if the vagrantfile
-	// has been set
-	if t.vagrantfile != nil {
-		// Add the target to target list in project
-		p.targets[t.target.ResourceId] = t
-		p.targets[t.target.Name] = t
+	// If we don't have a vagrantfile assigned to
+	// this target, request it and set it
+	if t.vagrantfile == nil {
+		p.logger.Info("target does not have vagrantfile set, loading", "target", t.target.Name)
+		tv, err := p.vagrantfile.TargetConfig(t.target.Name, "", false)
+		if err != nil {
+			return nil, err
+		}
+		t.vagrantfile = tv.(*Vagrantfile)
 	}
 
 	// If this is the first time through, re-init the target
@@ -519,8 +508,6 @@ func (p *Project) LoadTarget(topts ...TargetOption) (t *Target, err error) {
 
 	// Remove the target from the list when closed
 	t.Closer(func() error {
-		p.m.Lock()
-		defer p.m.Lock()
 		delete(p.targets, t.target.ResourceId)
 		return nil
 	})
@@ -529,6 +516,10 @@ func (p *Project) LoadTarget(topts ...TargetOption) (t *Target, err error) {
 	p.Closer(func() error {
 		return t.Close()
 	})
+
+	// Add the target to target list in project
+	p.targets[t.target.ResourceId] = t
+	p.targets[t.target.Name] = t
 
 	return
 }
