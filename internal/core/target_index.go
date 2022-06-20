@@ -51,6 +51,8 @@ func (t *TargetIndex) Get(uuid string) (entry core.Target, err error) {
 	}
 	return t.loadTarget(&vagrant_plugin_sdk.Ref_Target{
 		ResourceId: result.Target.ResourceId,
+		Name:       result.Target.Name,
+		Project:    result.Target.Project,
 	})
 }
 
@@ -101,15 +103,12 @@ func (t *TargetIndex) Close() (err error) {
 }
 
 func (t *TargetIndex) loadTarget(tproto *vagrant_plugin_sdk.Ref_Target) (target *Target, err error) {
-	gt, err := t.client.GetTarget(t.ctx, &vagrant_server.GetTargetRequest{
-		Target: tproto,
-	})
-	if err != nil {
-		return
-	}
-	info := gt.Target
 	// Load the project
-	p, err := t.basis.LoadProject(WithProjectRef(info.Project))
+	p, err := t.basis.LoadProject(
+		WithProjectRef(
+			tproto.GetProject(),
+		),
+	)
 	if err != nil {
 		return
 	}
