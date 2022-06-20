@@ -6,6 +6,7 @@ require (
 	cloud.google.com/go/storage v1.18.2 // indirect
 	github.com/Azure/go-ansiterm v0.0.0-20170929234023-d6e3b3328b78 // indirect
 	github.com/Microsoft/go-winio v0.4.15-0.20190919025122-fc70bd9a86b5 // indirect
+	github.com/agext/levenshtein v1.2.3 // indirect
 	github.com/armon/circbuf v0.0.0-20190214190532-5111143e8da2
 	github.com/armon/go-radix v1.0.0 // indirect
 	github.com/aws/aws-sdk-go v1.42.5 // indirect
@@ -21,9 +22,10 @@ require (
 	github.com/envoyproxy/go-control-plane v0.10.1 // indirect
 	github.com/envoyproxy/protoc-gen-validate v0.6.2 // indirect
 	github.com/fatih/color v1.12.0
-	github.com/fatih/structs v1.1.0
+	github.com/fatih/structs v1.1.0 // indirect
 	github.com/go-git/go-git/v5 v5.1.0
 	github.com/go-ozzo/ozzo-validation/v4 v4.2.1
+	github.com/go-test/deep v1.0.7 // indirect
 	github.com/gofrs/flock v0.8.0
 	github.com/gogo/protobuf v1.3.2 // indirect
 	github.com/golang/groupcache v0.0.0-20210331224755-41bb18bfe9da // indirect
@@ -51,7 +53,9 @@ require (
 	github.com/improbable-eng/grpc-web v0.13.0
 	github.com/json-iterator/go v1.1.9 // indirect
 	github.com/klauspost/compress v1.13.6 // indirect
+	github.com/kr/pretty v0.2.1 // indirect
 	github.com/kr/text v0.2.0
+	github.com/kylelemons/godebug v1.1.0 // indirect
 	github.com/mattn/go-isatty v0.0.13 // indirect
 	github.com/mitchellh/cli v1.1.2
 	github.com/mitchellh/go-glint v0.0.0-20201015034436-f80573c636de
@@ -76,7 +80,6 @@ require (
 	github.com/skratchdot/open-golang v0.0.0-20200116055534-eef842397966
 	github.com/spf13/pflag v1.0.6-0.20210604193023-d5e0c0615ace // indirect
 	github.com/stretchr/testify v1.7.0
-	github.com/tmccombs/hcl2json v0.3.4
 	github.com/ulikunitz/xz v0.5.10 // indirect
 	github.com/zclconf/go-cty v1.10.0
 	github.com/zclconf/go-cty-yaml v1.0.2
@@ -96,8 +99,8 @@ require (
 	k8s.io/apimachinery v0.18.0
 )
 
-replace github.com/hashicorp/go-argmapper => ../go-argmapper
-replace github.com/hashicorp/vagrant-plugin-sdk => ../vagrant-plugin-sdk
+//replace github.com/hashicorp/go-argmapper => ../go-argmapper
+//replace github.com/hashicorp/vagrant-plugin-sdk => ../vagrant-plugin-sdk
 
 replace (
 	// v0.3.11 panics for some reason on our tests
