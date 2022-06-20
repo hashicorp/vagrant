@@ -55,12 +55,11 @@ func (r *Runner) executeJob(
 	opts = append(opts, core.WithBasisRef(ref))
 
 	// Load our basis
-	b, err := r.factory.New(job.Id, opts...)
+	b, err := r.factory.New(ref.Name, opts...)
 	if err != nil {
 		return
 	}
 
-	defer b.Close()
 	scope = b
 
 	// Lets check for a project, and if we have one,
@@ -74,7 +73,7 @@ func (r *Runner) executeJob(
 		if err != nil {
 			return
 		}
-		defer p.Close()
+
 		scope = p
 	}
 
@@ -86,7 +85,7 @@ func (r *Runner) executeJob(
 		if err != nil {
 			return
 		}
-		defer m.Close()
+
 		scope = m
 	}
 
