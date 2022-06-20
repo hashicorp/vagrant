@@ -12,11 +12,12 @@ func _() {
 	_ = x[VAGRANTFILE_BASIS-1]
 	_ = x[VAGRANTFILE_PROJECT-2]
 	_ = x[VAGRANTFILE_TARGET-3]
+	_ = x[VAGRANTFILE_PROVIDER-4]
 }
 
-const _LoadLocation_name = "BoxBasisProjectTarget"
+const _LoadLocation_name = "BoxBasisProjectTargetProvider"
 
-var _LoadLocation_index = [...]uint8{0, 3, 8, 15, 21}
+var _LoadLocation_index = [...]uint8{0, 3, 8, 15, 21, 29}
 
 func (i LoadLocation) String() string {
 	if i >= LoadLocation(len(_LoadLocation_index)-1) {
