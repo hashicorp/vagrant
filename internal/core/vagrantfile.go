@@ -775,6 +775,29 @@ func (v *Vagrantfile) finalize(
 		)
 	}
 
+	// Now we need to run through all our registered config components
+	// and for any we don't have a value for, and automatically finalize
+	for n, reg := range v.registrations {
+		// If no plugin is attached, skip
+		if reg.plugin == nil {
+			continue
+		}
+		// If we have data already, skip
+		if _, ok := result.Data[n]; ok {
+			continue
+		}
+
+		// Get the config component and send an empty request
+		// so we can store the default finalized config
+		if c, err = v.componentForKey(n); err != nil {
+			return
+		}
+		if r, err = c.Finalize(&component.ConfigData{}); err != nil {
+			return
+		}
+		result.Data[n] = r
+	}
+
 	v.logger.Trace("configuration data finalization is now complete")
 
 	return

@@ -68,7 +68,15 @@ module VagrantPlugins
         def finalize(req, ctx)
           with_plugin(ctx, CONFIG_LOCATIONS, broker: broker) do |plugin|
             logger.debug("finalizing configuration for plugin #{plugin}")
-            config = mapper.unfuncspec(req.args.first).to_ruby
+            cproto = mapper.unfuncspec(req.args.first)
+
+            # If the config data does not include a source class, we treat
+            # the request as simply wanting the default finalized data
+            if cproto.source.name.to_s.empty?
+              config = plugin.new
+            else
+              config = cproto.to_ruby
+            end
 
             if !config.is_a?(plugin)
               raise TypeError,
