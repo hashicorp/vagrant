@@ -14,10 +14,10 @@ import (
 	"github.com/hashicorp/go-hclog"
 	"github.com/hashicorp/go-multierror"
 	goplugin "github.com/hashicorp/go-plugin"
+	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/types/known/anypb"
 
 	"github.com/hashicorp/vagrant-plugin-sdk/component"
-	vconfig "github.com/hashicorp/vagrant-plugin-sdk/config"
 	"github.com/hashicorp/vagrant-plugin-sdk/core"
 	"github.com/hashicorp/vagrant-plugin-sdk/datadir"
 	"github.com/hashicorp/vagrant-plugin-sdk/internal-shared/cacher"
@@ -37,13 +37,12 @@ type Target struct {
 	logger  hclog.Logger
 	dir     *datadir.Target
 
-	m             sync.Mutex
-	jobInfo       *component.JobInfo
-	closers       []func() error
-	ui            terminal.UI
-	cache         cacher.Cache
-	configuration *component.ConfigData
-	vagrantfile   *Vagrantfile
+	m           sync.Mutex
+	jobInfo     *component.JobInfo
+	closers     []func() error
+	ui          terminal.UI
+	cache       cacher.Cache
+	vagrantfile *Vagrantfile
 }
 
 func (t *Target) String() string {
@@ -53,7 +52,6 @@ func (t *Target) String() string {
 }
 
 func (t *Target) Config() (c interface{}, err error) {
-	c = &vconfig.Target{}
 	//	err = vconfig.DecodeConfiguration(b.target.Configuration.Serialized, c)
 	return nil, fmt.Errorf("not implemented")
 }
@@ -92,18 +90,9 @@ func (t *Target) SetName(value string) (err error) {
 
 // Provider implements core.Target
 func (t *Target) Provider() (p core.Provider, err error) {
-	defer func() {
-		if p != nil {
-			err = seedPlugin(p, t)
-			if err == nil {
-				t.cache.Register("provider", p)
-			}
-		}
-	}()
 	i := t.cache.Get("provider")
 	if i != nil {
-		p = i.(core.Provider)
-		return
+		return i.(core.Provider), nil
 	}
 
 	providerName, err := t.ProviderName()
@@ -120,13 +109,33 @@ func (t *Target) Provider() (p core.Provider, err error) {
 		return
 	}
 	p = provider.Value.(core.Provider)
+	if err := seedPlugin(p, t); err != nil {
+		return nil, err
+	}
+
+	t.cache.Register("provider", p)
 
 	return
 }
 
 // ProviderName implements core.Target
 func (t *Target) ProviderName() (string, error) {
-	return t.target.Provider, nil
+	if t.target.Provider != "" {
+		return t.target.Provider, nil
+	}
+	p, err := t.project.DefaultProvider(
+		&core.DefaultProviderOptions{
+			CheckUsable: true,
+			MachineName: t.target.Name,
+		},
+	)
+	if err != nil {
+		return "", err
+	}
+
+	t.target.Provider = p
+
+	return p, nil
 }
 
 // Communicate implements core.Target
@@ -267,6 +276,8 @@ func (t *Target) Save() (err error) {
 		t.logger.Trace("failed to save target",
 			"target", t.target.ResourceId,
 			"error", err)
+
+		return
 	}
 	t.target = result.Target
 	return
@@ -391,10 +402,11 @@ func (t *Target) Machine() core.Machine {
 	targetMachine := &vagrant_server.Target_Machine{}
 	t.target.Record.UnmarshalTo(targetMachine)
 	m := &Machine{
-		Target:  t,
-		logger:  t.logger,
-		machine: targetMachine,
-		cache:   cacher.New(),
+		Target:      t,
+		logger:      t.logger,
+		machine:     targetMachine,
+		cache:       cacher.New(),
+		vagrantfile: t.vagrantfile,
 	}
 
 	t.Closer(func() error {
@@ -446,6 +458,7 @@ func (t *Target) doOperation(
 
 // Initialize the target instance
 func (t *Target) init() (err error) {
+	t.logger.Info("running init on target", "target", t.target.Name)
 	// Name or resource id is required for a target to be loaded
 	if t.target.Name == "" && t.target.ResourceId == "" {
 		return fmt.Errorf("cannot load a target without name or resource id")
@@ -459,7 +472,7 @@ func (t *Target) init() (err error) {
 	// If the configuration was updated during load, save it so
 	// we can re-apply after loading stored data
 	var conf *vagrant_plugin_sdk.Args_ConfigData
-	if t.configuration != nil {
+	if t.target != nil && t.target.Configuration != nil {
 		conf = t.target.Configuration
 	}
 
@@ -503,16 +516,20 @@ func (t *Target) init() (err error) {
 	// Set the project into the target
 	t.target.Project = t.project.Ref().(*vagrant_plugin_sdk.Ref_Project)
 
-	// If the configuration is loaded, then we are done here
-	if t.configuration != nil {
+	// If we have a vagrantfile attached, we're done
+	if t.vagrantfile != nil {
 		return
 	}
 
 	// If we don't have configuration data, just stub
 	if t.target.Configuration == nil {
-		t.configuration = &component.ConfigData{}
+		t.target.Configuration = &vagrant_plugin_sdk.Args_ConfigData{}
 		return
 	}
+
+	t.logger.Info("vagrantfile has not been defined so generating from store config",
+		"name", t.target.Name,
+	)
 
 	internal := plugin.NewInternal(
 		t.project.basis.plugins.LegacyBroker(),
@@ -538,9 +555,8 @@ func (t *Target) init() (err error) {
 		return
 	}
 
-	t.configuration = raw.(*component.ConfigData)
 	t.vagrantfile = t.project.vagrantfile.clone("target", t)
-	t.vagrantfile.root = t.configuration
+	t.vagrantfile.root = raw.(*component.ConfigData)
 
 	return
 }
@@ -552,7 +568,6 @@ type TargetOption func(*Target) error
 func WithTargetVagrantfile(v *Vagrantfile) TargetOption {
 	return func(t *Target) (err error) {
 		t.vagrantfile = v
-		t.configuration = v.root
 		t.target.Configuration, err = v.rootToStore()
 		return
 	}
@@ -574,13 +589,18 @@ func WithTargetRef(r *vagrant_plugin_sdk.Ref_Target) TargetOption {
 			return fmt.Errorf("project must be set before loading target")
 		}
 
+		// Target ref must include a resource id or name
+		if r.Name == "" && r.ResourceId == "" {
+			return fmt.Errorf("target ref must include ResourceId and/or Name")
+		}
+
 		var target *vagrant_server.Target
 		result, err := t.Client().FindTarget(t.ctx,
 			&vagrant_server.FindTargetRequest{
 				Target: &vagrant_server.Target{
 					ResourceId: r.ResourceId,
 					Name:       r.Name,
-					Project:    r.Project,
+					Project:    t.project.Ref().(*vagrant_plugin_sdk.Ref_Project),
 				},
 			},
 		)
@@ -596,9 +616,8 @@ func WithTargetRef(r *vagrant_plugin_sdk.Ref_Target) TargetOption {
 			result, err = t.Client().UpsertTarget(t.ctx,
 				&vagrant_server.UpsertTargetRequest{
 					Target: &vagrant_server.Target{
-						ResourceId: r.ResourceId,
-						Name:       r.Name,
-						Project:    r.Project,
+						Name:    r.Name,
+						Project: t.project.Ref().(*vagrant_plugin_sdk.Ref_Project),
 					},
 				},
 			)
