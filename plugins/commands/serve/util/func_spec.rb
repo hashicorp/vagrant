@@ -37,7 +37,7 @@ module VagrantPlugins
                 logger.trace("starting funcspec generation for #{farg}")
                 type = mapper.find_type(farg.type)
                 gen = mapper.generate(*m_args, named: farg.name, type: type)
-                logger.trace("generated value for type #{type.inspect} (name: #{farg.name.inspect}) -> #{gen}")
+                logger.trace("generated value for type #{type.inspect} (name: #{farg.name.inspect}) -> #{gen.class}")
                 any = Google::Protobuf::Any.pack(gen)
                 SDK::FuncSpec::Value.new(
                   type: any.type_name.split("/").last,
