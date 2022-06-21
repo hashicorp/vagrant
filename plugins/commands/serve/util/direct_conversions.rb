@@ -296,6 +296,13 @@ class Hashicorp::Vagrant::Sdk::Args::Array
   end
 end
 
+class Hashicorp::Vagrant::Sdk::Args::BoxMetadata
+  # TODO(spox): should this be returning a box metadata instance instead of client?
+  def to_ruby
+    _vagrant_load_client(VagrantPlugins::CommandServe::Client::BoxMetadata)
+  end
+end
+
 class Hashicorp::Vagrant::Sdk::Args::Class
   def to_ruby
     if name.to_s.empty?
