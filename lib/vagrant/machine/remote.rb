@@ -128,7 +128,7 @@ module Vagrant
       end
 
       def state
-        s = @provider.state
+        s = provider.state
         raise Errors::MachineStateInvalid if !s.is_a?(MachineState)
         client.set_machine_state(s) unless s.nil?
         return s
@@ -155,10 +155,6 @@ module Vagrant
 
       def reload
         id
-      end
-
-      def state
-        client.machine_state
       end
 
       def ssh_info
