@@ -469,6 +469,9 @@ func (v *Vagrantfile) Target(
 	// it to the target we loaded
 	rawTarget := target.(*Target)
 	tvf := v.clone(name, rawTarget)
+	if err = tvf.Init(); err != nil {
+		return nil, err
+	}
 	rawTarget.vagrantfile = tvf
 
 	if err = vf.Close(); err != nil {
@@ -990,7 +993,7 @@ func (v *Vagrantfile) clone(name string, origin originScope) *Vagrantfile {
 		srcs[k] = v
 	}
 	newV := &Vagrantfile{
-		cache:         cacher.New(),
+		cache:         v.cache,
 		cleanup:       cleanup.New(),
 		logger:        v.logger.Named(name),
 		mappers:       v.mappers,
