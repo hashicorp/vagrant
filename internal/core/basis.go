@@ -705,6 +705,11 @@ func (b *Basis) LoadProject(popts ...ProjectOption) (p *Project, err error) {
 	// Set seeds for any plugins that may be used
 	p.seed(nil)
 
+	// Initialize any targets defined in the project
+	if err = p.InitTargets(); err != nil {
+		return
+	}
+
 	// Set our loaded project into the basis
 	b.projects[p.project.ResourceId] = p
 
