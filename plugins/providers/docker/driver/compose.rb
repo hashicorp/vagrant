@@ -220,7 +220,7 @@ module VagrantPlugins
         def compose_execute(*cmd, **opts, &block)
           synchronized do
             execute("docker-compose", "-f", composition_path.to_s,
-              "-p", machine.env.cwd.basename.to_s, *cmd, **opts, &block)
+              "-p", machine.env.cwd.basename.to_s.downcase, *cmd, **opts, &block)
           end
         end
 
