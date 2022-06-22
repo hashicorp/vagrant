@@ -1,5 +1,6 @@
 # Patch things to produce proto messages
 require "pathname"
+require "securerandom"
 require "google/protobuf/wrappers_pb"
 require "google/protobuf/well_known_types"
 
@@ -145,6 +146,12 @@ class Vagrant::Plugin::V2::Config
       instance_variables.each do |v|
         h[v.to_s.sub('@', '')] = instance_variable_get(v)
       end
+    end
+
+    # Include a unique identifier for this configuration instance. This
+    # will allow us to identifier it later when it is decoded.
+    if !data.key?("_vagrant_config_identifier")
+      data["_vagrant_config_identifier"] = SecureRandom.uuid
     end
 
     entries = data.map do |k, v|

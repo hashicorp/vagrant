@@ -75,10 +75,13 @@ module VagrantPlugins
         end
 
         def load_provisioner(klass, machine, config)
-          key = cache.key(klass, machine)
-          return cache.get(key) if cache.registered?(key)
+          ident = config.instance_variable_get(:@_vagrant_config_identifier)
+          if ident
+            key = cache.key(klass, machine, ident)
+            return cache.get(key) if cache.registered?(key)
+          end
           klass.new(machine, config).tap do |i|
-            cache.register(key, i)
+            cache.register(key, i) if key
           end
         end
       end

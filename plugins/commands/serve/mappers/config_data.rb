@@ -127,6 +127,12 @@ module VagrantPlugins
             end
           end
 
+          # Include a unique identifier for this configuration instance. This
+          # will allow us to identifier it later when it is decoded.
+          if !data.key?("_vagrant_config_identifier")
+            data["_vagrant_config_identifier"] = SecureRandom.uuid
+          end
+
           entries = data.map do |k, v|
             begin
               SDK::Args::HashEntry.new(
