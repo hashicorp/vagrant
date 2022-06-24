@@ -34,7 +34,6 @@ func (c *DynamicCommand) Run(args []string) int {
 
 	var r *vagrant_server.Job_RunResult
 	err := c.Do(c.Ctx, func(ctx context.Context, cl *client.Client, modifier client.JobModifier) (err error) {
-		cl.UI().Output("Running "+c.name+"... ", terminal.WithHeaderStyle())
 		taskArgs := &vagrant_plugin_sdk.Command_Arguments{
 			Args:  c.args,
 			Flags: []*vagrant_plugin_sdk.Command_Arguments_Flag{},

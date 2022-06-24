@@ -271,5 +271,6 @@ module Vagrant
     ->{ Vagrant::Action::Builtin::MixinSyncedFolders.prepend(Vagrant::Action::Builtin::Remote::MixinSyncedFolders) },
     ->{ Vagrant::Action::Builtin::SSHRun.prepend(Vagrant::Action::Builtin::Remote::SSHRun) },
     ->{ Vagrant::Util::SSH.prepend(Vagrant::Util::Remote::SSH) },
+    ->{ Vagrant::Util::SafePuts.prepend(Vagrant::Util::Remote::SafePuts) },
   ].freeze
 end
