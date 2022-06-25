@@ -549,14 +549,18 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
     end
     add_message "hashicorp.vagrant.sdk.Config" do
     end
+    add_message "hashicorp.vagrant.sdk.Config.Merge" do
+      optional :base, :message, 1, "hashicorp.vagrant.sdk.Args.ConfigData"
+      optional :overlay, :message, 2, "hashicorp.vagrant.sdk.Args.ConfigData"
+    end
+    add_message "hashicorp.vagrant.sdk.Config.Finalize" do
+      optional :config, :message, 1, "hashicorp.vagrant.sdk.Args.ConfigData"
+    end
     add_message "hashicorp.vagrant.sdk.Config.Fields" do
       repeated :fields, :string, 1
     end
     add_message "hashicorp.vagrant.sdk.Config.Structure" do
       optional :struct, :message, 1, "protostructure.Struct"
-    end
-    add_message "hashicorp.vagrant.sdk.Config.FinalizeResponse" do
-      optional :data, :message, 1, "hashicorp.vagrant.sdk.Args.ConfigData"
     end
     add_message "hashicorp.vagrant.sdk.Config.RawRubyValue" do
       optional :source, :message, 1, "hashicorp.vagrant.sdk.Args.Class"
@@ -1132,9 +1136,10 @@ module Hashicorp
       Communicator::TestResp = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Communicator.TestResp").msgclass
       Communicator::Command = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Communicator.Command").msgclass
       Config = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Config").msgclass
+      Config::Merge = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Config.Merge").msgclass
+      Config::Finalize = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Config.Finalize").msgclass
       Config::Fields = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Config.Fields").msgclass
       Config::Structure = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Config.Structure").msgclass
-      Config::FinalizeResponse = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Config.FinalizeResponse").msgclass
       Config::RawRubyValue = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Config.RawRubyValue").msgclass
       Config::StructResponse = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Config.StructResponse").msgclass
       Config::ConfigureRequest = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Config.ConfigureRequest").msgclass
