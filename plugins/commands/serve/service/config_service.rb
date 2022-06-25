@@ -31,61 +31,54 @@ module VagrantPlugins
         def merge_spec(*_)
           logger.debug("generating merge spec")
           funcspec(
-            named: {
-              base: SDK::Args::ConfigData,
-              tomerge: SDK::Args::ConfigData,
-            },
+            args: [
+              SDK::Config::Merge,
+            ],
             result: SDK::Args::ConfigData,
           )
         end
 
         def merge(req, ctx)
           with_plugin(ctx, :config, broker: broker) do |plugin|
-            base_raw = req.args.detect { |a| a.name == "base" }
-            to_merge_raw = req.args.detect { |a| a.name == "tomerge" }
-            if base_raw.nil? || to_merge_raw.nil?
-              raise ArgumentError,
-                    "Missing configuration value for merge"
-            end
+            m = mapper.unfuncspec(req.args.first)
+            base = mapper.map(m.base, to: plugin)
+            overlay = mapper.map(m.overlay, to: plugin)
 
-            base = mapper.unfuncspec(base_raw).to_ruby
-            to_merge = mapper.unfuncspec(to_merge_raw).to_ruby
-
-            result = base.merge(to_merge)
-            result.to_proto
+            mapper.map(base.merge(overlay), to: SDK::Args::ConfigData)
           end
         end
 
         def finalize_spec(*_)
           funcspec(
             args: [
-              SDK::Args::ConfigData,
+              SDK::Config::Finalize,
             ],
-            result: SDK::Config::FinalizeResponse
+            result: SDK::Args::ConfigData
           )
         end
 
         def finalize(req, ctx)
           with_plugin(ctx, CONFIG_LOCATIONS, broker: broker) do |plugin|
             logger.debug("finalizing configuration for plugin #{plugin}")
-            cproto = mapper.unfuncspec(req.args.first)
+
+            # Extract the proto from the funcspec
+            f = mapper.unfuncspec(req.args.first)
+            cproto = f.config
 
             # If the config data does not include a source class, we treat
             # the request as simply wanting the default finalized data
             if cproto.source.name.to_s.empty?
               config = plugin.new
             else
-              config = cproto.to_ruby
+              config = mapper.map(cproto, to: plugin)
             end
 
-            if !config.is_a?(plugin)
-              raise TypeError,
-                    "Expected config type `#{plugin}' but received `#{config.class}'"
-            end
             config.finalize!
+            # This is just a marker for debugging that we were
+            # responsible for the finalization
             config.instance_variable_set("@__service_finalized", true)
 
-            SDK::Config::FinalizeResponse.new(data: config.to_proto)
+            mapper.map(config, to: SDK::Args::ConfigData)
           end
         end
       end
