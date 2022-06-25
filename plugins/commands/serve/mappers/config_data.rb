@@ -19,21 +19,44 @@ module VagrantPlugins
         end
       end
 
-      # NOTE: Disabled
-      class ConfigDataFromProto # < Mapper
+      class ConfigMergeFromSpec < Mapper
+        include Util::HasLogger
+
         def initialize
           super(
             inputs: [
-              Input.new(type: SDK::Args::ConfigData),
-              Input.new(type: Mappers)
+              Input.new(type: SDK::FuncSpec::Value) { |arg|
+                logger.info("funcspec for config merge checking against: #{arg.type}")
+                arg.type == "hashicorp.vagrant.sdk.Config.Merge" &&
+                  !arg&.value&.value.nil?
+              }
             ],
-            output: Type::ConfigData,
+            output: SDK::Config::Merge,
             func: method(:converter),
           )
         end
 
-        def converter(proto, m)
-          Type::ConfigData.new(value: m.map(proto.data, to: Hash))
+        def converter(fv)
+          SDK::Config::Merge.decode(fv.value.value)
+        end
+      end
+
+      class ConfigFinalizeFromSpec < Mapper
+        def initialize
+          super(
+            inputs: [
+              Input.new(type: SDK::FuncSpec::Value) { |arg|
+                arg.type == "hashicorp.vagrant.sdk.Config.Finalize" &&
+                  !arg&.value&.value.nil?
+              }
+            ],
+            output: SDK::Config::Finalize,
+            func: method(:converter),
+          )
+        end
+
+        def converter(fv)
+          SDK::Config::Finalize.decode(fv.value.value)
         end
       end
 
@@ -44,37 +67,14 @@ module VagrantPlugins
           super(
             inputs: [
               Input.new(type: SDK::Args::ConfigData),
-              Input.new(type: Mappers),
             ],
             output: Vagrant::Plugin::V2::Config,
             func: method(:converter)
           )
         end
 
-        def converter(c, m)
-          base_klass = m.map(c.source, to: Class)
-          if [0, -1].include?(base_klass.instance_method(:initialize).arity)
-            klass = base_klass
-          else
-            klass = Class.new(base_klass)
-            klass.class_eval("
-              def self.class
-                #{base_klass.name}
-              end
-              def initialize
-              end
-            ")
-          end
-          instance = klass.new
-          data = m.map(c.data, to: Hash)
-
-          if data.key?("__service_finalized")
-            instance.finalize!
-          end
-          data.each_pair do |k, v|
-            instance.instance_variable_set("@#{k}", v)
-          end
-          instance
+        def converter(c)
+          c.to_ruby
         end
       end
 
@@ -85,24 +85,14 @@ module VagrantPlugins
           super(
             inputs: [
               Input.new(type: Vagrant::Config::V2::Root),
-              Input.new(type: Mappers),
             ],
             output: SDK::Args::Hash,
             func: method(:converter),
           )
         end
 
-        def converter(c, m)
-          data = c.__internal_state["keys"]
-          entries = data.map do |k, v|
-            value = m.map(v, to: SDK::Args::ConfigData)
-            SDK::Args::HashEntry.new(
-              key: m.map(k, to: Google::Protobuf::Any),
-              value: Google::Protobuf::Any.pack(value)
-            )
-          end
-
-          SDK::Args::Hash.new(entries: entries)
+        def converter(c)
+          c.to_proto
         end
       end
 
