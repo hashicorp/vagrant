@@ -2,7 +2,6 @@ package configvagrant
 
 import (
 	"fmt"
-	"github.com/hashicorp/go-argmapper"
 	"github.com/hashicorp/go-hclog"
 	sdk "github.com/hashicorp/vagrant-plugin-sdk"
 	"github.com/hashicorp/vagrant-plugin-sdk/component"
@@ -52,30 +51,29 @@ func (c *Config) MergeFunc() interface{} {
 	return c.Merge
 }
 
-func (c *Config) Merge(input struct {
-	argmapper.Struct
-
-	Log     hclog.Logger `argmapper:",typeOnly"`
-	Base    *component.ConfigData
-	ToMerge *component.ConfigData
-}) (*component.ConfigData, error) {
-	input.Log.Info("merging config values for the vagrants namespace")
+func (c *Config) Merge(
+	input *component.ConfigMerge,
+	log hclog.Logger,
+) (*component.ConfigData, error) {
+	log.Info("merging config values for the vagrants namespace")
 	result := &component.ConfigData{
 		Data: map[string]interface{}{},
 	}
 
 	for k, v := range input.Base.Data {
-		input.Log.Info("Base value", "key", k, "value", v)
+		log.Info("Base value", "key", k, "value", v)
 		result.Data[k] = v
 	}
 
-	for k, v := range input.ToMerge.Data {
-		input.Log.Info("Merged value", "key", k, "value", v, "pre-existing", result.Data[k])
+	for k, v := range input.Overlay.Data {
+		log.Info("Merged value", "key", k, "value", v, "pre-existing", result.Data[k])
 		if v == result.Data[k] {
 			return nil, fmt.Errorf("values for merge should not match (%#v == %#v)", v, result.Data[k])
 		}
 		result.Data[k] = v
 	}
+
+	result.Data["merged"] = "omg"
 
 	return result, nil
 }
@@ -84,7 +82,12 @@ func (c *Config) FinalizeFunc() interface{} {
 	return c.Finalize
 }
 
-func (c *Config) Finalize(d *component.ConfigData) (*component.ConfigData, error) {
+func (c *Config) Finalize(l hclog.Logger, f *component.ConfigFinalize) (*component.ConfigData, error) {
+	d := f.Config
+	d.Data["finalized"] = "yep, it's finalzied"
+	l.Info("config data that is finalized and going back",
+		"config", hclog.Fmt("%#v", d),
+	)
 	return d, nil
 }
 
@@ -94,8 +97,13 @@ func (c *Command) ExecuteFunc(_ []string) interface{} {
 	return c.Execute
 }
 
-func (c *Command) Execute(ui terminal.UI, v core.Vagrantfile) int32 {
+func (c *Command) Execute(ui terminal.UI, p core.Project) int32 {
 	ui.Output("Checking for our defined config...")
+	v, err := p.Vagrantfile()
+	if err != nil {
+		ui.Output("Failed to get Vagrantfile instance: %s", err)
+		return 1
+	}
 	ui.Output("Our vagrantfile value is: %#v", v)
 	conf, err := v.GetConfig("vagrants")
 	if err != nil {
@@ -105,6 +113,15 @@ func (c *Command) Execute(ui terminal.UI, v core.Vagrantfile) int32 {
 
 	ui.Output("We got something here!")
 	ui.Output("Config defined host: %s", conf.Data["host"])
+
+	if _, ok := conf.Data["finalized"]; !ok {
+		ui.Output("ERROR: finalized data expected and not found in config!")
+	}
+
+	if _, ok := conf.Data["merged"]; !ok {
+		ui.Output("ERROR: merged data expected and not found in config!")
+		return 1
+	}
 	return 0
 }
 
