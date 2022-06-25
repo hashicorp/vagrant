@@ -979,7 +979,6 @@ func (b *Basis) seed(fn func(*core.Seeds)) {
 	s := b.seedValues
 	s.AddNamed("basis", b)
 	s.AddNamed("basis_ui", b.ui)
-	s.AddNamed("basis_vagrantfile", b.vagrantfile)
 	s.AddTyped(b, b.ui, b.corePlugins)
 	if fn != nil {
 		fn(s)

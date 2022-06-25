@@ -588,7 +588,7 @@ func (p *Project) seed(fn func(*core.Seeds)) {
 		func(s *core.Seeds) {
 			s.AddNamed("project", p)
 			s.AddNamed("project_ui", p.ui)
-			s.AddTyped(p, p.vagrantfile)
+			s.AddTyped(p)
 			if fn != nil {
 				fn(s)
 			}
