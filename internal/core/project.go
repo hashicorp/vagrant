@@ -871,6 +871,10 @@ func WithProjectName(name string) ProjectOption {
 // WithBasisRef is used to load or initialize the project
 func WithProjectRef(r *vagrant_plugin_sdk.Ref_Project) ProjectOption {
 	return func(p *Project) (err error) {
+		// The ref value must be provided
+		if r == nil {
+			return errors.New("project reference cannot be nil")
+		}
 		// Basis must be set before we continue
 		if p.basis == nil {
 			return errors.New("basis must be set before loading project")
