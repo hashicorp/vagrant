@@ -10,10 +10,15 @@ import (
 	"github.com/hashicorp/vagrant/internal/server/proto/vagrant_server"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
+	"google.golang.org/protobuf/types/known/anypb"
+	"google.golang.org/protobuf/types/known/wrapperspb"
 )
 
 func TestMachineSetValidId(t *testing.T) {
-	tm, _ := TestMinimalMachine(t)
+	tm, err := TestMinimalMachine(t)
+	if err != nil {
+		t.Fatal(err)
+	}
 
 	// Set valid id
 	tm.SetID("something")
@@ -98,9 +103,7 @@ func TestMachineSetIdBlankThenSomethingPreservesDataDir(t *testing.T) {
 func TestMachineGetNonExistentBox(t *testing.T) {
 	tp := TestMinimalProject(t)
 	tm, _ := TestMachine(t, tp,
-		WithTestTargetConfig(&vagrant_plugin_sdk.Vagrantfile_MachineConfig{
-			ConfigVm: &vagrant_plugin_sdk.Vagrantfile_ConfigVM{Box: "somebox"},
-		}),
+		WithTestTargetConfig(testBoxConfig("somename")),
 		WithTestTargetProvider("testprovider"),
 	)
 
@@ -117,12 +120,133 @@ func TestMachineGetNonExistentBox(t *testing.T) {
 	require.Empty(t, metaurl)
 }
 
+func testBoxConfig(name string) *vagrant_plugin_sdk.Args_ConfigData {
+	b_key, _ := anypb.New(&wrapperspb.StringValue{Value: "box"})
+	b_name, _ := anypb.New(&wrapperspb.StringValue{Value: name})
+	vm_key, _ := anypb.New(&wrapperspb.StringValue{Value: "vm"})
+	vm, _ := anypb.New(&vagrant_plugin_sdk.Args_ConfigData{
+		Data: &vagrant_plugin_sdk.Args_Hash{
+			Entries: []*vagrant_plugin_sdk.Args_HashEntry{
+				{
+					Key:   b_key,
+					Value: b_name,
+				},
+			},
+		},
+	})
+
+	return &vagrant_plugin_sdk.Args_ConfigData{
+		Data: &vagrant_plugin_sdk.Args_Hash{
+			Entries: []*vagrant_plugin_sdk.Args_HashEntry{
+				{
+					Key:   vm_key,
+					Value: vm,
+				},
+			},
+		},
+	}
+}
+
+type testSyncedFolder struct {
+	source      string
+	destination string
+	kind        string
+}
+
+func testSyncedFolderConfig(folders []*testSyncedFolder) *vagrant_plugin_sdk.Args_ConfigData {
+	f := &vagrant_plugin_sdk.Args_Hash{
+		Entries: []*vagrant_plugin_sdk.Args_HashEntry{},
+	}
+	src_key, _ := anypb.New(&wrapperspb.StringValue{Value: "hostpath"})
+	dst_key, _ := anypb.New(&wrapperspb.StringValue{Value: "guestpath"})
+	type_key, _ := anypb.New(&wrapperspb.StringValue{Value: "type"})
+	for i := 0; i < len(folders); i++ {
+		fld := folders[i]
+		f_src, _ := anypb.New(&wrapperspb.StringValue{Value: fld.source})
+		f_dst, _ := anypb.New(&wrapperspb.StringValue{Value: fld.destination})
+		f_type, _ := anypb.New(&wrapperspb.StringValue{Value: fld.kind})
+
+		hsh := &vagrant_plugin_sdk.Args_Hash{
+			Entries: []*vagrant_plugin_sdk.Args_HashEntry{
+				{
+					Key:   src_key,
+					Value: f_src,
+				},
+				{
+					Key:   dst_key,
+					Value: f_dst,
+				},
+				{
+					Key:   type_key,
+					Value: f_type,
+				},
+			},
+		}
+		entry, _ := anypb.New(hsh)
+		f.Entries = append(f.Entries,
+			&vagrant_plugin_sdk.Args_HashEntry{
+				Key:   f_dst,
+				Value: entry,
+			},
+		)
+	}
+	f_key, _ := anypb.New(&wrapperspb.StringValue{Value: "__synced_folders"})
+	f_value, _ := anypb.New(f)
+	vm_key, _ := anypb.New(&wrapperspb.StringValue{Value: "vm"})
+	vm, _ := anypb.New(&vagrant_plugin_sdk.Args_ConfigData{
+		Data: &vagrant_plugin_sdk.Args_Hash{
+			Entries: []*vagrant_plugin_sdk.Args_HashEntry{
+				{
+					Key:   f_key,
+					Value: f_value,
+				},
+			},
+		},
+	})
+
+	return &vagrant_plugin_sdk.Args_ConfigData{
+		Data: &vagrant_plugin_sdk.Args_Hash{
+			Entries: []*vagrant_plugin_sdk.Args_HashEntry{
+				{
+					Key:   vm_key,
+					Value: vm,
+				},
+			},
+		},
+	}
+}
+
+func testGuestConfig(name string) *vagrant_plugin_sdk.Args_ConfigData {
+	g_key, _ := anypb.New(&wrapperspb.StringValue{Value: "guest"})
+	g_name, _ := anypb.New(&wrapperspb.StringValue{Value: name})
+	vm_key, _ := anypb.New(&wrapperspb.StringValue{Value: "vm"})
+	vm, _ := anypb.New(&vagrant_plugin_sdk.Args_ConfigData{
+		Data: &vagrant_plugin_sdk.Args_Hash{
+			Entries: []*vagrant_plugin_sdk.Args_HashEntry{
+				{
+					Key:   g_key,
+					Value: g_name,
+				},
+			},
+		},
+	})
+
+	return &vagrant_plugin_sdk.Args_ConfigData{
+		Data: &vagrant_plugin_sdk.Args_Hash{
+			Entries: []*vagrant_plugin_sdk.Args_HashEntry{
+				{
+					Key:   vm_key,
+					Value: vm,
+				},
+			},
+		},
+	}
+}
+
 func TestMachineGetExistentBox(t *testing.T) {
 	tp := TestMinimalProject(t)
 	tm, _ := TestMachine(t, tp,
-		WithTestTargetConfig(&vagrant_plugin_sdk.Vagrantfile_MachineConfig{
-			ConfigVm: &vagrant_plugin_sdk.Vagrantfile_ConfigVM{Box: "test/box"},
-		}),
+		WithTestTargetConfig(testBoxConfig("test/box")),
 	)
 	testBox := newFullBox(t, testboxBoxData(), tp.basis)
 	testBox.Save()
@@ -142,18 +266,21 @@ func TestMachineGetExistentBox(t *testing.T) {
 
 func TestMachineConfigedGuest(t *testing.T) {
 	type test struct {
-		config *vagrant_plugin_sdk.Vagrantfile_ConfigVM
+		config *vagrant_plugin_sdk.Args_ConfigData
 		errors bool
 	}
 
 	tests := []test{
-		{config: &vagrant_plugin_sdk.Vagrantfile_ConfigVM{Guest: "myguest"}, errors: false},
-		{config: &vagrant_plugin_sdk.Vagrantfile_ConfigVM{Guest: "idontexist"}, errors: true},
+		{config: testGuestConfig("myguest"), errors: false},
+		{config: testGuestConfig("idontexist"), errors: true},
 	}
+	guestMock := BuildTestGuestPlugin("myguest", "")
+	guestMock.On("Detect", mock.AnythingOfType("*core.Machine")).Return(false, nil)
+	guestMock.On("Parent").Return("", nil)
 
 	pluginManager := plugin.TestManager(t,
 		plugin.TestPlugin(t,
-			BuildTestGuestPlugin("myguest", ""),
+			guestMock,
 			plugin.WithPluginName("myguest"),
 			plugin.WithPluginTypes(component.GuestType),
 		),
@@ -162,9 +289,7 @@ func TestMachineConfigedGuest(t *testing.T) {
 	for _, tc := range tests {
 		tp := TestProject(t, WithPluginManager(pluginManager))
 		tm, _ := TestMachine(t, tp,
-			WithTestTargetConfig(&vagrant_plugin_sdk.Vagrantfile_MachineConfig{
-				ConfigVm: tc.config,
-			}),
+			WithTestTargetConfig(tc.config),
 		)
 		guest, err := tm.Guest()
 		if tc.errors {
@@ -291,7 +416,7 @@ func TestMachineSyncedFolders(t *testing.T) {
 
 	type test struct {
 		plugins         []*plugin.Plugin
-		config          *vagrant_plugin_sdk.Vagrantfile_ConfigVM
+		config          *vagrant_plugin_sdk.Args_ConfigData
 		errors          bool
 		expectedFolders int
 	}
@@ -300,37 +425,65 @@ func TestMachineSyncedFolders(t *testing.T) {
 		{
 			plugins: []*plugin.Plugin{mySyncedFolder},
 			errors:  false,
-			config: &vagrant_plugin_sdk.Vagrantfile_ConfigVM{
-				SyncedFolders: []*vagrant_plugin_sdk.Vagrantfile_SyncedFolder{
-					{Source: ".", Destination: "/vagrant", Type: stringPtr("mysyncedfolder")},
+			config: testSyncedFolderConfig(
+				[]*testSyncedFolder{
+					&testSyncedFolder{
+						source:      ".",
+						destination: "/vagrant",
+						kind:        "mysyncedfolder",
+					},
 				},
-			},
+			),
 			expectedFolders: 1,
 		},
 		// Many synced folders and available plugins
 		{
 			plugins: []*plugin.Plugin{mySyncedFolder, myOtherSyncedFolder},
 			errors:  false,
-			config: &vagrant_plugin_sdk.Vagrantfile_ConfigVM{
-				SyncedFolders: []*vagrant_plugin_sdk.Vagrantfile_SyncedFolder{
-					{Source: ".", Destination: "/vagrant", Type: stringPtr("mysyncedfolder")},
-					{Source: "./two", Destination: "/vagrant-two", Type: stringPtr("mysyncedfolder")},
-					{Source: "./three", Destination: "/vagrant-three", Type: stringPtr("myothersyncedfolder")},
+			config: testSyncedFolderConfig(
+				[]*testSyncedFolder{
+					&testSyncedFolder{
+						source:      ".",
+						destination: "/vagrant",
+						kind:        "mysyncedfolder",
+					},
+					&testSyncedFolder{
+						source:      "./two",
+						destination: "/vagrant-two",
+						kind:        "mysyncedfolder",
+					},
+					&testSyncedFolder{
+						source:      "./three",
+						destination: "/vagrant-three",
+						kind:        "mysyncedfolder",
+					},
 				},
-			},
+			),
 			expectedFolders: 3,
 		},
 		// Synced folder with unavailable plugin
 		{
 			plugins: []*plugin.Plugin{mySyncedFolder, myOtherSyncedFolder},
 			errors:  true,
-			config: &vagrant_plugin_sdk.Vagrantfile_ConfigVM{
-				SyncedFolders: []*vagrant_plugin_sdk.Vagrantfile_SyncedFolder{
-					{Source: ".", Destination: "/vagrant", Type: stringPtr("idontexist")},
-					{Source: "./two", Destination: "/vagrant-two", Type: stringPtr("mysyncedfolder")},
-					{Source: "./three", Destination: "/vagrant-three", Type: stringPtr("myothersyncedfolder")},
+			config: testSyncedFolderConfig(
+				[]*testSyncedFolder{
+					&testSyncedFolder{
+						source:      ".",
+						destination: "/vagrant",
+						kind:        "mysyncedfolder",
+					},
+					&testSyncedFolder{
+						source:      "./two",
+						destination: "/vagrant-two",
+						kind:        "mysyncedfolder",
+					},
+					&testSyncedFolder{
+						source:      "./three",
+						destination: "/vagrant-three",
+						kind:        "mysyncedfolder",
+					},
 				},
-			},
+			),
 		},
 	}
 
@@ -338,7 +491,7 @@ func TestMachineSyncedFolders(t *testing.T) {
 		pluginManager := plugin.TestManager(t, tc.plugins...)
 		tp := TestProject(t, WithPluginManager(pluginManager))
 		tm, _ := TestMachine(t, tp,
-			WithTestTargetConfig(&vagrant_plugin_sdk.Vagrantfile_MachineConfig{ConfigVm: tc.config}),
+			WithTestTargetConfig(tc.config),
 		)
 		folders, err := tm.SyncedFolders()
 		if tc.errors {
