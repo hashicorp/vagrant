@@ -22,7 +22,6 @@ require (
 	github.com/envoyproxy/go-control-plane v0.10.1 // indirect
 	github.com/envoyproxy/protoc-gen-validate v0.6.2 // indirect
 	github.com/fatih/color v1.12.0
-	github.com/fatih/structs v1.1.0 // indirect
 	github.com/go-git/go-git/v5 v5.1.0
 	github.com/go-ozzo/ozzo-validation/v4 v4.2.1
 	github.com/go-test/deep v1.0.7 // indirect
@@ -47,7 +46,7 @@ require (
 	github.com/hashicorp/golang-lru v0.5.4 // indirect
 	github.com/hashicorp/hcl/v2 v2.11.1
 	github.com/hashicorp/nomad/api v0.0.0-20200814140818-42de70466a9d
-	github.com/hashicorp/vagrant-plugin-sdk v0.0.0-20220608152900-0d37aacebd23
+	github.com/hashicorp/vagrant-plugin-sdk v0.0.0-20220627190203-ee2c7a069525
 	github.com/hashicorp/yamux v0.0.0-20200609203250-aecfd211c9ce // indirect
 	github.com/imdario/mergo v0.3.11
 	github.com/improbable-eng/grpc-web v0.13.0
