@@ -62,6 +62,19 @@ func testGuestConfig(name string) *component.ConfigData {
 	}
 }
 
+// Set communicator name in vm configuration
+func testCommunicatorConfig(name string) *component.ConfigData {
+	return &component.ConfigData{
+		Data: map[string]interface{}{
+			"vm": &component.ConfigData{
+				Data: map[string]interface{}{
+					"communicator": name,
+				},
+			},
+		},
+	}
+}
+
 // Generate a synced folder plugin
 func syncedFolderPlugin(t *testing.T, name string) *plugin.Plugin {
 	return plugin.TestPlugin(t,
