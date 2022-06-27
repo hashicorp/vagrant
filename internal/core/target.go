@@ -71,9 +71,9 @@ func (t *Target) UI() (terminal.UI, error) {
 
 func (t *Target) Ref() interface{} {
 	return &vagrant_plugin_sdk.Ref_Target{
-		ResourceId: t.target.ResourceId,
-		Project:    t.target.Project,
-		Name:       t.target.Name,
+		ResourceId: t.target.GetResourceId(),
+		Project:    t.target.GetProject(),
+		Name:       t.target.GetName(),
 	}
 }
 
