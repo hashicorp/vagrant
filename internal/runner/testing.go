@@ -105,6 +105,7 @@ func TestBasis(t testing.T, opts ...core.BasisOption) (b *vagrant_plugin_sdk.Ref
 	}
 	pluginManager := vagrantplugin.NewManager(
 		context.Background(),
+		nil,
 		hclog.New(&hclog.LoggerOptions{}),
 	)
 	opts = append(opts, core.WithPluginManager(pluginManager))

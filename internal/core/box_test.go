@@ -60,6 +60,7 @@ func newFullBox(t *testing.T, boxData *vagrant_server.Box, testBasis *Basis) *Bo
 	if basis == nil {
 		pluginManager := plugin.NewManager(
 			context.Background(),
+			nil,
 			hclog.New(&hclog.LoggerOptions{}),
 		)
 		basis = TestBasis(t, WithPluginManager(pluginManager))
