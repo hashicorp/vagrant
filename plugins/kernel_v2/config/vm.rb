@@ -24,12 +24,6 @@ require File.expand_path("../vm_subvm", __FILE__)
 require File.expand_path("../disk", __FILE__)
 require File.expand_path("../cloud_init", __FILE__)
 
-CONFIG_VM_CLS =  Hashicorp::Vagrant::Sdk::Vagrantfile::ConfigVM
-PROVIDER_PROTO_CLS = Hashicorp::Vagrant::Sdk::Vagrantfile::Provider
-PROVISION_PROTO_CLS = Hashicorp::Vagrant::Sdk::Vagrantfile::Provisioner
-SYNCED_FOLDER_PROTO_CLS = Hashicorp::Vagrant::Sdk::Vagrantfile::SyncedFolder
-NETWORK_PROTO_CLS = Hashicorp::Vagrant::Sdk::Vagrantfile::Network
-
 module VagrantPlugins
   module Kernel_V2
     class VMConfig < Vagrant.plugin("2", :config)
