@@ -352,10 +352,11 @@ class Hashicorp::Vagrant::Sdk::Args::ConfigData
     instance = klass.new
     d = data.to_ruby
 
-    # Since we are restoring the config, if the data we have
-    # is finalized data, finalize the config before we forcibly
-    # set the instance variables
-    if d.key?("__service_finalized")
+    # Since we are restoring the config, if the config this
+    # represents was already finalized we finalize it first
+    # before we inject the instance variables to get as close
+    # to the correct original state as possible
+    if d.key?("__finalized")
       instance.finalize!
       instance._finalize!
     end

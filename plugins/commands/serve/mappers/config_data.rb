@@ -26,7 +26,6 @@ module VagrantPlugins
           super(
             inputs: [
               Input.new(type: SDK::FuncSpec::Value) { |arg|
-                logger.info("funcspec for config merge checking against: #{arg.type}")
                 arg.type == "hashicorp.vagrant.sdk.Config.Merge" &&
                   !arg&.value&.value.nil?
               }
