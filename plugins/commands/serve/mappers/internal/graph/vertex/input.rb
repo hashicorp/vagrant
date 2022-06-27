@@ -10,9 +10,14 @@ module VagrantPlugins
               attr_reader :type
               attr_reader :name
 
-              def initialize(type:, name: nil)
+              def initialize(type:, name: nil, origin_restricted: false)
                 @type = type
                 @name = name
+                @origin_value_only = !!origin_restricted
+              end
+
+              def origin_value_only?
+                @origin_value_only
               end
 
               # When an input Vertex is called,

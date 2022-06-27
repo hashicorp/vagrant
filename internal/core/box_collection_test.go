@@ -25,6 +25,7 @@ func seedDB(t *testing.T, basis *Basis) {
 func newBoxCollection(t *testing.T) *BoxCollection {
 	pluginManager := plugin.NewManager(
 		context.Background(),
+		nil,
 		hclog.New(&hclog.LoggerOptions{}),
 	)
 	basis := TestBasis(t, WithPluginManager(pluginManager))

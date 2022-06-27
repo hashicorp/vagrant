@@ -13,6 +13,7 @@ import (
 	"github.com/hashicorp/vagrant-plugin-sdk/component"
 	"github.com/hashicorp/vagrant-plugin-sdk/core"
 	"github.com/hashicorp/vagrant-plugin-sdk/helper/path"
+	"github.com/hashicorp/vagrant-plugin-sdk/helper/types"
 	"github.com/hashicorp/vagrant-plugin-sdk/internal-shared/cacher"
 	"github.com/hashicorp/vagrant-plugin-sdk/proto/vagrant_plugin_sdk"
 	"github.com/hashicorp/vagrant/internal/server/proto/vagrant_server"
@@ -20,10 +21,11 @@ import (
 
 type Machine struct {
 	*Target
-	box     *Box
-	machine *vagrant_server.Target_Machine
-	logger  hclog.Logger
-	cache   cacher.Cache
+	box         *Box
+	machine     *vagrant_server.Target_Machine
+	logger      hclog.Logger
+	cache       cacher.Cache
+	vagrantfile *Vagrantfile
 }
 
 // Close implements core.Machine
@@ -61,14 +63,19 @@ func (m *Machine) SetID(value string) (err error) {
 func (m *Machine) Box() (b core.Box, err error) {
 	if m.box == nil {
 		boxes, _ := m.project.Boxes()
-		boxName := m.Config().ConfigVm.Box
-		// Get the first provider available - that's the one that
-		// will be used to launch the machine
+		boxName, err := m.vagrantfile.GetValue("vm", "box")
+		if err != nil {
+			m.logger.Error("failed to get machine box name from config",
+				"error", err,
+			)
+
+			return nil, err
+		}
 		provider, err := m.ProviderName()
 		if err != nil {
 			return nil, err
 		}
-		b, err := boxes.Find(boxName, "", provider)
+		b, err := boxes.Find(boxName.(string), "", provider)
 		if err != nil {
 			return nil, err
 		}
@@ -76,7 +83,7 @@ func (m *Machine) Box() (b core.Box, err error) {
 			return &Box{
 				basis: m.project.basis,
 				box: &vagrant_server.Box{
-					Name:     boxName,
+					Name:     boxName.(string),
 					Provider: provider,
 				},
 			}, nil
@@ -107,19 +114,27 @@ func (m *Machine) Guest() (g core.Guest, err error) {
 
 	// Check if a guest is provided by the Vagrantfile. If it is, then try
 	// to use that guest
-	// TODO: This check maybe needs to get reworked when the Vagrantfile bits
-	// actually start getting used
-	if m.target.Configuration.ConfigVm.Guest != "" {
-		// Ignore error about guest not being found - will also try detecting the guest
-		guest, cerr := m.project.basis.component(
-			m.ctx, component.GuestType, m.target.Configuration.ConfigVm.Guest)
-		if cerr != nil {
-			return nil, cerr
+	vg, err := m.vagrantfile.GetValue("vm", "guest")
+	if err != nil {
+		m.logger.Trace("failed to get guest value from vagrantfile",
+			"error", err,
+		)
+	} else {
+		guestName, ok := vg.(string)
+		if ok {
+			guest, err := m.project.basis.component(m.ctx, component.GuestType, guestName)
+			if err != nil {
+				return nil, err
+			}
+			if guest != nil {
+				return guest.Value.(core.Guest), nil
+			}
+		} else {
+			m.logger.Debug("guest name was not a valid string value",
+				"guest", vg,
+			)
 		}
-		if guest != nil {
-			g = guest.Value.(core.Guest)
-			return
-		}
+
 	}
 
 	// Try to detect a guest
@@ -259,26 +274,43 @@ func (m *Machine) defaultSyncedFolderType() (folderType *string, err error) {
 
 	logger.Debug("sorted synced folder plugins", "names", sfPlugins)
 
-	// Remove unallowed types
-	config := m.target.Configuration
-	machineConfig := config.ConfigVm
-	if len(machineConfig.AllowedSyncedFolderTypes) > 0 {
-		allowed := make(map[string]struct{})
-		for _, a := range machineConfig.AllowedSyncedFolderTypes {
-			allowed[a] = struct{}{}
+	allowedTypesRaw, err := m.vagrantfile.GetValue("vm", "allowed_synced_folder_types")
+	if err != nil {
+		m.logger.Warn("failed to fetch allowed synced folder types, ignoring",
+			"error", err,
+		)
+		err = nil
+	} else {
+		allowedTypes, ok := allowedTypesRaw.([]interface{})
+		if !ok {
+			m.logger.Warn("unexpected type for allowed synced folder types",
+				"type", hclog.Fmt("%T", allowedTypesRaw),
+			)
 		}
-		k := 0
-		for _, sfp := range sfPlugins {
-			if _, ok := allowed[sfp.Name]; ok {
-				sfPlugins[k] = sfp
-				k++
-			} else {
-				logger.Debug("removing disallowed plugin", "type", sfp.Name)
+		// Remove unallowed types
+		if len(allowedTypes) > 0 {
+			allowed := make(map[string]struct{})
+			for _, a := range allowedTypes {
+				typ, err := optionToString(a)
+				if err != nil {
+					m.logger.Warn("failed to convert synced folder type to string",
+						"type", hclog.Fmt("%T", a),
+					)
+				}
+				allowed[typ] = struct{}{}
 			}
+			k := 0
+			for _, sfp := range sfPlugins {
+				if _, ok := allowed[sfp.Name]; ok {
+					sfPlugins[k] = sfp
+					k++
+				} else {
+					logger.Debug("removing disallowed plugin", "type", sfp.Name)
+				}
+			}
+			sfPlugins = sfPlugins[:k]
 		}
-		sfPlugins = sfPlugins[:k]
 	}
-
 	// Check for first usable plugin
 	for _, sfp := range sfPlugins {
 		syncedFolder := sfp.Plugin.(core.SyncedFolder)
@@ -300,28 +332,73 @@ func (m *Machine) defaultSyncedFolderType() (folderType *string, err error) {
 
 // SyncedFolders implements core.Machine
 func (m *Machine) SyncedFolders() (folders []*core.MachineSyncedFolder, err error) {
-	config := m.target.Configuration
-	machineConfig := config.ConfigVm
-	syncedFolders := machineConfig.SyncedFolders
+	syncedFoldersRaw, err := m.vagrantfile.GetValue("vm", "__synced_folders")
+	if err != nil {
+		m.logger.Error("failed to load synced folders",
+			"error", err,
+		)
 
-	folders = []*core.MachineSyncedFolder{}
-	for _, folder := range syncedFolders {
-		if folder.GetType() == "" {
-			folder.Type, err = m.defaultSyncedFolderType()
-			if err != nil {
-				return nil, err
+		return
+	}
+	tmpFolders, ok := syncedFoldersRaw.(map[interface{}]interface{})
+	if !ok {
+		m.logger.Error("synced folders configuration is unexpected type",
+			"type", hclog.Fmt("%T", syncedFoldersRaw),
+		)
+		return nil, fmt.Errorf("invalid configuration type for synced folders")
+	}
+
+	syncedFolders := map[string]map[interface{}]interface{}{}
+
+	for k, v := range tmpFolders {
+		var key string
+		var ok bool
+		if key, ok = k.(string); !ok {
+			if skey, ok := k.(types.Symbol); ok {
+				key = string(skey)
+			} else {
+				m.logger.Error("invalid key type for synced folders",
+					"key", k,
+					"type", hclog.Fmt("%T", k),
+				)
+
+				return nil, fmt.Errorf("invalid configuration type for synced folder key")
 			}
 		}
-		lookup := "syncedfolder_" + *(folder.Type)
+		value, ok := v.(map[interface{}]interface{})
+		if !ok {
+			m.logger.Error("invalid value type for synced folders",
+				"type", hclog.Fmt("%T", v),
+			)
+		}
+
+		syncedFolders[key] = value
+	}
+
+	for _, options := range syncedFolders {
+		var ftype string
+		typeRaw, ok := getOptionValue("type", options)
+		if ok {
+			if ftype, err = optionToString(typeRaw); err != nil {
+				m.logger.Debug("failed to convert folder type to string",
+					"error", err,
+				)
+
+				return
+			}
+		}
+		if ftype == "" {
+			ftype = "virtualbox" // TODO(spox): use default type function after rebase
+		}
+
+		lookup := "syncedfolder_" + ftype
 		v := m.cache.Get(lookup)
 		if v == nil {
-			plg, err := m.project.basis.component(m.ctx, component.SyncedFolderType, *folder.Type)
+			plg, err := m.project.basis.component(m.ctx, component.SyncedFolderType, ftype)
 			if err != nil {
 				return nil, err
 			}
-
 			v = plg.Value.(core.SyncedFolder)
-
 			m.cache.Register(lookup, v)
 		}
 
@@ -329,19 +406,41 @@ func (m *Machine) SyncedFolders() (folders []*core.MachineSyncedFolder, err erro
 			return nil, err
 		}
 
-		var f *core.Folder
-		c := &mapstructure.DecoderConfig{
-			DecodeHook: StringToPathFunc(),
-			Result:     &f,
+		var guestPath, hostPath path.Path
+		guestPathRaw, ok := getOptionValue("guestpath", options)
+		if !ok {
+			return nil, fmt.Errorf("synced folder options do not include guest path value")
 		}
-		decoder, err := mapstructure.NewDecoder(c)
-		if err != nil {
+		hostPathRaw, ok := getOptionValue("hostpath", options)
+		if !ok {
+			return nil, fmt.Errorf("synced folder options do not include host path value")
+		}
+		if gps, err := optionToString(guestPathRaw); err == nil {
+			guestPath = path.NewPath(gps)
+		} else {
 			return nil, err
 		}
-		err = decoder.Decode(folder)
-		if err != nil {
+		if hps, err := optionToString(hostPathRaw); err == nil {
+			hostPath = path.NewPath(hps)
+		} else {
 			return nil, err
 		}
+
+		opts := map[string]interface{}{}
+		for k, v := range options {
+			key, err := optionToString(k)
+			if err != nil {
+				return nil, err
+			}
+			opts[key] = v
+		}
+
+		f := &core.Folder{
+			Source:      hostPath,
+			Destination: guestPath,
+			Options:     opts,
+		}
+
 		folders = append(folders, &core.MachineSyncedFolder{
 			Plugin: v.(core.SyncedFolder),
 			Folder: f,
@@ -363,6 +462,48 @@ func (m *Machine) SaveMachine() (err error) {
 
 func (m *Machine) toTarget() core.Target {
 	return m
+}
+
+// Get option value from config map. Since keys in the config
+// can be either string or types.Symbol, this helper function
+// will check for either type being set
+func getOptionValue(
+	name string, // name of option
+	options map[interface{}]interface{}, // options map from config
+) (interface{}, bool) {
+	var key interface{}
+	key = name
+	result, ok := options[key]
+	if ok {
+		return result, true
+	}
+	key = types.Symbol(name)
+	result, ok = options[key]
+	if ok {
+		return result, true
+	}
+
+	return nil, false
+}
+
+// Option values from the config which are expected to be string
+// values may be a string or types.Symbol. This helper function
+// will take the value and convert it into a string if possible.
+func optionToString(
+	opt interface{}, // value to convert
+) (result string, err error) {
+	result, ok := opt.(string)
+	if ok {
+		return
+	}
+
+	sym, ok := opt.(types.Symbol)
+	if !ok {
+		return result, fmt.Errorf("option value is not string type (%T)", opt)
+	}
+	result = string(sym)
+
+	return
 }
 
 var _ core.Machine = (*Machine)(nil)

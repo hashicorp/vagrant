@@ -41,6 +41,7 @@ var (
 
 type PluginRegistration func(hclog.Logger) (*Plugin, error)
 type PluginConfigurator func(*Instance, hclog.Logger) error
+type PluginInitializer func(*Plugin, hclog.Logger) error
 
 type componentCache map[string]componentEntry
 type componentEntry map[component.Type]*Instance
@@ -56,16 +57,22 @@ type Manager struct {
 	discoveredPaths []path.Path          // List of paths this manager has loaded
 	dispenseFuncs   []PluginConfigurator // Configuration functions applied to instances
 	instances       componentCache       // Cache for prevlous generated components
+	initFuncs       []PluginInitializer  // Initializer functions applied to plugins at creation
 	legacyLoaded    bool                 // Flag that legacy plugins have been loaded
 	legacyBroker    *plugin.GRPCBroker   // Broker for legacy runtime
 	logger          hclog.Logger         // Logger for the manager
 	m               sync.Mutex
-	parent          *Manager // Parent manager if this is a sub manager
-	srv             []byte   // Marshalled proto message for plugin manager
+	rubyC           *serverclient.RubyVagrantClient // Client to the Ruby runtime
+	parent          *Manager                        // Parent manager if this is a sub manager
+	srv             []byte                          // Marshalled proto message for plugin manager
 }
 
 // Create a new plugin manager
-func NewManager(ctx context.Context, l hclog.Logger) *Manager {
+func NewManager(
+	ctx context.Context, // context for the manager
+	r *serverclient.RubyVagrantClient, // client to the ruby runtime
+	l hclog.Logger, // logger
+) *Manager {
 	return &Manager{
 		Plugins:       []*Plugin{},
 		builtins:      NewBuiltins(ctx, l),
@@ -75,7 +82,16 @@ func NewManager(ctx context.Context, l hclog.Logger) *Manager {
 		dispenseFuncs: []PluginConfigurator{},
 		instances:     make(componentCache),
 		logger:        l,
+		rubyC:         r,
 	}
+}
+
+// Returns the client to the Ruby runtime
+func (m *Manager) RubyClient() *serverclient.RubyVagrantClient {
+	if m.parent != nil {
+		return m.parent.RubyClient()
+	}
+	return m.rubyC
 }
 
 // Create a sub manager based off current manager
@@ -326,7 +342,13 @@ func (m *Manager) Configure(fn PluginConfigurator) error {
 	return nil
 }
 
-// Find a specific plugin by name and component type
+// Add initializer to be applied to plugin when created
+func (m *Manager) Initializer(fn PluginInitializer) error {
+	m.initFuncs = append(m.initFuncs, fn)
+	return nil
+}
+
+// Find a component instance by plugin name and component type
 func (m *Manager) Find(
 	n string, // Name of the plugin
 	t component.Type, // component type of plugin
@@ -335,6 +357,24 @@ func (m *Manager) Find(
 	defer m.m.Unlock()
 
 	return m.find(n, t)
+}
+
+// Get a plugin by name
+func (m *Manager) Get(
+	n string, // Name of the plugin
+	t component.Type, // component type supported by plugin
+) (*Plugin, error) {
+	for _, p := range m.Plugins {
+		if p.Name == n && p.HasType(t) {
+			return p, nil
+		}
+	}
+
+	if m.parent != nil {
+		return m.parent.Get(n, t)
+	}
+
+	return nil, fmt.Errorf("failed to locate plugin %s implementing component %s", n, t.String())
 }
 
 // Find all plugins which support a specific component type
@@ -348,6 +388,10 @@ func (m *Manager) Typed(
 	for _, p := range m.Plugins {
 		if p.HasType(t) {
 			result = append(result, p.Name)
+			m.logger.Trace("found typed plugin match",
+				"type", t.String(),
+				"name", p.Name,
+			)
 		}
 	}
 
@@ -372,21 +416,8 @@ func (m *Manager) Close() (err error) {
 	defer m.m.Unlock()
 
 	m.logger.Info("closing the plugin manager")
-	for _, p := range m.Plugins {
-		m.logger.Trace("closing plugin",
-			"plugin", p.Name,
-		)
 
-		if e := p.Close(); e != nil {
-			err = multierror.Append(err, e)
-		}
-	}
-
-	if cerr := m.cleaner.Close(); cerr != nil {
-		err = multierror.Append(err, cerr)
-	}
-
-	return
+	return m.cleaner.Close()
 }
 
 // Implements core.PluginManager. Note this returns a slice of core.NamedPlugin
@@ -524,6 +555,13 @@ func (m *Manager) register(
 	}
 	plg.manager = m
 
+	// Run initializers on new plugin
+	for _, fn := range m.initFuncs {
+		if err = fn(plg, m.logger); err != nil {
+			return
+		}
+	}
+
 	m.Plugins = append(m.Plugins, plg)
 	return
 }
@@ -597,10 +635,6 @@ func (m *Manager) fetch(
 	t component.Type, // type of component
 	c []PluginConfigurator,
 ) (i *Instance, err error) {
-	m.logger.Info("configurators for use by fetch function",
-		"passed-count", len(c),
-		"local-count", len(m.dispenseFuncs),
-	)
 	var cfns []PluginConfigurator
 	if len(c) > 0 {
 		l := len(c) + len(m.dispenseFuncs)
@@ -615,7 +649,7 @@ func (m *Manager) fetch(
 	// and generate the component instance
 	for _, p := range m.Plugins {
 		if p.Name == n && p.HasType(t) {
-			return p.InstanceOf(t, cfns)
+			return p.instanceOf(t, cfns)
 		}
 	}
 
@@ -650,7 +684,7 @@ func (m *Manager) isCacheable(t component.Type) bool {
 func (m *Manager) loadParent(i *Instance) error {
 	c, ok := i.Component.(HasParent)
 	if !ok {
-		m.logger.Debug("component component does not support parents",
+		m.logger.Trace("component does not support parents",
 			"type", i.Type.String(),
 			"name", i.Name,
 		)

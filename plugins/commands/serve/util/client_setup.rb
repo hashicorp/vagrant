@@ -19,7 +19,6 @@ module VagrantPlugins
 
           srv = "#{lookup.join}Service"
 
-          logger.debug("connecting to #{srv.downcase} service on #{conn}")
           @broker = broker
           @proto = proto
           srv_klass = SDK.const_get(srv)&.const_get(:Stub)

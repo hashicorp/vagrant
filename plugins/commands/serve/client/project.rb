@@ -156,6 +156,10 @@ module VagrantPlugins
           resp.path
         end
 
+        def vagrantfile
+          client.vagrantfile(Empty.new).to_ruby
+        end
+
         # @return [String] name of the Vagrantfile for this target
         def vagrantfile_name
           client.vagrantfile_name(Empty.new).name

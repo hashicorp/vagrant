@@ -9,6 +9,7 @@ import "google/protobuf/empty.proto";
 import "google/protobuf/timestamp.proto";
 import "google/rpc/status.proto";
 import "google/protobuf/struct.proto";
+import "protostructure.proto";
 
 import "plugin.proto";
 
@@ -196,11 +197,39 @@ message VersionInfo {
 * Basic Data Model
 ********************************************************************/
 
+message Vagrantfile {
+  // The Vagrantfile can be provided in a number of formats
+  enum Format {
+    JSON = 0;
+    HCL = 1;
+    RUBY = 2;
+  }
+
+  // Unfinalized Vagrantfile configuration. This content is
+  // still able to be used for file merges.
+  sdk.Args.Hash unfinalized = 1;
+
+  // Finalized Vagrantfile configuration. This is the final
+  // configuration which is not suitable for future merges.
+  sdk.Args.Hash finalized = 2;
+
+  // Raw contents of the file (not used for Ruby based Vagrantfile)
+  bytes raw = 3;
+
+  // Format of this Vagrantfile
+  Format format = 4;
+
+  // Original path of the Vagrantfileo
+  sdk.Args.Path path = 5;
+}
+
+
 // This is considered the core configuration and information for the
 // run. This correlates to a VAGRANT_HOME and contains information
 // around projects which utilize this basis as well as the configuration
 // for the basis
 message Basis {
+
   // Unique resource identifier (internal use)
   string resource_id = 1;
 
@@ -216,9 +245,8 @@ message Basis {
   // Custom metadata
   sdk.Args.MetadataSet metadata = 5;
 
-  // Serialized configuration of the project (Vagrantfile)
-  sdk.Vagrantfile.Vagrantfile configuration = 6;
-
+  // Serialized configuration of the basis (Vagrantfile)
+  Vagrantfile configuration = 6;
 
   // TODO(spox): look back over these options and see if we
   // still care about them (i'm thinking no)
@@ -256,7 +284,7 @@ message Project {
   sdk.Args.MetadataSet metadata = 6;
 
   // Serialized configuration of the project (Vagrantfile)
-  sdk.Vagrantfile.Vagrantfile configuration = 7;
+  Vagrantfile configuration = 7;
 
   // TODO(spox): look back over these options and see if we
   // still care about them (i'm thinking no)
@@ -330,8 +358,8 @@ message Target {
   // Custom metadata
   sdk.Args.MetadataSet metadata = 9;
 
-  // Serialized configuration of the target (Vagrantfile)
-  sdk.Vagrantfile.MachineConfig configuration = 10;
+  // Serialized configuration of the target
+  sdk.Args.ConfigData configuration = 10;
 
   // Specialized target information (from provider)
   google.protobuf.Any record = 11;
@@ -368,17 +396,6 @@ message Target {
   // queued for this project without a data source set. This is usually
   // set using the `runner {}` block in the vagrant config.
   Job.DataSource data_source = 101;
-}
-
-message Vagrantfile {
-  // Unique resource identifier (internal use)
-  string resource_id = 1;
-
-  // TODO: not sure about this path
-  // Path where this Vagarant lives
-  string path = 2;
-
-  sdk.Vagrantfile.Vagrantfile vagrantfile = 3;
 }
 
 /********************************************************************

@@ -21,6 +21,7 @@ module VagrantPlugins
       autoload :Terminal, Vagrant.source_root.join("plugins/commands/serve/client/terminal").to_s
       autoload :StateBag, Vagrant.source_root.join("plugins/commands/serve/client/state_bag").to_s
       autoload :SyncedFolder, Vagrant.source_root.join("plugins/commands/serve/client/synced_folder").to_s
+      autoload :Vagrantfile, Vagrant.source_root.join("plugins/commands/serve/client/vagrantfile").to_s
 
       prepend Util::ClientSetup
       include Util::HasLogger
@@ -28,6 +29,10 @@ module VagrantPlugins
       include Util::HasMapper
       include Util::NamedPlugin::Client
       include Util::FuncSpec::Client
+
+      def cache
+        CommandServe.cache
+      end
     end
   end
 end

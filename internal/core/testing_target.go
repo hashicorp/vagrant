@@ -27,6 +27,10 @@ func TestTarget(t testing.T, tp *Project, tt *vagrant_server.Target) (target *Ta
 	target, err = tp.LoadTarget([]TargetOption{
 		WithTargetRef(&vagrant_plugin_sdk.Ref_Target{Project: tp.Ref().(*vagrant_plugin_sdk.Ref_Project), Name: testingTarget.Name}),
 	}...)
+	if err != nil {
+		t.Fatal(err)
+		return
+	}
 	tp.project.Targets = append(tp.project.Targets, target.Ref().(*vagrant_plugin_sdk.Ref_Target))
 	return
 }
@@ -49,6 +53,10 @@ func TestMinimalTarget(t testing.T) (target *Target, err error) {
 		WithTargetRef(&vagrant_plugin_sdk.Ref_Target{Project: tp.Ref().(*vagrant_plugin_sdk.Ref_Project), Name: "test-target"}),
 	}...)
 
+	if err != nil {
+		t.Fatal(err)
+	}
+
 	return
 }
 
@@ -67,6 +75,10 @@ func TestMachine(t testing.T, tp *Project, opts ...TestMachineOption) (machine *
 			err = multierror.Append(err, oerr)
 		}
 	}
+
+	if err != nil {
+		t.Fatal(err)
+	}
 	return
 }
 
@@ -74,9 +86,14 @@ func TestMachine(t testing.T, tp *Project, opts ...TestMachineOption) (machine *
 // that will work for testing
 func TestMinimalMachine(t testing.T) (machine *Machine, err error) {
 	tp := TestMinimalProject(t)
-	tt, _ := TestTarget(t, tp, &vagrant_server.Target{})
+	tt, err := TestTarget(t, tp, &vagrant_server.Target{})
+	if err != nil {
+		t.Fatal(err)
+		return
+	}
 	specialized, err := tt.Specialize((*core.Machine)(nil))
 	if err != nil {
+		t.Fatal(err)
 		return nil, err
 	}
 	machine = specialized.(*Machine)
@@ -88,14 +105,12 @@ type TestMachineOption func(*Machine) error
 
 func WithTestTargetMinimalConfig() TestMachineOption {
 	return func(m *Machine) (err error) {
-		m.target.Configuration = &vagrant_plugin_sdk.Vagrantfile_MachineConfig{
-			ConfigVm: &vagrant_plugin_sdk.Vagrantfile_ConfigVM{},
-		}
+		m.target.Configuration = &vagrant_plugin_sdk.Args_ConfigData{}
 		return
 	}
 }
 
-func WithTestTargetConfig(config *vagrant_plugin_sdk.Vagrantfile_MachineConfig) TestMachineOption {
+func WithTestTargetConfig(config *vagrant_plugin_sdk.Args_ConfigData) TestMachineOption {
 	return func(m *Machine) (err error) {
 		m.target.Configuration = config
 		return

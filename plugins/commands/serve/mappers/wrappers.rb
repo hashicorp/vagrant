@@ -205,7 +205,7 @@ module VagrantPlugins
         end
 
         def converter(s)
-          Google::Protobuf::StringValue.new(value: s)
+          Google::Protobuf::StringValue.new(value: s.to_s)
         end
       end
 

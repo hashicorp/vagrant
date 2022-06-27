@@ -65,7 +65,7 @@ func (r *RubyVagrantClient) GetPlugins() ([]*ruby_vagrant.Plugin, error) {
 	return plugins.Plugins, nil
 }
 
-func (r *RubyVagrantClient) ParseVagrantfile(path string) (*vagrant_plugin_sdk.Vagrantfile_Vagrantfile, error) {
+func (r *RubyVagrantClient) ParseVagrantfile(path string) (*vagrant_plugin_sdk.Args_Hash, error) {
 	vf, err := r.client.ParseVagrantfile(
 		context.Background(),
 		&ruby_vagrant.ParseVagrantfileRequest{Path: path},
@@ -73,5 +73,51 @@ func (r *RubyVagrantClient) ParseVagrantfile(path string) (*vagrant_plugin_sdk.V
 	if err != nil {
 		return nil, err
 	}
-	return vf.Vagrantfile, nil
+
+	return vf.Data, nil
+}
+
+func (r *RubyVagrantClient) ParseVagrantfileProc(ref *vagrant_plugin_sdk.Args_ProcRef) (*vagrant_plugin_sdk.Args_Hash, error) {
+	vf, err := r.client.ParseVagrantfileProc(
+		context.Background(),
+		&ruby_vagrant.ParseVagrantfileProcRequest{
+			Proc: ref,
+		},
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	return vf.Data, nil
+}
+
+func (r *RubyVagrantClient) ParseVagrantfileSubvm(subvm *vagrant_plugin_sdk.Config_RawRubyValue) (*vagrant_plugin_sdk.Args_Hash, error) {
+	resp, err := r.client.ParseVagrantfileSubvm(
+		context.Background(),
+		&ruby_vagrant.ParseVagrantfileSubvmRequest{
+			Subvm: subvm,
+		},
+	)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return resp.Data, nil
+}
+
+func (r *RubyVagrantClient) ParseVagrantfileProvider(provider string, subvm *vagrant_plugin_sdk.Config_RawRubyValue) (*vagrant_plugin_sdk.Args_Hash, error) {
+	resp, err := r.client.ParseVagrantfileProvider(
+		context.Background(),
+		&ruby_vagrant.ParseVagrantfileProviderRequest{
+			Provider: provider,
+			Subvm:    subvm,
+		},
+	)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return resp.Data, nil
 }

@@ -17,7 +17,7 @@ module VagrantPlugins
           funcspec(
             args: [
               SDK::Args::Target::Machine,
-              SDK::Vagrantfile::GeneralConfig,
+              SDK::Args::ConfigData,
             ]
           )
         end
@@ -36,7 +36,7 @@ module VagrantPlugins
           funcspec(
             args: [
               SDK::Args::Target::Machine,
-              SDK::Vagrantfile::GeneralConfig,
+              SDK::Args::ConfigData,
             ]
           )
         end
@@ -55,7 +55,7 @@ module VagrantPlugins
           funcspec(
             args: [
               SDK::Args::Target::Machine,
-              SDK::Vagrantfile::GeneralConfig,
+              SDK::Args::ConfigData,
             ]
           )
         end
@@ -68,23 +68,20 @@ module VagrantPlugins
         def _process_args(req)
           machine, config = mapper.funcspec_map(
             req, mapper, broker, expect: [
-              Vagrant::Machine, SDK::Vagrantfile::GeneralConfig
+              Vagrant::Machine, Vagrant::Plugin::V2::Config
             ]
           )
-          config_klass = config.type.split('::').inject(Kernel) { |memo, obj|
-            memo.const_get(obj)
-          }
-          config_data = mapper.map(config.config, to: Hash)
-          plugin_config = config_klass.new
-          plugin_config.set_options(config_data)
-          return machine, plugin_config
+          return machine, config
         end
 
         def load_provisioner(klass, machine, config)
-          key = cache.key(klass, machine)
-          return cache.get(key) if cache.registered?(key)
+          ident = config.instance_variable_get(:@_vagrant_config_identifier)
+          if ident
+            key = cache.key(klass, machine, ident)
+            return cache.get(key) if cache.registered?(key)
+          end
           klass.new(machine, config).tap do |i|
-            cache.register(key, i)
+            cache.register(key, i) if key
           end
         end
       end

@@ -15,6 +15,7 @@ import (
 	"github.com/hashicorp/vagrant-plugin-sdk/core"
 	"github.com/hashicorp/vagrant-plugin-sdk/internal-shared/cacher"
 	"github.com/hashicorp/vagrant-plugin-sdk/internal-shared/cleanup"
+	"github.com/hashicorp/vagrant/builtin/configvagrant"
 	"github.com/hashicorp/vagrant/builtin/httpdownloader"
 	"github.com/hashicorp/vagrant/builtin/myplugin"
 	"github.com/hashicorp/vagrant/builtin/otherplugin"
@@ -32,6 +33,7 @@ var (
 	// Builtins is the map of all available builtin plugins and their
 	// options for launching them.
 	Builtins = map[string][]sdk.Option{
+		"configvagrant":  configvagrant.CommandOptions,
 		"myplugin":       myplugin.CommandOptions,
 		"otherplugin":    otherplugin.CommandOptions,
 		"httpdownloader": httpdownloader.PluginOptions,
@@ -77,6 +79,23 @@ type HasParent interface {
 	SetParentComponent(interface{})
 }
 
+// Returns the plugin manager instance this plugin is attached
+func (p *Plugin) Manager() *Manager {
+	return p.manager
+}
+
+// Get a component from the plugin. This will load the component via
+// the configured plugin manager so all expected caching and configuration
+// will occur.
+func (p *Plugin) Component(t component.Type) (interface{}, error) {
+	i, err := p.manager.Find(p.Name, t)
+	if err != nil {
+		return nil, err
+	}
+
+	return i.Component, nil
+}
+
 // Check if plugin implements specific component type
 func (p *Plugin) HasType(
 	t component.Type,
@@ -102,8 +121,11 @@ func (p *Plugin) Close() (err error) {
 	return p.cleaner.Close()
 }
 
-// Get specific component type from plugin
-func (p *Plugin) InstanceOf(
+// Get specific component type from plugin. This is not exported
+// as it should not be called directly. The plugin manager should
+// be used for loading component instances so all callbacks are
+// applied appropriately and caching will be respected
+func (p *Plugin) instanceOf(
 	c component.Type,
 	cfns []PluginConfigurator,
 ) (i *Instance, err error) {

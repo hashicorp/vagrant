@@ -1,5 +1,6 @@
 require "digest/sha2"
 require "google/protobuf/wrappers_pb"
+require "google/protobuf/well_known_types"
 
 module VagrantPlugins
   module CommandServe
@@ -24,6 +25,8 @@ module VagrantPlugins
         Google::Protobuf::UInt64Value => Integer,
         Google::Protobuf::StringValue => String,
         SDK::Args::Array => Array,
+        SDK::Args::ConfigData => Vagrant::Plugin::V2::Config,
+        SDK::Args::Class => Class,
         SDK::Args::CorePluginManager => Client::CorePluginManager,
         SDK::Args::Direct => Type::Direct,
         SDK::Args::Folders => Type::Folders,
@@ -34,6 +37,7 @@ module VagrantPlugins
         SDK::Args::Null => NilClass,
         SDK::Args::Options => Type::Options,
         SDK::Args::Path => Pathname,
+        SDK::Args::ProcRef => Proc,
         SDK::Args::Project => Vagrant::Environment,
         SDK::Args::Provider => Client::Provider,
         SDK::Args::StateBag => Client::StateBag,
@@ -46,6 +50,7 @@ module VagrantPlugins
         SDK::Command::Arguments => Type::CommandArguments,
         SDK::Command::CommandInfo => Type::CommandInfo,
         SDK::Communicator::Command => Type::CommunicatorCommandArguments,
+        SDK::Config::RawRubyValue => Object,
       }
 
       # The reverse maps define the default mapping from Ruby types
@@ -58,6 +63,10 @@ module VagrantPlugins
       )
       # Remove any top level classes
       REVERSE_MAPS.delete_if { |k, _| !k.name.include?("::") }
+      # REVERSE_MAPS.delete(Object)
+
+      # @return [Symbol] marker value for failed direct conversions
+      FAILED_CONVERT = :__FAILED_CONVERT__
 
       # Constant used for generating value
       GENERATE_CLASS = Class.new {
@@ -167,6 +176,58 @@ module VagrantPlugins
         }
       end
 
+      # Attempt to directly convert value. If a destination type
+      # is provided, validate the direct conversion matches the
+      # desired type.
+      #
+      # @param value [Object] value to convert
+      # @param to [Class] Resultant type (optional)
+      # @return [Object]
+      def direct_convert(value, to:)
+        # If we don't have a destination, attempt to do direct conversion
+        if to.nil?
+          begin
+            logger.trace { "running direct blind pre-map on #{value.class}" }
+            return value.is_a?(Google::Protobuf::MessageExts) ? value.to_ruby : value.to_proto
+          rescue => err
+            logger.trace { "direct blind conversion failed in pre-map stage, reason: #{err}" }
+          end
+        end
+
+        if !to.nil?
+          # If we are mapping to an any, try doing it directly first
+          if to == Google::Protobuf::Any
+            begin
+              return value.to_any
+            rescue => err
+              logger.trace { "direct any conversion failed in pre-map stage, reason: #{err}"}
+            end
+          end
+
+          # If the destination type is a proto, try doing that directly
+          if to.ancestors.include?(Google::Protobuf::MessageExts)
+            begin
+              proto = value.to_proto
+              return proto if proto.is_a?(to)
+            rescue => err
+              logger.trace { "direct proto conversion failed in pre-map stage, reason: #{err}" }
+            end
+          end
+
+          # If the destination type is not a proto, but the value is, try that directly
+          if value.is_a?(Google::Protobuf::MessageExts) && !to.ancestors.include?(Google::Protobuf::MessageExts)
+            begin
+              val = value.to_ruby
+              return val if val.is_a?(to)
+            rescue => err
+              logger.trace { "direct ruby conversion failed in pre-map stage, reason: #{err}" }
+            end
+          end
+        end
+
+        FAILED_CONVERT
+      end
+
       # Map a given value
       #
       # @param value [Object] Value to map
@@ -181,7 +242,7 @@ module VagrantPlugins
           end
           if a.is_a?(Google::Protobuf::Any)
             non_any = unany(a)
-            logger.debug { "extracted any proto message #{a.class} -> #{non_any}" }
+            logger.debug { "extracted any proto message #{a.class} -> #{non_any.class}" }
             a = non_any
           end
           if name
@@ -202,7 +263,21 @@ module VagrantPlugins
         end
 
         # If the value given is the desired type, just return the value
-        return value if value != GENERATE && !to.nil? && value.is_a?(to)
+        return value if value != GENERATE && !to.nil? && to != Object && value.is_a?(to)
+
+        # Let's try some shortcuts before we actually put in the work
+        # of doing all the mapping stuff
+        if value == GENERATE
+          extra_args.each do |ea|
+            val = direct_convert(ea, to: to)
+            return val if val != FAILED_CONVERT
+          end
+        else
+          val = direct_convert(value, to: to)
+          return val if val != FAILED_CONVERT
+        end
+
+        # These only work if we know our destination
 
         logger.debug { "starting value mapping process #{value.class} -> #{to.nil? ? 'unknown' : to.inspect}" }
         if value.nil? && to
@@ -245,7 +320,8 @@ module VagrantPlugins
         elsif value.is_a?(Google::Protobuf::MessageExts)
           map_mapper = self.clone
           valid_mappers = map_mapper.mappers.map do |m|
-            next if value.is_a?(m.output)
+            next if value.class == m.output
+            # next if value.is_a?(m.output)
             m
           end.compact
           map_mapper.mappers.replace(valid_mappers)
@@ -291,7 +367,7 @@ module VagrantPlugins
           end
           last_error = nil
           valid_outputs.each do |out|
-            logger.debug { "attempting blind map #{value} -> #{out}" }
+            logger.debug { "attempting blind map #{value.class} -> #{out}" }
             begin
               m_graph = Internal::Graph::Mappers.new(
                 output_type: out,
@@ -320,7 +396,7 @@ module VagrantPlugins
           )
           result = m_graph.execute
         end
-        logger.debug { "map of #{value.class} to #{to.nil? ? 'unknown' : to.inspect} => #{result}" }
+        logger.debug { "map of #{value.class} to #{to.nil? ? 'unknown' : to.inspect} => #{result.class}" }
         if !result.is_a?(to)
           raise TypeError,
             "Value is not expected destination type `#{to}' (actual type: #{result.class})"
@@ -328,7 +404,7 @@ module VagrantPlugins
         result
       rescue => err
         logger.debug { "mapping failed of #{value.class} to #{to.nil? ? 'unknown' : to.inspect} - #{err}" }
-        logger.trace { "#{err.class}: #{err}\n" + err.backtrace.join("\n") }
+        logger.debug { "#{err.class}: #{err}\n" + err.backtrace.join("\n") }
         raise
       end
 
@@ -359,7 +435,7 @@ module VagrantPlugins
         # Now send the arguments through the mapping process
         result = Array.new.tap do |result_args|
           args.each_with_index do |arg, i|
-            logger.debug { "mapping funcspec value #{arg.inspect} to expected type #{expect[i]}" }
+            logger.debug { "mapping funcspec value #{arg.class} to expected type #{expect[i]}" }
             result_args << map(arg, *(extra_args + result_args), to: expect[i])
           end
         end
@@ -388,7 +464,7 @@ module VagrantPlugins
             "FuncSpec value of type `#{v.class}' has no valid mappers (#{v})"
         end
         result = m.first.call(v)
-        logger.trace { "converted funcspec argument #{v} -> #{result}" }
+        logger.trace { "converted funcspec argument #{v.class} -> #{result.class}" }
         result
       end
     end
@@ -403,6 +479,7 @@ require Vagrant.source_root.join("plugins/commands/serve/mappers/box.rb").to_s
 require Vagrant.source_root.join("plugins/commands/serve/mappers/capabilities.rb").to_s
 require Vagrant.source_root.join("plugins/commands/serve/mappers/command.rb").to_s
 require Vagrant.source_root.join("plugins/commands/serve/mappers/communicator.rb").to_s
+require Vagrant.source_root.join("plugins/commands/serve/mappers/config_data.rb").to_s
 require Vagrant.source_root.join("plugins/commands/serve/mappers/core_plugin_manager.rb").to_s
 require Vagrant.source_root.join("plugins/commands/serve/mappers/direct.rb").to_s
 require Vagrant.source_root.join("plugins/commands/serve/mappers/duration.rb").to_s
@@ -415,6 +492,7 @@ require Vagrant.source_root.join("plugins/commands/serve/mappers/machine.rb").to
 require Vagrant.source_root.join("plugins/commands/serve/mappers/options.rb").to_s
 require Vagrant.source_root.join("plugins/commands/serve/mappers/pathname.rb").to_s
 require Vagrant.source_root.join("plugins/commands/serve/mappers/plugin_manager.rb").to_s
+require Vagrant.source_root.join("plugins/commands/serve/mappers/proc.rb").to_s
 require Vagrant.source_root.join("plugins/commands/serve/mappers/project.rb").to_s
 require Vagrant.source_root.join("plugins/commands/serve/mappers/provider.rb").to_s
 require Vagrant.source_root.join("plugins/commands/serve/mappers/provisioner.rb").to_s
@@ -425,4 +503,5 @@ require Vagrant.source_root.join("plugins/commands/serve/mappers/target.rb").to_
 require Vagrant.source_root.join("plugins/commands/serve/mappers/target_index.rb").to_s
 require Vagrant.source_root.join("plugins/commands/serve/mappers/terminal.rb").to_s
 require Vagrant.source_root.join("plugins/commands/serve/mappers/ui.rb").to_s
+require Vagrant.source_root.join("plugins/commands/serve/mappers/vagrantfile.rb").to_s
 require Vagrant.source_root.join("plugins/commands/serve/mappers/wrappers.rb").to_s

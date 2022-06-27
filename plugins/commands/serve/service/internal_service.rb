@@ -10,15 +10,19 @@ module VagrantPlugins
   module CommandServe
     module Service
       class InternalService < ProtoService(Hashicorp::Vagrant::RubyVagrant::Service)
-        def get_plugins(req, _unused_call)
+        def get_plugins(req, _)
           plugins = []
           plugin_manager = Vagrant::Plugin::V2::Plugin.local_manager
           plugins = [[:commands, :COMMAND],
             [:communicators, :COMMUNICATOR],
+            [:config, :CONFIG],
             [:guests, :GUEST],
             [:hosts, :HOST],
+            [:provider_configs, :CONFIG],
             [:providers, :PROVIDER],
+            [:provisioner_configs, :CONFIG],
             [:provisioners, :PROVISIONER],
+            [:push_configs, :CONFIG],
             [:pushes, :PUSH],
             [:synced_folders, :SYNCEDFOLDER]].map do |method, const|
             plugin_manager.send(method).map do |k, v|
@@ -36,53 +40,48 @@ module VagrantPlugins
           )
         end
 
-        def parse_vagrantfile(req, _unused_call)
-          path = req.path
-          raw = File.read(path)
+        def parse_vagrantfile(req, _)
+          parse_item_to_proto(req.path.to_s)
+        end
 
-          # Load up/parse the vagrantfile
-          config_loader = Vagrant::Config::Loader.new(
-            Vagrant::Config::VERSIONS, Vagrant::Config::VERSIONS_ORDER)
-          config_loader.set(:root, path)
-          v = Vagrant::Vagrantfile.new(config_loader, [:root])
+        def parse_vagrantfile_proc(req, _)
+          callable = mapper.map(req.proc, to: Proc)
 
-          machine_configs = []
-          # Get the config for each machine
-          v.machine_names.each do |mach|
-            machine_info = v.machine_config(mach, nil, nil, false)
-            root_config = machine_info[:config]
-            vm_config = root_config.vm
+          parse_item_to_proto([["2", callable]])
+        end
 
-            plugin_configs = []
-            root_config.__internal_state["keys"].each do |name, config|
-              # A builtin plugin
-              # TODO: find a better way to check the module
-              next if config.class.to_s.split("::")[0] == "VagrantPlugins"
-              plugin_configs << config.to_proto(name)
-            end
-            plugin_configs << root_config.ssh.to_proto("ssh")
-            plugin_configs << root_config.winrm.to_proto("winrm")
-            plugin_configs << root_config.winssh.to_proto("winssh")
+        def parse_vagrantfile_subvm(req, _)
+          subvm = mapper.map(req.subvm)
 
-            machine_configs << Hashicorp::Vagrant::Sdk::Vagrantfile::MachineConfig.new(
-              name: mach.to_s,
-              config_vm: vm_config.to_proto,
-              config_vagrant: root_config.vagrant.to_proto(),
-              plugin_configs: plugin_configs
-            )
-          end
+          parse_item_to_proto(subvm.config_procs)
+        end
 
-          push_configs = v.config.push.to_proto
+        def parse_vagrantfile_provider(req, _)
+          subvm = mapper.map(req.subvm)
+          provider = req.provider.to_sym
+          config = parse_item(subvm.config_procs)
 
-          vagrantfile = Hashicorp::Vagrant::Sdk::Vagrantfile::Vagrantfile.new(
-            path: path,
-            raw: raw,
-            current_version: Vagrant::Config::CURRENT_VERSION,
-            machine_configs: machine_configs,
-            push_configs: push_configs,
+          overrides = config.vm.get_provider_overrides(provider)
+
+          return Hashicorp::Vagrant::ParseVagrantfileResponse.new(data: SDK::Args::Hash.new(entries: [])) if
+            overrides.empty?
+
+          parse_item_to_proto(config.vm.get_provider_overrides(provider))
+        end
+
+        def parse_item(item)
+          loader = Vagrant::Config::Loader.new(
+            Vagrant::Config::VERSIONS,
+            Vagrant::Config::VERSIONS_ORDER
           )
+          loader.set(:item, item)
+          loader.partial_load(:item)
+        end
+
+        def parse_item_to_proto(item)
+          config = parse_item(item)
           Hashicorp::Vagrant::ParseVagrantfileResponse.new(
-            vagrantfile: vagrantfile
+            data: config.to_proto,
           )
         end
 
@@ -93,6 +92,9 @@ module VagrantPlugins
             return Google::Protobuf::Empty.new
           when :COMMUNICATOR
             # No options for communicators
+            return Google::Protobuf::Empty.new
+          when :CONFIG
+            # No options for configs
             return Google::Protobuf::Empty.new
           when :GUEST
             # No options for guests

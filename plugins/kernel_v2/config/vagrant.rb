@@ -1,11 +1,5 @@
 require "vagrant"
 
-$LOAD_PATH << Vagrant.source_root.join("lib/vagrant/protobufs/proto").to_s
-
-require "vagrant/protobufs/proto/protostructure_pb"
-require "vagrant/protobufs/proto/vagrant_plugin_sdk/plugin_pb"
-require "vagrant/protobufs/proto/vagrant_plugin_sdk/plugin_services_pb"
-
 module VagrantPlugins
   module Kernel_V2
     class VagrantConfig < Vagrant.plugin("2", :config)
@@ -15,7 +9,6 @@ module VagrantPlugins
 
       VALID_PLUGIN_KEYS = ["sources", "version", "entry_point"].map(&:freeze).freeze
       INVALID_PLUGIN_FORMAT = :invalid_plugin_format
-      CONFIG_VAGRANT_CLS = Hashicorp::Vagrant::Sdk::Vagrantfile::ConfigVagrant
 
       def initialize
         @host = UNSET_VALUE
@@ -97,50 +90,6 @@ module VagrantPlugins
         else
           INVALID_PLUGIN_FORMAT
         end
-      end
-
-      def to_proto()
-        config_proto = CONFIG_VAGRANT_CLS.new()
-        self.instance_variables_hash.each do |k, v|
-          # Skip config that has not be set
-          next if v.class == Object 
-
-          # Skip all variables that are internal
-          next if k.start_with?("_")
-
-          if v.nil? 
-            # If v is nil, set it to the default value defined by the proto
-            v = config_proto.send(k)
-          end
-
-          if v.is_a?(Range)
-            v = v.to_a
-          end
-
-          if v.is_a?(Hash)
-            m = config_proto.send(k)
-            v.each do |k2,v2|
-              m[k2] = v2
-            end 
-            v = m
-          end
-
-          if v.is_a?(Array)
-            m = config_proto.send(k)
-            v.each do |v2|
-              m << v2
-            end 
-            v = m
-          end
-
-          begin
-            config_proto.send("#{k}=", v)
-          rescue NoMethodError
-            # Reach here when Hashicorp::Vagrant::VagrantfileComponents::ConfigVM does not
-            # have a config variable for one of the instance methods. This is ok.
-          end
-        end
-        config_proto
       end
     end
   end

@@ -6,6 +6,8 @@ import (
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+	"google.golang.org/protobuf/types/known/anypb"
+	"google.golang.org/protobuf/types/known/wrapperspb"
 
 	"github.com/hashicorp/vagrant-plugin-sdk/proto/vagrant_plugin_sdk"
 	"github.com/hashicorp/vagrant/internal/server/proto/vagrant_server"
@@ -74,12 +76,19 @@ func TestTarget(t *testing.T) {
 		require.Len(resp, 1)
 
 		// Try to insert duplicate config
+		key, _ := anypb.New(&wrapperspb.StringValue{Value: "vm"})
+		value, _ := anypb.New(&wrapperspb.StringValue{Value: "value"})
 		err = s.TargetPut(serverptypes.TestTarget(t, &vagrant_server.Target{
 			Project: projectRef,
 			Name:    "test",
-			Configuration: &vagrant_plugin_sdk.Vagrantfile_MachineConfig{
-				ConfigVm: &vagrant_plugin_sdk.Vagrantfile_ConfigVM{
-					AllowedSyncedFolderTypes: []string{"one"},
+			Configuration: &vagrant_plugin_sdk.Args_ConfigData{
+				Data: &vagrant_plugin_sdk.Args_Hash{
+					Entries: []*vagrant_plugin_sdk.Args_HashEntry{
+						{
+							Key:   key,
+							Value: value,
+						},
+					},
 				},
 			},
 		}))
@@ -87,9 +96,14 @@ func TestTarget(t *testing.T) {
 		err = s.TargetPut(serverptypes.TestTarget(t, &vagrant_server.Target{
 			Project: projectRef,
 			Name:    "test",
-			Configuration: &vagrant_plugin_sdk.Vagrantfile_MachineConfig{
-				ConfigVm: &vagrant_plugin_sdk.Vagrantfile_ConfigVM{
-					AllowedSyncedFolderTypes: []string{"one"},
+			Configuration: &vagrant_plugin_sdk.Args_ConfigData{
+				Data: &vagrant_plugin_sdk.Args_Hash{
+					Entries: []*vagrant_plugin_sdk.Args_HashEntry{
+						{
+							Key:   key,
+							Value: value,
+						},
+					},
 				},
 			},
 		}))
@@ -104,7 +118,11 @@ func TestTarget(t *testing.T) {
 			ResourceId: resourceId,
 		})
 		require.NoError(err)
-		require.Len(targetResp.Configuration.ConfigVm.AllowedSyncedFolderTypes, 1)
+		require.Len(targetResp.Configuration.Data.Entries, 1)
+		vmAny := targetResp.Configuration.Data.Entries[0].Value
+		vmString := wrapperspb.StringValue{}
+		_ = vmAny.UnmarshalTo(&vmString)
+		require.Equal(vmString.Value, "value")
 
 		// Get exact
 		{

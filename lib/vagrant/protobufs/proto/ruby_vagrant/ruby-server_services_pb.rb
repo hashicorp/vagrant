@@ -19,6 +19,9 @@ module Hashicorp
         # Gets available ruby plugins
         rpc :GetPlugins, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::GetPluginsResponse
         rpc :ParseVagrantfile, ::Hashicorp::Vagrant::ParseVagrantfileRequest, ::Hashicorp::Vagrant::ParseVagrantfileResponse
+        rpc :ParseVagrantfileProc, ::Hashicorp::Vagrant::ParseVagrantfileProcRequest, ::Hashicorp::Vagrant::ParseVagrantfileResponse
+        rpc :ParseVagrantfileSubvm, ::Hashicorp::Vagrant::ParseVagrantfileSubvmRequest, ::Hashicorp::Vagrant::ParseVagrantfileResponse
+        rpc :ParseVagrantfileProvider, ::Hashicorp::Vagrant::ParseVagrantfileProviderRequest, ::Hashicorp::Vagrant::ParseVagrantfileResponse
       end
 
       Stub = Service.rpc_stub_class

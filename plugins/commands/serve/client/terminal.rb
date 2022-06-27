@@ -106,6 +106,10 @@ module VagrantPlugins
             end
           }
         end
+
+        def to_ui
+          Vagrant::UI::Remote.new(self)
+        end
       end
     end
   end

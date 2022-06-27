@@ -11,6 +11,7 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
+	"github.com/hashicorp/vagrant-plugin-sdk/internal-shared/cleanup"
 	"github.com/hashicorp/vagrant-plugin-sdk/terminal"
 	intcfg "github.com/hashicorp/vagrant/internal/config"
 	"github.com/hashicorp/vagrant/internal/core"
@@ -48,11 +49,11 @@ type Runner struct {
 	factory            *core.Factory
 	logger             hclog.Logger
 	client             *serverclient.VagrantClient
+	cleanup            cleanup.Cleanup
 	vagrantRubyRuntime plg.ClientProtocol
 	vagrantRubyClient  *serverclient.RubyVagrantClient
 	builtinPlugins     *plugin.Builtin
 	ctx                context.Context
-	cleanupFunc        func()
 	runner             *vagrant_server.Runner
 	ui                 terminal.UI
 	local              bool
@@ -76,6 +77,10 @@ type Runner struct {
 	noopCh <-chan struct{}
 }
 
+func (r *Runner) Closer(fn cleanup.CleanupFn) {
+	r.cleanup.Do(fn)
+}
+
 // New initializes a new runner.
 //
 // You must call Start to start the runner and register with the Vagrant
@@ -92,6 +97,7 @@ func New(opts ...Option) (*Runner, error) {
 	runner := &Runner{
 		id:       id,
 		logger:   hclog.L(),
+		cleanup:  cleanup.New(),
 		ctx:      context.Background(),
 		runner:   &vagrant_server.Runner{Id: id},
 		opConfig: &intcfg.Config{},
@@ -110,9 +116,9 @@ func New(opts ...Option) (*Runner, error) {
 	if runner.plugins == nil {
 		runner.plugins = plugin.NewManager(
 			runner.ctx,
+			runner.vagrantRubyClient,
 			runner.logger.Named("plugin-manager"),
 		)
-		runner.cleanup(func() { runner.plugins.Close() })
 	}
 
 	if err := runner.plugins.LoadBuiltins(); err != nil {
@@ -145,6 +151,8 @@ func New(opts ...Option) (*Runner, error) {
 		runner.ui,
 	)
 
+	runner.cleanup.Prepend(func() error { return runner.factory.Close() })
+
 	return runner, nil
 }
 
@@ -169,7 +177,7 @@ func (r *Runner) Start() error {
 	if err != nil {
 		return err
 	}
-	r.cleanup(func() { client.CloseSend() })
+	r.Closer(func() error { return client.CloseSend() })
 
 	// Send request
 	if err := client.Send(&vagrant_server.RunnerConfigRequest{
@@ -217,15 +225,17 @@ func (r *Runner) Close() error {
 	// Wait for our jobs to complete
 	r.acceptWg.Wait()
 
+	r.logger.Info("closing down the runner")
+
 	// Run any cleanup necessary
-	if f := r.cleanupFunc; f != nil {
-		f()
-	}
+	err := r.cleanup.Close()
 
 	if r.builtinPlugins != nil {
 		r.builtinPlugins.Close()
 	}
-	return nil
+
+	r.logger.Info("closing of runner is complete!")
+	return err
 }
 
 func (r *Runner) closed() bool {

@@ -48,6 +48,7 @@ module VagrantPlugins
             # @param [Vertex]
             # @return [Boolean]
             def ==(v)
+              return false if !v.respond_to?(:hash_code)
               v.hash_code == hash_code
             end
             alias_method :eql?, :==

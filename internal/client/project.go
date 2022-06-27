@@ -57,28 +57,15 @@ func (p *Project) LoadVagrantfile() error {
 
 		return err
 	}
-	rvc, ok := raw.(serverclient.RubyVagrantClient)
-	if !ok {
-		l.Warn("failed to attach to ruby runtime for vagrantfile parsing")
 
-		return fmt.Errorf("Couldn't attach to Ruby runtime")
-	}
+	vp, err := LoadVagrantfile(
+		p.vagrantfile, l, raw.(serverclient.RubyVagrantClient))
 
-	// This is the Vagrantfile that exists in the Project directory
-	// Does this parse include the Vagrantfile that exists for the machine?
-	vagrantfile, err := rvc.ParseVagrantfile(p.vagrantfile.String())
 	if err != nil {
-		l.Error("failed to parse project vagrantfile",
-			"error", err,
-		)
 		return err
 	}
 
-	l.Trace("storaing updated project configuration",
-		"configuration", vagrantfile,
-	)
-
-	p.project.Configuration = vagrantfile
+	p.project.Configuration = vp
 	// Push Vagrantfile updates to project
 	result, err := p.vagrant.UpsertProject(
 		p.ctx,
@@ -126,37 +113,10 @@ func (p *Project) LoadTarget(n string) (*Target, error) {
 		}, nil
 	}
 
-	// Doesn't exist so lets create it
-	// TODO(spox): do we actually want to create these?
-
-	var machineConfig *vagrant_plugin_sdk.Vagrantfile_MachineConfig
-	for _, m := range p.project.Configuration.MachineConfigs {
-		if m.Name == n {
-			machineConfig = m
-			break
-		}
-	}
-	uresult, err := p.vagrant.UpsertTarget(p.ctx,
-		&vagrant_server.UpsertTargetRequest{
-			Target: &vagrant_server.Target{
-				Name:          n,
-				Project:       p.Ref(),
-				Configuration: machineConfig,
-			},
-		},
-	)
-	if err != nil {
-		return nil, err
-	}
-
-	return &Target{
-		client:  p.client,
-		ctx:     p.ctx,
-		logger:  p.logger.Named("project"),
-		target:  uresult.Target,
-		ui:      p.ui,
-		vagrant: p.vagrant,
-	}, nil
+	// TODO(spox): Some adjustment is needed on how targets
+	//             should be loaded here when their origin
+	//             will be the vagrantfile
+	return nil, fmt.Errorf("cannot load target")
 }
 
 func (p *Project) UI() terminal.UI {

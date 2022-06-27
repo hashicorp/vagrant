@@ -12,6 +12,7 @@ import (
 func TestManager(t testing.T, plugins ...*Plugin) *Manager {
 	pluginManager := NewManager(
 		context.Background(),
+		nil,
 		hclog.New(&hclog.LoggerOptions{}),
 	)
 	pluginManager.Plugins = plugins

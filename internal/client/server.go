@@ -174,7 +174,9 @@ func (c *Client) initLocalServer(ctx context.Context) (_ *grpc.ClientConn, err e
 	}
 
 	// Have the defined cleanups run when the basis is closed
-	c.Cleanup(cleanups...)
+	for _, fn := range cleanups {
+		c.Cleanup(fn)
+	}
 
 	_ = cancel // pacify vet lostcancel
 

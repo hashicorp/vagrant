@@ -27,6 +27,16 @@ func NewInternal(
 	}
 }
 
+func Internal(l hclog.Logger, m []*argmapper.Func) *internal {
+	return &internal{
+		broker:  nil,
+		cache:   cacher.New(),
+		cleanup: cleanup.New(),
+		logger:  l,
+		mappers: m,
+	}
+}
+
 type internal struct {
 	broker  *plugin.GRPCBroker
 	cache   cacher.Cache

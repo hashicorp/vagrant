@@ -3,7 +3,6 @@ package runner
 import (
 	"context"
 	"fmt"
-	"path/filepath"
 
 	"github.com/hashicorp/go-hclog"
 	"google.golang.org/grpc/codes"
@@ -12,7 +11,6 @@ import (
 	"github.com/hashicorp/vagrant-plugin-sdk/component"
 	"github.com/hashicorp/vagrant-plugin-sdk/proto/vagrant_plugin_sdk"
 	"github.com/hashicorp/vagrant-plugin-sdk/terminal"
-	configpkg "github.com/hashicorp/vagrant/internal/config"
 	"github.com/hashicorp/vagrant/internal/core"
 	"github.com/hashicorp/vagrant/internal/server/proto/vagrant_server"
 )
@@ -26,32 +24,6 @@ func (r *Runner) executeJob(
 	job *vagrant_server.Job,
 	wd string,
 ) (result *vagrant_server.Job_Result, err error) {
-	// Eventually we'll need to extract the data source. For now we're
-	// just building for local exec so it is the working directory.
-	// TODO(spox): config loading needs to be moved to core within basis and project
-	path := configpkg.Filename
-	if wd != "" {
-		path = filepath.Join(wd, path)
-	}
-
-	// Setup our basis configuration
-	// cfg, err := configpkg.Load("", "")
-	// if err != nil {
-	// 	log.Warn("failed here for basis trying to read configuration", "path", path)
-	// 	// return
-	// 	cfg = &configpkg.Config{}
-	// }
-
-	// Determine the evaluation context we'll be using
-	log.Trace("reading configuration", "path", path)
-	cfg, err := configpkg.Load(path, filepath.Dir(path))
-	if err != nil {
-		log.Warn("failed here trying to read configuration", "path", path)
-		cfg = &configpkg.Config{}
-		// return nil, err
-	}
-	log.Trace("configuration loaded", "cfg", cfg)
-
 	// Build our job info
 	jobInfo := &component.JobInfo{
 		Id:    job.Id,
@@ -83,12 +55,11 @@ func (r *Runner) executeJob(
 	opts = append(opts, core.WithBasisRef(ref))
 
 	// Load our basis
-	b, err := r.factory.New(job.Id, opts...)
+	b, err := r.factory.New(ref.Name, opts...)
 	if err != nil {
 		return
 	}
 
-	defer b.Close()
 	scope = b
 
 	// Lets check for a project, and if we have one,
@@ -102,7 +73,7 @@ func (r *Runner) executeJob(
 		if err != nil {
 			return
 		}
-		defer p.Close()
+
 		scope = p
 	}
 
@@ -114,7 +85,7 @@ func (r *Runner) executeJob(
 		if err != nil {
 			return
 		}
-		defer m.Close()
+
 		scope = m
 	}
 

@@ -3,7 +3,7 @@ module Vagrant
     module V2
       # This is a configuration object that can have anything done
       # to it. Anything, and it just appears to keep working.
-      class DummyConfig
+      class DummyConfig < Vagrant::Plugin::V2::Config
         LOG  = Log4r::Logger.new("vagrant::config::v2::dummy_config")
 
         def method_missing(name, *args, &block)
@@ -50,22 +50,6 @@ module Vagrant
             acc[iv.to_s[1..-1]] = instance_variable_get(iv)
             acc
           end
-        end
-
-        # Converts this untyped config into a form suitable for passing over a
-        # GRPC connection. This is used for portions of config that might not
-        # have config classes implemented in Ruby.
-        #
-        # @param type [String] a name to put into the type field, e.g. plugin name
-        # @return [Hashicorp::Vagrant::Sdk::Vagrantfile::GeneralConfig]
-        def to_proto(type)
-          mapper = VagrantPlugins::CommandServe::Mappers.new
-          
-          protoize = self.instance_variables_hash
-          protoize.delete_if{|k,v| k.start_with?("_") }
-          config_struct = mapper.map(protoize, to: Hashicorp::Vagrant::Sdk::Args::Hash)
-          config_any = Google::Protobuf::Any.pack(config_struct)
-          Hashicorp::Vagrant::Sdk::Vagrantfile::GeneralConfig.new(type: type, config: config_any)
         end
       end
     end

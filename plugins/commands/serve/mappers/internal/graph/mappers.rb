@@ -134,7 +134,7 @@ module VagrantPlugins
               setup!
 
               logger.debug { "new graph mappers instance created #{self}" }
-              logger.trace { "graph: #{graph.inspect}" }
+              logger.debug { "graph: #{graph.inspect}" }
             end
 
             # Generate path and execute required mappers
@@ -144,7 +144,7 @@ module VagrantPlugins
               # Generate list of vertices to reach destination
               # from root, if possible
               search = Search.new(graph: graph)
-              logger.debug { "searching for conversion path #{source ? source.class : inputs.first.class} -> #{final}" }
+              logger.debug { "searching for conversion path #{source ? source : inputs.first.class} -> #{final}" }
               p = search.path(@root, @dst)
 
               logger.debug {
@@ -219,7 +219,10 @@ module VagrantPlugins
               initial_value = true
 
               input_vertices += inputs.map do |input_value|
-                next if input_value == GENERATE
+                if input_value == GENERATE
+                  initial_value = false
+                  next
+                end
                 if input_value.is_a?(Type::NamedArgument)
                   iv = graph.add_vertex(
                     Graph::Vertex::NamedValue.new(
@@ -232,6 +235,13 @@ module VagrantPlugins
                   iv = graph.add_vertex(Graph::Vertex::Value.new(value: input_value))
                   iv.weight = initial_value ? SOURCE_WEIGHT : VALUE_WEIGHT
                 end
+                # If this is the initial value and we are not generating a result,
+                # then mark it as the origin value
+                if initial_value
+                  @origin = iv
+                  logger.info("origin vertex has been set: #{@origin}")
+                end
+
                 initial_value = false
                 graph.add_edge(@root, iv)
                 iv
@@ -250,13 +260,13 @@ module VagrantPlugins
               callables.each do |mapper|
                 fn = graph.add_vertex(Graph::Vertex::Method.new(callable: mapper))
                 fn_inputs += mapper.inputs.map do |i|
-                  iv = graph.add_vertex(Graph::Vertex::Input.new(type: i.type))
-                  iv.weight = INPUT_WEIGHT
+                  iv = graph.add_vertex(Graph::Vertex::Input.new(type: i.type, origin_restricted: i.origin_restricted))
+                  iv.weight = INPUT_WEIGHT + fn.extra_weight
                   graph.add_edge(iv, fn)
                   iv
                 end
                 ov = graph.add_vertex(Graph::Vertex::Output.new(type: mapper.output))
-                ov.weight = mapper.output == final ? DST_WEIGHT : OUTPUT_WEIGHT
+                ov.weight = (mapper.output == final ? DST_WEIGHT : OUTPUT_WEIGHT) + fn.extra_weight
                 graph.add_edge(fn, ov)
                 fn_outputs << ov
               end
@@ -269,6 +279,9 @@ module VagrantPlugins
               # matching input vertices
               input_vertices.each do |iv|
                 fn_inputs.each do |f_iv|
+                  if f_iv.origin_value_only? && iv != @origin
+                    next
+                  end
                   if iv.type == f_iv.type || iv.type.ancestors.include?(f_iv.type)
                     graph.add_edge(iv, f_iv)
                   end
@@ -276,7 +289,7 @@ module VagrantPlugins
 
                 # If a value vertex matches the desired
                 # output value, connect it directly
-                if @dst.type == iv.type || iv.type.ancestors.include?(@dst.type)
+                if @dst.type == iv.type # || iv.type.ancestors.include?(@dst.type)
                   graph.add_edge(iv, @dst)
                 end
               end
@@ -284,6 +297,7 @@ module VagrantPlugins
               # matching input vertices
               fn_outputs.each do |f_ov|
                 fn_inputs.each do |f_iv|
+                  next if f_iv.origin_value_only?
                   if f_ov.type == f_iv.type || f_ov.type.ancestors.include?(f_iv.type)
                     graph.add_edge(f_ov, f_iv)
                   end
@@ -292,7 +306,7 @@ module VagrantPlugins
                 # If an output value matches the desired
                 # output value, connect it directly
                 if @dst.type == f_ov.type || f_ov.type.ancestors.include?(@dst)
-                  if f_ov.type.ancestors.include?(@dst)
+                  if @dst.type != f_ov.type
                     f_ov.weight += 1000
                   end
                   graph.add_edge(f_ov, @dst)

@@ -22,13 +22,16 @@ module VagrantPlugins
           attr_reader :type
           # @return [#call] callable that can validate argument
           attr_reader :validator
+          # @return [Boolean] Only allow the origin value to be connected to this input
+          attr_reader :origin_restricted
 
           # Create a new input
           #
           # @param type [Class] Type of the input
-          # @param validator [#call] Callable to validate argument (optional)
-          # @yield #call to validate argument (optional)
-          def initialize(type:, validator: nil, &block)
+
+          # @param validator [Callable] Callable to validate argument (optional)
+          # @yield Callable to validate argument (optional)
+          def initialize(type:, validator: nil, origin_restricted: false, &block)
             if !type.is_a?(Class) && !type.is_a?(Module)
               raise ArgumentError,
                 "Type must be constant type (given: #{type})"
@@ -45,6 +48,7 @@ module VagrantPlugins
               raise ArgumentError,
                 "Validator must be callable"
             end
+            @origin_restricted = origin_restricted
           end
 
           # Check if given argument is valid for this input

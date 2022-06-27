@@ -5,6 +5,8 @@ import (
 	"sync"
 
 	"github.com/hashicorp/go-hclog"
+	"github.com/hashicorp/go-multierror"
+	"github.com/hashicorp/vagrant-plugin-sdk/internal-shared/cleanup"
 	"github.com/hashicorp/vagrant-plugin-sdk/terminal"
 	"github.com/hashicorp/vagrant/internal/plugin"
 	"github.com/hashicorp/vagrant/internal/serverclient"
@@ -12,6 +14,7 @@ import (
 
 type Factory struct {
 	ctx        context.Context
+	cleanup    cleanup.Cleanup
 	client     *serverclient.VagrantClient
 	logger     hclog.Logger
 	m          sync.Mutex
@@ -29,12 +32,21 @@ func NewFactory(
 ) *Factory {
 	return &Factory{
 		ctx:        ctx,
+		cleanup:    cleanup.New(),
 		client:     client,
 		logger:     logger,
 		plugins:    plugins,
 		ui:         ui,
 		registered: map[string]*Basis{},
 	}
+}
+
+func (f *Factory) Closer(fn cleanup.CleanupFn) {
+	f.cleanup.Do(fn)
+}
+
+func (f *Factory) Close() error {
+	return f.cleanup.Close()
 }
 
 func (f *Factory) New(name string, opts ...BasisOption) (*Basis, error) {
@@ -79,6 +91,10 @@ func (f *Factory) New(name string, opts ...BasisOption) (*Basis, error) {
 	// this new basis, discard, and return the
 	// registered one
 	if existingB, ok := f.registered[b.Name()]; ok {
+		f.logger.Info("there was an existing basis so closing the new one",
+			"name", name,
+			"basis-name", b.Name(),
+		)
 		b.Close()
 		return existingB, nil
 	}
@@ -95,6 +111,18 @@ func (f *Factory) New(name string, opts ...BasisOption) (*Basis, error) {
 	// Close the child plugin manager
 	b.Closer(func() error {
 		return pm.Close()
+	})
+
+	// Ensure any registered basis is closed
+	// when the factory is closed
+	f.Closer(func() (err error) {
+		for _, b := range f.registered {
+			berr := b.Close()
+			if berr != nil {
+				err = multierror.Append(err, berr)
+			}
+		}
+		return
 	})
 
 	return b, nil

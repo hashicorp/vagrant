@@ -2,7 +2,6 @@ package client
 
 import (
 	"context"
-	"fmt"
 	"io"
 	"os"
 
@@ -11,10 +10,10 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
+	"github.com/hashicorp/vagrant-plugin-sdk/config"
 	"github.com/hashicorp/vagrant-plugin-sdk/helper/path"
 	"github.com/hashicorp/vagrant-plugin-sdk/proto/vagrant_plugin_sdk"
 	"github.com/hashicorp/vagrant-plugin-sdk/terminal"
-	configpkg "github.com/hashicorp/vagrant/internal/config"
 	"github.com/hashicorp/vagrant/internal/server/proto/vagrant_server"
 	"github.com/hashicorp/vagrant/internal/serverclient"
 )
@@ -32,7 +31,7 @@ type Basis struct {
 
 func (b *Basis) DetectProject() (p *Project, err error) {
 	// look for a vagrantfile!
-	v, err := configpkg.FindPath(nil, "")
+	v, err := config.FindPath(nil, nil)
 	// if an error was encountered, or no path was found, we return
 	if err != nil || v == nil {
 		return
@@ -108,17 +107,17 @@ func (b *Basis) LoadProject(n string) (*Project, error) {
 
 // Finds the Vagrantfile associated with the basis
 func (b *Basis) LoadVagrantfile() error {
-	vpath := b.path.Join(configpkg.GetVagrantfileName())
+	vpath, err := config.ExistingPath(b.path, config.GetVagrantfileName())
 	l := b.logger.With(
 		"basis", b.basis.Name,
 		"path", vpath,
 	)
 
-	l.Trace("attempting to load basis vagrantfile")
-
 	// If the path does not exist, no Vagrantfile was found
-	if _, err := os.Stat(vpath.String()); os.IsNotExist(err) {
-		l.Warn("basis vagrantfile does not exist")
+	if os.IsNotExist(err) {
+		l.Warn("basis vagrantfile does not exist",
+			"path", b.path.String(),
+		)
 
 		return nil
 	} else if err != nil {
@@ -129,37 +128,25 @@ func (b *Basis) LoadVagrantfile() error {
 		return err
 	}
 
-	raw, err := b.client.rubyRuntime.Dispense("vagrantrubyruntime")
-	if err != nil {
-		l.Warn("failed to load ruby runtime for vagrantfile parsing",
-			"error", err,
-		)
+	l.Trace("attempting to load basis vagrantfile")
 
+	raw, err := b.VagrantRubyRuntime().Dispense("vagrantrubyruntime")
+	if err != nil {
 		return err
 	}
-	rvc, ok := raw.(serverclient.RubyVagrantClient)
-	if !ok {
-		l.Warn("failed to attach to ruby runtime for vagrantfile parsing",
-			"error", err,
-		)
 
-		return fmt.Errorf("Couldn't attach to Ruby runtime")
-	}
+	p, err := LoadVagrantfile(
+		vpath, l, raw.(serverclient.RubyVagrantClient))
 
-	// This is the Vagrantfile that exists in the Basis directory
-	vagrantfile, err := rvc.ParseVagrantfile(vpath.String())
 	if err != nil {
-		l.Error("failed to parse basis vagrantfile",
-			"error", err,
-		)
 		return err
 	}
 
 	l.Trace("storing updated basis configuration",
-		"configuration", vagrantfile,
+		"configuration", p.Unfinalized,
 	)
 
-	b.basis.Configuration = vagrantfile
+	b.basis.Configuration = p
 	// Push Vagrantfile updates to basis
 	result, err := b.vagrant.UpsertBasis(
 		b.ctx,

@@ -40,7 +40,7 @@ module VagrantPlugins
         def get(key)
           if !@registry.key?(key)
             raise KeyError,
-              "Unknown cache key `#{key.inspect}'"
+              "Unknown cache key #{key.inspect}"
           end
           @registry[key]
         end
@@ -60,7 +60,7 @@ module VagrantPlugins
         def use(key)
           if !@registry.key?(key)
             raise KeyError,
-              "Unknown cache key `#{key.inspect}'"
+              "Unknown cache key #{key.inspect}"
           end
 
           yield @registry[key]
