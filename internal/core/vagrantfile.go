@@ -599,11 +599,6 @@ func (v *Vagrantfile) GetValue(
 	// Since we already used out first path value above
 	// be sure we start our loop from 1
 	for i := 1; i < len(path); i++ {
-		v.logger.Warn("loop value lookup",
-			"iteration", i,
-			"current-value", result,
-			"current-key", path[i],
-		)
 		// First, attempt to use the current value as a stringed map
 		if sm, ok := result.(map[string]interface{}); ok {
 			if result, ok = sm[path[i]]; ok {
@@ -612,7 +607,6 @@ func (v *Vagrantfile) GetValue(
 			v.logger.Warn("get value lookup failed",
 				"keys", path,
 				"current-key", path[i],
-				"current-value", sm,
 				"type", "map[string]interface{}",
 			)
 			return nil, err
