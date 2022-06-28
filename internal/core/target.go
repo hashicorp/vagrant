@@ -270,12 +270,16 @@ func (t *Target) Save() (err error) {
 		"name", t.target.Name,
 	)
 
-	result, err := t.Client().UpsertTarget(t.ctx, &vagrant_server.UpsertTargetRequest{
+	t.target.Configuration, err = t.vagrantfile.rootToStore()
+
+	result, uerr := t.Client().UpsertTarget(t.ctx, &vagrant_server.UpsertTargetRequest{
 		Target: t.target})
-	if err != nil {
+	if uerr != nil {
 		t.logger.Trace("failed to save target",
 			"target", t.target.ResourceId,
-			"error", err)
+			"error", uerr)
+
+		err = multierror.Append(err, uerr)
 
 		return
 	}
