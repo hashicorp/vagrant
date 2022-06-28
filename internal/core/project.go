@@ -13,7 +13,9 @@ import (
 	"github.com/hashicorp/go-hclog"
 	"github.com/hashicorp/go-multierror"
 	goplugin "github.com/hashicorp/go-plugin"
+	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+
 	"google.golang.org/protobuf/proto"
 
 	"github.com/hashicorp/vagrant-plugin-sdk/component"
@@ -436,12 +438,12 @@ func (p *Project) JobInfo() *component.JobInfo {
 
 // LoadTarget loads a target within the current project. If the target is not
 // found, it will be created.
-func (p *Project) LoadTarget(topts ...TargetOption) (t *Target, err error) {
+func (p *Project) LoadTarget(topts ...TargetOption) (*Target, error) {
 	p.m.Lock()
 	defer p.m.Unlock()
 
 	// Create our target
-	t = &Target{
+	t := &Target{
 		cache:   cacher.New(),
 		ctx:     p.ctx,
 		project: p,
@@ -451,6 +453,7 @@ func (p *Project) LoadTarget(topts ...TargetOption) (t *Target, err error) {
 		},
 		ui: p.ui,
 	}
+	var err error
 
 	// Apply any options provided
 	for _, opt := range topts {
@@ -481,12 +484,15 @@ func (p *Project) LoadTarget(topts ...TargetOption) (t *Target, err error) {
 		if err != nil {
 			return nil, err
 		}
-		t.vagrantfile = tv.(*Vagrantfile)
+		// Set the vagrantfile if one was returned
+		if tv != nil {
+			t.vagrantfile = tv.(*Vagrantfile)
+		}
 	}
 
 	// If this is the first time through, re-init the target
 	if err = t.init(); err != nil {
-		return
+		return nil, err
 	}
 
 	// If the data directory is set, set it
@@ -521,7 +527,7 @@ func (p *Project) LoadTarget(topts ...TargetOption) (t *Target, err error) {
 	p.targets[t.target.ResourceId] = t
 	p.targets[t.target.Name] = t
 
-	return
+	return t, nil
 }
 
 // Client returns the API client for the backend server.
@@ -724,14 +730,7 @@ func (p *Project) InitTargets() (err error) {
 
 	updated := false
 	for _, t := range targets {
-		_, err = p.Client().UpsertTarget(p.ctx,
-			&vagrant_server.UpsertTargetRequest{
-				Target: &vagrant_server.Target{
-					Name:    t,
-					Project: p.Ref().(*vagrant_plugin_sdk.Ref_Project),
-				},
-			},
-		)
+		_, err = p.createTarget(t)
 		if err != nil {
 			p.logger.Error("failed to initialize target with project",
 				"project", p.Name(),
@@ -773,6 +772,44 @@ func (p *Project) refreshProject() (err error) {
 
 	p.project = result.Project
 	return
+}
+
+// Create a target within this project if it does not already exist
+func (p *Project) createTarget(
+	name string, // name of the target
+) (*vagrant_server.Target, error) {
+	result, err := p.Client().FindTarget(p.ctx,
+		&vagrant_server.FindTargetRequest{
+			Target: &vagrant_server.Target{
+				Name:    name,
+				Project: p.Ref().(*vagrant_plugin_sdk.Ref_Project),
+			},
+		},
+	)
+	// If we encountered any error except a not found, return it
+	if err != nil && status.Code(err) != codes.NotFound {
+		return nil, err
+	}
+
+	// If we have no error here, we have an existing result
+	if err == nil {
+		return result.Target, nil
+	}
+
+	// And if we are still here, create it
+	resp, err := p.Client().UpsertTarget(p.ctx,
+		&vagrant_server.UpsertTargetRequest{
+			Target: &vagrant_server.Target{
+				Name:    name,
+				Project: p.Ref().(*vagrant_plugin_sdk.Ref_Project),
+			},
+		},
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	return resp.Target, nil
 }
 
 // Calls the function provided and converts the
