@@ -7,6 +7,14 @@ import (
 	"github.com/hashicorp/vagrant/internal/plugin"
 )
 
+// Synced folder entry
+type testSyncedFolder struct {
+	source      string
+	destination string
+	kind        string
+}
+
+// Add vm box name to configuration
 func testBoxConfig(name string) *component.ConfigData {
 	return &component.ConfigData{
 		Data: map[string]interface{}{
@@ -19,12 +27,7 @@ func testBoxConfig(name string) *component.ConfigData {
 	}
 }
 
-type testSyncedFolder struct {
-	source      string
-	destination string
-	kind        string
-}
-
+// Add synced folders to vm configuration
 func testSyncedFolderConfig(folders []*testSyncedFolder) *component.ConfigData {
 	f := map[interface{}]interface{}{}
 	for _, tf := range folders {
@@ -46,6 +49,7 @@ func testSyncedFolderConfig(folders []*testSyncedFolder) *component.ConfigData {
 	}
 }
 
+// Set guest name in vm configuration
 func testGuestConfig(name string) *component.ConfigData {
 	return &component.ConfigData{
 		Data: map[string]interface{}{
@@ -58,6 +62,7 @@ func testGuestConfig(name string) *component.ConfigData {
 	}
 }
 
+// Generate a synced folder plugin
 func syncedFolderPlugin(t *testing.T, name string) *plugin.Plugin {
 	return plugin.TestPlugin(t,
 		BuildTestSyncedFolderPlugin(""),
