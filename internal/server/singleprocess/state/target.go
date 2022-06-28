@@ -1,12 +1,12 @@
 package state
 
 import (
-	"google.golang.org/protobuf/proto"
 	"github.com/google/uuid"
 	"github.com/hashicorp/go-memdb"
 	bolt "go.etcd.io/bbolt"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+	"google.golang.org/protobuf/proto"
 
 	"github.com/hashicorp/vagrant-plugin-sdk/proto/vagrant_plugin_sdk"
 	"github.com/hashicorp/vagrant/internal/server/proto/vagrant_server"
@@ -165,6 +165,9 @@ func (s *State) targetList(
 		result = append(result, &vagrant_plugin_sdk.Ref_Target{
 			ResourceId: next.(*targetIndexRecord).Id,
 			Name:       next.(*targetIndexRecord).Name,
+			Project: &vagrant_plugin_sdk.Ref_Project{
+				ResourceId: next.(*targetIndexRecord).ProjectId,
+			},
 		})
 	}
 

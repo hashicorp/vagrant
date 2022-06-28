@@ -452,14 +452,15 @@ func (v *Vagrantfile) Target(
 		return
 	}
 
-	// Convert to actual Vagrantfile for target setup
-	vf := conf.(*Vagrantfile)
+	opts := []TargetOption{WithTargetName(name)}
+	var vf *Vagrantfile
 
-	target, err = v.origin.LoadTarget(
-		WithTargetName(name),
-		WithTargetVagrantfile(vf),
-	)
-
+	if conf != nil {
+		// Convert to actual Vagrantfile for target setup
+		vf = conf.(*Vagrantfile)
+		opts = append(opts, WithTargetVagrantfile(vf))
+	}
+	target, err = v.origin.LoadTarget(opts...)
 	if err != nil {
 		return
 	}
@@ -467,21 +468,24 @@ func (v *Vagrantfile) Target(
 	// Since the target config gives us a Vagrantfile which is
 	// attached to the project, we need to clone it and attach
 	// it to the target we loaded
-	rawTarget := target.(*Target)
-	tvf := v.clone(name, rawTarget)
-	if err = tvf.Init(); err != nil {
-		return nil, err
-	}
-	rawTarget.vagrantfile = tvf
+	if vf != nil {
+		rawTarget := target.(*Target)
+		tvf := v.clone(name, rawTarget)
+		if err = tvf.Init(); err != nil {
+			return nil, err
+		}
+		rawTarget.vagrantfile = tvf
 
-	if err = vf.Close(); err != nil {
-		return nil, err
+		if err = vf.Close(); err != nil {
+			return nil, err
+		}
 	}
 
 	return
 }
 
 // Generate a new Vagrantfile for the given target
+// NOTE: This function may return a nil result without an error
 // TODO(spox): Provider validation is not currently implemented
 func (v *Vagrantfile) TargetConfig(
 	name, // name of the target
@@ -498,11 +502,11 @@ func (v *Vagrantfile) TargetConfig(
 
 	subvm, err := v.GetValue("vm", "__defined_vms", name)
 	if err != nil {
-		v.logger.Error("failed to get subvm",
+		v.logger.Warn("failed to get subvm",
 			"name", name,
 			"error", err,
 		)
-		return nil, err
+		return nil, nil
 	}
 
 	if subvm == nil {

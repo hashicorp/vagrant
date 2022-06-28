@@ -472,41 +472,20 @@ func (t *Target) init() (err error) {
 	// If the configuration was updated during load, save it so
 	// we can re-apply after loading stored data
 	var conf *vagrant_plugin_sdk.Args_ConfigData
-	if t.target != nil && t.target.Configuration != nil {
+	if t.target.Configuration != nil {
 		conf = t.target.Configuration
 	}
 
-	// First we want to run a lookup if this target already exists
-	if t.target.ResourceId != "" {
-		resp, err := t.Client().FindTarget(t.ctx,
-			&vagrant_server.FindTargetRequest{
-				Target: &vagrant_server.Target{
-					ResourceId: t.target.ResourceId,
-				},
-			},
-		)
-		if err != nil {
-			return err
-		}
-
-		t.target = resp.Target
-	} else {
-		for _, pt := range t.project.project.Targets {
-			if t.target.Name == pt.Name {
-				resp, err := t.Client().FindTarget(t.ctx,
-					&vagrant_server.FindTargetRequest{
-						Target: &vagrant_server.Target{
-							ResourceId: pt.ResourceId,
-						},
-					},
-				)
-				if err != nil {
-					return err
-				}
-				t.target = resp.Target
-			}
-		}
+	// Pull target info
+	resp, err := t.Client().FindTarget(t.ctx,
+		&vagrant_server.FindTargetRequest{
+			Target: t.target,
+		},
+	)
+	if err != nil {
+		return
 	}
+	t.target = resp.Target
 
 	// If we have configuration data, re-apply it
 	if conf != nil {
@@ -524,6 +503,10 @@ func (t *Target) init() (err error) {
 	// If we don't have configuration data, just stub
 	if t.target.Configuration == nil {
 		t.target.Configuration = &vagrant_plugin_sdk.Args_ConfigData{}
+		t.vagrantfile = t.project.vagrantfile.clone("target", t)
+		t.vagrantfile.root = &component.ConfigData{
+			Data: map[string]interface{}{},
+		}
 		return
 	}
 
@@ -583,58 +566,34 @@ func WithTargetName(name string) TargetOption {
 
 // Configure target with proto ref
 func WithTargetRef(r *vagrant_plugin_sdk.Ref_Target) TargetOption {
-	return func(t *Target) (err error) {
-		// Project must be set before we continue
-		if t.project == nil {
-			return fmt.Errorf("project must be set before loading target")
-		}
-
+	return func(t *Target) error {
 		// Target ref must include a resource id or name
 		if r.Name == "" && r.ResourceId == "" {
 			return fmt.Errorf("target ref must include ResourceId and/or Name")
 		}
 
-		var target *vagrant_server.Target
+		// Target ref must include project ref if resource id is empty
+		if r.Name == "" && r.Project == nil {
+			return fmt.Errorf("target ref must include Project for name lookup")
+		}
+
 		result, err := t.Client().FindTarget(t.ctx,
 			&vagrant_server.FindTargetRequest{
 				Target: &vagrant_server.Target{
 					ResourceId: r.ResourceId,
 					Name:       r.Name,
-					Project:    t.project.Ref().(*vagrant_plugin_sdk.Ref_Project),
+					Project:    r.Project,
 				},
 			},
 		)
 
-		// TODO(spox): check for not found and error if something different
-		// if err != nil {
-		// 	return err
-		// }
-		if result != nil {
-			target = result.Target
-		} else {
-			var result *vagrant_server.UpsertTargetResponse
-			result, err = t.Client().UpsertTarget(t.ctx,
-				&vagrant_server.UpsertTargetRequest{
-					Target: &vagrant_server.Target{
-						Name:    r.Name,
-						Project: t.project.Ref().(*vagrant_plugin_sdk.Ref_Project),
-					},
-				},
-			)
-			if err != nil {
-				return
-			}
-			target = result.Target
+		if err != nil {
+			return err
 		}
-		if r.Project != nil && target.Project.ResourceId != r.Project.ResourceId {
-			t.logger.Error("invalid project for target",
-				"request-project", r.Project,
-				"target-project", target.Project)
 
-			return fmt.Errorf("target project configuration is invalid")
-		}
-		t.target = target
-		return
+		t.target = result.Target
+
+		return nil
 	}
 }
 

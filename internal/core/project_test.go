@@ -11,14 +11,11 @@ import (
 func projectTargets(t *testing.T, project *Project, numTargets int) (targets []*Target) {
 	targets = make([]*Target, numTargets)
 	for i := 0; i < numTargets; i++ {
-		tt, err := TestTarget(t, project, &vagrant_server.Target{
+		tt := TestTarget(t, project, &vagrant_server.Target{
 			ResourceId: fmt.Sprintf("id-%d", i),
 			Name:       fmt.Sprintf("target-%d", i),
 			Uuid:       fmt.Sprintf("uuid-%d", i),
 		})
-		if err != nil {
-			t.Error(err)
-		}
 		targets = append(targets, tt)
 	}
 	return
@@ -35,14 +32,8 @@ func TestNewProject(t *testing.T) {
 func TestProjectGetTarget(t *testing.T) {
 	tp := TestMinimalProject(t)
 	// Add targets to project
-	targetOne, err := TestTarget(t, tp, &vagrant_server.Target{ResourceId: "id-one", Name: "target-one"})
-	if err != nil {
-		t.Error(err)
-	}
-	targetTwo, err := TestTarget(t, tp, &vagrant_server.Target{ResourceId: "id-two", Name: "target-two"})
-	if err != nil {
-		t.Error(err)
-	}
+	targetOne := TestTarget(t, tp, &vagrant_server.Target{ResourceId: "id-one", Name: "target-one"})
+	targetTwo := TestTarget(t, tp, &vagrant_server.Target{ResourceId: "id-two", Name: "target-two"})
 
 	// Get by id
 	one, err := tp.Target("id-one", "")

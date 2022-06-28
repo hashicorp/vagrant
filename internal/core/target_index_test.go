@@ -79,8 +79,7 @@ func TestTargetIndexSet(t *testing.T) {
 		t.Error(err)
 	}
 
-	tt, err := TestMinimalTarget(t)
-	require.NoError(t, err)
+	tt := TestMinimalTarget(t)
 
 	tt.target.Name = "newName"
 	updated, err := ti.Set(tt)
