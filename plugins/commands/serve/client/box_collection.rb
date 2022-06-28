@@ -52,7 +52,7 @@ module VagrantPlugins
             res = client.find(SDK::BoxCollection::FindRequest.new(
               name: name, version: version, providers: Array(providers)
             ))
-          rescue
+          rescue GRPC::NotFound
             logger.debug("box not found!")
             return nil
           end
