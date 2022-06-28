@@ -1,6 +1,7 @@
 module Vagrant
   module Util
     module Remote
+      autoload :SafePuts, 'vagrant/util/remote/safe_puts'
       autoload :SSH, 'vagrant/util/remote/ssh'
     end
 
