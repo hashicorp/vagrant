@@ -927,9 +927,10 @@ func WithProjectRef(r *vagrant_plugin_sdk.Ref_Project) ProjectOption {
 		result, err := p.Client().FindProject(p.ctx,
 			&vagrant_server.FindProjectRequest{
 				Project: &vagrant_server.Project{
-					Basis: r.Basis,
-					Name:  r.Name,
-					Path:  r.Path,
+					Basis:      r.Basis,
+					Name:       r.Name,
+					Path:       r.Path,
+					ResourceId: r.ResourceId,
 				},
 			},
 		)
@@ -953,7 +954,7 @@ func WithProjectRef(r *vagrant_plugin_sdk.Ref_Project) ProjectOption {
 		}
 
 		// Before we init, validate basis is consistent
-		if project.Basis.ResourceId != r.Basis.ResourceId {
+		if r.Basis != nil && project.Basis.ResourceId != r.Basis.ResourceId {
 			p.logger.Error("invalid basis for project", "request-basis", r.Basis,
 				"project-basis", project.Basis)
 			return errors.New("project basis configuration is invalid")
