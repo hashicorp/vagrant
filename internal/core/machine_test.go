@@ -120,133 +120,11 @@ func TestMachineGetNonExistentBox(t *testing.T) {
 	require.Empty(t, metaurl)
 }
 
-func testBoxConfig(name string) *vagrant_plugin_sdk.Args_ConfigData {
-	b_key, _ := anypb.New(&wrapperspb.StringValue{Value: "box"})
-	b_name, _ := anypb.New(&wrapperspb.StringValue{Value: name})
-	vm_key, _ := anypb.New(&wrapperspb.StringValue{Value: "vm"})
-	vm, _ := anypb.New(&vagrant_plugin_sdk.Args_ConfigData{
-		Data: &vagrant_plugin_sdk.Args_Hash{
-			Entries: []*vagrant_plugin_sdk.Args_HashEntry{
-				{
-					Key:   b_key,
-					Value: b_name,
-				},
-			},
-		},
-	})
-
-	return &vagrant_plugin_sdk.Args_ConfigData{
-		Data: &vagrant_plugin_sdk.Args_Hash{
-			Entries: []*vagrant_plugin_sdk.Args_HashEntry{
-				{
-					Key:   vm_key,
-					Value: vm,
-				},
-			},
-		},
-	}
-}
-
-type testSyncedFolder struct {
-	source      string
-	destination string
-	kind        string
-}
-
-func testSyncedFolderConfig(folders []*testSyncedFolder) *vagrant_plugin_sdk.Args_ConfigData {
-	f := &vagrant_plugin_sdk.Args_Hash{
-		Entries: []*vagrant_plugin_sdk.Args_HashEntry{},
-	}
-	src_key, _ := anypb.New(&wrapperspb.StringValue{Value: "hostpath"})
-	dst_key, _ := anypb.New(&wrapperspb.StringValue{Value: "guestpath"})
-	type_key, _ := anypb.New(&wrapperspb.StringValue{Value: "type"})
-	for i := 0; i < len(folders); i++ {
-		fld := folders[i]
-		f_src, _ := anypb.New(&wrapperspb.StringValue{Value: fld.source})
-		f_dst, _ := anypb.New(&wrapperspb.StringValue{Value: fld.destination})
-		f_type, _ := anypb.New(&wrapperspb.StringValue{Value: fld.kind})
-
-		hsh := &vagrant_plugin_sdk.Args_Hash{
-			Entries: []*vagrant_plugin_sdk.Args_HashEntry{
-				{
-					Key:   src_key,
-					Value: f_src,
-				},
-				{
-					Key:   dst_key,
-					Value: f_dst,
-				},
-				{
-					Key:   type_key,
-					Value: f_type,
-				},
-			},
-		}
-		entry, _ := anypb.New(hsh)
-		f.Entries = append(f.Entries,
-			&vagrant_plugin_sdk.Args_HashEntry{
-				Key:   f_dst,
-				Value: entry,
-			},
-		)
-	}
-	f_key, _ := anypb.New(&wrapperspb.StringValue{Value: "__synced_folders"})
-	f_value, _ := anypb.New(f)
-	vm_key, _ := anypb.New(&wrapperspb.StringValue{Value: "vm"})
-	vm, _ := anypb.New(&vagrant_plugin_sdk.Args_ConfigData{
-		Data: &vagrant_plugin_sdk.Args_Hash{
-			Entries: []*vagrant_plugin_sdk.Args_HashEntry{
-				{
-					Key:   f_key,
-					Value: f_value,
-				},
-			},
-		},
-	})
-
-	return &vagrant_plugin_sdk.Args_ConfigData{
-		Data: &vagrant_plugin_sdk.Args_Hash{
-			Entries: []*vagrant_plugin_sdk.Args_HashEntry{
-				{
-					Key:   vm_key,
-					Value: vm,
-				},
-			},
-		},
-	}
-}
-
-func testGuestConfig(name string) *vagrant_plugin_sdk.Args_ConfigData {
-	g_key, _ := anypb.New(&wrapperspb.StringValue{Value: "guest"})
-	g_name, _ := anypb.New(&wrapperspb.StringValue{Value: name})
-	vm_key, _ := anypb.New(&wrapperspb.StringValue{Value: "vm"})
-	vm, _ := anypb.New(&vagrant_plugin_sdk.Args_ConfigData{
-		Data: &vagrant_plugin_sdk.Args_Hash{
-			Entries: []*vagrant_plugin_sdk.Args_HashEntry{
-				{
-					Key:   g_key,
-					Value: g_name,
-				},
-			},
-		},
-	})
-
-	return &vagrant_plugin_sdk.Args_ConfigData{
-		Data: &vagrant_plugin_sdk.Args_Hash{
-			Entries: []*vagrant_plugin_sdk.Args_HashEntry{
-				{
-					Key:   vm_key,
-					Value: vm,
-				},
-			},
-		},
-	}
-}
-
 func TestMachineGetExistentBox(t *testing.T) {
 	tp := TestMinimalProject(t)
-	tm, _ := TestMachine(t, tp,
+	tm := TestMachine(t, tp,
 		WithTestTargetConfig(testBoxConfig("test/box")),
+		WithTestTargetProvider("virtualbox"),
 	)
 	testBox := newFullBox(t, testboxBoxData(), tp.basis)
 	testBox.Save()
@@ -402,21 +280,13 @@ func TestMachineSetState(t *testing.T) {
 	}
 }
 
-func syncedFolderPlugin(t *testing.T, name string) *plugin.Plugin {
-	return plugin.TestPlugin(t,
-		BuildTestSyncedFolderPlugin(""),
-		plugin.WithPluginName(name),
-		plugin.WithPluginTypes(component.SyncedFolderType),
-	)
-}
-
 func TestMachineSyncedFolders(t *testing.T) {
 	mySyncedFolder := syncedFolderPlugin(t, "mysyncedfolder")
 	myOtherSyncedFolder := syncedFolderPlugin(t, "myothersyncedfolder")
 
 	type test struct {
 		plugins         []*plugin.Plugin
-		config          *vagrant_plugin_sdk.Args_ConfigData
+		config          *component.ConfigData
 		errors          bool
 		expectedFolders int
 	}
