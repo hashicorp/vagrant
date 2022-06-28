@@ -12,12 +12,17 @@ import (
 // factories, configuration, etc.
 func TestProject(t testing.T, opts ...BasisOption) *Project {
 	b := TestBasis(t, opts...)
-	p, _ := b.LoadProject([]ProjectOption{
+	p, err := b.LoadProject([]ProjectOption{
 		WithProjectRef(&vagrant_plugin_sdk.Ref_Project{
 			Basis: b.Ref().(*vagrant_plugin_sdk.Ref_Basis),
 			Name:  "test-project"},
 		),
 	}...)
+
+	if err != nil {
+		t.Fatal(err)
+	}
+
 	return p
 }
 
@@ -27,11 +32,16 @@ func TestMinimalProject(t testing.T) *Project {
 	pluginManager := plugin.TestManager(t)
 	b := TestBasis(t, WithPluginManager(pluginManager))
 
-	p, _ := b.LoadProject([]ProjectOption{
+	p, err := b.LoadProject([]ProjectOption{
 		WithProjectRef(&vagrant_plugin_sdk.Ref_Project{
 			Basis: b.Ref().(*vagrant_plugin_sdk.Ref_Basis),
 			Name:  "test-project"},
 		),
 	}...)
+
+	if err != nil {
+		t.Fatal(err)
+	}
+
 	return p
 }
