@@ -107,6 +107,10 @@ func (m *Machine) Guest() (g core.Guest, err error) {
 		}
 	}()
 
+	// Note that if we get the guest value from the
+	// local cache, we return it directly to prevent
+	// the seeding and cache registration from happening
+	// again.
 	i := m.cache.Get("guest")
 	if i != nil {
 		return i.(core.Guest), nil
@@ -122,13 +126,13 @@ func (m *Machine) Guest() (g core.Guest, err error) {
 	} else {
 		guestName, ok := vg.(string)
 		if ok {
-			guest, err := m.project.basis.component(m.ctx, component.GuestType, guestName)
+			var guest *Component
+			guest, err = m.project.basis.component(m.ctx, component.GuestType, guestName)
 			if err != nil {
 				return nil, err
 			}
-			if guest != nil {
-				return guest.Value.(core.Guest), nil
-			}
+			g = guest.Value.(core.Guest)
+			return
 		} else {
 			m.logger.Debug("guest name was not a valid string value",
 				"guest", vg,
@@ -388,7 +392,15 @@ func (m *Machine) SyncedFolders() (folders []*core.MachineSyncedFolder, err erro
 			}
 		}
 		if ftype == "" {
-			ftype = "virtualbox" // TODO(spox): use default type function after rebase
+			ftype, err = m.project.DefaultProvider(
+				&core.DefaultProviderOptions{
+					CheckUsable: false,
+					MachineName: m.target.Name,
+				},
+			)
+			if err != nil {
+				return nil, err
+			}
 		}
 
 		lookup := "syncedfolder_" + ftype
