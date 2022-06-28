@@ -2,6 +2,7 @@ package core
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/imdario/mergo"
 
@@ -17,7 +18,7 @@ import (
 // TestTarget returns a fully in-memory and side-effect free Target that
 // can be used for testing. Additional options can be given to provide your own
 // factories, configuration, etc.
-func TestTarget(t testing.T, p *Project, st *vagrant_server.Target) (target *Target) {
+func TestTarget(t testing.T, p *Project, st *vagrant_server.Target, opts ...TestTargetOption) (target *Target) {
 	testingTarget := ptypes.TestTarget(t, st)
 	testingTarget.Project = p.Ref().(*vagrant_plugin_sdk.Ref_Project)
 	_, err := p.basis.client.UpsertTarget(
@@ -44,6 +45,15 @@ func TestTarget(t testing.T, p *Project, st *vagrant_server.Target) (target *Tar
 	}
 
 	if err = p.refreshProject(); err != nil {
+		t.Fatal(err)
+	}
+
+	for _, opt := range opts {
+		if oerr := opt(target); oerr != nil {
+			err = multierror.Append(err, oerr)
+		}
+	}
+	if err != nil {
 		t.Fatal(err)
 	}
 
@@ -86,7 +96,7 @@ func TestMinimalTarget(t testing.T) (target *Target) {
 // TestMachine returns a fully in-memory and side-effect free Machine that
 // can be used for testing. Additional options can be given to provide your own
 // factories, configuration, etc.
-func TestMachine(t testing.T, tp *Project, opts ...TestMachineOption) (machine *Machine) {
+func TestMachine(t testing.T, tp *Project, opts ...TestTargetOption) (machine *Machine) {
 	tt := TestTarget(t, tp, &vagrant_server.Target{})
 	specialized, err := tt.Specialize((*core.Machine)(nil))
 	if err != nil {
@@ -119,17 +129,31 @@ func TestMinimalMachine(t testing.T) (machine *Machine) {
 	return
 }
 
-type TestMachineOption func(*Machine) error
+type TestTargetOption func(interface{}) error
 
-func WithTestTargetConfig(config *component.ConfigData) TestMachineOption {
-	return func(m *Machine) (err error) {
-		return mergo.Merge(m.vagrantfile.root, config)
+func WithTestTargetConfig(config *component.ConfigData) TestTargetOption {
+	return func(raw interface{}) (err error) {
+		switch v := raw.(type) {
+		case *Target:
+			return mergo.Merge(v.vagrantfile.root, config)
+		case *Machine:
+			return mergo.Merge(v.vagrantfile.root, config)
+		default:
+			panic(fmt.Sprintf("Invalid type for TestTargetOption (%T)", raw))
+		}
 	}
 }
 
-func WithTestTargetProvider(provider string) TestMachineOption {
-	return func(m *Machine) (err error) {
-		m.target.Provider = provider
+func WithTestTargetProvider(provider string) TestTargetOption {
+	return func(raw interface{}) (err error) {
+		switch v := raw.(type) {
+		case *Target:
+			v.target.Provider = provider
+		case *Machine:
+			v.target.Provider = provider
+		default:
+			panic(fmt.Sprintf("Invalid type for TestTargetOption (%T)", raw))
+		}
 		return
 	}
 }
