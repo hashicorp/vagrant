@@ -9,7 +9,7 @@ import (
 )
 
 func TestTargetSpecializeMachine(t *testing.T) {
-	tt, _ := TestMinimalTarget(t)
+	tt := TestMinimalTarget(t)
 	specialized, err := tt.Specialize((*core.Machine)(nil))
 	if err != nil {
 		t.Errorf("Specialize function returned an error")
@@ -28,8 +28,8 @@ func TestTargetSpecializeMachine(t *testing.T) {
 
 func TestTargetSpecializeMultiMachine(t *testing.T) {
 	p := TestMinimalProject(t)
-	tt1, _ := TestTarget(t, p, &vagrant_server.Target{Name: "tt1"})
-	tt2, _ := TestTarget(t, p, &vagrant_server.Target{Name: "tt2"})
+	tt1 := TestTarget(t, p, &vagrant_server.Target{Name: "tt1"})
+	tt2 := TestTarget(t, p, &vagrant_server.Target{Name: "tt2"})
 
 	specialized, err := tt1.Specialize((*core.Machine)(nil))
 	if err != nil {
@@ -53,7 +53,7 @@ func TestTargetSpecializeMultiMachine(t *testing.T) {
 }
 
 func TestTargetSpecializeBad(t *testing.T) {
-	tt, _ := TestMinimalTarget(t)
+	tt := TestMinimalTarget(t)
 	specialized, err := tt.Specialize((*core.Project)(nil))
 
 	if err != nil {

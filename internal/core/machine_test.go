@@ -10,15 +10,10 @@ import (
 	"github.com/hashicorp/vagrant/internal/server/proto/vagrant_server"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
-	"google.golang.org/protobuf/types/known/anypb"
-	"google.golang.org/protobuf/types/known/wrapperspb"
 )
 
 func TestMachineSetValidId(t *testing.T) {
-	tm, err := TestMinimalMachine(t)
-	if err != nil {
-		t.Fatal(err)
-	}
+	tm := TestMinimalMachine(t)
 
 	// Set valid id
 	tm.SetID("something")
@@ -41,7 +36,7 @@ func TestMachineSetValidId(t *testing.T) {
 }
 
 func TestMachineSetEmptyId(t *testing.T) {
-	tm, _ := TestMinimalMachine(t)
+	tm := TestMinimalMachine(t)
 	oldId := tm.target.ResourceId
 
 	// Set empty id
@@ -85,7 +80,7 @@ func TestMachineSetEmptyId(t *testing.T) {
 }
 
 func TestMachineSetIdBlankThenSomethingPreservesDataDir(t *testing.T) {
-	tm, _ := TestMinimalMachine(t)
+	tm := TestMinimalMachine(t)
 
 	// Set empty id, followed by a temp id. This is the same thing that happens
 	// in the Docker provider's InitState action
@@ -102,8 +97,8 @@ func TestMachineSetIdBlankThenSomethingPreservesDataDir(t *testing.T) {
 
 func TestMachineGetNonExistentBox(t *testing.T) {
 	tp := TestMinimalProject(t)
-	tm, _ := TestMachine(t, tp,
-		WithTestTargetConfig(testBoxConfig("somename")),
+	tm := TestMachine(t, tp,
+		WithTestTargetConfig(testBoxConfig("somebox")),
 		WithTestTargetProvider("testprovider"),
 	)
 
@@ -144,7 +139,7 @@ func TestMachineGetExistentBox(t *testing.T) {
 
 func TestMachineConfigedGuest(t *testing.T) {
 	type test struct {
-		config *vagrant_plugin_sdk.Args_ConfigData
+		config *component.ConfigData
 		errors bool
 	}
 
@@ -153,7 +148,7 @@ func TestMachineConfigedGuest(t *testing.T) {
 		{config: testGuestConfig("idontexist"), errors: true},
 	}
 	guestMock := BuildTestGuestPlugin("myguest", "")
-	guestMock.On("Detect", mock.AnythingOfType("*core.Machine")).Return(false, nil)
+	guestMock.On("Detect", mock.AnythingOfType("*core.Machine")).Return(true, nil)
 	guestMock.On("Parent").Return("", nil)
 
 	pluginManager := plugin.TestManager(t,
@@ -166,7 +161,7 @@ func TestMachineConfigedGuest(t *testing.T) {
 
 	for _, tc := range tests {
 		tp := TestProject(t, WithPluginManager(pluginManager))
-		tm, _ := TestMachine(t, tp,
+		tm := TestMachine(t, tp,
 			WithTestTargetConfig(tc.config),
 		)
 		guest, err := tm.Guest()
@@ -228,7 +223,7 @@ func TestMachineNoConfigGuest(t *testing.T) {
 		pluginManager := plugin.TestManager(t, tc.plugins...)
 		tp := TestProject(t, WithPluginManager(pluginManager))
 
-		tm, _ := TestMachine(t, tp, WithTestTargetMinimalConfig())
+		tm := TestMachine(t, tp)
 		guest, err := tm.Guest()
 		if tc.errors {
 			require.Error(t, err)
@@ -247,7 +242,7 @@ func TestMachineNoConfigGuest(t *testing.T) {
 }
 
 func TestMachineSetState(t *testing.T) {
-	tm, _ := TestMinimalMachine(t)
+	tm := TestMinimalMachine(t)
 
 	type test struct {
 		id    string
@@ -297,7 +292,7 @@ func TestMachineSyncedFolders(t *testing.T) {
 			errors:  false,
 			config: testSyncedFolderConfig(
 				[]*testSyncedFolder{
-					&testSyncedFolder{
+					{
 						source:      ".",
 						destination: "/vagrant",
 						kind:        "mysyncedfolder",
@@ -312,20 +307,20 @@ func TestMachineSyncedFolders(t *testing.T) {
 			errors:  false,
 			config: testSyncedFolderConfig(
 				[]*testSyncedFolder{
-					&testSyncedFolder{
+					{
 						source:      ".",
 						destination: "/vagrant",
 						kind:        "mysyncedfolder",
 					},
-					&testSyncedFolder{
+					{
 						source:      "./two",
 						destination: "/vagrant-two",
 						kind:        "mysyncedfolder",
 					},
-					&testSyncedFolder{
+					{
 						source:      "./three",
 						destination: "/vagrant-three",
-						kind:        "mysyncedfolder",
+						kind:        "myothersyncedfolder",
 					},
 				},
 			),
@@ -337,20 +332,20 @@ func TestMachineSyncedFolders(t *testing.T) {
 			errors:  true,
 			config: testSyncedFolderConfig(
 				[]*testSyncedFolder{
-					&testSyncedFolder{
+					{
 						source:      ".",
 						destination: "/vagrant",
-						kind:        "mysyncedfolder",
+						kind:        "idontexist",
 					},
-					&testSyncedFolder{
+					{
 						source:      "./two",
 						destination: "/vagrant-two",
 						kind:        "mysyncedfolder",
 					},
-					&testSyncedFolder{
+					{
 						source:      "./three",
 						destination: "/vagrant-three",
-						kind:        "mysyncedfolder",
+						kind:        "myothersyncedfolder",
 					},
 				},
 			),
@@ -360,7 +355,7 @@ func TestMachineSyncedFolders(t *testing.T) {
 	for _, tc := range tests {
 		pluginManager := plugin.TestManager(t, tc.plugins...)
 		tp := TestProject(t, WithPluginManager(pluginManager))
-		tm, _ := TestMachine(t, tp,
+		tm := TestMachine(t, tp,
 			WithTestTargetConfig(tc.config),
 		)
 		folders, err := tm.SyncedFolders()
