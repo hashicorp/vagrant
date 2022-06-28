@@ -105,10 +105,3 @@ func TestBasis(t testing.T, opts ...BasisOption) (b *Basis) {
 	b, _ = NewBasis(context.Background(), append(defaultOpts, opts...)...)
 	return
 }
-
-// func WithTestBasisConfig(config *vagrant_plugin_sdk.Vagrantfile_Vagrantfile) BasisOption {
-// 	return func(m *Basis) (err error) {
-// 		m.basis.Configuration = config
-// 		return
-// 	}
-// }
