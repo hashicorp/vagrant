@@ -88,7 +88,7 @@ describe VagrantPlugins::CommandServe::Service::GuestService do
     end
 
     after do
-      VagrantPlugins::CommandServe::Service.cache.clear
+      VagrantPlugins::CommandServe.cache.clear
     end
 
     it "generates a spec" do
