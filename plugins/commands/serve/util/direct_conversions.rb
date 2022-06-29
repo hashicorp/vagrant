@@ -564,6 +564,14 @@ class Hashicorp::Vagrant::Sdk::Args::Target::Machine
   end
 end
 
+class Hashicorp::Vagrant::Sdk::Args::Target::Machine::State
+  def to_ruby
+    Vagrant::MachineState.new(
+      m.id.to_sym, m.short_description, m.long_description
+    )
+  end
+end
+
 class Hashicorp::Vagrant::Sdk::Args::TargetIndex
   def to_ruby
     _vagrant_load_client(VagrantPlugins::CommandServe::Client::TargetIndex)

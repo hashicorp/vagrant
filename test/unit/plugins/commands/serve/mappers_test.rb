@@ -23,7 +23,8 @@ describe VagrantPlugins::CommandServe::Mappers do
       )
       output = subject.map(input, to: Hash)
 
-      expect(output).to eq({error_check: false})
+      expect(output["error_check"]).to eq(false)
+      expect(output[:error_check]).to eq(false)
     end
   end
 

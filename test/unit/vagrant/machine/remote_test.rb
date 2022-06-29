@@ -11,6 +11,7 @@ describe Vagrant::Machine::Remote do
   # difference is the above klass is used so we can prepend the remote stuff
 
   let(:name)     { "foo" }
+  let(:ui) { double(:ui) }
   let(:provider) { new_provider_mock }
   let(:provider_cls) do
     obj = double("provider_cls")
@@ -26,6 +27,16 @@ describe Vagrant::Machine::Remote do
       allow(b).to receive(:name).and_return("foo")
       allow(b).to receive(:provider).and_return(:dummy)
       allow(b).to receive(:version).and_return("1.0")
+    end
+  end
+  let(:config) do
+    double("config").tap do |c|
+      allow(c).to receive(:trigger).and_return( double(:trigger) )
+    end
+  end
+  let(:vagrantfile) do
+    double("vagrantfile").tap do |v|
+      allow(v).to receive(:config).and_return( config )
     end
   end
 
@@ -70,7 +81,7 @@ describe Vagrant::Machine::Remote do
   def new_instance
     klass.new(name, provider_name, provider_cls, provider_config,
                         provider_options, config, data_dir, box,
-                        env, env.vagrantfile, base)
+                        env, env.vagrantfile, base, client: client)
   end
 
   # == Machine::Remote Setup
@@ -80,12 +91,17 @@ describe Vagrant::Machine::Remote do
 
 
   before do
+    allow(env).to receive(:ui).and_return(ui)
     allow(env).to receive(:get_target) { client }
     allow(client).to receive(:box) { box }
     allow(client).to receive(:data_dir) { data_dir }
     allow(client).to receive(:name) { name }
     allow(client).to receive(:provider_name) { provider_name }
     allow(client).to receive(:provider) { nil }
+    allow(client).to receive(:environment) { env }
+    allow(client).to receive(:vagrantfile) { vagrantfile }
+    allow(ui).to receive(:machine)
+
     allow(Vagrant.plugin("2").remote_manager).to receive(:providers) { {provider_name => provider_cls} }
   end
 
