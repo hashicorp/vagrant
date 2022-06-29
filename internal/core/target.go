@@ -270,8 +270,6 @@ func (t *Target) Save() (err error) {
 		"name", t.target.Name,
 	)
 
-	t.target.Configuration, err = t.vagrantfile.rootToStore()
-
 	result, uerr := t.Client().UpsertTarget(t.ctx, &vagrant_server.UpsertTargetRequest{
 		Target: t.target})
 	if uerr != nil {
@@ -462,6 +460,13 @@ func (t *Target) doOperation(
 
 // Initialize the target instance
 func (t *Target) init() (err error) {
+	// As long as no error is encountered,
+	// update the target configuration.
+	defer func() {
+		if err == nil {
+			t.target.Configuration, err = t.vagrantfile.rootToStore()
+		}
+	}()
 	t.logger.Info("running init on target", "target", t.target.Name)
 	// Name or resource id is required for a target to be loaded
 	if t.target.Name == "" && t.target.ResourceId == "" {
@@ -555,7 +560,6 @@ type TargetOption func(*Target) error
 func WithTargetVagrantfile(v *Vagrantfile) TargetOption {
 	return func(t *Target) (err error) {
 		t.vagrantfile = v
-		t.target.Configuration, err = v.rootToStore()
 		return
 	}
 }
