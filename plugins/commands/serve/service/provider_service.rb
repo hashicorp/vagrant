@@ -140,6 +140,16 @@ module VagrantPlugins
           machine.env.action_runner.run(callable, env)
         end
 
+        def capability_arguments(args)
+          target, direct = args
+          nargs = direct.args.dup
+          if !nargs.first.is_a?(Vagrant::Machine)
+            nargs.unshift(mapper.map(target, to: Vagrant::Machine))
+          end
+
+          nargs
+        end
+
         def load_provider(klass, machine)
           key = cache.key(klass, machine)
           return cache.get(key) if cache.registered?(key)
