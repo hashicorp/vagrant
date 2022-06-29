@@ -69,6 +69,16 @@ module VagrantPlugins
           parse_item_to_proto(config.vm.get_provider_overrides(provider))
         end
 
+        def get_commands(req, _)
+          s = CommandService.new(broker: :stub)
+          infos = Vagrant.plugin("2").local_manager.commands.keys.map do |n|
+            s.send(:collect_command_info, n.to_s, [])
+          end
+          Hashicorp::Vagrant::GetCommandsResponse.new(
+            commands: infos,
+          )
+        end
+
         def parse_item(item)
           loader = Vagrant::Config::Loader.new(
             Vagrant::Config::VERSIONS,
