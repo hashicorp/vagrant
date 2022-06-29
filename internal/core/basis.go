@@ -620,6 +620,7 @@ func (b *Basis) LoadProject(popts ...ProjectOption) (p *Project, err error) {
 	// Create our project
 	p = &Project{
 		ctx:     b.ctx,
+		cleanup: cleanup.New(),
 		basis:   b,
 		logger:  b.logger,
 		mappers: b.mappers,
