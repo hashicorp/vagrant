@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"sort"
 	"strings"
 	"sync"
 
@@ -12,6 +13,7 @@ import (
 	"github.com/hashicorp/go-hclog"
 	"github.com/hashicorp/go-multierror"
 	goplugin "github.com/hashicorp/go-plugin"
+	"github.com/pkg/errors"
 	"google.golang.org/protobuf/proto"
 
 	"github.com/hashicorp/vagrant-plugin-sdk/component"
@@ -402,6 +404,96 @@ func (b *Basis) DataDir() (*datadir.Basis, error) {
 // DefaultPrivateKey implements core.Basis
 func (b *Basis) DefaultPrivateKey() (path path.Path, err error) {
 	return b.dir.DataDir().Join("insecure_private_key"), nil
+}
+
+// DefaultProvider implements core.Basis
+// This is a subset of the Project.DefaultProvider() algorithm, just the parts
+// that make sense when you don't have a Vagrantfile
+func (b *Basis) DefaultProvider() (string, error) {
+	logger := b.logger.Named("default-provider")
+	logger.Debug("Searching for default provider")
+
+	defaultProvider := os.Getenv("VAGRANT_DEFAULT_PROVIDER")
+	if defaultProvider != "" {
+		logger.Debug("Using VAGRANT_DEFAULT_PROVIDER", "provider", defaultProvider)
+		return defaultProvider, nil
+	}
+
+	usableProviders := []*core.NamedPlugin{}
+	pluginProviders, err := b.plugins.ListPlugins("provider")
+	if err != nil {
+		return "", err
+	}
+	for _, pp := range pluginProviders {
+		logger.Debug("considering plugin", "provider", pp.Name)
+
+		plug, err := b.plugins.GetPlugin(pp.Name, pp.Type)
+		if err != nil {
+			return "", err
+		}
+
+		plugOpts := plug.Options.(*component.ProviderOptions)
+		logger.Debug("got provider options", "options", fmt.Sprintf("%#v", plugOpts))
+
+		// Skip providers that can't be defaulted.
+		if !plugOpts.Defaultable {
+			logger.Debug("skipping non-defaultable provider", "provider", pp.Name)
+			continue
+		}
+
+		// Skip the providers that aren't usable.
+		logger.Debug("Checking usable on provider", "provider", pp.Name)
+		pluginImpl := plug.Plugin.(core.Provider)
+		usable, err := pluginImpl.Usable()
+		if err != nil {
+			return "", err
+		}
+		if !usable {
+			logger.Debug("Skipping unusable provider", "provider", pp.Name)
+			continue
+		}
+
+		// If we made it here we have a candidate usable provider
+		usableProviders = append(usableProviders, plug)
+	}
+	logger.Debug("Initial usable provider list", "usableProviders", usableProviders)
+
+	// Sort by plugin priority, higher is first
+	sort.SliceStable(usableProviders, func(i, j int) bool {
+		iPriority := usableProviders[i].Options.(*component.ProviderOptions).Priority
+		jPriority := usableProviders[j].Options.(*component.ProviderOptions).Priority
+		return iPriority > jPriority
+	})
+	logger.Debug("Priority sorted usable provider list", "usableProviders", usableProviders)
+
+	preferredProviders := strings.Split(os.Getenv("VAGRANT_PREFERRED_PROVIDERS"), ",")
+	k := 0
+	for _, pp := range preferredProviders {
+		spp := strings.TrimSpace(pp) // .map { s.strip }
+		if spp != "" {               // .select { !s.empty? }
+			preferredProviders[k] = spp
+			k++
+		}
+	}
+	preferredProviders = preferredProviders[:k]
+
+	for _, pp := range preferredProviders {
+		for _, up := range usableProviders {
+			if pp == up.Name {
+				logger.Debug("Using preffered provider found in usable list",
+					"provider", pp)
+				return pp, nil
+			}
+		}
+	}
+
+	if len(usableProviders) > 0 {
+		logger.Debug("Using the first provider from the usable list",
+			"provider", usableProviders[0])
+		return usableProviders[0].Name, nil
+	}
+
+	return "", errors.New("No default provider.")
 }
 
 // Implements core.Basis
@@ -799,6 +891,10 @@ func (b *Basis) SaveFull() (err error) {
 
 func (b *Basis) TargetIndex() (core.TargetIndex, error) {
 	return b.index, nil
+}
+
+func (b *Basis) Vagrantfile() (core.Vagrantfile, error) {
+	return b.vagrantfile, nil
 }
 
 // Returns the list of all known components

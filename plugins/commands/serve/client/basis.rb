@@ -30,11 +30,20 @@ module VagrantPlugins
           resp.path
         end
 
+        def default_provider(**opts)
+          resp = client.default_provider(Empty.new)
+          resp.provider_name.to_sym
+        end
+
         def target_index
           TargetIndex.load(
             client.target_index(Empty.new),
             broker: broker
           )
+        end
+
+        def vagrantfile
+          client.vagrantfile(Empty.new).to_ruby
         end
 
         # @return [Terminal]

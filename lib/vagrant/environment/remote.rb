@@ -102,7 +102,7 @@ module Vagrant
       end
 
       def default_provider(**opts)
-        client.respond_to?(:default_provider) && client.default_provider(opts)
+        client.default_provider(**opts)
       end
 
       # Gets a target (machine) by name

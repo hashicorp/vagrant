@@ -356,14 +356,16 @@ module Hashicorp
           self.unmarshal_class_method = :decode
           self.service_name = 'hashicorp.vagrant.sdk.BasisService'
 
+          rpc :Boxes, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::Args::BoxCollection
           rpc :CWD, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::Args::Path
           rpc :DataDir, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::Args::DataDir::Basis
           rpc :DefaultPrivateKey, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::Args::Path
-          rpc :UI, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::Args::TerminalUI
+          rpc :DefaultProvider, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::Basis::DefaultProviderResponse
           rpc :Host, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::Args::Host
-          rpc :Boxes, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::Args::BoxCollection
-          rpc :TargetIndex, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::Args::TargetIndex
           rpc :ResourceId, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::Basis::ResourceIdResponse
+          rpc :TargetIndex, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::Args::TargetIndex
+          rpc :Vagrantfile, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::Args::Vagrantfile
+          rpc :UI, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::Args::TerminalUI
           rpc :Seed, ::Hashicorp::Vagrant::Sdk::Args::Seeds, ::Google::Protobuf::Empty
           rpc :Seeds, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::Args::Seeds
         end
