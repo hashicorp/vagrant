@@ -37,7 +37,6 @@ module VagrantPlugins
           end
 
           # @return [Guest] machine guest
-          # TODO: This needs to be loaded properly
           def guest
             g = client.guest(Empty.new)
             Guest.load(g, broker: broker)

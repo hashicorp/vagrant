@@ -8,7 +8,7 @@ module VagrantPlugins
           logger.debug("generating ready spec")
           funcspec(
             args: [
-              SDK::Target::Machine,
+              SDK::Args::Target::Machine,
             ],
             result: SDK::Communicator::ReadyResp,
           )

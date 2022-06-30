@@ -138,6 +138,14 @@ func TestMachineGetExistentBox(t *testing.T) {
 }
 
 func TestMachineConfigedGuest(t *testing.T) {
+	commMock := BuildTestCommunicatorPlugin("ssh")
+	commMock.On("Ready", mock.AnythingOfType("*core.Machine")).Return(true, nil)
+	commPlugin := plugin.TestPlugin(t,
+		commMock,
+		plugin.WithPluginName("ssh"),
+		plugin.WithPluginTypes(component.CommunicatorType),
+	)
+
 	type test struct {
 		config *component.ConfigData
 		errors bool
@@ -157,6 +165,7 @@ func TestMachineConfigedGuest(t *testing.T) {
 			plugin.WithPluginName("myguest"),
 			plugin.WithPluginTypes(component.GuestType),
 		),
+		commPlugin,
 	)
 
 	for _, tc := range tests {
@@ -178,6 +187,14 @@ func TestMachineConfigedGuest(t *testing.T) {
 }
 
 func TestMachineNoConfigGuest(t *testing.T) {
+	commMock := BuildTestCommunicatorPlugin("ssh")
+	commMock.On("Ready", mock.AnythingOfType("*core.Machine")).Return(true, nil)
+	commPlugin := plugin.TestPlugin(t,
+		commMock,
+		plugin.WithPluginName("ssh"),
+		plugin.WithPluginTypes(component.CommunicatorType),
+	)
+
 	guestMock := BuildTestGuestPlugin("myguest", "")
 	guestMock.On("Detect", mock.AnythingOfType("*core.Machine")).Return(true, nil)
 	guestMock.On("Parent").Return("", nil)
@@ -211,12 +228,12 @@ func TestMachineNoConfigGuest(t *testing.T) {
 	}
 
 	tests := []test{
-		{plugins: []*plugin.Plugin{detectingPlugin}, errors: false, expectedPluginName: "myguest"},
-		{plugins: []*plugin.Plugin{detectingChildPlugin}, errors: true, expectedPluginName: "myguest-child"},
-		{plugins: []*plugin.Plugin{detectingChildPlugin, detectingPlugin}, errors: false, expectedPluginName: "myguest-child"},
-		{plugins: []*plugin.Plugin{detectingPlugin, nonDetectingPlugin}, errors: false, expectedPluginName: "myguest"},
-		{plugins: []*plugin.Plugin{nonDetectingPlugin}, errors: true},
-		{plugins: []*plugin.Plugin{}, errors: true},
+		{plugins: []*plugin.Plugin{commPlugin, detectingPlugin}, errors: false, expectedPluginName: "myguest"},
+		{plugins: []*plugin.Plugin{commPlugin, detectingChildPlugin}, errors: true, expectedPluginName: "myguest-child"},
+		{plugins: []*plugin.Plugin{commPlugin, detectingChildPlugin, detectingPlugin}, errors: false, expectedPluginName: "myguest-child"},
+		{plugins: []*plugin.Plugin{commPlugin, detectingPlugin, nonDetectingPlugin}, errors: false, expectedPluginName: "myguest"},
+		{plugins: []*plugin.Plugin{commPlugin, nonDetectingPlugin}, errors: true},
+		{plugins: []*plugin.Plugin{commPlugin}, errors: true},
 	}
 
 	for _, tc := range tests {
@@ -230,13 +247,13 @@ func TestMachineNoConfigGuest(t *testing.T) {
 			require.Nil(t, guest)
 			require.Nil(t, tm.cache.Get("guest"))
 		} else {
+			require.NoError(t, err)
+			require.NotNil(t, guest)
+			require.NotNil(t, tm.cache.Get("guest"))
 			n, _ := guest.PluginName()
 			if n != tc.expectedPluginName {
 				t.Error("Found unexpected plugin, ", n)
 			}
-			require.NoError(t, err)
-			require.NotNil(t, guest)
-			require.NotNil(t, tm.cache.Get("guest"))
 		}
 	}
 }

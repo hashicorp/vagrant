@@ -98,6 +98,17 @@ func (m *Machine) Box() (b core.Box, err error) {
 
 // Guest implements core.Machine
 func (m *Machine) Guest() (g core.Guest, err error) {
+	comm, err := m.Communicate()
+	if err != nil {
+		return nil, err
+	}
+	isReady, err := comm.Ready(m)
+	if err != nil {
+		return nil, err
+	}
+	if !isReady {
+		return nil, fmt.Errorf("unable to communicate with guest")
+	}
 	defer func() {
 		if g != nil {
 			err = seedPlugin(g, m)
