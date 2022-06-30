@@ -30,6 +30,8 @@ import (
 	"github.com/hashicorp/vagrant/internal/serverclient"
 )
 
+const DEFAULT_COMMUNICATOR_NAME = "ssh"
+
 type Target struct {
 	ctx     context.Context
 	target  *vagrant_server.Target
@@ -145,9 +147,20 @@ func (t *Target) Communicate() (c core.Communicator, err error) {
 		c = i.(core.Communicator)
 		return
 	}
-	// TODO: get the communicator name from the Vagrantfile
-	//       eg. t.target.Configuration.ConfigVm.Communicator
-	communicatorName := "ssh"
+	communicatorName := ""
+	rawCommunicatorName, err := t.vagrantfile.GetValue("vm", "communicator")
+	// If there is an error getting the communicator, default to using the ssh communicator
+	if err != nil {
+		communicatorName = DEFAULT_COMMUNICATOR_NAME
+	}
+	if rawCommunicatorName == nil {
+		communicatorName = DEFAULT_COMMUNICATOR_NAME
+	} else {
+		communicatorName, err = optionToString(rawCommunicatorName)
+		if err != nil {
+			return nil, err
+		}
+	}
 	communicator, err := t.project.basis.component(
 		t.ctx, component.CommunicatorType, communicatorName)
 

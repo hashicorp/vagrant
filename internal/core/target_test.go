@@ -3,7 +3,9 @@ package core
 import (
 	"testing"
 
+	"github.com/hashicorp/vagrant-plugin-sdk/component"
 	"github.com/hashicorp/vagrant-plugin-sdk/core"
+	"github.com/hashicorp/vagrant/internal/plugin"
 	"github.com/hashicorp/vagrant/internal/server/proto/vagrant_server"
 	"github.com/stretchr/testify/require"
 )
@@ -62,5 +64,48 @@ func TestTargetSpecializeBad(t *testing.T) {
 
 	if specialized != nil {
 		t.Errorf("Should not specialize to an unsupported type")
+	}
+}
+
+func TestTargetConfigedCommunicator(t *testing.T) {
+	type test struct {
+		config *component.ConfigData
+		errors bool
+	}
+
+	tests := []test{
+		{config: testCommunicatorConfig("winrm"), errors: false},
+		{config: testSyncedFolderConfig([]*testSyncedFolder{}), errors: false},
+		{config: testCommunicatorConfig("idontexist"), errors: true},
+	}
+	communicatorMockSSH := BuildTestCommunicatorPlugin("ssh")
+	communicatorMockWinRM := BuildTestCommunicatorPlugin("winrm")
+
+	pluginManager := plugin.TestManager(t,
+		plugin.TestPlugin(t,
+			communicatorMockSSH,
+			plugin.WithPluginName("ssh"),
+			plugin.WithPluginTypes(component.CommunicatorType),
+		),
+		plugin.TestPlugin(t,
+			communicatorMockWinRM,
+			plugin.WithPluginName("winrm"),
+			plugin.WithPluginTypes(component.CommunicatorType),
+		),
+	)
+
+	for _, tc := range tests {
+		tp := TestProject(t, WithPluginManager(pluginManager))
+		tm := TestMachine(t, tp,
+			WithTestTargetConfig(tc.config),
+		)
+		comm, err := tm.Communicate()
+		if tc.errors {
+			require.Error(t, err)
+			require.Nil(t, comm)
+		} else {
+			require.NoError(t, err)
+			require.NotNil(t, comm)
+		}
 	}
 }
