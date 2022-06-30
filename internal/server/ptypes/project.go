@@ -19,7 +19,7 @@ func TestProject(t testing.T, src *vagrant_server.Project) *vagrant_server.Proje
 	}
 
 	require.NoError(t, mergo.Merge(src, &vagrant_server.Project{
-		Name: "test",
+		Name:  "test",
 		Basis: &vagrant_plugin_sdk.Ref_Basis{},
 	}))
 
@@ -84,8 +84,9 @@ func (p *Project) DeleteTargetRef(m *vagrant_plugin_sdk.Ref_Target) bool {
 	if i < 0 {
 		return false
 	}
-	ms := p.Project.Targets
-	ms[len(ms)-1], ms[i] = ms[i], ms[len(ms)-1]
+	ms := make([]*vagrant_plugin_sdk.Ref_Target, len(p.Project.Targets)-1)
+	copy(ms[0:], p.Project.Targets[0:i])
+	copy(ms[i:], p.Project.Targets[i+1:])
 	p.Project.Targets = ms
 	return true
 }

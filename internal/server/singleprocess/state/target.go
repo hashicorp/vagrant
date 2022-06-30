@@ -282,7 +282,7 @@ func (s *State) targetDelete(
 
 	pp := serverptypes.Project{Project: p}
 	if pp.DeleteTargetRef(ref) {
-		if err = s.projectPut(dbTxn, memTxn, p); err != nil {
+		if err = s.projectPut(dbTxn, memTxn, pp.Project); err != nil {
 			return
 		}
 	}

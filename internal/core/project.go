@@ -24,6 +24,7 @@ import (
 	"github.com/hashicorp/vagrant-plugin-sdk/helper/path"
 	"github.com/hashicorp/vagrant-plugin-sdk/helper/paths"
 	"github.com/hashicorp/vagrant-plugin-sdk/internal-shared/cacher"
+	"github.com/hashicorp/vagrant-plugin-sdk/internal-shared/cleanup"
 	"github.com/hashicorp/vagrant-plugin-sdk/proto/vagrant_plugin_sdk"
 	"github.com/hashicorp/vagrant-plugin-sdk/terminal"
 
@@ -52,8 +53,8 @@ type Project struct {
 	// This lock only needs to be held currently to protect closers.
 	m sync.Mutex
 
-	// The below are resources we need to close when Close is called, if non-nil
-	closers []func() error
+	// Registered actions for cleanup on close
+	cleanup cleanup.Cleanup
 
 	// UI is the terminal UI to use for messages related to the project
 	// as a whole. These messages will show up unprefixed for example compared
@@ -604,7 +605,7 @@ func (p *Project) seed(fn func(*core.Seeds)) {
 
 // Register functions to be called when closing this project
 func (p *Project) Closer(c func() error) {
-	p.closers = append(p.closers, c)
+	p.cleanup.Do(c)
 }
 
 // Close is called to clean up resources allocated by the project.
@@ -613,31 +614,11 @@ func (p *Project) Close() (err error) {
 	p.logger.Debug("closing project",
 		"project", p)
 
-	// close all the loaded targets
-	for name, m := range p.targets {
-		p.logger.Trace("closing target",
-			"target", name)
-
-		if cerr := m.Close(); cerr != nil {
-			p.logger.Warn("error closing target",
-				"target", name,
-				"err", cerr)
-
-			err = multierror.Append(err, cerr)
-		}
-	}
-
-	for _, f := range p.closers {
-		if cerr := f(); cerr != nil {
-			p.logger.Warn("error executing closer",
-				"error", cerr)
-
-			err = multierror.Append(err, cerr)
-		}
-	}
-	// Remove this project from built project list in basis
+	// Remove this project from basis project list
 	delete(p.basis.projects, p.Name())
-	return
+	delete(p.basis.projects, p.project.ResourceId)
+
+	return p.cleanup.Close()
 }
 
 // Saves the project to the db
@@ -723,12 +704,15 @@ func (p *Project) InitTargets() (err error) {
 	for _, t := range p.project.Targets {
 		existingTargets = append(existingTargets, t.Name)
 	}
-	p.logger.Trace("known targets within project",
-		"project", p.Name(),
-		"targets", existingTargets,
+
+	p.logger.Trace("targets associated with project",
+		"project", p,
+		"existing", existingTargets,
+		"defined", targets,
 	)
 
 	updated := false
+	seen := map[string]struct{}{}
 	for _, t := range targets {
 		_, err = p.createTarget(t)
 		if err != nil {
@@ -740,7 +724,47 @@ func (p *Project) InitTargets() (err error) {
 
 			return
 		}
+		seen[t] = struct{}{}
 		updated = true
+	}
+
+	// If any existing targets are not in the defined list and are
+	// not in a created state, delete them as they were removed
+	// from the vagrantfile
+	for _, existName := range existingTargets {
+		if _, ok := seen[existName]; ok {
+			continue
+		}
+		resp, err := p.Client().FindTarget(p.ctx,
+			&vagrant_server.FindTargetRequest{
+				Target: &vagrant_server.Target{
+					Name:    existName,
+					Project: p.Ref().(*vagrant_plugin_sdk.Ref_Project),
+				},
+			},
+		)
+		if err != nil {
+			return err
+		}
+		// If the state is not created or unknown, remove it
+		if resp.Target.State == vagrant_server.Operation_NOT_CREATED ||
+			resp.Target.State == vagrant_server.Operation_UNKNOWN {
+			_, err := p.Client().DeleteTarget(p.ctx,
+				&vagrant_server.DeleteTargetRequest{
+					Target: &vagrant_plugin_sdk.Ref_Target{
+						Name:       existName,
+						ResourceId: resp.Target.ResourceId,
+						Project:    p.Ref().(*vagrant_plugin_sdk.Ref_Project),
+					},
+				},
+			)
+			if err != nil && status.Code(err) != codes.NotFound {
+				return err
+			} else {
+				err = nil
+			}
+			updated = true
+		}
 	}
 
 	if updated {
