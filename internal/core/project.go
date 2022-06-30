@@ -704,12 +704,15 @@ func (p *Project) InitTargets() (err error) {
 	for _, t := range p.project.Targets {
 		existingTargets = append(existingTargets, t.Name)
 	}
-	p.logger.Trace("known targets within project",
-		"project", p.Name(),
-		"targets", existingTargets,
+
+	p.logger.Trace("targets associated with project",
+		"project", p,
+		"existing", existingTargets,
+		"defined", targets,
 	)
 
 	updated := false
+	seen := map[string]struct{}{}
 	for _, t := range targets {
 		_, err = p.createTarget(t)
 		if err != nil {
@@ -721,7 +724,47 @@ func (p *Project) InitTargets() (err error) {
 
 			return
 		}
+		seen[t] = struct{}{}
 		updated = true
+	}
+
+	// If any existing targets are not in the defined list and are
+	// not in a created state, delete them as they were removed
+	// from the vagrantfile
+	for _, existName := range existingTargets {
+		if _, ok := seen[existName]; ok {
+			continue
+		}
+		resp, err := p.Client().FindTarget(p.ctx,
+			&vagrant_server.FindTargetRequest{
+				Target: &vagrant_server.Target{
+					Name:    existName,
+					Project: p.Ref().(*vagrant_plugin_sdk.Ref_Project),
+				},
+			},
+		)
+		if err != nil {
+			return err
+		}
+		// If the state is not created or unknown, remove it
+		if resp.Target.State == vagrant_server.Operation_NOT_CREATED ||
+			resp.Target.State == vagrant_server.Operation_UNKNOWN {
+			_, err := p.Client().DeleteTarget(p.ctx,
+				&vagrant_server.DeleteTargetRequest{
+					Target: &vagrant_plugin_sdk.Ref_Target{
+						Name:       existName,
+						ResourceId: resp.Target.ResourceId,
+						Project:    p.Ref().(*vagrant_plugin_sdk.Ref_Project),
+					},
+				},
+			)
+			if err != nil && status.Code(err) != codes.NotFound {
+				return err
+			} else {
+				err = nil
+			}
+			updated = true
+		}
 	}
 
 	if updated {
