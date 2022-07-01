@@ -660,6 +660,9 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
     add_message "hashicorp.vagrant.sdk.Basis.ResourceIdResponse" do
       optional :resource_id, :string, 1
     end
+    add_message "hashicorp.vagrant.sdk.Basis.DefaultProviderResponse" do
+      optional :provider_name, :string, 1
+    end
     add_message "hashicorp.vagrant.sdk.Target" do
     end
     add_message "hashicorp.vagrant.sdk.Target.ResourceIdResponse" do
@@ -1164,6 +1167,7 @@ module Hashicorp
       Ref::Machine = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Ref.Machine").msgclass
       Basis = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Basis").msgclass
       Basis::ResourceIdResponse = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Basis.ResourceIdResponse").msgclass
+      Basis::DefaultProviderResponse = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Basis.DefaultProviderResponse").msgclass
       Target = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Target").msgclass
       Target::ResourceIdResponse = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Target.ResourceIdResponse").msgclass
       Target::RecordResponse = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Target.RecordResponse").msgclass
