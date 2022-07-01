@@ -52,6 +52,12 @@ module VagrantPlugins
 
         def parse_vagrantfile_subvm(req, _)
           subvm = mapper.map(req.subvm)
+          # If the subvm has no custom configuration, just return an empty result
+          if subvm.config_procs.empty?
+            return Hashicorp::Vagrant::ParseVagrantfileResponse.new(
+              data: SDK::Args::Hash.new(entries: [])
+            )
+          end
 
           parse_item_to_proto(subvm.config_procs)
         end
@@ -59,14 +65,26 @@ module VagrantPlugins
         def parse_vagrantfile_provider(req, _)
           subvm = mapper.map(req.subvm)
           provider = req.provider.to_sym
-          config = parse_item(subvm.config_procs)
 
+          # If the subvm has no custom configuration, just return an empty result
+          if subvm.config_procs.empty?
+            return Hashicorp::Vagrant::ParseVagrantfileResponse.new(
+              data: SDK::Args::Hash.new(entries: [])
+            )
+          end
+
+          config = parse_item(subvm.config_procs)
           overrides = config.vm.get_provider_overrides(provider)
 
-          return Hashicorp::Vagrant::ParseVagrantfileResponse.new(data: SDK::Args::Hash.new(entries: [])) if
-            overrides.empty?
+          # If the overrides are empty then no overrides were provided, just return
+          # an empty result
+          if overrides.empty?
+            return Hashicorp::Vagrant::ParseVagrantfileResponse.new(
+              data: SDK::Args::Hash.new(entries: [])
+            )
+          end
 
-          parse_item_to_proto(config.vm.get_provider_overrides(provider))
+          parse_item_to_proto(overrides)
         end
 
         def parse_item(item)
