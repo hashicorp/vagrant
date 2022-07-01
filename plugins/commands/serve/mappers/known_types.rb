@@ -171,7 +171,7 @@ module VagrantPlugins
 
         def converter(proto, mapper)
           begin
-            h = Hash.new.tap do |result|
+            Hash.new.tap do |result|
               proto.entries.each do |entry|
                 # Convert our key and value to native types
                 k = mapper.map(entry.key)
@@ -183,7 +183,6 @@ module VagrantPlugins
                 result[k] = v
               end
             end
-            Vagrant::Util::HashWithIndifferentAccess.new(h)
           rescue => err
             logger.error { "proto mapping to hash failed: #{err}" }
             raise
