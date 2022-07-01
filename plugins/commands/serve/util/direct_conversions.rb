@@ -399,7 +399,7 @@ class Hashicorp::Vagrant::Sdk::Args::Hash
       data[key] = value.is_a?(VagrantPlugins::CommandServe::Type) ? value.value : value
     end
 
-    Vagrant::Util::HashWithIndifferentAccess.new(data)
+    data
   end
 end
 
