@@ -444,7 +444,7 @@ func (m *Machine) SyncedFolders() (folders []*core.MachineSyncedFolder, err erro
 			return nil, err
 		}
 
-		opts := map[string]interface{}{}
+		opts := map[interface{}]interface{}{}
 		for k, v := range options {
 			key, err := optionToString(k)
 			if err != nil {
