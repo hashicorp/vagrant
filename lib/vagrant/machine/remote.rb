@@ -1,9 +1,12 @@
 require 'ostruct'
+require "vagrant/util/scoped_hash_override"
 
 module Vagrant
   class Machine
     # This module enables the Machine for server mode
     module Remote
+
+      include Vagrant::Util::ScopedHashOverride
 
       # Add an attribute reader for the client
       # when applied to the Machine class
@@ -298,8 +301,9 @@ module Vagrant
             impl = :virtualbox
           end
           sf = Vagrant::Plugin::Remote::SyncedFolder.new(client: f[:plugin])
+          folder_opts = scoped_hash_override(f[:folder], impl)
           # Set plugin, guestpath and hostpath from synced folder info
-          new_folder = {f[:folder][:destination] => f[:folder].merge({
+          new_folder = {f[:folder][:destination] => folder_opts.merge({
             plugin: sf,
             guestpath: f[:folder][:destination],
             hostpath: f[:folder][:source],
