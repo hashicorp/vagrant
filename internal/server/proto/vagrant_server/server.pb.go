@@ -9686,8 +9686,7 @@ func (*GetJobStreamResponse_Terminal_Event_Raw_) isGetJobStreamResponse_Terminal
 
 func (*GetJobStreamResponse_Terminal_Event_Table_) isGetJobStreamResponse_Terminal_Event_Event() {}
 
-func (*GetJobStreamResponse_Terminal_Event_StepGroup_) isGetJobStreamResponse_Terminal_Event_Event() {
-}
+func (*GetJobStreamResponse_Terminal_Event_StepGroup_) isGetJobStreamResponse_Terminal_Event_Event() {}
 
 func (*GetJobStreamResponse_Terminal_Event_Step_) isGetJobStreamResponse_Terminal_Event_Event() {}
 
