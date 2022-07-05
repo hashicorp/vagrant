@@ -118,11 +118,9 @@ module VagrantPlugins
           end
 
           def _cleaned_folder_hash(folder)
-            folder_hash = folder.to_h
-            folder_hash.delete_if do |k, v|
-              hazzer = :"has_#{k}?"
-              folder.respond_to?(hazzer) && !folder.send(hazzer)
-            end
+            folder_hash = folder.options.to_ruby.transform_keys(&:to_sym)
+            folder_hash[:source] = folder.source
+            folder_hash[:destination] = folder.destination
             folder_hash
           end
         end

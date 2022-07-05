@@ -7,7 +7,7 @@ module Vagrant
   module Action
     module Builtin
       module MixinSyncedFolders
-        autoload :Remote, "vagrant/action/builtin/remote/mixin_synced_folderse"
+        autoload :Remote, "vagrant/action/builtin/remote/mixin_synced_folders"
 
         include Vagrant::Util::ScopedHashOverride
 
