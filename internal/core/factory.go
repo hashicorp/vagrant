@@ -85,8 +85,10 @@ func (f *Factory) NewBasis(resourceId string, opts ...BasisOption) (*Basis, erro
 	// Now that we have the basis information loaded, check if
 	// we have a cached version and return that if so
 	if existingB, ok := f.cache.Fetch(b.basis.ResourceId); ok {
-		f.logger.Info("there was an existing basis so closing the new one")
-		b.Close()
+		f.logger.Debug("found existing basis in cache, closing new instance")
+		if err := b.Close(); err != nil {
+			return nil, err
+		}
 
 		return existingB.(*Basis), nil
 	}
@@ -152,6 +154,7 @@ func (f *Factory) NewProject(popts ...ProjectOption) (*Project, error) {
 	// Check if we already have an instance loaded
 	if p.project.ResourceId != "" {
 		if project, ok := f.cache.Fetch(p.project.ResourceId); ok {
+			f.logger.Debug("found existing project in cache, closing new instance")
 			if err = p.Close(); err != nil {
 				return nil, err
 			}
@@ -215,6 +218,7 @@ func (f *Factory) NewTarget(topts ...TargetOption) (*Target, error) {
 	// Check if we already have an instance loaded
 	if t.target.ResourceId != "" {
 		if target, ok := f.cache.Fetch(t.target.ResourceId); ok {
+			f.logger.Debug("found existing target in cache, closing new instance")
 			if err = t.Close(); err != nil {
 				return nil, err
 			}
