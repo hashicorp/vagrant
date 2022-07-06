@@ -23,8 +23,23 @@ describe VagrantPlugins::CommandServe::Mappers do
       )
       output = subject.map(input, to: Hash)
 
-      expect(output["error_check"]).to eq(false)
       expect(output[:error_check]).to eq(false)
+
+      input = Hashicorp::Vagrant::Sdk::Args::Hash.new(
+        entries: [
+          Hashicorp::Vagrant::Sdk::Args::HashEntry.new(
+            key: Google::Protobuf::Any.pack(
+              Google::Protobuf::StringValue.new(value: "error_check")
+            ),
+            value: Google::Protobuf::Any.pack(
+              Google::Protobuf::BoolValue.new(value: false)
+            )
+          )
+        ]
+      )
+      output = subject.map(input, to: Hash)
+
+      expect(output["error_check"]).to eq(false)
     end
   end
 
