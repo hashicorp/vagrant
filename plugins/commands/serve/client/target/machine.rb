@@ -14,7 +14,10 @@ module VagrantPlugins
           # @return [Vagrant::Box] box backing machine
           def box
             b = client.box(Empty.new)
-            box_client = Box.load(b, broker: broker)
+            if b == nil || b.box == nil
+              return nil
+            end
+            box_client = Box.load(b.box, broker: broker)
             box = Vagrant::Box.new(
               box_client.name,
               box_client.provider.to_sym,

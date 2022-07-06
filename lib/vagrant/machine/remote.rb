@@ -64,6 +64,10 @@ module Vagrant
       # @return [Box]
       def box
         box = client.box
+        # The box itself can be nil in some cases (e.g. for the docker provider)
+        if box.nil?
+          return nil
+        end
         # If the version isn't set, then the box has not being tracked
         # by Vagrant.
         if box.version.empty?
@@ -295,10 +299,13 @@ module Vagrant
         synced_folder_clients = client.synced_folders
         synced_folder_clients.each do |f|
           next if f[:folder][:disabled]
+          # :type will be populated when the Vagrantfile has an explicit type
+          # coming from the user and empty otherwise. when it is empty we can
+          # infer the type from the name of the plugin we get back
           if f[:folder][:type].to_s != ""
             impl = f[:folder][:type].to_sym
           else
-            impl = :virtualbox
+            impl = f[:plugin].name.to_sym
           end
           sf = Vagrant::Plugin::Remote::SyncedFolder.new(client: f[:plugin])
           folder_opts = scoped_hash_override(f[:folder], impl)

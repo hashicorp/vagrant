@@ -114,7 +114,7 @@ describe Vagrant::Machine::Remote do
     it "returns a hash with synced_folders returned from the client" do
       synced_folder_clients = [
         {
-          plugin: double("plugin"),
+          plugin: double("plugin", name: "syncedfoldertype"),
           folder: {
             disabled: false,
             source: "/some/source",
@@ -127,7 +127,7 @@ describe Vagrant::Machine::Remote do
       output = subject.synced_folders
 
       expect(output).to match(
-        virtualbox: a_hash_including(
+        syncedfoldertype: a_hash_including(
           "/some/destination" => a_hash_including(
             disabled: false,
             guestpath: "/some/destination",
@@ -141,7 +141,7 @@ describe Vagrant::Machine::Remote do
     it "works with multiple folders for a given impl" do
       synced_folder_clients = [
         {
-          plugin: double("pluginone"),
+          plugin: double("pluginone", name: "syncedfoldertype"),
           folder: {
             disabled: false,
             source: "/one",
@@ -149,7 +149,7 @@ describe Vagrant::Machine::Remote do
           }
         },
         {
-          plugin: double("plugintwo"),
+          plugin: double("plugintwo", name: "syncedfoldertype"),
           folder: {
             disabled: false,
             source: "/two",
@@ -162,7 +162,7 @@ describe Vagrant::Machine::Remote do
       output = subject.synced_folders
 
       expect(output).to match(
-        virtualbox: a_hash_including(
+        syncedfoldertype: a_hash_including(
           "/first" => a_hash_including(
             disabled: false,
             guestpath: "/first",
@@ -190,7 +190,7 @@ describe Vagrant::Machine::Remote do
           }
         },
         {
-          plugin: double("plugintwo"),
+          plugin: double("plugintwo", name: "syncedfoldertype"),
           folder: {
             disabled: false,
             source: "/yesme",
@@ -203,7 +203,7 @@ describe Vagrant::Machine::Remote do
       output = subject.synced_folders
 
       expect(output).to match(
-        virtualbox: a_hash_including(
+        syncedfoldertype: a_hash_including(
           "/pickme" => a_hash_including(
             disabled: false,
             guestpath: "/pickme",
@@ -212,7 +212,7 @@ describe Vagrant::Machine::Remote do
           ),
         )
       )
-      expect(output[:virtualbox]).to_not have_key("/noway")
+      expect(output[:syncedfoldertype]).to_not have_key("/noway")
     end
 
     it "honors explicitly set folder type" do
@@ -227,7 +227,7 @@ describe Vagrant::Machine::Remote do
           }
         },
         {
-          plugin: double("plugintwo"),
+          plugin: double("plugintwo", name: "syncedfoldertype"),
           folder: {
             disabled: false,
             source: "/imnormal",
@@ -240,7 +240,7 @@ describe Vagrant::Machine::Remote do
       output = subject.synced_folders
 
       expect(output).to match(
-        virtualbox: a_hash_including(
+        syncedfoldertype: a_hash_including(
           "/iamdefaulttype" => a_hash_including(
             disabled: false,
             guestpath: "/iamdefaulttype",
@@ -257,7 +257,6 @@ describe Vagrant::Machine::Remote do
           ),
         )
       )
-      expect(output[:virtualbox]).to_not have_key("/noway")
     end
   end
 end

@@ -697,6 +697,9 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
     end
     add_message "hashicorp.vagrant.sdk.Target.Machine" do
     end
+    add_message "hashicorp.vagrant.sdk.Target.Machine.BoxResponse" do
+      proto3_optional :box, :message, 1, "hashicorp.vagrant.sdk.Args.Box"
+    end
     add_message "hashicorp.vagrant.sdk.Target.Machine.SetIDRequest" do
       optional :id, :string, 1
     end
@@ -1185,6 +1188,7 @@ module Hashicorp
       Target::GetUUIDResponse = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Target.GetUUIDResponse").msgclass
       Target::SetUUIDRequest = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Target.SetUUIDRequest").msgclass
       Target::Machine = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Target.Machine").msgclass
+      Target::Machine::BoxResponse = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Target.Machine.BoxResponse").msgclass
       Target::Machine::SetIDRequest = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Target.Machine.SetIDRequest").msgclass
       Target::Machine::GetIDResponse = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Target.Machine.GetIDResponse").msgclass
       Target::Machine::SetStateRequest = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Target.Machine.SetStateRequest").msgclass
