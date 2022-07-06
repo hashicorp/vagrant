@@ -17,7 +17,7 @@ func (r *Runner) executeInitOp(
 		panic("operation not expected type")
 	}
 
-	x, err := basis.Init()
+	x, err := basis.RunInit()
 	result = &vagrant_server.Job_Result{
 		Init: x,
 	}
