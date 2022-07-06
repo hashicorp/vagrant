@@ -12,8 +12,9 @@ import (
 	"github.com/hashicorp/go-argmapper"
 	"github.com/hashicorp/go-hclog"
 	"github.com/hashicorp/go-multierror"
-	goplugin "github.com/hashicorp/go-plugin"
 	"github.com/pkg/errors"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/proto"
 
 	"github.com/hashicorp/vagrant-plugin-sdk/component"
@@ -41,47 +42,40 @@ import (
 // finished with the basis to properly clean
 // up any open resources.
 type Basis struct {
-	basis         *vagrant_server.Basis
-	boxCollection *BoxCollection
-	cache         cacher.Cache
-	cleaner       cleanup.Cleanup
-	corePlugins   *CoreManager
-	ctx           context.Context
-	client        *serverclient.VagrantClient
-	dir           *datadir.Basis
-	factory       *Factory
-	index         *TargetIndex
-	jobInfo       *component.JobInfo
-	logger        hclog.Logger
-	m             sync.Mutex
-	mappers       []*argmapper.Func
-	plugins       *plugin.Manager
-	projects      map[string]*Project
-	seedValues    *core.Seeds
-	statebag      core.StateBag
-	ui            terminal.UI
-	vagrantfile   *Vagrantfile
-}
+	basis         *vagrant_server.Basis       // stored basis data
+	boxCollection *BoxCollection              // box collection for this basis
+	cache         cacher.Cache                // local basis cache
+	cleaner       cleanup.Cleanup             // cleanup tasks to be run on close
+	client        *serverclient.VagrantClient // client to vagrant server
+	corePlugins   *CoreManager                // manager for the core plugin types
+	ctx           context.Context             // local context
+	dir           *datadir.Basis              // data directory for basis
+	factory       *Factory                    // scope factory
+	index         *TargetIndex                // index of targets within basis
+	jobInfo       *component.JobInfo          // jobInfo is the base job info for executed functions
+	logger        hclog.Logger                // basis specific logger
+	mappers       []*argmapper.Func           // mappers for basis
+	plugins       *plugin.Manager             // basis scoped plugin manager
+	ready         bool                        // flag that instance is ready
+	seedValues    *core.Seeds                 // seed values to be applied when running commands
+	statebag      core.StateBag               // statebag to persist values
+	ui            terminal.UI                 // basis UI (non-prefixed)
+	vagrantfile   *Vagrantfile                // vagrantfile instance for basis
 
-// Cache implements originScope
-func (b *Basis) Cache() cacher.Cache {
-	return b.cache
-}
-
-// Broker implements originScope
-func (b *Basis) Broker() *goplugin.GRPCBroker {
-	return b.plugins.LegacyBroker()
+	m sync.Mutex
 }
 
 // NewBasis creates a new Basis with the given options.
-func NewBasis(ctx context.Context, opts ...BasisOption) (b *Basis, err error) {
-	b = &Basis{
+func NewBasis(ctx context.Context, opts ...BasisOption) (*Basis, error) {
+	var err error
+	b := &Basis{
+		basis:      &vagrant_server.Basis{},
 		cache:      cacher.New(),
 		cleaner:    cleanup.New(),
 		ctx:        ctx,
 		logger:     hclog.L(),
+		mappers:    []*argmapper.Func{},
 		jobInfo:    &component.JobInfo{},
-		projects:   map[string]*Project{},
 		seedValues: core.NewSeeds(),
 		statebag:   NewStateBag(),
 	}
@@ -93,32 +87,79 @@ func NewBasis(ctx context.Context, opts ...BasisOption) (b *Basis, err error) {
 	}
 
 	if err != nil {
-		return
+		return nil, err
 	}
 
-	if b.logger.IsTrace() {
-		b.logger = b.logger.Named("basis")
-	} else {
-		b.logger = b.logger.ResetNamed("vagrant.core.basis")
-	}
+	return b, nil
+}
 
-	// Create the manager for handling core plugins
-	b.corePlugins = NewCoreManager(ctx, b.logger)
+func (b *Basis) Init() error {
+	var err error
 
-	if b.basis == nil {
-		return nil, fmt.Errorf("basis data was not properly loaded")
+	// If ready then Init was already run
+	if b.ready {
+		return nil
 	}
 
 	// Client is required to be provided
 	if b.client == nil {
-		return nil, fmt.Errorf("client was not provided to basis")
+		return fmt.Errorf("vagrant server client was not provided to basis")
 	}
 
-	// If we don't have a data directory set, lets do that now
-	// TODO(spox): actually do that
-	if b.dir == nil {
-		return nil, fmt.Errorf("WithDataDir must be specified")
+	// If no plugin manager was provided, force an error
+	if b.plugins == nil {
+		return fmt.Errorf("plugin manager was not provided to basis")
 	}
+
+	// Update our plugin manager to be a sub manager so we close
+	// it early if needed
+	b.plugins = b.plugins.Sub("basis")
+
+	// Configure our logger
+	b.logger = b.logger.Named("basis")
+	b.logger = b.logger.With("basis", b)
+
+	// Attempt to reload the basis to populate our
+	// data. If the basis is not found, create it.
+	err = b.Reload()
+	if err != nil {
+		stat, ok := status.FromError(err)
+		if !ok || stat.Code() != codes.NotFound {
+			return err
+		}
+		// Project doesn't exist so save it to persist
+		if err = b.Save(); err != nil {
+			return err
+		}
+	}
+
+	// If the basis directory is unset, set it
+	if b.dir == nil {
+		if b.dir, err = datadir.NewBasis(b.basis.Name); err != nil {
+			return err
+		}
+	}
+
+	// If the mappers aren't already set, load known mappers
+	if len(b.mappers) == 0 {
+		b.mappers, err = argmapper.NewFuncList(protomappers.All,
+			argmapper.Logger(dynamic.Logger),
+		)
+
+		if err != nil {
+			return err
+		}
+
+		locals, err := argmapper.NewFuncList(Mappers, argmapper.Logger(dynamic.Logger))
+		if err != nil {
+			return err
+		}
+
+		b.mappers = append(b.mappers, locals...)
+	}
+
+	// Create the manager for handling core plugins
+	b.corePlugins = NewCoreManager(b.ctx, b.logger)
 
 	// Setup our index
 	b.index = &TargetIndex{
@@ -130,37 +171,86 @@ func NewBasis(ctx context.Context, opts ...BasisOption) (b *Basis, err error) {
 
 	// If no UI was provided, initialize a console UI
 	if b.ui == nil {
-		b.ui = terminal.ConsoleUI(ctx)
+		b.ui = terminal.ConsoleUI(b.ctx)
 	}
 
 	// Create our vagrantfile
-	b.vagrantfile = NewVagrantfile(b, b.plugins.RubyClient(), b.mappers, b.logger)
+	b.vagrantfile = NewVagrantfile(b.factory, b.boxCollection, b.mappers, b.logger)
 
 	// Register the basis as a Vagrantfile source
 	b.vagrantfile.Source(b.basis.Configuration, VAGRANTFILE_BASIS)
-	// If the mappers aren't already set, load known mappers
-	if len(b.mappers) == 0 {
-		b.mappers, err = argmapper.NewFuncList(protomappers.All,
-			argmapper.Logger(dynamic.Logger),
-		)
 
+	// Register configuration plugins when they are loaded
+	b.plugins.Initializer(b.configRegistration)
+
+	// Register any configuration plugins already loaded
+	cfgs, err := b.plugins.Typed(component.ConfigType)
+	if err != nil {
+		return err
+	}
+	for _, cp := range cfgs {
+		b.logger.Trace("registering existing config plugin",
+			"name", cp,
+		)
+		p, err := b.plugins.Get(cp, component.ConfigType)
 		if err != nil {
-			return
+			b.logger.Error("failed to get requested plugin",
+				"name", cp,
+				"error", err,
+			)
+			return err
+		}
+		if err = b.configRegistration(p, b.logger); err != nil {
+			return err
 		}
 	}
 
-	// Ensure any modifications to the basis are persisted
+	// Configure plugins with cache instance
+	b.plugins.Configure(b.setPluginCache)
+
+	// Configure plugins to have seeds set
+	b.plugins.Configure(b.setPluginSeeds)
+
+	// If we have legacy vagrant loaded, configure managers
+	if b.plugins.LegacyEnabled() {
+		// Configure plugins to have plugin manager set (used by legacy)
+		b.plugins.Configure(b.setPluginManager)
+
+		// Configure plugins to have a core plugin manager set (used by legacy)
+		b.plugins.Configure(b.setPluginCoreManager)
+	}
+
+	// Load any plugins that may be available
+	if err = b.plugins.Discover(b.dir.ConfigDir().Join("plugins")); err != nil {
+		b.logger.Error("basis setup failed during plugin discovery",
+			"directory", b.dir.ConfigDir().Join("plugins"),
+			"error", err,
+		)
+
+		return err
+	}
+
+	// Set seeds for any plugins that may be used
+	b.seed(nil)
+
+	// Initialize the Vagrantfile for the basis
+	if err = b.vagrantfile.Init(); err != nil {
+		b.logger.Error("basis setup failed to initialize vagrantfile",
+			"error", err,
+		)
+		return err
+	}
+
+	// Store our configuration
+	sv, err := b.vagrantfile.GetSource(VAGRANTFILE_BASIS)
+	if err != nil {
+		return err
+	}
+	b.basis.Configuration = sv
+
+	// Close the plugin manager
 	b.Closer(func() error {
-		// Update our configuration before we save
-		v, err := b.vagrantfile.GetSource(VAGRANTFILE_BASIS)
-		if err != nil {
-			b.logger.Debug("failed to retrieve vagrantfile configuration",
-				"reason", err,
-			)
-		} else {
-			b.basis.Configuration = v
-		}
-		return b.Save()
+		return b.plugins.Close()
 	})
 
 	// Close the core manager
@@ -178,215 +268,31 @@ func NewBasis(ctx context.Context, opts ...BasisOption) (b *Basis, err error) {
 		return b.index.Close()
 	})
 
-	// Add in local mappers
-	for _, fn := range Mappers {
-		f, err := argmapper.NewFunc(fn,
-			argmapper.Logger(dynamic.Logger),
-		)
-		if err != nil {
-			return nil, err
-		}
-		b.mappers = append(b.mappers, f)
-	}
+	// Save ourself when closed
+	b.Closer(func() error {
+		return b.Save()
+	})
 
-	// If no plugin manager was provided, force an error
-	if b.plugins == nil {
-		return nil, fmt.Errorf("no plugin manager provided")
-	}
-
-	// Register configuration plugins when they are loaded
-	regFn := func(p *plugin.Plugin, l hclog.Logger) error {
-		if !p.HasType(component.ConfigType) {
-			b.logger.Warn("plugin does not implement config component type",
-				"name", p.Name,
-			)
-			return nil
-		}
-
-		b.logger.Debug("registering configuration component",
-			"name", p.Name,
-		)
-
-		i, err := p.Manager().Find(p.Name, component.ConfigType)
-		if err != nil {
-			b.logger.Error("failed to load configuration component",
-				"name", p.Name,
-				"error", err,
-			)
-			return err
-		}
-
-		c, ok := i.Component.(core.Config)
-		if !ok {
-			return fmt.Errorf("component instance is not valid config: %s", p.Name)
-		}
-		info, err := c.Register()
-		if err != nil {
-			b.logger.Error("failed to get registration information from plugin",
-				"name", p.Name,
-				"error", err,
-			)
-			return err
-		}
-
-		b.logger.Info("registering configuration component",
-			"plugin", p.Name,
-			"info", *info,
-		)
-		return b.vagrantfile.Register(info, p)
-	}
-	b.plugins.Initializer(regFn)
-
-	// Register any configuration plugins already loaded
-	cfgs, err := b.plugins.Typed(component.ConfigType)
-	if err != nil {
-		return nil, err
-	}
-	for _, cp := range cfgs {
-		b.logger.Trace("registering existing config plugin",
-			"name", cp,
-		)
-		p, err := b.plugins.Get(cp, component.ConfigType)
-		if err != nil {
-			b.logger.Error("failed to get requested plugin",
-				"name", cp,
-				"error", err,
-			)
-			return nil, err
-		}
-		if err = regFn(p, b.logger); err != nil {
-			return nil, err
-		}
-	}
-
-	// Configure plugins with cache instance
-	b.plugins.Configure(
-		func(i *plugin.Instance, l hclog.Logger) error {
-			if c, ok := i.Component.(interface {
-				SetCache(cacher.Cache)
-			}); ok {
-				b.logger.Trace("setting cache on plugin instance",
-					"name", i.Name,
-					"component", hclog.Fmt("%T", i.Component),
-				)
-				c.SetCache(b.cache)
-			} else {
-				b.logger.Warn("cannot set cache on plugin instance",
-					"name", i.Name,
-					"component", hclog.Fmt("%T", i.Component),
-				)
-			}
-
-			return nil
-		},
-	)
-
-	// Configure plugins to have seeds set
-	b.plugins.Configure(
-		func(i *plugin.Instance, l hclog.Logger) error {
-			if s, ok := i.Component.(core.Seeder); ok {
-				if err := s.Seed(b.seedValues); err != nil {
-					return err
-				}
-			}
-			return nil
-		},
-	)
-
-	// If we have legacy vagrant loaded, configure managers
-	if b.plugins.LegacyEnabled() {
-		// Configure plugins to have plugin manager set (used by legacy)
-		b.plugins.Configure(
-			func(i *plugin.Instance, l hclog.Logger) error {
-				s, ok := i.Component.(plugin.HasPluginMetadata)
-				if !ok {
-					l.Warn("plugin does not support metadata, cannot assign plugin manager",
-						"component", i.Type.String(),
-						"name", i.Name,
-					)
-
-					return nil
-				}
-
-				srv, err := b.plugins.Servinfo()
-				if err != nil {
-					l.Warn("failed to get plugin manager information",
-						"error", err,
-					)
-
-					return nil
-				}
-				s.SetRequestMetadata("plugin_manager", string(srv))
-
-				return nil
-			},
-		)
-
-		// Configure plugins to have a core plugin manager set (used by legacy)
-		b.plugins.Configure(
-			func(i *plugin.Instance, l hclog.Logger) error {
-				s, ok := i.Component.(plugin.HasPluginMetadata)
-				if !ok {
-					l.Warn("plugin does not support metadata, cannot assign plugin manager",
-						"component", i.Type.String(),
-						"name", i.Name,
-					)
-
-					return nil
-				}
-
-				srv, err := b.corePlugins.Servinfo(b.plugins.LegacyBroker())
-				if err != nil {
-					l.Warn("failed to get plugin manager information",
-						"error", err,
-					)
-
-					return nil
-				}
-				s.SetRequestMetadata("core_plugin_manager", string(srv))
-
-				return nil
-			},
-		)
-	}
-
-	if err = b.plugins.Discover(b.dir.ConfigDir().Join("plugins")); err != nil {
-		b.logger.Error("basis setup failed during plugin discovery",
-			"directory", b.dir.ConfigDir().Join("plugins").String(),
-			"error", err,
-		)
-
-		return
-	}
-
-	// Set seeds for any plugins that may be used
-	b.seed(nil)
-
-	// Initialize the Vagrantfile for the basis
-	if err = b.vagrantfile.Init(); err != nil {
-		b.logger.Error("basis setup failed to initialize vagrantfile",
-			"error", err,
-		)
-		return
-	}
+	// Mark basis as being initialized
+	b.ready = true
 
 	b.logger.Info("basis initialized")
-	return
+
+	return nil
 }
 
-func (b *Basis) LoadTarget(topts ...TargetOption) (t *Target, err error) {
-	return nil, fmt.Errorf("targets cannot be loaded from a basis")
-}
-
+// Provide nice output in logger
 func (b *Basis) String() string {
 	return fmt.Sprintf("core.Basis:[name: %s resource_id: %s address: %p]",
 		b.basis.Name, b.basis.ResourceId, b)
 }
 
+// Config implements core.Basis
 func (b *Basis) Config() (core.Vagrantfile, error) {
 	return b.vagrantfile, nil
 }
 
+// CWD implements core.Basis
 func (p *Basis) CWD() (path path.Path, err error) {
 	return paths.VagrantCwd()
 }
@@ -654,7 +560,7 @@ func (b *Basis) Host() (host core.Host, err error) {
 // Initializes the basis for running a command. This will inspect
 // all registered components and extract things like custom command
 // information before an actual command is run
-func (b *Basis) Init() (result *vagrant_server.Job_InitResult, err error) {
+func (b *Basis) RunInit() (result *vagrant_server.Job_InitResult, err error) {
 	b.logger.Debug("running init for basis")
 	result = &vagrant_server.Job_InitResult{
 		Commands: []*vagrant_plugin_sdk.Command_CommandInfo{},
@@ -684,133 +590,6 @@ func (b *Basis) Init() (result *vagrant_server.Job_InitResult, err error) {
 	return
 }
 
-// Looks up a project which has already been loaded and is cached
-// by the project's name or resource ID. Will return nil if the
-// project is not cached.
-//
-// NOTE: Generally the `LoadProject` function will be preferred
-//       as it will return the cached value if previously loaded
-//       or load the project if not found.
-func (b *Basis) Project(nameOrId string) *Project {
-	if p, ok := b.projects[nameOrId]; ok {
-		return p
-	}
-	for _, p := range b.projects {
-		if p.project.ResourceId == nameOrId {
-			return p
-		}
-	}
-	return nil
-}
-
-// Load a project within the current basis. If the project is not found, it
-// will be created.
-func (b *Basis) LoadProject(popts ...ProjectOption) (p *Project, err error) {
-	b.m.Lock()
-	defer b.m.Unlock()
-
-	// Create our project
-	p = &Project{
-		ctx:     b.ctx,
-		cleanup: cleanup.New(),
-		basis:   b,
-		logger:  b.logger,
-		mappers: b.mappers,
-		targets: map[string]*Target{},
-		ui:      b.ui,
-	}
-
-	// Apply any options provided
-	for _, opt := range popts {
-		if oerr := opt(p); oerr != nil {
-			err = multierror.Append(err, oerr)
-		}
-	}
-
-	if err != nil {
-		return
-	}
-
-	// If we already have this project setup, use it instead
-	if project := b.Project(p.project.ResourceId); project != nil {
-		return project, nil
-	}
-
-	if p.logger.IsTrace() {
-		p.logger = p.logger.Named("project")
-	} else {
-		p.logger = p.logger.ResetNamed("vagrant.core.project")
-	}
-
-	// Ensure project directory is set
-	if p.dir == nil {
-		if p.dir, err = b.dir.Project(p.project.Name); err != nil {
-			return
-		}
-	}
-
-	// Load any plugins that may be installed locally to the project
-	if err = b.plugins.Discover(path.NewPath(p.project.Path).Join(".vagrant").Join("plugins")); err != nil {
-		b.logger.Error("project setup failed during plugin discovery",
-			"directory", path.NewPath(p.project.Path).Join(".vagrant").Join("plugins").String(),
-			"error", err,
-		)
-		return nil, err
-	}
-
-	// Clone our vagrantfile to use in the new project
-	v := b.vagrantfile.clone("project", p)
-	p.Closer(func() error { return v.Close() })
-
-	// Add the project vagrantfile
-	err = v.Source(p.project.Configuration, VAGRANTFILE_PROJECT)
-	if err != nil {
-		return nil, err
-	}
-	// Init the vagrantfile so the config is available
-	if err = v.Init(); err != nil {
-		return nil, err
-	}
-	p.vagrantfile = v
-
-	// Ensure any modifications to the project are persisted
-	p.Closer(func() error {
-		// Save any configuration updates
-		v, err := p.vagrantfile.GetSource(VAGRANTFILE_PROJECT)
-		if err != nil {
-			p.logger.Debug("failed to retrieve vagrantfile",
-				"reason", err,
-			)
-		}
-		p.project.Configuration = v
-		return p.Save()
-	})
-
-	// Remove ourself from cached projects
-	p.Closer(func() error {
-		b.m.Lock()
-		defer b.m.Unlock()
-		delete(b.projects, p.project.ResourceId)
-		delete(b.projects, p.Name())
-		return nil
-	})
-
-	// Set seeds for any plugins that may be used
-	p.seed(nil)
-
-	// Initialize any targets defined in the project
-	if err = p.InitTargets(); err != nil {
-		return
-	}
-
-	// Set our loaded project into the basis
-	b.projects[p.project.ResourceId] = p
-
-	b.logger.Info("done setting up new project instance")
-
-	return
-}
-
 // Register functions to be called when closing this basis
 func (b *Basis) Closer(c func() error) {
 	b.cleaner.Do(c)
@@ -819,25 +598,31 @@ func (b *Basis) Closer(c func() error) {
 // Close is called to clean up resources allocated by the basis.
 // This should be called and blocked on to gracefully stop the basis.
 func (b *Basis) Close() (err error) {
-	b.logger.Debug("closing basis",
-		"basis", b.basis.ResourceId)
+	b.logger.Debug("closing basis")
 
-	// Close down any projects that were loaded
-	for name, p := range b.projects {
-		b.logger.Trace("closing project",
-			"project", name)
-		if cerr := p.Close(); cerr != nil {
-			b.logger.Warn("error closing project",
-				"project", name,
-				"error", cerr)
-			err = multierror.Append(err, cerr)
-		}
+	return b.cleaner.Close()
+}
+
+// Reload basis data
+func (b *Basis) Reload() (err error) {
+	b.m.Lock()
+	defer b.m.Unlock()
+
+	if b.basis.ResourceId == "" {
+		return status.Error(codes.NotFound, "basis does not exist")
 	}
 
-	if cerr := b.cleaner.Close(); cerr != nil {
-		err = multierror.Append(err, cerr)
+	result, err := b.client.FindBasis(b.ctx,
+		&vagrant_server.FindBasisRequest{
+			Basis: b.basis,
+		},
+	)
+
+	if err != nil {
+		return
 	}
 
+	b.basis = result.Basis
 	return
 }
 
@@ -846,8 +631,7 @@ func (b *Basis) Save() (err error) {
 	b.m.Lock()
 	defer b.m.Unlock()
 
-	b.logger.Debug("saving basis to db",
-		"basis", b.basis.ResourceId)
+	b.logger.Debug("saving basis to db")
 
 	result, err := b.Client().UpsertBasis(b.ctx,
 		&vagrant_server.UpsertBasisRequest{
@@ -855,37 +639,10 @@ func (b *Basis) Save() (err error) {
 
 	if err != nil {
 		b.logger.Trace("failed to save basis",
-			"basis", b.basis.ResourceId,
 			"error", err)
 	}
 
 	b.basis = result.Basis
-	return
-}
-
-// Saves the basis to the db as well as any projects that have been
-// loaded. This will "cascade" to targets as well since `SaveFull` will
-// be called on the project.
-func (b *Basis) SaveFull() (err error) {
-	b.logger.Debug("performing full save",
-		"basis", b.basis.ResourceId)
-
-	for _, p := range b.projects {
-		b.logger.Trace("saving project",
-			"basis", b.basis.ResourceId,
-			"project", p.project.ResourceId)
-
-		if perr := p.SaveFull(); perr != nil {
-			b.logger.Trace("error while saving project",
-				"project", p.project.ResourceId,
-				"error", err)
-
-			err = multierror.Append(err, perr)
-		}
-	}
-	if berr := b.Save(); berr != nil {
-		err = multierror.Append(err, berr)
-	}
 	return
 }
 
@@ -906,7 +663,6 @@ func (b *Basis) Components(ctx context.Context) ([]*Component, error) {
 // component name. This is the entry point for running commands.
 func (b *Basis) Run(ctx context.Context, task *vagrant_server.Task) (err error) {
 	b.logger.Debug("running new task",
-		"basis", b,
 		"task", task)
 
 	// Build the component to run
@@ -1082,6 +838,123 @@ func (b *Basis) seed(fn func(*core.Seeds)) {
 	}
 }
 
+func (b *Basis) configRegistration(p *plugin.Plugin, l hclog.Logger) error {
+	if !p.HasType(component.ConfigType) {
+		b.logger.Warn("plugin does not implement config component type",
+			"name", p.Name,
+		)
+		return nil
+	}
+
+	b.logger.Debug("registering configuration component",
+		"name", p.Name,
+	)
+
+	i, err := p.Manager().Find(p.Name, component.ConfigType)
+	if err != nil {
+		b.logger.Error("failed to load configuration component",
+			"name", p.Name,
+			"error", err,
+		)
+		return err
+	}
+
+	c, ok := i.Component.(core.Config)
+	if !ok {
+		return fmt.Errorf("component instance is not valid config: %s", p.Name)
+	}
+	info, err := c.Register()
+	if err != nil {
+		b.logger.Error("failed to get registration information from plugin",
+			"name", p.Name,
+			"error", err,
+		)
+		return err
+	}
+
+	b.logger.Info("registering configuration component",
+		"plugin", p.Name,
+		"info", *info,
+	)
+	return b.vagrantfile.Register(info, p)
+}
+
+func (b *Basis) setPluginCache(i *plugin.Instance, l hclog.Logger) error {
+	if c, ok := i.Component.(interface {
+		SetCache(cacher.Cache)
+	}); ok {
+		b.logger.Trace("setting cache on plugin instance",
+			"name", i.Name,
+			"component", hclog.Fmt("%T", i.Component),
+		)
+		c.SetCache(b.cache)
+	} else {
+		b.logger.Warn("cannot set cache on plugin instance",
+			"name", i.Name,
+			"component", hclog.Fmt("%T", i.Component),
+		)
+	}
+
+	return nil
+}
+
+func (b *Basis) setPluginSeeds(i *plugin.Instance, l hclog.Logger) error {
+	if s, ok := i.Component.(core.Seeder); ok {
+		if err := s.Seed(b.seedValues); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func (b *Basis) setPluginManager(i *plugin.Instance, l hclog.Logger) error {
+	s, ok := i.Component.(plugin.HasPluginMetadata)
+	if !ok {
+		l.Warn("plugin does not support metadata, cannot assign plugin manager",
+			"component", i.Type.String(),
+			"name", i.Name,
+		)
+
+		return nil
+	}
+
+	srv, err := b.plugins.Servinfo()
+	if err != nil {
+		l.Warn("failed to get plugin manager information",
+			"error", err,
+		)
+
+		return nil
+	}
+	s.SetRequestMetadata("plugin_manager", string(srv))
+
+	return nil
+}
+
+func (b *Basis) setPluginCoreManager(i *plugin.Instance, l hclog.Logger) error {
+	s, ok := i.Component.(plugin.HasPluginMetadata)
+	if !ok {
+		l.Warn("plugin does not support metadata, cannot assign plugin manager",
+			"component", i.Type.String(),
+			"name", i.Name,
+		)
+
+		return nil
+	}
+
+	srv, err := b.corePlugins.Servinfo(b.plugins.LegacyBroker())
+	if err != nil {
+		l.Warn("failed to get plugin manager information",
+			"error", err,
+		)
+
+		return nil
+	}
+	s.SetRequestMetadata("core_plugin_manager", string(srv))
+
+	return nil
+}
+
 func (b *Basis) execHook(
 	ctx context.Context,
 	log hclog.Logger,
@@ -1160,43 +1033,16 @@ func WithBasisDataDir(dir *datadir.Basis) BasisOption {
 // WithBasisRef is used to load or initialize the basis
 func WithBasisRef(r *vagrant_plugin_sdk.Ref_Basis) BasisOption {
 	return func(b *Basis) (err error) {
-		var basis *vagrant_server.Basis
-		// if we don't have a resource ID we need to upsert
-		if r.ResourceId == "" {
-			var result *vagrant_server.UpsertBasisResponse
-			result, err = b.client.UpsertBasis(
-				context.Background(),
-				&vagrant_server.UpsertBasisRequest{
-					Basis: &vagrant_server.Basis{
-						Name: r.Name,
-					},
-				},
-			)
-			if err != nil {
-				return
-			}
-			basis = result.Basis
-		} else {
-			var result *vagrant_server.GetBasisResponse
-			result, err = b.client.GetBasis(
-				context.Background(),
-				&vagrant_server.GetBasisRequest{
-					Basis: r,
-				},
-			)
-			if err != nil {
-				return
-			}
-			basis = result.Basis
+		if r.ResourceId != "" {
+			b.basis.ResourceId = r.ResourceId
 		}
-		b.basis = basis
-		// if the datadir isn't set, do that now
-		if b.dir == nil {
-			b.dir, err = datadir.NewBasis(basis.Name)
-			if err != nil {
-				return
-			}
+		if r.Name != "" {
+			b.basis.Name = r.Name
 		}
+		if r.Path != "" {
+			b.basis.Path = r.Path
+		}
+
 		return
 	}
 }
@@ -1241,3 +1087,4 @@ func FromBasis(basis *Basis) BasisOption {
 }
 
 var _ core.Basis = (*Basis)(nil)
+var _ Scope = (*Basis)(nil)

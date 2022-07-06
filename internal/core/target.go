@@ -13,7 +13,8 @@ import (
 	"github.com/hashicorp/go-argmapper"
 	"github.com/hashicorp/go-hclog"
 	"github.com/hashicorp/go-multierror"
-	goplugin "github.com/hashicorp/go-plugin"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/types/known/anypb"
 
@@ -21,11 +22,10 @@ import (
 	"github.com/hashicorp/vagrant-plugin-sdk/core"
 	"github.com/hashicorp/vagrant-plugin-sdk/datadir"
 	"github.com/hashicorp/vagrant-plugin-sdk/internal-shared/cacher"
-	"github.com/hashicorp/vagrant-plugin-sdk/internal-shared/dynamic"
+	"github.com/hashicorp/vagrant-plugin-sdk/internal-shared/cleanup"
 	"github.com/hashicorp/vagrant-plugin-sdk/proto/vagrant_plugin_sdk"
 	"github.com/hashicorp/vagrant-plugin-sdk/terminal"
 	"github.com/hashicorp/vagrant/internal/config"
-	"github.com/hashicorp/vagrant/internal/plugin"
 	"github.com/hashicorp/vagrant/internal/server/proto/vagrant_server"
 	"github.com/hashicorp/vagrant/internal/serverclient"
 )
@@ -33,23 +33,147 @@ import (
 const DEFAULT_COMMUNICATOR_NAME = "ssh"
 
 type Target struct {
-	ctx     context.Context
-	target  *vagrant_server.Target
-	project *Project
-	logger  hclog.Logger
-	dir     *datadir.Target
+	cache       cacher.Cache                // local target cache
+	cleanup     cleanup.Cleanup             // cleanup tasks to be run on close
+	client      *serverclient.VagrantClient // client to vagrant server
+	ctx         context.Context             // local target context
+	dir         *datadir.Target             // data directory for target
+	factory     *Factory                    // scope factory
+	jobInfo     *component.JobInfo          // jobInfo is the base job info for executed functions
+	logger      hclog.Logger                // target specific logger
+	project     *Project                    // project which owns this target
+	ready       bool                        // flag that instance is ready
+	target      *vagrant_server.Target      // stored target data
+	ui          terminal.UI                 // target UI
+	vagrantfile *Vagrantfile                // vagrantfile instance for target
 
-	m           sync.Mutex
-	jobInfo     *component.JobInfo
-	closers     []func() error
-	ui          terminal.UI
-	cache       cacher.Cache
-	vagrantfile *Vagrantfile
+	m sync.Mutex
+}
+
+func NewTarget(opts ...TargetOption) (*Target, error) {
+	var t *Target
+	var err error
+	t = &Target{
+		cache:   cacher.New(),
+		cleanup: cleanup.New(),
+		ctx:     context.Background(),
+		logger:  hclog.L(),
+		target:  &vagrant_server.Target{},
+	}
+
+	for _, fn := range opts {
+		if optErr := fn(t); optErr != nil {
+			err = multierror.Append(err, optErr)
+		}
+	}
+
+	if err != nil {
+		return nil, err
+	}
+
+	return t, err
+}
+
+func (t *Target) Init() error {
+	var err error
+
+	// If ready then Init was already run
+	if t.ready {
+		return nil
+	}
+
+	// Configure our logger
+	t.logger = t.logger.ResetNamed("vagrant.core.target")
+	t.logger = t.logger.With("target", t)
+
+	// If no client is set, grab it from the project
+	if t.client == nil && t.project != nil {
+		t.client = t.project.client
+	}
+
+	// Attempt to reload the target to populate our
+	// data. If the target is not found, create it.
+	err = t.Reload()
+	if err != nil {
+		stat, ok := status.FromError(err)
+		if !ok || stat.Code() != codes.NotFound {
+			return err
+		}
+		// Target doesn't exist so save it to persist
+		if err = t.Save(); err != nil {
+			return err
+		}
+	}
+
+	// If we don't have a project set, load it
+	if t.project == nil {
+		t.project, err = t.factory.NewProject(WithProjectRef(t.target.Project))
+		if err != nil {
+			return fmt.Errorf("failed to load target project: %w", err)
+		}
+	}
+
+	// Always ensure the project reference is set
+	t.target.Project = t.project.Ref().(*vagrant_plugin_sdk.Ref_Project)
+
+	// If the target directory is unset, set it
+	if t.dir == nil {
+		if t.dir, err = t.project.dir.Target(t.target.Name); err != nil {
+			return err
+		}
+	}
+
+	// If the ui is unset, use the project ui
+	if t.ui == nil {
+		t.ui = t.project.ui
+	}
+
+	// Save ourself when closed
+	t.Closer(func() error {
+		return t.Save()
+	})
+
+	// If we have a vagrantfile set, we are done
+	if t.vagrantfile != nil {
+		t.vagrantfile.logger = t.logger.Named("vagrantfile")
+
+		return nil
+	}
+
+	// We don't have a vagrantfile set so we need to restore
+	// our stored configuration. First, make sure we have some
+	// store configuration!
+	if t.target.Configuration == nil {
+		t.target.Configuration = &vagrant_plugin_sdk.Args_ConfigData{}
+
+		// Since we don't have any data to load, just stub and return
+		t.vagrantfile = t.project.vagrantfile.clone("target")
+		t.vagrantfile.root = &component.ConfigData{
+			Data: map[string]interface{}{},
+		}
+
+		return nil
+	}
+
+	v := t.project.vagrantfile.clone("target")
+	v.logger = t.logger.Named("vagrantfile")
+
+	if err = v.loadToRoot(t.target.Configuration); err != nil {
+		return err
+	}
+	t.vagrantfile = v
+
+	// Set flag that this instance is setup
+	t.ready = true
+
+	t.logger.Info("target initialized")
+
+	return nil
 }
 
 func (t *Target) String() string {
-	return fmt.Sprintf("core.Target[basis: %s, project: %s, resource_id: %s, address: %p]",
-		t.project.basis.Name(), t.project.Name(), t.target.ResourceId, t,
+	return fmt.Sprintf("core.Target[basis: %s, project: %s, resource_id: %s, name: %s, address: %p]",
+		t.project.basis.Name(), t.project.Name(), t.target.ResourceId, t.target.Name, t,
 	)
 }
 
@@ -247,29 +371,37 @@ func (t *Target) JobInfo() *component.JobInfo {
 
 // Client returns the API client for the backend server.
 func (t *Target) Client() *serverclient.VagrantClient {
-	return t.project.basis.client
+	return t.client
 }
 
 func (t *Target) Closer(c func() error) {
-	t.closers = append(t.closers, c)
+	t.cleanup.Do(c)
 }
 
 // Close is called to clean up resources allocated by the target.
 // This should be called and blocked on to gracefully stop the target.
 func (t *Target) Close() (err error) {
-	t.logger.Debug("closing target",
-		"target", t)
+	t.logger.Debug("closing target")
 
-	for _, c := range t.closers {
-		if cerr := c(); cerr != nil {
-			t.logger.Warn("error executing closer",
-				"error", cerr)
+	return t.cleanup.Close()
+}
 
-			err = multierror.Append(err, cerr)
-		}
+// Reload the target data
+func (t *Target) Reload() (err error) {
+	t.m.Lock()
+	defer t.m.Unlock()
+
+	result, err := t.Client().FindTarget(t.ctx,
+		&vagrant_server.FindTargetRequest{
+			Target: t.target,
+		},
+	)
+
+	if err != nil {
+		return
 	}
-	// Remove this target from built target list in project
-	delete(t.project.targets, t.target.Name)
+
+	t.target = result.Target
 	return
 }
 
@@ -278,16 +410,23 @@ func (t *Target) Save() (err error) {
 	t.m.Lock()
 	defer t.m.Unlock()
 
-	t.logger.Debug("saving target to db",
-		"target", t.target.ResourceId,
-		"name", t.target.Name,
-	)
+	t.logger.Debug("saving target to db")
+
+	// If there were any modification to the configuration
+	// after init, be sure we capture them
+	t.target.Configuration, err = t.vagrantfile.rootToStore()
+	if err != nil {
+		t.logger.Warn("failed to serialize configuration prior to save",
+			"error", err,
+		)
+		// Only warn since we want to save whatever information we can
+		err = nil
+	}
 
 	result, uerr := t.Client().UpsertTarget(t.ctx, &vagrant_server.UpsertTargetRequest{
 		Target: t.target})
 	if uerr != nil {
 		t.logger.Trace("failed to save target",
-			"target", t.target.ResourceId,
 			"error", uerr)
 
 		err = multierror.Append(err, uerr)
@@ -299,9 +438,13 @@ func (t *Target) Save() (err error) {
 }
 
 func (t *Target) Destroy() (err error) {
-	t.Close()
 	t.m.Lock()
 	defer t.m.Unlock()
+
+	// Run all the cleanup tasks on the target
+	t.Close()
+
+	// Delete the target from the database
 	_, err = t.Client().DeleteTarget(t.ctx, &vagrant_server.DeleteTargetRequest{
 		Target: t.Ref().(*vagrant_plugin_sdk.Ref_Target),
 	})
@@ -317,19 +460,14 @@ func (t *Target) Destroy() (err error) {
 			err = multierror.Append(err, rerr)
 		}
 	}
+	t.target = &vagrant_server.Target{}
 
 	return
 }
 
 func (t *Target) Run(ctx context.Context, task *vagrant_server.Task) (err error) {
 	t.logger.Debug("running new task",
-		"target", t,
 		"task", task)
-
-	// Intialize targets
-	if err = t.project.InitTargets(); err != nil {
-		return err
-	}
 
 	cmd, err := t.project.basis.component(
 		ctx, component.CommandType, task.Component.Name)
@@ -369,29 +507,9 @@ func (t *Target) Run(ctx context.Context, task *vagrant_server.Task) (err error)
 	return
 }
 
-// LoadTarget implements originScope
-func (t *Target) LoadTarget(topts ...TargetOption) (*Target, error) {
-	return nil, fmt.Errorf("targets cannot be loaded from a target")
-}
-
-// Boxes implements originScope
-func (t *Target) Boxes() (core.BoxCollection, error) {
-	return nil, fmt.Errorf("boxes cannot be loaded from a target")
-}
-
-// Vagrantfile implements originScope / core.Target
+// Vagrantfile implements core.Target
 func (t *Target) Vagrantfile() (core.Vagrantfile, error) {
 	return t.vagrantfile, nil
-}
-
-// Cache implements originScope
-func (t *Target) Cache() cacher.Cache {
-	return t.project.basis.cache
-}
-
-// Broker implements originScope
-func (t *Target) Broker() *goplugin.GRPCBroker {
-	return t.project.basis.plugins.LegacyBroker()
 }
 
 func (t *Target) seed(fn func(*core.Seeds)) {
@@ -418,7 +536,7 @@ func (t *Target) Machine() core.Machine {
 	t.target.Record.UnmarshalTo(targetMachine)
 	m := &Machine{
 		Target:      t,
-		logger:      t.logger,
+		logger:      t.logger.Named("machine"),
 		machine:     targetMachine,
 		cache:       cacher.New(),
 		vagrantfile: t.vagrantfile,
@@ -471,103 +589,15 @@ func (t *Target) doOperation(
 	return doOperation(ctx, log, t, op)
 }
 
-// Initialize the target instance
-func (t *Target) init() (err error) {
-	// As long as no error is encountered,
-	// update the target configuration.
-	defer func() {
-		if err == nil {
-			t.target.Configuration, err = t.vagrantfile.rootToStore()
-		}
-	}()
-	t.logger.Info("running init on target", "target", t.target.Name)
-	// Name or resource id is required for a target to be loaded
-	if t.target.Name == "" && t.target.ResourceId == "" {
-		return fmt.Errorf("cannot load a target without name or resource id")
-	}
-
-	// A parent project is also required
-	if t.project == nil {
-		return fmt.Errorf("cannot load a target without defined project")
-	}
-
-	// If the configuration was updated during load, save it so
-	// we can re-apply after loading stored data
-	var conf *vagrant_plugin_sdk.Args_ConfigData
-	if t.target.Configuration != nil {
-		conf = t.target.Configuration
-	}
-
-	// Pull target info
-	resp, err := t.Client().FindTarget(t.ctx,
-		&vagrant_server.FindTargetRequest{
-			Target: t.target,
-		},
-	)
-	if err != nil {
-		return
-	}
-	t.target = resp.Target
-
-	// If we have configuration data, re-apply it
-	if conf != nil {
-		t.target.Configuration = conf
-	}
-
-	// Set the project into the target
-	t.target.Project = t.project.Ref().(*vagrant_plugin_sdk.Ref_Project)
-
-	// If we have a vagrantfile attached, we're done
-	if t.vagrantfile != nil {
-		return
-	}
-
-	// If we don't have configuration data, just stub
-	if t.target.Configuration == nil {
-		t.target.Configuration = &vagrant_plugin_sdk.Args_ConfigData{}
-		t.vagrantfile = t.project.vagrantfile.clone("target", t)
-		t.vagrantfile.root = &component.ConfigData{
-			Data: map[string]interface{}{},
-		}
-		return
-	}
-
-	t.logger.Info("vagrantfile has not been defined so generating from store config",
-		"name", t.target.Name,
-	)
-
-	internal := plugin.NewInternal(
-		t.project.basis.plugins.LegacyBroker(),
-		t.project.basis.cache,
-		t.project.basis.cleaner,
-		t.logger,
-		t.project.basis.mappers,
-	)
-
-	// Load the configuration data we have
-	raw, err := dynamic.Map(
-		t.target.Configuration,
-		(**component.ConfigData)(nil),
-		argmapper.ConverterFunc(t.project.basis.mappers...),
-		argmapper.Typed(
-			t.ctx,
-			t.logger,
-			internal,
-		),
-	)
-
-	if err != nil {
-		return
-	}
-
-	t.vagrantfile = t.project.vagrantfile.clone("target", t)
-	t.vagrantfile.root = raw.(*component.ConfigData)
-
-	return
-}
-
 // Options type for target loading
 type TargetOption func(*Target) error
+
+func WithProject(p *Project) TargetOption {
+	return func(t *Target) (err error) {
+		t.project = p
+		return
+	}
+}
 
 // Set a vagrantfile instance on target
 func WithTargetVagrantfile(v *Vagrantfile) TargetOption {
@@ -587,34 +617,18 @@ func WithTargetName(name string) TargetOption {
 
 // Configure target with proto ref
 func WithTargetRef(r *vagrant_plugin_sdk.Ref_Target) TargetOption {
-	return func(t *Target) error {
-		// Target ref must include a resource id or name
-		if r.Name == "" && r.ResourceId == "" {
-			return fmt.Errorf("target ref must include ResourceId and/or Name")
+	return func(t *Target) (err error) {
+		if r.Name != "" {
+			t.target.Name = r.Name
+		}
+		if r.ResourceId != "" {
+			t.target.ResourceId = r.ResourceId
+		}
+		if r.Project != nil {
+			t.target.Project = r.Project
 		}
 
-		// Target ref must include project ref if resource id is empty
-		if r.Name == "" && r.Project == nil {
-			return fmt.Errorf("target ref must include Project for name lookup")
-		}
-
-		result, err := t.Client().FindTarget(t.ctx,
-			&vagrant_server.FindTargetRequest{
-				Target: &vagrant_server.Target{
-					ResourceId: r.ResourceId,
-					Name:       r.Name,
-					Project:    r.Project,
-				},
-			},
-		)
-
-		if err != nil {
-			return err
-		}
-
-		t.target = result.Target
-
-		return nil
+		return
 	}
 }
 
@@ -628,3 +642,4 @@ func WithProvider(provider string) TargetOption {
 }
 
 var _ core.Target = (*Target)(nil)
+var _ Scope = (*Target)(nil)
