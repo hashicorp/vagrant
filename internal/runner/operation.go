@@ -55,7 +55,7 @@ func (r *Runner) executeJob(
 	opts = append(opts, core.WithBasisRef(ref))
 
 	// Load our basis
-	b, err := r.factory.New(ref.Name, opts...)
+	b, err := r.factory.NewBasis(ref.ResourceId, opts...)
 	if err != nil {
 		return
 	}
@@ -67,7 +67,8 @@ func (r *Runner) executeJob(
 	var p *core.Project
 
 	if job.Project != nil {
-		p, err = b.LoadProject(
+		p, err = r.factory.NewProject(
+			core.WithBasis(b),
 			core.WithProjectRef(job.Project),
 		)
 		if err != nil {
@@ -81,7 +82,10 @@ func (r *Runner) executeJob(
 	var m *core.Target
 
 	if job.Target != nil && p != nil && job.Target.Name != "" {
-		m, err = p.LoadTarget(core.WithTargetRef(job.Target))
+		m, err = r.factory.NewTarget(
+			core.WithProject(p),
+			core.WithTargetRef(job.Target),
+		)
 		if err != nil {
 			return
 		}
