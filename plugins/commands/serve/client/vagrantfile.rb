@@ -60,6 +60,20 @@ module VagrantPlugins
 
           result.to_ruby
         end
+
+        def get_value(*path)
+          logger.info("getting config value for path: #{path}")
+          result = client.get_value(
+            SDK::Vagrantfile::ValueRequest.new(
+              path: path,
+            )
+          )
+
+          val = result.to_ruby.arguments.first
+          return val.value if val.is_a?(Type)
+
+          val
+        end
       end
     end
   end
