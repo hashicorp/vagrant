@@ -91,12 +91,24 @@ VM can only be removed when there are no linked clones connected to it.
 By default Vagrant will check for the [VirtualBox Guest
 Additions](https://www.virtualbox.org/manual/ch04.html) when starting a
 machine, and will output a warning if the guest additions are missing or
-out-of-date. You can skip the guest additions check by setting the
-`check_guest_additions` option:
+out-of-date. In your Vagrantfile, add the following param. [reference](https://stackoverflow.com/questions/37556968/vagrant-disable-guest-additions)
 
 ```ruby
-config.vm.provider "virtualbox" do |v|
-  v.check_guest_additions = false
+Vagrant.configure("2") do |config|
+    ....
+    config.vbguest.auto_update = false
+    ....
+end
+```
+You might not have the vagrant-vbguest plugin, and you could wrap its use in a conditional to avoid confusion. [reference](https://stackoverflow.com/questions/37556968/vagrant-disable-guest-additions)
+
+```ruby
+Vagrant.configure("2") do |config|
+  ....
+  if Vagrant.has_plugin?("vagrant-vbguest")
+    config.vbguest.auto_update = false
+  end
+  ....
 end
 ```
 
