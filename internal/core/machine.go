@@ -261,7 +261,7 @@ func StringToPathFunc() mapstructure.DecodeHookFunc {
 	}
 }
 
-func (m *Machine) defaultSyncedFolderType() (folderType *string, err error) {
+func (m *Machine) defaultSyncedFolderType() (folderType string, err error) {
 	logger := m.logger.Named("default-synced-folder-type")
 
 	// Get all available synced folder plugins
@@ -275,7 +275,7 @@ func (m *Machine) defaultSyncedFolderType() (folderType *string, err error) {
 		fullPlugin, err := m.project.basis.plugins.GetPlugin(sfp.Name, sfp.Type)
 		if err != nil {
 			logger.Error("error while loading synced folder plugin: name", sfp.Name, "err", err)
-			return nil, fmt.Errorf("error while loading synced folder plugin: name = %s, err = %s", sfp.Name, err)
+			return "", fmt.Errorf("error while loading synced folder plugin: name = %s, err = %s", sfp.Name, err)
 		}
 		sfPlugins[i] = fullPlugin
 	}
@@ -336,13 +336,13 @@ func (m *Machine) defaultSyncedFolderType() (folderType *string, err error) {
 		}
 		if usable {
 			logger.Info("returning default", "name", sfp.Name)
-			return &sfp.Name, nil
+			return sfp.Name, nil
 		} else {
 			logger.Debug("skipping unusable plugin", "name", sfp.Name)
 		}
 	}
 
-	return nil, fmt.Errorf("failed to detect guest plugin for current platform")
+	return "", fmt.Errorf("failed to detect guest plugin for current platform")
 }
 
 // SyncedFolders implements core.Machine
@@ -403,12 +403,7 @@ func (m *Machine) SyncedFolders() (folders []*core.MachineSyncedFolder, err erro
 			}
 		}
 		if ftype == "" {
-			ftype, err = m.project.DefaultProvider(
-				&core.DefaultProviderOptions{
-					CheckUsable: false,
-					MachineName: m.target.Name,
-				},
-			)
+			ftype, err = m.defaultSyncedFolderType()
 			if err != nil {
 				return nil, err
 			}
