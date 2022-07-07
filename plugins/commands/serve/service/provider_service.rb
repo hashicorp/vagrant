@@ -110,7 +110,7 @@ module VagrantPlugins
         def state_spec(*_)
           funcspec(
             args: [
-              SDK::Args::Target
+              SDK::Args::Target::Machine
             ],
             result: SDK::Args::Target::Machine::State,
           )
@@ -138,6 +138,16 @@ module VagrantPlugins
             ui: machine.ui,
           )
           machine.env.action_runner.run(callable, env)
+        end
+
+        def capability_arguments(args)
+          target, direct = args
+          nargs = direct.args.dup
+          if !nargs.first.is_a?(Vagrant::Machine)
+            nargs.unshift(mapper.map(target, to: Vagrant::Machine))
+          end
+
+          nargs
         end
 
         def load_provider(klass, machine)

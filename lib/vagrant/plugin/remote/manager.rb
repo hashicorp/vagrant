@@ -92,7 +92,7 @@ module Vagrant
             klass = get_local_plugin
             return super if klass.nil?
             @logger.debug("found local plugin class #{self.class.name} -> #{klass.name}")
-            c = VagrantPlugins::CommandServe::Service.cache
+            c = VagrantPlugins::CommandServe.cache
             key = c.key(klass, *@init[0])
             if !c.registered?(key)
               @logger.debug("creating new local plugin instance of #{klass} with args: #{@init}")
