@@ -596,6 +596,7 @@ type TargetOption func(*Target) error
 func WithProject(p *Project) TargetOption {
 	return func(t *Target) (err error) {
 		t.project = p
+		t.target.Project = p.Ref().(*vagrant_plugin_sdk.Ref_Project)
 		return
 	}
 }
