@@ -69,7 +69,12 @@ type Basis struct {
 func NewBasis(ctx context.Context, opts ...BasisOption) (*Basis, error) {
 	var err error
 	b := &Basis{
-		basis:      &vagrant_server.Basis{},
+		basis: &vagrant_server.Basis{
+			Configuration: &vagrant_server.Vagrantfile{
+				Unfinalized: &vagrant_plugin_sdk.Args_Hash{},
+				Format:      vagrant_server.Vagrantfile_RUBY,
+			},
+		},
 		cache:      cacher.New(),
 		cleaner:    cleanup.New(),
 		ctx:        ctx,
@@ -116,8 +121,7 @@ func (b *Basis) Init() error {
 	b.plugins = b.plugins.Sub("basis")
 
 	// Configure our logger
-	b.logger = b.logger.Named("basis")
-	b.logger = b.logger.With("basis", b)
+	b.logger = b.logger.ResetNamed("vagrant.core.basis")
 
 	// Attempt to reload the basis to populate our
 	// data. If the basis is not found, create it.
@@ -276,6 +280,8 @@ func (b *Basis) Init() error {
 	// Mark basis as being initialized
 	b.ready = true
 
+	// Include this basis information in log lines
+	b.logger = b.logger.With("basis", b)
 	b.logger.Info("basis initialized")
 
 	return nil
@@ -632,6 +638,17 @@ func (b *Basis) Save() (err error) {
 	defer b.m.Unlock()
 
 	b.logger.Debug("saving basis to db")
+
+	if b.vagrantfile != nil {
+		val, err := b.vagrantfile.rootToStore()
+		if err != nil {
+			b.logger.Warn("failed to convert modified configuration for save",
+				"error", err,
+			)
+		} else {
+			b.basis.Configuration.Finalized = val.Data
+		}
+	}
 
 	result, err := b.Client().UpsertBasis(b.ctx,
 		&vagrant_server.UpsertBasisRequest{
