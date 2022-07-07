@@ -84,7 +84,6 @@ func (t *Target) Init() error {
 
 	// Configure our logger
 	t.logger = t.logger.ResetNamed("vagrant.core.target")
-	t.logger = t.logger.With("target", t)
 
 	// If no client is set, grab it from the project
 	if t.client == nil && t.project != nil {
@@ -166,6 +165,8 @@ func (t *Target) Init() error {
 	// Set flag that this instance is setup
 	t.ready = true
 
+	// Include this target information in log lines
+	t.logger = t.logger.With("target", t)
 	t.logger.Info("target initialized")
 
 	return nil
@@ -414,22 +415,22 @@ func (t *Target) Save() (err error) {
 
 	// If there were any modification to the configuration
 	// after init, be sure we capture them
-	t.target.Configuration, err = t.vagrantfile.rootToStore()
-	if err != nil {
-		t.logger.Warn("failed to serialize configuration prior to save",
-			"error", err,
-		)
-		// Only warn since we want to save whatever information we can
-		err = nil
+	if t.vagrantfile != nil {
+		t.target.Configuration, err = t.vagrantfile.rootToStore()
+		if err != nil {
+			t.logger.Warn("failed to serialize configuration prior to save",
+				"error", err,
+			)
+			// Only warn since we want to save whatever information we can
+			err = nil
+		}
 	}
 
-	result, uerr := t.Client().UpsertTarget(t.ctx, &vagrant_server.UpsertTargetRequest{
+	result, err := t.Client().UpsertTarget(t.ctx, &vagrant_server.UpsertTargetRequest{
 		Target: t.target})
-	if uerr != nil {
+	if err != nil {
 		t.logger.Trace("failed to save target",
-			"error", uerr)
-
-		err = multierror.Append(err, uerr)
+			"error", err)
 
 		return
 	}
@@ -438,11 +439,12 @@ func (t *Target) Save() (err error) {
 }
 
 func (t *Target) Destroy() (err error) {
+	// Run all the cleanup tasks on the target
+	t.logger.Trace("destroying target")
+	t.Close()
+
 	t.m.Lock()
 	defer t.m.Unlock()
-
-	// Run all the cleanup tasks on the target
-	t.Close()
 
 	// Delete the target from the database
 	_, err = t.Client().DeleteTarget(t.ctx, &vagrant_server.DeleteTargetRequest{
@@ -460,7 +462,6 @@ func (t *Target) Destroy() (err error) {
 			err = multierror.Append(err, rerr)
 		}
 	}
-	t.target = &vagrant_server.Target{}
 
 	return
 }
