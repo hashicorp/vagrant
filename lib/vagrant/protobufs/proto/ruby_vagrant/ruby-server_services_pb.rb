@@ -18,7 +18,6 @@ module Hashicorp
 
         # Gets available ruby plugins
         rpc :GetPlugins, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::GetPluginsResponse
-        rpc :GetCommands, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::GetCommandsResponse
         rpc :ParseVagrantfile, ::Hashicorp::Vagrant::ParseVagrantfileRequest, ::Hashicorp::Vagrant::ParseVagrantfileResponse
         rpc :ParseVagrantfileProc, ::Hashicorp::Vagrant::ParseVagrantfileProcRequest, ::Hashicorp::Vagrant::ParseVagrantfileResponse
         rpc :ParseVagrantfileSubvm, ::Hashicorp::Vagrant::ParseVagrantfileSubvmRequest, ::Hashicorp::Vagrant::ParseVagrantfileResponse

@@ -25,7 +25,6 @@ const _ = grpc.SupportPackageIsVersion7
 type RubyVagrantClient interface {
 	// Gets available ruby plugins
 	GetPlugins(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetPluginsResponse, error)
-	GetCommands(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetCommandsResponse, error)
 	ParseVagrantfile(ctx context.Context, in *ParseVagrantfileRequest, opts ...grpc.CallOption) (*ParseVagrantfileResponse, error)
 	ParseVagrantfileProc(ctx context.Context, in *ParseVagrantfileProcRequest, opts ...grpc.CallOption) (*ParseVagrantfileResponse, error)
 	ParseVagrantfileSubvm(ctx context.Context, in *ParseVagrantfileSubvmRequest, opts ...grpc.CallOption) (*ParseVagrantfileResponse, error)
@@ -43,15 +42,6 @@ func NewRubyVagrantClient(cc grpc.ClientConnInterface) RubyVagrantClient {
 func (c *rubyVagrantClient) GetPlugins(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetPluginsResponse, error) {
 	out := new(GetPluginsResponse)
 	err := c.cc.Invoke(ctx, "/hashicorp.vagrant.RubyVagrant/GetPlugins", in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *rubyVagrantClient) GetCommands(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetCommandsResponse, error) {
-	out := new(GetCommandsResponse)
-	err := c.cc.Invoke(ctx, "/hashicorp.vagrant.RubyVagrant/GetCommands", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -100,7 +90,6 @@ func (c *rubyVagrantClient) ParseVagrantfileProvider(ctx context.Context, in *Pa
 type RubyVagrantServer interface {
 	// Gets available ruby plugins
 	GetPlugins(context.Context, *emptypb.Empty) (*GetPluginsResponse, error)
-	GetCommands(context.Context, *emptypb.Empty) (*GetCommandsResponse, error)
 	ParseVagrantfile(context.Context, *ParseVagrantfileRequest) (*ParseVagrantfileResponse, error)
 	ParseVagrantfileProc(context.Context, *ParseVagrantfileProcRequest) (*ParseVagrantfileResponse, error)
 	ParseVagrantfileSubvm(context.Context, *ParseVagrantfileSubvmRequest) (*ParseVagrantfileResponse, error)
@@ -114,9 +103,6 @@ type UnimplementedRubyVagrantServer struct {
 
 func (UnimplementedRubyVagrantServer) GetPlugins(context.Context, *emptypb.Empty) (*GetPluginsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetPlugins not implemented")
-}
-func (UnimplementedRubyVagrantServer) GetCommands(context.Context, *emptypb.Empty) (*GetCommandsResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetCommands not implemented")
 }
 func (UnimplementedRubyVagrantServer) ParseVagrantfile(context.Context, *ParseVagrantfileRequest) (*ParseVagrantfileResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ParseVagrantfile not implemented")
@@ -157,24 +143,6 @@ func _RubyVagrant_GetPlugins_Handler(srv interface{}, ctx context.Context, dec f
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(RubyVagrantServer).GetPlugins(ctx, req.(*emptypb.Empty))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _RubyVagrant_GetCommands_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(emptypb.Empty)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(RubyVagrantServer).GetCommands(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: "/hashicorp.vagrant.RubyVagrant/GetCommands",
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(RubyVagrantServer).GetCommands(ctx, req.(*emptypb.Empty))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -261,10 +229,6 @@ var RubyVagrant_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetPlugins",
 			Handler:    _RubyVagrant_GetPlugins_Handler,
-		},
-		{
-			MethodName: "GetCommands",
-			Handler:    _RubyVagrant_GetCommands_Handler,
 		},
 		{
 			MethodName: "ParseVagrantfile",

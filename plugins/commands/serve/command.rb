@@ -128,7 +128,6 @@ module VagrantPlugins
         STDOUT.flush
         logger.info("Vagrant GRPC service is now running addr=#{bind_addr.inspect} port=#{port.inspect}")
         s.run_till_terminated_or_interrupted([1, 'int', 'SIGQUIT', 'SIGINT'])
-        1
       ensure
         logger.info("Vagrant GRPC service is shutting down")
       end

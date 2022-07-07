@@ -47,8 +47,8 @@ type Plugin struct {
 	Location string                         // Location of the plugin (generally path to binary)
 	Mappers  []*argmapper.Func              // Plugin specific mappers
 	Name     string                         // Name of the plugin
-	Options  map[component.Type]interface{} // Options for supported components
 	Types    []component.Type               // Component types supported by this plugin
+	Options  map[component.Type]interface{} // Options for supported components
 
 	cleaner cleanup.Cleanup // Cleanup tasks to perform on closing
 	logger  hclog.Logger
