@@ -373,7 +373,10 @@ end
 class Hashicorp::Vagrant::Sdk::Args::Direct
   def to_ruby
     VagrantPlugins::CommandServe::Type::Direct.new(
-      arguments: arguments.map(&:to_ruby)
+      arguments: arguments.map { |arg|
+        val = arg.to_ruby
+        val.is_a?(VagrantPlugins::CommandServe::Type) ? val.value : val
+      }
     )
   end
 end
