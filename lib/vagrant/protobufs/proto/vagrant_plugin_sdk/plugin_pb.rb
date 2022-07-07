@@ -715,9 +715,14 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
     add_message "hashicorp.vagrant.sdk.Target.Machine.SyncedFoldersResponse" do
       repeated :synced_folders, :message, 1, "hashicorp.vagrant.sdk.Target.Machine.SyncedFoldersResponse.MachineSyncedFolder"
     end
+    add_message "hashicorp.vagrant.sdk.Target.Machine.SyncedFoldersResponse.Folder" do
+      optional :source, :string, 1
+      optional :destination, :string, 2
+      optional :options, :message, 3, "hashicorp.vagrant.sdk.Args.Hash"
+    end
     add_message "hashicorp.vagrant.sdk.Target.Machine.SyncedFoldersResponse.MachineSyncedFolder" do
       optional :plugin, :message, 1, "hashicorp.vagrant.sdk.Args.SyncedFolder"
-      optional :folder, :message, 2, "hashicorp.vagrant.sdk.Vagrantfile.SyncedFolder"
+      optional :folder, :message, 2, "hashicorp.vagrant.sdk.Target.Machine.SyncedFoldersResponse.Folder"
     end
     add_message "hashicorp.vagrant.sdk.Project" do
     end
@@ -1186,6 +1191,7 @@ module Hashicorp
       Target::Machine::GetStateResponse = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Target.Machine.GetStateResponse").msgclass
       Target::Machine::UIDResponse = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Target.Machine.UIDResponse").msgclass
       Target::Machine::SyncedFoldersResponse = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Target.Machine.SyncedFoldersResponse").msgclass
+      Target::Machine::SyncedFoldersResponse::Folder = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Target.Machine.SyncedFoldersResponse.Folder").msgclass
       Target::Machine::SyncedFoldersResponse::MachineSyncedFolder = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Target.Machine.SyncedFoldersResponse.MachineSyncedFolder").msgclass
       Project = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Project").msgclass
       Project::ActiveTargetsResponse = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Project.ActiveTargetsResponse").msgclass
