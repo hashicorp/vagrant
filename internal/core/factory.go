@@ -70,16 +70,26 @@ func (f *Factory) NewBasis(resourceId string, opts ...BasisOption) (*Basis, erro
 	}
 
 	opts = append(opts,
-		WithClient(f.client),
 		WithFactory(f),
-		WithLogger(f.logger),
-		WithUI(f.ui),
-		WithPluginManager(f.plugins),
 	)
 
 	b, err := NewBasis(f.ctx, opts...)
 	if err != nil {
 		return nil, err
+	}
+
+	// Set any unset values which we can provide
+	if b.client == nil {
+		b.client = f.client
+	}
+	if b.logger == nil {
+		b.logger = f.logger
+	}
+	if b.ui == nil {
+		b.ui = f.ui
+	}
+	if b.plugins == nil {
+		b.plugins = f.plugins
 	}
 
 	// Now that we have the basis information loaded, check if
