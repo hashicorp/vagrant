@@ -7,6 +7,8 @@ import (
 
 	"github.com/hashicorp/go-argmapper"
 	"github.com/hashicorp/go-hclog"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/proto"
 
 	"github.com/hashicorp/vagrant-plugin-sdk/component"
@@ -213,9 +215,6 @@ func (v *Vagrantfile) Closer(
 
 // Perform any registered closer tasks
 func (v *Vagrantfile) Close() error {
-	v.m.Lock()
-	defer v.m.Unlock()
-
 	v.logger.Trace("closing vagrantfile")
 	return v.cleanup.Close()
 }
@@ -435,6 +434,13 @@ func (v *Vagrantfile) Target(
 	name, // Name of the target
 	provider string, // Provider backing the target
 ) (target core.Target, err error) {
+	v.logger.Info("doing lookup for target", "name", name)
+
+	name, err = v.targetNameLookup(name)
+	if err != nil {
+		return nil, err
+	}
+
 	conf, err := v.TargetConfig(name, provider, false)
 	if err != nil {
 		return
@@ -457,7 +463,7 @@ func (v *Vagrantfile) Target(
 	}
 	target, err = v.factory.NewTarget(opts...)
 	if err != nil {
-		return
+		return nil, err
 	}
 
 	// Since the target config gives us a Vagrantfile which is
@@ -466,10 +472,11 @@ func (v *Vagrantfile) Target(
 	if vf != nil {
 		rawTarget := target.(*Target)
 		tvf := vf.clone(name)
-		tvf.logger = rawTarget.logger.Named("vagrantfile")
+
 		if err = tvf.Init(); err != nil {
 			return nil, err
 		}
+		tvf.logger = rawTarget.logger.Named("vagrantfile")
 		rawTarget.vagrantfile = tvf
 
 		if err = vf.Close(); err != nil {
@@ -492,6 +499,11 @@ func (v *Vagrantfile) TargetConfig(
 	v.m.Lock()
 	defer v.m.Unlock()
 
+	name, err = v.targetNameLookup(name)
+	if err != nil {
+		return nil, err
+	}
+
 	cid := name + "+" + provider
 	if cv := v.cache.Get(cid); cv != nil {
 		return cv.(core.Vagrantfile), nil
@@ -508,7 +520,19 @@ func (v *Vagrantfile) TargetConfig(
 
 		t, err := v.factory.NewTarget(WithTargetName(name))
 		if err != nil {
-			return nil, err
+			if status.Code(err) != codes.NotFound {
+				return nil, err
+			}
+			t, err = v.factory.NewTarget(
+				WithTargetRef(
+					&vagrant_plugin_sdk.Ref_Target{
+						ResourceId: name,
+					},
+				),
+			)
+			if err != nil {
+				return nil, err
+			}
 		}
 
 		return t.vagrantfile, nil
@@ -1099,6 +1123,43 @@ func (v *Vagrantfile) toProto(
 	}
 
 	return raw.(proto.Message), nil
+}
+
+// Lookup target by name or resource id and return
+// the target's name.
+func (v *Vagrantfile) targetNameLookup(
+	nameOrId string, // target name or resource id
+) (string, error) {
+	if cname, ok := v.cache.Fetch("lookup" + nameOrId); ok {
+		return cname.(string), nil
+	}
+	// Run a lookup first to verify if this target actually exists. If it does,
+	// then request it.
+	resp, err := v.factory.client.FindTarget(v.factory.ctx,
+		&vagrant_server.FindTargetRequest{
+			Target: &vagrant_server.Target{
+				Name:       nameOrId,
+				ResourceId: nameOrId,
+				Project:    v.targetSource,
+			},
+		},
+	)
+	if err != nil {
+		return "", err
+	}
+
+	// Register lookups in the local cache
+	v.cache.Register(
+		fmt.Sprintf("lookup+%s", resp.Target.Name),
+		resp.Target.Name,
+	)
+
+	v.cache.Register(
+		fmt.Sprintf("lookup+%s", resp.Target.ResourceId),
+		resp.Target.Name,
+	)
+
+	return resp.Target.Name, nil
 }
 
 func (v *Vagrantfile) loadToRoot(
