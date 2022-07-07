@@ -221,7 +221,7 @@ func (r *Runner) accept(ctx context.Context, id string) error {
 			// ensure that no more output is writting to the client.
 			log.Info("starting job execution")
 			result, err = r.executeJob(ctx, log, ui, assignment.Assignment.Job, wd)
-			if ui, ok := ui.(*runnerUI); ok {
+			if ui, ok := ui.(io.Closer); ok {
 				ui.Close()
 			}
 			log.Debug("job finished", "error", err)
