@@ -121,16 +121,3 @@ func (r *RubyVagrantClient) ParseVagrantfileProvider(provider string, subvm *vag
 
 	return resp.Data, nil
 }
-
-func (r *RubyVagrantClient) GetCommands() ([]*vagrant_plugin_sdk.Command_CommandInfo, error) {
-	resp, err := r.client.GetCommands(
-		context.Background(),
-		&emptypb.Empty{},
-	)
-
-	if err != nil {
-		return nil, err
-	}
-
-	return resp.Commands, nil
-}

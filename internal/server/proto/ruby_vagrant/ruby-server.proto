@@ -14,7 +14,6 @@ import "plugin.proto";
 service RubyVagrant {
   // Gets available ruby plugins
   rpc GetPlugins(google.protobuf.Empty) returns (GetPluginsResponse);
-  rpc GetCommands(google.protobuf.Empty) returns (GetCommandsResponse);
   rpc ParseVagrantfile(ParseVagrantfileRequest) returns (ParseVagrantfileResponse);
   rpc ParseVagrantfileProc(ParseVagrantfileProcRequest) returns (ParseVagrantfileResponse);
   rpc ParseVagrantfileSubvm(ParseVagrantfileSubvmRequest) returns (ParseVagrantfileResponse);
@@ -86,8 +85,4 @@ message ParseVagrantfileSubvmRequest {
 message ParseVagrantfileProviderRequest {
   sdk.Config.RawRubyValue subvm = 1;
   string provider = 2;
-}
-
-message GetCommandsResponse {
-  repeated sdk.Command.CommandInfo commands = 1;
 }
