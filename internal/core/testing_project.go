@@ -3,7 +3,7 @@ package core
 import (
 	"github.com/mitchellh/go-testing-interface"
 
-	"github.com/hashicorp/vagrant-plugin-sdk/proto/vagrant_plugin_sdk"
+	//	"github.com/hashicorp/vagrant-plugin-sdk/proto/vagrant_plugin_sdk"
 	"github.com/hashicorp/vagrant/internal/plugin"
 )
 
@@ -12,12 +12,12 @@ import (
 // factories, configuration, etc.
 func TestProject(t testing.T, opts ...BasisOption) *Project {
 	b := TestBasis(t, opts...)
-	p, err := b.LoadProject([]ProjectOption{
-		WithProjectRef(&vagrant_plugin_sdk.Ref_Project{
-			Basis: b.Ref().(*vagrant_plugin_sdk.Ref_Basis),
-			Name:  "test-project"},
-		),
-	}...)
+	p, err := b.factory.NewProject(
+		[]ProjectOption{
+			WithBasis(b),
+			WithProjectName("test-project"),
+		}...,
+	)
 
 	if err != nil {
 		t.Fatal(err)
@@ -31,13 +31,12 @@ func TestProject(t testing.T, opts ...BasisOption) *Project {
 func TestMinimalProject(t testing.T) *Project {
 	pluginManager := plugin.TestManager(t)
 	b := TestBasis(t, WithPluginManager(pluginManager))
-
-	p, err := b.LoadProject([]ProjectOption{
-		WithProjectRef(&vagrant_plugin_sdk.Ref_Project{
-			Basis: b.Ref().(*vagrant_plugin_sdk.Ref_Basis),
-			Name:  "test-project"},
-		),
-	}...)
+	p, err := b.factory.NewProject(
+		[]ProjectOption{
+			WithBasis(b),
+			WithProjectName("test-project"),
+		}...,
+	)
 
 	if err != nil {
 		t.Fatal(err)

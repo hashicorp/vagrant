@@ -32,19 +32,19 @@ func TestTarget(t testing.T, p *Project, st *vagrant_server.Target, opts ...Test
 		t.Fatal(err)
 	}
 
-	target, err = p.LoadTarget([]TargetOption{
-		WithTargetRef(
-			&vagrant_plugin_sdk.Ref_Target{
-				Project: p.Ref().(*vagrant_plugin_sdk.Ref_Project),
-				Name:    testingTarget.Name,
-			},
-		),
-	}...)
-	if err != nil {
-		t.Fatal(err)
-	}
+	target, err = p.factory.NewTarget(
+		[]TargetOption{
+			WithProject(p),
+			WithTargetRef(
+				&vagrant_plugin_sdk.Ref_Target{
+					Project: p.Ref().(*vagrant_plugin_sdk.Ref_Project),
+					Name:    testingTarget.Name,
+				},
+			),
+		}...,
+	)
 
-	if err = p.refreshProject(); err != nil {
+	if err = p.Reload(); err != nil {
 		t.Fatal(err)
 	}
 
@@ -78,14 +78,18 @@ func TestMinimalTarget(t testing.T) (target *Target) {
 		t.Fatal(err)
 	}
 
-	target, err = tp.LoadTarget([]TargetOption{
-		WithTargetRef(
-			&vagrant_plugin_sdk.Ref_Target{
-				Project: tp.Ref().(*vagrant_plugin_sdk.Ref_Project),
-				Name:    "test-target",
-			},
-		),
-	}...)
+	target, err = tp.factory.NewTarget(
+		[]TargetOption{
+			WithProject(tp),
+			WithTargetRef(
+				&vagrant_plugin_sdk.Ref_Target{
+					Project: tp.Ref().(*vagrant_plugin_sdk.Ref_Project),
+					Name:    "test-target",
+				},
+			),
+		}...,
+	)
+
 	if err != nil {
 		t.Fatal(err)
 	}
