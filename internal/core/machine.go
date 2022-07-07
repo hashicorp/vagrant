@@ -483,7 +483,7 @@ func (m *Machine) SaveMachine() (err error) {
 		return
 	}
 
-	return
+	return m.Save()
 }
 
 func (m *Machine) toTarget() core.Target {
