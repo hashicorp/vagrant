@@ -656,19 +656,34 @@ func (b *Basis) Host() (host core.Host, err error) {
 // information before an actual command is run
 func (b *Basis) Init() (result *vagrant_server.Job_InitResult, err error) {
 	b.logger.Debug("running init for basis")
-	result = &vagrant_server.Job_InitResult{
-		Commands: []*vagrant_plugin_sdk.Command_CommandInfo{},
+	list, err := b.plugins.RubyClient().GetCommands()
+	if err != nil {
+		return nil, err
 	}
-	ctx := context.Background()
+	existing := map[string]struct{}{}
+	for _, i := range list {
+		existing[i.Name] = struct{}{}
+	}
 
-	cmds, err := b.typeComponents(ctx, component.CommandType)
+	result = &vagrant_server.Job_InitResult{
+		Commands: list,
+	}
+
+	cmds, err := b.plugins.Typed(component.CommandType)
 	if err != nil {
 		return nil, err
 	}
 
-	for _, c := range cmds {
+	for _, cmdName := range cmds {
+		if _, ok := existing[cmdName]; ok {
+			continue
+		}
+		c, err := b.component(b.ctx, component.CommandType, cmdName)
+		if err != nil {
+			return nil, err
+		}
 		fn := c.Value.(component.Command).CommandInfoFunc()
-		raw, err := b.callDynamicFunc(ctx, b.logger, fn,
+		raw, err := b.callDynamicFunc(b.ctx, b.logger, fn,
 			(*[]*vagrant_plugin_sdk.Command_CommandInfo)(nil),
 			argmapper.Typed(b.ctx),
 		)

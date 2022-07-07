@@ -50,6 +50,9 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
       optional :subvm, :message, 1, "hashicorp.vagrant.sdk.Config.RawRubyValue"
       optional :provider, :string, 2
     end
+    add_message "hashicorp.vagrant.GetCommandsResponse" do
+      repeated :commands, :message, 1, "hashicorp.vagrant.sdk.Command.CommandInfo"
+    end
   end
 end
 
@@ -63,5 +66,6 @@ module Hashicorp
     ParseVagrantfileResponse = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.ParseVagrantfileResponse").msgclass
     ParseVagrantfileSubvmRequest = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.ParseVagrantfileSubvmRequest").msgclass
     ParseVagrantfileProviderRequest = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.ParseVagrantfileProviderRequest").msgclass
+    GetCommandsResponse = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.GetCommandsResponse").msgclass
   end
 end
