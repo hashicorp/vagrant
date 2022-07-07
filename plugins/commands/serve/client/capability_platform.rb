@@ -35,15 +35,15 @@ module VagrantPlugins
               name: cap_name,
             )
           )
-          cb = proc do |name, args|
+          cb = lambda do |name, args|
             result = client.capability(
               SDK::Platform::Capability::NamedRequest.new(
                 name: name,
                 func_args: args,
               )
             )
-            return nil if result.nil?
-            mapper.map(result.result)
+            return nil if result.nil? || result.result.nil?
+            mapper.map(SDK::Args::Direct.new(arguments: [result.result])).arguments.first
           end
           [spec, cb]
         end
