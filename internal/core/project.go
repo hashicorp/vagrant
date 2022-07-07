@@ -67,7 +67,12 @@ func NewProject(opts ...ProjectOption) (*Project, error) {
 		cleanup: cleanup.New(),
 		ctx:     context.Background(),
 		logger:  hclog.L(),
-		project: &vagrant_server.Project{},
+		project: &vagrant_server.Project{
+			Configuration: &vagrant_server.Vagrantfile{
+				Unfinalized: &vagrant_plugin_sdk.Args_Hash{},
+				Format:      vagrant_server.Vagrantfile_RUBY,
+			},
+		},
 	}
 
 	for _, fn := range opts {
@@ -93,7 +98,6 @@ func (p *Project) Init() error {
 
 	// Configure our logger
 	p.logger = p.logger.ResetNamed("vagrant.core.project")
-	p.logger = p.logger.With("project", p)
 
 	// If the client isn't set, grab it from the basis
 	if p.client == nil && p.basis != nil {
@@ -196,6 +200,8 @@ func (p *Project) Init() error {
 	// Set flag that this instance is setup
 	p.ready = true
 
+	// Include this project information in log lines
+	p.logger = p.logger.With("project", p)
 	p.logger.Info("project initialized")
 
 	return nil
@@ -674,19 +680,21 @@ func (p *Project) Save() error {
 
 	// Remove the defined vms from finalized data to
 	// prevent it from being used on subsequent runs
-	if err := p.vagrantfile.DeleteValue("vm", "__defined_vms"); err != nil {
-		p.logger.Warn("failed to remove defined vms configuration before save",
-			"error", err,
-		)
-	}
+	if p.vagrantfile != nil {
+		if err := p.vagrantfile.DeleteValue("vm", "__defined_vms"); err != nil {
+			p.logger.Warn("failed to remove defined vms configuration before save",
+				"error", err,
+			)
+		}
 
-	val, err := p.vagrantfile.rootToStore()
-	if err != nil {
-		p.logger.Warn("failed to convert modified configuration for save",
-			"error", err,
-		)
-	} else {
-		p.project.Configuration.Finalized = val.Data
+		val, err := p.vagrantfile.rootToStore()
+		if err != nil {
+			p.logger.Warn("failed to convert modified configuration for save",
+				"error", err,
+			)
+		} else {
+			p.project.Configuration.Finalized = val.Data
+		}
 	}
 
 	result, err := p.Client().UpsertProject(p.ctx,
@@ -921,10 +929,6 @@ func WithBasis(b *Basis) ProjectOption {
 	return func(p *Project) (err error) {
 		p.basis = b
 		p.project.Basis = b.Ref().(*vagrant_plugin_sdk.Ref_Basis)
-		// NOTE: only set the UI if it's unset
-		if p.ui == nil {
-			p.ui = b.ui
-		}
 		return
 	}
 }
