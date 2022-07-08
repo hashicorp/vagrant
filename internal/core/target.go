@@ -326,6 +326,15 @@ func (t *Target) DataDir() (*datadir.Target, error) {
 	return t.dir, nil
 }
 
+// Returns if the target exists based on state
+func (t *Target) Exists() bool {
+	s, _ := t.State()
+	if s == core.NOT_CREATED || s == core.UNKNOWN {
+		return false
+	}
+	return true
+}
+
 func (t *Target) State() (state core.State, err error) {
 	switch t.target.State {
 	case vagrant_server.Operation_UNKNOWN:
@@ -440,11 +449,10 @@ func (t *Target) Save() (err error) {
 
 func (t *Target) Destroy() (err error) {
 	// Run all the cleanup tasks on the target
-	t.logger.Trace("destroying target")
-	t.Close()
-
 	t.m.Lock()
 	defer t.m.Unlock()
+
+	t.logger.Trace("destroying target")
 
 	// Delete the target from the database
 	_, err = t.Client().DeleteTarget(t.ctx, &vagrant_server.DeleteTargetRequest{
