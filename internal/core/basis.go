@@ -137,6 +137,15 @@ func (b *Basis) Init() error {
 		}
 	}
 
+	// If our reloaded data does not include any configuration
+	// stub in a default value
+	if b.basis.Configuration == nil {
+		b.basis.Configuration = &vagrant_server.Vagrantfile{
+			Unfinalized: &vagrant_plugin_sdk.Args_Hash{},
+			Format:      vagrant_server.Vagrantfile_RUBY,
+		}
+	}
+
 	// If the basis directory is unset, set it
 	if b.dir == nil {
 		if b.dir, err = datadir.NewBasis(b.basis.Name); err != nil {

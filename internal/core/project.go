@@ -118,6 +118,15 @@ func (p *Project) Init() error {
 		}
 	}
 
+	// If our reloaded data does not include any configuration
+	// stub in a default value
+	if p.project.Configuration == nil {
+		p.project.Configuration = &vagrant_server.Vagrantfile{
+			Unfinalized: &vagrant_plugin_sdk.Args_Hash{},
+			Format:      vagrant_server.Vagrantfile_RUBY,
+		}
+	}
+
 	// If we don't have a basis set, load it
 	if p.basis == nil {
 		p.basis, err = p.factory.NewBasis(p.project.Basis.ResourceId, WithBasisRef(p.project.Basis))
