@@ -57,6 +57,10 @@ func TestTarget(t testing.T, p *Project, st *vagrant_server.Target, opts ...Test
 		t.Fatal(err)
 	}
 
+	if err = p.Reload(); err != nil {
+		t.Fatal(err)
+	}
+
 	return
 }
 
@@ -91,6 +95,10 @@ func TestMinimalTarget(t testing.T) (target *Target) {
 	)
 
 	if err != nil {
+		t.Fatal(err)
+	}
+
+	if err = tp.Reload(); err != nil {
 		t.Fatal(err)
 	}
 
