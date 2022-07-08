@@ -73,7 +73,7 @@ module Vagrant
         targets = client.active_targets
         names = []
         targets.each do |t|
-          names << t.name
+          names << [t.name, t.provider_name.to_sym]
         end
         names
       end
