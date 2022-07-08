@@ -117,7 +117,12 @@ func TestBasis(t testing.T, opts ...BasisOption) (b *Basis) {
 	factory := NewFactory(
 		context.Background(),
 		client,
-		hclog.L(),
+		hclog.New(
+			&hclog.LoggerOptions{
+				Name:  "vagrant.core.factory",
+				Level: hclog.Trace,
+			},
+		),
 		manager,
 		(terminal.UI)(nil),
 	)
