@@ -110,7 +110,7 @@ module VagrantPlugins
         def state_spec(*_)
           funcspec(
             args: [
-              SDK::Args::Target::Machine
+              SDK::Args::Target
             ],
             result: SDK::Args::Target::Machine::State,
           )
