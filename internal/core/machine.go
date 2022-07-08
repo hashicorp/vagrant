@@ -52,10 +52,10 @@ func (m *Machine) SetID(value string) (err error) {
 	// Persist changes
 	if value == "" {
 		m.target.Record = nil
-		err = m.Destroy()
-	} else {
-		err = m.SaveMachine()
+		m.target.State = vagrant_server.Operation_NOT_CREATED
 	}
+
+	err = m.SaveMachine()
 
 	return
 }
