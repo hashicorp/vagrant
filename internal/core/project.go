@@ -763,6 +763,8 @@ func (p *Project) scrubTargets() (err error) {
 					WithProject(p),
 					WithTargetRef(t),
 				); err == nil {
+					// Attach our logger to the target so it can customize it
+					target.logger = p.logger
 					if err = target.Init(); err != nil {
 						target = nil
 					}
