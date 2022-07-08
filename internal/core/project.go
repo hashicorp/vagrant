@@ -187,10 +187,22 @@ func (p *Project) Init() error {
 	// Set project seeds
 	p.seed(nil)
 
-	// Remove any stale targets
-	if err = p.scrubTargets(); err != nil {
+	// Initialize any targets which are known to the project
+	if err = p.InitTargets(); err != nil {
 		return err
 	}
+
+	// Scrub any targets that no longer exist
+	// NOTE: We access the cleanup directly here instead of using the
+	//       generic Closer() so we can use Append(). This adds the
+	//       target scrubbing task to a collection of cleanup tasks
+	//       that are performed after the general collection has been
+	//       run. This ensures that any target created by the factory
+	//       will have been shut down and saved before this scrubbing
+	//       task is executed.
+	p.cleanup.Append(func() error {
+		return p.scrubTargets()
+	})
 
 	// Save ourself when closed
 	p.Closer(func() error {
@@ -597,11 +609,6 @@ func (p *Project) Run(ctx context.Context, task *vagrant_server.Task) (err error
 	p.logger.Debug("running new task",
 		"task", task)
 
-	// Initialize our targets before running
-	if err = p.InitTargets(); err != nil {
-		return
-	}
-
 	cmd, err := p.basis.component(
 		ctx, component.CommandType, task.Component.Name)
 	if err != nil {
@@ -721,20 +728,10 @@ func (p *Project) Components(ctx context.Context) ([]*Component, error) {
 
 func (p *Project) scrubTargets() (err error) {
 	var updated bool
-	targets, err := p.TargetNames()
-	if err != nil {
-		return err
-	}
-	current := map[string]struct{}{}
-	for _, name := range targets {
-		current[name] = struct{}{}
-	}
+
+	p.logger.Trace("scrubbing targets from project")
 
 	for _, t := range p.project.Targets {
-		if _, ok := current[t.Name]; ok {
-			continue
-		}
-
 		resp, err := p.client.GetTarget(p.ctx,
 			&vagrant_server.GetTargetRequest{
 				Target: t,
@@ -747,15 +744,54 @@ func (p *Project) scrubTargets() (err error) {
 		if resp.Target.State == vagrant_server.Operation_NOT_CREATED ||
 			resp.Target.State == vagrant_server.Operation_UNKNOWN ||
 			resp.Target.State == vagrant_server.Operation_DESTROYED {
-			_, err = p.client.DeleteTarget(p.ctx,
-				&vagrant_server.DeleteTargetRequest{
-					Target: t,
-				},
+			p.logger.Trace("target does not exist, removing",
+				"target", resp.Target,
 			)
-			if err != nil {
-				return err
+			// Try and load the target so we can destroy it. If that fails,
+			// then we just delete it directly via the client
+			var target *Target
+			raw, ok := p.factory.cache.Fetch(resp.Target.ResourceId)
+			if ok {
+				target = raw.(*Target)
+			} else {
+				// NOTE: When loading the target, we do it manually and not
+				// via the factory. This is because the factory will register
+				// a closer on the project, and as this function will generally
+				// be called from a project closer, we want to prevent getting
+				// stuck in a deadlock.
+				if target, err = NewTarget(
+					WithProject(p),
+					WithTargetRef(t),
+				); err == nil {
+					if err = target.Init(); err != nil {
+						target = nil
+					}
+				} else {
+					target = nil
+				}
+			}
+
+			if target == nil {
+				p.logger.Trace("failed to load target for removal, manually deleting",
+					"target", resp.Target,
+				)
+				_, err = p.client.DeleteTarget(p.ctx,
+					&vagrant_server.DeleteTargetRequest{
+						Target: t,
+					},
+				)
+				if err != nil {
+					return err
+				}
+			} else {
+				err = target.Destroy()
+				if err != nil {
+					return err
+				}
 			}
 			updated = true
+		} else {
+			p.logger.Trace("not scrubbing target, exists", "target", resp.Target)
 		}
 	}
 
@@ -763,63 +799,51 @@ func (p *Project) scrubTargets() (err error) {
 		err = p.Reload()
 	}
 
+	p.logger.Trace("target scrubbing has been completed")
 	return
 }
 
 // Initialize all targets for this project
 func (p *Project) InitTargets() (err error) {
 	p.logger.Trace("initializing targets defined within project")
-	var updated bool
 
-	targets, err := p.Targets()
+	// Get list of targets this project knows about based
+	// on the vagrantfile configuration
+	names, err := p.vagrantfile.TargetNames()
 	if err != nil {
+		p.logger.Trace("failed to get target names",
+			"error", err,
+		)
+
 		return
 	}
 
+	// We'll store the resource ids of the targets
+	// defined in the vagrantfile here for reference
+	// later
 	current := map[string]struct{}{}
-	for _, t := range targets {
-		rid, err := t.ResourceId()
-		if err != nil {
-			return err
-		}
-		current[rid] = struct{}{}
-	}
 
-	// Cycle over targets registered to project and if any
-	// are not in an "exist" type state, delete them as
-	// they were removed from the vagrantfile
-	for _, t := range p.project.Targets {
-		if _, ok := current[t.ResourceId]; ok {
-			continue
-		}
-		target, err := p.Factory().NewTarget(
+	p.logger.Trace("loading targets defined by vagrantfile",
+		"targets", names,
+	)
+
+	// Use the factory to create or load the targets
+	// so they are all valid in the database
+	for _, name := range names {
+		p.logger.Trace("loading new target from factory during init", "name", name)
+		t, err := p.factory.NewTarget(
+			WithTargetName(name),
 			WithProject(p),
-			WithTargetRef(t),
 		)
 		if err != nil {
+			p.logger.Error("failed to load target from factory", "name", name)
 			return err
 		}
-
-		state, err := target.State()
-		if err != nil {
-			return err
-		}
-
-		if state == core.NOT_CREATED || state == core.UNKNOWN {
-			if err = target.Destroy(); err != nil {
-				return err
-			}
-			updated = true
-		}
+		p.logger.Trace("new target from factory during init", "target", t)
+		current[t.target.ResourceId] = struct{}{}
 	}
 
-	if updated {
-		// If targets have been updated then refresh the project. This is required
-		// since upserting targets will also update the project to have a reference
-		// to the new targets.
-		err = p.Reload()
-	}
-	return
+	return p.Reload()
 }
 
 // Reload the project data
