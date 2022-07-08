@@ -441,7 +441,7 @@ module Hashicorp
           rpc :GetID, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::Target::Machine::GetIDResponse
           rpc :SetState, ::Hashicorp::Vagrant::Sdk::Target::Machine::SetStateRequest, ::Google::Protobuf::Empty
           rpc :GetState, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::Args::Target::Machine::State
-          rpc :Box, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::Args::Box
+          rpc :Box, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::Target::Machine::BoxResponse
           rpc :Guest, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::Args::Guest
           rpc :ConnectionInfo, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::Args::Hash
           rpc :UID, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::Target::Machine::UIDResponse

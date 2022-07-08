@@ -71,6 +71,10 @@ func (m *Machine) Box() (b core.Box, err error) {
 
 			return nil, err
 		}
+		if boxName == nil {
+			m.logger.Debug("vagrantfile has no box, so returning nil")
+			return nil, nil
+		}
 		provider, err := m.ProviderName()
 		if err != nil {
 			return nil, err

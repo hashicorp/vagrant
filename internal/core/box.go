@@ -173,6 +173,9 @@ func (b *Box) loadMetadata() (metadata *BoxMetadata, err error) {
 }
 
 func (b *Box) matches(box core.Box) (bool, error) {
+	if box == nil {
+		return false, nil
+	}
 	name, err := box.Name()
 	if err != nil {
 		return false, err
