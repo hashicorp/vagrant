@@ -436,8 +436,9 @@ func (m *Manager) ListPlugins(typeNames ...string) ([]*core.NamedPlugin, error) 
 		}
 		for _, p := range list {
 			i := &core.NamedPlugin{
-				Type: t.String(),
-				Name: p,
+				Type:    t.String(),
+				Name:    p,
+				Options: m.optionsForPlugin(t, p),
 			}
 			result = append(result, i)
 		}
@@ -725,6 +726,23 @@ func (m *Manager) loadParent(i *Instance) error {
 	// Set the parent
 	i.Parent = pi
 	c.SetParentComponent(pi.Component)
+
+	return nil
+}
+
+// optionsForPlugin fetches the options that were registered for a given
+// plugin. the return type will be one of component.*Options. If the plugin is
+// not found or has no options, returns nil.
+func (m *Manager) optionsForPlugin(t component.Type, name string) interface{} {
+	for _, p := range m.Plugins {
+		if p.Name == name && p.HasType(t) {
+			return p.Options[t]
+		}
+	}
+
+	if m.parent != nil {
+		return m.parent.optionsForPlugin(t, name)
+	}
 
 	return nil
 }

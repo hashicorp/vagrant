@@ -148,13 +148,6 @@ module Vagrant
           self.class.core_client
         end
 
-        # Synced folder plugins are registered with an integer priority, but in
-        # remote mode this is all captured by InternalService#get_plugins and
-        # handled on the Go sidw. Within the remote manager we return a stub
-        # value to ensure that any callers get the same shape of return value
-        # from the registry and don't blow up.
-        SYNCED_FOLDERS_STUB_PRIORITY = 123
-
         # This returns all synced folder implementations.
         #
         # @return [Registry]
@@ -165,7 +158,12 @@ module Vagrant
               sf_class.plugin_name = plg[:name]
               sf_class.type = plg[:type]
               result.register(plg[:name].to_sym) do
-                [sf_class, SYNCED_FOLDERS_STUB_PRIORITY]
+                # The integer priority has already been captured on the Go side
+                # by InternalService#get_plugins. It's returned in the plugin
+                # options field, and we populate it into the same place for
+                # good measure, even though we expect that priority will be
+                # handled on the Go side now.
+                [sf_class, plg[:options]]
               end
             end
           end
@@ -260,8 +258,7 @@ module Vagrant
               sf_class.plugin_name = plg[:name]
               sf_class.type = plg[:type]
               result.register(plg[:name].to_sym) do
-                # TODO: Options hash should be what?
-                [sf_class, {}]
+                [sf_class, plg[:options]]
               end
             end
           end

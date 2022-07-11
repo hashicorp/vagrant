@@ -12,7 +12,8 @@ module VagrantPlugins
             Vagrant::Util::HashWithIndifferentAccess.new(
               name: plg.name,
               type: plg.type,
-              proto: plg.plugin
+              proto: plg.plugin,
+              options: _plugin_options_to_hash(plg.options),
             )
           end
         end
@@ -26,6 +27,25 @@ module VagrantPlugins
             )
           )
           mapper.map(resp.plugin, broker)
+        end
+
+        # Plugin options are an Any that contains one of the types defined in
+        # component.*Options in the SDK.
+        #
+        # On the Ruby side, plugin options are just a value that get stuffed in
+        # a tuple next to the plugin in the manager. Its type is context
+        # dependent so we need to unpack each kind of plugin options with its
+        # own logic.
+        def _plugin_options_to_hash(plg_opts)
+          opts = mapper.unany(plg_opts)
+          case opts
+          when Hashicorp::Vagrant::Sdk::PluginInfo::ProviderOptions
+            opts.to_h
+          when Hashicorp::Vagrant::Sdk::PluginInfo::SyncedFolderOptions
+            opts.priority
+          else
+            raise ArgumentError, "unexpected plugin options #{opts.inspect}"
+          end
         end
       end
     end

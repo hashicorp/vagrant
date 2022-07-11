@@ -457,6 +457,7 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
       optional :name, :string, 1
       optional :type, :string, 2
       optional :plugin, :message, 3, "google.protobuf.Any"
+      optional :options, :message, 4, "google.protobuf.Any"
     end
     add_message "hashicorp.vagrant.sdk.CorePluginManager" do
     end

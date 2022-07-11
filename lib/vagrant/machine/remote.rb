@@ -44,7 +44,6 @@ module Vagrant
         @state_mutex     = Mutex.new
         # TODO: get trigger config from go
         @triggers        = Vagrant::Plugin::V2::Trigger.new(@env, @config.trigger, self, @ui)
-        @provider_options = {} # @config.vm.get_provider_overrides(@provider_name)
 
         # Keep track of where our UUID should be placed
         @index_uuid_file = nil
@@ -154,7 +153,7 @@ module Vagrant
       end
 
       def provider_options
-        @provider_options
+        @provider_options ||= Vagrant.plugin("2").manager.provider[provider_name].last
       end
 
       def recover_machine(*_)
