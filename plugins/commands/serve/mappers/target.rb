@@ -63,7 +63,9 @@ module VagrantPlugins
         end
 
         def converter(t)
-          t.to_proto
+          return t.to_proto if
+            t.class == Client::Target
+          t.client.as_target(Empty.new)
         end
       end
     end
