@@ -446,6 +446,7 @@ module Hashicorp
           rpc :ConnectionInfo, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::Args::Hash
           rpc :UID, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::Target::Machine::UIDResponse
           rpc :SyncedFolders, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::Target::Machine::SyncedFoldersResponse
+          rpc :AsTarget, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::Args::Target
         end
 
         Stub = Service.rpc_stub_class
