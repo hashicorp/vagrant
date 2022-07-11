@@ -28,6 +28,12 @@ type Machine struct {
 	vagrantfile *Vagrantfile
 }
 
+func (m *Machine) String() string {
+	return fmt.Sprintf("core.Machine[basis: %s, project: %s, resource_id: %s, name: %s, address: %p]",
+		m.project.basis.Name(), m.project.Name(), m.target.ResourceId, m.target.Name, m,
+	)
+}
+
 // Close implements core.Machine
 func (m *Machine) Close() (err error) {
 	return
@@ -219,7 +225,13 @@ func (m *Machine) MachineState() (state *core.MachineState, err error) {
 	if err != nil {
 		return nil, err
 	}
-	return p.State()
+	m.logger.Info("have machine provider plugin, getting state")
+	s, err := p.State()
+	m.logger.Info("provider state is returned",
+		"state", s,
+		"error", err,
+	)
+	return s, err
 }
 
 // SetMachineState implements core.Machine
@@ -469,6 +481,10 @@ func (m *Machine) SyncedFolders() (folders []*core.MachineSyncedFolder, err erro
 		})
 	}
 	return
+}
+
+func (m *Machine) AsTarget() (core.Target, error) {
+	return m.Target, nil
 }
 
 func (m *Machine) SaveMachine() (err error) {
