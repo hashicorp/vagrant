@@ -79,11 +79,7 @@ module VagrantPlugins
         end
 
         def converter(machine, mappers)
-          env = mappers.map(machine.project, to: Vagrant::Environment)
-          env.machine(
-            machine.name.to_sym,
-            machine.provider_name.to_sym,
-          )
+          Vagrant::Machine.new(client: machine)
         end
       end
 
@@ -148,6 +144,7 @@ module VagrantPlugins
           machine.client.to_proto
         end
       end
+
     end
   end
 end

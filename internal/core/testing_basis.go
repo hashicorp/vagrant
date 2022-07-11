@@ -6,10 +6,12 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/hashicorp/go-hclog"
 	"github.com/hashicorp/vagrant-plugin-sdk/core"
 	coremocks "github.com/hashicorp/vagrant-plugin-sdk/core/mocks"
 	"github.com/hashicorp/vagrant-plugin-sdk/datadir"
 	"github.com/hashicorp/vagrant-plugin-sdk/proto/vagrant_plugin_sdk"
+	"github.com/hashicorp/vagrant-plugin-sdk/terminal"
 	"github.com/hashicorp/vagrant/internal/plugin"
 	"github.com/hashicorp/vagrant/internal/server/singleprocess"
 	"github.com/mitchellh/go-testing-interface"
@@ -109,12 +111,32 @@ func TestBasis(t testing.T, opts ...BasisOption) (b *Basis) {
 		),
 	}
 
+	client := singleprocess.TestServer(t)
+	manager := plugin.TestManager(t)
+
+	factory := NewFactory(
+		context.Background(),
+		client,
+		hclog.New(
+			&hclog.LoggerOptions{
+				Name:  "vagrant.core.factory",
+				Level: hclog.Trace,
+			},
+		),
+		manager,
+		(terminal.UI)(nil),
+	)
+
 	defaultOpts := []BasisOption{
-		WithClient(singleprocess.TestServer(t)),
+		WithFactory(factory),
+		WithClient(client),
 		WithBasisDataDir(projDir),
 		WithBasisRef(&vagrant_plugin_sdk.Ref_Basis{Name: "test-basis"}),
 	}
 
-	b, _ = NewBasis(context.Background(), append(defaultOpts, opts...)...)
+	b, err = factory.NewBasis("", append(defaultOpts, opts...)...)
+	if err != nil {
+		t.Fatal(err)
+	}
 	return
 }

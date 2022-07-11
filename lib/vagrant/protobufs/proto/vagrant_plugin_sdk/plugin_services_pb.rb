@@ -446,6 +446,7 @@ module Hashicorp
           rpc :ConnectionInfo, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::Args::Hash
           rpc :UID, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::Target::Machine::UIDResponse
           rpc :SyncedFolders, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::Target::Machine::SyncedFoldersResponse
+          rpc :AsTarget, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::Sdk::Args::Target
         end
 
         Stub = Service.rpc_stub_class
@@ -500,6 +501,7 @@ module Hashicorp
           self.unmarshal_class_method = :decode
           self.service_name = 'hashicorp.vagrant.sdk.VagrantfileService'
 
+          rpc :GetValue, ::Hashicorp::Vagrant::Sdk::Vagrantfile::ValueRequest, ::Hashicorp::Vagrant::Sdk::Args::Direct
           rpc :GetConfig, ::Hashicorp::Vagrant::Sdk::Vagrantfile::NamespaceRequest, ::Hashicorp::Vagrant::Sdk::Args::ConfigData
           rpc :Target, ::Hashicorp::Vagrant::Sdk::Vagrantfile::TargetRequest, ::Hashicorp::Vagrant::Sdk::Args::Target
           rpc :TargetConfig, ::Hashicorp::Vagrant::Sdk::Vagrantfile::TargetConfigRequest, ::Hashicorp::Vagrant::Sdk::Args::Vagrantfile

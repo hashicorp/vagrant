@@ -28,6 +28,12 @@ type Machine struct {
 	vagrantfile *Vagrantfile
 }
 
+func (m *Machine) String() string {
+	return fmt.Sprintf("core.Machine[basis: %s, project: %s, resource_id: %s, name: %s, address: %p]",
+		m.project.basis.Name(), m.project.Name(), m.target.ResourceId, m.target.Name, m,
+	)
+}
+
 // Close implements core.Machine
 func (m *Machine) Close() (err error) {
 	return
@@ -52,10 +58,10 @@ func (m *Machine) SetID(value string) (err error) {
 	// Persist changes
 	if value == "" {
 		m.target.Record = nil
-		err = m.Destroy()
-	} else {
-		err = m.SaveMachine()
+		m.target.State = vagrant_server.Operation_NOT_CREATED
 	}
+
+	err = m.SaveMachine()
 
 	return
 }
@@ -219,7 +225,13 @@ func (m *Machine) MachineState() (state *core.MachineState, err error) {
 	if err != nil {
 		return nil, err
 	}
-	return p.State()
+	m.logger.Info("have machine provider plugin, getting state")
+	s, err := p.State()
+	m.logger.Info("provider state is returned",
+		"state", s,
+		"error", err,
+	)
+	return s, err
 }
 
 // SetMachineState implements core.Machine
@@ -471,14 +483,22 @@ func (m *Machine) SyncedFolders() (folders []*core.MachineSyncedFolder, err erro
 	return
 }
 
+func (m *Machine) AsTarget() (core.Target, error) {
+	return m.Target, nil
+}
+
 func (m *Machine) SaveMachine() (err error) {
 	m.logger.Debug("saving machine to db", "machine", m.machine.Id)
 	// Update the target record and uuid to match the machine's new state
-	m.target.Record, err = anypb.New(m.machine)
 	m.target.Uuid = m.machine.Id
+	m.target.Record, err = anypb.New(m.machine)
 	if err != nil {
-		return nil
+		m.logger.Warn("failed to convert machine data to any value",
+			"error", err,
+		)
+		return
 	}
+
 	return m.Save()
 }
 
@@ -486,47 +506,6 @@ func (m *Machine) toTarget() core.Target {
 	return m
 }
 
-// Get option value from config map. Since keys in the config
-// can be either string or types.Symbol, this helper function
-// will check for either type being set
-func getOptionValue(
-	name string, // name of option
-	options map[interface{}]interface{}, // options map from config
-) (interface{}, bool) {
-	var key interface{}
-	key = name
-	result, ok := options[key]
-	if ok {
-		return result, true
-	}
-	key = types.Symbol(name)
-	result, ok = options[key]
-	if ok {
-		return result, true
-	}
-
-	return nil, false
-}
-
-// Option values from the config which are expected to be string
-// values may be a string or types.Symbol. This helper function
-// will take the value and convert it into a string if possible.
-func optionToString(
-	opt interface{}, // value to convert
-) (result string, err error) {
-	result, ok := opt.(string)
-	if ok {
-		return
-	}
-
-	sym, ok := opt.(types.Symbol)
-	if !ok {
-		return result, fmt.Errorf("option value is not string type (%T)", opt)
-	}
-	result = string(sym)
-
-	return
-}
-
 var _ core.Machine = (*Machine)(nil)
 var _ core.Target = (*Machine)(nil)
+var _ Scope = (*Machine)(nil)

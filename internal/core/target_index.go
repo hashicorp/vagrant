@@ -92,7 +92,12 @@ func (t *TargetIndex) All() (targets []core.Target, err error) {
 		if err != nil {
 			return nil, err
 		}
-		targets = append(targets, nt)
+		// Filter based on state since targets may be registered
+		// but not actually exist
+		if nt.target.State != vagrant_server.Operation_NOT_CREATED &&
+			nt.target.State != vagrant_server.Operation_UNKNOWN {
+			targets = append(targets, nt)
+		}
 	}
 
 	return
@@ -103,17 +108,8 @@ func (t *TargetIndex) Close() (err error) {
 }
 
 func (t *TargetIndex) loadTarget(tproto *vagrant_plugin_sdk.Ref_Target) (target *Target, err error) {
-	// Load the project
-	p, err := t.basis.LoadProject(
-		WithProjectRef(
-			tproto.GetProject(),
-		),
-	)
-	if err != nil {
-		return
-	}
-	// Finally, load the target
-	return p.LoadTarget(
+	t.logger.Info("loading a target for index", "target", tproto)
+	return t.basis.factory.NewTarget(
 		WithTargetRef(tproto),
 	)
 }

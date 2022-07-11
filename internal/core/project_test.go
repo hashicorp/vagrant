@@ -15,6 +15,7 @@ func projectTargets(t *testing.T, project *Project, numTargets int) (targets []*
 			ResourceId: fmt.Sprintf("id-%d", i),
 			Name:       fmt.Sprintf("target-%d", i),
 			Uuid:       fmt.Sprintf("uuid-%d", i),
+			State:      vagrant_server.Operation_CREATED,
 		})
 		targets = append(targets, tt)
 	}
@@ -34,6 +35,10 @@ func TestProjectGetTarget(t *testing.T) {
 	// Add targets to project
 	targetOne := TestTarget(t, tp, &vagrant_server.Target{ResourceId: "id-one", Name: "target-one"})
 	targetTwo := TestTarget(t, tp, &vagrant_server.Target{ResourceId: "id-two", Name: "target-two"})
+
+	err := targetOne.Reload()
+	require.NoError(t, err)
+	require.Equal(t, "id-one", targetOne.target.ResourceId)
 
 	// Get by id
 	one, err := tp.Target("id-one", "")

@@ -154,7 +154,7 @@ module VagrantPlugins
           result = func.call(*args)
           if !result.is_a?(output)
             raise TypeError,
-              "Expected output type of `#{output}', got `#{result.class}'"
+              "Expected output type of `#{output}', got `#{result.class}' (in #{self.class})"
           end
           result
         end

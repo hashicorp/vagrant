@@ -774,6 +774,9 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
     end
     add_message "hashicorp.vagrant.sdk.Vagrantfile" do
     end
+    add_message "hashicorp.vagrant.sdk.Vagrantfile.ValueRequest" do
+      repeated :path, :string, 1
+    end
     add_message "hashicorp.vagrant.sdk.Vagrantfile.Serialized" do
       optional :json, :bytes, 1
     end
@@ -1212,6 +1215,7 @@ module Hashicorp
       Project::TargetIdsResponse = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Project.TargetIdsResponse").msgclass
       Project::VagrantfileNameResponse = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Project.VagrantfileNameResponse").msgclass
       Vagrantfile = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Vagrantfile").msgclass
+      Vagrantfile::ValueRequest = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Vagrantfile.ValueRequest").msgclass
       Vagrantfile::Serialized = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Vagrantfile.Serialized").msgclass
       Vagrantfile::BoxCollection = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Vagrantfile.BoxCollection").msgclass
       Vagrantfile::NamespaceRequest = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.sdk.Vagrantfile.NamespaceRequest").msgclass

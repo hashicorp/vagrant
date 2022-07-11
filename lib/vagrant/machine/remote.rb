@@ -45,7 +45,6 @@ module Vagrant
         # TODO: get trigger config from go
         @triggers        = Vagrant::Plugin::V2::Trigger.new(@env, @config.trigger, self, @ui)
         @provider_options = {} # @config.vm.get_provider_overrides(@provider_name)
-        @provider = Vagrant.plugin("2").manager.providers[provider_name].first.new(self)
 
         # Keep track of where our UUID should be placed
         @index_uuid_file = nil

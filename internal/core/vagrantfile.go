@@ -7,7 +7,9 @@ import (
 
 	"github.com/hashicorp/go-argmapper"
 	"github.com/hashicorp/go-hclog"
-	goplugin "github.com/hashicorp/go-plugin"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
+	"google.golang.org/protobuf/proto"
 
 	"github.com/hashicorp/vagrant-plugin-sdk/component"
 	"github.com/hashicorp/vagrant-plugin-sdk/core"
@@ -21,18 +23,6 @@ import (
 	"github.com/hashicorp/vagrant/internal/server/proto/vagrant_server"
 	"github.com/hashicorp/vagrant/internal/serverclient"
 )
-
-// Need to attach the source so we can get at information
-// as required for init'ing targets and the like. The source
-// will be one of: basis, project, target. This interface
-// describes the functions which must be available.
-type originScope interface {
-	Boxes() (core.BoxCollection, error)
-	Broker() *goplugin.GRPCBroker
-	Cache() cacher.Cache
-	Closer(func() error)
-	LoadTarget(...TargetOption) (*Target, error)
-}
 
 // LoadLocation type defines the origin of a Vagrantfile. The
 // higher the value of the LoadLocation, the higher the precedence
@@ -139,56 +129,59 @@ type source struct {
 type Vagrantfile struct {
 	cache         cacher.Cache                    // Cached used for storing target configs
 	cleanup       cleanup.Cleanup                 // Cleanup tasks to run on close
+	boxes         *BoxCollection                  // Box collection to utilize
 	logger        hclog.Logger                    // Logger
 	mappers       []*argmapper.Func               // Mappers
-	origin        originScope                     // Origin of vagrantfile (basis, project)
+	factory       *Factory                        // Factory for target generation
 	registrations registrations                   // Config plugin registrations
 	root          *component.ConfigData           // Combined Vagrantfile config
 	rubyClient    *serverclient.RubyVagrantClient // Client for the Ruby runtime
 	sources       map[LoadLocation]*source        // Vagrantfile sources
+
+	targetSource *vagrant_plugin_sdk.Ref_Project
 
 	internal interface{} // Internal instance used for running maps
 	m        sync.Mutex
 }
 
 func (v *Vagrantfile) String() string {
-	return fmt.Sprintf("core.Vagrantfile[origin: %v, registrations: %s, sources: %v]",
-		v.origin, v.registrations, v.sources)
+	return fmt.Sprintf("core.Vagrantfile[factory: %v, registrations: %s, sources: %v]",
+		v.factory, v.registrations, v.sources)
 }
 
 // Create a new Vagrantfile instance
 func NewVagrantfile(
-	o originScope,
-	r *serverclient.RubyVagrantClient,
+	f *Factory,
+	b *BoxCollection,
 	m []*argmapper.Func, // Mappers to be used for type conversions
 	l hclog.Logger, // Logger
 ) *Vagrantfile {
-	mappers := make([]*argmapper.Func, len(protomappers.All)+len(m))
-	for i, fn := range protomappers.All {
-		pfn, err := argmapper.NewFunc(fn, argmapper.Logger(dynamic.Logger))
-		if err != nil {
-			l.Warn("failed to create converter func",
-				"fn", fn,
+	var err error
+	if m == nil {
+		m, err = argmapper.NewFuncList(protomappers.All,
+			argmapper.Logger(dynamic.Logger),
+		)
+		if err == nil {
+			l.Error("failed to generate mapper functions",
 				"error", err,
 			)
-			continue
+			m = []*argmapper.Func{}
 		}
-		mappers[i] = pfn
 	}
-	copy(mappers[len(protomappers.All)-1:len(protomappers.All)+len(m)], m)
 	v := &Vagrantfile{
 		cache:         cacher.New(),
 		cleanup:       cleanup.New(),
+		boxes:         b,
 		logger:        l.Named("vagrantfile"),
-		mappers:       mappers,
-		origin:        o,
+		mappers:       m,
+		factory:       f,
 		registrations: make(registrations),
-		rubyClient:    r,
+		rubyClient:    f.plugins.RubyClient(),
 		sources:       make(map[LoadLocation]*source),
 	}
 	int := plugin.NewInternal(
-		o.Broker(),
-		o.Cache(),
+		f.plugins.LegacyBroker(),
+		v.cache,
 		v.cleanup,
 		v.logger,
 		v.mappers,
@@ -222,9 +215,6 @@ func (v *Vagrantfile) Closer(
 
 // Perform any registered closer tasks
 func (v *Vagrantfile) Close() error {
-	v.m.Lock()
-	defer v.m.Unlock()
-
 	v.logger.Trace("closing vagrantfile")
 	return v.cleanup.Close()
 }
@@ -341,6 +331,7 @@ func (v *Vagrantfile) Init() (err error) {
 
 	// Store the finalized configuration in the final source
 	if s != nil {
+		v.logger.Info("setting finalized into last vagrant source", "source", s)
 		if err = v.setFinalized(s, v.root); err != nil {
 			return
 		}
@@ -443,8 +434,11 @@ func (v *Vagrantfile) Target(
 	name, // Name of the target
 	provider string, // Provider backing the target
 ) (target core.Target, err error) {
-	if v.origin == nil {
-		return nil, fmt.Errorf("cannot create target, no origin set")
+	v.logger.Info("doing lookup for target", "name", name)
+
+	name, err = v.targetNameLookup(name)
+	if err != nil {
+		return nil, err
 	}
 
 	conf, err := v.TargetConfig(name, provider, false)
@@ -452,7 +446,14 @@ func (v *Vagrantfile) Target(
 		return
 	}
 
-	opts := []TargetOption{WithTargetName(name)}
+	opts := []TargetOption{
+		WithTargetRef(
+			&vagrant_plugin_sdk.Ref_Target{
+				Name:    name,
+				Project: v.targetSource,
+			},
+		),
+	}
 	var vf *Vagrantfile
 
 	if conf != nil {
@@ -460,9 +461,9 @@ func (v *Vagrantfile) Target(
 		vf = conf.(*Vagrantfile)
 		opts = append(opts, WithTargetVagrantfile(vf))
 	}
-	target, err = v.origin.LoadTarget(opts...)
+	target, err = v.factory.NewTarget(opts...)
 	if err != nil {
-		return
+		return nil, err
 	}
 
 	// Since the target config gives us a Vagrantfile which is
@@ -470,10 +471,12 @@ func (v *Vagrantfile) Target(
 	// it to the target we loaded
 	if vf != nil {
 		rawTarget := target.(*Target)
-		tvf := v.clone(name, rawTarget)
+		tvf := vf.clone(name)
+
 		if err = tvf.Init(); err != nil {
 			return nil, err
 		}
+		tvf.logger = rawTarget.logger.Named("vagrantfile")
 		rawTarget.vagrantfile = tvf
 
 		if err = vf.Close(); err != nil {
@@ -487,6 +490,7 @@ func (v *Vagrantfile) Target(
 // Generate a new Vagrantfile for the given target
 // NOTE: This function may return a nil result without an error
 // TODO(spox): Provider validation is not currently implemented
+// TODO(spox): Needs box configuration applied
 func (v *Vagrantfile) TargetConfig(
 	name, // name of the target
 	provider string, // provider backing the target
@@ -495,6 +499,11 @@ func (v *Vagrantfile) TargetConfig(
 	v.m.Lock()
 	defer v.m.Unlock()
 
+	name, err = v.targetNameLookup(name)
+	if err != nil {
+		return nil, err
+	}
+
 	cid := name + "+" + provider
 	if cv := v.cache.Get(cid); cv != nil {
 		return cv.(core.Vagrantfile), nil
@@ -502,11 +511,31 @@ func (v *Vagrantfile) TargetConfig(
 
 	subvm, err := v.GetValue("vm", "__defined_vms", name)
 	if err != nil {
+		// If we failed to get the subvm value, then we want to
+		// just load the target directly so it can generate
 		v.logger.Warn("failed to get subvm",
 			"name", name,
 			"error", err,
 		)
-		return nil, nil
+
+		t, err := v.factory.NewTarget(WithTargetName(name))
+		if err != nil {
+			if status.Code(err) != codes.NotFound {
+				return nil, err
+			}
+			t, err = v.factory.NewTarget(
+				WithTargetRef(
+					&vagrant_plugin_sdk.Ref_Target{
+						ResourceId: name,
+					},
+				),
+			)
+			if err != nil {
+				return nil, err
+			}
+		}
+
+		return t.vagrantfile, nil
 	}
 
 	if subvm == nil {
@@ -516,9 +545,15 @@ func (v *Vagrantfile) TargetConfig(
 
 		return nil, fmt.Errorf("empty value found for requested target")
 	}
+	v.logger.Info("running to proto on subvm value", "subvm", subvm)
+	subvmProto, err := v.toProto(subvm)
+	if err != nil {
+		return nil, err
+	}
 
+	v.logger.Info("sending subvm to ruby for parsing", "subvm", subvmProto)
 	resp, err := v.rubyClient.ParseVagrantfileSubvm(
-		subvm.(*vagrant_plugin_sdk.Config_RawRubyValue),
+		subvmProto.(*vagrant_plugin_sdk.Config_RawRubyValue),
 	)
 
 	if err != nil {
@@ -535,7 +570,7 @@ func (v *Vagrantfile) TargetConfig(
 		"config", resp,
 	)
 
-	newV := v.clone(name, v.origin)
+	newV := v.clone(name)
 	err = newV.Source(
 		&vagrant_server.Vagrantfile{
 			Unfinalized: resp,
@@ -549,7 +584,7 @@ func (v *Vagrantfile) TargetConfig(
 
 	if provider != "" {
 		resp, err = v.rubyClient.ParseVagrantfileProvider(provider,
-			subvm.(*vagrant_plugin_sdk.Config_RawRubyValue),
+			subvmProto.(*vagrant_plugin_sdk.Config_RawRubyValue),
 		)
 		if err != nil {
 			return nil, err
@@ -569,9 +604,44 @@ func (v *Vagrantfile) TargetConfig(
 		return nil, fmt.Errorf("failed to init target config vagrantfile: %w", err)
 	}
 
+	vmRaw, ok := newV.root.Data["vm"]
+	if !ok {
+		return nil, fmt.Errorf("failed to get vm for delete modification")
+	}
+	vm, ok := vmRaw.(*component.ConfigData)
+	if !ok {
+		return nil, fmt.Errorf("failed to cast vm to expected map type (%T)", vmRaw)
+	}
+	delete(vm.Data, "__defined_vms")
+
 	v.cache.Register(cid, newV)
 
 	return newV, nil
+}
+
+func (v *Vagrantfile) DeleteValue(
+	path ...string,
+) error {
+	if len(path) < 2 {
+		return fmt.Errorf("cannot delete namespace")
+	}
+
+	toDelete := path[len(path)-1]
+	path = path[0 : len(path)-1]
+
+	val, err := v.GetValue(path...)
+	if err != nil {
+		return err
+	}
+	switch m := val.(type) {
+	case map[interface{}]interface{}:
+		delete(m, toDelete)
+	case map[string]interface{}:
+		delete(m, toDelete)
+	default:
+		return fmt.Errorf("cannot delete value, invalid container type (%T)", val)
+	}
+	return nil
 }
 
 // Attempts to extract configuration information
@@ -582,6 +652,7 @@ func (v *Vagrantfile) GetValue(
 	if len(path) == 0 {
 		return nil, fmt.Errorf("no lookup path provided")
 	}
+	var ok bool
 	var result interface{}
 	// Error will always be a failed path lookup so populate it now
 	err := fmt.Errorf("failed to locate value at given path (%#v)", path)
@@ -599,9 +670,9 @@ func (v *Vagrantfile) GetValue(
 	// Since we already used out first path value above
 	// be sure we start our loop from 1
 	for i := 1; i < len(path); i++ {
-		// First, attempt to use the current value as a stringed map
-		if sm, ok := result.(map[string]interface{}); ok {
-			if result, ok = sm[path[i]]; ok {
+		switch m := result.(type) {
+		case map[string]interface{}:
+			if result, ok = m[path[i]]; ok {
 				continue
 			}
 			v.logger.Warn("get value lookup failed",
@@ -610,24 +681,9 @@ func (v *Vagrantfile) GetValue(
 				"type", "map[string]interface{}",
 			)
 			return nil, err
-		}
-		// Next, attempt to use the current value as a ConfigData
-		if cd, ok := result.(*component.ConfigData); ok {
-			if result, ok = cd.Data[path[i]]; ok {
-				continue
-			}
-			v.logger.Warn("get value lookup failed",
-				"keys", path,
-				"current-key", path[i],
-				"type", "ConfigData",
-			)
-
-			return nil, err
-		}
-		// Finally, attempt to use the current value as an interfaced map
-		if im, ok := result.(map[interface{}]interface{}); ok {
+		case map[interface{}]interface{}:
 			found := false
-			for key, val := range im {
+			for key, val := range m {
 				if strKey, ok := key.(string); ok && strKey == path[i] {
 					found = true
 					result = val
@@ -650,15 +706,38 @@ func (v *Vagrantfile) GetValue(
 			)
 
 			return nil, err
+		case *component.ConfigData:
+			if result, ok = m.Data[path[i]]; ok {
+				continue
+			}
+			v.logger.Warn("get value lookup failed",
+				"keys", path,
+				"current-key", path[i],
+				"type", "ConfigData",
+			)
+
+			return nil, err
+		case *types.RawRubyValue:
+			if result, ok = m.Data[path[i]]; ok {
+				continue
+			}
+			v.logger.Warn("get value lookup failed",
+				"keys", path,
+				"current-key", path[i],
+				"type", "RawRubyValue",
+			)
+
+			return nil, err
+		default:
+			v.logger.Warn("get value lookup failed",
+				"keys", path,
+				"current-key", path[i],
+				"type", "no-match",
+			)
+
+			return nil, err
 		}
 
-		v.logger.Warn("get value lookup failed",
-			"keys", path,
-			"current-key", path[i],
-			"type", "no-match",
-		)
-
-		return nil, err
 	}
 
 	return result, nil
@@ -894,7 +973,7 @@ func (v *Vagrantfile) generateConfig(
 		argmapper.Typed(
 			context.Background(),
 			v.logger,
-			plugin.Internal(v.logger, v.mappers),
+			v.internal,
 		),
 	)
 	if err != nil {
@@ -974,6 +1053,8 @@ func (v *Vagrantfile) merge(
 
 		v.logger.Debug("merging values",
 			"namespace", k,
+			"base", valBase,
+			"overlay", valToMerge,
 		)
 
 		r, err := c.Merge(valBase, valToMerge)
@@ -987,7 +1068,7 @@ func (v *Vagrantfile) merge(
 }
 
 // Create a clone of the current Vagrantfile
-func (v *Vagrantfile) clone(name string, origin originScope) *Vagrantfile {
+func (v *Vagrantfile) clone(name string) *Vagrantfile {
 	reg := make(registrations, len(v.registrations))
 	for k, v := range v.registrations {
 		reg[k] = v
@@ -997,31 +1078,150 @@ func (v *Vagrantfile) clone(name string, origin originScope) *Vagrantfile {
 		srcs[k] = v
 	}
 	newV := &Vagrantfile{
+		boxes:         v.boxes,
 		cache:         v.cache,
 		cleanup:       cleanup.New(),
+		factory:       v.factory,
+		internal:      v.internal,
 		logger:        v.logger.Named(name),
 		mappers:       v.mappers,
-		origin:        origin,
 		registrations: reg,
 		rubyClient:    v.rubyClient,
 		sources:       srcs,
 	}
-	if origin != nil {
-		int := plugin.NewInternal(
-			origin.Broker(),
-			origin.Cache(),
-			newV.cleanup,
-			newV.logger,
-			newV.mappers,
-		)
-		newV.internal = int
-	} else {
-		newV.internal = v.internal
-	}
 
-	origin.Closer(func() error { return newV.Close() })
+	v.Closer(func() error { return newV.Close() })
+
+	int := plugin.NewInternal(
+		newV.factory.plugins.LegacyBroker(),
+		newV.factory.cache,
+		newV.cleanup,
+		newV.logger,
+		newV.mappers,
+	)
+	v.internal = int
 
 	return newV
+}
+
+// Convert value to proto
+func (v *Vagrantfile) toProto(
+	value interface{},
+) (proto.Message, error) {
+	raw, err := dynamic.Map(
+		value,
+		(*proto.Message)(nil),
+		argmapper.ConverterFunc(v.mappers...),
+		argmapper.Typed(
+			context.Background(),
+			v.logger,
+			v.internal,
+		),
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	return raw.(proto.Message), nil
+}
+
+// Lookup target by name or resource id and return
+// the target's name.
+func (v *Vagrantfile) targetNameLookup(
+	nameOrId string, // target name or resource id
+) (string, error) {
+	if cname, ok := v.cache.Fetch("lookup" + nameOrId); ok {
+		return cname.(string), nil
+	}
+	// Run a lookup first to verify if this target actually exists. If it does,
+	// then request it.
+	resp, err := v.factory.client.FindTarget(v.factory.ctx,
+		&vagrant_server.FindTargetRequest{
+			Target: &vagrant_server.Target{
+				Name:       nameOrId,
+				ResourceId: nameOrId,
+				Project:    v.targetSource,
+			},
+		},
+	)
+	if err != nil {
+		return "", err
+	}
+
+	// Register lookups in the local cache
+	v.cache.Register(
+		fmt.Sprintf("lookup+%s", resp.Target.Name),
+		resp.Target.Name,
+	)
+
+	v.cache.Register(
+		fmt.Sprintf("lookup+%s", resp.Target.ResourceId),
+		resp.Target.Name,
+	)
+
+	return resp.Target.Name, nil
+}
+
+func (v *Vagrantfile) loadToRoot(
+	value *vagrant_plugin_sdk.Args_ConfigData,
+) error {
+	raw, err := dynamic.Map(
+		value,
+		(**component.ConfigData)(nil),
+		argmapper.ConverterFunc(v.mappers...),
+		argmapper.Typed(
+			context.Background(),
+			v.logger,
+			v.internal,
+		),
+	)
+	if err != nil {
+		return err
+	}
+	v.root = raw.(*component.ConfigData)
+	return nil
+}
+
+// Get option value from config map. Since keys in the config
+// can be either string or types.Symbol, this helper function
+// will check for either type being set
+func getOptionValue(
+	name string, // name of option
+	options map[interface{}]interface{}, // options map from config
+) (interface{}, bool) {
+	var key interface{}
+	key = name
+	result, ok := options[key]
+	if ok {
+		return result, true
+	}
+	key = types.Symbol(name)
+	result, ok = options[key]
+	if ok {
+		return result, true
+	}
+
+	return nil, false
+}
+
+// Option values from the config which are expected to be string
+// values may be a string or types.Symbol. This helper function
+// will take the value and convert it into a string if possible.
+func optionToString(
+	opt interface{}, // value to convert
+) (result string, err error) {
+	result, ok := opt.(string)
+	if ok {
+		return
+	}
+
+	sym, ok := opt.(types.Symbol)
+	if !ok {
+		return result, fmt.Errorf("option value is not string type (%T)", opt)
+	}
+	result = string(sym)
+
+	return
 }
 
 var _ core.Vagrantfile = (*Vagrantfile)(nil)

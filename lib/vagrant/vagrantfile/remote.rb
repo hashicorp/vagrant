@@ -41,25 +41,39 @@ module Vagrant
         case args.size
         when 1
           namespace = args.first
+          ConfigFetcher.new(namespace, client: @client)
         when 2
           if args.first.to_s != "[]"
             raise ArgumentError,
                   "Expected #[] but received ##{args.first} on config wrapper"
           end
           namespace = args.last
+          ConfigFetcher.new(namespace, client: @client)
         else
-          #raise ArgumentError,
-                @logger.error("Cannot handle wrapped request for: #{args.inspect}")
+          @logger.trace("cannot handle wrapped config request for #{args.inspect}, sending to root")
+          @root.send(*args, **opts, &block)
+        end
+      end
+    end
+
+    class ConfigFetcher < BasicObject
+      def initialize(namespace, client:)
+        @namespace = namespace
+        @client = client
+        @logger = ::Log4r::Logger.new("vagrant::vagrantfile::remote::configfetcher")
+      end
+
+      def method_missing(*args, **opts, &block)
+        begin
+          return @client.get_value(@namespace, args.last) if
+            (args.size == 2 && args.first.to_sym == :[]) ||
+            args.size == 1
+        rescue => err
+          @logger.trace("failed to get config value from remote, calling direct (#{err})")
+          return @client.get_config(@namespace).send(*args, **opts, &block)
         end
 
-        # TODO: Check args, opts, and block and return error if any are set
-        @logger.info("config wrapper fetching config value for namespace: #{namespace}")
-        begin
-          @client.get_config(namespace)
-        rescue => err
-          @logger.warn("config wrapper failed to process request: #{args} Reason: #{err}")
-          @root.send(*args)
-        end
+        @client.get_config(@namespace).send(*args, **opts, &block)
       end
     end
   end

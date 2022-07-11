@@ -47,6 +47,10 @@ func TestMachineSetEmptyId(t *testing.T) {
 	}
 	require.Equal(t, newId, "")
 
+	// Machine won't be deleted from db until project is closed, so close project first
+	err = tm.project.Close()
+	require.NoError(t, err)
+
 	// Ensure machine is deleted from the db by checking for the old id
 	dbTarget, err := tm.Client().GetTarget(tm.ctx,
 		&vagrant_server.GetTargetRequest{

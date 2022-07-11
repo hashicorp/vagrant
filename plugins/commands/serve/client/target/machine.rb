@@ -86,6 +86,14 @@ module VagrantPlugins
             )
           end
 
+          # Convert machine to a generic target
+          def to_target
+            Target.load(
+              client.as_target(Empty.new),
+              broker: broker,
+            )
+          end
+
           # Set the current state of the machine
           #
           # @param [Vagrant::MachineState] state of the machine
