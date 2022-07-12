@@ -100,8 +100,6 @@ describe VagrantPlugins::Kernel_V2::VMConfig do
     end
 
     it "is not required if the provider says so" do
-      # TODO: reenable this test once provider options are implemented
-      pending "removal of temporary workaround"
       machine.provider_options[:box_optional] = true
       subject.box = nil
       subject.finalize!
