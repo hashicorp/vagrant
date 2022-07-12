@@ -1,0 +1,222 @@
+---
+layout: docs
+page_title: Custom Guests - Go Plugin Development
+description: |-
+  This page documents how to add new guest OS detection to Vagrant, allowing
+  Vagrant to properly configure new operating systems. Prior to reading this,
+  you should be familiar with the plugin development basics.
+---
+
+# Go Plugin Development: Guests
+
+Outside of these components, the caller must provide all other arguments 
+that are required. 
+
+The most basic guest plugin is composed of: 
+1. A detection function that determines if the plugin is usable on the system 
+(is the expected guest)
+2. A set of capabilities that define actions that can be run against the guest
+3. An entry point defining the plugin options
+
+**Note**: To quickly get started writing Go guest plugins, clone the [vagrant-guest-plugin-skeleton](https://github.com/soapy1/vagrant-guest-plugin-skeleton)
+template and follow the Readme.
+
+The file structure of a guest plugin looks like:
+
+```
+- myplugin
+  |- main.go
+  \- guest
+    |- myguest.go
+    \- cap
+      |- mycapability.go
+```
+
+Where `main.go` defines the plugin options. `guest/myguest.go` defines the core plugin
+functionality including the detection of the guest. `cap/*` has the definitions of 
+all the guest plugin capabilities. These capabilities are the same as those for [Ruby
+plugins](../guest-capabilities). 
+
+## Writing a guest plugin
+
+A guest must satisfy the interface defined for a guest component
+
+```
+    GuestDetectFunc() interface{}
+    ParentFunc() interface{}
+    HasCapabilityFunc() interface{}
+    CapabilityFunc(capName string) interface{}
+``` 
+Src: https://github.com/hashicorp/vagrant-plugin-sdk/blob/main/component/component.go  
+
+`GuestDetectFunc`: returns a function that defines the code that determines if the guest is 
+                   detected. The returned function must return a `bool`.
+
+`ParentFunc`: returns a function that defines the code that determines the most immediate parent 
+              plugin. A child plugin will inherit all the capabilities defined in the parent. The 
+              returned function must return a `string`.
+
+`HasCapabilityFunc`: returns a function that defines a lookup for a capability. The returned 
+                     function must return an `bool`.
+
+`CapabilityFunc`: returns a capability function that is defined by the plugin registered by a given name.
+
+An example guest plugin
+
+```
+// file: myplugin/guest/myguest.go
+package guest
+ 
+import (
+ "github.com/hashicorp/vagrant-plugin-sdk/component"
+ sdkcore "github.com/hashicorp/vagrant-plugin-sdk/core"
+)
+ 
+// AlwaysTrueGuest is a Guest implementation for myplugin.
+type AlwaysTrueGuest struct {
+}
+ 
+// DetectFunc implements component.Guest
+func (h *AlwaysTrueGuest) GuestDetectFunc() interface{} {
+  return h.Detect
+}
+ 
+func (h *AlwaysTrueGuest) Detect(t sdkcore.Target) (bool, error) {
+  return true, nil
+}
+ 
+// ParentsFunc implements component.Guest
+func (h *AlwaysTrueGuest) ParentFunc() interface{} {
+  return h.Parent
+}
+ 
+func (h *AlwaysTrueGuest) Parent() string {
+  // This plugin has no parents
+  return ""
+}
+ 
+// HasCapabilityFunc implements component.Guest
+func (h *AlwaysTrueGuest) HasCapabilityFunc() interface{} {
+  return h.CheckCapability
+}
+ 
+func (h *AlwaysTrueGuest) CheckCapability(n *component.NamedCapability) bool {
+  // This plugin has no capabilities
+  return false
+}
+ 
+// CapabilityFunc implements component.Guest
+func (h *AlwaysTrueGuest) CapabilityFunc(name string) interface{} {
+  return fmt.Errorf("requested capability %s not found", name)
+}
+ 
+var (
+ _ component.Guest = (*AlwaysTrueGuest)(nil)
+)
+```
+
+```
+// file: myplugin/main.go
+package myplugin
+ 
+import (
+ sdk "github.com/hashicorp/vagrant-plugin-sdk"
+ "github.com/hashicorp/vagrant/builtin/myplugin/guest"
+)
+ 
+// Options are the SDK options to use for instantiation.
+var ComponentOptions = []sdk.Option{
+ sdk.WithComponents(
+    // Include the defined guest as a component defined in this plugin
+   &guest.AlwaysTrueGuest{},
+ ),
+}
+ 
+func main() {
+ sdk.Main(ComponentOptions...)
+ os.Exit(0)
+}
+```
+
+In this example, the guest plugin will always be detected. It does not define any 
+capabilities, or have any parent plugins.
+
+### Defining and registering guest capabilities
+
+A guest plugin may have capabilities two ways:
+1. By defining and implementing the capability in the plugin
+2. By inheriting the capability from a parent guest plugin
+
+Define a capability by writing out a function that returns the desired capability
+
+```
+// file: myplugin/guest/cap/mycapability.go
+package cap
+ 
+import (
+ "io/ioutil"
+ 
+ "github.com/hashicorp/vagrant-plugin-sdk/terminal"
+)
+ 
+func WriteHelloFunc() interface{} {
+ return WriteHello
+}
+ 
+func WriteHello(trm terminal.UI) error {
+ trm.Output("Hello world")
+ return nil
+}
+```
+
+Make the capability available to the plugin by filling in the capability functions
+
+```
+myplugin/guest/myguest.go
+// HasCapabilityFunc implements component.Guest
+func (h *AlwaysTrueGuest) HasCapabilityFunc() interface{} {
+ return h.CheckCapability
+}
+ 
+func (h *AlwaysTrueGuest) CheckCapability(n *component.NamedCapability) bool {
+ if n.Capability == "write_hello" {
+   return true
+ }
+ return false
+}
+ 
+// CapabilityFunc implements component.Guest
+func (h *AlwaysTrueGuest) CapabilityFunc(name string) interface{} {
+ if name == "write_hello" {
+   return h.WriteHelloCap
+ }
+ return errors.New("Invalid capability requested")
+}
+ 
+func (h *AlwaysTrueGuest) WriteHelloCap(ui terminal.UI) error {
+ return cap.WriteHello(ui)
+}
+```
+
+A guest plugin may inherit the capabilities of a parent function by defining
+a parent in the plugin implementation. This is done by setting the return
+value of the `Parent` function to the name of the desired parent plugin. Go
+based guest plugins may use Ruby based plugins as their parent. 
+
+```
+// file: myplugin/guest/myguest.go
+
+...
+ 
+// ParentsFunc implements component.Guest
+func (h *AlwaysTrueGuest) ParentFunc() interface{} {
+  return h.Parent
+}
+ 
+func (h *AlwaysTrueGuest) Parent() string {
+  // This plugin sets the parent to the "debian" plugin which is provided
+  // as a Ruby plugin. This AlwaysTrueGuest now inherits all the capabilities
+  // of the debian Ruby guest plugin. 
+  return "debian"
+}
+```

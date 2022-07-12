@@ -1,0 +1,74 @@
+---
+layout: docs
+page_title: Go Based Plugins
+description: |-
+  Vagrant comes with many great features out of the box to get your environments
+  up and running. Sometimes, however, you want to change the way Vagrant does
+  something or add additional functionality to Vagrant. This can be done via
+  Vagrant plugins.
+---
+
+# Go Vagrant Plugins
+
+With the introduction of Vagrant-go, Vagrant now supports running plugins 
+implemented in Go. Note that Vagrant-go can run Go and Ruby based plugins 
+while Vagrant-ruby only runs Ruby based plugins.
+
+## Anatomy of a Go plugin
+
+When a plugin is started, it runs in its own process and is able to communicate 
+with the other plugins over GRPC.
+
+A Vagrant-go plugin must implement an interface for a [plugin component](https://github.com/hashicorp/vagrant-plugin-sdk/blob/main/component/component.go).
+A plugin may satisfy more than one component interface. The plugin interfaces 
+define the `<name>Func` functions for the plugin. These functions are meant to 
+return the actual function that represents the named action. For example the 
+`Host` component defines a `DetectFunc`. So, a plugin must have a `DetectFunc` 
+implementation that returns a function that can detect if Vagrant is running
+on the given host. For example
+
+```
+// DetectFunc implements component.Host
+func (h *AlwaysTrueHost) DetectFunc() interface{} {
+  return h.Detect
+}
+ 
+func (h *AlwaysTrueHost) Detect() bool {
+  // This plugin always detects that it is running on the expected host
+  return true
+}
+```
+
+Using this pattern of `<name>Func` functions, Vagrant is able to allow flexibility
+over the receivers of the functions that actually define the behavior of the plugin.
+This injection of dependencies is done using go-argmapper. So, in the same example, 
+the `Detect` function may be made to accept some arguments.
+
+```
+// DetectFunc implements component.Host
+func (h *AlwaysTrueHost) DetectFunc() interface{} {
+  return h.Detect
+}
+ 
+func (h *AlwaysTrueHost) Detect(string msg, trm terminal.UI) bool {
+  trm.Output(msg)
+  return true
+}
+```
+
+Now, in order to run the `Detect` function, the caller must provide a `string` and 
+`terminal.UI` argument. By default, Vagrant will always inject the following arguments
+into a call to a plugin:
+
+- `terminal.UI` component
+- basis
+- project (when available)
+- context
+- logger
+
+For each component type, Vagrant may also inject some additional arguments.
+
+Outside of these components, the caller must provide all other arguments that are required. 
+So, in the case above, in order to successfully call this `Detect` function, the caller must 
+also provide a `string`. It is recommended that plugin authors do not rely on arguments being
+injected into their implementations outside of these sets of arguments.
