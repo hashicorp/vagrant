@@ -751,7 +751,6 @@ func (p *Project) scrubTargets() (err error) {
 		}
 
 		if resp.Target.State == vagrant_server.Operation_NOT_CREATED ||
-			resp.Target.State == vagrant_server.Operation_UNKNOWN ||
 			resp.Target.State == vagrant_server.Operation_DESTROYED {
 			p.logger.Trace("target does not exist, removing",
 				"target", resp.Target,

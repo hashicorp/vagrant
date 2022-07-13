@@ -29,6 +29,9 @@ import (
 // when merging
 type LoadLocation uint8
 
+// DEFAULT_VM_NAME is the name that a target gets when none has been specified.
+const DEFAULT_VM_NAME = "default"
+
 const (
 	VAGRANTFILE_BOX      LoadLocation = iota // Box
 	VAGRANTFILE_BASIS                        // Basis
@@ -1133,6 +1136,7 @@ func (v *Vagrantfile) targetNameLookup(
 	if cname, ok := v.cache.Fetch("lookup" + nameOrId); ok {
 		return cname.(string), nil
 	}
+
 	// Run a lookup first to verify if this target actually exists. If it does,
 	// then request it.
 	resp, err := v.factory.client.FindTarget(v.factory.ctx,
@@ -1145,6 +1149,18 @@ func (v *Vagrantfile) targetNameLookup(
 		},
 	)
 	if err != nil {
+		// When we are in Basis-only mode (VAGRANT_CWD does not have a
+		// Vagrantfile), legacy Vagrant still expects to be able to retrieve config
+		// for the default vm in order to successfully bootstrap its
+		// Vagrant::Environment. In order to retain that behavior, we allow the
+		// DEFAULT_VM_NAME to pass through successfully even when no targets
+		// exist. Note we are specifically skipping the cache registration
+		// below for this short circuit - we only want to do that when a target
+		// exists.
+		if s := status.Convert(err); s.Code() == codes.NotFound && nameOrId == DEFAULT_VM_NAME {
+			v.logger.Info("ignoring target not found error for DEFAULT_VM_NAME")
+			return DEFAULT_VM_NAME, nil
+		}
 		return "", err
 	}
 
