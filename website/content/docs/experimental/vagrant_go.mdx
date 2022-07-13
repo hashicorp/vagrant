@@ -1,0 +1,213 @@
+---
+layout: docs
+page_title: Vagrant Experimental Vagrant Go
+description: Introduction to Vagrant Go
+---
+
+# Vagrant Go
+
+Vagrant-go is Vagrant implemented in Go. This version of Vagrant is compatible
+with Ruby based Vagrant plugins as well as Vagrantfiles. However, there are 
+some significant changes to how Vagrant-go works which make it NOT interchangeable
+with Vagrant (Ruby). 
+
+~> **Warning!** Vagrant-go is in alpha and should be expected to be unstable.
+Users are not recommended to use Vagrant-go for normal day to day operations.
+
+## Anatomy of Vagrant-go
+
+Vagrant-go has made significant changes in where data is stored. As a result,
+machines managed with Vagrant (Ruby) can not be managed by Vagrant-go and vice versa.
+
+### Vagrant-go binary
+
+The Vagrant-go binary is shipped with the Vagrant installer. In order to run the Vagrant-go 
+binary do:
+
+```
+$ vagrant-go global-status
+```
+
+### Vagrant Ruby
+
+Vagrant-go still depends on Vagrant-ruby being available in order to run Ruby plugins
+and for parsing Vagrantfiles. So, Vagrant-go runs Vagrant-ruby as a server in a subprocess,
+providing it access to all the Ruby functionality. 
+
+### Scopes
+
+Vagrant-go has a notion of an information hierarchy. There are three main components:
+
+**Target**: A target is the most specific component in the information hierarchy. It
+represents the guest that Vagrant may manipulate. It is similar to the notion of a 
+Vagrant Machine.
+
+**Project**: A project is similar to the concept of an Environment. It represents
+a group of targets. A project may have plugins installed that are not available
+to other projects. A project directory is any directory that has a Vagrantfile.
+
+**Basis**: The basis is the most general component. It represents the root of the Vagrant
+execution environment and may contain multiple projects. A user may define multiple basis' 
+for their installation. Plugins installed into the basis will be available to all projects
+within the basis. Vagrantfiles setup in the basis will be applied to all projects.
+
+### Data directories
+
+The default Vagrant-go data directory and config directory have changed to meet the
+[XDG specification](https://pkg.go.dev/github.com/adrg/xdg).
+The data directory is now at the XDG data home. The config directory is now at the
+XDG config home. In addition, project level information is no longer available in 
+`PROJECT_DIR/.vagrant`. Instead, this information is available with the data and config dirs.
+
+The form of these directories is as follows:
+
+```
+|- $XDG_CONFIG_DIR
+  \- default  # basis name
+    |- Vagrantfile  # a basis level Vagrantfile will be applied to all machines in the basis
+    \- project  
+      \- project_one  # project name 
+        \- target
+          |- target_one  # target name
+          |- target_two
+      \- project_two
+        \- target
+          |- a
+          |- b
+```
+
+```
+|- $XDG_DATA_DIR
+  |- data.db  # Vagrant database 
+  \- default  # basis name
+    |- insecure_private_key 
+    \- boxes  # box directory
+       \- hashicorp-VAGRANTSLASH-bionic64  # box name
+         \- 1.0.282  # box version
+           \- virtualbox  # box provider
+             |- Vagrantfile
+             |- box.ovf
+             |- metadata.json
+             |- ubuntu-18.04-amd64-disk001.vmdk
+    \- project
+      \- project_one  # project name 
+        \- target
+          |- target_one  # target name
+          |- target_two
+      \- project_two
+        |- vbox_symlink_create_warning
+        \- target
+          |- a
+          |- b
+
+      
+```
+
+Vagrant-go does not have knowledge of the Vagrant-ruby data directories so does not 
+have access to that data and vice versa. Both Vagrant-go and Vagrant-ruby
+respect the [Vagrant environment variables](/docs/other/environmental-variables/) for 
+setting data directory paths. However, the layout and content of these directories 
+are different for Vagrant-go and Vagrant-ruby. 
+
+~> **Warning!** Vagrant-go users should not attempt to use an existing `VAGRANT_HOME`
+directory as it may corrupt it.
+
+
+#### Boxes
+
+Boxes still exist within the data directory. As mentioned above, the data directory is now
+at `$XDG_DATA_DIR`. The ramifications of this are:
+ - Boxes will be duplicated between Vagrant-go and Vagrant-ruby
+ - Users can still import local boxes in both Vagrant-go and Vagrant-ruby using the
+   `box add` command. So, users don't need to download boxes multiple times.
+
+#### Machine index
+
+The machine index for Vagrant-go is backed by the `data.db` in the data directory.
+The ramifications of this are:
+- Vagrant-go and Vagrant-ruby do  not share a machine index. They have no knowledge of 
+  each other, so machines you bring up in one will not be available in the other. There is 
+  currently no way to “import” or “export” a machine index entry
+
+## Installing Go Vagrant plugins
+
+Vagrant-go can load external plugins that are packaged as executables. Plugins can be 
+launched from the basis (`VAGRANT_CONFIG_DIR/plugins`) or the project directory
+(`VAGRANT_PROJECT/.vagrant/plugins`).
+
+These executables will be executed without any options or flags provided.
+To install a new plugin, drop the plugin executable in one of these paths.
+
+## Known Issues
+
+### Vagrant ssh command does not work interactively
+
+The `-c` argument does work to specify a single command to run. For example:
+```
+# Run a command on the guest machine
+vagrant ssh -c "echo hello world"
+```
+
+Users may still access the Vagrant machine over ssh by running the ssh command. For example:
+```
+# Get the ssh configuration for the target machine
+vagrant ssh-config <target> 
+
+# Use the info provided to ssh into the target machine using the ssh command
+ssh vagrant@<ip> -p <port> -i <path to key>
+```
+
+### `vagrant plugin` command only manipulates Ruby plugins
+
+The Vagrant plugin command uses bundler to manage Ruby based plugins. To install/uninstall
+go based plugins, users must manually add the plugin binary to the plugins path. 
+Uninstalling Ruby Vagrant plugins does not currently work.
+
+### Vagrant does not work on Windows
+
+The go plugin setup currently is built on unix sockets. So, Vagrant-go is not expected to 
+work on Windows. This will be addressed in a future release.
+
+### Secret interactive input
+
+Vagrant relies on secret interactive input to allow users to pass in SMB credentials when
+using SMB synced folders. Currently, interactive input works for Vagrant-go, however, the 
+user input is not hidden. Users who wish to use SMB folders and avoid exposing their 
+credentials can work around this issue by specifying the [credentials in the Vagrantfile](/docs/synced-folders/smb/)
+
+### Concurrent Vagrant runs don’t work
+
+Only one Vagrant-go process may run at a time.
+
+### Puppet and Chef provisioners do not work
+
+These provisioners require Vagrant to modify synced folders on the fly during a Vagrant run. 
+This capability will not be implemented for 2.3.0, so, these provisioners will not work as
+expected.
+
+### Each machine must specify their own ssh port for multi machine environments
+
+Currently, Vagrant-go does not check for port collisions when forwarding ports. Instead, it
+will allow for multiple forwarded ports to be defined on the same host port. This results in 
+the ssh ports for machines to all be assigned to the same default port if none is specified.
+This causes Vagrant to time out when connecting to a machine in multimachine environments. To
+avoid this issue you may specify the ssh port for the machines, for example: 
+```
+Vagrant.configure("2") do |config|
+  config.vm.define "one" do |c|
+    c.vm.hostname = "one"
+    c.vm.network "forwarded_port", guest: 22, host: 2223
+    c.ssh.port = 2223
+    c.vm.box = "hashicorp/bionic64"
+    c.vm.synced_folder ".", "vagrant", disabled: true
+  end
+
+  config.vm.define "two" do |c|
+    c.vm.hostname = "two"
+    c.vm.network "forwarded_port", guest: 22, host: 2224
+    c.ssh.port = 2224
+    c.vm.box = "hashicorp/bionic64"
+    c.vm.synced_folder ".", "vagrant", disabled: true
+  end
+end
+```

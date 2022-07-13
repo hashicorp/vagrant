@@ -742,7 +742,16 @@
   },
   {
     "title": "Experimental",
-    "path": "experimental"
+    "routes": [
+      {
+        "title": "Feature Flags",
+        "path": "experimental"
+      },
+      {
+        "title": "Vagrant Go",
+        "path": "experimental/vagrant_go"
+      }
+    ]
   },
   {
     "title": "Other",
