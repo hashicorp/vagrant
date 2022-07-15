@@ -361,10 +361,8 @@ github.com/hashicorp/hcl/v2 v2.11.1 h1:yTyWcXcm9XB0TEkyU/JCRU6rYy4K+mgLtzn2wlrJb
 github.com/hashicorp/hcl/v2 v2.11.1/go.mod h1:FwWsfWEjyV/CMj8s/gqAuiviY72rJ1/oayI9WftqcKg=
 github.com/hashicorp/nomad/api v0.0.0-20200814140818-42de70466a9d h1:afuZ/KNbxwUgjEzq2NXO2bRKZgsIJQgFxgIRGETF0/A=
 github.com/hashicorp/nomad/api v0.0.0-20200814140818-42de70466a9d/go.mod h1:DCi2k47yuUDzf2qWAK8E1RVmWgz/lc0jZQeEnICTxmY=
-github.com/hashicorp/vagrant-plugin-sdk v0.0.0-20220711233255-41e1736fda1a h1:+8DD39+jhZjexeamX3kYkWsq7IpLQevx90n0u93FI8s=
-github.com/hashicorp/vagrant-plugin-sdk v0.0.0-20220711233255-41e1736fda1a/go.mod h1:VOmcNETEOMrBGGZW7YtWoRQOuiAA7273qLJfCGf2B/c=
-github.com/hashicorp/vagrant-plugin-sdk v0.0.0-20220713192312-658d9a5a0105 h1:TacwCmXZieiHxela0hCvF0MWy4YM9xJsg5iGB9j+0n0=
-github.com/hashicorp/vagrant-plugin-sdk v0.0.0-20220713192312-658d9a5a0105/go.mod h1:VOmcNETEOMrBGGZW7YtWoRQOuiAA7273qLJfCGf2B/c=
+github.com/hashicorp/vagrant-plugin-sdk v0.0.0-20220715171238-5d159ee78809 h1:XRJINT3VeBoFTwGWGnK7JTrvF0Upd2Dkm5xj/yiN3dU=
+github.com/hashicorp/vagrant-plugin-sdk v0.0.0-20220715171238-5d159ee78809/go.mod h1:VOmcNETEOMrBGGZW7YtWoRQOuiAA7273qLJfCGf2B/c=
 github.com/hashicorp/yamux v0.0.0-20180604194846-3520598351bb/go.mod h1:+NfK9FKeTrX5uv1uIXGdwYDTeHna2qgaIlx54MXqjAM=
 github.com/hashicorp/yamux v0.0.0-20200609203250-aecfd211c9ce h1:7UnVY3T/ZnHUrfviiAgIUjg2PXxsQfs5bphsG8F7Keo=
 github.com/hashicorp/yamux v0.0.0-20200609203250-aecfd211c9ce/go.mod h1:+NfK9FKeTrX5uv1uIXGdwYDTeHna2qgaIlx54MXqjAM=
@@ -654,7 +652,6 @@ golang.org/x/net v0.0.0-20191209160850-c0dbc17a3553/go.mod h1:z5CRVTTTmAJ677TzLL
 golang.org/x/net v0.0.0-20200114155413-6afb5195e5aa/go.mod h1:z5CRVTTTmAJ677TzLLGU+0bjPO0LkuOLi4/5GtJWs/s=
 golang.org/x/net v0.0.0-20200202094626-16171245cfb2/go.mod h1:z5CRVTTTmAJ677TzLLGU+0bjPO0LkuOLi4/5GtJWs/s=
 golang.org/x/net v0.0.0-20200222125558-5a598a2470a0/go.mod h1:z5CRVTTTmAJ677TzLLGU+0bjPO0LkuOLi4/5GtJWs/s=
-golang.org/x/net v0.0.0-20200226121028-0de0cce0169b/go.mod h1:z5CRVTTTmAJ677TzLLGU+0bjPO0LkuOLi4/5GtJWs/s=
 golang.org/x/net v0.0.0-20200226121028-0de0cce0169b/go.mod h1:z5CRVTTTmAJ677TzLLGU+0bjPO0LkuOLi4/5GtJWs/s=
 golang.org/x/net v0.0.0-20200301022130-244492dfa37a/go.mod h1:z5CRVTTTmAJ677TzLLGU+0bjPO0LkuOLi4/5GtJWs/s=
 golang.org/x/net v0.0.0-20200324143707-d3edc9973b7e/go.mod h1:qpuaurCH72eLCgpAm/N6yyVIVM9cpaDIP3A8BGJEC5A=
