@@ -699,6 +699,19 @@
       {
         "title": "Packaging &amp; Distribution",
         "path": "plugins/packaging"
+      },
+      {
+        "title": "Go Plugins",
+        "routes": [
+          {
+            "title": "Overview",
+            "path": "plugins/go-plugins"
+          },
+          {
+            "title": "Guests",
+            "path": "plugins/go-plugins/guests"
+          }
+        ]
       }
     ]
   },
