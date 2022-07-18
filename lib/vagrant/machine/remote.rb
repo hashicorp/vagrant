@@ -153,7 +153,7 @@ module Vagrant
       end
 
       def provider_options
-        @provider_options ||= Vagrant.plugin("2").manager.provider[provider_name].last
+        @provider_options ||= Vagrant.plugin("2").manager.providers[provider_name].last
       end
 
       def recover_machine(*_)
