@@ -50,7 +50,7 @@ It's nice to have a way to control what version of ruby is installed, so you may
 Clone Vagrant's repository from GitHub into the directory where you keep code on your machine:
 
 ```
-  $ git clone https://github.com/hashicorp/vagrant.git
+  $ git clone --recurse-submodules https://github.com/hashicorp/vagrant.git
 ```
 
 Next, move into the newly created `./vagrant` directory.
@@ -65,7 +65,23 @@ All commands will be run from this path. Now, run the `bundle` command to instal
   $ bundle install
 ```
 
-You can now run Vagrant by running `bundle exec vagrant` from inside that directory.    
+You can now run Vagrant by running `bundle exec vagrant` from inside that directory.
+
+##### Setting up Vagrant-go
+
+Add the generated `binstubs` to your `PATH`
+```
+  $ export PATH=/path/to/my/vagrant/binstubs
+```
+
+Install go using the method of your choice.
+
+Build the Vagrant go binary using `make`
+```
+  $ make
+```
+
+This will generate a `./vagrant` binary in your project root.
 
 ### How to prepare your pull request
 
