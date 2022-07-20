@@ -37,6 +37,7 @@ module VagrantPlugins
         # dependent so we need to unpack each kind of plugin options with its
         # own logic.
         def _plugin_options_to_hash(plg_opts)
+          return {} if plg_opts.nil?
           opts = mapper.unany(plg_opts)
           case opts
           when Hashicorp::Vagrant::Sdk::PluginInfo::ProviderOptions
