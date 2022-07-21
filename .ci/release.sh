@@ -35,6 +35,23 @@ gem=$(printf "%s" "${g}")
 vagrant_version="$(gem specification "${gem}" version)"
 vagrant_version="${vagrant_version##*version: }"
 
+# Build the go binary
+wrap make \
+    "Failed to build the Vagrant go binary"
+
+wrap mv vagrant vagrant-go \
+    "Failed to rename Vagrant go binary"
+wrap zip vagrant-go vagrant-go \
+    "Failed to compress go binary"
+
+wrap mkdir release-assets \
+    "Failed to create release assets directory"
+
+wrap mv vagrant*.gem release-assets \
+    "Failed to move Vagrant RubyGem asset to release asset directory"
+wrap mv vagrant-go.zip release-assets \
+    "Failed to move Vagrant go asset to release asset directory"
+
 # We want to release into the builders repository so
 # update the repository variable with the desired destination
 repo_owner="${target_owner}"
@@ -46,7 +63,7 @@ export GITHUB_TOKEN="${HASHIBOT_TOKEN}"
 if [ "${tag}" = "" ]; then
     echo "Generating Vagrant RubyGem pre-release... "
     version="v${vagrant_version}+${short_sha}"
-    prerelease "${version}" "${gem}"
+    prerelease "${version}" ./release-assets
 else
     # Validate this is a proper release version
     valid_release_version "${vagrant_version}"
@@ -56,7 +73,7 @@ else
 
     echo "Generating Vagrant RubyGem release... "
     version="v${vagrant_version}"
-    release "${version}" "${gem}"
+    release "${version}" ./release-assets
 fi
 
 slack -m "New Vagrant installers release triggered: *${version}*"
