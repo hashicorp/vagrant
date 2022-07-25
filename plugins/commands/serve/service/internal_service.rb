@@ -13,6 +13,8 @@ module VagrantPlugins
         def get_plugins(req, _)
           plugins = []
           plugin_manager = Vagrant::Plugin::V2::Plugin.local_manager
+          globalized_plugins = Vagrant::Plugin::Manager.instance.globalize!
+          Vagrant::Plugin::Manager.instance.load_plugins(globalized_plugins)
           plugins = [[:commands, :COMMAND],
             [:communicators, :COMMUNICATOR],
             [:config, :CONFIG],
