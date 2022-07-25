@@ -127,8 +127,8 @@ module VagrantPlugins
             return SDK::PluginInfo::ProviderOptions.new(
               # Priority is always set in V2::Plugin.provider
               priority:     popts[:priority],
-              # Parallel is passed along to Environment#batch which defaults it to true
-              parallel:     popts.fetch(:parallel, true),
+              # Parallel is defaults to falsy when its passed along as an arg to Environment#batch.
+              parallel:     popts.fetch(:parallel, false),
               # BoxOptional defaults to falsy when it's used in Kernel_V2::VMConfig
               box_optional: popts.fetch(:box_optional, false),
               # Defaultable is considered true when it is not specified in Environment#default_provider
