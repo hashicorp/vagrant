@@ -32,6 +32,7 @@ module VagrantPlugins
 
     class << self
       attr_accessor :broker
+      attr_accessor :server
       attr_reader :cache
     end
     @cache = Util::Cacher.new
@@ -127,9 +128,12 @@ module VagrantPlugins
         STDOUT.puts "1|1|tcp|#{bind_addr}:#{port}|grpc"
         STDOUT.flush
         logger.info("Vagrant GRPC service is now running addr=#{bind_addr.inspect} port=#{port.inspect}")
-        s.run_till_terminated_or_interrupted([1, 'int', 'SIGQUIT', 'SIGINT'])
+        VagrantPlugins::CommandServe.server = s
+        s.run_till_terminated_or_interrupted(['EXIT', 'HUP', 'INT', 'QUIT', 'ABRT'])
+        0
       ensure
-        logger.info("Vagrant GRPC service is shutting down")
+        VagrantPlugins::CommandServe.server = nil
+        logger.info("Vagrant GRPC service shut down")
       end
     end
   end
