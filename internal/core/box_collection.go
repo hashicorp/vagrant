@@ -17,6 +17,7 @@ import (
 	"github.com/hashicorp/go-hclog"
 	"github.com/hashicorp/vagrant-plugin-sdk/core"
 	"github.com/hashicorp/vagrant-plugin-sdk/helper/path"
+	"github.com/hashicorp/vagrant-plugin-sdk/localizer"
 	"github.com/hashicorp/vagrant-plugin-sdk/proto/vagrant_plugin_sdk"
 	"github.com/hashicorp/vagrant/internal/server/proto/vagrant_server"
 	"google.golang.org/protobuf/types/known/emptypb"
@@ -98,6 +99,9 @@ func (b *BoxCollection) Add(p path.Path, name, version, metadataURL string, forc
 
 	// Check if the box is a V1 Vagrant box
 	if b.isV1Box(tempDir) {
+		b.basis.ui.Output(
+			localizer.LocalizeMsg("adding_v1_box", map[string]string{"BoxName": name}),
+		)
 		tempDir, err = b.upgradeV1Box(tempDir)
 		if err != nil {
 			return nil, err
