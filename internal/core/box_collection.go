@@ -10,7 +10,6 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
-	"time"
 
 	"github.com/h2non/filetype"
 	"github.com/hashicorp/go-getter"
@@ -284,8 +283,14 @@ func validateNewPath(path string, parentPath string) (newPath string, err error)
 
 // Checks is the given directory represents a V1 box
 func (b *BoxCollection) isV1Box(dir string) bool {
+	// If there is a box.ovf file then there is a good chance that this is a V1 box
 	boxOvfPath := filepath.Join(dir, "box.ovf")
 	if _, err := os.Stat(boxOvfPath); errors.Is(err, os.ErrNotExist) {
+		return false
+	}
+	// If a metadata.json file exists then this is not a V1 box
+	metadataPath := filepath.Join(dir, "metadata.json")
+	if _, err := os.Stat(metadataPath); err == nil {
 		return false
 	}
 	return true
@@ -295,11 +300,7 @@ func (b *BoxCollection) isV1Box(dir string) bool {
 // in order to build the new box. The provider for the new box will
 // be defaulted to be virtualbox.
 func (b *BoxCollection) upgradeV1Box(dir string) (newDir string, err error) {
-	newDir = filepath.Join(
-		b.basis.dir.TempDir().String(),
-		fmt.Sprintf("box-update-%d", time.Now().UnixNano()),
-	)
-	err = os.MkdirAll(newDir, os.ModePerm)
+	newDir, err = ioutil.TempDir(b.basis.dir.TempDir().String(), "box-update")
 	if err != nil {
 		return "", err
 	}
