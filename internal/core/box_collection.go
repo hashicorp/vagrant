@@ -2,11 +2,15 @@ package core
 
 import (
 	"bytes"
+	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strings"
+	"time"
 
 	"github.com/h2non/filetype"
 	"github.com/hashicorp/go-getter"
@@ -91,6 +95,15 @@ func (b *BoxCollection) Add(p path.Path, name, version, metadataURL string, forc
 	if err != nil {
 		return nil, err
 	}
+
+	// Check if the box is a V1 Vagrant box
+	if b.isV1Box(tempDir) {
+		tempDir, err = b.upgradeV1Box(tempDir)
+		if err != nil {
+			return nil, err
+		}
+	}
+
 	newBox, err := NewBox(
 		BoxWithBasis(b.basis),
 		BoxWithBox(&vagrant_server.Box{
@@ -261,6 +274,66 @@ func validateNewPath(path string, parentPath string) (newPath string, err error)
 	// Ensure that the newPath is within the parentPath
 	if !strings.HasPrefix(newPath, parentPath) {
 		return "", fmt.Errorf("could not add box outside of box directory %s", parentPath)
+	}
+	return
+}
+
+// Checks is the given directory represents a V1 box
+func (b *BoxCollection) isV1Box(dir string) bool {
+	boxOvfPath := filepath.Join(dir, "box.ovf")
+	if _, err := os.Stat(boxOvfPath); errors.Is(err, os.ErrNotExist) {
+		return false
+	}
+	return true
+}
+
+// Upgrade the V1 box. This will destroy the contents of the old box
+// in order to build the new box. The provider for the new box will
+// be defaulted to be virtualbox.
+func (b *BoxCollection) upgradeV1Box(dir string) (newDir string, err error) {
+	newDir = filepath.Join(
+		b.basis.dir.TempDir().String(),
+		fmt.Sprintf("box-update-%d", time.Now().UnixNano()),
+	)
+	err = os.MkdirAll(newDir, os.ModePerm)
+	if err != nil {
+		return "", err
+	}
+
+	// Move contents of dir into tempDir
+	files, err := filepath.Glob(filepath.Join(dir, "*"))
+	if err != nil {
+		return "", err
+	}
+	for _, f := range files {
+		rel, err := filepath.Rel(dir, f)
+		if err != nil {
+			continue
+		}
+
+		if s, _ := os.Stat(f); s.IsDir() {
+			err = os.MkdirAll(filepath.Join(newDir, rel), os.ModePerm)
+			if err != nil {
+				return "", err
+			}
+		} else {
+			err = os.Rename(f, filepath.Join(newDir, rel))
+			if err != nil {
+				return "", err
+			}
+		}
+	}
+
+	// Write the metadata.json file if it does not exist
+	metadataFile := filepath.Join(newDir, "metadata.json")
+	if _, err := os.Stat(metadataFile); errors.Is(err, os.ErrNotExist) {
+		file, _ := json.MarshalIndent(
+			map[string]string{"provider": "virtualbox"}, "", " ",
+		)
+		err = ioutil.WriteFile(metadataFile, file, 0644)
+		if err != nil {
+			return "", err
+		}
 	}
 	return
 }
