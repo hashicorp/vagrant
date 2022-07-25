@@ -58,7 +58,7 @@ func (r *RubyVagrantClient) GRPCBroker() *plugin.GRPCBroker {
 }
 
 func (r *RubyVagrantClient) GetPlugins() ([]*ruby_vagrant.Plugin, error) {
-	plugins, err := r.client.GetPlugins(context.Background(), &emptypb.Empty{})
+	plugins, err := r.client.GetPlugins(context.Background(), &ruby_vagrant.GetPluginsRequest{})
 	if err != nil {
 		return nil, err
 	}
@@ -120,4 +120,13 @@ func (r *RubyVagrantClient) ParseVagrantfileProvider(provider string, subvm *vag
 	}
 
 	return resp.Data, nil
+}
+
+func (r *RubyVagrantClient) Stop() error {
+	_, err := r.client.Stop(context.Background(), &emptypb.Empty{})
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
