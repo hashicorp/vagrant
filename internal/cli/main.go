@@ -88,6 +88,7 @@ func Main(args []string) int {
 	if err != nil {
 		panic(err)
 	}
+	defer base.Close()
 
 	// Build the CLI
 	cli := &cli.CLI{
@@ -110,11 +111,10 @@ func Main(args []string) int {
 		panic(err)
 	}
 
+	// Close the base here manually so we can detect if an
+	// error was encountered and modify the exit code if so
 	err = base.Close()
 	if err != nil {
-		log.Error("failure encountered while closing command",
-			"error", err,
-		)
 		exitCode = -1
 	}
 
