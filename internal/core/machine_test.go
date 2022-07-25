@@ -272,7 +272,7 @@ func TestMachineSetState(t *testing.T) {
 
 	tests := []test{
 		{id: "running", state: vagrant_server.Operation_CREATED},
-		{id: "not_created", state: vagrant_server.Operation_UNKNOWN},
+		{id: "not_created", state: vagrant_server.Operation_NOT_CREATED},
 		{id: "whakhgldksj", state: vagrant_server.Operation_UNKNOWN},
 	}
 

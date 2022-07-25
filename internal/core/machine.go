@@ -242,7 +242,7 @@ func (m *Machine) SetMachineState(state *core.MachineState) (err error) {
 
 	switch st.Id {
 	case "not_created":
-		m.target.State = vagrant_server.Operation_UNKNOWN
+		m.target.State = vagrant_server.Operation_NOT_CREATED
 	case "running":
 		m.target.State = vagrant_server.Operation_CREATED
 	case "poweroff":
