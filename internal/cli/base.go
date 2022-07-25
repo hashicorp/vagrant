@@ -10,10 +10,10 @@ import (
 	"strings"
 
 	"github.com/hashicorp/go-hclog"
-	"github.com/hashicorp/go-multierror"
 
 	"github.com/hashicorp/vagrant-plugin-sdk/component"
 	"github.com/hashicorp/vagrant-plugin-sdk/helper/paths"
+	"github.com/hashicorp/vagrant-plugin-sdk/internal-shared/cleanup"
 	"github.com/hashicorp/vagrant-plugin-sdk/terminal"
 	"github.com/hashicorp/vagrant/internal/clicontext"
 	"github.com/hashicorp/vagrant/internal/client"
@@ -105,26 +105,24 @@ type baseCommand struct {
 
 	// options passed in at the global level
 	globalOptions []Option
+
+	// used to store cleanup tasks at close
+	cleanup cleanup.Cleanup
 }
 
 // Close cleans up any resources that the command created. This should be
 // defered by any CLI command that embeds baseCommand in the Run command.
 func (c *baseCommand) Close() (err error) {
-	c.Log.Trace("starting command closing")
-	if closer, ok := c.ui.(io.Closer); ok && closer != nil {
-		c.Log.Trace("closing command ui")
-		if e := closer.Close(); e != nil {
-			err = multierror.Append(err, e)
-		}
+	if c.cleanup == nil {
+		return nil
 	}
 
-	if c.client != nil {
-		c.Log.Trace("closing command client")
-		if e := c.client.Close(); e != nil {
-			err = multierror.Append(err, e)
-		}
+	err = c.cleanup.Close()
+	if err != nil {
+		c.Log.Error("failure encountered while closing command",
+			"error", err,
+		)
 	}
-
 	return
 }
 
@@ -133,8 +131,28 @@ func BaseCommand(ctx context.Context, log hclog.Logger, logOutput io.Writer, opt
 		Ctx:       ctx,
 		Log:       log,
 		LogOutput: logOutput,
+		cleanup:   cleanup.New(),
 		flagData:  map[*component.CommandFlag]interface{}{},
 	}
+
+	// Define a cleanup to close the UI if it's set
+	bc.cleanup.Do(func() error {
+		if bc.ui != nil {
+			if closer, ok := bc.ui.(io.Closer); ok && closer != nil {
+				return closer.Close()
+			}
+		}
+		return err
+	})
+
+	// Define a cleanup task to close the client if it's set
+	bc.cleanup.Do(func() error {
+		if bc.client != nil {
+			return bc.client.Close()
+		}
+
+		return nil
+	})
 
 	// Get just enough base configuration to
 	// allow setting up our client connection
