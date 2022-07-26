@@ -16,5 +16,15 @@ wrap gem build *.gemspec \
 g=(vagrant*.gem)
 gem=$(printf "%s" "${g}")
 
+# Store the gem asset
 wrap aws s3 cp "${gem}" "${ASSETS_PRIVATE_BUCKET}/${repository}/vagrant-main.gem" \
      "Failed to store Vagrant RubyGem main build"
+
+# Build our binary
+wrap make \
+     "Failed to build the Vagrant go binary"
+wrap zip vagrant-go vagrant-go \
+     "Failed to compress go binary"
+
+# Store the binary asset
+wrap aws s3 cp vagrant-go.zip "${ASSETS_PRIVATE_BUCKET}/${repository}/vagrant-go-main.zip"
