@@ -12,6 +12,7 @@ var Mappers = []interface{}{
 	JobCommandProto,
 }
 
+// JobCommandProto converts a CommandInfo into its proto equivalent
 func JobCommandProto(c *component.CommandInfo) []*vagrant_plugin_sdk.Command_CommandInfo {
 	return jobCommandProto(c, []string{})
 }

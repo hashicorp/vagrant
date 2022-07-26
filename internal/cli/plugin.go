@@ -1,12 +1,16 @@
 package cli
 
 import (
+	sdk "github.com/hashicorp/vagrant-plugin-sdk"
 	"github.com/hashicorp/vagrant/internal/plugin"
-	"github.com/hashicorp/vagrant-plugin-sdk"
 )
 
 type PluginCommand struct {
 	*baseCommand
+}
+
+func (c *PluginCommand) Primary() bool {
+	return false
 }
 
 func (c *PluginCommand) Run(args []string) int {

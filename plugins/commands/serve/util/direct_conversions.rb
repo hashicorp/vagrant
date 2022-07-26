@@ -200,6 +200,7 @@ class VagrantPlugins::CommandServe::Type::CommandInfo
       synopsis: info.synopsis,
       flags: flags,
       subcommands: subcommands,
+      primary: info.primary,
     )
   end
 end
@@ -641,6 +642,7 @@ class Hashicorp::Vagrant::Sdk::Command::CommandInfo
       name: name,
       help: help,
       synopsis: synopsis,
+      primary: primary,
     ).tap do |c|
       flags.each do |f|
         c.add_flag(

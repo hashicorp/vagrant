@@ -149,12 +149,15 @@ module VagrantPlugins
           end
           subcommands = get_subcommands(plugin_name, subcommand_names)
 
+          opts = Vagrant.plugin("2").local_manager.commands[plugin_name.to_sym].last
+
           SDK::Command::CommandInfo.new(
             name: command_name,
             help: hlp_msg,
             flags: flags,
             synopsis: synopsis,
-            subcommands: subcommands
+            subcommands: subcommands,
+            primary: opts[:primary],
           )
         end
 

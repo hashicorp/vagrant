@@ -124,8 +124,11 @@ module VagrantPlugins
         def _convert_options_to_proto(type, class_or_tuple_with_class_and_options)
           case type
           when :COMMAND
-            # _, command_options = class_or_tuple_with_class_and_options
-            return Google::Protobuf::Empty.new
+            _, opts = class_or_tuple_with_class_and_options
+            return SDK::PluginInfo::CommandOptions.new(
+              # Primary is always set in V2::Plugin.command
+              primary: opts[:primary],
+            )
           when :COMMUNICATOR
             # No options for communicators
             return Google::Protobuf::Empty.new

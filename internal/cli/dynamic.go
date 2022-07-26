@@ -22,6 +22,7 @@ type DynamicCommand struct {
 	help     string
 	parent   *DynamicCommand
 	flags    []*component.CommandFlag
+	primary  bool
 }
 
 func (c *DynamicCommand) Run(args []string) int {
@@ -152,6 +153,10 @@ func (c *DynamicCommand) Flags() component.CommandFlags {
 	return c.flagSet(flagSetOperation, func(opts []*component.CommandFlag) []*component.CommandFlag {
 		return append(c.flags, opts...)
 	})
+}
+
+func (c *DynamicCommand) Primary() bool {
+	return c.primary
 }
 
 func (c *DynamicCommand) fullName() string {
