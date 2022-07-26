@@ -148,6 +148,10 @@ Vagrant.configure(2) do |global_config|
                 }
               )
             else
+              components = [
+                "provider/#{provider_name}/basic",
+                "provider/#{provider_name}/provisioner/shell",
+              ]
               config.vm.provision(
                 :shell,
                 path: "./scripts/#{PLATFORM_SCRIPT_MAPPING[platform]}-run.#{provider_name}.sh",
@@ -156,7 +160,7 @@ Vagrant.configure(2) do |global_config|
                   # "VAGRANT_SPEC_ARGS" => "test #{spec_cmd_args}".strip,
                   # TEMP: Forcing just the basic component of the provider suite as not all tests are passing yet.
                   #       Hoping to widen this out over time to be unscoped with everything passing.
-                  "VAGRANT_SPEC_ARGS" => "test --components provider/#{provider_name}/basic".strip,
+                  "VAGRANT_SPEC_ARGS" => "test --components #{components.join(" ")}",
                   "VAGRANT_SPEC_BOX" => "/vagrant/test/vagrant-spec/boxes/#{guest_box.sub('/', '_')}.#{provider_name}.#{box_version}.box",
                   "VAGRANT_SPEC_GUEST_PLATFORM" => guest_platform,
                   "VAGRANT_LOG" => "trace",
