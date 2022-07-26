@@ -168,10 +168,28 @@ module VagrantPlugins
       # @param name [String]
       # @return [Class]
       def find_type(name)
+        parent_module_options = []
         name.to_s.split(".").inject(Object) { |memo, n|
           c = memo.constants.detect { |mc| mc.to_s.downcase == n.to_s.downcase }
+          if c.nil?
+            parent_module_options.delete(memo)
+            parent_module_options.each do |pm|
+              c = pm.constants.detect { |mc| mc.to_s.downcase == n.to_s.downcase }
+              if !c.nil?
+                memo = pm
+                break
+              end
+            end
+          end
+
           raise NameError,
             "Failed to find constant for `#{name}'" if c.nil?
+
+          parent_module_options = memo.constants.select {
+            |mc| mc.to_s.downcase == n.to_s.downcase
+          }.map {
+            |mc| memo.const_get(mc)
+          }
           memo.const_get(c)
         }
       end
