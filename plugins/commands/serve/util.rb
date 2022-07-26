@@ -4,6 +4,7 @@ module VagrantPlugins
       autoload :Cacher, Vagrant.source_root.join("plugins/commands/serve/util/cacher").to_s
       autoload :ClientSetup, Vagrant.source_root.join("plugins/commands/serve/util/client_setup").to_s
       autoload :Connector, Vagrant.source_root.join("plugins/commands/serve/util/connector").to_s
+      autoload :DirectConversion, Vagrant.source_root.join("plugins/commands/serve/util/direct_conversions").to_s
       autoload :ExceptionTransformer, Vagrant.source_root.join("plugins/commands/serve/util/exception_transformer").to_s
       autoload :FuncSpec, Vagrant.source_root.join("plugins/commands/serve/util/func_spec").to_s
       autoload :HasBroker, Vagrant.source_root.join("plugins/commands/serve/util/has_broker").to_s
