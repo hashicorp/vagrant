@@ -17,11 +17,12 @@ module Hashicorp
         self.service_name = 'hashicorp.vagrant.RubyVagrant'
 
         # Gets available ruby plugins
-        rpc :GetPlugins, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::GetPluginsResponse
+        rpc :GetPlugins, ::Hashicorp::Vagrant::GetPluginsRequest, ::Hashicorp::Vagrant::GetPluginsResponse
         rpc :ParseVagrantfile, ::Hashicorp::Vagrant::ParseVagrantfileRequest, ::Hashicorp::Vagrant::ParseVagrantfileResponse
         rpc :ParseVagrantfileProc, ::Hashicorp::Vagrant::ParseVagrantfileProcRequest, ::Hashicorp::Vagrant::ParseVagrantfileResponse
         rpc :ParseVagrantfileSubvm, ::Hashicorp::Vagrant::ParseVagrantfileSubvmRequest, ::Hashicorp::Vagrant::ParseVagrantfileResponse
         rpc :ParseVagrantfileProvider, ::Hashicorp::Vagrant::ParseVagrantfileProviderRequest, ::Hashicorp::Vagrant::ParseVagrantfileResponse
+        rpc :Stop, ::Google::Protobuf::Empty, ::Google::Protobuf::Empty
       end
 
       Stub = Service.rpc_stub_class

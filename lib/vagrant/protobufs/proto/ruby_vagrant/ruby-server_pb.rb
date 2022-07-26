@@ -9,6 +9,9 @@ require 'google/rpc/error_details_pb'
 require 'plugin_pb'
 Google::Protobuf::DescriptorPool.generated_pool.build do
   add_file("proto/ruby_vagrant/ruby-server.proto", :syntax => :proto3) do
+    add_message "hashicorp.vagrant.GetPluginsRequest" do
+      optional :project_path, :string, 1
+    end
     add_message "hashicorp.vagrant.GetPluginsResponse" do
       repeated :plugins, :message, 1, "hashicorp.vagrant.Plugin"
     end
@@ -55,6 +58,7 @@ end
 
 module Hashicorp
   module Vagrant
+    GetPluginsRequest = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.GetPluginsRequest").msgclass
     GetPluginsResponse = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.GetPluginsResponse").msgclass
     Plugin = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.Plugin").msgclass
     Plugin::Type = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.Plugin.Type").enummodule

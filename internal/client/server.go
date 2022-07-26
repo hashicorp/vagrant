@@ -2,6 +2,7 @@ package client
 
 import (
 	"context"
+	"fmt"
 	"io/fs"
 	"net"
 	"os"
@@ -205,8 +206,32 @@ func (c *Client) initVagrantRubyRuntime() (rubyRuntime plugin.ClientProtocol, er
 		return
 	}
 
-	// Ensure the plugin is halted when the basis is cleaned up
-	c.Cleanup(func() error { return rubyRuntime.Close() })
+	// Send a request to the vagrant ruby runtime to shut itself down
+	// NOTE: Closing the client when using the official package will not
+	//       stop the process. This is because the package uses a custom
+	//       wrapper for starting Vagrant which results in a different
+	//       PID than what is originally started.
+	c.Cleanup(func() error {
+		vr, err := rubyRuntime.Dispense("vagrantrubyruntime")
+		if err != nil {
+			c.logger.Error("failed to dispense the vagrant ruby runtime",
+				"error", err,
+			)
+			return err
+		}
+		vrc, ok := vr.(serverclient.RubyVagrantClient)
+		if !ok {
+			c.logger.Error("dispensed value is not a ruby runtime client")
+			return fmt.Errorf("dispensed value is not a ruby vagrant client (%T)", vr)
+		}
+
+		return vrc.Stop()
+	})
+
+	// Close the ruby runtime client.
+	c.Cleanup(func() error {
+		return rubyRuntime.Close()
+	})
 
 	return
 }

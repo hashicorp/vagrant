@@ -111,6 +111,13 @@ func Main(args []string) int {
 		panic(err)
 	}
 
+	// Close the base here manually so we can detect if an
+	// error was encountered and modify the exit code if so
+	err = base.Close()
+	if err != nil {
+		exitCode = -1
+	}
+
 	return exitCode
 }
 

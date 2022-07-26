@@ -10,6 +10,7 @@ module VagrantPlugins
   module CommandServe
     module Service
       class InternalService < ProtoService(Hashicorp::Vagrant::RubyVagrant::Service)
+
         def get_plugins(req, _)
           plugins = []
           plugin_manager = Vagrant::Plugin::V2::Plugin.local_manager
@@ -40,6 +41,21 @@ module VagrantPlugins
           Hashicorp::Vagrant::GetPluginsResponse.new(
             plugins: plugins
           )
+        end
+
+        def stop(_, _)
+          if !VagrantPlugins::CommandServe.server.nil?
+            logger.info("stopping the Vagrant Ruby runtime service")
+            # We want to hop into a separate thread and pause for a moment
+            # so we can send our response, then stop the server.
+            Thread.new do
+              sleep(0.05)
+              VagrantPlugins::CommandServe.server.stop
+            end
+          else
+            logger.warn("cannot stop Vagrant Ruby runtime service, not running")
+          end
+          Empty.new
         end
 
         def parse_vagrantfile(req, _)
