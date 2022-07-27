@@ -11,6 +11,11 @@ module VagrantPlugins
         Guest
       end
 
+      guest_capability(:opnsense, :change_host_name) do
+        require_relative "cap/change_host_name"
+        Cap::ChangeHostName
+      end
+
     end
   end
 end
