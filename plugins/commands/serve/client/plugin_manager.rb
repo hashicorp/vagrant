@@ -40,6 +40,8 @@ module VagrantPlugins
           return {} if plg_opts.nil?
           opts = mapper.unany(plg_opts)
           case opts
+          when Hashicorp::Vagrant::Sdk::PluginInfo::CommandOptions
+            opts.to_h
           when Hashicorp::Vagrant::Sdk::PluginInfo::ProviderOptions
             opts.to_h
           when Hashicorp::Vagrant::Sdk::PluginInfo::SyncedFolderOptions

@@ -12,6 +12,9 @@ type Component struct {
 	Value interface{}
 	Info  *vagrant_server.Component
 
+	// Options for component type, see PluginInfo.ComponentOptions
+	Options interface{}
+
 	// These fields can be accessed internally
 	hooks   map[string][]*config.Hook
 	labels  map[string]string

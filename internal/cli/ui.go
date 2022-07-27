@@ -99,6 +99,10 @@ func (c *UICommand) Flags() component.CommandFlags {
 	})
 }
 
+func (c *UICommand) Primary() bool {
+	return true
+}
+
 // func (c *UICommand) AutocompleteArgs() complete.Predictor {
 // 	return complete.PredictNothing
 // }

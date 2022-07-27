@@ -2,6 +2,7 @@ package configvagrant
 
 import (
 	"fmt"
+
 	"github.com/hashicorp/go-hclog"
 	sdk "github.com/hashicorp/vagrant-plugin-sdk"
 	"github.com/hashicorp/vagrant-plugin-sdk/component"
@@ -12,8 +13,8 @@ import (
 var CommandOptions = []sdk.Option{
 	sdk.WithComponents(
 		&Config{},
-		&Command{},
 	),
+	sdk.WithComponent(&Command{}, &component.CommandOptions{Primary: false}),
 	sdk.WithName("configvagrant"),
 }
 

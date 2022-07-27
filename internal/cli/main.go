@@ -224,6 +224,7 @@ func registerCommand(
 		synopsis:    c.Synopsis,
 		help:        c.Help,
 		flags:       flgs,
+		primary:     c.Primary,
 	}
 	if parent != nil {
 		d.parent = parent
@@ -399,16 +400,29 @@ func GroupedHelpFunc(f cli.HelpFunc) cli.HelpFunc {
 		).Row())
 		d.Append(glint.Text(""))
 
-		// Add common commands
+		// First add hand-picked common commands
 		helpCommandsSection(d, "Common commands", commonCommands, commands)
 
-		// Make our other commands
+		// Make our list of other commands by
+		//   - skipping common commands we just printed
+		//   - skipping hand-picked hidden commands
+		//   - skipping commands that set CommandOptions.Primary to false
 		ignoreMap := map[string]struct{}{}
 		for k := range hiddenCommands {
 			ignoreMap[k] = struct{}{}
 		}
 		for _, k := range commonCommands {
 			ignoreMap[k] = struct{}{}
+		}
+
+		for k, cmdFn := range commands {
+			cmd, err := cmdFn()
+			if err != nil {
+				panic(fmt.Sprintf("failed to load %q command: %s", k, err))
+			}
+			if pc, ok := cmd.(Primaryable); ok && pc.Primary() == false {
+				ignoreMap[k] = struct{}{}
+			}
 		}
 
 		var otherCommands []string
@@ -462,6 +476,10 @@ func helpCommandsSection(
 	d.Append(glint.Layout(
 		glint.Text(b.String()),
 	).PaddingLeft(2))
+}
+
+type Primaryable interface {
+	Primary() bool
 }
 
 var helpText = map[string][2]string{}

@@ -34,6 +34,10 @@ func (c *VersionCommand) Flags() component.CommandFlags {
 	return c.flagSet(0, nil)
 }
 
+func (c *VersionCommand) Primary() bool {
+	return true
+}
+
 // func (c *VersionCommand) AutocompleteArgs() complete.Predictor {
 // 	return complete.PredictNothing
 // }

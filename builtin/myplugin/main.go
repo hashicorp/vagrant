@@ -19,11 +19,14 @@ import (
 var CommandOptions = []sdk.Option{
 	sdk.WithComponents(
 		// &Provider{},
-		&command.Command{},
 		&host.AlwaysTrueHost{},
 		&communicator.DummyCommunicator{},
 		&push.Encouragement{},
 	),
+	sdk.WithComponent(&command.Command{}, &component.CommandOptions{
+		// Should keep the plugin out of the default help output
+		Primary: false,
+	}),
 	sdk.WithComponent(&provider.Happy{}, &component.ProviderOptions{
 		Priority: 100,
 	}),

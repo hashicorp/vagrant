@@ -102,6 +102,7 @@ module VagrantPlugins
             synopsis: info.synopsis,
             flags: flags,
             subcommands: subcommands,
+            primary: info.primary,
           )
         end
       end

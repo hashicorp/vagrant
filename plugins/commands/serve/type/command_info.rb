@@ -25,14 +25,16 @@ module VagrantPlugins
           :help,
           :synopsis,
           :flags,
-          :subcommands
+          :subcommands,
+          :primary
 
-        def initialize(name:, help:, synopsis: nil, subcommands: [])
+        def initialize(name:, help:, synopsis: nil, subcommands: [], primary:)
           @name = name.to_s
           @help = help.to_s
           @synopsis = synopsis.to_s
           @subcommands = Array(subcommands)
           @flags = []
+          @primary = primary
         end
 
         def add_flag(**kwargs)

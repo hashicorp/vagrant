@@ -589,17 +589,21 @@ func (b *Basis) RunInit() (result *vagrant_server.Job_InitResult, err error) {
 
 	for _, c := range cmds {
 		fn := c.Value.(component.Command).CommandInfoFunc()
+		// See core.JobCommandProto
 		raw, err := b.callDynamicFunc(ctx, b.logger, fn,
 			(*[]*vagrant_plugin_sdk.Command_CommandInfo)(nil),
 			argmapper.Typed(b.ctx),
 		)
-
 		if err != nil {
 			return nil, err
 		}
 
-		result.Commands = append(result.Commands,
-			raw.([]*vagrant_plugin_sdk.Command_CommandInfo)...)
+		// Primary comes from plugin options so add that to CommandInfo here
+		cinfos := raw.([]*vagrant_plugin_sdk.Command_CommandInfo)
+		copts := c.Options.(*component.CommandOptions)
+		cinfos[0].Primary = copts.Primary
+
+		result.Commands = append(result.Commands, cinfos...)
 	}
 
 	return
@@ -750,6 +754,7 @@ func (b *Basis) component(
 			Name:       name,
 			ServerAddr: b.Client().ServerTarget(),
 		},
+		Options: c.Options,
 		hooks:   hooks,
 		mappers: append(b.mappers, c.Mappers...),
 		plugin:  c,

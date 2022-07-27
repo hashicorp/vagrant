@@ -179,8 +179,7 @@ module Vagrant
               sf_class.plugin_name = plg[:name]
               sf_class.type = plg[:type]
               result.register(plg[:name].to_sym) do
-                # TODO(phinze): wire through CommandOptions and return them here
-                [proc{sf_class}, {}]
+                [proc{sf_class}, plg[:options]]
               end
             end
           end
