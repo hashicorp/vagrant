@@ -361,10 +361,8 @@ github.com/hashicorp/hcl/v2 v2.11.1 h1:yTyWcXcm9XB0TEkyU/JCRU6rYy4K+mgLtzn2wlrJb
 github.com/hashicorp/hcl/v2 v2.11.1/go.mod h1:FwWsfWEjyV/CMj8s/gqAuiviY72rJ1/oayI9WftqcKg=
 github.com/hashicorp/nomad/api v0.0.0-20200814140818-42de70466a9d h1:afuZ/KNbxwUgjEzq2NXO2bRKZgsIJQgFxgIRGETF0/A=
 github.com/hashicorp/nomad/api v0.0.0-20200814140818-42de70466a9d/go.mod h1:DCi2k47yuUDzf2qWAK8E1RVmWgz/lc0jZQeEnICTxmY=
-github.com/hashicorp/vagrant-plugin-sdk v0.0.0-20220715171238-5d159ee78809 h1:XRJINT3VeBoFTwGWGnK7JTrvF0Upd2Dkm5xj/yiN3dU=
-github.com/hashicorp/vagrant-plugin-sdk v0.0.0-20220715171238-5d159ee78809/go.mod h1:VOmcNETEOMrBGGZW7YtWoRQOuiAA7273qLJfCGf2B/c=
-github.com/hashicorp/vagrant-plugin-sdk v0.0.0-20220725180714-4c9f06fe6f2c h1:thkGlfPYr2WaRd1qxipXpA2r/IMqSpu7UoGomnqpfx8=
-github.com/hashicorp/vagrant-plugin-sdk v0.0.0-20220725180714-4c9f06fe6f2c/go.mod h1:VOmcNETEOMrBGGZW7YtWoRQOuiAA7273qLJfCGf2B/c=
+github.com/hashicorp/vagrant-plugin-sdk v0.0.0-20220727201406-96c2d23105d3 h1:LjxgzfhA8laJL1sUuUST57JfOxxFYxd3gR7Kz02F/f4=
+github.com/hashicorp/vagrant-plugin-sdk v0.0.0-20220727201406-96c2d23105d3/go.mod h1:VOmcNETEOMrBGGZW7YtWoRQOuiAA7273qLJfCGf2B/c=
 github.com/hashicorp/yamux v0.0.0-20180604194846-3520598351bb/go.mod h1:+NfK9FKeTrX5uv1uIXGdwYDTeHna2qgaIlx54MXqjAM=
 github.com/hashicorp/yamux v0.0.0-20200609203250-aecfd211c9ce h1:7UnVY3T/ZnHUrfviiAgIUjg2PXxsQfs5bphsG8F7Keo=
 github.com/hashicorp/yamux v0.0.0-20200609203250-aecfd211c9ce/go.mod h1:+NfK9FKeTrX5uv1uIXGdwYDTeHna2qgaIlx54MXqjAM=
