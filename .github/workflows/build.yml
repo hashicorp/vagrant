@@ -14,11 +14,15 @@ jobs:
     steps:
       - name: Code Checkout
         uses: actions/checkout@v1
-      - name: Set Ruby
+      - name: Setup Ruby
         uses: ruby/setup-ruby@v1
         with:
-          ruby-version: '2.6'
-      - name: Build RubyGem
+          ruby-version: '2.7'
+      - name: Setup Go
+        uses: actions/setup-go@v3
+        with:
+          go-version: '>=1.17.11'
+      - name: Build RubyGem and binary
         run: ./.ci/build.sh
         working-directory: ${{github.workspace}}
         env:

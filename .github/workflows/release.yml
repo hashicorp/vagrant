@@ -14,10 +14,14 @@ jobs:
     steps:
       - name: Code Checkout
         uses: actions/checkout@v1
-      - name: Set Ruby
+      - name: Setup Ruby
         uses: ruby/setup-ruby@v1
         with:
-          ruby-version: '2.6'
+          ruby-version: '2.7'
+      - name: Setup Go
+        uses: actions/setup-go@v3
+        with:
+          go-version: '>=1.17.11'
       - name: Create Builders Release
         run: ./.ci/release.sh
         working-directory: ${{github.workspace}}
