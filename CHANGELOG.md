@@ -4,6 +4,7 @@ FEATURES:
 
 IMPROVEMENTS:
 
+- core: Set rsa-sha2 in kex algorithm set to enable in key exchange [GH-12584]
 - push/heroku: Display output from push [GH-12646]
 
 BUG FIXES:
