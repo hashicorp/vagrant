@@ -20,6 +20,9 @@ gem=$(printf "%s" "${g}")
 wrap aws s3 cp "${gem}" "${ASSETS_PRIVATE_BUCKET}/${repository}/vagrant-main.gem" \
      "Failed to store Vagrant RubyGem main build"
 
+# Install submodules
+wrap git submodule update --init --recursive \
+     "Failed to install git submodules"
 # Build our binary
 wrap make \
      "Failed to build the Vagrant go binary"
