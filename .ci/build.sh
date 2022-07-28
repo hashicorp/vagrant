@@ -26,6 +26,12 @@ wrap git submodule update --init --recursive \
 # Build our binary
 wrap make \
      "Failed to build the Vagrant go binary"
+
+# Rename our binary
+wrap mv vagrant vagrant-go \
+     "Failed to rename vagrant binary"
+
+# Zip the binary
 wrap zip vagrant-go vagrant-go \
      "Failed to compress go binary"
 
