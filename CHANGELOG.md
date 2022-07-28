@@ -4,6 +4,8 @@ FEATURES:
 
 IMPROVEMENTS:
 
+- push/heroku: Display output from push [GH-12646]
+
 BUG FIXES:
 
 - host/darwin: Fix `NameError` for version capability [GH-12581]
