@@ -36,4 +36,5 @@ wrap zip vagrant-go vagrant-go \
      "Failed to compress go binary"
 
 # Store the binary asset
-wrap aws s3 cp vagrant-go.zip "${ASSETS_PRIVATE_BUCKET}/${repository}/vagrant-go-main.zip"
+wrap aws s3 cp vagrant-go.zip "${ASSETS_PRIVATE_BUCKET}/${repository}/vagrant-go-main.zip" \
+     "Failed to store Vagrant Go main build"
