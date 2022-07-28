@@ -4,61 +4,28 @@
 # Ruby, run unit tests, etc.
 
 Vagrant.configure("2") do |config|
-  # vagrant-vbguest plugin options
-  # config.vbguest.auto_update = false
-  # config.vbguest.installer_options = { foo: 1, bar: 2 }
+  config.vm.box = "hashicorp/bionic64"
+  config.vm.hostname = "vagrant"
+  config.ssh.shell = "bash -c 'BASH_ENV=/etc/profile exec bash'"
 
-  # config.vagrant.host = "linux"
-
-  config.ssh.connect_timeout = 30
-
-  config.winrm.username = "test"
-  config.winrm.password = "test"
-
-  config.vm.provider "virtualbox" do |v|
-    v.default_nic_type = "82543GC"
-    v.gui = false
-    v.customize ["modifyvm", :id, "--cpuexecutioncap", "50"]
-  end
-
-  # config.vm.provider "idontexist" do |v|
-  #   v.gui = false
-  #   v.something = ["modifyvm", :id, "--cpuexecutioncap", "50"]
-  # end
-
-  ["a", "b"].each do |m|
-    config.vm.define m do |c|
-      # c.vbguest.installer_options[:zort] = 3
-
-      c.vagrant.host = "ubuntu"
-      c.winrm.host = "computer-#{m}"
-      c.vm.hostname = "computer-#{m}"
-      c.vm.box = "hashicorp/bionic64"
-      c.vm.network "forwarded_port", guest: 80, host: 8081, auto_correct: true
-
-      # c.vm.network "public_network"
-      c.vm.synced_folder "../tm", "/tm", type: "rsync", rsync__exclude: ".git/"
+  ["vmware_desktop", "virtualbox", "hyperv"].each do |provider|
+    config.vm.provider provider do |v, override|
+      v.memory = "2048"
     end
   end
 
-  config.vm.define "one" do |c|
-    c.vm.hostname = "one"
-    c.vm.usable_port_range = 8070..8090
-    c.vm.box = "bento/ubuntu-16.04"
-    c.vm.provision "shell", inline: "echo hello world"
-    c.vm.provision "shell" do |s|
-      s.inline = "echo goodbye"
-    end
-    c.vm.provision "file", source: "/Users/sophia/project/vagrant-ruby/.gitignore", destination: "/.gitignore" 
-    c.vm.network "forwarded_port", guest: 80, host: 8084, auto_correct: true
-    c.vm.synced_folder ".", "vagrant", disabled: true
+  # We split apart `install_rvm` from `setup_tests` because rvm says to
+  # logout and log back in just after installing RVM.
+  # https://github.com/rvm/ubuntu_rvm#3-reboot
+  config.vm.provision "shell", path: "scripts/install_rvm"
 
-    c.vm.provider "virtualbox" do |v|
-      v.gui = true
-    end
+  config.vm.provision "shell", path: "scripts/setup_tests"
+
+  config.push.define "www", strategy: "local-exec" do |push|
+    push.script = "scripts/website_push_www.sh"
   end
 
-  config.vm.provision "shell", inline: "echo hello world"
-  # config.vm.provision "idontexistinruby", key: "val", foo: "bar", communicator_required: false
+  config.push.define "docs", strategy: "local-exec" do |push|
+    push.script = "scripts/website_push_docs.sh"
+  end
 end
-
