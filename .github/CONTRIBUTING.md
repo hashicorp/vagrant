@@ -32,6 +32,10 @@ No pull request template is provided on GitHub. The expected changes are often a
 
 **Tip:** Make it small! A focused PR gives you the best chance of having it accepted. Then, repeat if you have more to propose!
 
+### Vagrant Go
+
+The Vagrant port to Go is currently in an alpha state and under heavy development. Please refer to [this issue](https://github.com/hashicorp/vagrant/issues/12819) before starting or submitting pull requests related to Vagrant Go.
+
 ### Setup a development installation of Vagrant
 
 *A Vagrantfile is provided that should take care setting up a VM for running the rspec tests.* If you only need to run those tests and don't also want to run a development version of Vagrant from a host machine then it's recommended to use that.
