@@ -4,6 +4,9 @@ echo "🤖 Loading VagrantCI 🤖"
 
 ldir="$(realpath ./.ci-utility-files)"
 
+# Disable IMDS lookup
+export AWS_EC2_METADATA_DISABLED=true
+
 # If utility files have not yet been pulled, fetch them
 if [ ! -e "${ldir}/.complete" ]; then
 
@@ -32,6 +35,7 @@ if [ ! -e "${ldir}/.complete" ]; then
                 echo "🛑 ERROR: Failed to extract role credentials 🛑"
                 exit 1
             fi
+            unset output
             export AWS_ACCESS_KEY_ID="${id}"
             export AWS_SECRET_ACCESS_KEY="${key}"
             export AWS_SESSION_TOKEN="${token}"
