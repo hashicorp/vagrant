@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"os"
 	"regexp"
 	"strconv"
 	"strings"
@@ -186,6 +187,22 @@ func BaseCommand(ctx context.Context, log hclog.Logger, logOutput io.Writer, opt
 		ui = terminal.ConsoleUI(ctx)
 	}
 	bc.ui = ui
+
+	outputExperimentalWarning := true
+	if val, ok := os.LookupEnv("VAGRANT_SUPPRESS_GO_EXPERIMENTAL_WARNING"); ok {
+		if v, err := strconv.ParseBool(val); err == nil && v {
+			outputExperimentalWarning = false
+		}
+	}
+	if outputExperimentalWarning {
+		ui.Output(`
+This is an experimental version of Vagrant. Please note that some things may
+not work as you expect and this version of Vagrant is not compatible with the 
+stable version of Vagrant. For more information about vagrant-go read the docs 
+at https://www.vagrantup.com/docs/experimental/vagrant_go. To disable this 
+warning set the environment variable 'VAGRANT_SUPPRESS_GO_EXPERIMENTAL_WARNING'.
+`)
+	}
 
 	homeConfigPath, err := paths.NamedVagrantConfig(bc.flagBasis)
 	if err != nil {
