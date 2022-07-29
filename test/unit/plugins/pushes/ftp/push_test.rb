@@ -97,7 +97,7 @@ describe VagrantPlugins::FTPPush::Push do
           subject.push
         end
 
-        expect(server.files).to eq(%w(Gemfile data.txt))
+        expect(server.files).to eq(%w(/var/www/site/Gemfile /var/www/site/data.txt))
       ensure
         FileUtils.rm_rf(pwd)
       end
