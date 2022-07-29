@@ -11,6 +11,7 @@ BUG FIXES:
 
 - host/darwin: Fix `NameError` for version capability [GH-12581]
 - push/ftp:  Fix `VAGRANT_CWD` handling [GH-12645]
+- guests/redhat: Fix NFS shares on Rocky 9 guests [GH-12813]
 
 ## 2.2.19 (November 5, 2021)
 
