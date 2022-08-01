@@ -1,11 +1,10 @@
-require "vagrant"
-require_relative '../linux/guest'
+require_relative "../linux/guest"
 
 module VagrantPlugins
-  module GuestCentos
+  module GuestAlma
     class Guest < VagrantPlugins::GuestLinux::Guest
       # Name used for guest detection
-      GUEST_DETECTION_NAME = "centos".freeze
+      GUEST_DETECTION_NAME = "almalinux".freeze
     end
   end
 end
