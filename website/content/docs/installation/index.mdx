@@ -81,10 +81,15 @@ Restart your machine and try running vagrant again.
 ### Windows, VirtualBox, and Hyper-V
 
 If you wish to use VirtualBox on Windows, you must ensure that Hyper-V is not enabled
-on Windows. You can turn off the feature by running this Powershell command:
+on Windows. You can turn off the feature by running this Powershell command for Windows 10:
 
 ```powershell
 Disable-WindowsOptionalFeature -Online -FeatureName Microsoft-Hyper-V-All
+```
+For Windows 11, you can run on an elevated Powershell:
+
+```powershell
+bcdedit /set hypervisorlaunchtype off
 ```
 
 You can also disable it by going through the Windows system settings:
