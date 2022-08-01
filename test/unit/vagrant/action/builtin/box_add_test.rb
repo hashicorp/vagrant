@@ -49,7 +49,7 @@ describe Vagrant::Action::Builtin::BoxAdd, :skip_windows, :bsdtar do
       port = port1
       server = FakeFtp::Server.new(port1, port2)
     end
-    server.add_file(path.basename, path.read)
+    server.add_file(path.basename.to_s, path.read)
     server.start
     yield port
   ensure
