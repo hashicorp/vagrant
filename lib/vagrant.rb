@@ -18,9 +18,6 @@ end
 # Add our patches to net-ssh
 require "vagrant/patches/net-ssh"
 
-# Add our patches to fake_ftp
-require "vagrant/patches/fake_ftp"
-
 require "optparse"
 
 module Vagrant
