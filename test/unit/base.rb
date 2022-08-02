@@ -10,6 +10,9 @@ require "rspec/its"
 require "vagrant"
 require "vagrant/util/platform"
 
+# Include patches for fake ftp
+require "vagrant/patches/fake_ftp"
+
 # Add the test directory to the load path
 $:.unshift File.expand_path("../../", __FILE__)
 
