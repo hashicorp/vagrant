@@ -9,6 +9,7 @@ on:
 
 jobs:
   setup-packet:
+    if: github.repository == 'hashicorp/vagrant-acceptance'
     runs-on: self-hosted
     name: Build Packet Instance
     steps:
@@ -21,6 +22,7 @@ jobs:
           VAGRANT_CI_LOADER_BUCKET: ${{ secrets.VAGRANT_CI_LOADER_BUCKET }}
 
   setup-hosts:
+    if: github.repository == 'hashicorp/vagrant-acceptance'
     runs-on: self-hosted
     name: Vagrant-Spec Start Hosts
     needs: setup-packet
@@ -34,7 +36,7 @@ jobs:
         uses: actions/checkout@v1
         with:
           submodules: 'recursive'
-      - name: Create packet host for tests (provider ${{ matrix.providers }})
+      - name: Create hosts for tests (provider ${{ matrix.providers }})
         run: ./.ci/spec/create-hosts.sh
         working-directory: ${{github.workspace}}
         env:
@@ -45,6 +47,7 @@ jobs:
           VAGRANT_CI_LOADER_BUCKET: ${{ secrets.VAGRANT_CI_LOADER_BUCKET }}
 
   spec-tests:
+    if: github.repository == 'hashicorp/vagrant-acceptance'
     runs-on: self-hosted
     name: Vagrant-Spec Tests
     needs: setup-hosts
