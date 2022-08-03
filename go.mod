@@ -1,6 +1,6 @@
 module github.com/hashicorp/vagrant
 
-go 1.13
+go 1.17
 
 require (
 	cloud.google.com/go/storage v1.18.2 // indirect
