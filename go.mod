@@ -16,7 +16,7 @@ require (
 	github.com/gorilla/handlers v1.4.2
 	github.com/h2non/filetype v1.1.1
 	github.com/hashicorp/go-argmapper v0.2.3
-	github.com/hashicorp/go-getter v1.5.9
+	github.com/hashicorp/go-getter v1.6.1
 	github.com/hashicorp/go-hclog v0.16.2
 	github.com/hashicorp/go-memdb v1.2.0
 	github.com/hashicorp/go-multierror v1.1.1
@@ -49,7 +49,7 @@ require (
 	github.com/zclconf/go-cty-yaml v1.0.2
 	go.etcd.io/bbolt v1.3.6
 	golang.org/x/crypto v0.0.0-20201002170205-7f63de1d35b0
-	golang.org/x/sys v0.0.0-20211116061358-0a5406a5449c
+	golang.org/x/sys v0.0.0-20220517195934-5e4e11fc645e
 	golang.org/x/text v0.3.7
 	google.golang.org/genproto v0.0.0-20211116182654-e63d96a377c4
 	google.golang.org/grpc v1.42.0
