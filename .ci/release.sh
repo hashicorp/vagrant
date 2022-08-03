@@ -35,22 +35,55 @@ gem=$(printf "%s" "${g}")
 vagrant_version="$(gem specification "${gem}" version)"
 vagrant_version="${vagrant_version##*version: }"
 
-# Build the go binary
-wrap make \
-    "Failed to build the Vagrant go binary"
+# Install submodules
+wrap git submodule update --init --recursive \
+     "Failed to install git submodules"
 
-wrap mv vagrant vagrant-go \
-    "Failed to rename Vagrant go binary"
-wrap zip vagrant-go vagrant-go \
-    "Failed to compress go binary"
+# Build our binaries
+
+# Build linux amd64 binary
+wrap make bin/linux \
+     "Failed to build the Vagrant go linux amd64 binary"
+
+# Rename our binary
+wrap mv vagrant vagrant-go_linux_amd64 \
+     "Failed to rename vagrant linux amd64 binary"
+
+# Zip the binary
+wrap zip "vagrant-go_${vagrant_version}_linux_amd64" vagrant-go_linux_amd64 \
+     "Failed to compress go linux amd64 binary"
+
+# Build linux 386 binary
+wrap make bin/linux-386 \
+     "Failed to build the Vagrant go linux 386 binary"
+
+# Rename our binary
+wrap mv vagrant vagrant-go_linux_386 \
+     "Failed to rename vagrant linux 386 binary"
+
+# Zip the binary
+wrap zip "vagrant-go_${vagrant_version}_linux_386" vagrant-go_linux_386 \
+     "Failed to compress go linux 386 binary"
+
+# Build darwin binary
+wrap make bin/darwin \
+     "Failed to build the Vagrant go darwin amd64 binary"
+
+# Rename our binary
+wrap mv vagrant vagrant-go_darwin_amd64 \
+     "Failed to rename vagrant darwin amd64 binary"
+
+# Zip the binary
+wrap zip "vagrant-go_${vagrant_version}_darwin_amd64" vagrant-go_darwin_amd64 \
+     "Failed to compress go darwin amd64 binary"
 
 wrap mkdir release-assets \
     "Failed to create release assets directory"
 
 wrap mv vagrant*.gem release-assets \
     "Failed to move Vagrant RubyGem asset to release asset directory"
-wrap mv vagrant-go.zip release-assets \
-    "Failed to move Vagrant go asset to release asset directory"
+wrap mv vagrant-go*.zip release-assets \
+    "Failed to move Vagrant go assets to release asset directory"
 
 # We want to release into the builders repository so
 # update the repository variable with the desired destination

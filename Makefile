@@ -1,5 +1,3 @@
-# A lot of this Makefile right now is temporary since we have a private
-# repo so that we can more sanely create
 ASSETFS_PATH?=internal/server/gen/bindata_ui.go
 
 GIT_COMMIT=$$(git rev-parse --short HEAD)
@@ -20,14 +18,18 @@ debug: # debug creates an executable with optimizations off, suitable for debugg
 
 .PHONY: bin/windows
 bin/windows: # create windows binaries
-	GOOS=linux GOARCH=amd64 go build -o ./internal/assets/ceb/ceb ./cmd/vagrant-entrypoint
-	cd internal/assets && go-bindata -pkg assets -o prod.go -tags assetsembedded ./ceb
+	@test -s "thirdparty/proto/api-common-protos/.git" || { echo "git submodules not initialized, run 'git submodule update --init --recursive' and try again"; exit 1; }#
 	GOOS=windows GOARCH=amd64 CGO_ENABLED=$(CGO_ENABLED) go build -ldflags $(GOLDFLAGS) -tags assetsembedded -o ./vagrant.exe ./cmd/vagrant
 
 .PHONY: bin/linux
 bin/linux: # create Linux binaries
 	@test -s "thirdparty/proto/api-common-protos/.git" || { echo "git submodules not initialized, run 'git submodule update --init --recursive' and try again"; exit 1; }
 	GOOS=linux GOARCH=amd64 $(MAKE) bin
+
+.PHONY: bin/linux-386
+bin/linux-386: # create Linux binaries
+	@test -s "thirdparty/proto/api-common-protos/.git" || { echo "git submodules not initialized, run 'git submodule update --init --recursive' and try again"; exit 1; }
+	GOOS=linux GOARCH=386 $(MAKE) bin
 
 .PHONY: bin/darwin
 bin/darwin: # create Darwin binaries
