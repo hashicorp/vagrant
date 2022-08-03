@@ -23,18 +23,53 @@ wrap aws s3 cp "${gem}" "${ASSETS_PRIVATE_BUCKET}/${repository}/vagrant-main.gem
 # Install submodules
 wrap git submodule update --init --recursive \
      "Failed to install git submodules"
-# Build our binary
-wrap make \
-     "Failed to build the Vagrant go binary"
+
+# Build our binaries
+
+# Build linux amd64 binary
+wrap make bin/linux \
+     "Failed to build the Vagrant go linux amd64 binary"
 
 # Rename our binary
-wrap mv vagrant vagrant-go \
-     "Failed to rename vagrant binary"
+wrap mv vagrant vagrant-go_linux_amd64 \
+     "Failed to rename vagrant linux amd64 binary"
 
 # Zip the binary
-wrap zip vagrant-go vagrant-go \
-     "Failed to compress go binary"
+wrap zip vagrant-go_linux_amd64 vagrant-go_linux_amd64 \
+     "Failed to compress go linux amd64 binary"
 
 # Store the binary asset
-wrap aws s3 cp vagrant-go.zip "${ASSETS_PRIVATE_BUCKET}/${repository}/vagrant-go-main.zip" \
-     "Failed to store Vagrant Go main build"
+wrap aws s3 cp vagrant-go_linux_amd64.zip "${ASSETS_PRIVATE_BUCKET}/${repository}/vagrant-go_main_linux_amd64.zip" \
+     "Failed to store Vagrant Go linux amd64 main build"
+
+# Build linux 386 binary
+wrap make bin/linux-386 \
+     "Failed to build the Vagrant go linux 386 binary"
+
+# Rename our binary
+wrap mv vagrant vagrant-go_linux_386 \
+     "Failed to rename vagrant linux 386 binary"
+
+# Zip the binary
+wrap zip vagrant-go_linux_386 vagrant-go_linux_386 \
+     "Failed to compress go linux 386 binary"
+
+# Store the binary asset
+wrap aws s3 cp vagrant-go_linux_386.zip "${ASSETS_PRIVATE_BUCKET}/${repository}/vagrant-go_main_linux_386.zip" \
+     "Failed to store Vagrant Go linux 386 main build"
+
+# Build darwin binary
+wrap make bin/darwin \
+     "Failed to build the Vagrant go darwin amd64 binary"
+
+# Rename our binary
+wrap mv vagrant vagrant-go_darwin_amd64 \
+     "Failed to rename vagrant darwin amd64 binary"
+
+# Zip the binary
+wrap zip vagrant-go_darwin_amd64 vagrant-go_darwin_amd64 \
+     "Failed to compress go darwin amd64 binary"
+
+# Store the binary asset
+wrap aws s3 cp vagrant-go_darwin_amd64.zip "${ASSETS_PRIVATE_BUCKET}/${repository}/vagrant-go_main_darwin_amd64.zip" \
+     "Failed to store Vagrant Go darwin amd64 main build"
