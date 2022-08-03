@@ -30,7 +30,7 @@ jobs:
           # to be based off a tag
           fetch-depth: 0
       - name: Setup Go
-        uses: actions/setup-go@v2
+        uses: actions/setup-go@v3
         with:
           go-version: ${{matrix.go}}
       - name: Setup Ruby
