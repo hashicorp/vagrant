@@ -21,7 +21,7 @@ jobs:
       - name: Setup Go
         uses: actions/setup-go@v3
         with:
-          go-version: '>=1.17.11'
+          go-version-file: go.mod
       - name: Build RubyGem and binary
         run: ./.ci/build.sh
         working-directory: ${{github.workspace}}
