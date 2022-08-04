@@ -19,8 +19,8 @@ fi
 # Make the checksums
 pushd ./pkg/dist
 shasum -a256 * > ./vagrant_${VERSION}_SHA256SUMS
-if [ -z $NOSIGN ]; then
-  echo "==> Signing..."
-  gpg --default-key 348FFC4C --detach-sig ./vagrant_${VERSION}_SHA256SUMS
-fi
+# if [ -z $NOSIGN ]; then
+#   echo "==> Signing..."
+#   gpg --default-key 348FFC4C --detach-sig ./vagrant_${VERSION}_SHA256SUMS
+# fi
 popd

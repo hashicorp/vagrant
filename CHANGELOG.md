@@ -1,6 +1,8 @@
-## Next version (Unreleased)
+## 2.3.0 (August 5, 2022)
 
 FEATURES:
+
+- core: Introduce vagrant-go [GH-12819]
 
 IMPROVEMENTS:
 
