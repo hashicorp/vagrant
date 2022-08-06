@@ -13,7 +13,7 @@ root="$( cd -P "$( dirname "$csource" )/../" && pwd )"
 
 . "${root}/.ci/init.sh"
 
-pushd "${root}" > "${output}"
+pushd "${root}" > "${output}" 2>&1
 
 # Install ghr
 wrap curl -Lso /tmp/ghr.tgz "https://github.com/tcnksm/ghr/releases/download/v${ghr_version}/ghr_v${ghr_version}_linux_amd64.tar.gz" \
@@ -24,7 +24,7 @@ wrap mv "/tmp/ghr_v${ghr_version}_linux_amd64/ghr" "${root}/.ci/" \
      "Failed to install ghr utility"
 
 # Build our gem
-wrap gem build *.gemspec \
+wrap gem build ./*.gemspec \
      "Failed to build Vagrant RubyGem"
 
 # Get the path of our new gem
@@ -50,7 +50,7 @@ wrap mv vagrant vagrant-go_linux_amd64 \
      "Failed to rename vagrant linux amd64 binary"
 
 # Zip the binary
-wrap zip "vagrant-go_${vagrant_version}_linux_amd64" vagrant-go_linux_amd64 \
+wrap zip "vagrant-go_${vagrant_version}_linux_amd64.zip" vagrant-go_linux_amd64 \
      "Failed to compress go linux amd64 binary"
 
 # Build linux 386 binary
@@ -62,7 +62,7 @@ wrap mv vagrant vagrant-go_linux_386 \
      "Failed to rename vagrant linux 386 binary"
 
 # Zip the binary
-wrap zip "vagrant-go_${vagrant_version}_linux_386" vagrant-go_linux_386 \
+wrap zip "vagrant-go_${vagrant_version}_linux_386.zip" vagrant-go_linux_386 \
      "Failed to compress go linux 386 binary"
 
 # Build darwin binary
@@ -74,7 +74,7 @@ wrap mv vagrant vagrant-go_darwin_amd64 \
      "Failed to rename vagrant darwin amd64 binary"
 
 # Zip the binary
-wrap zip "vagrant-go_${vagrant_version}_darwin_amd64" vagrant-go_darwin_amd64 \
+wrap zip "vagrant-go_${vagrant_version}_darwin_amd64.zip" vagrant-go_darwin_amd64 \
      "Failed to compress go darwin amd64 binary"
 
 wrap mkdir release-assets \
