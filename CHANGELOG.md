@@ -1,3 +1,11 @@
+## 2.3.1 (Unreleased)
+
+FEATURES:
+
+IMPROVEMENTS:
+
+BUG FIXES:
+
 ## 2.3.0 (August 5, 2022)
 
 FEATURES:
