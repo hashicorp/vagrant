@@ -168,7 +168,7 @@ This section lists the _specific_ options for the Ansible Local provisioner. In 
 
 ### Install Galaxy Roles in a path owned by root
 
-~> **Disclaimer:** This tip is not a recommendation to install galaxy roles out of the vagrant user space, especially if you rely on ssh agent forwarding to fetch the roles.
+~> **Disclaimer:** This tip is not a recommendation to install galaxy roles out of the vagrant user space, especially if you rely on SSH agent forwarding to fetch the roles.
 
 Be careful that `ansible-galaxy` command is executed by default as vagrant user. Setting `galaxy_roles_path` to a folder like `/etc/ansible/roles` will fail, and `ansible-galaxy` will extract the role a second time in `/home/vagrant/.ansible/roles/`. Then if your playbook uses `become` to run as `root`, it will fail with a _"role was not found"_ error.
 
