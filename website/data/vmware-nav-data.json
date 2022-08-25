@@ -1,9 +1,5 @@
 [
   {
-    "title": "EULA",
-    "path": "eula"
-  },
-  {
     "title": "Privacy Policy",
     "href": "https://www.hashicorp.com/privacy"
   }
