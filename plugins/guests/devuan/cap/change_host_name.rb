@@ -93,7 +93,10 @@ module VagrantPlugins
           interfaces.each do |iface|
             logger.debug("Restarting interface #{iface} on guest #{machine.name}")
             if nettools
-             restart_command = "ifdown #{iface};ifup #{iface}"
+             # Ubuntu 16.04+ returns an error when downing an interface that
+             # does not exist. The `|| true` preserves the behavior that older
+             # Ubuntu versions exhibit and Vagrant expects (GH-7155)
+             restart_command = "ifdown #{iface} || true;ifup #{iface} || true"
             else
              restart_command = "systemctl stop ifup@#{iface}.service;systemctl start ifup@#{iface}.service"
             end
