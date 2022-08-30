@@ -29,6 +29,7 @@ module Vagrant
 
       def ask(message, **opts)
         opts[:style] ||= :detail
+        opts[:echo] = true if !opts.key?(:echo)
         @client.input(message.gsub("%", "%%"), **opts)
       end
 
