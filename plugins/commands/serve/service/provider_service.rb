@@ -20,7 +20,7 @@ module VagrantPlugins
 
         def usable(req, ctx)
           with_plugin(ctx, :providers, broker: broker) do |plugin|
-            is_usable = plugin.usable?
+            is_usable = plugin.usable?(true)
             SDK::Provider::UsableResp.new(
               is_usable: is_usable,
             )
