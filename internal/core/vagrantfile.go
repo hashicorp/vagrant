@@ -456,6 +456,7 @@ func (v *Vagrantfile) Target(
 				Project: v.targetSource,
 			},
 		),
+		WithProvider(provider),
 	}
 	var vf *Vagrantfile
 
@@ -468,12 +469,15 @@ func (v *Vagrantfile) Target(
 	if err != nil {
 		return nil, err
 	}
+	rawTarget := target.(*Target)
+	if provider != "" {
+		rawTarget.target.Provider = provider
+	}
 
 	// Since the target config gives us a Vagrantfile which is
 	// attached to the project, we need to clone it and attach
 	// it to the target we loaded
 	if vf != nil {
-		rawTarget := target.(*Target)
 		tvf := vf.clone(name)
 
 		if err = tvf.Init(); err != nil {
