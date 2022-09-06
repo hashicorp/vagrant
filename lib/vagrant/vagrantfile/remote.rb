@@ -25,7 +25,7 @@ module Vagrant
         client.target_names
       end
 
-      def machine_config(name, provider, _, _, validate_provider)
+      def machine_config(name, provider, _, _,  validate_provider=true)
         client.machine_config(name, provider, validate_provider)
       end
     end

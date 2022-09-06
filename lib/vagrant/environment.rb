@@ -351,7 +351,7 @@ module Vagrant
       # then look there.
       root_config = vagrantfile.config
       if opts[:machine]
-        machine_info = vagrantfile.machine_config(opts[:machine], nil, nil, nil)
+        machine_info = vagrantfile.machine_config(opts[:machine])
         root_config = machine_info[:config]
       end
 
