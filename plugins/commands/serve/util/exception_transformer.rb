@@ -62,7 +62,8 @@ module VagrantPlugins
                   )
                   proto = Google::Rpc::Status.new(
                     code: GRPC::Core::StatusCodes::UNKNOWN,
-                    details: [localized_msg_details_any]
+                    details: [localized_msg_details_any],
+                    message: message,
                   )
                   metadata[GRPC_DETAILS_METADATA_KEY] = Google::Rpc::Status.encode(proto)
                 end
