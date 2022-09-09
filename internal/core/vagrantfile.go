@@ -5,10 +5,9 @@ import (
 	"fmt"
 	"sync"
 
-	"github.com/gogo/googleapis/google/rpc"
-	"github.com/golang/protobuf/ptypes"
 	"github.com/hashicorp/go-argmapper"
 	"github.com/hashicorp/go-hclog"
+	"google.golang.org/genproto/googleapis/rpc/errdetails"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
@@ -530,28 +529,16 @@ func (v *Vagrantfile) TargetConfig(
 					"provider_not_usable",
 					map[string]string{"Provider": provider, "Machine": name},
 				)
-				// st := status.New(codes.Unknown, msg)
-
-				// protoMsg := &wrapperspb.StringValue{
-				// 	Value: msg,
-				// }
-				localizedProtoMsg := &rpc.LocalizedMessage{
+				localizedProtoMsg := &errdetails.LocalizedMessage{
 					Message: msg,
-					Locale:  "en-US",
+					Locale:  "en",
 				}
-				protoMsgAny, _ := ptypes.MarshalAny(localizedProtoMsg)
-				// st, _ = st.WithDetails(protoMsg)
-				// for _, d := range errStatus.Details() {
-				// 	st, _ = st.WithDetails(d.(proto.Message))
-				// }
-				errStatusProto := errStatus.Proto()
-				errStatusProto.Message = msg
-				errStatusProto.Details = append(errStatusProto.Details, protoMsgAny)
-				// errStatusProto.Details = []*anypb.Any{protoMsgAny}
-
-				// TODO: include message provided in the error
-				errStatusP := status.FromProto(errStatusProto)
-				return nil, errStatusP.Err()
+				returnErr := status.New(errStatus.Code(), msg)
+				returnErr, _ = returnErr.WithDetails(localizedProtoMsg)
+				for _, d := range errStatus.Details() {
+					returnErr, _ = returnErr.WithDetails(d.(*errdetails.LocalizedMessage))
+				}
+				return nil, returnErr.Err()
 			}
 			if err != nil {
 				return nil, err
