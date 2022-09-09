@@ -7,7 +7,6 @@ import (
 
 	"github.com/hashicorp/go-argmapper"
 	"github.com/hashicorp/go-hclog"
-	"google.golang.org/genproto/googleapis/rpc/errdetails"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
@@ -521,24 +520,13 @@ func (v *Vagrantfile) TargetConfig(
 		if validateProvider {
 			usable, err := pp.Component.(core.Provider).Usable()
 			if !usable {
-				errStatus, ok := status.FromError(err)
-				if !ok {
-					return nil, err
+				if errStatus, ok := status.FromError(err); ok {
+					return nil, localizer.LocalizeStatusErr(
+						"provider_not_usable",
+						map[string]string{"Provider": provider, "Machine": name},
+						errStatus,
+					)
 				}
-				msg := localizer.LocalizeMsg(
-					"provider_not_usable",
-					map[string]string{"Provider": provider, "Machine": name},
-				)
-				localizedProtoMsg := &errdetails.LocalizedMessage{
-					Message: msg,
-					Locale:  "en",
-				}
-				returnErr := status.New(errStatus.Code(), msg)
-				returnErr, _ = returnErr.WithDetails(localizedProtoMsg)
-				for _, d := range errStatus.Details() {
-					returnErr, _ = returnErr.WithDetails(d.(*errdetails.LocalizedMessage))
-				}
-				return nil, returnErr.Err()
 			}
 			if err != nil {
 				return nil, err
