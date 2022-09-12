@@ -201,7 +201,7 @@ not work as you expect and this version of Vagrant is not compatible with the
 stable version of Vagrant. For more information about vagrant-go read the docs 
 at https://www.vagrantup.com/docs/experimental/vagrant_go. To disable this 
 warning set the environment variable 'VAGRANT_SUPPRESS_GO_EXPERIMENTAL_WARNING'.
-`)
+`, terminal.WithWarningStyle())
 	}
 
 	homeConfigPath, err := paths.NamedVagrantConfig(bc.flagBasis)
