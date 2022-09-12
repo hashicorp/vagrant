@@ -195,8 +195,7 @@ func BaseCommand(ctx context.Context, log hclog.Logger, logOutput io.Writer, opt
 		}
 	}
 	if outputExperimentalWarning {
-		ui.Output(`
-This is an experimental version of Vagrant. Please note that some things may
+		ui.Output(`This is an experimental version of Vagrant. Please note that some things may
 not work as you expect and this version of Vagrant is not compatible with the 
 stable version of Vagrant. For more information about vagrant-go read the docs 
 at https://www.vagrantup.com/docs/experimental/vagrant_go. To disable this 

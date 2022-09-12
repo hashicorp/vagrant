@@ -33,7 +33,8 @@ module VagrantPlugins
                 input: SDK::TerminalUI::Event::Input.new(
                   prompt: prompt,
                   style: STYLE[:info],
-                  secret: !opts[:echo]
+                  secret: !opts[:echo],
+                  color: opts[:color]
                 )
               ),
             ].each
@@ -61,6 +62,7 @@ module VagrantPlugins
                   msg: line,
                   style: style,
                   disable_new_line: !opts[:new_line],
+                  color: opts[:color]
                 )
               )
             ].each

@@ -17,12 +17,6 @@ module Vagrant
     class Remote < Basic
       attr_reader :client
 
-      COLOR_TO_STYLE = {
-        red: :error,
-        green: :success,
-        yellow: :warn
-      }
-
       def initialize(client)
         super()
         @client = client
@@ -41,13 +35,11 @@ module Vagrant
 
       def safe_puts(message, **opts)
         message, extra_opts = message
-        if !extra_opts[:color].nil?
-          extra_opts[:style] = COLOR_TO_STYLE[extra_opts[:color]]
-        end
         opts = {
           new_line: opts[:printer] == :puts,
           style: extra_opts[:style],
-          bold: extra_opts[:bold]
+          bold: extra_opts[:bold],
+          color: extra_opts[:color]
         }
 
         client.output(message.gsub("%", "%%"), **opts)
