@@ -402,6 +402,7 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
       optional :msg, :string, 1
       optional :style, :string, 2
       optional :disable_new_line, :bool, 3
+      optional :color, :string, 4
     end
     add_message "hashicorp.vagrant.GetJobStreamResponse.Terminal.Event.Raw" do
       optional :data, :bytes, 1
