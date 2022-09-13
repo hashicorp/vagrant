@@ -1,0 +1,4 @@
+contact_links:
+  - name: Ask a Question
+    url: https://discuss.hashicorp.com/c/vagrant
+    about: If you have a question or are looking for advice, please post on our Discuss forum.
