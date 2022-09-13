@@ -88,11 +88,10 @@ jobs:
           path: ${{ github.workspace }}/vagrant-spec.log
 
   notify-on-success:
-    if: github.repository == 'hashicorp/vagrant-acceptance'
+    if: github.repository == 'hashicorp/vagrant-acceptance' && success()
     runs-on: self-hosted
     name: Notify on Success
     needs: spec-tests
-    if: success()
     steps:
       - name: Notify on Success
         run: ./.ci/spec/notify-success.sh
@@ -102,7 +101,6 @@ jobs:
     runs-on: self-hosted
     name: Cleanup Post Vagrant-Spec Tests
     needs: [spec-tests, notify-on-success]
-    if: always()
     steps:
       - name: Clean Packet
         run: ./.ci/spec/clean-packet.sh
