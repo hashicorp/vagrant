@@ -6,6 +6,10 @@ IMPROVEMENTS:
 
 BUG FIXES:
 
+VAGRANT-GO:
+
+- Support secret interactive input [GH-12876]
+
 ## 2.3.0 (August 5, 2022)
 
 FEATURES:
