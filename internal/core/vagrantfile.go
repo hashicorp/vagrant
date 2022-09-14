@@ -525,6 +525,7 @@ func (v *Vagrantfile) TargetConfig(
 						"provider_not_usable",
 						map[string]string{"Provider": provider, "Machine": name},
 						errStatus,
+						true,
 					)
 				}
 			}

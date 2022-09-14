@@ -58,7 +58,7 @@ module VagrantPlugins
                 if err.is_a? Vagrant::Errors::VagrantError
                   localized_msg_details_any = Google::Protobuf::Any.new
                   localized_msg_details_any.pack(
-                    Google::Rpc::LocalizedMessage.new(locale: "en-US", message: message)
+                    Google::Rpc::LocalizedMessage.new(locale: "en-US", message: message.gsub("\n", " "))
                   )
                   proto = Google::Rpc::Status.new(
                     code: GRPC::Core::StatusCodes::UNKNOWN,
