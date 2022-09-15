@@ -11,8 +11,12 @@ describe VagrantPlugins::SyncedFolderSMB::Cap::MountOptions do
   end
   let(:cap){ caps.get(:mount_options) }
 
+  let(:dummy_smb_host) { "my.smb.host" }
   let(:machine) { double("machine") }
   let(:comm) { VagrantTests::DummyCommunicator::Communicator.new(machine) }
+  let(:env)    { double("env") }
+  let(:guest) { double("guest") }
+  let(:host)    { double("host") }
   let(:mount_owner){ "vagrant" }
   let(:mount_group){ "vagrant" }
   let(:mount_uid){ "1000" }
@@ -28,10 +32,30 @@ describe VagrantPlugins::SyncedFolderSMB::Cap::MountOptions do
   end
 
   before do
+    allow(guest).to receive(:capability).with(:choose_addressable_ip_addr, any_args).and_return(dummy_smb_host)
+    allow(host).to receive(:capability).with(:configured_ip_addresses)
+    allow(env).to receive(:host).and_return(host)
+    allow(machine).to receive(:env).and_return(env)
     allow(machine).to receive(:communicate).and_return(comm)
+    allow(machine).to receive(:guest).and_return(guest)
     allow(machine).to receive_message_chain(:env, :host, :capability?).with(:smb_mount_options).and_return(false)
     allow(ENV).to receive(:[]).with("VAGRANT_DISABLE_SMBMFSYMLINKS").and_return(true)
     allow(ENV).to receive(:[]).with("GEM_SKIP").and_return(false)
+  end
+
+  describe ".mount_name" do
+    it "generates the mount name when smb_host and smb_id are set" do
+      folder_options[:smb_host] = "smb_host"
+      folder_options[:smb_id] = "smbid"
+      mn = cap.mount_name(machine, "", folder_options)
+      expect(mn).to eq("//smb_host/smbid")
+    end
+
+    it "generates the mount name when smb_host is not set" do
+      folder_options[:smb_id] = "smbid"
+      mn = cap.mount_name(machine, "", folder_options)
+      expect(mn).to eq("//#{dummy_smb_host}/smbid")
+    end
   end
 
   describe ".mount_options" do

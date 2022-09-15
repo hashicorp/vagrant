@@ -33,7 +33,7 @@ module VagrantPlugins
                 input: SDK::TerminalUI::Event::Input.new(
                   prompt: prompt,
                   style: STYLE[:info],
-                  secret: !!opts[:echo]
+                  secret: !opts[:echo]
                 )
               ),
             ].each
