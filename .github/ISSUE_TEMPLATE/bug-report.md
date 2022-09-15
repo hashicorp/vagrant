@@ -16,33 +16,45 @@ Thank you!
 
 ### Debug output
 
+<!--
 Provide a link to a GitHub Gist containing the complete debug output, https://www.vagrantup.com/docs/other/debugging.html. 
 
 The debug output should
 be very long. Do NOT paste the debug output in the issue.
+-->
 
 ### Expected behavior
 
+<!--
 What should have happened?
+-->
 
 ### Actual behavior
 
+<!--
 What actually happened?
+-->
 
 ### Reproduction information 
 
 #### Vagrant version
 
+<!--
 Use `vagrant -v` to collect the version information. If you are not running the latest version
 of Vagrant, please upgrade before submitting an issue.
+-->
 
 #### Host operating system
 
+<!--
 Your local system.
+-->
 
 #### Guest operating system
 
+<!--
 The operating system of the virtual machine.
+-->
 
 #### Steps to reproduce
 
@@ -56,6 +68,8 @@ The operating system of the virtual machine.
 # Copy-paste your Vagrantfile here. Remove any sensitive information such as passwords, authentication tokens, or email addresses.
 ```
 
+<!--
 Always start with a minimal Vagrantfile and include only the relevant configuration
 to reproduce the reported behavior.
+-->
 
