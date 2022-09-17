@@ -1,30 +1,7 @@
-{ lib
-, stdenv
-, autoconf
-, autogen
-, automake
-, go
-, go-bindata
-, go-changelog
-, go-mockery
-, go-protobuf
-, go-protobuf-json
-, go-tools
-, grpc-tools
-, grpcurl
-, libarchive
-, libpng
-, libtool
-, mkShell
-, nasm
-, nodejs-16_x
-, pkg-config
-, protobufPin
-, protoc-gen-doc
-, protoc-gen-go-grpc
-, ruby
-, zlib
-}:
+{ lib, stdenv, autoconf, autogen, automake, go, go-bindata, go-changelog
+, go-mockery, go-protobuf, go-protobuf-json, go-tools, grpc-tools, grpcurl
+, libarchive, libpng, libtool, mkShell, nasm, nodejs-16_x, pkg-config
+, protobufPin, protoc-gen-doc, protoc-gen-go-grpc, ruby, sqlite, zlib }:
 
 mkShell rec {
   name = "vagrant";
@@ -70,4 +47,6 @@ mkShell rec {
     # to use the legacy Vagrant in this repo. See client.initVagrantRubyRuntime
     PATH=$PWD/binstubs:$PATH
   '';
+
+  hardeningDisable = [ "fortify" ];
 }
