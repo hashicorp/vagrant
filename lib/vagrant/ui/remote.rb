@@ -38,7 +38,8 @@ module Vagrant
         opts = {
           new_line: opts[:printer] == :puts,
           style: extra_opts[:style],
-          bold: extra_opts[:bold]
+          bold: extra_opts[:bold],
+          color: extra_opts[:color]
         }
 
         client.output(message.gsub("%", "%%"), **opts)

@@ -308,6 +308,7 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
       repeated :lines, :string, 1
       optional :style, :enum, 2, "hashicorp.vagrant.sdk.TerminalUI.OutputRequest.Style"
       optional :disable_new_line, :bool, 3
+      optional :color, :string, 4
     end
     add_enum "hashicorp.vagrant.sdk.TerminalUI.OutputRequest.Style" do
       value :HEADER, 0
@@ -355,6 +356,7 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
       optional :msg, :string, 1
       optional :style, :string, 2
       optional :disable_new_line, :bool, 3
+      optional :color, :string, 4
     end
     add_message "hashicorp.vagrant.sdk.TerminalUI.Event.Raw" do
       optional :data, :bytes, 1

@@ -111,7 +111,7 @@ func (c *DoThing) Execute(trm terminal.UI, params *component.CommandParams) int3
 		trm.Output(err.Error())
 		return 1
 	}
-	trm.Output(msg)
+	trm.Output(msg, terminal.WithColor("magenta"))
 	return 0
 }
 

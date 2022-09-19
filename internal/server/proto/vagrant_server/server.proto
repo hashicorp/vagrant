@@ -994,6 +994,7 @@ message GetJobStreamResponse {
         string msg = 1;
         string style = 2;
         bool disable_new_line = 3;
+        string color = 4;
       }
 
       message Raw {

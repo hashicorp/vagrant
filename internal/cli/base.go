@@ -182,6 +182,9 @@ func BaseCommand(ctx context.Context, log hclog.Logger, logOutput io.Writer, opt
 	} else if !bc.flagInteractive {
 		// Set non interactive if the --no-interactive flag is provided
 		ui = terminal.NonInteractiveUI(ctx)
+	} else if !bc.flagColor {
+		// Set basic ui (with no color) if the --no-color flag is provided
+		ui = terminal.BasicUI(ctx)
 	} else {
 		// If no ui related flags are set, create a new one
 		ui = terminal.ConsoleUI(ctx)
@@ -195,13 +198,12 @@ func BaseCommand(ctx context.Context, log hclog.Logger, logOutput io.Writer, opt
 		}
 	}
 	if outputExperimentalWarning {
-		ui.Output(`
-This is an experimental version of Vagrant. Please note that some things may
+		ui.Output(`This is an experimental version of Vagrant. Please note that some things may
 not work as you expect and this version of Vagrant is not compatible with the 
 stable version of Vagrant. For more information about vagrant-go read the docs 
 at https://www.vagrantup.com/docs/experimental/vagrant_go. To disable this 
 warning set the environment variable 'VAGRANT_SUPPRESS_GO_EXPERIMENTAL_WARNING'.
-`)
+`, terminal.WithWarningStyle())
 	}
 
 	homeConfigPath, err := paths.NamedVagrantConfig(bc.flagBasis)
@@ -332,6 +334,9 @@ func (c *baseCommand) Init(opts ...Option) (err error) {
 	} else if !c.flagInteractive {
 		// Set non interactive if the --no-interactive flag is provided
 		ui = terminal.NonInteractiveUI(c.Ctx)
+	} else if !c.flagColor {
+		// Set basic ui (with no color) if the --no-color flag is provided
+		ui = terminal.BasicUI(c.Ctx)
 	} else {
 		// If no ui related flags are set, use the base config ui
 		ui = baseCfg.UI

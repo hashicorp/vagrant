@@ -54,7 +54,7 @@ func (u *runnerUI) ClearLine() {
 // arguments should be interpolations for the format string. After the
 // interpolations you may add Options.
 func (u *runnerUI) Output(msg string, raw ...interface{}) {
-	msg, style, disableNewline, _ := terminal.Interpret(msg, raw...)
+	msg, style, disableNewline, _, color := terminal.Interpret(msg, raw...)
 
 	// Extreme java looking code alert!
 	ev := &vagrant_server.RunnerJobStreamRequest{
@@ -67,6 +67,7 @@ func (u *runnerUI) Output(msg string, raw ...interface{}) {
 								Msg:            msg,
 								Style:          style,
 								DisableNewLine: disableNewline,
+								Color:          color,
 							},
 						},
 					},
