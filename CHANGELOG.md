@@ -4,6 +4,8 @@ FEATURES:
 
 IMPROVEMENTS:
 
+- core: Raise error if required metadata.json box fields are not present [GH-12895]
+
 BUG FIXES:
 
 VAGRANT-GO:
