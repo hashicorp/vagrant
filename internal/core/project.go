@@ -614,9 +614,9 @@ func (p *Project) Ref() interface{} {
 	}
 }
 
-func (p *Project) Run(ctx context.Context, task *vagrant_server.Task) (err error) {
-	p.logger.Debug("running new task",
-		"task", task)
+func (p *Project) Run(ctx context.Context, task *vagrant_server.Job_CommandOp) (err error) {
+	p.logger.Debug("running new command",
+		"command", task)
 
 	cmd, err := p.basis.component(
 		ctx, component.CommandType, task.Component.Name)
@@ -625,7 +625,7 @@ func (p *Project) Run(ctx context.Context, task *vagrant_server.Task) (err error
 	}
 
 	fn := cmd.Value.(component.Command).ExecuteFunc(
-		strings.Split(task.CommandName, " "))
+		strings.Split(task.Command, " "))
 	result, err := p.callDynamicFunc(ctx, p.logger, fn, (*int32)(nil),
 		argmapper.Typed(ctx, task.CliArgs, p.jobInfo),
 		argmapper.ConverterFunc(cmd.mappers...),

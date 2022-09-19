@@ -9,17 +9,17 @@ import (
 	"os/exec"
 	"path/filepath"
 	"strings"
-	"time"
 
+	"github.com/glebarez/sqlite"
 	"github.com/hashicorp/go-plugin"
 	"github.com/hashicorp/vagrant-plugin-sdk/helper/paths"
-	bolt "go.etcd.io/bbolt"
 	"google.golang.org/grpc"
 	"google.golang.org/protobuf/types/known/emptypb"
+	"gorm.io/gorm"
+	"gorm.io/gorm/logger"
 
 	"github.com/hashicorp/vagrant/internal/protocolversion"
 	"github.com/hashicorp/vagrant/internal/server"
-	"github.com/hashicorp/vagrant/internal/server/proto/vagrant_server"
 	"github.com/hashicorp/vagrant/internal/server/singleprocess"
 	"github.com/hashicorp/vagrant/internal/serverclient"
 )
@@ -103,8 +103,8 @@ func (c *Client) initLocalServer(ctx context.Context) (_ *grpc.ClientConn, err e
 	log.Debug("opening local mode DB", "path", path)
 
 	// Open our database
-	db, err := bolt.Open(path, 0600, &bolt.Options{
-		Timeout: 1 * time.Second,
+	db, err := gorm.Open(sqlite.Open(path), &gorm.Config{
+		Logger: logger.Default.LogMode(logger.Silent),
 	})
 	if err != nil {
 		return
@@ -126,7 +126,13 @@ func (c *Client) initLocalServer(ctx context.Context) (_ *grpc.ClientConn, err e
 		return err
 	})
 
-	cleanups = append(cleanups, func() error { return db.Close() })
+	cleanups = append(cleanups, func() error {
+		dbconn, err := db.DB()
+		if err == nil {
+			dbconn.Close()
+		}
+		return nil
+	})
 
 	// We listen on a random locally bound port
 	// TODO: we should use Unix domain sockets if supported
@@ -154,22 +160,6 @@ func (c *Client) initLocalServer(ctx context.Context) (_ *grpc.ClientConn, err e
 	)
 
 	client, err := serverclient.NewVagrantClient(ctx, log, ln.Addr().String())
-	if err != nil {
-		return
-	}
-
-	// Setup our server config. The configuration is specifically set so
-	// so that there is no advertise address which will disable the CEB
-	// completely.
-	_, err = client.SetServerConfig(ctx, &vagrant_server.SetServerConfigRequest{
-		Config: &vagrant_server.ServerConfig{
-			AdvertiseAddrs: []*vagrant_server.ServerConfig_AdvertiseAddr{
-				{
-					Addr: "",
-				},
-			},
-		},
-	})
 	if err != nil {
 		return
 	}

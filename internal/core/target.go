@@ -474,9 +474,9 @@ func (t *Target) Destroy() (err error) {
 	return
 }
 
-func (t *Target) Run(ctx context.Context, task *vagrant_server.Task) (err error) {
-	t.logger.Debug("running new task",
-		"task", task)
+func (t *Target) Run(ctx context.Context, task *vagrant_server.Job_CommandOp) (err error) {
+	t.logger.Debug("running new command",
+		"command", task)
 
 	cmd, err := t.project.basis.component(
 		ctx, component.CommandType, task.Component.Name)
@@ -490,7 +490,7 @@ func (t *Target) Run(ctx context.Context, task *vagrant_server.Task) (err error)
 	}
 
 	fn := cmd.Value.(component.Command).ExecuteFunc(
-		strings.Split(task.CommandName, " "))
+		strings.Split(task.Command, " "))
 	result, err := t.callDynamicFunc(ctx, t.logger, fn, (*int32)(nil),
 		argmapper.Typed(task.CliArgs, t.jobInfo, t.dir, t.ctx, t.ui),
 		argmapper.ConverterFunc(cmd.mappers...),

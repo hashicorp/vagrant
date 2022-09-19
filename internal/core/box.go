@@ -95,7 +95,7 @@ func NewBox(opts ...BoxOption) (b *Box, err error) {
 	}
 	// The metadata should have provider info under the "provider" key
 	b.box.Provider = metadata["provider"].(string)
-	b.box.Id = b.box.Name + "-" + b.box.Version + "-" + b.box.Provider
+	b.box.ResourceId = b.box.Name + "-" + b.box.Version + "-" + b.box.Provider
 	return
 }
 
@@ -239,7 +239,7 @@ func (b *Box) Destroy() (err error) {
 	_, err = b.basis.client.DeleteBox(
 		b.basis.ctx,
 		&vagrant_server.DeleteBoxRequest{Box: &vagrant_plugin_sdk.Ref_Box{
-			ResourceId: b.box.Id, Name: b.box.Name, Version: b.box.Version, Provider: b.box.Provider,
+			ResourceId: b.box.ResourceId, Name: b.box.Name, Version: b.box.Version, Provider: b.box.Provider,
 		}},
 	)
 	if err != nil {

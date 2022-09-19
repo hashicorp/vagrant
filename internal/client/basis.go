@@ -50,6 +50,10 @@ func (b *Basis) DetectProject() (p *Project, err error) {
 		return
 	}
 
+	b.logger.Warn("basis set during project detect",
+		"basis", b.basis,
+	)
+
 	result, err := b.vagrant.UpsertProject(
 		b.ctx,
 		&vagrant_server.UpsertProjectRequest{
@@ -77,6 +81,10 @@ func (b *Basis) DetectProject() (p *Project, err error) {
 }
 
 func (b *Basis) LoadProject(n string) (*Project, error) {
+	b.logger.Warn("loading project now",
+		"basis", b.basis,
+		"ref", b.Ref(),
+	)
 	result, err := b.vagrant.FindProject(
 		b.ctx,
 		&vagrant_server.FindProjectRequest{
@@ -118,6 +126,13 @@ func (b *Basis) LoadVagrantfile() error {
 		l.Warn("basis vagrantfile does not exist",
 			"path", b.path.String(),
 		)
+		// Upsert the basis so the record exists
+		result, err := b.vagrant.UpsertBasis(b.ctx, &vagrant_server.UpsertBasisRequest{Basis: b.basis})
+		if err != nil {
+			return err
+		}
+
+		b.basis = result.Basis
 
 		return nil
 	} else if err != nil {
@@ -168,6 +183,9 @@ func (b *Basis) LoadVagrantfile() error {
 }
 
 func (b *Basis) Ref() *vagrant_plugin_sdk.Ref_Basis {
+	if b.basis == nil {
+		return nil
+	}
 	return &vagrant_plugin_sdk.Ref_Basis{
 		Name:       b.basis.Name,
 		ResourceId: b.basis.ResourceId,

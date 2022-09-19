@@ -691,9 +691,9 @@ func (b *Basis) Components(ctx context.Context) ([]*Component, error) {
 
 // Runs a specific task via component which matches the task's
 // component name. This is the entry point for running commands.
-func (b *Basis) Run(ctx context.Context, task *vagrant_server.Task) (err error) {
-	b.logger.Debug("running new task",
-		"task", task)
+func (b *Basis) Run(ctx context.Context, task *vagrant_server.Job_CommandOp) (err error) {
+	b.logger.Debug("running new command",
+		"command", task)
 
 	// Build the component to run
 	cmd, err := b.component(ctx, component.CommandType, task.Component.Name)
@@ -702,7 +702,7 @@ func (b *Basis) Run(ctx context.Context, task *vagrant_server.Task) (err error) 
 	}
 
 	fn := cmd.Value.(component.Command).ExecuteFunc(
-		strings.Split(task.CommandName, " "))
+		strings.Split(task.Command, " "))
 	result, err := b.callDynamicFunc(ctx, b.logger, fn, (*int32)(nil),
 		argmapper.Typed(task.CliArgs, b.jobInfo, b.dir, b.ctx, b.ui),
 		argmapper.ConverterFunc(cmd.mappers...),
