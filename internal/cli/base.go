@@ -265,6 +265,10 @@ warning set the environment variable 'VAGRANT_SUPPRESS_GO_EXPERIMENTAL_WARNING'.
 		return nil, err
 	}
 
+	log.Warn("created basis client",
+		"basis", bc.basis,
+	)
+
 	// A project is optional (though generally needed) and there are
 	// two possibilites for how we load the project.
 	if bc.flagProject != "" {
@@ -378,8 +382,7 @@ func (c *baseCommand) Init(opts ...Option) (err error) {
 
 type Tasker interface {
 	UI() terminal.UI
-	Task(context.Context, *vagrant_server.Job_RunOp, client.JobModifier) (*vagrant_server.Job_RunResult, error)
-	//CreateTask() *vagrant_server.Task
+	Command(context.Context, *vagrant_server.Job_CommandOp, client.JobModifier) (*vagrant_server.Job_CommandResult, error)
 }
 
 // Do calls the callback based on the loaded scope. This automatically handles any
@@ -402,14 +405,23 @@ func (c *baseCommand) Do(ctx context.Context, f func(context.Context, *client.Cl
 
 func (c *baseCommand) Modifier() client.JobModifier {
 	return func(j *vagrant_server.Job) {
-		if c.basis != nil {
-			j.Basis = c.basis.Ref()
+		if c.target != nil {
+			j.Scope = &vagrant_server.Job_Target{
+				Target: c.target.Ref(),
+			}
+			return
 		}
 		if c.project != nil {
-			j.Project = c.project.Ref()
+			j.Scope = &vagrant_server.Job_Project{
+				Project: c.project.Ref(),
+			}
+			return
 		}
-		if c.target != nil {
-			j.Target = c.target.Ref()
+		if c.basis != nil {
+			j.Scope = &vagrant_server.Job_Basis{
+				Basis: c.basis.Ref(),
+			}
+			return
 		}
 	}
 }
