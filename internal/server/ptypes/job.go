@@ -21,12 +21,14 @@ func TestJobNew(t testing.T, src *vagrant_server.Job) *vagrant_server.Job {
 	}
 
 	require.NoError(t, mergo.Merge(src, &vagrant_server.Job{
-		Target: &vagrant_plugin_sdk.Ref_Target{
-			ResourceId: "TESTMACH",
-			Project: &vagrant_plugin_sdk.Ref_Project{
-				ResourceId: "TESTPROJ",
-				Basis: &vagrant_plugin_sdk.Ref_Basis{
-					ResourceId: "TESTBAS",
+		Scope: &vagrant_server.Job_Target{
+			Target: &vagrant_plugin_sdk.Ref_Target{
+				ResourceId: "TESTMACH",
+				Project: &vagrant_plugin_sdk.Ref_Project{
+					ResourceId: "TESTPROJ",
+					Basis: &vagrant_plugin_sdk.Ref_Basis{
+						ResourceId: "TESTBAS",
+					},
 				},
 			},
 		},
