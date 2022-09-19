@@ -59,9 +59,7 @@ func jobAssignedSchema() *memdb.TableSchema {
 }
 
 type jobAssignedIndex struct {
-	Basis   string
-	Project string
-	Machine string
+	ResourceId string
 }
 
 // jobIsBlocked will return true if the given job is currently blocked because
@@ -80,7 +78,7 @@ func (s *State) jobIsBlocked(memTxn *memdb.Txn, idx *jobIndex, ws memdb.WatchSet
 	watchCh, value, err := memTxn.FirstWatch(
 		jobAssignedTableName,
 		jobAssignedIdIndexName,
-		s.jobAssignedIdxArgs(idx)...,
+		idx.Scope.GetResourceId(),
 	)
 	if err != nil {
 		return false, err
@@ -100,11 +98,8 @@ func (s *State) jobAssignedSet(memTxn *memdb.Txn, idx *jobIndex, assigned bool) 
 		return nil
 	}
 
-	args := s.jobAssignedIdxArgs(idx)
 	rec := &jobAssignedIndex{
-		Basis:   args[0].(string),
-		Project: args[1].(string),
-		Machine: args[2].(string),
+		ResourceId: idx.Scope.GetResourceId(),
 	}
 
 	if assigned {
@@ -112,17 +107,4 @@ func (s *State) jobAssignedSet(memTxn *memdb.Txn, idx *jobIndex, assigned bool) 
 	}
 
 	return memTxn.Delete(jobAssignedTableName, rec)
-}
-
-func (s *State) jobAssignedIdxArgs(idx *jobIndex) []interface{} {
-	if idx.Target != nil {
-		return []interface{}{
-			idx.Target.Project.Basis.ResourceId, idx.Target.Project.ResourceId, idx.Target.ResourceId,
-		}
-	} else if idx.Project != nil {
-		return []interface{}{
-			idx.Project.Basis.ResourceId, idx.Project.ResourceId, "",
-		}
-	}
-	return []interface{}{idx.Basis.ResourceId, "", ""}
 }

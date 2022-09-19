@@ -1,402 +1,354 @@
 package state
 
 import (
-	"github.com/google/uuid"
-	"github.com/hashicorp/go-memdb"
-	bolt "go.etcd.io/bbolt"
-	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/status"
-	"google.golang.org/protobuf/proto"
+	"errors"
+	"fmt"
 
+	"github.com/go-ozzo/ozzo-validation/v4"
+	"github.com/hashicorp/go-hclog"
 	"github.com/hashicorp/vagrant-plugin-sdk/proto/vagrant_plugin_sdk"
+	"github.com/hashicorp/vagrant/internal/server"
 	"github.com/hashicorp/vagrant/internal/server/proto/vagrant_server"
-	serverptypes "github.com/hashicorp/vagrant/internal/server/ptypes"
+	"gorm.io/gorm"
 )
 
-var targetBucket = []byte("target")
-
 func init() {
-	dbBuckets = append(dbBuckets, targetBucket)
-	dbIndexers = append(dbIndexers, (*State).targetIndexInit)
-	schemas = append(schemas, targetIndexSchema)
+	models = append(models, &Target{})
 }
 
-func (s *State) TargetFind(m *vagrant_server.Target) (*vagrant_server.Target, error) {
-	memTxn := s.inmem.Txn(false)
-	defer memTxn.Abort()
+type Target struct {
+	gorm.Model
 
-	var result *vagrant_server.Target
-	err := s.db.View(func(dbTxn *bolt.Tx) error {
-		var err error
-		result, err = s.targetFind(dbTxn, memTxn, m)
+	Configuration *ProtoRaw
+	Jobs          []*InternalJob `gorm:"polymorphic:Scope;" mapstructure:"-"`
+	Metadata      MetadataSet
+	Name          *string `gorm:"uniqueIndex:idx_pname;not null"`
+	Parent        *Target `gorm:"foreignkey:ID"`
+	ParentID      uint    `mapstructure:"-"`
+	Project       *Project
+	ProjectID     *uint `gorm:"uniqueIndex:idx_pname;not null" mapstructure:"-"`
+	Provider      *string
+	Record        *ProtoRaw
+	ResourceId    *string `gorm:"<-:create;uniqueIndex;not null"`
+	State         vagrant_server.Operation_PhysicalState
+	Subtargets    []*Target `gorm:"foreignkey:ParentID"`
+	Uuid          *string   `gorm:"uniqueIndex"`
+	l             hclog.Logger
+}
+
+func (t *Target) scope() interface{} {
+	return t
+}
+
+// Set a public ID on the target before creating
+func (t *Target) BeforeSave(tx *gorm.DB) error {
+	if t.ResourceId == nil {
+		if err := t.setId(); err != nil {
+			return err
+		}
+	}
+
+	if err := t.validate(tx); err != nil {
 		return err
-	})
-
-	return result, err
-}
-
-func (s *State) TargetPut(target *vagrant_server.Target) error {
-	memTxn := s.inmem.Txn(true)
-	defer memTxn.Abort()
-
-	err := s.db.Update(func(dbTxn *bolt.Tx) error {
-		return s.targetPut(dbTxn, memTxn, target)
-	})
-	if err == nil {
-		memTxn.Commit()
-	}
-	return err
-}
-
-func (s *State) TargetDelete(ref *vagrant_plugin_sdk.Ref_Target) error {
-	memTxn := s.inmem.Txn(true)
-	defer memTxn.Abort()
-
-	err := s.db.Update(func(dbTxn *bolt.Tx) error {
-		return s.targetDelete(dbTxn, memTxn, ref)
-	})
-	if err == nil {
-		memTxn.Commit()
 	}
 
-	return err
+	return nil
 }
 
-func (s *State) TargetGet(ref *vagrant_plugin_sdk.Ref_Target) (*vagrant_server.Target, error) {
-	memTxn := s.inmem.Txn(false)
-	defer memTxn.Abort()
+func (t *Target) validate(tx *gorm.DB) error {
+	err := validation.ValidateStruct(t,
+		validation.Field(&t.Name,
+			validation.Required,
+			validation.By(
+				checkUnique(
+					tx.Model(&Target{}).
+						Where(&Target{Name: t.Name, ProjectID: t.ProjectID}).
+						Not(&Target{Model: gorm.Model{ID: t.ID}}),
+				),
+			),
+		),
+		validation.Field(&t.ResourceId,
+			validation.Required,
+			validation.By(
+				checkUnique(
+					tx.Model(&Target{}).
+						Where(&Target{ResourceId: t.ResourceId}).
+						Not(&Target{Model: gorm.Model{ID: t.ID}}),
+				),
+			),
+		),
+		validation.Field(&t.Uuid,
+			validation.When(t.Uuid != nil,
+				validation.By(
+					checkUnique(
+						tx.Model(&Target{}).
+							Where(&Target{Uuid: t.Uuid}).
+							Not(&Target{Model: gorm.Model{ID: t.ID}}),
+					),
+				),
+			),
+		),
+		// validation.Field(&t.ProjectID, validation.Required), TODO(spox): why are these empty?
+	)
 
-	var result *vagrant_server.Target
-	err := s.db.View(func(dbTxn *bolt.Tx) error {
-		var err error
-		result, err = s.targetGet(dbTxn, memTxn, ref)
+	if err != nil {
 		return err
-	})
+	}
 
-	return result, err
+	return nil
 }
 
-func (s *State) TargetList() ([]*vagrant_plugin_sdk.Ref_Target, error) {
-	memTxn := s.inmem.Txn(false)
-	defer memTxn.Abort()
+func (t *Target) setId() error {
+	id, err := server.Id()
+	if err != nil {
+		return err
+	}
+	t.ResourceId = &id
 
-	return s.targetList(memTxn)
+	return nil
 }
 
-func (s *State) targetFind(
-	dbTxn *bolt.Tx,
-	memTxn *memdb.Txn,
-	m *vagrant_server.Target,
-) (*vagrant_server.Target, error) {
-	var match *targetIndexRecord
-	req := s.newTargetIndexRecord(m)
-
-	// Start with the resource id first
-	if req.Id != "" {
-		if raw, err := memTxn.First(
-			targetIndexTableName,
-			targetIndexIdIndexName,
-			req.Id,
-		); raw != nil && err == nil {
-			match = raw.(*targetIndexRecord)
-		}
-	}
-	// Try the name + project next
-	if match == nil && req.Name != "" {
-		// Match the name first
-		raw, err := memTxn.Get(
-			targetIndexTableName,
-			targetIndexNameIndexName,
-			req.Name,
-		)
-		if err != nil {
-			return nil, err
-		}
-		// Check for matching project next
-		if req.ProjectId != "" {
-			for e := raw.Next(); e != nil; e = raw.Next() {
-				targetIndexEntry := e.(*targetIndexRecord)
-				if targetIndexEntry.ProjectId == req.ProjectId {
-					match = targetIndexEntry
-					break
-				}
-			}
-		} else {
-			e := raw.Next()
-			if e != nil {
-				match = e.(*targetIndexRecord)
-			}
-		}
-	}
-	// Finally try the uuid
-	if match == nil && req.Uuid != "" {
-		if raw, err := memTxn.First(
-			targetIndexTableName,
-			targetIndexUuidName,
-			req.Uuid,
-		); raw != nil && err == nil {
-			match = raw.(*targetIndexRecord)
-		}
+// Convert target to reference protobuf message
+func (t *Target) ToProtoRef() *vagrant_plugin_sdk.Ref_Target {
+	if t == nil {
+		return nil
 	}
 
-	if match == nil {
-		return nil, status.Errorf(codes.NotFound, "record not found for Target (name: %s resource_id: %s)", m.Name, m.ResourceId)
+	var ref vagrant_plugin_sdk.Ref_Target
+
+	err := decode(t, &ref)
+	if err != nil {
+		panic("failed to decode target to ref: " + err.Error())
 	}
 
-	return s.targetGet(dbTxn, memTxn, &vagrant_plugin_sdk.Ref_Target{
-		ResourceId: match.Id,
-	})
+	return &ref
 }
 
-func (s *State) targetList(
-	memTxn *memdb.Txn,
-) ([]*vagrant_plugin_sdk.Ref_Target, error) {
-	iter, err := memTxn.Get(targetIndexTableName, targetIndexIdIndexName+"_prefix", "")
+// Convert target to protobuf message
+func (t *Target) ToProto() *vagrant_server.Target {
+	if t == nil {
+		return nil
+	}
+
+	var target vagrant_server.Target
+
+	err := decode(t, &target)
+	if err != nil {
+		panic("failed to decode target: " + err.Error())
+	}
+
+	return &target
+}
+
+// Load a Target from reference protobuf message
+func (s *State) TargetFromProtoRef(
+	ref *vagrant_plugin_sdk.Ref_Target,
+) (*Target, error) {
+	if ref == nil {
+		return nil, ErrEmptyProtoArgument
+	}
+
+	if ref.ResourceId == "" {
+		return nil, gorm.ErrRecordNotFound
+	}
+
+	var target Target
+	result := s.search().Preload("Project.Basis").First(&target,
+		&Target{ResourceId: &ref.ResourceId},
+	)
+	if result.Error != nil {
+		return nil, result.Error
+	}
+
+	return &target, nil
+}
+
+func (s *State) TargetFromProtoRefFuzzy(
+	ref *vagrant_plugin_sdk.Ref_Target,
+) (*Target, error) {
+	target, err := s.TargetFromProtoRef(ref)
+	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
+		return nil, err
+	}
+
+	if ref.Project == nil {
+		return nil, ErrMissingProtoParent
+	}
+
+	if ref.Name == "" {
+		return nil, gorm.ErrRecordNotFound
+	}
+
+	target = &Target{}
+	result := s.search().
+		Joins("Project", &Project{ResourceId: &ref.Project.ResourceId}).
+		Preload("Project.Basis").
+		First(target, &Target{Name: &ref.Name})
+
+	if result.Error != nil {
+		return nil, result.Error
+	}
+
+	return target, nil
+}
+
+// Load a Target from protobuf message
+func (s *State) TargetFromProto(
+	t *vagrant_server.Target,
+) (*Target, error) {
+	target, err := s.TargetFromProtoRef(
+		&vagrant_plugin_sdk.Ref_Target{
+			ResourceId: t.ResourceId,
+		},
+	)
+
 	if err != nil {
 		return nil, err
 	}
 
-	var result []*vagrant_plugin_sdk.Ref_Target
-	for {
-		next := iter.Next()
-		if next == nil {
-			break
-		}
-		result = append(result, &vagrant_plugin_sdk.Ref_Target{
-			ResourceId: next.(*targetIndexRecord).Id,
-			Name:       next.(*targetIndexRecord).Name,
-			Project: &vagrant_plugin_sdk.Ref_Project{
-				ResourceId: next.(*targetIndexRecord).ProjectId,
-			},
-		})
-	}
-
-	return result, nil
+	return target, nil
 }
 
-func (s *State) targetPut(
-	dbTxn *bolt.Tx,
-	memTxn *memdb.Txn,
-	value *vagrant_server.Target,
-) (err error) {
-	s.log.Trace("storing target", "target", value, "project",
-		value.GetProject(), "basis", value.GetProject().GetBasis())
-
-	p, err := s.projectGet(dbTxn, memTxn, value.Project)
-	if err != nil {
-		s.log.Error("failed to locate project for target", "target", value,
-			"project", p, "error", err)
-		return
+func (s *State) TargetFromProtoFuzzy(
+	t *vagrant_server.Target,
+) (*Target, error) {
+	target, err := s.TargetFromProto(t)
+	if err == nil {
+		return target, nil
 	}
 
-	if value.ResourceId == "" {
-		// If no resource id is provided, try to find the target based on the name and project
-		foundTarget, erro := s.targetFind(dbTxn, memTxn, value)
-		// If an invalid return code is returned from find then an error occured
-		if _, ok := status.FromError(erro); !ok {
-			return erro
-		}
-		if foundTarget != nil {
-			// Make sure the config doesn't get merged - we want the config to overwrite the old config
-			finalConfig := proto.Clone(value.Configuration)
-			// Merge found target with provided target
-			proto.Merge(value, foundTarget)
-			value.ResourceId = foundTarget.ResourceId
-			value.Uuid = foundTarget.Uuid
-			value.Configuration = finalConfig.(*vagrant_plugin_sdk.Args_ConfigData)
-		} else {
-			s.log.Trace("target has no resource id and could not find matching target, assuming new target",
-				"target", value)
-			if value.ResourceId, err = s.newResourceId(); err != nil {
-				s.log.Error("failed to create resource id for target", "target", value,
-					"error", err)
-				return
-			}
-		}
-		if value.Uuid == "" {
-			s.log.Trace("target has no uuid assigned, assigning...", "target", value)
-			uID, err := uuid.NewUUID()
-			if err != nil {
-				return err
-			}
-			value.Uuid = uID.String()
-		}
-
+	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
+		return nil, err
 	}
 
-	s.log.Trace("storing target to db", "target", value)
-	id := s.targetId(value)
-	b := dbTxn.Bucket(targetBucket)
-	if err = dbPut(b, id, value); err != nil {
-		s.log.Error("failed to store target in db", "target", value, "error", err)
-		return
+	if t.Project == nil {
+		return nil, ErrMissingProtoParent
 	}
 
-	s.log.Trace("indexing target", "target", value)
-	if err = s.targetIndexSet(memTxn, id, value); err != nil {
-		s.log.Error("failed to index target", "target", value, "error", err)
-		return
+	target = &Target{}
+	query := &Target{Name: &t.Name}
+	tx := s.db.
+		Preload("Project",
+			s.db.Where(
+				&Project{ResourceId: &t.Project.ResourceId},
+			),
+		)
+	if t.Name != "" {
+		query.Name = &t.Name
+	}
+	if t.Uuid != "" {
+		query.Uuid = &t.Uuid
+		tx = tx.Or("uuid LIKE ?", fmt.Sprintf("%%%s%%", t.Uuid))
 	}
 
-	s.log.Trace("adding target to project", "target", value, "project", p)
-	pp := serverptypes.Project{Project: p}
-	if pp.AddTarget(value) {
-		s.log.Trace("target added to project, updating project", "project", p)
-		if err = s.projectPut(dbTxn, memTxn, p); err != nil {
-			s.log.Error("failed to update project", "project", p, "error", err)
-			return
-		}
-	} else {
-		s.log.Trace("target already exists in project", "target", value, "project", p)
+	result := s.search().Joins("Project").
+		Preload("Project.Basis").
+		Where("Project.resource_id = ?", t.Project.ResourceId).
+		First(target, query)
+	if result.Error != nil {
+		return nil, result.Error
 	}
 
-	return
+	return target, nil
 }
 
-func (s *State) targetGet(
-	dbTxn *bolt.Tx,
-	memTxn *memdb.Txn,
+// Get a target record using a reference protobuf message
+func (s *State) TargetGet(
 	ref *vagrant_plugin_sdk.Ref_Target,
 ) (*vagrant_server.Target, error) {
-	var result vagrant_server.Target
-	b := dbTxn.Bucket(targetBucket)
-	return &result, dbGet(b, s.targetIdByRef(ref), &result)
-}
-
-func (s *State) targetDelete(
-	dbTxn *bolt.Tx,
-	memTxn *memdb.Txn,
-	ref *vagrant_plugin_sdk.Ref_Target,
-) (err error) {
-	p, err := s.projectGet(dbTxn, memTxn, &vagrant_plugin_sdk.Ref_Project{ResourceId: ref.Project.ResourceId})
+	t, err := s.TargetFromProtoRef(ref)
 	if err != nil {
-		return
+		return nil, lookupErrorToStatus("target", err)
 	}
 
-	if err = dbTxn.Bucket(targetBucket).Delete(s.targetIdByRef(ref)); err != nil {
-		return
-	}
-	if err = memTxn.Delete(targetIndexTableName, s.newTargetIndexRecordByRef(ref)); err != nil {
-		return
-	}
-
-	pp := serverptypes.Project{Project: p}
-	if pp.DeleteTargetRef(ref) {
-		if err = s.projectPut(dbTxn, memTxn, pp.Project); err != nil {
-			return
-		}
-	}
-	return
+	return t.ToProto(), nil
 }
 
-func (s *State) targetIndexSet(txn *memdb.Txn, id []byte, value *vagrant_server.Target) error {
-	return txn.Insert(targetIndexTableName, s.newTargetIndexRecord(value))
+// List all target records
+func (s *State) TargetList() ([]*vagrant_plugin_sdk.Ref_Target, error) {
+	var targets []Target
+	result := s.search().Find(&targets)
+	if result.Error != nil {
+		return nil, lookupErrorToStatus("targets", result.Error)
+	}
+
+	trefs := make([]*vagrant_plugin_sdk.Ref_Target, len(targets))
+	for i, t := range targets {
+		trefs[i] = t.ToProtoRef()
+	}
+
+	return trefs, nil
 }
 
-func (s *State) targetIndexInit(dbTxn *bolt.Tx, memTxn *memdb.Txn) error {
-	bucket := dbTxn.Bucket(targetBucket)
-	return bucket.ForEach(func(k, v []byte) error {
-		var value vagrant_server.Target
-		if err := proto.Unmarshal(v, &value); err != nil {
-			return err
-		}
-		if err := s.targetIndexSet(memTxn, k, &value); err != nil {
-			return err
-		}
-
+// Delete a target by reference protobuf message
+func (s *State) TargetDelete(
+	t *vagrant_plugin_sdk.Ref_Target,
+) error {
+	target, err := s.TargetFromProtoRef(t)
+	if err != nil && errors.Is(err, gorm.ErrRecordNotFound) {
 		return nil
-	})
-}
-
-func targetIndexSchema() *memdb.TableSchema {
-	return &memdb.TableSchema{
-		Name: targetIndexTableName,
-		Indexes: map[string]*memdb.IndexSchema{
-			targetIndexIdIndexName: {
-				Name:         targetIndexIdIndexName,
-				AllowMissing: false,
-				Unique:       true,
-				Indexer: &memdb.StringFieldIndex{
-					Field:     "Id",
-					Lowercase: false,
-				},
-			},
-			targetIndexNameIndexName: {
-				Name:         targetIndexNameIndexName,
-				AllowMissing: false,
-				Unique:       false,
-				Indexer: &memdb.StringFieldIndex{
-					Field:     "Name",
-					Lowercase: true,
-				},
-			},
-			targetIndexProjectIndexName: {
-				Name:         targetIndexProjectIndexName,
-				AllowMissing: false,
-				Unique:       false,
-				Indexer: &memdb.StringFieldIndex{
-					Field:     "ProjectId",
-					Lowercase: true,
-				},
-			},
-			targetIndexUuidName: {
-				Name:         targetIndexUuidName,
-				AllowMissing: true,
-				Unique:       true,
-				Indexer: &memdb.StringFieldIndex{
-					Field:     "Uuid",
-					Lowercase: true,
-				},
-			},
-		},
 	}
+
+	if err != nil {
+		return lookupErrorToStatus("target", err)
+	}
+
+	result := s.db.Delete(target)
+	if result.Error != nil {
+		return deleteErrorToStatus("target", result.Error)
+	}
+
+	return nil
 }
 
-const (
-	targetIndexIdIndexName      = "id"
-	targetIndexNameIndexName    = "name"
-	targetIndexProjectIndexName = "project"
-	targetIndexUuidName         = "uuid"
-	targetIndexTableName        = "target-index"
+// Store a Target
+func (s *State) TargetPut(
+	t *vagrant_server.Target,
+) (*vagrant_server.Target, error) {
+	target, err := s.TargetFromProto(t)
+	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
+		return nil, lookupErrorToStatus("target", err)
+	}
+
+	// Make sure we don't have a nil
+	if err != nil {
+		target = &Target{}
+	}
+
+	s.log.Info("pre-decode our target project", "project", target.Project)
+
+	err = s.softDecode(t, target)
+	if err != nil {
+		return nil, saveErrorToStatus("target", err)
+	}
+
+	s.log.Info("post-decode our target project", "project", target.Project)
+
+	if target.Project == nil {
+		panic("stop")
+	}
+	result := s.db.Save(target)
+
+	s.log.Info("after save target project status", "project", target.Project, "error", err)
+	if result.Error != nil {
+		return nil, saveErrorToStatus("target", result.Error)
+	}
+
+	return target.ToProto(), nil
+}
+
+// Find a Target
+func (s *State) TargetFind(
+	t *vagrant_server.Target,
+) (*vagrant_server.Target, error) {
+	target, err := s.TargetFromProtoFuzzy(t)
+	if err != nil {
+		return nil, lookupErrorToStatus("target", err)
+	}
+
+	return target.ToProto(), nil
+}
+
+var (
+	_ scope = (*Target)(nil)
 )
-
-type targetIndexRecord struct {
-	Id        string // Resource ID
-	Name      string // Target Name
-	ProjectId string // Project Resource ID
-	Uuid      string // Target UUID
-}
-
-func (s *State) newTargetIndexRecord(m *vagrant_server.Target) *targetIndexRecord {
-	var projectResourceId string
-	if m.Project != nil {
-		projectResourceId = m.Project.ResourceId
-	}
-	i := &targetIndexRecord{
-		Id:        m.ResourceId,
-		Name:      m.Name,
-		ProjectId: projectResourceId,
-		Uuid:      m.Uuid,
-	}
-	return i
-}
-
-func (s *State) newTargetIndexRecordByRef(ref *vagrant_plugin_sdk.Ref_Target) *targetIndexRecord {
-	var projectResourceId string
-	if ref.Project != nil {
-		projectResourceId = ref.Project.ResourceId
-	}
-	return &targetIndexRecord{
-		Id:        ref.ResourceId,
-		Name:      ref.Name,
-		ProjectId: projectResourceId,
-	}
-}
-
-func (s *State) targetId(m *vagrant_server.Target) []byte {
-	return []byte(m.ResourceId)
-}
-
-func (s *State) targetIdByRef(m *vagrant_plugin_sdk.Ref_Target) []byte {
-	return []byte(m.ResourceId)
-}

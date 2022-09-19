@@ -26,10 +26,19 @@ func TestBox(t *testing.T) {
 		defer s.Close()
 
 		testBox := &vagrant_server.Box{
-			Id:       "qwerwasdf",
-			Name:     "hashicorp/bionic",
-			Version:  "1.2.3",
-			Provider: "virtualbox",
+			ResourceId: "qwerwasdf",
+			Directory:  "/directory",
+			Name:       "hashicorp/bionic",
+			Version:    "1.2.3",
+			Provider:   "virtualbox",
+		}
+
+		testBox2 := &vagrant_server.Box{
+			ResourceId: "qwerwasdf-2",
+			Directory:  "/directory-2",
+			Name:       "hashicorp/bionic",
+			Version:    "1.2.4",
+			Provider:   "virtualbox",
 		}
 
 		testBoxRef := &vagrant_plugin_sdk.Ref_Box{
@@ -39,8 +48,17 @@ func TestBox(t *testing.T) {
 			Provider:   "virtualbox",
 		}
 
+		testBoxRef2 := &vagrant_plugin_sdk.Ref_Box{
+			ResourceId: "qwerwasdf-2",
+			Name:       "hashicorp/bionic",
+			Version:    "1.2.4",
+			Provider:   "virtualbox",
+		}
+
 		// Set
 		err := s.BoxPut(testBox)
+		require.NoError(err)
+		err = s.BoxPut(testBox2)
 		require.NoError(err)
 
 		// Get full ref
@@ -49,6 +67,11 @@ func TestBox(t *testing.T) {
 			require.NoError(err)
 			require.NotNil(resp)
 			require.Equal(resp.Name, testBox.Name)
+
+			resp, err = s.BoxGet(testBoxRef2)
+			require.NoError(err)
+			require.NotNil(resp)
+			require.Equal(resp.Name, testBox2.Name)
 		}
 
 		// Get by id
@@ -69,10 +92,11 @@ func TestBox(t *testing.T) {
 		defer s.Close()
 
 		testBox := &vagrant_server.Box{
-			Id:       "qwerwasdf",
-			Name:     "hashicorp/bionic",
-			Version:  "1.2.3",
-			Provider: "virtualbox",
+			ResourceId: "qwerwasdf",
+			Directory:  "/directory",
+			Name:       "hashicorp/bionic",
+			Version:    "1.2.3",
+			Provider:   "virtualbox",
 		}
 
 		testBoxRef := &vagrant_plugin_sdk.Ref_Box{
@@ -98,18 +122,20 @@ func TestBox(t *testing.T) {
 		defer s.Close()
 
 		err := s.BoxPut(&vagrant_server.Box{
-			Id:       "qwerwasdf",
-			Name:     "hashicorp/bionic",
-			Version:  "1.2.3",
-			Provider: "virtualbox",
+			ResourceId: "qwerwasdf",
+			Directory:  "/directory",
+			Name:       "hashicorp/bionic",
+			Version:    "1.2.3",
+			Provider:   "virtualbox",
 		})
 		require.NoError(err)
 
 		err = s.BoxPut(&vagrant_server.Box{
-			Id:       "rrbrwasdf",
-			Name:     "hashicorp/bionic",
-			Version:  "1.2.4",
-			Provider: "virtualbox",
+			ResourceId: "rrbrwasdf",
+			Directory:  "/other-directory",
+			Name:       "hashicorp/bionic",
+			Version:    "1.2.4",
+			Provider:   "virtualbox",
 		})
 		require.NoError(err)
 
@@ -125,43 +151,39 @@ func TestBox(t *testing.T) {
 		defer s.Close()
 
 		err := s.BoxPut(&vagrant_server.Box{
-			Id:       "hashicorp/bionic-1.2.3-virtualbox",
-			Name:     "hashicorp/bionic",
-			Version:  "1.2.3",
-			Provider: "virtualbox",
+			ResourceId: "hashicorp/bionic-1.2.3-virtualbox",
+			Directory:  "/directory",
+			Name:       "hashicorp/bionic",
+			Version:    "1.2.3",
+			Provider:   "virtualbox",
 		})
 		require.NoError(err)
 
 		err = s.BoxPut(&vagrant_server.Box{
-			Id:       "hashicorp/bionic-1.2.4-virtualbox",
-			Name:     "hashicorp/bionic",
-			Version:  "1.2.4",
-			Provider: "virtualbox",
+			ResourceId: "hashicorp/bionic-1.2.4-virtualbox",
+			Directory:  "/other-directory",
+			Name:       "hashicorp/bionic",
+			Version:    "1.2.4",
+			Provider:   "virtualbox",
 		})
 		require.NoError(err)
 
 		err = s.BoxPut(&vagrant_server.Box{
-			Id:       "box-0-virtualbox",
-			Name:     "box",
-			Version:  "0",
-			Provider: "virtualbox",
+			ResourceId: "box-0-virtualbox",
+			Directory:  "/another-directory",
+			Name:       "box",
+			Version:    "0",
+			Provider:   "virtualbox",
 		})
 		require.NoError(err)
 
 		b, err := s.BoxFind(&vagrant_plugin_sdk.Ref_Box{
-			Name: "hashicorp/bionic",
+			Name:     "hashicorp/bionic",
+			Provider: "virtualbox",
 		})
 		require.NoError(err)
 		require.Equal(b.Name, "hashicorp/bionic")
 		require.Equal(b.Version, "1.2.4")
-
-		b2, err := s.BoxFind(&vagrant_plugin_sdk.Ref_Box{
-			Name:    "hashicorp/bionic",
-			Version: "1.2.3",
-		})
-		require.NoError(err)
-		require.Equal(b2.Name, "hashicorp/bionic")
-		require.Equal(b2.Version, "1.2.3")
 
 		b3, err := s.BoxFind(&vagrant_plugin_sdk.Ref_Box{
 			Name:     "hashicorp/bionic",
@@ -178,7 +200,7 @@ func TestBox(t *testing.T) {
 			Version:  "1.2.3",
 			Provider: "dontexist",
 		})
-		require.NoError(err)
+		require.Error(err)
 		require.Nil(b4)
 
 		b5, err := s.BoxFind(&vagrant_plugin_sdk.Ref_Box{
@@ -186,32 +208,34 @@ func TestBox(t *testing.T) {
 			Version:  "9.9.9",
 			Provider: "virtualbox",
 		})
-		require.NoError(err)
+		require.Error(err)
 		require.Nil(b5)
 
 		b6, err := s.BoxFind(&vagrant_plugin_sdk.Ref_Box{
 			Version: "1.2.3",
 		})
-		require.NoError(err)
+		require.Error(err)
 		require.Nil(b6)
 
 		b7, err := s.BoxFind(&vagrant_plugin_sdk.Ref_Box{
 			Name: "dontexist",
 		})
-		require.NoError(err)
+		require.Error(err)
 		require.Nil(b7)
 
 		b8, err := s.BoxFind(&vagrant_plugin_sdk.Ref_Box{
-			Name:    "hashicorp/bionic",
-			Version: "~> 1.2",
+			Name:     "hashicorp/bionic",
+			Provider: "virtualbox",
+			Version:  "~> 1.2",
 		})
 		require.NoError(err)
 		require.Equal(b8.Name, "hashicorp/bionic")
 		require.Equal(b8.Version, "1.2.4")
 
 		b9, err := s.BoxFind(&vagrant_plugin_sdk.Ref_Box{
-			Name:    "hashicorp/bionic",
-			Version: "> 1.0, < 3.0",
+			Name:     "hashicorp/bionic",
+			Provider: "virtualbox",
+			Version:  "> 1.0, < 3.0",
 		})
 		require.NoError(err)
 		require.Equal(b9.Name, "hashicorp/bionic")
@@ -221,15 +245,16 @@ func TestBox(t *testing.T) {
 			Name:    "hashicorp/bionic",
 			Version: "< 1.0",
 		})
-		require.NoError(err)
+		require.Error(err)
 		require.Nil(b10)
 
 		b11, err := s.BoxFind(&vagrant_plugin_sdk.Ref_Box{
-			Name:    "box",
-			Version: "0",
+			Name:     "box",
+			Version:  "0",
+			Provider: "virtualbox",
 		})
 		require.NoError(err)
 		require.Equal(b11.Name, "box")
-		require.Equal(b11.Version, "0")
+		require.Equal(b11.Version, "0.0.0")
 	})
 }

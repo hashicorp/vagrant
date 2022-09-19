@@ -34,23 +34,21 @@ func TestProject(t *testing.T) {
 		defer s.Close()
 		basisRef := testBasis(t, s)
 
-		resourceId := "AbCdE"
 		// Set
-		err := s.ProjectPut(serverptypes.TestProject(t, &vagrant_server.Project{
-			ResourceId: resourceId,
-			Basis:      basisRef,
-			Path:       "idontexist",
+		result, err := s.ProjectPut(serverptypes.TestProject(t, &vagrant_server.Project{
+			Basis: basisRef,
+			Path:  "idontexist",
 		}))
 		require.NoError(err)
 
 		// Get exact
 		{
 			resp, err := s.ProjectGet(&vagrant_plugin_sdk.Ref_Project{
-				ResourceId: resourceId,
+				ResourceId: result.ResourceId,
 			})
 			require.NoError(err)
 			require.NotNil(resp)
-			require.Equal(resp.ResourceId, resourceId)
+			require.Equal(resp.ResourceId, result.ResourceId)
 
 		}
 
@@ -70,16 +68,15 @@ func TestProject(t *testing.T) {
 		basisRef := testBasis(t, s)
 
 		// Set
-		err := s.ProjectPut(serverptypes.TestProject(t, &vagrant_server.Project{
-			ResourceId: "AbCdE",
-			Basis:      basisRef,
-			Path:       "idontexist",
+		result, err := s.ProjectPut(serverptypes.TestProject(t, &vagrant_server.Project{
+			Basis: basisRef,
+			Path:  "idontexist",
 		}))
 		require.NoError(err)
 
 		// Read
 		resp, err := s.ProjectGet(&vagrant_plugin_sdk.Ref_Project{
-			ResourceId: "AbCdE",
+			ResourceId: result.ResourceId,
 		})
 		require.NoError(err)
 		require.NotNil(resp)
@@ -87,7 +84,7 @@ func TestProject(t *testing.T) {
 		// Delete
 		{
 			err := s.ProjectDelete(&vagrant_plugin_sdk.Ref_Project{
-				ResourceId: "AbCdE",
+				ResourceId: result.ResourceId,
 				Basis:      basisRef,
 			})
 			require.NoError(err)
@@ -96,7 +93,7 @@ func TestProject(t *testing.T) {
 		// Read
 		{
 			_, err := s.ProjectGet(&vagrant_plugin_sdk.Ref_Project{
-				ResourceId: "AbCdE",
+				ResourceId: result.ResourceId,
 			})
 			require.Error(err)
 			require.Equal(codes.NotFound, status.Code(err))

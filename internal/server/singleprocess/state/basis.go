@@ -1,326 +1,340 @@
 package state
 
 import (
-	"strings"
+	"errors"
 
-	"google.golang.org/protobuf/proto"
-	"github.com/hashicorp/go-memdb"
-	bolt "go.etcd.io/bbolt"
-	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/status"
-
+	"github.com/go-ozzo/ozzo-validation/v4"
 	"github.com/hashicorp/vagrant-plugin-sdk/proto/vagrant_plugin_sdk"
+	"github.com/hashicorp/vagrant/internal/server"
 	"github.com/hashicorp/vagrant/internal/server/proto/vagrant_server"
+	"gorm.io/gorm"
 )
 
-var basisBucket = []byte("basis")
-
 func init() {
-	dbBuckets = append(dbBuckets, basisBucket)
-	dbIndexers = append(dbIndexers, (*State).basisIndexInit)
-	schemas = append(schemas, basisIndexSchema)
+	models = append(models, &Basis{})
 }
 
-func (s *State) BasisFind(b *vagrant_server.Basis) (*vagrant_server.Basis, error) {
-	memTxn := s.inmem.Txn(false)
-	defer memTxn.Abort()
+// This interface is utilized internally as an
+// identifier for scopes to allow for easier mapping
+type scope interface {
+	scope() interface{}
+}
 
-	var result *vagrant_server.Basis
-	err := s.db.View(func(dbTxn *bolt.Tx) error {
-		var err error
-		result, err = s.basisFind(dbTxn, memTxn, b)
+type Basis struct {
+	gorm.Model
+
+	Vagrantfile   *Vagrantfile `mapstructure:"-"`
+	VagrantfileID uint         `mapstructure:"-"`
+	DataSource    *ProtoValue
+	Jobs          []*InternalJob `gorm:"polymorphic:Scope;" mapstructure:"-"`
+	Metadata      MetadataSet
+	Name          *string `gorm:"uniqueIndex,not null"`
+	Path          *string `gorm:"uniqueIndex,not null"`
+	Projects      []*Project
+	RemoteEnabled bool
+	ResourceId    *string `gorm:"<-:create;uniqueIndex;not null"`
+}
+
+func (b *Basis) scope() interface{} {
+	return b
+}
+
+// Define custom table name
+func (Basis) TableName() string {
+	return "basis"
+}
+
+func (b *Basis) BeforeSave(tx *gorm.DB) error {
+	if b.ResourceId == nil {
+		if err := b.setId(); err != nil {
+			return err
+		}
+	}
+	if err := b.Validate(tx); err != nil {
 		return err
-	})
-
-	return result, err
-}
-
-func (s *State) BasisGet(ref *vagrant_plugin_sdk.Ref_Basis) (*vagrant_server.Basis, error) {
-	memTxn := s.inmem.Txn(false)
-	defer memTxn.Abort()
-
-	var result *vagrant_server.Basis
-	err := s.db.View(func(dbTxn *bolt.Tx) error {
-		var err error
-		result, err = s.basisGet(dbTxn, memTxn, ref)
-		return err
-	})
-
-	return result, err
-}
-
-func (s *State) BasisPut(b *vagrant_server.Basis) error {
-	memTxn := s.inmem.Txn(true)
-	defer memTxn.Abort()
-
-	err := s.db.Update(func(dbTxn *bolt.Tx) error {
-		return s.basisPut(dbTxn, memTxn, b)
-	})
-	if err == nil {
-		memTxn.Commit()
 	}
 
-	return err
+	return nil
 }
 
-func (s *State) BasisDelete(ref *vagrant_plugin_sdk.Ref_Basis) error {
-	memTxn := s.inmem.Txn(true)
-	defer memTxn.Abort()
+func (b *Basis) Validate(tx *gorm.DB) error {
+	err := validation.ValidateStruct(b,
+		validation.Field(&b.Name,
+			validation.Required,
+			validation.By(
+				checkUnique(
+					tx.Model(&Basis{}).
+						Where(&Basis{Name: b.Name}).
+						Not(&Basis{Model: gorm.Model{ID: b.ID}}),
+				),
+			),
+		),
+		validation.Field(&b.Path,
+			validation.Required,
+			validation.By(
+				checkUnique(
+					tx.Model(&Basis{}).
+						Where(&Basis{Path: b.Path}).
+						Not(&Basis{Model: gorm.Model{ID: b.ID}}),
+				),
+			),
+		),
+		validation.Field(&b.ResourceId,
+			validation.Required,
+			validation.By(
+				checkUnique(
+					tx.Model(&Basis{}).
+						Where(&Basis{ResourceId: b.ResourceId}).
+						Not(&Basis{Model: gorm.Model{ID: b.ID}}),
+				),
+			),
+		),
+	)
 
-	err := s.db.Update(func(dbTxn *bolt.Tx) error {
-		return s.basisDelete(dbTxn, memTxn, ref)
-	})
-
-	if err == nil {
-		memTxn.Commit()
+	if err != nil {
+		return err
 	}
 
-	return err
+	return nil
 }
 
-func (s *State) BasisList() ([]*vagrant_plugin_sdk.Ref_Basis, error) {
-	memTxn := s.inmem.Txn(false)
-	defer memTxn.Abort()
+func (b *Basis) setId() error {
+	id, err := server.Id()
+	if err != nil {
+		return err
+	}
+	b.ResourceId = &id
 
-	return s.basisList(memTxn)
+	return nil
 }
 
-func (s *State) basisGet(
-	dbTxn *bolt.Tx,
-	memTxn *memdb.Txn,
-	ref *vagrant_plugin_sdk.Ref_Basis,
-) (*vagrant_server.Basis, error) {
-	var result vagrant_server.Basis
-	b := dbTxn.Bucket(basisBucket)
-	return &result, dbGet(b, s.basisIdByRef(ref), &result)
+// Convert basis to protobuf message
+func (b *Basis) ToProto() *vagrant_server.Basis {
+	if b == nil {
+		return nil
+	}
+
+	basis := vagrant_server.Basis{}
+	err := decode(b, &basis)
+	if err != nil {
+		panic("failed to decode basis: " + err.Error())
+	}
+
+	if b.Vagrantfile != nil {
+		basis.Configuration = b.Vagrantfile.ToProto()
+	}
+
+	return &basis
 }
 
-func (s *State) basisFind(
-	dbTxn *bolt.Tx,
-	memTxn *memdb.Txn,
+// Convert basis to reference protobuf message
+func (b *Basis) ToProtoRef() *vagrant_plugin_sdk.Ref_Basis {
+	if b == nil {
+		return nil
+	}
+
+	ref := vagrant_plugin_sdk.Ref_Basis{}
+	err := decode(b, &ref)
+	if err != nil {
+		panic("failed to decode basis to ref: " + err.Error())
+	}
+
+	return &ref
+}
+
+// Load a Basis from a protobuf message. This will only search
+// against the resource id.
+func (s *State) BasisFromProto(
 	b *vagrant_server.Basis,
-) (*vagrant_server.Basis, error) {
-	var match *basisIndexRecord
-
-	// Start with the resource id first
-	if b.ResourceId != "" {
-		if raw, err := memTxn.First(
-			basisIndexTableName,
-			basisIndexIdIndexName,
-			b.ResourceId,
-		); raw != nil && err == nil {
-			match = raw.(*basisIndexRecord)
-		}
-	}
-	// Try the name next
-	if b.Name != "" && match == nil {
-		if raw, err := memTxn.First(
-			basisIndexTableName,
-			basisIndexNameIndexName,
-			b.Name,
-		); raw != nil && err == nil {
-			match = raw.(*basisIndexRecord)
-		}
-	}
-	// And finally the path
-	if b.Path != "" && match == nil {
-		if raw, err := memTxn.First(
-			basisIndexTableName,
-			basisIndexPathIndexName,
-			b.Path,
-		); raw != nil && err == nil {
-			match = raw.(*basisIndexRecord)
-		}
+) (*Basis, error) {
+	if b == nil {
+		return nil, ErrEmptyProtoArgument
 	}
 
-	if match == nil {
-		return nil, status.Errorf(codes.NotFound, "record not found for Basis")
-	}
-
-	return s.basisGet(dbTxn, memTxn, &vagrant_plugin_sdk.Ref_Basis{
-		ResourceId: match.Id,
-	})
-}
-
-func (s *State) basisPut(
-	dbTxn *bolt.Tx,
-	memTxn *memdb.Txn,
-	value *vagrant_server.Basis,
-) (err error) {
-	s.log.Trace("storing basis", "basis", value)
-
-	if value.ResourceId == "" {
-		s.log.Trace("basis has no resource id, assuming new basis",
-			"basis", value)
-		if value.ResourceId, err = s.newResourceId(); err != nil {
-			s.log.Error("failed to create resource id for basis", "basis", value,
-				"error", err)
-			return
-		}
-	}
-
-	s.log.Trace("storing basis to db", "basis", value)
-	id := s.basisId(value)
-	b := dbTxn.Bucket(basisBucket)
-	if err = dbPut(b, id, value); err != nil {
-		s.log.Error("failed to store basis in db", "basis", value, "error", err)
-		return
-	}
-
-	s.log.Trace("indexing basis", "basis", value)
-	if err = s.basisIndexSet(memTxn, id, value); err != nil {
-		s.log.Error("failed to index basis", "basis", value, "error", err)
-		return
-	}
-
-	return
-}
-
-func (s *State) basisList(
-	memTxn *memdb.Txn,
-) ([]*vagrant_plugin_sdk.Ref_Basis, error) {
-	iter, err := memTxn.Get(basisIndexTableName, basisIndexIdIndexName+"_prefix", "")
+	basis, err := s.BasisFromProtoRef(
+		&vagrant_plugin_sdk.Ref_Basis{
+			ResourceId: b.ResourceId,
+		},
+	)
 	if err != nil {
 		return nil, err
 	}
 
-	var result []*vagrant_plugin_sdk.Ref_Basis
-	for {
-		next := iter.Next()
-		if next == nil {
-			break
-		}
-		idx := next.(*basisIndexRecord)
-
-		result = append(result, &vagrant_plugin_sdk.Ref_Basis{
-			ResourceId: idx.Id,
-			Name:       idx.Name,
-		})
-	}
-
-	return result, nil
+	return basis, nil
 }
 
-func (s *State) basisDelete(
-	dbTxn *bolt.Tx,
-	memTxn *memdb.Txn,
-	ref *vagrant_plugin_sdk.Ref_Basis,
-) error {
-	b, err := s.basisGet(dbTxn, memTxn, ref)
+// Load a Basis from a protobuf message. This will attempt to locate the
+// basis using any unique field it can match.
+func (s *State) BasisFromProtoFuzzy(
+	b *vagrant_server.Basis,
+) (*Basis, error) {
+	if b == nil {
+		return nil, ErrEmptyProtoArgument
+	}
+
+	basis, err := s.BasisFromProtoRefFuzzy(
+		&vagrant_plugin_sdk.Ref_Basis{
+			ResourceId: b.ResourceId,
+			Name:       b.Name,
+			Path:       b.Path,
+		},
+	)
 	if err != nil {
-		if status.Code(err) == codes.NotFound {
-			return nil
-		}
-		return err
+		return nil, err
 	}
 
-	for _, p := range b.Projects {
-		if err := s.projectDelete(dbTxn, memTxn, p); err != nil {
-			return err
+	return basis, nil
+}
+
+// Load a Basis from a reference protobuf message
+func (s *State) BasisFromProtoRef(
+	ref *vagrant_plugin_sdk.Ref_Basis,
+) (*Basis, error) {
+	if ref == nil {
+		return nil, ErrEmptyProtoArgument
+	}
+
+	if ref.ResourceId == "" {
+		return nil, gorm.ErrRecordNotFound
+	}
+
+	var basis Basis
+	result := s.search().First(&basis, &Basis{ResourceId: &ref.ResourceId})
+	if result.Error != nil {
+		return nil, result.Error
+	}
+
+	return &basis, nil
+}
+
+func (s *State) BasisFromProtoRefFuzzy(
+	ref *vagrant_plugin_sdk.Ref_Basis,
+) (*Basis, error) {
+	basis, err := s.BasisFromProtoRef(ref)
+	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
+		return nil, err
+	}
+
+	if basis != nil {
+		return basis, nil
+	}
+
+	// If name and path are both empty, we can't search
+	if ref.Name == "" && ref.Path == "" {
+		return nil, gorm.ErrRecordNotFound
+	}
+
+	basis = &Basis{}
+	query := &Basis{}
+
+	if ref.Name != "" {
+		query.Name = &ref.Name
+	}
+	if ref.Path != "" {
+		query.Path = &ref.Path
+	}
+
+	result := s.search().First(basis, query)
+	if result.Error != nil {
+		return nil, result.Error
+	}
+
+	return basis, nil
+}
+
+// Get a basis record using a reference protobuf message.
+func (s *State) BasisGet(
+	ref *vagrant_plugin_sdk.Ref_Basis,
+) (*vagrant_server.Basis, error) {
+	b, err := s.BasisFromProtoRef(ref)
+	if err != nil {
+		return nil, lookupErrorToStatus("basis", err)
+	}
+
+	return b.ToProto(), nil
+}
+
+// Find a basis record using a protobuf message
+func (s *State) BasisFind(
+	b *vagrant_server.Basis,
+) (*vagrant_server.Basis, error) {
+	basis, err := s.BasisFromProtoFuzzy(b)
+	if err != nil {
+		return nil, lookupErrorToStatus("basis", err)
+	}
+
+	return basis.ToProto(), nil
+}
+
+// Store a basis record
+func (s *State) BasisPut(
+	b *vagrant_server.Basis,
+) (*vagrant_server.Basis, error) {
+	basis, err := s.BasisFromProto(b)
+	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
+		return nil, lookupErrorToStatus("basis", err)
+	}
+
+	// Make sure we don't have a nil
+	if err != nil {
+		basis = &Basis{}
+	}
+
+	err = s.softDecode(b, basis)
+	if err != nil {
+		return nil, saveErrorToStatus("basis", err)
+	}
+
+	if b.Configuration != nil {
+		if basis.Vagrantfile != nil {
+			basis.Vagrantfile.UpdateFromProto(b.Configuration)
+		} else {
+			basis.Vagrantfile = s.VagrantfileFromProto(b.Configuration)
 		}
 	}
 
-	// Delete from bolt
-	if err := dbTxn.Bucket(basisBucket).Delete(s.basisId(b)); err != nil {
-		return err
+	result := s.db.Save(basis)
+	if result.Error != nil {
+		return nil, saveErrorToStatus("basis", result.Error)
 	}
-	// Delete from memdb
-	record := s.newBasisIndexRecord(b)
-	if err := memTxn.Delete(basisIndexTableName, record); err != nil {
-		return err
+
+	return basis.ToProto(), nil
+}
+
+// List all basis records
+func (s *State) BasisList() ([]*Basis, error) {
+	var all []*Basis
+	result := s.search().Find(&all)
+	if result.Error != nil {
+		return nil, lookupErrorToStatus("basis", result.Error)
 	}
+
+	return all, nil
+}
+
+// Delete a basis
+func (s *State) BasisDelete(
+	b *vagrant_plugin_sdk.Ref_Basis,
+) error {
+	basis, err := s.BasisFromProtoRef(b)
+	// If the record was not found, we return with no error
+	if err != nil && errors.Is(err, gorm.ErrRecordNotFound) {
+		return nil
+	}
+
+	// If an unexpected error was encountered, return it
+	if err != nil {
+		return lookupErrorToStatus("basis", err)
+	}
+
+	result := s.db.Delete(basis)
+	if result.Error != nil {
+		return deleteErrorToStatus("basis", result.Error)
+	}
+
 	return nil
 }
 
-func (s *State) basisIndexSet(txn *memdb.Txn, id []byte, value *vagrant_server.Basis) error {
-	return txn.Insert(basisIndexTableName, s.newBasisIndexRecord(value))
-}
-
-func (s *State) basisIndexInit(dbTxn *bolt.Tx, memTxn *memdb.Txn) error {
-	bucket := dbTxn.Bucket(basisBucket)
-	return bucket.ForEach(func(k, v []byte) error {
-		var value vagrant_server.Basis
-		if err := proto.Unmarshal(v, &value); err != nil {
-			return err
-		}
-		if err := s.basisIndexSet(memTxn, k, &value); err != nil {
-			return err
-		}
-
-		return nil
-	})
-}
-
-func basisIndexSchema() *memdb.TableSchema {
-	return &memdb.TableSchema{
-		Name: basisIndexTableName,
-		Indexes: map[string]*memdb.IndexSchema{
-			basisIndexIdIndexName: {
-				Name:         basisIndexIdIndexName,
-				AllowMissing: false,
-				Unique:       true,
-				Indexer: &memdb.StringFieldIndex{
-					Field:     "Id",
-					Lowercase: false,
-				},
-			},
-			basisIndexNameIndexName: {
-				Name:         basisIndexNameIndexName,
-				AllowMissing: false,
-				Unique:       true,
-				Indexer: &memdb.StringFieldIndex{
-					Field:     "Name",
-					Lowercase: true,
-				},
-			},
-			basisIndexPathIndexName: {
-				Name:         basisIndexPathIndexName,
-				AllowMissing: true,
-				Unique:       true,
-				Indexer: &memdb.StringFieldIndex{
-					Field:     "Path",
-					Lowercase: false,
-				},
-			},
-		},
-	}
-}
-
-const (
-	basisIndexIdIndexName   = "id"
-	basisIndexNameIndexName = "name"
-	basisIndexPathIndexName = "path"
-	basisIndexTableName     = "basis-index"
+var (
+	_ scope = (*Basis)(nil)
 )
-
-type basisIndexRecord struct {
-	Id   string
-	Name string
-	Path string
-}
-
-func (s *State) newBasisIndexRecord(b *vagrant_server.Basis) *basisIndexRecord {
-	return &basisIndexRecord{
-		Id:   b.ResourceId,
-		Name: strings.ToLower(b.Name),
-		Path: b.Path,
-	}
-}
-
-func (s *State) newBasisIndexRecordByRef(ref *vagrant_plugin_sdk.Ref_Basis) *basisIndexRecord {
-	return &basisIndexRecord{
-		Id:   ref.ResourceId,
-		Name: strings.ToLower(ref.Name),
-	}
-}
-
-func (s *State) basisId(b *vagrant_server.Basis) []byte {
-	return []byte(b.ResourceId)
-}
-
-func (s *State) basisIdByRef(ref *vagrant_plugin_sdk.Ref_Basis) []byte {
-	if ref == nil {
-		return []byte{}
-	}
-	return []byte(ref.ResourceId)
-}

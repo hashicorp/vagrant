@@ -19,6 +19,42 @@ func TestBasis(t *testing.T) {
 		require.Error(err)
 	})
 
+	t.Run("Put creates and sets resource ID", func(t *testing.T) {
+		require := require.New(t)
+
+		s := TestState(t)
+		defer s.Close()
+
+		testBasis := &vagrant_server.Basis{
+			Name: "test_name",
+			Path: "/User/test/test",
+		}
+
+		result, err := s.BasisPut(testBasis)
+		require.NoError(err)
+		require.NotEmpty(result.ResourceId)
+	})
+
+	t.Run("Put fails on duplicate name", func(t *testing.T) {
+		require := require.New(t)
+
+		s := TestState(t)
+		defer s.Close()
+
+		testBasis := &vagrant_server.Basis{
+			Name: "test_name",
+			Path: "/User/test/test",
+		}
+
+		// Set initial record
+		_, err := s.BasisPut(testBasis)
+		require.NoError(err)
+
+		// Attempt to set it again
+		_, err = s.BasisPut(testBasis)
+		require.Error(err)
+	})
+
 	t.Run("Put and Get", func(t *testing.T) {
 		require := require.New(t)
 
@@ -26,38 +62,23 @@ func TestBasis(t *testing.T) {
 		defer s.Close()
 
 		testBasis := &vagrant_server.Basis{
-			ResourceId: "test",
-			Name:       "test_name",
-			Path:       "/User/test/test",
-		}
-
-		testBasisRef := &vagrant_plugin_sdk.Ref_Basis{
-			ResourceId: "test",
-			Name:       "test_name",
-			Path:       "/User/test/test",
+			Name: "test_name",
+			Path: "/User/test/test",
 		}
 
 		// Set
-		err := s.BasisPut(testBasis)
+		result, err := s.BasisPut(testBasis)
 		require.NoError(err)
 
-		// Get full ref
-		{
-			resp, err := s.BasisGet(testBasisRef)
-			require.NoError(err)
-			require.NotNil(resp)
-			require.Equal(resp.Name, testBasis.Name)
+		testBasisRef := &vagrant_plugin_sdk.Ref_Basis{
+			ResourceId: result.ResourceId,
 		}
 
-		// Get by id
-		{
-			resp, err := s.BasisGet(&vagrant_plugin_sdk.Ref_Basis{
-				ResourceId: "test",
-			})
-			require.NoError(err)
-			require.NotNil(resp)
-			require.Equal(resp.Name, testBasis.Name)
-		}
+		// Get full ref
+		resp, err := s.BasisGet(testBasisRef)
+		require.NoError(err)
+		require.NotNil(resp)
+		require.Equal(resp.Name, testBasis.Name)
 	})
 
 	t.Run("Find", func(t *testing.T) {
@@ -67,19 +88,18 @@ func TestBasis(t *testing.T) {
 		defer s.Close()
 
 		testBasis := &vagrant_server.Basis{
-			ResourceId: "test",
-			Name:       "test_name",
-			Path:       "/User/test/test",
+			Name: "test_name",
+			Path: "/User/test/test",
 		}
 
 		// Set
-		err := s.BasisPut(testBasis)
+		result, err := s.BasisPut(testBasis)
 		require.NoError(err)
 
 		// Find by resource id
 		{
 			resp, err := s.BasisFind(&vagrant_server.Basis{
-				ResourceId: "test",
+				ResourceId: result.ResourceId,
 			})
 			require.NoError(err)
 			require.NotNil(resp)
@@ -114,9 +134,8 @@ func TestBasis(t *testing.T) {
 		defer s.Close()
 
 		testBasis := &vagrant_server.Basis{
-			ResourceId: "test",
-			Name:       "test_name",
-			Path:       "/User/test/test",
+			Name: "test_name",
+			Path: "/User/test/test",
 		}
 
 		testBasisRef := &vagrant_plugin_sdk.Ref_Basis{ResourceId: "test"}
@@ -126,8 +145,9 @@ func TestBasis(t *testing.T) {
 		require.NoError(err)
 
 		// Add basis
-		err = s.BasisPut(testBasis)
+		result, err := s.BasisPut(testBasis)
 		require.NoError(err)
+		testBasisRef.ResourceId = result.ResourceId
 
 		// No error when deleting basis
 		err = s.BasisDelete(testBasisRef)
@@ -145,17 +165,15 @@ func TestBasis(t *testing.T) {
 		defer s.Close()
 
 		// Add basis'
-		err := s.BasisPut(&vagrant_server.Basis{
-			ResourceId: "test",
-			Name:       "test_name",
-			Path:       "/User/test/test",
+		_, err := s.BasisPut(&vagrant_server.Basis{
+			Name: "test_name",
+			Path: "/User/test/test",
 		})
 		require.NoError(err)
 
-		err = s.BasisPut(&vagrant_server.Basis{
-			ResourceId: "test2",
-			Name:       "test_name2",
-			Path:       "/User/test/test2",
+		_, err = s.BasisPut(&vagrant_server.Basis{
+			Name: "test_name2",
+			Path: "/User/test/test2",
 		})
 		require.NoError(err)
 

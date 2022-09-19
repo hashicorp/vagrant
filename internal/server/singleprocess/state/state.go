@@ -4,137 +4,117 @@ package state
 
 import (
 	"crypto/rand"
+	"errors"
 	"fmt"
-	"reflect"
 	"sync"
-	"time"
 
+	"github.com/go-ozzo/ozzo-validation/v4"
 	"github.com/hashicorp/go-hclog"
 	"github.com/hashicorp/go-memdb"
-	"github.com/oklog/ulid/v2"
-	bolt "go.etcd.io/bbolt"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
+	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 )
 
-// The global variables below can be set by init() functions of other
-// files in this package to setup the database state for the server.
 var (
-	// schemas is used to register schemas with the state store. Other files should
-	// use the init() callback to append to this.
+	// schemas is used to register schemas within the state store. Other
+	// files should use the init() callback to append to this.
 	schemas []schemaFn
 
-	// dbBuckets is the list of buckets that should be created by dbInit.
-	// Various components should use init() funcs to append to this.
-	dbBuckets [][]byte
+	// All the data persisted models defined. Other files should
+	// use the init() callback to append to this list.
+	models = []interface{}{}
 
 	// dbIndexers is the list of functions to call to initialize the
 	// in-memory indexes from the persisted db.
 	dbIndexers []indexFn
 
 	entropy = rand.Reader
+
+	// Error returned when proto value passed is nil
+	ErrEmptyProtoArgument = errors.New("no proto value provided")
+
+	// Error returned when a proto reference does not include its parent
+	ErrMissingProtoParent = errors.New("proto reference does not include parent")
 )
+
+// indexFn is the function type for initializing in-memory indexes from
+// persisted data. This is usually specified as a method handle to a
+// *State method.
+//
+// The bolt.Tx is read-only while the memdb.Txn is a write transaction.
+type indexFn func(*State, *memdb.Txn) error
 
 // State is the primary API for state mutation for the server.
 type State struct {
+	// Connection to our database
+	db *gorm.DB
+
 	// inmem is our in-memory database that stores ephemeral data in an
 	// easier-to-query way. Some of this data may be periodically persisted
 	// but most of this data is meant to be lost when the process restarts.
 	inmem *memdb.MemDB
 
-	// db is our persisted on-disk database. This stores the bulk of data
-	// and supports a transactional model for safe concurrent access.
-	// inmem is used alongside db to store in-memory indexing information
-	// for more efficient lookups into db. This index is built online at
-	// boot.
-	db *bolt.DB
-
-	// hmacKeyNotEmpty is flipped to 1 when an hmac entry is set. This is
-	// used to determine if we're in a bootstrap state and can create a
-	// bootstrap token.
-	hmacKeyNotEmpty uint32
-
 	// indexers is used to track whether an indexer was called. This is
 	// initialized during New and set to nil at the end of New.
 	indexers map[uintptr]struct{}
-
-	// Where to log to
-	log hclog.Logger
 
 	// indexedJobs indicates how many job records we are tracking in memory
 	indexedJobs int
 
 	// Used to track prune records
 	pruneMu sync.Mutex
+
+	// Where to log to
+	log hclog.Logger
 }
 
 // New initializes a new State store.
-func New(log hclog.Logger, db *bolt.DB) (*State, error) {
-	// Restore DB if necessary
-	db, err := finalizeRestore(log, db)
+func New(log hclog.Logger, db *gorm.DB) (*State, error) {
+	log = log.Named("state")
+	err := db.AutoMigrate(models...)
 	if err != nil {
-		log.Trace("failure encountered during finalize restore", "error", err)
+		log.Trace("failure encountered during auto migration",
+			"error", err,
+		)
 		return nil, err
 	}
 
-	// Create the in-memory DB.
+	// Create the in-memory DB
 	inmem, err := memdb.NewMemDB(stateStoreSchema())
 	if err != nil {
 		log.Trace("failed to setup in-memory database", "error", err)
-		return nil, fmt.Errorf("Failed setting up state store: %s", err)
-	}
-
-	// Initialize and validate our on-disk format.
-	if err := dbInit(db); err != nil {
-		log.Error("failed to initialize and validate on-disk format", "error", err)
 		return nil, err
 	}
 
-	s := &State{inmem: inmem, db: db, log: log}
+	s := &State{
+		db:    db,
+		inmem: inmem,
+		log:   log,
+	}
 
-	// Initialize our set that'll track what memdb indexers we call.
-	// When we're done we always clear this out since it is never used
-	// again.
-	s.indexers = make(map[uintptr]struct{})
-	defer func() { s.indexers = nil }()
-
-	// Initialize our in-memory indexes
-	memTxn := s.inmem.Txn(true)
+	// Initialize the in-memory indicies
+	memTxn := inmem.Txn(true)
 	defer memTxn.Abort()
-	err = s.db.View(func(dbTxn *bolt.Tx) error {
-		for _, indexer := range dbIndexers {
-			// TODO: this should use callIndexer but it's broken as it prevents the multiple op indexers
-			// from properly running.
-			if err := indexer(s, dbTxn, memTxn); err != nil {
-				return err
-			}
+	for _, indexer := range dbIndexers {
+		if err := indexer(s, memTxn); err != nil {
+			return nil, err
 		}
 
-		return nil
-	})
-	if err != nil {
-		log.Error("failed to generate in memory index", "error", err)
-		return nil, err
 	}
 	memTxn.Commit()
 
 	return s, nil
 }
 
-// callIndexer calls the specified indexer exactly once. If it has been called
-// before this returns no error. This must not be called concurrently. This
-// can be used from indexers to ensure other data is indexed first.
-func (s *State) callIndexer(fn indexFn, dbTxn *bolt.Tx, memTxn *memdb.Txn) error {
-	fnptr := reflect.ValueOf(fn).Pointer()
-	if _, ok := s.indexers[fnptr]; ok {
-		return nil
-	}
-	s.indexers[fnptr] = struct{}{}
-
-	return fn(s, dbTxn, memTxn)
-}
-
 // Close should be called to gracefully close any resources.
 func (s *State) Close() error {
-	return s.db.Close()
+	db, err := s.db.DB()
+	if err != nil {
+		return err
+	}
+	return db.Close()
 }
 
 // Prune should be called in a on a regular interval to allow State
@@ -180,17 +160,66 @@ func stateStoreSchema() *memdb.DBSchema {
 	return db
 }
 
-// indexFn is the function type for initializing in-memory indexes from
-// persisted data. This is usually specified as a method handle to a
-// *State method.
-//
-// The bolt.Tx is read-only while the memdb.Txn is a write transaction.
-type indexFn func(*State, *bolt.Tx, *memdb.Txn) error
+// Provides db for searching
+// NOTE: In most cases this should be used instead of accessing `db`
+// directly when searching for values to ensure all associations are
+// fully loaded in the results.
+func (s *State) search() *gorm.DB {
+	return s.db.Preload(clause.Associations)
+}
 
-func (*State) newResourceId() (string, error) {
-	id, err := ulid.New(ulid.Timestamp(time.Now()), entropy)
-	if err != nil {
-		return "", err
+// Convert error to a GRPC status error when dealing with lookups
+func lookupErrorToStatus(
+	typeName string, // thing trying to be found (basis, project, etc)
+	err error, // error to convert
+) error {
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return errorToStatus(fmt.Errorf("failed to locate %s (%w)", typeName, err))
 	}
-	return id.String(), nil
+
+	if errors.Is(err, ErrEmptyProtoArgument) || errors.Is(err, ErrMissingProtoParent) {
+		return errorToStatus(fmt.Errorf("cannot lookup %s (%w)", typeName, err))
+	}
+
+	return errorToStatus(fmt.Errorf("unexpected error encountered during %s lookup (%w)", typeName, err))
+}
+
+// Convert error to GRPC status error when failing to save
+func saveErrorToStatus(
+	typeName string, // thing trying to be saved
+	err error, // error to convert
+) error {
+	var vErr validation.Error
+	if errors.Is(err, ErrEmptyProtoArgument) ||
+		errors.Is(err, ErrMissingProtoParent) ||
+		errors.As(err, &vErr) {
+		return errorToStatus(fmt.Errorf("cannot save %s (%w)", typeName, err))
+	}
+
+	return errorToStatus(fmt.Errorf("unexpected error encountered while saving %s (%w)", typeName, err))
+}
+
+// Convert error to GRPC status error when failing to delete
+func deleteErrorToStatus(
+	typeName string, // thing trying to be deleted
+	err error, // error to convert
+) error {
+	return errorToStatus(fmt.Errorf("unexpected error encountered while deleting %s (%w)", typeName, err))
+}
+
+// Convert error to a GRPC status error
+func errorToStatus(
+	err error, // error to convert
+) error {
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return status.Error(codes.NotFound, err.Error())
+	}
+	var vErr validation.Error
+	if errors.Is(err, ErrEmptyProtoArgument) ||
+		errors.Is(err, ErrMissingProtoParent) ||
+		errors.As(err, &vErr) {
+		return status.Error(codes.FailedPrecondition, err.Error())
+	}
+
+	return status.Error(codes.Internal, err.Error())
 }

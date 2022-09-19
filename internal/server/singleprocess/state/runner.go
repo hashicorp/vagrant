@@ -1,102 +1,109 @@
 package state
 
 import (
-	"github.com/hashicorp/go-memdb"
-	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/status"
+	"errors"
 
 	"github.com/hashicorp/vagrant/internal/server/proto/vagrant_server"
+	"gorm.io/gorm"
 )
 
-const (
-	runnerTableName   = "runners"
-	runnerIdIndexName = "id"
-)
+type Runner struct {
+	gorm.Model
 
-func init() {
-	schemas = append(schemas, runnerSchema)
+	Rid        *string `gorm:"uniqueIndex;not null" mapstructure:"Id"`
+	ByIdOnly   bool
+	Components []*Component `gorm:"many2many:runner_components"`
 }
 
-func runnerSchema() *memdb.TableSchema {
-	return &memdb.TableSchema{
-		Name: runnerTableName,
-		Indexes: map[string]*memdb.IndexSchema{
-			runnerIdIndexName: {
-				Name:         runnerIdIndexName,
-				AllowMissing: false,
-				Unique:       true,
-				Indexer: &memdb.StringFieldIndex{
-					Field:     "Id",
-					Lowercase: true,
-				},
-			},
-		},
+func init() {
+	models = append(models, &Runner{})
+}
+
+func (r *Runner) ToProto() *vagrant_server.Runner {
+	if r == nil {
+		return nil
+	}
+
+	components := make([]*vagrant_server.Component, len(r.Components))
+	for i, c := range r.Components {
+		components[i] = c.ToProto()
+	}
+	return &vagrant_server.Runner{
+		Id:         *r.Rid,
+		ByIdOnly:   r.ByIdOnly,
+		Components: components,
 	}
 }
 
-type runnerRecord struct {
-	// The full Runner. All other fiels are derivatives of this.
-	Runner *vagrant_server.Runner
+func (s *State) RunnerFromProto(p *vagrant_server.Runner) (*Runner, error) {
+	if p.Id == "" {
+		return nil, gorm.ErrRecordNotFound
+	}
 
-	// Id of the runner
-	Id string
+	var runner Runner
+	result := s.search().First(&runner, &Runner{Rid: &p.Id})
+	if result.Error != nil {
+		return nil, result.Error
+	}
+
+	return &runner, nil
+}
+
+func (s *State) RunnerById(id string) (*vagrant_server.Runner, error) {
+	r, err := s.RunnerFromProto(&vagrant_server.Runner{Id: id})
+	if err != nil {
+		return nil, lookupErrorToStatus("runner", err)
+	}
+
+	return r.ToProto(), nil
 }
 
 func (s *State) RunnerCreate(r *vagrant_server.Runner) error {
-	txn := s.inmem.Txn(true)
-	defer txn.Abort()
-
-	// Create our runner
-	if err := txn.Insert(runnerTableName, newRunnerRecord(r)); err != nil {
-		return status.Errorf(codes.Aborted, err.Error())
+	runner, err := s.RunnerFromProto(r)
+	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
+		return lookupErrorToStatus("runner", err)
 	}
 
-	txn.Commit()
+	if err != nil {
+		runner = &Runner{}
+	}
+
+	err = s.softDecode(r, runner)
+	if err != nil {
+		return saveErrorToStatus("runner", err)
+	}
+
+	result := s.db.Save(runner)
+	if result.Error != nil {
+		return saveErrorToStatus("runner", result.Error)
+	}
 
 	return nil
 }
 
 func (s *State) RunnerDelete(id string) error {
-	txn := s.inmem.Txn(true)
-	defer txn.Abort()
-	if _, err := txn.DeleteAll(runnerTableName, runnerIdIndexName, id); err != nil {
-		return status.Errorf(codes.Aborted, err.Error())
+	runner, err := s.RunnerFromProto(&vagrant_server.Runner{Id: id})
+	if err != nil {
+		if !errors.Is(err, gorm.ErrRecordNotFound) {
+			return err
+		}
+		return nil
 	}
-	txn.Commit()
+
+	result := s.db.Delete(runner)
+	if result.Error != nil {
+		return deleteErrorToStatus("runner", result.Error)
+	}
 
 	return nil
 }
 
-func (s *State) RunnerById(id string) (*vagrant_server.Runner, error) {
-	txn := s.inmem.Txn(false)
-	raw, err := txn.First(runnerTableName, runnerIdIndexName, id)
-	txn.Abort()
-	if err != nil {
-		return nil, err
+// Returns if there are no registered runners
+func (s *State) runnerEmpty() (bool, error) {
+	var c int64
+	result := s.db.Model(&Runner{}).Count(&c)
+	if result.Error != nil {
+		return false, result.Error
 	}
-	if raw == nil {
-		return nil, status.Errorf(codes.NotFound, "runner ID not found")
-	}
-
-	return raw.(*runnerRecord).Runner, nil
-}
-
-// runnerEmpty returns true if there are no runners registered.
-func (s *State) runnerEmpty(memTxn *memdb.Txn) (bool, error) {
-	iter, err := memTxn.LowerBound(runnerTableName, runnerIdIndexName, "")
-	if err != nil {
-		return false, err
-	}
-
-	return iter.Next() == nil, nil
-}
-
-// newRunnerRecord creates a runnerRecord from a runner.
-func newRunnerRecord(r *vagrant_server.Runner) *runnerRecord {
-	rec := &runnerRecord{
-		Runner: r,
-		Id:     r.Id,
-	}
-
-	return rec
+	return c < 1, nil
 }

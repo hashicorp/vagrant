@@ -2,26 +2,32 @@ package state
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"reflect"
 	"sort"
 	"time"
 
 	"github.com/hashicorp/go-memdb"
-	bolt "go.etcd.io/bbolt"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
-	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/types/known/timestamppb"
+	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 
-	"github.com/hashicorp/vagrant-plugin-sdk/proto/vagrant_plugin_sdk"
+	"github.com/hashicorp/vagrant/internal/server"
 	"github.com/hashicorp/vagrant/internal/server/logbuffer"
 	"github.com/hashicorp/vagrant/internal/server/proto/vagrant_server"
 )
 
-var (
-	jobBucket = []byte("jobs")
+func init() {
+	models = append(models, &InternalJob{})
+	dbIndexers = append(dbIndexers, (*State).jobIndexInit)
+	schemas = append(schemas, jobSchema)
+}
 
+var (
+	jobBucket           = []byte("jobs")
 	jobWaitingTimeout   = 2 * time.Minute
 	jobHeartbeatTimeout = 2 * time.Minute
 )
@@ -35,10 +41,148 @@ const (
 	maximumJobsInMem      = 10000
 )
 
-func init() {
-	dbBuckets = append(dbBuckets, jobBucket)
-	dbIndexers = append(dbIndexers, (*State).jobIndexInit)
-	schemas = append(schemas, jobSchema)
+type JobState uint8
+
+const (
+	JOB_STATE_UNKNOWN JobState = JobState(vagrant_server.Job_UNKNOWN)
+	JOB_STATE_QUEUED           = JobState(vagrant_server.Job_QUEUED)
+	JOB_STATE_WAITING          = JobState(vagrant_server.Job_WAITING)
+	JOB_STATE_RUNNING          = JobState(vagrant_server.Job_RUNNING)
+	JOB_STATE_ERROR            = JobState(vagrant_server.Job_ERROR)
+	JOB_STATE_SUCCESS          = JobState(vagrant_server.Job_SUCCESS)
+)
+
+type InternalJob struct {
+	gorm.Model
+
+	AssignTime          *time.Time
+	AckTime             *time.Time
+	AssignedRunnerID    uint `mapstructure:"-"`
+	AssignedRunner      *Runner
+	CancelTime          *time.Time
+	CompleteTime        *time.Time
+	DataSource          *ProtoValue
+	DataSourceOverrides MetadataSet
+	Error               *ProtoValue
+	ExpireTime          *time.Time
+	Labels              MetadataSet
+	Jid                 *string     `gorm:"uniqueIndex" mapstructure:"Id"`
+	Operation           *ProtoValue `mapstructure:"Operation"`
+	QueueTime           *time.Time
+	Result              *ProtoValue
+	Scope               scope  `gorm:"-:all"`
+	ScopeID             uint   `mapstructure:"-"`
+	ScopeType           string `mapstructure:"-"`
+	State               JobState
+	TargetRunner        *ProtoValue
+}
+
+// Job should come with an ID assigned to it, but if it doesn't for
+// some reason, we assign one now.
+func (i *InternalJob) BeforeCreate(tx *gorm.DB) error {
+	if i.Jid == nil {
+		id, err := server.Id()
+		if err != nil {
+			return err
+		}
+		i.Jid = &id
+	}
+
+	return nil
+}
+
+// If the job has a scope assigned to it, persist it.
+func (i *InternalJob) BeforeSave(tx *gorm.DB) (err error) {
+	if i.Scope == nil {
+		i.ScopeID = 0
+		i.ScopeType = ""
+		return nil
+	}
+	switch v := i.Scope.(type) {
+	case *Basis:
+		i.ScopeID = v.ID
+		i.ScopeType = "basis"
+	case *Project:
+		i.ScopeID = v.ID
+		i.ScopeType = "project"
+	case *Target:
+		i.ScopeID = v.ID
+		i.ScopeType = "target"
+	default:
+		return fmt.Errorf("unknown scope type (%T)", i.Scope)
+	}
+
+	return nil
+}
+
+// If the job has a scope, load it.
+func (i *InternalJob) AfterFind(tx *gorm.DB) (err error) {
+	if i.ScopeID == 0 {
+		return nil
+	}
+	switch i.ScopeType {
+	case "basis":
+		var b Basis
+		result := tx.Preload(clause.Associations).
+			First(&b, &Basis{Model: gorm.Model{ID: i.ScopeID}})
+		if result.Error != nil {
+			return result.Error
+		}
+		i.Scope = &b
+	case "project":
+		var p Project
+		result := tx.Preload(clause.Associations).
+			First(&p, &Project{Model: gorm.Model{ID: i.ScopeID}})
+		if result.Error != nil {
+			return result.Error
+		}
+		i.Scope = &p
+	case "target":
+		var t Target
+		result := tx.Preload(clause.Associations).
+			First(&t, &Target{Model: gorm.Model{ID: i.ScopeID}})
+		if result.Error != nil {
+			return result.Error
+		}
+		i.Scope = &t
+	default:
+		return fmt.Errorf("unknown scope type (%s)", i.ScopeType)
+	}
+
+	return nil
+}
+
+// Convert job to a protobuf message
+func (i *InternalJob) ToProto() *vagrant_server.Job {
+	if i == nil {
+		return nil
+	}
+
+	var j vagrant_server.Job
+	err := decode(i, &j)
+	if err != nil {
+		panic("failed to decode job: " + err.Error())
+	}
+
+	return &j
+}
+
+func (s *State) InternalJobFromProto(job *vagrant_server.Job) (*InternalJob, error) {
+	if job == nil {
+		return nil, ErrEmptyProtoArgument
+	}
+
+	if job.Id == "" {
+		return nil, gorm.ErrRecordNotFound
+	}
+
+	var j InternalJob
+	result := s.search().First(&j, &InternalJob{Jid: &job.Id})
+	if result.Error != nil {
+		return nil, result.Error
+	}
+
+	return &j, nil
 }
 
 func jobSchema() *memdb.TableSchema {
@@ -115,9 +259,9 @@ type jobIndex struct {
 
 	// The basis/project/machine that this job is part of. This is used
 	// to determine if the job is blocked. See job_assigned.go for more details.
-	Basis   *vagrant_plugin_sdk.Ref_Basis
-	Project *vagrant_plugin_sdk.Ref_Project
-	Target  *vagrant_plugin_sdk.Ref_Target
+	Scope interface {
+		GetResourceId() string
+	}
 
 	// QueueTime is the time that the job was queued.
 	QueueTime time.Time
@@ -171,14 +315,16 @@ func (s *State) JobCreate(jobpb *vagrant_server.Job) error {
 	txn := s.inmem.Txn(true)
 	defer txn.Abort()
 
-	err := s.db.Update(func(dbTxn *bolt.Tx) error {
-		return s.jobCreate(dbTxn, txn, jobpb)
-	})
+	err := s.jobCreate(txn, jobpb)
 	if err == nil {
 		txn.Commit()
 	}
 
-	return err
+	if err != nil {
+		return lookupErrorToStatus("job", err)
+	}
+
+	return nil
 }
 
 // JobList returns the list of jobs.
@@ -188,7 +334,7 @@ func (s *State) JobList() ([]*vagrant_server.Job, error) {
 
 	iter, err := memTxn.Get(jobTableName, jobIdIndexName+"_prefix", "")
 	if err != nil {
-		return nil, err
+		return nil, lookupErrorToStatus("job", err)
 	}
 
 	var result []*vagrant_server.Job
@@ -199,11 +345,10 @@ func (s *State) JobList() ([]*vagrant_server.Job, error) {
 		}
 		idx := next.(*jobIndex)
 
-		var job *vagrant_server.Job
-		err = s.db.View(func(dbTxn *bolt.Tx) error {
-			job, err = s.jobById(dbTxn, idx.Id)
-			return err
-		})
+		job, err := s.jobById(idx.Id)
+		if err != nil {
+			return nil, lookupErrorToStatus("job", err)
+		}
 
 		result = append(result, job)
 	}
@@ -220,7 +365,7 @@ func (s *State) JobById(id string, ws memdb.WatchSet) (*Job, error) {
 
 	watchCh, raw, err := memTxn.FirstWatch(jobTableName, jobIdIndexName, id)
 	if err != nil {
-		return nil, err
+		return nil, lookupErrorToStatus("job", err)
 	}
 
 	ws.Add(watchCh)
@@ -235,20 +380,19 @@ func (s *State) JobById(id string, ws memdb.WatchSet) (*Job, error) {
 	if jobIdx.State == vagrant_server.Job_QUEUED {
 		blocked, err = s.jobIsBlocked(memTxn, jobIdx, ws)
 		if err != nil {
-			return nil, err
+			return nil, lookupErrorToStatus("job", err)
 		}
 	}
 
-	var job *vagrant_server.Job
-	err = s.db.View(func(dbTxn *bolt.Tx) error {
-		job, err = s.jobById(dbTxn, jobIdx.Id)
-		return err
-	})
+	job, err := s.jobById(jobIdx.Id)
+	if err != nil {
+		return nil, lookupErrorToStatus("job", err)
+	}
 
 	result := jobIdx.Job(job)
 	result.Blocked = blocked
 
-	return result, err
+	return result, nil
 }
 
 // JobAssignForRunner will wait for and assign a job to a specific runner.
@@ -266,10 +410,13 @@ RETRY_ASSIGN:
 	defer txn.Abort()
 
 	// Turn our runner into a runner record so we can more efficiently assign
-	runnerRec := newRunnerRecord(r)
+	runnerRec, err := s.RunnerFromProto(r)
+	if err != nil {
+		return nil, fmt.Errorf("runner lookup failed: %w", err)
+	}
 
 	// candidateQuery finds candidate jobs to assign.
-	type candidateFunc func(*memdb.Txn, memdb.WatchSet, *runnerRecord) (*jobIndex, error)
+	type candidateFunc func(*memdb.Txn, memdb.WatchSet, *Runner) (*jobIndex, error)
 	candidateQuery := []candidateFunc{
 		s.jobCandidateById,
 		s.jobCandidateAny,
@@ -409,7 +556,7 @@ func (s *State) JobAck(id string, ack bool) (*Job, error) {
 	// Get the job
 	raw, err := txn.First(jobTableName, jobIdIndexName, id)
 	if err != nil {
-		return nil, err
+		return nil, lookupErrorToStatus("job", err)
 	}
 	if raw == nil {
 		return nil, status.Errorf(codes.NotFound, "job not found: %s", id)
@@ -443,7 +590,7 @@ func (s *State) JobAck(id string, ack bool) (*Job, error) {
 		return nil
 	})
 	if err != nil {
-		return nil, err
+		return nil, lookupErrorToStatus("job", err)
 	}
 
 	// Cancel our timer
@@ -467,13 +614,13 @@ func (s *State) JobAck(id string, ack bool) (*Job, error) {
 
 	// Insert to update
 	if err := txn.Insert(jobTableName, job); err != nil {
-		return nil, err
+		return nil, saveErrorToStatus("job", err)
 	}
 
 	// Update our assigned state if we nacked
 	if !ack {
 		if err := s.jobAssignedSet(txn, job, false); err != nil {
-			return nil, err
+			return nil, saveErrorToStatus("job", err)
 		}
 	}
 
@@ -491,7 +638,7 @@ func (s *State) JobComplete(id string, result *vagrant_server.Job_Result, cerr e
 	// Get the job
 	raw, err := txn.First(jobTableName, jobIdIndexName, id)
 	if err != nil {
-		return err
+		return lookupErrorToStatus("job", err)
 	}
 	if raw == nil {
 		return status.Errorf(codes.NotFound, "job not found: %s", id)
@@ -500,7 +647,7 @@ func (s *State) JobComplete(id string, result *vagrant_server.Job_Result, cerr e
 
 	// Update our assigned state
 	if err := s.jobAssignedSet(txn, job, false); err != nil {
-		return err
+		return saveErrorToStatus("job", err)
 	}
 
 	// If the job is not in the assigned state, then this is an error.
@@ -528,7 +675,7 @@ func (s *State) JobComplete(id string, result *vagrant_server.Job_Result, cerr e
 		return nil
 	})
 	if err != nil {
-		return err
+		return saveErrorToStatus("job", err)
 	}
 
 	// End the job
@@ -536,7 +683,7 @@ func (s *State) JobComplete(id string, result *vagrant_server.Job_Result, cerr e
 
 	// Insert to update
 	if err := txn.Insert(jobTableName, job); err != nil {
-		return err
+		return saveErrorToStatus("job", err)
 	}
 
 	txn.Commit()
@@ -553,7 +700,7 @@ func (s *State) JobCancel(id string, force bool) error {
 	// Get the job
 	raw, err := txn.First(jobTableName, jobIdIndexName, id)
 	if err != nil {
-		return err
+		return lookupErrorToStatus("job", err)
 	}
 	if raw == nil {
 		return status.Errorf(codes.NotFound, "job not found: %s", id)
@@ -561,7 +708,7 @@ func (s *State) JobCancel(id string, force bool) error {
 	job := raw.(*jobIndex)
 
 	if err := s.jobCancel(txn, job, force); err != nil {
-		return err
+		return saveErrorToStatus("job", err)
 	}
 
 	txn.Commit()
@@ -717,11 +864,8 @@ func (s *State) JobExpire(id string) error {
 // deregister between this returning true and queueing, the job may still
 // sit in a queue indefinitely.
 func (s *State) JobIsAssignable(ctx context.Context, jobpb *vagrant_server.Job) (bool, error) {
-	memTxn := s.inmem.Txn(false)
-	defer memTxn.Abort()
-
 	// If we have no runners, we cannot be assigned
-	empty, err := s.runnerEmpty(memTxn)
+	empty, err := s.runnerEmpty()
 	if err != nil {
 		return false, err
 	}
@@ -730,89 +874,81 @@ func (s *State) JobIsAssignable(ctx context.Context, jobpb *vagrant_server.Job) 
 	}
 
 	// If we have a special targeting constraint, that has to be met
-	var iter memdb.ResultIterator
-	var targetCheck func(*vagrant_server.Runner) (bool, error)
+	tx := s.db.Model(&Runner{})
 	switch v := jobpb.TargetRunner.Target.(type) {
 	case *vagrant_server.Ref_Runner_Any:
-		// We need a special target check that disallows by ID only
-		targetCheck = func(r *vagrant_server.Runner) (bool, error) {
-			return !r.ByIdOnly, nil
-		}
-
-		iter, err = memTxn.LowerBound(runnerTableName, runnerIdIndexName, "")
-
+		tx = tx.Where("by_id_only = ?", false)
 	case *vagrant_server.Ref_Runner_Id:
-		iter, err = memTxn.Get(runnerTableName, runnerIdIndexName, v.Id.Id)
-
+		tx = tx.Where("rid = ?", v.Id.Id)
 	default:
 		return false, fmt.Errorf("unknown runner target value: %#v", jobpb.TargetRunner.Target)
 	}
-	if err != nil {
-		return false, err
+
+	var c int64
+	result := tx.Count(&c)
+	if result.Error != nil {
+		return false, result.Error
 	}
 
-	for {
-		raw := iter.Next()
-		if raw == nil {
-			// We're out of candidates and we found none.
-			return false, nil
-		}
-		runner := raw.(*runnerRecord)
-
-		// Check our target-specific check
-		if targetCheck != nil {
-			check, err := targetCheck(runner.Runner)
-			if err != nil {
-				return false, err
-			}
-			if !check {
-				continue
-			}
-		}
-
-		// This works!
-		return true, nil
-	}
+	return c > 0, result.Error
 }
 
 // jobIndexInit initializes the config index from persisted data.
-func (s *State) jobIndexInit(dbTxn *bolt.Tx, memTxn *memdb.Txn) error {
-	bucket := dbTxn.Bucket(jobBucket)
-	return bucket.ForEach(func(k, v []byte) error {
-		var value vagrant_server.Job
-		if err := proto.Unmarshal(v, &value); err != nil {
-			return err
-		}
+func (s *State) jobIndexInit(memTxn *memdb.Txn) error {
+	var jobs []InternalJob
 
-		idx, err := s.jobIndexSet(memTxn, k, &value)
+	// Get all jobs which are not completed
+	result := s.search().
+		Where(&InternalJob{State: JOB_STATE_UNKNOWN}).
+		Or(&InternalJob{State: JOB_STATE_QUEUED}).
+		Or(&InternalJob{State: JOB_STATE_WAITING}).
+		Or(&InternalJob{State: JOB_STATE_RUNNING}).
+		Find(&jobs)
+	if result.Error != nil {
+		return result.Error
+	}
+
+	// Load all incomplete jobs into memory
+	for _, j := range jobs {
+		job := j.ToProto()
+		if j.Jid == nil {
+			continue
+		}
+		idx, err := s.jobIndexSet(memTxn, []byte(*j.Jid), job)
 		if err != nil {
 			return err
 		}
 
 		// If the job was running or waiting, set it as assigned.
-		if value.State == vagrant_server.Job_RUNNING || value.State == vagrant_server.Job_WAITING {
-			if err := s.jobAssignedSet(memTxn, idx, true); err != nil {
+		if j.State == JOB_STATE_WAITING || j.State == JOB_STATE_RUNNING {
+			if err = s.jobAssignedSet(memTxn, idx, true); err != nil {
 				return err
 			}
 		}
+	}
 
-		return nil
-	})
+	return nil
 }
 
 // jobIndexSet writes an index record for a single job.
 func (s *State) jobIndexSet(txn *memdb.Txn, id []byte, jobpb *vagrant_server.Job) (*jobIndex, error) {
 	rec := &jobIndex{
-		Id:      jobpb.Id,
-		State:   jobpb.State,
-		Basis:   jobpb.Basis,
-		Project: jobpb.Project,
-		Target:  jobpb.Target,
-		OpType:  reflect.TypeOf(jobpb.Operation),
+		Id:     jobpb.Id,
+		State:  jobpb.State,
+		OpType: reflect.TypeOf(jobpb.Operation),
+	}
+
+	switch v := jobpb.Scope.(type) {
+	case *vagrant_server.Job_Basis:
+		rec.Scope = v.Basis
+	case *vagrant_server.Job_Project:
+		rec.Scope = v.Project
+	case *vagrant_server.Job_Target:
+		rec.Scope = v.Target
 	}
 
 	// Target
-	if jobpb.TargetRunner == nil {
+	if jobpb.TargetRunner == nil || jobpb.TargetRunner.Target == nil {
 		return nil, fmt.Errorf("job target runner must be set")
 	}
 	switch v := jobpb.TargetRunner.Target.(type) {
@@ -823,7 +959,7 @@ func (s *State) jobIndexSet(txn *memdb.Txn, id []byte, jobpb *vagrant_server.Job
 		rec.TargetRunnerId = v.Id.Id
 
 	default:
-		return nil, fmt.Errorf("unknown runner target value: %#v", jobpb.TargetRunner.Target)
+		return nil, fmt.Errorf("unknown runner target value: %#v", jobpb.TargetRunner)
 	}
 
 	// Timestamps
@@ -881,21 +1017,36 @@ func (s *State) jobIndexSet(txn *memdb.Txn, id []byte, jobpb *vagrant_server.Job
 	return rec, txn.Insert(jobTableName, rec)
 }
 
-func (s *State) jobCreate(dbTxn *bolt.Tx, memTxn *memdb.Txn, jobpb *vagrant_server.Job) error {
+func (s *State) jobCreate(memTxn *memdb.Txn, jobpb *vagrant_server.Job) error {
 	// Setup our initial job state
 	var err error
 	jobpb.State = vagrant_server.Job_QUEUED
 	jobpb.QueueTime = timestamppb.New(time.Now())
 
-	id := []byte(jobpb.Id)
-
-	// Insert into bolt
-	if err := dbPut(dbTxn.Bucket(jobBucket), id, jobpb); err != nil {
+	// Convert the job proto into a record
+	job, err := s.InternalJobFromProto(jobpb)
+	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
 		return err
 	}
 
-	// Insert into the DB
-	_, err = s.jobIndexSet(memTxn, id, jobpb)
+	if err != nil {
+		job = &InternalJob{}
+	}
+
+	if err = s.softDecode(jobpb, job); err != nil {
+		return err
+	}
+
+	// Save the record into the db
+	result := s.db.Create(job)
+	if result.Error != nil {
+		return result.Error
+	}
+
+	id := []byte(*job.Jid)
+
+	// Insert into the in memory db
+	_, err = s.jobIndexSet(memTxn, id, job.ToProto())
 
 	s.pruneMu.Lock()
 	defer s.pruneMu.Unlock()
@@ -904,39 +1055,52 @@ func (s *State) jobCreate(dbTxn *bolt.Tx, memTxn *memdb.Txn, jobpb *vagrant_serv
 	return err
 }
 
-func (s *State) jobById(dbTxn *bolt.Tx, id string) (*vagrant_server.Job, error) {
-	var result vagrant_server.Job
-	b := dbTxn.Bucket(jobBucket)
-	return &result, dbGet(b, []byte(id), &result)
+func (s *State) jobById(sid string) (*vagrant_server.Job, error) {
+	job, err := s.InternalJobFromProto(&vagrant_server.Job{Id: sid})
+	if err != nil {
+		return nil, err
+	}
+
+	return job.ToProto(), nil
 }
 
 func (s *State) jobReadAndUpdate(id string, f func(*vagrant_server.Job) error) (*vagrant_server.Job, error) {
-	var result *vagrant_server.Job
 	var err error
-	return result, s.db.Update(func(dbTxn *bolt.Tx) error {
-		result, err = s.jobById(dbTxn, id)
-		if err != nil {
-			return err
-		}
 
-		// Modify
-		if err := f(result); err != nil {
-			return err
-		}
+	j, err := s.jobById(id)
+	if err != nil {
+		return nil, err
+	}
 
-		// Commit
-		return dbPut(dbTxn.Bucket(jobBucket), []byte(id), result)
-	})
+	if err := f(j); err != nil {
+		return nil, err
+	}
+
+	ij, err := s.InternalJobFromProto(j)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := s.softDecode(j, ij); err != nil {
+		return nil, err
+	}
+
+	result := s.db.Save(ij)
+	if result.Error != nil {
+		return nil, result.Error
+	}
+
+	return ij.ToProto(), nil
 }
 
 // jobCandidateById returns the most promising candidate job to assign
 // that is targeting a specific runner by ID.
-func (s *State) jobCandidateById(memTxn *memdb.Txn, ws memdb.WatchSet, r *runnerRecord) (*jobIndex, error) {
+func (s *State) jobCandidateById(memTxn *memdb.Txn, ws memdb.WatchSet, r *Runner) (*jobIndex, error) {
 	iter, err := memTxn.LowerBound(
 		jobTableName,
 		jobTargetIdIndexName,
 		vagrant_server.Job_QUEUED,
-		r.Id,
+		*r.Rid,
 		time.Unix(0, 0),
 	)
 	if err != nil {
@@ -950,7 +1114,7 @@ func (s *State) jobCandidateById(memTxn *memdb.Txn, ws memdb.WatchSet, r *runner
 		}
 
 		job := raw.(*jobIndex)
-		if job.State != vagrant_server.Job_QUEUED || job.TargetRunnerId != r.Id {
+		if job.State != vagrant_server.Job_QUEUED || job.TargetRunnerId != *r.Rid {
 			continue
 		}
 
@@ -968,7 +1132,7 @@ func (s *State) jobCandidateById(memTxn *memdb.Txn, ws memdb.WatchSet, r *runner
 }
 
 // jobCandidateAny returns the first candidate job that targets any runner.
-func (s *State) jobCandidateAny(memTxn *memdb.Txn, ws memdb.WatchSet, r *runnerRecord) (*jobIndex, error) {
+func (s *State) jobCandidateAny(memTxn *memdb.Txn, ws memdb.WatchSet, r *Runner) (*jobIndex, error) {
 	iter, err := memTxn.LowerBound(
 		jobTableName,
 		jobQueueTimeIndexName,
@@ -1020,36 +1184,20 @@ func (s *State) jobsPruneOld(memTxn *memdb.Txn, max int) (int, error) {
 }
 
 func (s *State) JobsDBPruneOld(max int) (int, error) {
-	cnt := dbCount(s.db, jobTableName)
-	toDelete := cnt - max
-	var deleted int
+	var jobs []InternalJob
+	result := s.db.Select("id").Order("queue_time asc").Offset(max).Find(&jobs)
+	if result.Error != nil {
+		return 0, result.Error
+	}
+	deleted := len(jobs)
+	if deleted < 1 {
+		return deleted, nil
+	}
+	result = s.db.Unscoped().Delete(jobs)
+	if result.Error != nil {
+		return 0, result.Error
+	}
 
-	// Prune jobs from boltDB
-	s.db.Update(func(tx *bolt.Tx) error {
-		bucket := tx.Bucket([]byte(jobTableName))
-		cur := bucket.Cursor()
-		key, _ := cur.First()
-		for {
-			if key == nil {
-				break
-			}
-			// otherwise, prune this job! Once we've pruned enough jobs to get back
-			// to the maximum, we stop pruning.
-			toDelete--
-
-			err := bucket.Delete(key)
-			if err != nil {
-				return err
-			}
-
-			deleted++
-			if toDelete <= 0 {
-				break
-			}
-			key, _ = cur.Next()
-		}
-		return nil
-	})
 	return deleted, nil
 }
 
