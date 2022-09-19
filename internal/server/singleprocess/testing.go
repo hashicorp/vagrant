@@ -4,12 +4,12 @@ import (
 	"context"
 	"io/ioutil"
 	"os"
-	"path/filepath"
 
+	"github.com/glebarez/sqlite"
 	"github.com/imdario/mergo"
 	"github.com/mitchellh/go-testing-interface"
 	"github.com/stretchr/testify/require"
-	bolt "go.etcd.io/bbolt"
+	"gorm.io/gorm"
 
 	"github.com/hashicorp/vagrant/internal/server"
 	pb "github.com/hashicorp/vagrant/internal/server/proto/vagrant_server"
@@ -152,18 +152,17 @@ func TestBasis(t testing.T, client pb.VagrantClient, ref *pb.Basis) {
 	require.NoError(t, err)
 }
 
-func testDB(t testing.T) *bolt.DB {
+func testDB(t testing.T) *gorm.DB {
 	t.Helper()
 
-	// Temporary directory for the database
-	td, err := ioutil.TempDir("", "test")
+	db, err := gorm.Open(sqlite.Open("file::memory:?cache=shared"), &gorm.Config{})
 	require.NoError(t, err)
-	t.Cleanup(func() { os.RemoveAll(td) })
-
-	// Create the DB
-	db, err := bolt.Open(filepath.Join(td, "test.db"), 0600, nil)
-	require.NoError(t, err)
-	t.Cleanup(func() { db.Close() })
+	t.Cleanup(func() {
+		d, err := db.DB()
+		if err != nil {
+			d.Close()
+		}
+	})
 
 	return db
 }
