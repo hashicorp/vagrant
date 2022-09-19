@@ -58,7 +58,7 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
       optional :data_source, :message, 101, "hashicorp.vagrant.Job.DataSource"
     end
     add_message "hashicorp.vagrant.Box" do
-      optional :id, :string, 1
+      optional :resource_id, :string, 1
       optional :provider, :string, 2
       optional :version, :string, 3
       optional :directory, :string, 4
@@ -73,15 +73,13 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
       optional :name, :string, 3
       optional :project, :message, 4, "hashicorp.vagrant.sdk.Ref.Project"
       optional :state, :enum, 5, "hashicorp.vagrant.Operation.PhysicalState"
-      repeated :subtargets, :message, 6, "hashicorp.vagrant.Target"
-      optional :parent, :message, 7, "hashicorp.vagrant.Target"
+      repeated :subtargets, :message, 6, "hashicorp.vagrant.sdk.Ref.Target"
+      optional :parent, :message, 7, "hashicorp.vagrant.sdk.Ref.Target"
       optional :uuid, :string, 8
       optional :metadata, :message, 9, "hashicorp.vagrant.sdk.Args.MetadataSet"
       optional :configuration, :message, 10, "hashicorp.vagrant.sdk.Args.ConfigData"
       optional :record, :message, 11, "google.protobuf.Any"
       optional :provider, :string, 12
-      optional :remote_enabled, :bool, 100
-      optional :data_source, :message, 101, "hashicorp.vagrant.Job.DataSource"
     end
     add_message "hashicorp.vagrant.Target.Machine" do
       optional :id, :string, 1
@@ -150,6 +148,7 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
       value :CONFIG, 12
       value :PLUGININFO, 13
       value :PUSH, 14
+      value :DOWNLOADER, 15
     end
     add_message "hashicorp.vagrant.Status" do
       optional :state, :enum, 1, "hashicorp.vagrant.Status.State"
@@ -213,9 +212,6 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
     end
     add_message "hashicorp.vagrant.Job" do
       optional :id, :string, 1
-      optional :basis, :message, 2, "hashicorp.vagrant.sdk.Ref.Basis"
-      optional :project, :message, 3, "hashicorp.vagrant.sdk.Ref.Project"
-      optional :target, :message, 4, "hashicorp.vagrant.sdk.Ref.Target"
       optional :target_runner, :message, 5, "hashicorp.vagrant.Ref.Runner"
       map :labels, :string, :string, 6
       optional :data_source, :message, 7, "hashicorp.vagrant.Job.DataSource"
@@ -230,12 +226,17 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
       optional :result, :message, 107, "hashicorp.vagrant.Job.Result"
       optional :cancel_time, :message, 108, "google.protobuf.Timestamp"
       optional :expire_time, :message, 109, "google.protobuf.Timestamp"
+      oneof :scope do
+        optional :basis, :message, 2, "hashicorp.vagrant.sdk.Ref.Basis"
+        optional :project, :message, 3, "hashicorp.vagrant.sdk.Ref.Project"
+        optional :target, :message, 4, "hashicorp.vagrant.sdk.Ref.Target"
+      end
       oneof :operation do
         optional :noop, :message, 50, "hashicorp.vagrant.Job.Noop"
         optional :auth, :message, 51, "hashicorp.vagrant.Job.AuthOp"
         optional :docs, :message, 52, "hashicorp.vagrant.Job.DocsOp"
         optional :validate, :message, 53, "hashicorp.vagrant.Job.ValidateOp"
-        optional :run, :message, 54, "hashicorp.vagrant.Job.RunOp"
+        optional :command, :message, 54, "hashicorp.vagrant.Job.CommandOp"
         optional :init, :message, 55, "hashicorp.vagrant.Job.InitOp"
       end
     end
@@ -244,7 +245,7 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
       optional :docs, :message, 2, "hashicorp.vagrant.Job.DocsResult"
       optional :validate, :message, 3, "hashicorp.vagrant.Job.ValidateResult"
       optional :init, :message, 4, "hashicorp.vagrant.Job.InitResult"
-      optional :run, :message, 5, "hashicorp.vagrant.Job.RunResult"
+      optional :run, :message, 5, "hashicorp.vagrant.Job.CommandResult"
     end
     add_message "hashicorp.vagrant.Job.DataSource" do
       oneof :source do
@@ -286,11 +287,24 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
       value :BEFORE, 0
       value :AFTER, 1
     end
-    add_message "hashicorp.vagrant.Job.RunOp" do
-      optional :task, :message, 1, "hashicorp.vagrant.Task"
+    add_message "hashicorp.vagrant.Job.CommandOp" do
+      optional :command, :string, 4
+      optional :id, :string, 5
+      optional :status, :message, 6, "hashicorp.vagrant.Status"
+      optional :state, :enum, 7, "hashicorp.vagrant.Operation.PhysicalState"
+      optional :component, :message, 8, "hashicorp.vagrant.Component"
+      map :labels, :string, :string, 9
+      optional :job_id, :string, 10
+      optional :cli_args, :message, 11, "hashicorp.vagrant.sdk.Command.Arguments"
+      optional :vagrantfile, :message, 12, "hashicorp.vagrant.Vagrantfile"
+      oneof :scope do
+        optional :target, :message, 1, "hashicorp.vagrant.sdk.Ref.Target"
+        optional :project, :message, 2, "hashicorp.vagrant.sdk.Ref.Project"
+        optional :basis, :message, 3, "hashicorp.vagrant.sdk.Ref.Basis"
+      end
     end
-    add_message "hashicorp.vagrant.Job.RunResult" do
-      optional :task, :message, 1, "hashicorp.vagrant.Task"
+    add_message "hashicorp.vagrant.Job.CommandResult" do
+      optional :task, :message, 1, "hashicorp.vagrant.Operation"
       optional :run_result, :bool, 2
       optional :run_error, :message, 3, "google.rpc.Status"
       optional :exit_code, :sint32, 4
@@ -497,29 +511,8 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
     add_message "hashicorp.vagrant.RunnerJobStreamResponse.JobCancel" do
       optional :force, :bool, 1
     end
-    add_message "hashicorp.vagrant.RunnerGetDeploymentConfigRequest" do
-    end
-    add_message "hashicorp.vagrant.RunnerGetDeploymentConfigResponse" do
-      optional :server_addr, :string, 1
-      optional :server_tls, :bool, 2
-      optional :server_tls_skip_verify, :bool, 3
-    end
     add_message "hashicorp.vagrant.GetRunnerRequest" do
       optional :runner_id, :string, 1
-    end
-    add_message "hashicorp.vagrant.SetServerConfigRequest" do
-      optional :config, :message, 1, "hashicorp.vagrant.ServerConfig"
-    end
-    add_message "hashicorp.vagrant.GetServerConfigResponse" do
-      optional :config, :message, 1, "hashicorp.vagrant.ServerConfig"
-    end
-    add_message "hashicorp.vagrant.ServerConfig" do
-      repeated :advertise_addrs, :message, 1, "hashicorp.vagrant.ServerConfig.AdvertiseAddr"
-    end
-    add_message "hashicorp.vagrant.ServerConfig.AdvertiseAddr" do
-      optional :addr, :string, 1
-      optional :tls, :bool, 2
-      optional :tls_skip_verify, :bool, 3
     end
     add_message "hashicorp.vagrant.UpsertBasisRequest" do
       optional :basis, :message, 1, "hashicorp.vagrant.Basis"
@@ -635,9 +628,10 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
       optional :name, :string, 1
       optional :value, :string, 2
       oneof :scope do
-        optional :target, :message, 3, "hashicorp.vagrant.sdk.Ref.Target"
+        optional :basis, :message, 3, "hashicorp.vagrant.sdk.Ref.Basis"
         optional :project, :message, 4, "hashicorp.vagrant.sdk.Ref.Project"
-        optional :runner, :message, 5, "hashicorp.vagrant.Ref.Runner"
+        optional :target, :message, 5, "hashicorp.vagrant.sdk.Ref.Target"
+        optional :runner, :message, 6, "hashicorp.vagrant.Ref.Runner"
       end
     end
     add_message "hashicorp.vagrant.ConfigSetRequest" do
@@ -650,7 +644,8 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
       oneof :scope do
         optional :target, :message, 2, "hashicorp.vagrant.sdk.Ref.Target"
         optional :project, :message, 3, "hashicorp.vagrant.sdk.Ref.Project"
-        optional :runner, :message, 4, "hashicorp.vagrant.Ref.RunnerId"
+        optional :basis, :message, 4, "hashicorp.vagrant.sdk.Ref.Basis"
+        optional :runner, :message, 5, "hashicorp.vagrant.Ref.RunnerId"
       end
     end
     add_message "hashicorp.vagrant.ConfigGetResponse" do
@@ -831,53 +826,6 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
       map :items, :string, :bytes, 2
       optional :final, :bool, 3
     end
-    add_message "hashicorp.vagrant.UpsertTaskRequest" do
-      optional :task, :message, 1, "hashicorp.vagrant.Task"
-    end
-    add_message "hashicorp.vagrant.UpsertTaskResponse" do
-      optional :task, :message, 1, "hashicorp.vagrant.Task"
-    end
-    add_message "hashicorp.vagrant.GetLatestTaskRequest" do
-      oneof :scope do
-        optional :target, :message, 1, "hashicorp.vagrant.sdk.Ref.Target"
-        optional :project, :message, 2, "hashicorp.vagrant.sdk.Ref.Project"
-        optional :basis, :message, 3, "hashicorp.vagrant.sdk.Ref.Basis"
-      end
-    end
-    add_message "hashicorp.vagrant.ListTasksRequest" do
-      repeated :status, :message, 4, "hashicorp.vagrant.StatusFilter"
-      optional :physical_state, :enum, 5, "hashicorp.vagrant.Operation.PhysicalState"
-      optional :order, :message, 6, "hashicorp.vagrant.OperationOrder"
-      oneof :scope do
-        optional :target, :message, 1, "hashicorp.vagrant.sdk.Ref.Target"
-        optional :project, :message, 2, "hashicorp.vagrant.sdk.Ref.Project"
-        optional :basis, :message, 3, "hashicorp.vagrant.sdk.Ref.Basis"
-      end
-    end
-    add_message "hashicorp.vagrant.ListTasksResponse" do
-      repeated :tasks, :message, 1, "hashicorp.vagrant.Task"
-    end
-    add_message "hashicorp.vagrant.GetTaskRequest" do
-      optional :ref, :message, 1, "hashicorp.vagrant.Ref.Operation"
-    end
-    add_message "hashicorp.vagrant.Task" do
-      optional :task, :string, 4
-      optional :sequence, :uint64, 5
-      optional :id, :string, 6
-      optional :status, :message, 7, "hashicorp.vagrant.Status"
-      optional :state, :enum, 8, "hashicorp.vagrant.Operation.PhysicalState"
-      optional :component, :message, 9, "hashicorp.vagrant.Component"
-      map :labels, :string, :string, 10
-      optional :job_id, :string, 11
-      optional :cli_args, :message, 12, "hashicorp.vagrant.sdk.Command.Arguments"
-      optional :command_name, :string, 13
-      optional :vagrantfile, :message, 14, "hashicorp.vagrant.Vagrantfile"
-      oneof :scope do
-        optional :target, :message, 1, "hashicorp.vagrant.sdk.Ref.Target"
-        optional :project, :message, 2, "hashicorp.vagrant.sdk.Ref.Project"
-        optional :basis, :message, 3, "hashicorp.vagrant.sdk.Ref.Basis"
-      end
-    end
   end
 end
 
@@ -931,8 +879,8 @@ module Hashicorp
     Job::Action = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.Job.Action").msgclass
     Job::Hook = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.Job.Hook").msgclass
     Job::Hook::Location = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.Job.Hook.Location").enummodule
-    Job::RunOp = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.Job.RunOp").msgclass
-    Job::RunResult = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.Job.RunResult").msgclass
+    Job::CommandOp = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.Job.CommandOp").msgclass
+    Job::CommandResult = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.Job.CommandResult").msgclass
     Job::AuthOp = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.Job.AuthOp").msgclass
     Job::AuthResult = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.Job.AuthResult").msgclass
     Job::AuthResult::Result = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.Job.AuthResult.Result").msgclass
@@ -978,13 +926,7 @@ module Hashicorp
     RunnerJobStreamResponse = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.RunnerJobStreamResponse").msgclass
     RunnerJobStreamResponse::JobAssignment = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.RunnerJobStreamResponse.JobAssignment").msgclass
     RunnerJobStreamResponse::JobCancel = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.RunnerJobStreamResponse.JobCancel").msgclass
-    RunnerGetDeploymentConfigRequest = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.RunnerGetDeploymentConfigRequest").msgclass
-    RunnerGetDeploymentConfigResponse = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.RunnerGetDeploymentConfigResponse").msgclass
     GetRunnerRequest = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.GetRunnerRequest").msgclass
-    SetServerConfigRequest = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.SetServerConfigRequest").msgclass
-    GetServerConfigResponse = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.GetServerConfigResponse").msgclass
-    ServerConfig = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.ServerConfig").msgclass
-    ServerConfig::AdvertiseAddr = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.ServerConfig.AdvertiseAddr").msgclass
     UpsertBasisRequest = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.UpsertBasisRequest").msgclass
     UpsertBasisResponse = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.UpsertBasisResponse").msgclass
     GetBasisRequest = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.GetBasisRequest").msgclass
@@ -1062,12 +1004,5 @@ module Hashicorp
     Snapshot::Header::Format = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.Snapshot.Header.Format").enummodule
     Snapshot::Trailer = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.Snapshot.Trailer").msgclass
     Snapshot::BoltChunk = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.Snapshot.BoltChunk").msgclass
-    UpsertTaskRequest = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.UpsertTaskRequest").msgclass
-    UpsertTaskResponse = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.UpsertTaskResponse").msgclass
-    GetLatestTaskRequest = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.GetLatestTaskRequest").msgclass
-    ListTasksRequest = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.ListTasksRequest").msgclass
-    ListTasksResponse = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.ListTasksResponse").msgclass
-    GetTaskRequest = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.GetTaskRequest").msgclass
-    Task = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("hashicorp.vagrant.Task").msgclass
   end
 end
