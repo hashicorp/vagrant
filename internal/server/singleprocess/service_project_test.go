@@ -27,6 +27,7 @@ func TestServiceProject(t *testing.T) {
 		basisResp, err := client.UpsertBasis(ctx, &vagrant_server.UpsertBasisRequest{
 			Basis: &vagrant_server.Basis{
 				Name: "mybasis",
+				Path: "/path/basis",
 			},
 		})
 		require.NoError(err)
@@ -34,6 +35,7 @@ func TestServiceProject(t *testing.T) {
 		resp, err := client.UpsertProject(ctx, &vagrant_server.UpsertProjectRequest{
 			Project: &vagrant_server.Project{
 				Name:  "myproject",
+				Path:  "/path/project",
 				Basis: &vagrant_plugin_sdk.Ref_Basis{ResourceId: basisResp.Basis.ResourceId},
 			},
 		})
@@ -62,7 +64,8 @@ func TestServiceProject(t *testing.T) {
 		// first insert
 		basisResp, err := client.UpsertBasis(ctx, &vagrant_server.UpsertBasisRequest{
 			Basis: &vagrant_server.Basis{
-				Name: "mybasis",
+				Name: "mybasis2",
+				Path: "/path/basis2",
 			},
 		})
 		require.NoError(err)
@@ -70,6 +73,7 @@ func TestServiceProject(t *testing.T) {
 		resp, err := client.UpsertProject(ctx, &vagrant_server.UpsertProjectRequest{
 			Project: &vagrant_server.Project{
 				Name:  "myproject",
+				Path:  "/path/project",
 				Basis: &vagrant_plugin_sdk.Ref_Basis{ResourceId: basisResp.Basis.ResourceId},
 			},
 		})
@@ -80,7 +84,10 @@ func TestServiceProject(t *testing.T) {
 
 		// see if we can find it by name
 		findResp, err := client.FindProject(ctx, &vagrant_server.FindProjectRequest{
-			Project: &vagrant_server.Project{Name: "myproject"},
+			Project: &vagrant_server.Project{
+				Name:  "myproject",
+				Basis: &vagrant_plugin_sdk.Ref_Basis{ResourceId: basisResp.Basis.ResourceId},
+			},
 		})
 		require.NoError(err)
 		require.NotNil(findResp)
@@ -104,6 +111,7 @@ func TestServiceProject(t *testing.T) {
 		_, err = client.UpsertProject(ctx, &vagrant_server.UpsertProjectRequest{
 			Project: &vagrant_server.Project{
 				Name: "ihavenobasis",
+				Path: "/path/project/invalid",
 			},
 		})
 		require.Error(err)

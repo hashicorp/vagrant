@@ -82,45 +82,6 @@ func (s *service) QueueJob(
 	if job == nil {
 		return nil, status.Errorf(codes.FailedPrecondition, "job must be set")
 	}
-	if err := serverptypes.ValidateJob(job); err != nil {
-		return nil, status.Errorf(codes.FailedPrecondition, err.Error())
-	}
-
-	// sophia: I think this is not needed?
-	// Validate the project/app pair exists.
-	// if job.Application.Application != "" {
-	// 	_, err := s.state.AppGet(job.Application)
-	// 	if status.Code(err) == codes.NotFound {
-	// 		return nil, status.Errorf(codes.NotFound,
-	// 			"Application %s/%s was not found! Please ensure that 'vagrant init' was run with this project.",
-	// 			job.Application.Project,
-	// 			job.Application.Application,
-	// 		)
-	// 	}
-	// }
-
-	// TODO: (sophia) not sure if this should be deleted
-	//       maybe this should register the current working directory as a project
-	// Verify the project exists and use that to set the default data source
-	// project, err := s.state.ProjectGet(&vagrant_server.Ref_Project{Project: job.Application.Project})
-	// if status.Code(err) == codes.NotFound {
-	// 	return nil, status.Errorf(codes.NotFound,
-	// 		"Project %s was not found! Please ensure that 'vagrant init' was run with this project.",
-	// 		job.Application.Project,
-	// 	)
-	// }
-
-	// if job.DataSource == nil {
-	// 	if project.DataSource == nil {
-	// 		return nil, status.Errorf(codes.FailedPrecondition,
-	// 			"Project %s does not have a default data source. A data source must be manually "+
-	// 				"specified for any queued jobs.",
-	// 			job.Application.Project,
-	// 		)
-	// 	}
-
-	// 	job.DataSource = project.DataSource
-	// }
 
 	// Get the next id
 	id, err := server.Id()

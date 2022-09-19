@@ -28,11 +28,11 @@ func TestServiceBox(t *testing.T) {
 		})
 		require.NoError(err)
 		require.NotNil(resp)
-		require.Equal(b.Id, resp.Box.Id)
+		require.Equal(b.ResourceId, resp.Box.ResourceId)
 
 		// should be able to get by ID
 		getResp, err := client.GetBox(ctx, &vagrant_server.GetBoxRequest{
-			Box: &vagrant_plugin_sdk.Ref_Box{ResourceId: b.Id},
+			Box: &vagrant_plugin_sdk.Ref_Box{ResourceId: b.ResourceId},
 		})
 		require.NoError(err)
 		require.NotNil(getResp)
@@ -62,11 +62,11 @@ func TestServiceBox(t *testing.T) {
 		})
 		require.NoError(err)
 		require.NotNil(findResp)
-		require.Equal(b.Id, findResp.Box.Id)
+		require.Equal(b.ResourceId, findResp.Box.ResourceId)
 
 		// then delete it and ensure it's no longer found
 		_, err = client.DeleteBox(ctx, &vagrant_server.DeleteBoxRequest{
-			Box: &vagrant_plugin_sdk.Ref_Box{ResourceId: b.Id},
+			Box: &vagrant_plugin_sdk.Ref_Box{ResourceId: b.ResourceId},
 		})
 		require.NoError(err)
 
@@ -106,6 +106,6 @@ func testBox() *vagrant_server.Box {
 		Version:  "1.2.3",
 		// Id must be Name-Provider-Version because indexing assumes it is
 		// (the NewBox constructor normally generates this in core/box)
-		Id: "test/box-1.2.3-virtualbox",
+		ResourceId: "test/box-1.2.3-virtualbox",
 	}
 }

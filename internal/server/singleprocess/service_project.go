@@ -11,8 +11,8 @@ func (s *service) UpsertProject(
 	ctx context.Context,
 	req *vagrant_server.UpsertProjectRequest,
 ) (*vagrant_server.UpsertProjectResponse, error) {
-	result := req.Project
-	if err := s.state.ProjectPut(result); err != nil {
+	result, err := s.state.ProjectPut(req.Project)
+	if err != nil {
 		return nil, err
 	}
 
@@ -39,6 +39,7 @@ func (s *service) FindProject(
 	if err != nil {
 		return nil, err
 	}
+
 	return &vagrant_server.FindProjectResponse{Project: result}, nil
 }
 
