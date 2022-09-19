@@ -18,6 +18,8 @@ module Vagrant
 
     autoload :Remote, "vagrant/box/remote"
 
+    # The required fields in a boxes `metadata.json` file
+    REQUIRED_METADATA_FIELDS = ["provider"]
 
     # Number of seconds to wait between checks for box updates
     BOX_UPDATE_CHECK_INTERVAL = 3600
@@ -75,11 +77,24 @@ module Vagrant
 
       begin
         @metadata = JSON.parse(directory.join("metadata.json").read)
+        validate_metadata_json(@metadata)
       rescue JSON::ParserError
         raise Errors::BoxMetadataCorrupted, name: @name
       end
 
       @logger = Log4r::Logger.new("vagrant::box")
+    end
+
+    def validate_metadata_json(metadata)
+      metatdata_fields = metadata.keys
+      REQUIRED_METADATA_FIELDS.each do |field|
+        if !metatdata_fields.include?(field)
+          raise Errors::BoxMetadataMissingRequiredFields,
+            name: @name,
+            required_field: field,
+            all_fields: REQUIRED_METADATA_FIELDS.join(", ")
+        end
+      end
     end
 
     # This deletes the box. This is NOT undoable.

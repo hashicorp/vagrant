@@ -615,6 +615,12 @@ en:
         The metadata associated with the box '%{name}' appears corrupted.
         This is most often caused by a disk issue or system crash. Please
         remove the box, re-add it, and try again.
+      box_metadata_missing_required_fields: |-
+        The metadata associated with the box '%{name}' appears to be missing
+        the required field '%{required_field}'. Please ensure `metadata.json`
+        has all required fields.
+
+        Required fields: %{all_fields}
       box_metadata_download_error: |-
         There was an error while downloading the metadata for this box.
         The error message is shown below:
