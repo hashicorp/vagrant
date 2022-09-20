@@ -12,6 +12,7 @@ VAGRANT-GO:
 
 - Support secret interactive input [GH-12876]
 - Support terminal coloring [GH-12888]
+- Validate if requested provider is usable and append/prepend information to errors [GH-12898]
 
 ## 2.3.0 (August 5, 2022)
 
