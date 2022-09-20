@@ -25,7 +25,7 @@ require (
 	github.com/hashicorp/go-version v1.3.0
 	github.com/hashicorp/hcl/v2 v2.11.1
 	github.com/hashicorp/nomad/api v0.0.0-20200814140818-42de70466a9d
-	github.com/hashicorp/vagrant-plugin-sdk v0.0.0-20220919180525-50c632cd450d
+	github.com/hashicorp/vagrant-plugin-sdk v0.0.0-20220919180735-d47bfe003e94
 	github.com/imdario/mergo v0.3.11
 	github.com/improbable-eng/grpc-web v0.13.0
 	github.com/kr/text v0.2.0
@@ -94,6 +94,7 @@ require (
 	github.com/go-git/gcfg v1.5.0 // indirect
 	github.com/go-git/go-billy/v5 v5.0.0 // indirect
 	github.com/go-test/deep v1.0.7 // indirect
+	github.com/gogo/googleapis v1.4.1 // indirect
 	github.com/gogo/protobuf v1.3.2 // indirect
 	github.com/golang/groupcache v0.0.0-20210331224755-41bb18bfe9da // indirect
 	github.com/golang/protobuf v1.5.2 // indirect

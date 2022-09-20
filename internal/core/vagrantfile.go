@@ -9,6 +9,7 @@ import (
 	"github.com/hashicorp/go-hclog"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+
 	"google.golang.org/protobuf/proto"
 
 	"github.com/hashicorp/vagrant-plugin-sdk/component"
@@ -18,6 +19,7 @@ import (
 	"github.com/hashicorp/vagrant-plugin-sdk/internal-shared/cleanup"
 	"github.com/hashicorp/vagrant-plugin-sdk/internal-shared/dynamic"
 	"github.com/hashicorp/vagrant-plugin-sdk/internal-shared/protomappers"
+	"github.com/hashicorp/vagrant-plugin-sdk/localizer"
 	"github.com/hashicorp/vagrant-plugin-sdk/proto/vagrant_plugin_sdk"
 	"github.com/hashicorp/vagrant/internal/plugin"
 	"github.com/hashicorp/vagrant/internal/server/proto/vagrant_server"
@@ -444,7 +446,7 @@ func (v *Vagrantfile) Target(
 		return nil, err
 	}
 
-	conf, err := v.TargetConfig(name, provider, false)
+	conf, err := v.TargetConfig(name, provider, true)
 	if err != nil {
 		return
 	}
@@ -456,6 +458,7 @@ func (v *Vagrantfile) Target(
 				Project: v.targetSource,
 			},
 		),
+		WithProvider(provider),
 	}
 	var vf *Vagrantfile
 
@@ -468,12 +471,15 @@ func (v *Vagrantfile) Target(
 	if err != nil {
 		return nil, err
 	}
+	rawTarget := target.(*Target)
+	if provider != "" {
+		rawTarget.target.Provider = provider
+	}
 
 	// Since the target config gives us a Vagrantfile which is
 	// attached to the project, we need to clone it and attach
 	// it to the target we loaded
 	if vf != nil {
-		rawTarget := target.(*Target)
 		tvf := vf.clone(name)
 
 		if err = tvf.Init(); err != nil {
@@ -492,7 +498,6 @@ func (v *Vagrantfile) Target(
 
 // Generate a new Vagrantfile for the given target
 // NOTE: This function may return a nil result without an error
-// TODO(spox): Provider validation is not currently implemented
 // TODO(spox): Needs box configuration applied
 func (v *Vagrantfile) TargetConfig(
 	name, // name of the target
@@ -505,6 +510,29 @@ func (v *Vagrantfile) TargetConfig(
 	name, err = v.targetNameLookup(name)
 	if err != nil {
 		return nil, err
+	}
+
+	if provider != "" {
+		pp, err := v.factory.plugins.Find(provider, component.ProviderType)
+		if err != nil {
+			return nil, err
+		}
+		if validateProvider {
+			usable, err := pp.Component.(core.Provider).Usable()
+			if !usable {
+				if errStatus, ok := status.FromError(err); ok {
+					return nil, localizer.LocalizeStatusErr(
+						"provider_not_usable",
+						map[string]string{"Provider": provider, "Machine": name},
+						errStatus,
+						true,
+					)
+				}
+			}
+			if err != nil {
+				return nil, err
+			}
+		}
 	}
 
 	cid := name + "+" + provider
