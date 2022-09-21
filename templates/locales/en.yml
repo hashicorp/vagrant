@@ -719,6 +719,15 @@ en:
         such as from the public Vagrant Server.
       box_update_no_name: |-
         This machine doesn't have a box. Won't update anything.
+      box_version_invalid: |-
+        The format of box version provided (%{version}) is incorrect. The
+        version must follow the semantic versioning format or semantic
+        versioning compatible constraint format. Examples of valid values:
+
+          2.0
+          2.1.4
+          >= 2
+          < 3.0.0
       bundler_disabled: |-
         Vagrant's built-in bundler management mechanism is disabled because
         Vagrant is running in an external bundler environment. In these

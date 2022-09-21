@@ -197,6 +197,11 @@ describe Vagrant::BoxCollection, :skip_windows do
   end
 
   describe "#find" do
+    it "fails with custom error on invalid version" do
+      expect { subject.find("foo", :i_dont_exist, "v1.2.2") }.
+        to raise_error(Vagrant::Errors::BoxVersionInvalid)
+    end
+
     it "returns nil if the box does not exist" do
       expect(subject.find("foo", :i_dont_exist, ">= 0")).to be_nil
     end
