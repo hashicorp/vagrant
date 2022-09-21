@@ -501,7 +501,7 @@ module Vagrant
       if !info[:private_key_path] && !info[:password]
         if @config.ssh.private_key_path
           info[:private_key_path] = @config.ssh.private_key_path
-        elsif info[:keys_only]
+        else
           info[:private_key_path] = @env.default_private_key_path
         end
       end
