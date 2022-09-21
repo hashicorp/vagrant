@@ -9,6 +9,8 @@ IMPROVEMENTS:
 
 BUG FIXES:
 
+- Fix flakiness when bringing up a machine that forwards ssh [GH-12909]
+
 VAGRANT-GO:
 
 - Support secret interactive input [GH-12876]
