@@ -10,6 +10,7 @@ IMPROVEMENTS:
 BUG FIXES:
 
 - Fix flakiness when bringing up a machine that forwards ssh [GH-12909]
+- communicator/ssh: Fix `private_key_path` behavior when `keys_only` is disabled [GH-12885]
 
 VAGRANT-GO:
 
