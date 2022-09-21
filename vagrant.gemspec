@@ -12,7 +12,7 @@ Gem::Specification.new do |s|
   s.summary       = "Build and distribute virtualized development environments."
   s.description   = "Vagrant is a tool for building and distributing virtualized development environments."
 
-  s.required_ruby_version     = ">= 2.6", "< 3.1"
+  s.required_ruby_version     = ">= 2.6", "< 3.2"
   s.required_rubygems_version = ">= 1.3.6"
 
   s.add_dependency "bcrypt_pbkdf", "~> 1.1"
@@ -26,6 +26,7 @@ Gem::Specification.new do |s|
   s.add_dependency "listen", "~> 3.6"
   s.add_dependency "log4r", "~> 1.1.9", "< 1.1.11"
   s.add_dependency "mime-types", "~> 3.3"
+  s.add_dependency "net-ftp", "~> 0.1"
   s.add_dependency "net-ssh", ">= 6.1.0", "< 6.2"
   s.add_dependency "net-sftp", "~> 3.0"
   s.add_dependency "net-scp", "~> 3.0.0"
@@ -41,6 +42,9 @@ Gem::Specification.new do |s|
 
   # Needed for go generate to use grpc_tools_ruby_protoc
   s.add_development_dependency "grpc-tools", "~> 1.41.1"
+
+  # required to include https://github.com/ruby/ipaddr/issues/35
+  s.add_dependency "ipaddr", ">= 1.2.4"
 
   # Constraint rake to properly handle deprecated method usage
   # from within rspec
