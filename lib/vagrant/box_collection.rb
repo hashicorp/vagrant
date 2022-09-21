@@ -276,7 +276,12 @@ module Vagrant
 
       # Build up the requirements we have
       requirements = version.to_s.split(",").map do |v|
-        Gem::Requirement.new(v.strip)
+        begin
+          Gem::Requirement.new(v.strip)
+        rescue Gem::Requirement::BadRequirementError
+          raise Errors::BoxVersionInvalid,
+                version: v.strip
+        end
       end
 
       with_collection_lock do

@@ -244,6 +244,10 @@ module Vagrant
       error_key(:failed, "vagrant.actions.box.verify")
     end
 
+    class BoxVersionInvalid < VagrantError
+      error_key(:box_version_invalid)
+    end
+
     class BundlerDisabled < VagrantError
       error_key(:bundler_disabled)
     end
