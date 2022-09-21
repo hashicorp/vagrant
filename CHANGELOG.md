@@ -5,6 +5,7 @@ FEATURES:
 IMPROVEMENTS:
 
 - core: Raise error if required metadata.json box fields are not present [GH-12895]
+- core: Provider helpful error when box version format is invalid [GH-12911]
 
 BUG FIXES:
 
