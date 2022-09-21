@@ -152,7 +152,7 @@ All of the snippets below require Vagrant version 1.7.3 or higher.
 ~> **Use the appropriate group for your user** Depending on how your machine is
 configured, you might need to use a different group than the ones listed in the examples below.
 
-For OS X, sudoers should have this entry:
+For macOS, sudoers should have this entry:
 
 ```
 Cmnd_Alias VAGRANT_EXPORTS_ADD = /usr/bin/tee -a /etc/exports
@@ -161,11 +161,11 @@ Cmnd_Alias VAGRANT_EXPORTS_REMOVE = /usr/bin/sed -E -e /*/ d -ibak /etc/exports
 %admin ALL=(root) NOPASSWD: VAGRANT_EXPORTS_ADD, VAGRANT_NFSD, VAGRANT_EXPORTS_REMOVE
 ```
 
-For Ubuntu Linux , sudoers should look like this:
+For Linux , sudoers should look like this:
 
 ```
-Cmnd_Alias VAGRANT_EXPORTS_CHOWN = /bin/chown 0\:0 /tmp/*
-Cmnd_Alias VAGRANT_EXPORTS_MV = /bin/mv -f /tmp/* /etc/exports
+Cmnd_Alias VAGRANT_EXPORTS_CHOWN = /bin/chown 0\:0 /tmp/vagrant-exports
+Cmnd_Alias VAGRANT_EXPORTS_MV = /bin/mv -f /tmp/vagrant-exports /etc/exports
 Cmnd_Alias VAGRANT_NFSD_CHECK = /etc/init.d/nfs-kernel-server status
 Cmnd_Alias VAGRANT_NFSD_START = /etc/init.d/nfs-kernel-server start
 Cmnd_Alias VAGRANT_NFSD_APPLY = /usr/sbin/exportfs -ar
@@ -176,8 +176,8 @@ For Fedora Linux, sudoers might look like this (given your user
 belongs to the vagrant group):
 
 ```
-Cmnd_Alias VAGRANT_EXPORTS_CHOWN = /bin/chown 0\:0 /tmp/*
-Cmnd_Alias VAGRANT_EXPORTS_MV = /bin/mv -f /tmp/* /etc/exports
+Cmnd_Alias VAGRANT_EXPORTS_CHOWN = /bin/chown 0\:0 /tmp/vagrant-exports
+Cmnd_Alias VAGRANT_EXPORTS_MV = /bin/mv -f /tmp/vagrant-exports /etc/exports
 Cmnd_Alias VAGRANT_NFSD_CHECK = /usr/bin/systemctl status --no-pager nfs-server.service
 Cmnd_Alias VAGRANT_NFSD_START = /usr/bin/systemctl start nfs-server.service
 Cmnd_Alias VAGRANT_NFSD_APPLY = /usr/sbin/exportfs -ar
@@ -188,8 +188,8 @@ For SUSE Linux, sudoers might look like this (given your user
 belongs to the vagrant group):
 
 ```
-Cmnd_Alias VAGRANT_CHOWN = /usr/bin/chown 0\:0 /tmp/vagrant[a-z0-9-]*
-Cmnd_Alias VAGRANT_MV = /usr/bin/mv -f /tmp/vagrant[a-z0-9-]* /etc/exports
+Cmnd_Alias VAGRANT_CHOWN = /usr/bin/chown 0\:0 /tmp/vagrant-exports
+Cmnd_Alias VAGRANT_MV = /usr/bin/mv -f /tmp/vagrant-exports /etc/exports
 Cmnd_Alias VAGRANT_START = /usr/bin/systemctl start --no-pager nfs-server
 Cmnd_Alias VAGRANT_STATUS = /usr/bin/systemctl status --no-pager nfs-server
 Cmnd_Alias VAGRANT_APPLY = /usr/sbin/exportfs -ar
