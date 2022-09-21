@@ -177,10 +177,11 @@ module VagrantPlugins
               exports_path = Pathname.new(NFS_EXPORTS_PATH)
 
               # Write contents out to temporary file
-              new_exports_file = Tempfile.create('vagrant')
+              new_exports_path = File.join(Dir.tmpdir, "vagrant-exports")
+              FileUtils.rm_f(new_exports_path)
+              new_exports_file = File.open(new_exports_path, "w+")
               new_exports_file.puts(new_exports_content)
               new_exports_file.close
-              new_exports_path = new_exports_file.path
 
               # Ensure new file mode and uid/gid match existing file to replace
               existing_stat = File.stat(NFS_EXPORTS_PATH)
@@ -209,7 +210,7 @@ module VagrantPlugins
                   stdout: result.stdout
               end
             ensure
-              if File.exist?(new_exports_path)
+              if !new_exports_path.nil? && File.exist?(new_exports_path)
                 File.unlink(new_exports_path)
               end
             end
