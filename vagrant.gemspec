@@ -41,7 +41,7 @@ Gem::Specification.new do |s|
   s.add_dependency "winrm-fs", ">= 1.3.4", "< 2.0"
 
   # Needed for go generate to use grpc_tools_ruby_protoc
-  s.add_development_dependency "grpc-tools", "~> 1.41.1"
+  s.add_development_dependency "grpc-tools", "~> 1.41"
 
   # required to include https://github.com/ruby/ipaddr/issues/35
   s.add_dependency "ipaddr", ">= 1.2.4"
