@@ -392,10 +392,13 @@ func (p *Project) DefaultProvider(opts *core.DefaultProviderOptions) (string, er
 		if opts.CheckUsable {
 			logger.Debug("Checking usable on provider", "provider", pp.Name)
 			pluginImpl := plug.Plugin.(core.Provider)
-			usable, _ := pluginImpl.Usable()
+			usable, err := pluginImpl.Usable()
 			if !usable {
 				logger.Debug("Skipping unusable provider", "provider", pp.Name)
 				continue
+			}
+			if err != nil {
+				return "", err
 			}
 		}
 
