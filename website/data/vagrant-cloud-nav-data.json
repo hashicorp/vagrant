@@ -1,9 +1,5 @@
 [
   {
-    "title": "Back to Vagrant Documentation",
-    "href": "/docs"
-  },
-  {
     "title": "Boxes",
     "routes": [
       {
