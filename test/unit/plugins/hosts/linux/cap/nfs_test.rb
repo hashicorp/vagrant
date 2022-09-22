@@ -270,19 +270,26 @@ EOH
     context "exports file modification" do
       let(:tmp_stat) { double("tmp_stat", uid: 100, gid: 100, mode: tmp_mode) }
       let(:tmp_mode) { 0 }
-      let(:exports_stat) { double("stat", uid: exports_uid, gid: exports_gid, mode: exports_mode) }
+      let(:exports_stat) {
+        double("stat", uid: exports_uid, gid: exports_gid,
+               mode: exports_mode, :directory? => true, :writable? => true,
+               :world_writable? => true, :sticky? => true)
+      }
       let(:exports_uid) { -1 }
       let(:exports_gid) { -1 }
       let(:exports_mode) { 0 }
       let(:new_exports_file) { double("new_exports_file", path: "/dev/null/exports") }
+      let(:new_exports_path) { new_exports_file.path }
 
       before do
-        allow(File).to receive(:stat).with(new_exports_file.path).and_return(tmp_stat)
+        allow(File).to receive(:stat).and_call_original
+        allow(File).to receive(:join).with(Dir.tmpdir, "vagrant-exports").and_return(new_exports_path)
+        allow(File).to receive(:open).with(new_exports_path, "w+").and_return(new_exports_file)
+        allow(File).to receive(:stat).with(new_exports_path).and_return(tmp_stat)
         allow(File).to receive(:stat).with(tmp_exports_path.to_s).and_return(exports_stat)
         allow(new_exports_file).to receive(:puts)
         allow(new_exports_file).to receive(:close)
         allow(Vagrant::Util::Subprocess).to receive(:execute).and_return(Vagrant::Util::Subprocess::Result.new(0, "", ""))
-        allow(Tempfile).to receive(:create).with("vagrant").and_return(new_exports_file)
       end
 
       it "should retain existing file owner and group IDs" do
