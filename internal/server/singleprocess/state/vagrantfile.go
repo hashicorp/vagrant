@@ -18,8 +18,8 @@ type Vagrantfile struct {
 	gorm.Model
 
 	Format      VagrantfileFormat
-	Unfinalized *ProtoRaw
-	Finalized   *ProtoRaw
+	Unfinalized *ProtoValue
+	Finalized   *ProtoValue
 	Raw         []byte
 	Path        string
 }
