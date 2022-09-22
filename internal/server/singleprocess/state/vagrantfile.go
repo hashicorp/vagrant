@@ -33,32 +33,50 @@ func (v *Vagrantfile) ToProto() *vagrant_server.Vagrantfile {
 		return nil
 	}
 
-	return &vagrant_server.Vagrantfile{
+	vf := &vagrant_server.Vagrantfile{
 		Format: vagrant_server.Vagrantfile_Format(v.Format),
 		Raw:    v.Raw,
-		Path: &vagrant_plugin_sdk.Args_Path{
-			Path: v.Path,
-		},
-		Unfinalized: v.Unfinalized.Message.(*vagrant_plugin_sdk.Args_Hash),
-		Finalized:   v.Finalized.Message.(*vagrant_plugin_sdk.Args_Hash),
 	}
+	if len(v.Path) > 0 {
+		vf.Path = &vagrant_plugin_sdk.Args_Path{
+			Path: v.Path,
+		}
+	}
+	if v.Unfinalized != nil {
+		vf.Unfinalized = v.Unfinalized.Message.(*vagrant_plugin_sdk.Args_Hash)
+	}
+	if v.Finalized != nil {
+		vf.Finalized = v.Finalized.Message.(*vagrant_plugin_sdk.Args_Hash)
+	}
+
+	return vf
 }
 
 func (v *Vagrantfile) UpdateFromProto(vf *vagrant_server.Vagrantfile) *Vagrantfile {
 	v.Format = VagrantfileFormat(vf.Format)
-	v.Unfinalized = &ProtoRaw{Message: vf.Unfinalized}
-	v.Finalized = &ProtoRaw{Message: vf.Finalized}
 	v.Raw = vf.Raw
-	v.Path = vf.Path.Path
+	if vf.Unfinalized != nil {
+		v.Unfinalized = &ProtoValue{Message: vf.Unfinalized}
+	}
+	if vf.Finalized != nil {
+		v.Finalized = &ProtoValue{Message: vf.Finalized}
+	}
+	if vf.Path != nil {
+		v.Path = vf.Path.Path
+	}
 	return v
 }
 
 func (s *State) VagrantfileFromProto(v *vagrant_server.Vagrantfile) *Vagrantfile {
 	file := &Vagrantfile{
-		Format:      VagrantfileFormat(v.Format),
-		Unfinalized: &ProtoRaw{Message: v.Unfinalized},
-		Finalized:   &ProtoRaw{Message: v.Finalized},
-		Raw:         v.Raw,
+		Format: VagrantfileFormat(v.Format),
+		Raw:    v.Raw,
+	}
+	if v.Unfinalized != nil {
+		file.Unfinalized = &ProtoValue{Message: v.Unfinalized}
+	}
+	if v.Finalized != nil {
+		file.Finalized = &ProtoValue{Message: v.Finalized}
 	}
 	if v.Path != nil {
 		file.Path = v.Path.Path
