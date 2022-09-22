@@ -185,7 +185,7 @@ module VagrantPlugins
 
           inventory_file = Pathname.new(File.join(inventory_path, 'vagrant_ansible_inventory'))
           @@lock.synchronize do
-            if !File.exists?(inventory_file) or inventory_content != File.read(inventory_file)
+            if !File.exist?(inventory_file) or inventory_content != File.read(inventory_file)
               begin
                 # ansible dir inventory will ignore files starting with '.'
                 inventory_tmpfile = Tempfile.new('.vagrant_ansible_inventory', inventory_path)

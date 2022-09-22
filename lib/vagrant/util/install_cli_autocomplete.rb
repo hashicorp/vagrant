@@ -29,7 +29,7 @@ module Vagrant
         @logger.info("Searching for config in home #{home}")
         @config_paths.each do |path|
           config_file = File.join(home, path)
-          if File.exists?(config_file)
+          if File.exist?(config_file)
             @logger.info("Found config file #{config_file}")
             return config_file
           end
