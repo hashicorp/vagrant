@@ -18,30 +18,29 @@ How will this affect the end user?
 ## Supporting material 
 Add links to related issues or supporting documentation. 
 
-### Estimated task complexity time-frame (does not guarantee a delivery date)
-- [ ] 1 day
-- [ ] 1 week
-- [ ] 2-3 weeks
+<!--
+To complete this issue, add labels and select a milestone. 
+
+### Labels 
+
+#### Estimated task complexity time-frame (does not guarantee a delivery date)
+* day
+* week
+* multi-week
 
 If a task takes longer than 3 weeks, either consider if you can break it down into smaller pieces of work or update the issue with a new estimated time-frame with a summary checklist of tasks. 
 
-### Estimated user impact
+#### Estimated user impact
 Most issues should categorized as minor or major. 
-- [ ] Critical: fixes a bug that impacts production deployments
-- [ ] Major: addresses a frequent request, relieves a common pain point
-- [ ] Minor: trivial inconveniences that have robust workarounds 
-
-<!--
-To complete this issue: 
-
-* add labels
-* select a milestone 
-
-Your milestone selection will be considered a suggestion for the team to review during backlog grooming.
-
-Additional labels to consider: 
+* Critical: fixes a bug that impacts production deployments
+* Major: addresses a frequent request, relieves a common pain point
+* Minor: trivial inconveniences that have robust workarounds 
+  
+#### Task size
 
 Select a task size label based on the estimated completion time and description (task-small, task-medium, task-large).
 
-If the estimated user impact is marked as critical, also add a critical label.
+### Milestone
+
+Your milestone selection will be considered a suggestion for the team to review during backlog grooming.
 -->
