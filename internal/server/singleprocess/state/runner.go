@@ -8,7 +8,7 @@ import (
 )
 
 type Runner struct {
-	gorm.Model
+	Model
 
 	Rid        *string `gorm:"uniqueIndex;not null" mapstructure:"Id"`
 	ByIdOnly   bool

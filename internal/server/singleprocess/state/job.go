@@ -53,7 +53,7 @@ const (
 )
 
 type InternalJob struct {
-	gorm.Model
+	Model
 
 	AssignTime          *time.Time
 	AckTime             *time.Time
@@ -124,7 +124,7 @@ func (i *InternalJob) AfterFind(tx *gorm.DB) (err error) {
 	case "basis":
 		var b Basis
 		result := tx.Preload(clause.Associations).
-			First(&b, &Basis{Model: gorm.Model{ID: i.ScopeID}})
+			First(&b, &Basis{Model: Model{ID: i.ScopeID}})
 		if result.Error != nil {
 			return result.Error
 		}
@@ -132,7 +132,7 @@ func (i *InternalJob) AfterFind(tx *gorm.DB) (err error) {
 	case "project":
 		var p Project
 		result := tx.Preload(clause.Associations).
-			First(&p, &Project{Model: gorm.Model{ID: i.ScopeID}})
+			First(&p, &Project{Model: Model{ID: i.ScopeID}})
 		if result.Error != nil {
 			return result.Error
 		}
@@ -140,7 +140,7 @@ func (i *InternalJob) AfterFind(tx *gorm.DB) (err error) {
 	case "target":
 		var t Target
 		result := tx.Preload(clause.Associations).
-			First(&t, &Target{Model: gorm.Model{ID: i.ScopeID}})
+			First(&t, &Target{Model: Model{ID: i.ScopeID}})
 		if result.Error != nil {
 			return result.Error
 		}

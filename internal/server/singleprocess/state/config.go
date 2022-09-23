@@ -17,7 +17,7 @@ import (
 )
 
 type Config struct {
-	gorm.Model
+	Model
 
 	Cid   *string `gorm:"uniqueIndex"`
 	Name  string

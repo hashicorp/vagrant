@@ -25,7 +25,7 @@ const (
 )
 
 type Box struct {
-	gorm.Model
+	Model
 
 	Directory   *string    `gorm:"not null"`
 	LastUpdate  *time.Time `gorm:"autoUpdateTime"`
@@ -78,7 +78,7 @@ func (b *Box) Validate(tx *gorm.DB) error {
 				checkUnique(
 					tx.Model(&Box{}).
 						Where(&Box{ResourceId: b.ResourceId}).
-						Not(&Box{Model: gorm.Model{ID: b.ID}}),
+						Not(&Box{Model: Model{ID: b.ID}}),
 				),
 			),
 		),
@@ -97,7 +97,7 @@ func (b *Box) Validate(tx *gorm.DB) error {
 			checkUnique(
 				tx.Model(&Box{}).
 					Where(&Box{Name: b.Name, Provider: b.Provider, Version: b.Version}).
-					Not(&Box{Model: gorm.Model{ID: b.ID}}),
+					Not(&Box{Model: Model{ID: b.ID}}),
 			),
 		),
 	)

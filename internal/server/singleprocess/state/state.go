@@ -7,6 +7,7 @@ import (
 	"errors"
 	"fmt"
 	"sync"
+	"time"
 
 	"github.com/go-ozzo/ozzo-validation/v4"
 	"github.com/hashicorp/go-hclog"
@@ -45,6 +46,12 @@ var (
 //
 // The bolt.Tx is read-only while the memdb.Txn is a write transaction.
 type indexFn func(*State, *memdb.Txn) error
+
+type Model struct {
+	ID        uint `gorm:"primaryKey"`
+	CreatedAt time.Time
+	UpdatedAt time.Time
+}
 
 // State is the primary API for state mutation for the server.
 type State struct {

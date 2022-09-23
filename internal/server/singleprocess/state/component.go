@@ -7,7 +7,7 @@ import (
 )
 
 type Component struct {
-	gorm.Model
+	Model
 
 	Name       string         `gorm:"uniqueIndex:idx_stname"`
 	ServerAddr string         `gorm:"uniqueIndex:idx_stname"`
