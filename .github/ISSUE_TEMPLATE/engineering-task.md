@@ -19,9 +19,9 @@ How will this affect the end user?
 Add links to related issues or supporting documentation. 
 
 ### Estimated task complexity time-frame (does not guarantee a delivery date)
-[] 1 day
-[] 1 week
-[] 2-3 weeks
+- [ ] 1 day
+- [ ] 1 week
+- [ ] 2-3 weeks
 
 If a task takes longer than 3 weeks, either consider if you can break it down into smaller pieces of work or update the issue with a new estimated time-frame with a summary checklist of tasks. 
 
