@@ -609,6 +609,13 @@ func WithProject(p *Project) TargetOption {
 	}
 }
 
+func WithTargetProjectRef(p *vagrant_plugin_sdk.Ref_Project) TargetOption {
+	return func(t *Target) (err error) {
+		t.target.Project = p
+		return
+	}
+}
+
 // Set a vagrantfile instance on target
 func WithTargetVagrantfile(v *Vagrantfile) TargetOption {
 	return func(t *Target) (err error) {

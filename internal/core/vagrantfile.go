@@ -544,12 +544,15 @@ func (v *Vagrantfile) TargetConfig(
 	if err != nil {
 		// If we failed to get the subvm value, then we want to
 		// just load the target directly so it can generate
-		v.logger.Warn("failed to get subvm",
+		v.logger.Warn("failed to get target",
 			"name", name,
 			"error", err,
 		)
 
-		t, err := v.factory.NewTarget(WithTargetName(name))
+		t, err := v.factory.NewTarget(
+			WithTargetName(name),
+			WithTargetProjectRef(v.targetSource),
+		)
 		if err != nil {
 			if status.Code(err) != codes.NotFound {
 				return nil, err
