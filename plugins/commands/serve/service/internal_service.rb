@@ -11,11 +11,23 @@ module VagrantPlugins
     module Service
       class InternalService < ProtoService(Hashicorp::Vagrant::RubyVagrant::Service)
 
+        def vagrant_env(project_path, opts={})
+          klass = Class.new do
+            attr_reader :local_data_path
+            def initialize(pp)
+              @local_data_path = Pathname.new(pp)
+            end
+          end
+          klass.new(project_path)
+        end
+
         def get_plugins(req, _)
           plugins = []
+          env = vagrant_env(req.project_path)
           plugin_manager = Vagrant::Plugin::V2::Plugin.local_manager
           globalized_plugins = Vagrant::Plugin::Manager.instance.globalize!
-          Vagrant::Plugin::Manager.instance.load_plugins(globalized_plugins)
+          localized_plugins = Vagrant::Plugin::Manager.instance.localize!(env)
+          Vagrant::Plugin::Manager.instance.load_plugins(globalized_plugins.merge(localized_plugins))
           plugins = [[:commands, :COMMAND],
             [:communicators, :COMMUNICATOR],
             [:config, :CONFIG],
