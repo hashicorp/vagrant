@@ -50,9 +50,9 @@ module Vagrant
         copy_insecure_private_key
 
         # Initialize localized plugins
-        plugins = Vagrant::Plugin::Manager.instance.localize!(self)
-        # Load any environment local plugins
-        Vagrant::Plugin::Manager.instance.load_plugins(plugins)
+        # plugins = Vagrant::Plugin::Manager.instance.localize!(self)
+        # # Load any environment local plugins
+        # Vagrant::Plugin::Manager.instance.load_plugins(plugins)
 
         # Initialize globalize plugins
         plugins = Vagrant::Plugin::Manager.instance.globalize!
