@@ -125,7 +125,7 @@ func New(opts ...Option) (*Runner, error) {
 		return nil, err
 	}
 
-	if err := runner.plugins.LoadLegacyPlugins(
+	if err := runner.plugins.LoadGlobalLegacyPlugins(
 		runner.vagrantRubyClient, runner.vagrantRubyRuntime); err != nil {
 		return nil, err
 	}
@@ -154,6 +154,12 @@ func New(opts ...Option) (*Runner, error) {
 	runner.cleanup.Prepend(func() error { return runner.factory.Close() })
 
 	return runner, nil
+}
+
+func (r *Runner) LoadLocalProjectPlugins(path string) error {
+	err := r.plugins.LoadLocalLegacyPlugins(
+		r.vagrantRubyClient, r.vagrantRubyRuntime, path)
+	return err
 }
 
 // Id returns the runner ID.
