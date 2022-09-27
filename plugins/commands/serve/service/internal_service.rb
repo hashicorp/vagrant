@@ -21,38 +21,47 @@ module VagrantPlugins
           klass.new(project_path)
         end
 
-        def get_plugins(req, _)
-          plugins = []
-          env = vagrant_env(req.project_path)
+        def extract_plugin_protos(plugin_manager)
+          plugins = [[:commands, :COMMAND],
+          [:communicators, :COMMUNICATOR],
+          [:config, :CONFIG],
+          [:guests, :GUEST],
+          [:hosts, :HOST],
+          [:provider_configs, :CONFIG],
+          [:providers, :PROVIDER],
+          [:provisioner_configs, :CONFIG],
+          [:provisioners, :PROVISIONER],
+          [:push_configs, :CONFIG],
+          [:pushes, :PUSH],
+          [:synced_folders, :SYNCEDFOLDER]].map do |method, const|
+          plugin_manager.send(method).map do |k, v|
+            Hashicorp::Vagrant::Plugin.new(
+              name: k,
+              type: Hashicorp::Vagrant::Plugin::Type.const_get(const),
+              options: Google::Protobuf::Any.pack(
+                _convert_options_to_proto(const, v)
+              )
+            )
+          end
+        end.flatten
+        Hashicorp::Vagrant::GetPluginsResponse.new(
+          plugins: plugins
+        )
+        end
+
+        def get_global_plugins(req, _)
           plugin_manager = Vagrant::Plugin::V2::Plugin.local_manager
           globalized_plugins = Vagrant::Plugin::Manager.instance.globalize!
+          Vagrant::Plugin::Manager.instance.load_plugins(globalized_plugins)
+          extract_plugin_protos(plugin_manager)
+        end
+
+        def get_local_plugins(req, _)
+          env = vagrant_env(req.project_path)
+          plugin_manager = Vagrant::Plugin::V2::Plugin.local_manager
           localized_plugins = Vagrant::Plugin::Manager.instance.localize!(env)
-          Vagrant::Plugin::Manager.instance.load_plugins(globalized_plugins.merge(localized_plugins))
-          plugins = [[:commands, :COMMAND],
-            [:communicators, :COMMUNICATOR],
-            [:config, :CONFIG],
-            [:guests, :GUEST],
-            [:hosts, :HOST],
-            [:provider_configs, :CONFIG],
-            [:providers, :PROVIDER],
-            [:provisioner_configs, :CONFIG],
-            [:provisioners, :PROVISIONER],
-            [:push_configs, :CONFIG],
-            [:pushes, :PUSH],
-            [:synced_folders, :SYNCEDFOLDER]].map do |method, const|
-            plugin_manager.send(method).map do |k, v|
-              Hashicorp::Vagrant::Plugin.new(
-                name: k,
-                type: Hashicorp::Vagrant::Plugin::Type.const_get(const),
-                options: Google::Protobuf::Any.pack(
-                  _convert_options_to_proto(const, v)
-                )
-              )
-            end
-          end.flatten
-          Hashicorp::Vagrant::GetPluginsResponse.new(
-            plugins: plugins
-          )
+          Vagrant::Plugin::Manager.instance.load_plugins(localized_plugins)
+          extract_plugin_protos(plugin_manager)
         end
 
         def stop(_, _)
