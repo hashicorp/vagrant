@@ -13,7 +13,8 @@ import "plugin.proto";
 // The service that is implemented for the server backend.
 service RubyVagrant {
   // Gets available ruby plugins
-  rpc GetPlugins(GetPluginsRequest) returns (GetPluginsResponse);
+  rpc GetLocalPlugins(GetPluginsRequest) returns (GetPluginsResponse);
+  rpc GetGlobalPlugins(google.protobuf.Empty) returns (GetPluginsResponse);
   rpc ParseVagrantfile(ParseVagrantfileRequest) returns (ParseVagrantfileResponse);
   rpc ParseVagrantfileProc(ParseVagrantfileProcRequest) returns (ParseVagrantfileResponse);
   rpc ParseVagrantfileSubvm(ParseVagrantfileSubvmRequest) returns (ParseVagrantfileResponse);
