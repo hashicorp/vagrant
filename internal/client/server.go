@@ -127,14 +127,6 @@ func (c *Client) initLocalServer(ctx context.Context) (_ *grpc.ClientConn, err e
 		return err
 	})
 
-	cleanups = append(cleanups, func() error {
-		dbconn, err := db.DB()
-		if err == nil {
-			dbconn.Close()
-		}
-		return nil
-	})
-
 	// We listen on a random locally bound port
 	// TODO: we should use Unix domain sockets if supported
 	ln, err := net.Listen("tcp", "127.0.0.1:")
