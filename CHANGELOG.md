@@ -12,6 +12,7 @@ BUG FIXES:
 - Fix flakiness when bringing up a machine that forwards ssh [GH-12909]
 - communicator/ssh: Fix `private_key_path` behavior when `keys_only` is disabled [GH-12885]
 - synced_folder/nfs: Update exports file creation [GH-12910]
+- util/downloader: Fix user agent [GH-12925]
 
 VAGRANT-GO:
 
