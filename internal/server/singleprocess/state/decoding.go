@@ -12,19 +12,29 @@ import (
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
+// Custom decoder
 type Decoder struct {
+	config *mapstructure.DecoderConfig
 	*mapstructure.Decoder
 }
 
+// Create a custom decoder that can handle model
+// encoding/decoding to/from protobuf messages
 func NewDecoder(config *mapstructure.DecoderConfig) (*Decoder, error) {
 	intD, err := mapstructure.NewDecoder(config)
 	if err != nil {
 		return nil, err
 	}
 
-	return &Decoder{intD}, nil
+	return &Decoder{
+		Decoder: intD,
+		config:  config,
+	}, nil
 }
 
+// Decodes a value with special handling on struct values. If
+// the input value is unset it will not be applied to the
+// destination.
 func (d *Decoder) SoftDecode(input interface{}) error {
 	v := reflect.Indirect(reflect.ValueOf(input))
 	t := v.Type()
@@ -74,17 +84,6 @@ func (d *Decoder) SoftDecode(input interface{}) error {
 		panic("failed to generate decode copy: " + err.Error())
 	}
 
-	// pval := v.FieldByName("Project").Interface()
-	// nval := newInput.FieldByName("Project").Interface()
-	// e := d.Decode(newInput.Interface())
-	// if e != nil {
-	// 	panic(e)
-	// }
-	// nval2 := newInput.FieldByName("Project").Interface()
-	// pval2 := v.FieldByName("Project").Interface()
-	// panic(fmt.Sprintf("\n\nold value: %#v\nnew value: %#v\n\n --- \nold value: %#v\nnew value: %#v\n",
-	// 	pval, nval, pval2, nval2))
-
 	return d.Decode(newInput.Interface())
 
 }
@@ -125,6 +124,8 @@ func (s *State) decoder(output interface{}) *Decoder {
 			protoRawToProtoHookFunc,
 			s.componentFromProtoHookFunc,
 			componentToProtoHookFunc,
+			stringPtrToPathProtoHookFunc,
+			pathProtoToStringPtrHookFunc,
 		),
 		Result: output,
 	}
@@ -170,6 +171,8 @@ func decoder(output interface{}) *Decoder {
 			protoValueToProtoHookFunc,
 			protoRawToProtoHookFunc,
 			componentToProtoHookFunc,
+			stringPtrToPathProtoHookFunc,
+			pathProtoToStringPtrHookFunc,
 		),
 		Result: output,
 	}
@@ -805,4 +808,38 @@ func componentToProtoHookFunc(
 	}
 
 	return c.ToProto(), nil
+}
+
+func pathProtoToStringPtrHookFunc(
+	from, to reflect.Type,
+	data interface{},
+) (interface{}, error) {
+	if from != reflect.TypeOf((*vagrant_plugin_sdk.Args_Path)(nil)) ||
+		to != reflect.TypeOf((*string)(nil)) {
+		return data, nil
+	}
+
+	p, ok := data.(*vagrant_plugin_sdk.Args_Path)
+	if !ok {
+		return nil, fmt.Errorf("cannot deserialize path, wrong type (%T)", data)
+	}
+
+	return &p.Path, nil
+}
+
+func stringPtrToPathProtoHookFunc(
+	from, to reflect.Type,
+	data interface{},
+) (interface{}, error) {
+	if from != reflect.TypeOf((*string)(nil)) ||
+		to != reflect.TypeOf((*vagrant_plugin_sdk.Args_Path)(nil)) {
+		return data, nil
+	}
+
+	s, ok := data.(*string)
+	if !ok {
+		return nil, fmt.Errorf("cannot serialize path, wrong type (%T)", data)
+	}
+
+	return &vagrant_plugin_sdk.Args_Path{Path: *s}, nil
 }
