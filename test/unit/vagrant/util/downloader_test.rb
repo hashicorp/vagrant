@@ -22,6 +22,12 @@ describe Vagrant::Util::Downloader do
     allow(Vagrant).to receive(:in_installer?).and_return(false)
   end
 
+  describe "USER_AGENT" do
+    it "should not include a trailing space" do
+      expect(described_class.const_get(:USER_AGENT)).not_to end_with(" ")
+    end
+  end
+
   describe "#download!" do
     let(:curl_options) {
       ["-q", "--fail", "--location", "--max-redirs", "10",
