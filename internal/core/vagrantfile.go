@@ -1122,6 +1122,7 @@ func (v *Vagrantfile) clone(name string) *Vagrantfile {
 		registrations: reg,
 		rubyClient:    v.rubyClient,
 		sources:       srcs,
+		targetSource:  v.targetSource,
 	}
 
 	v.Closer(func() error { return newV.Close() })
