@@ -25,7 +25,7 @@ require (
 	github.com/hashicorp/go-version v1.3.0
 	github.com/hashicorp/hcl/v2 v2.11.1
 	github.com/hashicorp/nomad/api v0.0.0-20200814140818-42de70466a9d
-	github.com/hashicorp/vagrant-plugin-sdk v0.0.0-20220928204300-c0e4b14e08c5
+	github.com/hashicorp/vagrant-plugin-sdk v0.0.0-20220928204555-798e860a8593
 	github.com/imdario/mergo v0.3.11
 	github.com/improbable-eng/grpc-web v0.13.0
 	github.com/kr/text v0.2.0
