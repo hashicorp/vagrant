@@ -106,6 +106,7 @@ func (c *Client) initLocalServer(ctx context.Context) (_ *grpc.ClientConn, err e
 	db, err := gorm.Open(sqlite.Open(path), &gorm.Config{
 		Logger: logger.Default.LogMode(logger.Silent),
 	})
+	db.Exec("PRAGMA foreign_keys = ON")
 	if err != nil {
 		return
 	}
