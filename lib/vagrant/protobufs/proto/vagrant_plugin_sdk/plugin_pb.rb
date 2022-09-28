@@ -342,6 +342,7 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
       optional :prompt, :string, 1
       optional :style, :string, 2
       optional :secret, :bool, 3
+      optional :color, :string, 4
     end
     add_message "hashicorp.vagrant.sdk.TerminalUI.Event.InputResp" do
       optional :input, :string, 1
