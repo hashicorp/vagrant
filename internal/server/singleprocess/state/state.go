@@ -167,14 +167,6 @@ func stateStoreSchema() *memdb.DBSchema {
 	return db
 }
 
-// Provides db for searching
-// NOTE: In most cases this should be used instead of accessing `db`
-// directly when searching for values to ensure all associations are
-// fully loaded in the results.
-func (s *State) search() *gorm.DB {
-	return s.db.Preload(clause.Associations)
-}
-
 // Convert error to a GRPC status error when dealing with lookups
 func lookupErrorToStatus(
 	typeName string, // thing trying to be found (basis, project, etc)
@@ -229,4 +221,32 @@ func errorToStatus(
 	}
 
 	return status.Error(codes.Internal, err.Error())
+}
+
+// Provides db for searching
+// NOTE: In most cases this should be used instead of accessing `db`
+// directly when searching for values to ensure all associations are
+// fully loaded in the results.
+func (s *State) search() *gorm.DB {
+	return s.db.Preload(clause.Associations)
+}
+
+func (s *State) upsert(arg interface{}) error {
+	return s.db.Clauses(
+		clause.OnConflict{
+			UpdateAll: true,
+		},
+	).Save(arg).Error
+}
+
+func (s *State) upsertFull(arg interface{}) error {
+	return s.db.Session(
+		&gorm.Session{
+			FullSaveAssociations: true,
+		},
+	).Clauses(
+		clause.OnConflict{
+			UpdateAll: true,
+		},
+	).Save(arg).Error
 }
