@@ -10,6 +10,7 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"strings"
 	"sync"
 	"time"
 
@@ -18,6 +19,7 @@ import (
 	"github.com/hashicorp/go-version"
 	"github.com/hashicorp/vagrant-plugin-sdk/core"
 	"github.com/hashicorp/vagrant-plugin-sdk/helper/path"
+	"github.com/hashicorp/vagrant-plugin-sdk/localizer"
 	"github.com/hashicorp/vagrant-plugin-sdk/proto/vagrant_plugin_sdk"
 	"github.com/hashicorp/vagrant/internal/server/proto/vagrant_server"
 	"github.com/mitchellh/mapstructure"
@@ -27,6 +29,8 @@ import (
 
 // Number of seconds to wait between checks for box updates
 const BoxUpdateCheckInterval = 3600
+
+var RequiredMetadataFields = []string{"provider"}
 
 type Box struct {
 	basis  *Basis
@@ -58,7 +62,10 @@ func NewBox(opts ...BoxOption) (b *Box, err error) {
 
 	metadataFile := filepath.Join(b.box.Directory, "metadata.json")
 	if _, err := os.Stat(metadataFile); err != nil {
-		return nil, err
+		return nil, localizer.LocalizeErr(
+			"box_does_not_have_metadata_json_file",
+			map[string]string{"BoxName": b.box.Name},
+		)
 	}
 
 	data, err := os.ReadFile(metadataFile)
@@ -68,6 +75,19 @@ func NewBox(opts ...BoxOption) (b *Box, err error) {
 	metadata := make(map[string]interface{})
 	if err := json.Unmarshal(data, &metadata); err != nil {
 		return nil, err
+	}
+	for _, field := range RequiredMetadataFields {
+		// If the metadata does not have a required field
+		if _, ok := metadata[field]; !ok {
+			return nil, localizer.LocalizeErr(
+				"box_metadata_missing_required_fields",
+				map[string]string{
+					"BoxName":        b.box.Name,
+					"RequiredField":  field,
+					"RequiredFields": strings.Join(RequiredMetadataFields, " ,"),
+				},
+			)
+		}
 	}
 	b.box.Metadata, err = structpb.NewStruct(metadata)
 	if err != nil {
