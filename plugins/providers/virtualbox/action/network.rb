@@ -6,6 +6,7 @@ require "log4r"
 
 require "vagrant/util/network_ip"
 require "vagrant/util/scoped_hash_override"
+require "vagrant/util/ip_network_type_resolver"
 
 module VagrantPlugins
   module ProviderVirtualBox
@@ -241,9 +242,8 @@ module VagrantPlugins
                 auto_config: true,
                 mac:         nil,
                 netmask:     "255.255.255.0",
-                type:        :static
+                type:        Vagrant::Util::IpNetworkTypeResolver.resolve(config[:ip])
             }.merge(config)
-            options[:type] = options[:type].to_sym
             return options
           end
 
@@ -281,9 +281,6 @@ module VagrantPlugins
               options[:netmask] ||= "255.255.255.0"
             elsif ip.ipv6?
               options[:netmask] ||= 64
-
-              # Append a 6 to the end of the type
-              options[:type] = "#{options[:type]}6".to_sym
             else
               raise IPAddr::AddressFamilyError, 'unknown address family'
             end
@@ -333,6 +330,8 @@ module VagrantPlugins
             dhcp_options[:dhcp_ip] = options[:dhcp_ip] || (ip_range.first | 2).to_s
             dhcp_options[:dhcp_lower] = options[:dhcp_lower] || (ip_range.first | 3).to_s
             dhcp_options[:dhcp_upper] = options[:dhcp_upper] || (ip_range.last(2).first).to_s
+          else
+            options[:type] = Vagrant::Util::IpNetworkTypeResolver.resolve(options[:ip])
           end
 
           return {
@@ -379,8 +378,9 @@ module VagrantPlugins
         end
 
         def hostonly_network_config(config)
+          network_type = Vagrant::Util::IpNetworkTypeResolver.resolve(config[:ip]) unless config[:type] == :dhcp
           return {
-            type:       config[:type],
+            type:       network_type || config[:type],
             adapter_ip: config[:adapter_ip],
             ip:         config[:ip],
             netmask:    config[:netmask]
@@ -413,8 +413,9 @@ module VagrantPlugins
         end
 
         def intnet_network_config(config)
+          network_type = Vagrant::Util::IpNetworkTypeResolver.resolve(config[:ip]) unless config[:type] == :dhcp
           return {
-            type: config[:type],
+            type: network_type || config[:type],
             ip: config[:ip],
             netmask: config[:netmask]
           }

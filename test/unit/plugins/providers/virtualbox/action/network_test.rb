@@ -246,6 +246,32 @@ describe VagrantPlugins::ProviderVirtualBox::Action::Network do
     }])
   end
 
+  it "creates a host-only interface with a given ip address and resolves network type from it" do
+    guest = double("guest")
+    machine.config.vm.network 'private_network', ip: 'dead:beef::100'
+    allow(driver).to receive(:read_host_only_interfaces) { [] }
+    allow(machine).to receive(:guest) { guest }
+    allow(driver).to receive(:create_host_only_network) {{ name: 'vboxnet0' }}
+    allow(guest).to receive(:capability)
+    interface_ip = 'dead:beef::1'
+
+    subject.call(env)
+
+    expect(driver).to have_received(:create_host_only_network).with({
+      adapter_ip: interface_ip,
+      netmask: 64,
+    })
+
+    expect(guest).to have_received(:capability).with(:configure_networks, [{
+      type: :static6,
+      adapter_ip: 'dead:beef::1',
+      ip: 'dead:beef::100',
+      netmask: 64,
+      auto_config: true,
+      interface: nil
+    }])
+  end
+
   it "raises the appropriate error when provided with an invalid IP address" do
     machine.config.vm.network 'private_network', ip: '192.168.33.06'
 
