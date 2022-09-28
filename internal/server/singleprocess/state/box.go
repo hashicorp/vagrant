@@ -318,12 +318,15 @@ func (s *State) BoxFind(
 		},
 	)
 	if result.Error != nil {
+		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
+			return nil, nil
+		}
 		return nil, lookupErrorToStatus("box", result.Error)
 	}
 
 	// If we found no boxes, return a not found error
 	if len(boxes) < 1 {
-		return nil, lookupErrorToStatus("box", gorm.ErrRecordNotFound)
+		return nil, nil // lookupErrorToStatus("box", gorm.ErrRecordNotFound)
 	}
 
 	// If we have no version value set, apply the default
