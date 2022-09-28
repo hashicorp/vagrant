@@ -140,6 +140,8 @@ To install a new plugin, drop the plugin executable in one of these paths.
 
 ## Known Issues
 
+For all Vagrant-Go issues see the public [GitHub issues](https://github.com/hashicorp/vagrant/labels/vagrant-go)
+
 ### Vagrant ssh command does not work interactively
 
 The `-c` argument does work to specify a single command to run. For example:
@@ -167,13 +169,6 @@ Uninstalling Ruby Vagrant plugins does not currently work.
 
 The go plugin setup currently is built on Unix sockets. So, Vagrant-go is not expected to
 work on Windows. This will be addressed in a future release.
-
-### Secret interactive input
-
-Vagrant relies on secret interactive input to allow users to pass in SMB credentials when
-using SMB synced folders. Currently, interactive input works for Vagrant-go, however, the
-user input is not hidden. Users who wish to use SMB folders and avoid exposing their
-credentials can work around this issue by specifying the [credentials in the Vagrantfile](/docs/synced-folders/smb/)
 
 ### Concurrent Vagrant runs don’t work
 
