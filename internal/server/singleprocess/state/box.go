@@ -262,9 +262,8 @@ func (s *State) BoxPut(b *vagrant_server.Box) error {
 		return saveErrorToStatus("box", err)
 	}
 
-	result := s.db.Save(box)
-	if result.Error != nil {
-		return saveErrorToStatus("box", result.Error)
+	if err := s.upsertFull(box); err != nil {
+		return saveErrorToStatus("box", err)
 	}
 
 	return nil
@@ -304,6 +303,9 @@ func (s *State) BoxFind(
 	if _, err := version.NewVersion(b.Version); err == nil {
 		box, err := s.BoxFromProtoRefFuzzy(b)
 		if err != nil {
+			if errors.Is(err, gorm.ErrRecordNotFound) {
+				return nil, nil
+			}
 			return nil, lookupErrorToStatus("box", err)
 		}
 
@@ -360,5 +362,5 @@ func (s *State) BoxFind(
 		return match.ToProto(), nil
 	}
 
-	return nil, lookupErrorToStatus("box", gorm.ErrRecordNotFound)
+	return nil, nil // lookupErrorToStatus("box", gorm.ErrRecordNotFound)
 }

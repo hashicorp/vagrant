@@ -15,20 +15,20 @@ func init() {
 }
 
 type Project struct {
-	gorm.Model
+	Model
 
 	Basis         *Basis
-	BasisID       *uint        `gorm:"uniqueIndex:idx_bname;not null" mapstructure:"-"`
-	Vagrantfile   *Vagrantfile `mapstructure:"-"`
+	BasisID       uint         `gorm:"uniqueIndex:idx_bname" mapstructure:"-"`
+	Vagrantfile   *Vagrantfile `gorm:"OnDelete:Cascade" mapstructure:"Configuration"`
 	VagrantfileID *uint        `mapstructure:"-"`
 	DataSource    *ProtoValue
-	Jobs          []*InternalJob `gorm:"polymorphic:Scope;"`
+	Jobs          []*InternalJob `gorm:"polymorphic:Scope"`
 	Metadata      MetadataSet
-	Name          *string `gorm:"uniqueIndex:idx_bname;not null"`
-	Path          *string `gorm:"uniqueIndex;not null"`
+	Name          *string `gorm:"uniqueIndex:idx_bname,not null"`
+	Path          *string `gorm:"uniqueIndex,not null"`
 	RemoteEnabled bool
-	ResourceId    *string `gorm:"<-:create;uniqueIndex;not null"`
-	Targets       []*Target
+	ResourceId    *string   `gorm:"<-:create,uniqueIndex,not null"`
+	Targets       []*Target `gorm:"OnDelete:Cascade"`
 }
 
 func (p *Project) scope() interface{} {
@@ -49,16 +49,39 @@ func (p *Project) BeforeSave(tx *gorm.DB) error {
 	return nil
 }
 
+func (p *Project) BeforeUpdate(tx *gorm.DB) error {
+	// If a Vagrantfile was already set for the project, just update it
+	if p.Vagrantfile != nil && p.Vagrantfile.ID == 0 && p.VagrantfileID != nil {
+		var v Vagrantfile
+		result := tx.First(&v, &Vagrantfile{Model: Model{ID: *p.VagrantfileID}})
+		if result.Error != nil {
+			return result.Error
+		}
+		id := v.ID
+		if err := decode(p, &v); err != nil {
+			return err
+		}
+		v.ID = id
+		p.Vagrantfile = &v
+	}
+	return nil
+}
+
 func (p *Project) Validate(tx *gorm.DB) error {
 	err := validation.ValidateStruct(p,
-		//		validation.Field(&p.Basis, validation.Required),
+		validation.Field(&p.BasisID,
+			validation.Required.When(p.Basis == nil),
+		),
+		validation.Field(&p.Basis,
+			validation.Required.When(p.BasisID == 0),
+		),
 		validation.Field(&p.Name,
 			validation.Required,
 			validation.By(
 				checkUnique(
 					tx.Model(&Project{}).
 						Where(&Project{Name: p.Name, BasisID: p.BasisID}).
-						Not(&Project{Model: gorm.Model{ID: p.ID}}),
+						Not(&Project{Model: Model{ID: p.ID}}),
 				),
 			),
 		),
@@ -68,7 +91,7 @@ func (p *Project) Validate(tx *gorm.DB) error {
 				checkUnique(
 					tx.Model(&Project{}).
 						Where(&Project{Path: p.Path, BasisID: p.BasisID}).
-						Not(&Project{Model: gorm.Model{ID: p.ID}}),
+						Not(&Project{Model: Model{ID: p.ID}}),
 				),
 			),
 		),
@@ -78,7 +101,7 @@ func (p *Project) Validate(tx *gorm.DB) error {
 				checkUnique(
 					tx.Model(&Project{}).
 						Where(&Project{ResourceId: p.ResourceId}).
-						Not(&Project{Model: gorm.Model{ID: p.ID}}),
+						Not(&Project{Model: Model{ID: p.ID}}),
 				),
 			),
 		),
@@ -270,19 +293,8 @@ func (s *State) ProjectPut(
 		return nil, saveErrorToStatus("project", err)
 	}
 
-	// If a configuration came over the wire, either create one to attach
-	// to the project or update the existing one
-	if p.Configuration != nil {
-		if project.Vagrantfile != nil {
-			project.Vagrantfile.UpdateFromProto(p.Configuration)
-		} else {
-			project.Vagrantfile = s.VagrantfileFromProto(p.Configuration)
-		}
-	}
-
-	result := s.db.Save(project)
-	if result.Error != nil {
-		return nil, saveErrorToStatus("project", result.Error)
+	if err := s.upsertFull(project); err != nil {
+		return nil, saveErrorToStatus("project", err)
 	}
 
 	return project.ToProto(), nil

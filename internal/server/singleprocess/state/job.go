@@ -57,7 +57,7 @@ type InternalJob struct {
 
 	AssignTime          *time.Time
 	AckTime             *time.Time
-	AssignedRunnerID    uint `mapstructure:"-"`
+	AssignedRunnerID    *uint `mapstructure:"-"`
 	AssignedRunner      *Runner
 	CancelTime          *time.Time
 	CompleteTime        *time.Time
@@ -71,7 +71,7 @@ type InternalJob struct {
 	QueueTime           *time.Time
 	Result              *ProtoValue
 	Scope               scope  `gorm:"-:all"`
-	ScopeID             uint   `mapstructure:"-"`
+	ScopeID             *uint  `mapstructure:"-"`
 	ScopeType           string `mapstructure:"-"`
 	State               JobState
 	TargetRunner        *ProtoValue
@@ -94,19 +94,19 @@ func (i *InternalJob) BeforeCreate(tx *gorm.DB) error {
 // If the job has a scope assigned to it, persist it.
 func (i *InternalJob) BeforeSave(tx *gorm.DB) (err error) {
 	if i.Scope == nil {
-		i.ScopeID = 0
+		i.ScopeID = nil
 		i.ScopeType = ""
 		return nil
 	}
 	switch v := i.Scope.(type) {
 	case *Basis:
-		i.ScopeID = v.ID
+		i.ScopeID = &v.ID
 		i.ScopeType = "basis"
 	case *Project:
-		i.ScopeID = v.ID
+		i.ScopeID = &v.ID
 		i.ScopeType = "project"
 	case *Target:
-		i.ScopeID = v.ID
+		i.ScopeID = &v.ID
 		i.ScopeType = "target"
 	default:
 		return fmt.Errorf("unknown scope type (%T)", i.Scope)
@@ -117,14 +117,14 @@ func (i *InternalJob) BeforeSave(tx *gorm.DB) (err error) {
 
 // If the job has a scope, load it.
 func (i *InternalJob) AfterFind(tx *gorm.DB) (err error) {
-	if i.ScopeID == 0 {
+	if i.ScopeID == nil {
 		return nil
 	}
 	switch i.ScopeType {
 	case "basis":
 		var b Basis
 		result := tx.Preload(clause.Associations).
-			First(&b, &Basis{Model: Model{ID: i.ScopeID}})
+			First(&b, &Basis{Model: Model{ID: *i.ScopeID}})
 		if result.Error != nil {
 			return result.Error
 		}
@@ -132,7 +132,7 @@ func (i *InternalJob) AfterFind(tx *gorm.DB) (err error) {
 	case "project":
 		var p Project
 		result := tx.Preload(clause.Associations).
-			First(&p, &Project{Model: Model{ID: i.ScopeID}})
+			First(&p, &Project{Model: Model{ID: *i.ScopeID}})
 		if result.Error != nil {
 			return result.Error
 		}
@@ -140,7 +140,7 @@ func (i *InternalJob) AfterFind(tx *gorm.DB) (err error) {
 	case "target":
 		var t Target
 		result := tx.Preload(clause.Associations).
-			First(&t, &Target{Model: Model{ID: i.ScopeID}})
+			First(&t, &Target{Model: Model{ID: *i.ScopeID}})
 		if result.Error != nil {
 			return result.Error
 		}

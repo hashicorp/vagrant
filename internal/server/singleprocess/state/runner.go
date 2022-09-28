@@ -73,9 +73,8 @@ func (s *State) RunnerCreate(r *vagrant_server.Runner) error {
 		return saveErrorToStatus("runner", err)
 	}
 
-	result := s.db.Save(runner)
-	if result.Error != nil {
-		return saveErrorToStatus("runner", result.Error)
+	if err := s.upsertFull(runner); err != nil {
+		return saveErrorToStatus("runner", err)
 	}
 
 	return nil

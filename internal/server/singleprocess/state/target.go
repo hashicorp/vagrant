@@ -5,7 +5,6 @@ import (
 	"fmt"
 
 	"github.com/go-ozzo/ozzo-validation/v4"
-	"github.com/hashicorp/go-hclog"
 	"github.com/hashicorp/vagrant-plugin-sdk/proto/vagrant_plugin_sdk"
 	"github.com/hashicorp/vagrant/internal/server"
 	"github.com/hashicorp/vagrant/internal/server/proto/vagrant_server"
@@ -17,23 +16,22 @@ func init() {
 }
 
 type Target struct {
-	gorm.Model
+	Model
 
-	Configuration *ProtoRaw
+	Configuration *ProtoValue
 	Jobs          []*InternalJob `gorm:"polymorphic:Scope;" mapstructure:"-"`
 	Metadata      MetadataSet
 	Name          *string `gorm:"uniqueIndex:idx_pname;not null"`
 	Parent        *Target `gorm:"foreignkey:ID"`
-	ParentID      uint    `mapstructure:"-"`
+	ParentID      *uint   `mapstructure:"-"`
 	Project       *Project
-	ProjectID     *uint `gorm:"uniqueIndex:idx_pname;not null" mapstructure:"-"`
+	ProjectID     uint `gorm:"uniqueIndex:idx_pname" mapstructure:"-"`
 	Provider      *string
-	Record        *ProtoRaw
+	Record        *ProtoValue
 	ResourceId    *string `gorm:"<-:create;uniqueIndex;not null"`
 	State         vagrant_server.Operation_PhysicalState
 	Subtargets    []*Target `gorm:"foreignkey:ParentID"`
 	Uuid          *string   `gorm:"uniqueIndex"`
-	l             hclog.Logger
 }
 
 func (t *Target) scope() interface{} {
@@ -63,7 +61,7 @@ func (t *Target) validate(tx *gorm.DB) error {
 				checkUnique(
 					tx.Model(&Target{}).
 						Where(&Target{Name: t.Name, ProjectID: t.ProjectID}).
-						Not(&Target{Model: gorm.Model{ID: t.ID}}),
+						Not(&Target{Model: Model{ID: t.ID}}),
 				),
 			),
 		),
@@ -73,7 +71,7 @@ func (t *Target) validate(tx *gorm.DB) error {
 				checkUnique(
 					tx.Model(&Target{}).
 						Where(&Target{ResourceId: t.ResourceId}).
-						Not(&Target{Model: gorm.Model{ID: t.ID}}),
+						Not(&Target{Model: Model{ID: t.ID}}),
 				),
 			),
 		),
@@ -83,12 +81,17 @@ func (t *Target) validate(tx *gorm.DB) error {
 					checkUnique(
 						tx.Model(&Target{}).
 							Where(&Target{Uuid: t.Uuid}).
-							Not(&Target{Model: gorm.Model{ID: t.ID}}),
+							Not(&Target{Model: Model{ID: t.ID}}),
 					),
 				),
 			),
 		),
-		// validation.Field(&t.ProjectID, validation.Required), TODO(spox): why are these empty?
+		validation.Field(&t.ProjectID,
+			validation.Required.When(t.Project == nil),
+		),
+		validation.Field(&t.Project,
+			validation.Required.When(t.ProjectID == 0),
+		),
 	)
 
 	if err != nil {
@@ -221,30 +224,33 @@ func (s *State) TargetFromProtoFuzzy(
 		return nil, err
 	}
 
-	if t.Project == nil {
+	if t.Uuid == "" && t.Name == "" {
+		return nil, gorm.ErrRecordNotFound
+	}
+
+	if t.Project == nil && t.Uuid == "" {
 		return nil, ErrMissingProtoParent
 	}
 
 	target = &Target{}
-	query := &Target{Name: &t.Name}
-	tx := s.db.
-		Preload("Project",
-			s.db.Where(
-				&Project{ResourceId: &t.Project.ResourceId},
-			),
-		)
-	if t.Name != "" {
-		query.Name = &t.Name
-	}
-	if t.Uuid != "" {
-		query.Uuid = &t.Uuid
-		tx = tx.Or("uuid LIKE ?", fmt.Sprintf("%%%s%%", t.Uuid))
+	if t.Project != nil {
+		tx := s.search().
+			Joins("Project").
+			Preload("Project.Basis").
+			Where("Project.resource_id = ?", t.Project.ResourceId)
+
+		result := tx.First(target, &Target{Name: &t.Name})
+		if result.Error != nil {
+			return nil, result.Error
+		}
+
+		return target, nil
 	}
 
-	result := s.search().Joins("Project").
-		Preload("Project.Basis").
-		Where("Project.resource_id = ?", t.Project.ResourceId).
-		First(target, query)
+	tx := s.search().Preload("Project.Basis").
+		Where("uuid LIKE ?", fmt.Sprintf("%%%s%%", t.Uuid))
+
+	result := tx.First(target)
 	if result.Error != nil {
 		return nil, result.Error
 	}
@@ -305,7 +311,7 @@ func (s *State) TargetDelete(
 func (s *State) TargetPut(
 	t *vagrant_server.Target,
 ) (*vagrant_server.Target, error) {
-	target, err := s.TargetFromProto(t)
+	target, err := s.TargetFromProtoFuzzy(t)
 	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
 		return nil, lookupErrorToStatus("target", err)
 	}
@@ -315,23 +321,17 @@ func (s *State) TargetPut(
 		target = &Target{}
 	}
 
-	s.log.Info("pre-decode our target project", "project", target.Project)
-
 	err = s.softDecode(t, target)
 	if err != nil {
 		return nil, saveErrorToStatus("target", err)
 	}
 
-	s.log.Info("post-decode our target project", "project", target.Project)
-
 	if target.Project == nil {
-		panic("stop")
+		return nil, saveErrorToStatus("target", ErrMissingProtoParent)
 	}
-	result := s.db.Save(target)
 
-	s.log.Info("after save target project status", "project", target.Project, "error", err)
-	if result.Error != nil {
-		return nil, saveErrorToStatus("target", result.Error)
+	if err := s.upsertFull(target); err != nil {
+		return nil, saveErrorToStatus("target", err)
 	}
 
 	return target.ToProto(), nil

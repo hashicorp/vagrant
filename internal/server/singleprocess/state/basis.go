@@ -21,18 +21,18 @@ type scope interface {
 }
 
 type Basis struct {
-	gorm.Model
+	Model
 
-	Vagrantfile   *Vagrantfile `mapstructure:"-"`
-	VagrantfileID uint         `mapstructure:"-"`
+	Vagrantfile   *Vagrantfile `mapstructure:"Configuration" gorm:"OnDelete:Cascade"`
+	VagrantfileID *uint        `mapstructure:"-"`
 	DataSource    *ProtoValue
-	Jobs          []*InternalJob `gorm:"polymorphic:Scope;" mapstructure:"-"`
+	Jobs          []*InternalJob `gorm:"polymorphic:Scope" mapstructure:"-"`
 	Metadata      MetadataSet
 	Name          *string `gorm:"uniqueIndex,not null"`
 	Path          *string `gorm:"uniqueIndex,not null"`
 	Projects      []*Project
 	RemoteEnabled bool
-	ResourceId    *string `gorm:"<-:create;uniqueIndex;not null"`
+	ResourceId    *string `gorm:"<-:create,uniqueIndex,not null"`
 }
 
 func (b *Basis) scope() interface{} {
@@ -65,7 +65,7 @@ func (b *Basis) Validate(tx *gorm.DB) error {
 				checkUnique(
 					tx.Model(&Basis{}).
 						Where(&Basis{Name: b.Name}).
-						Not(&Basis{Model: gorm.Model{ID: b.ID}}),
+						Not(&Basis{Model: Model{ID: b.ID}}),
 				),
 			),
 		),
@@ -75,7 +75,7 @@ func (b *Basis) Validate(tx *gorm.DB) error {
 				checkUnique(
 					tx.Model(&Basis{}).
 						Where(&Basis{Path: b.Path}).
-						Not(&Basis{Model: gorm.Model{ID: b.ID}}),
+						Not(&Basis{Model: Model{ID: b.ID}}),
 				),
 			),
 		),
@@ -85,7 +85,7 @@ func (b *Basis) Validate(tx *gorm.DB) error {
 				checkUnique(
 					tx.Model(&Basis{}).
 						Where(&Basis{ResourceId: b.ResourceId}).
-						Not(&Basis{Model: gorm.Model{ID: b.ID}}),
+						Not(&Basis{Model: Model{ID: b.ID}}),
 				),
 			),
 		),
@@ -285,17 +285,8 @@ func (s *State) BasisPut(
 		return nil, saveErrorToStatus("basis", err)
 	}
 
-	if b.Configuration != nil {
-		if basis.Vagrantfile != nil {
-			basis.Vagrantfile.UpdateFromProto(b.Configuration)
-		} else {
-			basis.Vagrantfile = s.VagrantfileFromProto(b.Configuration)
-		}
-	}
-
-	result := s.db.Save(basis)
-	if result.Error != nil {
-		return nil, saveErrorToStatus("basis", result.Error)
+	if err := s.upsertFull(basis); err != nil {
+		return nil, saveErrorToStatus("basis", err)
 	}
 
 	return basis.ToProto(), nil
