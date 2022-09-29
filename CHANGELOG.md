@@ -1,3 +1,13 @@
+## 2.3.2 (Unreleased)
+
+FEATURES:
+
+IMPROVEMENTS:
+
+BUG FIXES:
+
+VAGRANT-GO:
+
 ## 2.3.1 (September 29, 2022)
 
 IMPROVEMENTS:
