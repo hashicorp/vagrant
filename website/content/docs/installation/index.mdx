@@ -8,12 +8,12 @@ description: |-
 
 # Install Vagrant
 
-To get started with Vagrant, you will need to download the appropriate installer or
+To get started with Vagrant, download the appropriate installer or
 package for your platform from our
 [Vagrant downloads page](/downloads). Install the package with the standard procedures for
 your operating system.
 
-The installer should automatically add `vagrant` to your system path
+The installer automatically adds `vagrant` to your system path
 so that it is available in terminals. If it is not found,
 log out and back into your system; this is a common issue for Windows.
 
@@ -30,7 +30,7 @@ a [box](https://developer.hashicorp.com/vagrant/tutorials/getting-started/gettin
 
 ## How to use multiple hypervisors
 
-If you have more than one hypervisor is in use, hypervisors often do not allow you to bring up virtual machines. 
+Hypervisors often do not allow you to bring up virtual machines if you have more than one hypervisor in use.
 
 Below are a couple of examples to allow you
 to use Vagrant and VirtualBox if another hypervisor is present.
@@ -50,7 +50,7 @@ VBoxManage: error: VirtualBox can't operate in VMX root mode. Please disable the
 VBoxManage: error: Details: code NS_ERROR_FAILURE (0x80004005), component ConsoleWrap, interface IConsole
 ```
 
-You must denylist the additional hypervisors in order for VirtualBox to run correctly.
+You must add the additional hypervisors to the deny list in order for VirtualBox to run correctly.
 
 First, find out the name of the hypervisor.
 
@@ -61,7 +61,7 @@ kvm                   593920  1 kvm_intel
 irqbypass              16384  1 kvm
 ```
 
-Use the `blacklist` command to add the hypervisor to you denylist.
+Use the `blacklist` command to add the hypervisor to your denylist.
 
 ```shell-session
 $ echo 'blacklist kvm-intel' >> /etc/modprobe.d/blacklist.conf
