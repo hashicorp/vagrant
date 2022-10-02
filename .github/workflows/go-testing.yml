@@ -20,6 +20,9 @@ on:
       - 'go.mod'
       - 'go.sum'
 
+permissions:
+  contents: read
+
 jobs:
   unit-tests-go:
     runs-on: ubuntu-18.04

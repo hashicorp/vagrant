@@ -13,6 +13,9 @@ on:
   # Allows manual trigger on arbitrary branches via GitHub UI/API
   workflow_dispatch:
 
+permissions:
+  contents: read
+
 jobs:
   vagrant-spec-tests:
     runs-on: ubuntu-18.04

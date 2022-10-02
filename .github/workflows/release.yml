@@ -7,6 +7,9 @@ on:
       - 'CHANGELOG.md'
       - 'website/**'
 
+permissions:
+  contents: read
+
 jobs:
   trigger-release:
     name: Trigger Installers Build

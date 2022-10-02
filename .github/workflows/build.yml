@@ -6,6 +6,9 @@ on:
       - 'CHANGELOG.md'
       - 'website/**'
 
+permissions:
+  contents: read
+
 jobs:
   build-gem:
     if: github.repository == 'hashicorp/vagrant'

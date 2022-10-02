@@ -7,6 +7,9 @@ on:
     # Run nightly on weekdays at 05:00 UTC or midnight-ish in US time zones
     - cron: '0 5 * * 1-5'
 
+permissions:
+  contents: read
+
 jobs:
   setup-packet:
     if: github.repository == 'hashicorp/vagrant-acceptance'

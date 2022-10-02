@@ -25,6 +25,9 @@ on:
       - 'vagrant.gemspec'
       - 'Rakefile'
 
+permissions:
+  contents: read
+
 jobs:
   unit-tests-ruby:
     runs-on: ubuntu-18.04

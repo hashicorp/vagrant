@@ -7,6 +7,9 @@ on:
       - closed
       - labeled
 
+permissions:
+  contents: read
+
 jobs:
   backport:
     if: github.event.pull_request.merged

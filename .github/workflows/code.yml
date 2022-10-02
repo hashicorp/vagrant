@@ -4,6 +4,9 @@ on:
       - 'main'
       - 'spec-test-*'
 
+permissions:
+  contents: read
+
 jobs:
   sync-acceptance:
     if: github.repository == 'hashicorp/vagrant'
