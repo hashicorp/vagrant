@@ -1,37 +1,36 @@
+Set-StrictMode -Version Latest
+$ErrorActionPreference = 'Stop'
+
 # The names of the user are language dependent!
 $objSID = New-Object System.Security.Principal.SecurityIdentifier("S-1-1-0")
 $objUser = $objSID.Translate([System.Security.Principal.NTAccount])
 
-$grant = "$objUser,Full"
-
-for ($i=0; $i -le $args.length; $i = $i + 3) {
+for ($i = 0; ($i+2) -lt $args.length; $i = $i + 3) {
     $path = $args[$i]
     $share_name = $args[$i+1]
     $share_id = $args[$i+2]
 
-
-    if ($path -eq $null) {
-        Write-Warning "empty path argument encountered - complete"
-        exit 0
+    if (!$path) {
+        Write-Error "error - no share path provided"
+        exit 1
     }
 
-    if ($share_name -eq $null) {
+    if (!$share_name) {
         Write-Output "share path: ${path}"
         Write-Error "error - no share name provided"
         exit 1
     }
 
-    if ($share_id -eq $null) {
+    if (!$share_id) {
         Write-Output "share path: ${path}"
         Write-Error "error - no share ID provided"
         exit 1
     }
 
-    $result = net share $share_id=$path /unlimited /GRANT:$grant /REMARK:"${share_name}"
-    if ($LastExitCode -ne 0) {
-        $host.ui.WriteLine("share path: ${path}")
-        $host.ui.WriteErrorLine("error ${result}")
-        exit 1
-    }
+    New-SmbShare `
+        -Name $share_id `
+        -Path $path `
+        -FullAccess $objUser `
+        -Description $share_name
 }
 exit 0

@@ -52,9 +52,8 @@ module VagrantPlugins
 
           if prune_shares.size > 0
             machine.env.ui.warn("\n" + I18n.t("vagrant_sf_smb.uac.prune_warning") + "\n")
-            sleep UAC_PROMPT_WAIT
             @@logger.info("remove shares: #{prune_shares}")
-            result = Vagrant::Util::PowerShell.execute(script_path, *prune_shares, sudo: true)
+            result = Vagrant::Util::PowerShell.execute(script_path, *prune_shares, sudo: false)
             if result.exit_code != 0
               failed_name = result.stdout.to_s.sub("share name: ", "")
               raise SyncedFolderSMB::Errors::PruneShareFailed,
@@ -100,14 +99,8 @@ module VagrantPlugins
             ]
           end
           if !shares.empty?
-            uac_notified = false
             shares.each_slice(10) do |s_shares|
-              if !uac_notified
-                machine.env.ui.warn("\n" + I18n.t("vagrant_sf_smb.uac.create_warning") + "\n")
-                uac_notified = true
-                sleep(UAC_PROMPT_WAIT)
-              end
-              result = Vagrant::Util::PowerShell.execute(script_path, *s_shares, sudo: true)
+              result = Vagrant::Util::PowerShell.execute(script_path, *s_shares, sudo: false)
               if result.exit_code != 0
                 share_path = result.stdout.to_s.sub("share path: ", "")
                 raise SyncedFolderSMB::Errors::DefineShareFailed,
