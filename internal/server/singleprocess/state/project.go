@@ -8,6 +8,7 @@ import (
 	"github.com/hashicorp/vagrant/internal/server"
 	"github.com/hashicorp/vagrant/internal/server/proto/vagrant_server"
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 )
 
 func init() {
@@ -17,27 +18,72 @@ func init() {
 type Project struct {
 	Model
 
-	Basis         *Basis
+	Basis         *Basis       `gorm:"constraint:OnDelete:SET NULL"`
 	BasisID       uint         `gorm:"uniqueIndex:idx_bname" mapstructure:"-"`
-	Vagrantfile   *Vagrantfile `gorm:"OnDelete:Cascade" mapstructure:"Configuration"`
-	VagrantfileID *uint        `mapstructure:"-"`
+	Vagrantfile   *Vagrantfile `gorm:"constraint:OnDelete:SET NULL" mapstructure:"Configuration"`
+	VagrantfileID *uint        `mapstructure:"-" gorm:"constraint:OnDelete:SET NULL"`
 	DataSource    *ProtoValue
 	Jobs          []*InternalJob `gorm:"polymorphic:Scope"`
 	Metadata      MetadataSet
-	Name          *string `gorm:"uniqueIndex:idx_bname,not null"`
-	Path          *string `gorm:"uniqueIndex,not null"`
+	Name          string `gorm:"uniqueIndex:idx_bname,not null"`
+	Path          string `gorm:"uniqueIndex,not null"`
 	RemoteEnabled bool
-	ResourceId    *string   `gorm:"<-:create,uniqueIndex,not null"`
-	Targets       []*Target `gorm:"OnDelete:Cascade"`
+	ResourceId    string `gorm:"<-:create,uniqueIndex,not null"`
+	Targets       []*Target
 }
 
 func (p *Project) scope() interface{} {
 	return p
 }
 
+func (p *Project) find(db *gorm.DB) (*Project, error) {
+	var project Project
+	result := db.Preload(clause.Associations).
+		Where(&Project{ResourceId: p.ResourceId}).
+		Or(&Project{BasisID: p.BasisID, Name: p.Name}).
+		Or(&Project{BasisID: p.BasisID, Path: p.Path}).
+		Or(&Project{Model: Model{ID: p.ID}}).
+		First(&project)
+	if result.Error != nil {
+		return nil, result.Error
+	}
+
+	return &project, nil
+}
+
+// Use before delete hook to remove all assocations
+func (p *Project) BeforeDelete(tx *gorm.DB) error {
+	project, err := p.find(tx)
+	if err != nil {
+		return err
+	}
+
+	if project.VagrantfileID != nil {
+		result := tx.Where(&Vagrantfile{Model: Model{ID: *project.VagrantfileID}}).
+			Delete(&Vagrantfile{})
+		if result.Error != nil {
+			return result.Error
+		}
+	}
+
+	if len(project.Targets) > 0 {
+		if result := tx.Delete(project.Targets); result.Error != nil {
+			return result.Error
+		}
+	}
+
+	if len(project.Jobs) > 0 {
+		if result := tx.Delete(project.Jobs); result.Error != nil {
+			return result.Error
+		}
+	}
+
+	return nil
+}
+
 // Set a public ID on the project before creating
 func (p *Project) BeforeSave(tx *gorm.DB) error {
-	if p.ResourceId == nil {
+	if p.ResourceId == "" {
 		if err := p.setId(); err != nil {
 			return err
 		}
@@ -58,17 +104,37 @@ func (p *Project) BeforeUpdate(tx *gorm.DB) error {
 			return result.Error
 		}
 		id := v.ID
-		if err := decode(p, &v); err != nil {
+		if err := decode(p.Vagrantfile, &v); err != nil {
 			return err
 		}
 		v.ID = id
 		p.Vagrantfile = &v
+
+		// NOTE: Just updating the value doesn't save the changes so
+		//       save the changes in this transaction
+		if result := tx.Save(&v); result.Error != nil {
+			return result.Error
+		}
 	}
 	return nil
 }
 
 func (p *Project) Validate(tx *gorm.DB) error {
-	err := validation.ValidateStruct(p,
+	existing, err := p.find(tx)
+	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
+		return err
+	}
+
+	if existing == nil {
+		existing = &Project{}
+	}
+
+	basisID := p.BasisID
+	if p.Basis != nil {
+		basisID = p.Basis.ID
+	}
+
+	err = validation.ValidateStruct(p,
 		validation.Field(&p.BasisID,
 			validation.Required.When(p.Basis == nil),
 		),
@@ -80,7 +146,7 @@ func (p *Project) Validate(tx *gorm.DB) error {
 			validation.By(
 				checkUnique(
 					tx.Model(&Project{}).
-						Where(&Project{Name: p.Name, BasisID: p.BasisID}).
+						Where(&Project{Name: p.Name, BasisID: basisID}).
 						Not(&Project{Model: Model{ID: p.ID}}),
 				),
 			),
@@ -90,7 +156,7 @@ func (p *Project) Validate(tx *gorm.DB) error {
 			validation.By(
 				checkUnique(
 					tx.Model(&Project{}).
-						Where(&Project{Path: p.Path, BasisID: p.BasisID}).
+						Where(&Project{Path: p.Path, BasisID: basisID}).
 						Not(&Project{Model: Model{ID: p.ID}}),
 				),
 			),
@@ -102,6 +168,14 @@ func (p *Project) Validate(tx *gorm.DB) error {
 					tx.Model(&Project{}).
 						Where(&Project{ResourceId: p.ResourceId}).
 						Not(&Project{Model: Model{ID: p.ID}}),
+				),
+			),
+			validation.When(
+				p.ID != 0,
+				validation.By(
+					checkNotModified(
+						existing.ResourceId,
+					),
 				),
 			),
 		),
@@ -119,7 +193,7 @@ func (p *Project) setId() error {
 	if err != nil {
 		return err
 	}
-	p.ResourceId = &id
+	p.ResourceId = id
 
 	return nil
 }
@@ -173,7 +247,7 @@ func (s *State) ProjectFromProtoRef(
 
 	var project Project
 	result := s.search().First(&project,
-		&Project{ResourceId: &ref.ResourceId})
+		&Project{ResourceId: ref.ResourceId})
 	if result.Error != nil {
 		return nil, result.Error
 	}
@@ -201,14 +275,14 @@ func (s *State) ProjectFromProtoRefFuzzy(
 	query := &Project{}
 
 	if ref.Name != "" {
-		query.Name = &ref.Name
+		query.Name = ref.Name
 	}
 	if ref.Path != "" {
-		query.Path = &ref.Path
+		query.Path = ref.Path
 	}
 
 	result := s.search().
-		Joins("Basis", &Basis{ResourceId: &ref.Basis.ResourceId}).
+		Joins("Basis", &Basis{ResourceId: ref.Basis.ResourceId}).
 		Where(query).
 		First(project)
 

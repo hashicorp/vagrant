@@ -8,6 +8,7 @@ import (
 	"github.com/hashicorp/vagrant/internal/server"
 	"github.com/hashicorp/vagrant/internal/server/proto/vagrant_server"
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 )
 
 func init() {
@@ -23,16 +24,32 @@ type scope interface {
 type Basis struct {
 	Model
 
-	Vagrantfile   *Vagrantfile `mapstructure:"Configuration" gorm:"OnDelete:Cascade"`
+	Vagrantfile   *Vagrantfile `gorm:"constraint:OnDelete:SET NULL" mapstructure:"Configuration"`
 	VagrantfileID *uint        `mapstructure:"-"`
 	DataSource    *ProtoValue
 	Jobs          []*InternalJob `gorm:"polymorphic:Scope" mapstructure:"-"`
 	Metadata      MetadataSet
-	Name          *string `gorm:"uniqueIndex,not null"`
-	Path          *string `gorm:"uniqueIndex,not null"`
-	Projects      []*Project
+	Name          string     `gorm:"uniqueIndex,not null"`
+	Path          string     `gorm:"uniqueIndex,not null"`
+	Projects      []*Project `gorm:"constraint:OnDelete:SET NULL"`
 	RemoteEnabled bool
-	ResourceId    *string `gorm:"<-:create,uniqueIndex,not null"`
+	ResourceId    string `gorm:"uniqueIndex,not null"` // TODO(spox): readonly permission not working as expected
+}
+
+// Returns a fully populated instance of the current basis
+func (b *Basis) find(db *gorm.DB) (*Basis, error) {
+	var basis Basis
+	result := db.Preload(clause.Associations).
+		Where(&Basis{ResourceId: b.ResourceId}).
+		Or(&Basis{Name: b.Name}).
+		Or(&Basis{Path: b.Path}).
+		Or(&Basis{Model: Model{ID: b.ID}}).
+		First(&basis)
+	if result.Error != nil {
+		return nil, result.Error
+	}
+
+	return &basis, nil
 }
 
 func (b *Basis) scope() interface{} {
@@ -44,8 +61,40 @@ func (Basis) TableName() string {
 	return "basis"
 }
 
+// Use before delete hook to remove all assocations
+func (b *Basis) BeforeDelete(tx *gorm.DB) error {
+	basis, err := b.find(tx)
+	if err != nil {
+		return err
+	}
+
+	// If Vagrantfile is attached, delete it
+	if basis.VagrantfileID != nil {
+		result := tx.Where(&Vagrantfile{Model: Model{ID: *basis.VagrantfileID}}).
+			Delete(&Vagrantfile{})
+		if result.Error != nil {
+			return result.Error
+		}
+	}
+
+	if len(basis.Projects) > 0 {
+		if result := tx.Delete(basis.Projects); result.Error != nil {
+			return result.Error
+		}
+	}
+
+	if len(basis.Jobs) > 0 {
+		result := tx.Delete(basis.Jobs)
+		if result.Error != nil {
+			return result.Error
+		}
+	}
+
+	return nil
+}
+
 func (b *Basis) BeforeSave(tx *gorm.DB) error {
-	if b.ResourceId == nil {
+	if b.ResourceId == "" {
 		if err := b.setId(); err != nil {
 			return err
 		}
@@ -57,8 +106,44 @@ func (b *Basis) BeforeSave(tx *gorm.DB) error {
 	return nil
 }
 
+func (b *Basis) BeforeUpdate(tx *gorm.DB) error {
+	// If a Vagrantfile was already set for the basis, just update it
+	if b.Vagrantfile != nil && b.Vagrantfile.ID == 0 && b.VagrantfileID != nil {
+		var v Vagrantfile
+		result := tx.First(&v, &Vagrantfile{Model: Model{ID: *b.VagrantfileID}})
+		if result.Error != nil {
+			return result.Error
+		}
+		id := v.ID
+		if err := decode(b.Vagrantfile, &v); err != nil {
+			return err
+		}
+		v.ID = id
+		b.Vagrantfile = &v
+
+		// NOTE: Just updating the value doesn't save the changes so
+		//       save the changes in this transaction
+		if result := tx.Save(&v); result.Error != nil {
+			return result.Error
+		}
+	}
+	return nil
+}
+
 func (b *Basis) Validate(tx *gorm.DB) error {
-	err := validation.ValidateStruct(b,
+	// NOTE: We should be able to use `tx.Statement.Changed("ResourceId")`
+	//       for change detection but it doesn't appear to be set correctly
+	//       so we don't get any notice of change (maybe because it's a pointer?)
+	existing, err := b.find(tx)
+	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
+		return err
+	}
+
+	if existing == nil {
+		existing = &Basis{}
+	}
+
+	err = validation.ValidateStruct(b,
 		validation.Field(&b.Name,
 			validation.Required,
 			validation.By(
@@ -88,6 +173,14 @@ func (b *Basis) Validate(tx *gorm.DB) error {
 						Not(&Basis{Model: Model{ID: b.ID}}),
 				),
 			),
+			validation.When(
+				b.ID != 0,
+				validation.By(
+					checkNotModified(
+						existing.ResourceId,
+					),
+				),
+			),
 		),
 	)
 
@@ -103,7 +196,7 @@ func (b *Basis) setId() error {
 	if err != nil {
 		return err
 	}
-	b.ResourceId = &id
+	b.ResourceId = id
 
 	return nil
 }
@@ -199,7 +292,7 @@ func (s *State) BasisFromProtoRef(
 	}
 
 	var basis Basis
-	result := s.search().First(&basis, &Basis{ResourceId: &ref.ResourceId})
+	result := s.search().First(&basis, &Basis{ResourceId: ref.ResourceId})
 	if result.Error != nil {
 		return nil, result.Error
 	}
@@ -228,10 +321,10 @@ func (s *State) BasisFromProtoRefFuzzy(
 	query := &Basis{}
 
 	if ref.Name != "" {
-		query.Name = &ref.Name
+		query.Name = ref.Name
 	}
 	if ref.Path != "" {
-		query.Path = &ref.Path
+		query.Path = ref.Path
 	}
 
 	result := s.search().First(basis, query)

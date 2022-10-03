@@ -8,7 +8,177 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestBox(t *testing.T) {
+func TestBox_Create(t *testing.T) {
+	t.Run("Requires directory, name, provider", func(t *testing.T) {
+		require, db := requireAndDB(t)
+
+		result := db.Save(&Box{})
+		require.Error(result.Error)
+		require.ErrorContains(result.Error, "Directory:")
+		require.ErrorContains(result.Error, "Name:")
+		require.ErrorContains(result.Error, "Provider:")
+	})
+
+	t.Run("Requires directory", func(t *testing.T) {
+		require, db := requireAndDB(t)
+
+		result := db.Save(&Box{Name: "default", Provider: "virt"})
+		require.Error(result.Error)
+		require.ErrorContains(result.Error, "Directory:")
+	})
+
+	t.Run("Requires name", func(t *testing.T) {
+		require, db := requireAndDB(t)
+
+		result := db.Save(&Box{Provider: "virt", Directory: "/dev/null"})
+		require.Error(result.Error)
+		require.ErrorContains(result.Error, "Name:")
+	})
+
+	t.Run("Requires provider", func(t *testing.T) {
+		require, db := requireAndDB(t)
+
+		result := db.Save(&Box{Name: "default", Directory: "/dev/null"})
+		require.Error(result.Error)
+		require.ErrorContains(result.Error, "Provider:")
+	})
+
+	t.Run("Sets the ResourceId", func(t *testing.T) {
+		require, db := requireAndDB(t)
+
+		result := db.Save(&Box{
+			Name:      "default",
+			Directory: "/dev/null",
+			Provider:  "virt",
+		})
+		require.NoError(result.Error)
+		var box Box
+		result = db.First(&box, &Box{Name: "default"})
+		require.NoError(result.Error)
+		require.NotEmpty(box.ResourceId)
+	})
+
+	t.Run("Defaults version when not set", func(t *testing.T) {
+		require, db := requireAndDB(t)
+
+		result := db.Save(&Box{
+			Name:      "default",
+			Directory: "/dev/null",
+			Provider:  "virt",
+		})
+		require.NoError(result.Error)
+		var box Box
+		result = db.First(&box, &Box{Name: "default"})
+		require.NoError(result.Error)
+		require.Equal(DEFAULT_BOX_VERSION, box.Version)
+	})
+
+	t.Run("Defaults version when set to 0", func(t *testing.T) {
+		require, db := requireAndDB(t)
+
+		result := db.Save(&Box{
+			Name:      "default",
+			Directory: "/dev/null",
+			Provider:  "virt",
+			Version:   "0",
+		})
+		require.NoError(result.Error)
+		var box Box
+		result = db.First(&box, &Box{Name: "default"})
+		require.NoError(result.Error)
+		require.Equal(DEFAULT_BOX_VERSION, box.Version)
+	})
+
+	t.Run("Requires version to be semver", func(t *testing.T) {
+		require, db := requireAndDB(t)
+
+		box := &Box{
+			Name:      "default",
+			Directory: "/dev/null",
+			Provider:  "virt",
+			Version:   "0.a",
+		}
+
+		result := db.Save(box)
+		require.Error(result.Error)
+		require.ErrorContains(result.Error, "Version:")
+
+		box.Version = "string"
+		result = db.Save(box)
+		require.Error(result.Error)
+		require.ErrorContains(result.Error, "Version:")
+
+		box.Version = "a0.1.2"
+		result = db.Save(box)
+		require.Error(result.Error)
+		require.ErrorContains(result.Error, "Version:")
+	})
+
+	t.Run("Does not allow duplicates", func(t *testing.T) {
+		require, db := requireAndDB(t)
+
+		result := db.Save(&Box{
+			Name:      "default",
+			Directory: "/dev/null",
+			Provider:  "virt",
+			Version:   "1.0.0",
+		})
+		require.NoError(result.Error)
+
+		result = db.Save(&Box{
+			Name:      "default",
+			Directory: "/dev/null/other",
+			Provider:  "virt",
+			Version:   "1.0.0",
+		})
+		require.Error(result.Error)
+		require.ErrorContains(result.Error, "name")
+		require.ErrorContains(result.Error, "provider")
+		require.ErrorContains(result.Error, "version")
+	})
+
+	t.Run("Allows multiple versions", func(t *testing.T) {
+		require, db := requireAndDB(t)
+
+		result := db.Save(&Box{
+			Name:      "default",
+			Directory: "/dev/null",
+			Provider:  "virt",
+			Version:   "1.0.0",
+		})
+		require.NoError(result.Error)
+
+		result = db.Save(&Box{
+			Name:      "default",
+			Directory: "/dev/null/other",
+			Provider:  "virt",
+			Version:   "1.0.1",
+		})
+		require.NoError(result.Error)
+	})
+
+	t.Run("Allows multiple providers", func(t *testing.T) {
+		require, db := requireAndDB(t)
+
+		result := db.Save(&Box{
+			Name:      "default",
+			Directory: "/dev/null",
+			Provider:  "virt",
+			Version:   "1.0.0",
+		})
+		require.NoError(result.Error)
+
+		result = db.Save(&Box{
+			Name:      "default",
+			Directory: "/dev/null/other",
+			Provider:  "virtz",
+			Version:   "1.0.0",
+		})
+		require.NoError(result.Error)
+	})
+}
+
+func TestBox_State(t *testing.T) {
 	t.Run("Get returns error if not exist", func(t *testing.T) {
 		require := require.New(t)
 
@@ -200,7 +370,7 @@ func TestBox(t *testing.T) {
 			Version:  "1.2.3",
 			Provider: "dontexist",
 		})
-		require.Error(err)
+		require.NoError(err)
 		require.Nil(b4)
 
 		b5, err := s.BoxFind(&vagrant_plugin_sdk.Ref_Box{
@@ -208,7 +378,7 @@ func TestBox(t *testing.T) {
 			Version:  "9.9.9",
 			Provider: "virtualbox",
 		})
-		require.Error(err)
+		require.NoError(err)
 		require.Nil(b5)
 
 		b6, err := s.BoxFind(&vagrant_plugin_sdk.Ref_Box{

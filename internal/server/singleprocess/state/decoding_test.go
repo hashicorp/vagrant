@@ -25,7 +25,7 @@ func TestSoftDecode(t *testing.T) {
 		s := TestState(t)
 		defer s.Close()
 
-		pref := testProject(t, s)
+		pref := testProjectProto(t, s)
 		tproto := &vagrant_server.Target{
 			Project: pref,
 		}
@@ -35,6 +35,6 @@ func TestSoftDecode(t *testing.T) {
 
 		require.NoError(err)
 		require.NotNil(target.Project)
-		require.Equal(*target.Project.ResourceId, tproto.Project.ResourceId)
+		require.Equal(target.Project.ResourceId, tproto.Project.ResourceId)
 	})
 }

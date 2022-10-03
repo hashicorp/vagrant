@@ -15,7 +15,7 @@ func TestConfig(t *testing.T) {
 
 		s := TestState(t)
 		defer s.Close()
-		projRef := testProject(t, s)
+		projRef := testProjectProto(t, s)
 
 		// Create a build
 		require.NoError(s.ConfigSet(&vagrant_server.ConfigVar{
@@ -73,7 +73,7 @@ func TestConfig(t *testing.T) {
 		s := TestState(t)
 		defer s.Close()
 
-		projRef := testProject(t, s)
+		projRef := testProjectProto(t, s)
 
 		// Create a build
 		require.NoError(s.ConfigSet(
@@ -129,7 +129,7 @@ func TestConfig(t *testing.T) {
 		s := TestState(t)
 		defer s.Close()
 
-		projRef := testProject(t, s)
+		projRef := testProjectProto(t, s)
 
 		// Create a var
 		require.NoError(s.ConfigSet(&vagrant_server.ConfigVar{
@@ -184,7 +184,7 @@ func TestConfig(t *testing.T) {
 		s := TestState(t)
 		defer s.Close()
 
-		projRef := testProject(t, s)
+		projRef := testProjectProto(t, s)
 
 		// Create the config
 		require.NoError(s.ConfigSet(&vagrant_server.ConfigVar{
@@ -256,7 +256,7 @@ func TestConfig(t *testing.T) {
 		s := TestState(t)
 		defer s.Close()
 
-		projRef := testProject(t, s)
+		projRef := testProjectProto(t, s)
 
 		// Create the config
 		require.NoError(s.ConfigSet(&vagrant_server.ConfigVar{
@@ -369,7 +369,7 @@ func TestConfigWatch(t *testing.T) {
 		s := TestState(t)
 		defer s.Close()
 
-		projRef := testProject(t, s)
+		projRef := testProjectProto(t, s)
 
 		ws := memdb.NewWatchSet()
 

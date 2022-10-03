@@ -89,6 +89,10 @@ func testDB(t testing.T) *gorm.DB {
 	db, err := gorm.Open(sqlite.Open(""), &gorm.Config{
 		Logger: logger.Default.LogMode(logger.Silent),
 	})
+	db.Exec("PRAGMA foreign_keys = ON")
+	if err != nil {
+		panic("failed to enable foreign key constraints: " + err.Error())
+	}
 
 	require.NoError(t, err)
 	t.Cleanup(func() {
@@ -101,42 +105,58 @@ func testDB(t testing.T) *gorm.DB {
 	return db
 }
 
-// TestBasis creates the basis in the DB.
-func testBasis(t testing.T, s *State) *vagrant_plugin_sdk.Ref_Basis {
-	t.Helper()
-
-	td := testTempDir(t)
-	name := filepath.Base(td)
-	b := &Basis{
-		Name: &name,
-		Path: &td,
+func requireAndDB(t testing.T) (*require.Assertions, *gorm.DB) {
+	db := testDB(t)
+	require := require.New(t)
+	if err := db.AutoMigrate(models...); err != nil {
+		require.NoError(err)
 	}
-	result := s.db.Save(b)
-	require.NoError(t, result.Error)
-
-	return b.ToProtoRef()
+	return require, db
 }
 
-func testProject(t testing.T, s *State) *vagrant_plugin_sdk.Ref_Project {
+func testBasis(t testing.T, db *gorm.DB) *Basis {
 	t.Helper()
 
-	basisRef := testBasis(t, s)
-	b, err := s.BasisFromProtoRef(basisRef)
-	require.NoError(t, err)
 	td := testTempDir(t)
-	name := filepath.Base(td)
+	b := &Basis{
+		Name: filepath.Base(td),
+		Path: td,
+	}
+	result := db.Save(b)
+	require.NoError(t, result.Error)
+
+	return b
+}
+
+// TestBasis creates the basis in the DB.
+func testBasisProto(t testing.T, s *State) *vagrant_plugin_sdk.Ref_Basis {
+	t.Helper()
+
+	return testBasis(t, s.db).ToProtoRef()
+}
+
+func testProject(t testing.T, db *gorm.DB) *Project {
+	b := testBasis(t, db)
+
+	td := testTempDir(t)
 	p := &Project{
-		Name:  &name,
-		Path:  &td,
+		Name:  filepath.Base(td),
+		Path:  td,
 		Basis: b,
 	}
-	result := s.db.Save(p)
+	result := db.Save(p)
 	require.NoError(t, result.Error)
 
-	return p.ToProtoRef()
+	return p
 }
 
-func testRunner(t testing.T, s *State, src *vagrant_server.Runner) *vagrant_server.Runner {
+func testProjectProto(t testing.T, s *State) *vagrant_plugin_sdk.Ref_Project {
+	t.Helper()
+
+	return testProject(t, s.db).ToProtoRef()
+}
+
+func testRunnerProto(t testing.T, s *State, src *vagrant_server.Runner) *vagrant_server.Runner {
 	t.Helper()
 
 	if src == nil {
@@ -155,7 +175,7 @@ func testRunner(t testing.T, s *State, src *vagrant_server.Runner) *vagrant_serv
 	return runner.ToProto()
 }
 
-func testJob(t testing.T, src *vagrant_server.Job) *vagrant_server.Job {
+func testJobProto(t testing.T, src *vagrant_server.Job) *vagrant_server.Job {
 	t.Helper()
 
 	require.NoError(t, mergo.Merge(src,

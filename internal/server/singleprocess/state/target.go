@@ -9,6 +9,7 @@ import (
 	"github.com/hashicorp/vagrant/internal/server"
 	"github.com/hashicorp/vagrant/internal/server/proto/vagrant_server"
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 )
 
 func init() {
@@ -21,26 +22,57 @@ type Target struct {
 	Configuration *ProtoValue
 	Jobs          []*InternalJob `gorm:"polymorphic:Scope;" mapstructure:"-"`
 	Metadata      MetadataSet
-	Name          *string `gorm:"uniqueIndex:idx_pname;not null"`
+	Name          string  `gorm:"uniqueIndex:idx_pname;not null"`
 	Parent        *Target `gorm:"foreignkey:ID"`
 	ParentID      *uint   `mapstructure:"-"`
 	Project       *Project
 	ProjectID     uint `gorm:"uniqueIndex:idx_pname" mapstructure:"-"`
 	Provider      *string
 	Record        *ProtoValue
-	ResourceId    *string `gorm:"<-:create;uniqueIndex;not null"`
+	ResourceId    string `gorm:"uniqueIndex"`
 	State         vagrant_server.Operation_PhysicalState
-	Subtargets    []*Target `gorm:"foreignkey:ParentID"`
+	Subtargets    []*Target `gorm:"foreignkey:ParentID;constraint:OnDelete:SET NULL"`
 	Uuid          *string   `gorm:"uniqueIndex"`
+}
+
+func (t *Target) find(db *gorm.DB) (*Target, error) {
+	var target Target
+	result := db.Preload(clause.Associations).
+		Where(&Target{ResourceId: t.ResourceId}).
+		Or(&Target{Uuid: t.Uuid}).
+		Or(&Target{ProjectID: t.ProjectID, Name: t.Name}).
+		Or(&Target{Model: Model{ID: t.ID}}).
+		First(&target)
+	if result.Error != nil {
+		return nil, result.Error
+	}
+
+	return &target, nil
 }
 
 func (t *Target) scope() interface{} {
 	return t
 }
 
+// Use before delete hook to remove all associations
+func (t *Target) BeforeDelete(tx *gorm.DB) error {
+	target, err := t.find(tx)
+	if err != nil {
+		return err
+	}
+
+	if len(target.Subtargets) > 0 {
+		if result := tx.Delete(target.Subtargets); result.Error != nil {
+			return result.Error
+		}
+	}
+
+	return nil
+}
+
 // Set a public ID on the target before creating
 func (t *Target) BeforeSave(tx *gorm.DB) error {
-	if t.ResourceId == nil {
+	if t.ResourceId == "" {
 		if err := t.setId(); err != nil {
 			return err
 		}
@@ -53,14 +85,48 @@ func (t *Target) BeforeSave(tx *gorm.DB) error {
 	return nil
 }
 
+// NOTE: Need better validation on parent <-> subtarget
+// project matching. It currently does basic check but
+// will miss edge cases easily.
 func (t *Target) validate(tx *gorm.DB) error {
-	err := validation.ValidateStruct(t,
+	existing, err := t.find(tx)
+	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
+		return err
+	}
+
+	if existing == nil {
+		existing = &Target{}
+	}
+
+	projectID := t.ProjectID
+	if t.Project != nil {
+		projectID = t.Project.ID
+	}
+
+	parent := &Target{}
+	parentProjectID := uint(0)
+	if t.Parent != nil {
+		parent = t.Parent
+	} else if t.ParentID != nil {
+		result := tx.First(parent, &Target{Model: Model{ID: *t.ParentID}})
+		if result.Error != nil {
+			return result.Error
+		}
+	}
+	if parent != nil {
+		parentProjectID = parent.ProjectID
+		if parent.Project != nil {
+			parentProjectID = parent.Project.ID
+		}
+	}
+
+	err = validation.ValidateStruct(t,
 		validation.Field(&t.Name,
 			validation.Required,
 			validation.By(
 				checkUnique(
 					tx.Model(&Target{}).
-						Where(&Target{Name: t.Name, ProjectID: t.ProjectID}).
+						Where(&Target{Name: t.Name, ProjectID: projectID}).
 						Not(&Target{Model: Model{ID: t.ID}}),
 				),
 			),
@@ -88,9 +154,21 @@ func (t *Target) validate(tx *gorm.DB) error {
 		),
 		validation.Field(&t.ProjectID,
 			validation.Required.When(t.Project == nil),
+			validation.When(
+				t.ProjectID != 0 && parentProjectID != 0,
+				validation.By(
+					checkSameProject(parentProjectID),
+				),
+			),
 		),
 		validation.Field(&t.Project,
 			validation.Required.When(t.ProjectID == 0),
+			validation.When(
+				t.Project != nil && parentProjectID != 0,
+				validation.By(
+					checkSameProject(parentProjectID),
+				),
+			),
 		),
 	)
 
@@ -106,7 +184,7 @@ func (t *Target) setId() error {
 	if err != nil {
 		return err
 	}
-	t.ResourceId = &id
+	t.ResourceId = id
 
 	return nil
 }
@@ -157,7 +235,7 @@ func (s *State) TargetFromProtoRef(
 
 	var target Target
 	result := s.search().Preload("Project.Basis").First(&target,
-		&Target{ResourceId: &ref.ResourceId},
+		&Target{ResourceId: ref.ResourceId},
 	)
 	if result.Error != nil {
 		return nil, result.Error
@@ -184,9 +262,9 @@ func (s *State) TargetFromProtoRefFuzzy(
 
 	target = &Target{}
 	result := s.search().
-		Joins("Project", &Project{ResourceId: &ref.Project.ResourceId}).
+		Joins("Project", &Project{ResourceId: ref.Project.ResourceId}).
 		Preload("Project.Basis").
-		First(target, &Target{Name: &ref.Name})
+		First(target, &Target{Name: ref.Name})
 
 	if result.Error != nil {
 		return nil, result.Error
@@ -239,7 +317,7 @@ func (s *State) TargetFromProtoFuzzy(
 			Preload("Project.Basis").
 			Where("Project.resource_id = ?", t.Project.ResourceId)
 
-		result := tx.First(target, &Target{Name: &t.Name})
+		result := tx.First(target, &Target{Name: t.Name})
 		if result.Error != nil {
 			return nil, result.Error
 		}

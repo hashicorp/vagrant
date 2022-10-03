@@ -6,7 +6,6 @@ import (
 	"time"
 
 	"github.com/go-ozzo/ozzo-validation/v4"
-	"github.com/go-ozzo/ozzo-validation/v4/is"
 	"github.com/hashicorp/go-version"
 	"github.com/hashicorp/vagrant-plugin-sdk/proto/vagrant_plugin_sdk"
 	"github.com/hashicorp/vagrant/internal/server"
@@ -27,27 +26,39 @@ const (
 type Box struct {
 	Model
 
-	Directory   *string    `gorm:"not null"`
-	LastUpdate  *time.Time `gorm:"autoUpdateTime"`
+	Directory   string    `gorm:"uniqueIndex"`
+	LastUpdate  time.Time `gorm:"autoUpdateTime"`
 	Metadata    *ProtoValue
 	MetadataUrl *string
-	Name        *string `gorm:"uniqueIndex:idx_nameverprov;not null"`
-	Provider    *string `gorm:"uniqueIndex:idx_nameverprov;not null"`
-	ResourceId  *string `gorm:"<-:create;uniqueIndex;not null"`
-	Version     *string `gorm:"uniqueIndex:idx_nameverprov;not null"`
+	Name        string `gorm:"uniqueIndex:idx_nameverprov"`
+	Provider    string `gorm:"uniqueIndex:idx_nameverprov"`
+	ResourceId  string `gorm:"uniqueIndex"`
+	Version     string `gorm:"uniqueIndex:idx_nameverprov"`
+}
+
+func (b *Box) find(db *gorm.DB) (*Box, error) {
+	var box Box
+	result := db.Where(&Box{ResourceId: b.ResourceId}).
+		Or(&Box{Directory: b.Directory}).
+		Or(&Box{Name: b.Name, Provider: b.Provider, Version: b.Version}).
+		First(&box)
+	if result.Error != nil {
+		return nil, result.Error
+	}
+
+	return &box, nil
 }
 
 func (b *Box) BeforeSave(tx *gorm.DB) error {
-	if b.ResourceId == nil {
+	if b.ResourceId == "" {
 		if err := b.setId(); err != nil {
 			return err
 		}
 	}
 
 	// If version is not set, default it to 0
-	if b.Version == nil || *b.Version == "0" {
-		v := DEFAULT_BOX_VERSION
-		b.Version = &v
+	if b.Version == "" || b.Version == "0" {
+		b.Version = DEFAULT_BOX_VERSION
 	}
 
 	if err := b.Validate(tx); err != nil {
@@ -62,14 +73,32 @@ func (b *Box) setId() error {
 	if err != nil {
 		return err
 	}
-	b.ResourceId = &id
+	b.ResourceId = id
 
 	return nil
 }
 
 func (b *Box) Validate(tx *gorm.DB) error {
-	err := validation.ValidateStruct(b,
-		validation.Field(&b.Directory, validation.Required),
+	existing, err := b.find(tx)
+	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
+		return err
+	}
+
+	if existing == nil {
+		existing = &Box{}
+	}
+
+	err = validation.ValidateStruct(b,
+		validation.Field(&b.Directory,
+			validation.Required,
+			validation.By(
+				checkUnique(
+					tx.Model((*Box)(nil)).
+						Where(&Box{Directory: b.Directory}).
+						Not(&Box{Model: Model{ID: b.ID}}),
+				),
+			),
+		),
 		validation.Field(&b.Name, validation.Required),
 		validation.Field(&b.Provider, validation.Required),
 		validation.Field(&b.ResourceId,
@@ -81,10 +110,18 @@ func (b *Box) Validate(tx *gorm.DB) error {
 						Not(&Box{Model: Model{ID: b.ID}}),
 				),
 			),
+			validation.When(
+				b.ID != 0,
+				validation.By(
+					checkNotModified(
+						existing.ResourceId,
+					),
+				),
+			),
 		),
 		validation.Field(&b.Version,
 			validation.Required,
-			is.Semver,
+			validation.By(checkValidVersion),
 		),
 	)
 
@@ -141,7 +178,7 @@ func (s *State) BoxFromProtoRef(
 	}
 
 	var box Box
-	result := s.search().First(&box, &Box{ResourceId: &b.ResourceId})
+	result := s.search().First(&box, &Box{ResourceId: b.ResourceId})
 	if result.Error != nil {
 		return nil, result.Error
 	}
@@ -168,9 +205,9 @@ func (s *State) BoxFromProtoRefFuzzy(
 	box = &Box{}
 	result := s.search().First(box,
 		&Box{
-			Name:     &b.Name,
-			Provider: &b.Provider,
-			Version:  &b.Version,
+			Name:     b.Name,
+			Provider: b.Provider,
+			Version:  b.Version,
 		},
 	)
 	if result.Error != nil {
@@ -315,8 +352,8 @@ func (s *State) BoxFind(
 	var boxes []Box
 	result := s.search().Find(&boxes,
 		&Box{
-			Name:     &b.Name,
-			Provider: &b.Provider,
+			Name:     b.Name,
+			Provider: b.Provider,
 		},
 	)
 	if result.Error != nil {
@@ -326,9 +363,9 @@ func (s *State) BoxFind(
 		return nil, lookupErrorToStatus("box", result.Error)
 	}
 
-	// If we found no boxes, return a not found error
+	// If we found no boxes, return nil result with no error
 	if len(boxes) < 1 {
-		return nil, nil // lookupErrorToStatus("box", gorm.ErrRecordNotFound)
+		return nil, nil
 	}
 
 	// If we have no version value set, apply the default
@@ -345,7 +382,7 @@ func (s *State) BoxFind(
 	}
 
 	for _, box := range boxes {
-		boxVersion, err := version.NewVersion(*box.Version)
+		boxVersion, err := version.NewVersion(box.Version)
 		if err != nil {
 			return nil, lookupErrorToStatus("box", err)
 		}
@@ -362,5 +399,7 @@ func (s *State) BoxFind(
 		return match.ToProto(), nil
 	}
 
-	return nil, nil // lookupErrorToStatus("box", gorm.ErrRecordNotFound)
+	// If nothing was found, return a nil
+	// result and no error
+	return nil, nil
 }
