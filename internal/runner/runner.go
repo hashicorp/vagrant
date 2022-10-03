@@ -157,6 +157,7 @@ func New(opts ...Option) (*Runner, error) {
 }
 
 func (r *Runner) LoadLocalProjectPlugins(path string) error {
+	// TODO: should this check if the runner is local?
 	err := r.plugins.LoadLocalLegacyPlugins(
 		r.vagrantRubyClient, r.vagrantRubyRuntime, path)
 	return err
