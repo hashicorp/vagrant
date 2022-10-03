@@ -49,10 +49,10 @@ func (b *Basis) DetectProject() (p *Project, err error) {
 	if err != nil {
 		return
 	}
-	b.client.LoadLocalProjectPlugins(dataPath.Join(b.basis.Name, "project", p.project.Name).String())
 
 	if err == nil {
 		p.vagrantfile = v
+		b.client.LoadLocalProjectPlugins(dataPath.Join(b.basis.Name, "project", p.project.Name).String())
 		return
 	}
 
@@ -70,7 +70,7 @@ func (b *Basis) DetectProject() (p *Project, err error) {
 		return
 	}
 
-	return &Project{
+	projectClient := &Project{
 		basis:       b,
 		client:      b.client,
 		ctx:         b.ctx,
@@ -79,7 +79,10 @@ func (b *Basis) DetectProject() (p *Project, err error) {
 		ui:          b.ui,
 		vagrant:     b.vagrant,
 		vagrantfile: v,
-	}, nil
+	}
+	b.client.LoadLocalProjectPlugins(dataPath.Join(b.basis.Name, "project", projectClient.project.Name).String())
+
+	return projectClient, nil
 }
 
 func (b *Basis) LoadProject(n string) (*Project, error) {
