@@ -1,45 +1,45 @@
 ---
 layout: docs
-page_title: Installing Vagrant
+page_title: Install Vagrant
 description: |-
-  Installing Vagrant is extremely easy. Head over to the Vagrant downloads page
-  and get the appropriate installer or package for your platform. Install the
+  Vagrant is available for most platforms. Install the Vagrant
   package using standard procedures for your operating system.
 ---
 
-# Installing Vagrant
+# Install Vagrant
 
-Installing Vagrant is extremely easy. Head over to the
-[Vagrant downloads page](/downloads) and get the appropriate installer or
-package for your platform. Install the package using standard procedures for
+To get started with Vagrant, download the appropriate installer or
+package for your platform from our
+[Vagrant downloads page](/downloads). Install the package with the standard procedures for
 your operating system.
 
-The installer will automatically add `vagrant` to your system path
-so that it is available in terminals. If it is not found, please try
-logging out and logging back in to your system (this is particularly
-necessary sometimes for Windows).
+The installer automatically adds `vagrant` to your system path
+so that it is available in terminals. If it is not found,
+log out and back into your system; this is a common issue for Windows.
 
-~> **Looking for the gem install?** Vagrant 1.0.x had the option to
+~> **Rubygem installation is unsupported** Vagrant 1.0.x has the option to
 be installed as a [RubyGem](https://en.wikipedia.org/wiki/RubyGems).
-This installation method is no longer supported. If you have an old version
-of Vagrant installed via Rubygems, please remove it prior to installing newer
+However, this installation method is no longer supported. If you have an old version
+of Vagrant installed via Rubygems, remove it prior to installing newer
 versions of Vagrant.
 
-~> **Beware of system package managers!** Some operating system
-distributions include a vagrant package in their upstream package repos.
-Please do not install Vagrant in this manner. Typically these packages are
-missing dependencies or include very outdated versions of Vagrant. If you
-install via your system's package manager, it is very likely that you will
-experience issues. Please use the official installers on the downloads page.
+## First development environment
 
-## Running Multiple Hypervisors
+If you are new to Vagrant, the next step to set up a development environment is to install
+a [box](https://developer.hashicorp.com/vagrant/tutorials/getting-started/getting-started-boxes).
 
-Sometimes, certain hypervisors do not allow you to bring up virtual machines
-if more than one hypervisor is in use. If you are lucky, you might see the following
-error message come up when trying to bring up a virtual machine with Vagrant and
-VirtualBox:
+## How to use multiple hypervisors
 
-```text
+Hypervisors often do not allow you to bring up virtual machines if you have more than one hypervisor in use.
+
+Below are a couple of examples to allow you
+to use Vagrant and VirtualBox if another hypervisor is present.
+
+### Linux, VirtualBox, and KVM
+
+If you encounter the following error message, it is because another hypervisor, like KVM, is in use.
+
+```shell-session
 There was an error while executing `VBoxManage`, a CLI used by Vagrant for controlling VirtualBox. The command and stderr is shown below.
 
 Command: ["startvm", <ID of the VM>, "--type", "headless"]
@@ -50,16 +50,9 @@ VBoxManage: error: VirtualBox can't operate in VMX root mode. Please disable the
 VBoxManage: error: Details: code NS_ERROR_FAILURE (0x80004005), component ConsoleWrap, interface IConsole
 ```
 
-Other operating systems like Windows will blue screen if you attempt to bring up
-a VirtualBox VM with Hyper-V enabled. Below are a couple of ways to ensure you
-can use Vagrant and VirtualBox if another hypervisor is present.
+You must add the additional hypervisors to the deny list in order for VirtualBox to run correctly.
 
-### Linux, VirtualBox, and KVM
-
-The above error message is because another hypervisor (like KVM) is in use.
-We must blacklist these in order for VirtualBox to run correctly.
-
-First find out the name of the hypervisor:
+First, find out the name of the hypervisor.
 
 ```shell-session
 $ lsmod | grep kvm
@@ -68,31 +61,33 @@ kvm                   593920  1 kvm_intel
 irqbypass              16384  1 kvm
 ```
 
-The one we're interested in is `kvm_intel`. You might have another.
-
-Blacklist the hypervisor (run the following as root):
+Use the `blacklist` command to add the hypervisor to your denylist.
 
 ```shell-session
 $ echo 'blacklist kvm-intel' >> /etc/modprobe.d/blacklist.conf
 ```
 
-Restart your machine and try running vagrant again.
+Restart your machine and try the `vagrant` command again.
 
 ### Windows, VirtualBox, and Hyper-V
 
+If you encounter an issue with Windows, you will get a blue screen if you attempt to bring up
+a VirtualBox VM with Hyper-V enabled. 
+
 If you wish to use VirtualBox on Windows, you must ensure that Hyper-V is not enabled
-on Windows. You can turn off the feature by running this Powershell command for Windows 10:
+on Windows. You can turn off the feature with the following Powershell command for Windows 10.
 
 ```powershell
 Disable-WindowsOptionalFeature -Online -FeatureName Microsoft-Hyper-V-All
 ```
-For Windows 11, you can run on an elevated Powershell:
+
+For Windows 11, you can use an elevated Powershell.
 
 ```powershell
 bcdedit /set hypervisorlaunchtype off
 ```
 
-You can also disable it by going through the Windows system settings:
+You can also disable Hyper-V in the Windows system settings.
 
 - Right click on the Windows button and select ‘Apps and Features’.
 - Select Turn Windows Features on or off.
@@ -100,3 +95,5 @@ You can also disable it by going through the Windows system settings:
 
 You might have to reboot your machine for the changes to take effect. More information
 about Hyper-V can be read [here](https://docs.microsoft.com/en-us/virtualization/hyper-v-on-windows/quick-start/enable-hyper-v).
+
+

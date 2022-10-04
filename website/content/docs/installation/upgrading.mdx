@@ -1,19 +1,20 @@
 ---
 layout: docs
-page_title: Upgrading Vagrant
+page_title: Upgrade Vagrant
 description: |-
-  If you are upgrading from Vagrant 1.0.x, please read the specific page
-  dedicated to that. This page covers upgrading Vagrant in general during the
-  1.x series.
+  This page details the general process to upgrade Vagrant for the
+  1.x.x series. If you need to upgrade from Vagrant 1.0.x, read the specific page
+  dedicated to that.
 ---
 
-# Upgrading Vagrant
+# Upgrade Vagrant
 
-If you are upgrading from Vagrant 1.0.x, please read the
+This page details how to upgrade Vagrant in the 1.x.x series.
+
+~> If you need to upgrade from Vagrant 1.0.x, read the
 [specific page dedicated to that](/docs/installation/upgrading-from-1-0).
-This page covers upgrading Vagrant in general during the 1.x series.
 
-Vagrant upgrades during the 1.x release series are straightforward:
+Vagrant upgrades during the 1.x.x release series are straightforward:
 
 1. [Download](/downloads) the new package
 2. Install it over the existing package
@@ -21,11 +22,13 @@ Vagrant upgrades during the 1.x release series are straightforward:
 The installers will properly overwrite and remove old files. It is recommended
 that no other Vagrant processes are running during the upgrade process.
 
-Note that Vagrantfile stability for the new Vagrantfile syntax is not
-promised until 2.0 final. So while Vagrantfiles made for 1.0.x will
-[continue to work](/docs/installation/backwards-compatibility),
-newer Vagrantfiles may have backwards incompatible changes until 2.0 final.
+## Vagrantfile compatibility with 3.0
 
--> **Run into troubles upgrading?** Please [report an issue](https://github.com/hashicorp/vagrant/issues)
-if you run into problems upgrading. Upgrades are meant to be a smooth
-process and we consider it a bug if it was not.
+Note that Vagrantfile stability for the new Vagrantfile syntax is not
+guaranteed until Vagrant 3.0. While Vagrantfiles made for 1.0.x will
+[continue to work](/docs/installation/backwards-compatibility),
+newer Vagrantfiles may have backwards incompatible changes until 3.0.
+
+## Issue reports
+
+If you encounter any problems at upgrade time, [report them as an issue in Github](https://github.com/hashicorp/vagrant/issues). Upgrades are meant to be a smooth process and we consider it a bug if it was not.
