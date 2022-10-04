@@ -58,17 +58,14 @@ module VagrantPlugins
 
         def get_local_plugins(req, _)
           env = vagrant_env(req.project_path)
+          # Keep track of global plugins that should be removed
+          to_remove = Vagrant::Plugin::V2::Plugin.local_manager.registered.dup
+
           localized_plugins = Vagrant::Plugin::Manager.instance.localize!(env)
           Vagrant::Plugin::Manager.instance.load_plugins(localized_plugins)
           plugin_manager = Vagrant::Plugin::V2::Plugin.local_manager.clone
 
-          # Remove plugins that are from Vagrant
-          to_remove = []
-          plugin_manager.registered.each do |p|
-            if p.inspect.start_with?("VagrantPlugins")
-              to_remove << p
-            end
-          end
+          # Remove global plugins
           to_remove.each do |p|
             plugin_manager.unregister(p)
           end
