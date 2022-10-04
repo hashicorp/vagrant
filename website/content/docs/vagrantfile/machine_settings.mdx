@@ -23,6 +23,11 @@ machine that Vagrant manages.
 - `config.vm.allow_hosts_modification` (boolean) - If false, will prevent Vagrant
   from writing to `/etc/hosts`. Defaults to true.
 
+- `config.vm.allowed_synced_folder_types` (array of strings) - A list of allowed
+synced folder plugins. This will restrict plugin selection when Vagrant is
+determining the default synced folder type. The elements of the array should be
+the name of the synced folder plugin.
+
 - `config.vm.base_mac` (string) - The MAC address to be assigned to the default
   NAT interface on the guest. _Support for this option is provider dependent._
 
