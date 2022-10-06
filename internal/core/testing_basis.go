@@ -95,6 +95,7 @@ func TestBasis(t testing.T, opts ...BasisOption) (b *Basis) {
 	td, err := ioutil.TempDir("", "core")
 	require.NoError(t, err)
 	t.Cleanup(func() { os.RemoveAll(td) })
+	name := filepath.Base(td)
 
 	mkSubdir := func(root, sub string) string {
 		sd := filepath.Join(root, sub)
@@ -131,12 +132,12 @@ func TestBasis(t testing.T, opts ...BasisOption) (b *Basis) {
 		WithFactory(factory),
 		WithClient(client),
 		WithBasisDataDir(projDir),
-		WithBasisRef(&vagrant_plugin_sdk.Ref_Basis{Name: "test-basis"}),
+		WithBasisRef(&vagrant_plugin_sdk.Ref_Basis{Name: name, Path: td}),
 	}
 
 	b, err = factory.NewBasis("", append(defaultOpts, opts...)...)
-	if err != nil {
-		t.Fatal(err)
-	}
+	require.NoError(t, err)
+
+	require.NoError(t, b.Save())
 	return
 }

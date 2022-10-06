@@ -247,6 +247,26 @@ func TestTarget_Update(t *testing.T) {
 		require.ErrorContains(result.Error, "ResourceId:")
 	})
 
+	t.Run("Updates the state", func(t *testing.T) {
+		require, db := requireAndDB(t)
+
+		target := Target{
+			Name:    "default",
+			Project: testProject(t, db),
+			State:   vagrant_server.Operation_NOT_CREATED,
+		}
+		result := db.Save(&target)
+		require.NoError(result.Error)
+		require.Equal(vagrant_server.Operation_NOT_CREATED, target.State)
+		target.State = vagrant_server.Operation_UNKNOWN
+		result = db.Save(&target)
+		require.NoError(result.Error)
+		result = db.First(&target, &Target{Model: Model{ID: target.ID}})
+		require.NoError(result.Error)
+		require.Equal(vagrant_server.Operation_UNKNOWN, target.State)
+
+	})
+
 	t.Run("Adds subtarget", func(t *testing.T) {
 		require, db := requireAndDB(t)
 
@@ -359,12 +379,41 @@ func TestTarget_State(t *testing.T) {
 		s := TestState(t)
 		defer s.Close()
 
-		// Set
 		_, err := s.TargetGet(&vagrant_plugin_sdk.Ref_Target{
 			ResourceId: "foo",
 		})
 		require.Error(err)
 		require.Equal(codes.NotFound, status.Code(err))
+	})
+
+	t.Run("Simple update", func(t *testing.T) {
+		require := require.New(t)
+		s := TestState(t)
+		defer s.Close()
+
+		resp, err := s.TargetPut(&vagrant_server.Target{
+			Name:    "default",
+			Project: testProject(t, s.db).ToProtoRef(),
+			State:   vagrant_server.Operation_NOT_CREATED,
+		})
+		require.NoError(err)
+		require.Equal(vagrant_server.Operation_NOT_CREATED, resp.State)
+		target, err := s.TargetGet(&vagrant_plugin_sdk.Ref_Target{
+			ResourceId: resp.ResourceId,
+		})
+		require.NoError(err)
+		require.Equal(vagrant_server.Operation_NOT_CREATED, target.State)
+
+		target.State = vagrant_server.Operation_UNKNOWN
+		resp, err = s.TargetPut(target)
+		require.NoError(err)
+		require.Equal(vagrant_server.Operation_UNKNOWN, resp.State)
+
+		target, err = s.TargetGet(&vagrant_plugin_sdk.Ref_Target{
+			ResourceId: resp.ResourceId,
+		})
+		require.NoError(err)
+		require.Equal(vagrant_server.Operation_UNKNOWN, target.State)
 	})
 
 	t.Run("Put and Get", func(t *testing.T) {

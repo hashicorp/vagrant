@@ -408,6 +408,11 @@ func (s *State) TargetPut(
 		return nil, saveErrorToStatus("target", ErrMissingProtoParent)
 	}
 
+	// NOTE: this does not get set when updating to
+	//       the UNKNOWN value since it's a zero
+	//       value and thus ignored with soft decode
+	target.State = t.State
+
 	if err := s.upsertFull(target); err != nil {
 		return nil, saveErrorToStatus("target", err)
 	}

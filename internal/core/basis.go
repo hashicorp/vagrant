@@ -670,6 +670,7 @@ func (b *Basis) Save() (err error) {
 	if err != nil {
 		b.logger.Trace("failed to save basis",
 			"error", err)
+		return err
 	}
 
 	b.basis = result.Basis

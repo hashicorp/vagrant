@@ -13,6 +13,7 @@ import (
 
 	"github.com/hashicorp/vagrant/internal/server"
 	pb "github.com/hashicorp/vagrant/internal/server/proto/vagrant_server"
+	"github.com/hashicorp/vagrant/internal/server/singleprocess/state"
 	"github.com/hashicorp/vagrant/internal/serverclient"
 )
 
@@ -26,7 +27,7 @@ func TestServer(t testing.T, opts ...Option) *serverclient.VagrantClient {
 // with server.TestServer. It is easier to just use TestServer directly.
 func TestImpl(t testing.T, opts ...Option) pb.VagrantServer {
 	impl, err := New(append(
-		[]Option{WithDB(testDB(t))},
+		[]Option{WithDB(state.TestDB(t))},
 		opts...,
 	)...)
 	require.NoError(t, err)
@@ -155,7 +156,7 @@ func TestBasis(t testing.T, client pb.VagrantClient, ref *pb.Basis) {
 func testDB(t testing.T) *gorm.DB {
 	t.Helper()
 
-	db, err := gorm.Open(sqlite.Open("file::memory:?cache=shared"), &gorm.Config{})
+	db, err := gorm.Open(sqlite.Open("file::memory:"), &gorm.Config{})
 	require.NoError(t, err)
 	t.Cleanup(func() {
 		d, err := db.DB()

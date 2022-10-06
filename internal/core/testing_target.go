@@ -1,8 +1,8 @@
 package core
 
 import (
-	"context"
 	"fmt"
+	"path/filepath"
 
 	"github.com/imdario/mergo"
 
@@ -11,55 +11,40 @@ import (
 	"github.com/hashicorp/vagrant-plugin-sdk/core"
 	"github.com/hashicorp/vagrant-plugin-sdk/proto/vagrant_plugin_sdk"
 	"github.com/hashicorp/vagrant/internal/server/proto/vagrant_server"
-	"github.com/hashicorp/vagrant/internal/server/ptypes"
 	"github.com/mitchellh/go-testing-interface"
+	"github.com/stretchr/testify/require"
 )
 
 // TestTarget returns a fully in-memory and side-effect free Target that
 // can be used for testing. Additional options can be given to provide your own
 // factories, configuration, etc.
 func TestTarget(t testing.T, p *Project, st *vagrant_server.Target, opts ...TestTargetOption) (target *Target) {
-	testingTarget := ptypes.TestTarget(t, st)
-	testingTarget.Project = p.Ref().(*vagrant_plugin_sdk.Ref_Project)
-	_, err := p.basis.client.UpsertTarget(
-		context.Background(),
-		&vagrant_server.UpsertTargetRequest{
-			Project: p.Ref().(*vagrant_plugin_sdk.Ref_Project),
-			Target:  testingTarget,
-		},
-	)
-	if err != nil {
-		t.Fatal(err)
+	if st.Name == "" {
+		st.Name = filepath.Base(testTempDir(t))
 	}
 
-	target, err = p.factory.NewTarget(
+	target, err := p.factory.NewTarget(
 		[]TargetOption{
-			WithProject(p),
 			WithTargetRef(
 				&vagrant_plugin_sdk.Ref_Target{
-					Project: p.Ref().(*vagrant_plugin_sdk.Ref_Project),
-					Name:    testingTarget.Name,
+					Project:    p.Ref().(*vagrant_plugin_sdk.Ref_Project),
+					Name:       st.Name,
+					ResourceId: st.ResourceId,
 				},
 			),
 		}...,
 	)
-
-	if err = p.Reload(); err != nil {
-		t.Fatal(err)
-	}
+	require.NoError(t, err)
+	require.NoError(t, mergo.Merge(target.target, st))
 
 	for _, opt := range opts {
 		if oerr := opt(target); oerr != nil {
 			err = multierror.Append(err, oerr)
 		}
 	}
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	if err = p.Reload(); err != nil {
-		t.Fatal(err)
-	}
+	require.NoError(t, err)
+	require.NoError(t, target.Save())
+	require.NoError(t, p.Reload())
 
 	return
 }
@@ -68,39 +53,20 @@ func TestTarget(t testing.T, p *Project, st *vagrant_server.Target, opts ...Test
 // that will work for testing
 func TestMinimalTarget(t testing.T) (target *Target) {
 	tp := TestMinimalProject(t)
-	_, err := tp.basis.client.UpsertTarget(
-		context.Background(),
-		&vagrant_server.UpsertTargetRequest{
-			Project: tp.Ref().(*vagrant_plugin_sdk.Ref_Project),
-			Target: &vagrant_server.Target{
-				Name:    "test-target",
-				Project: tp.Ref().(*vagrant_plugin_sdk.Ref_Project),
-			},
-		},
-	)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	target, err = tp.factory.NewTarget(
+	target, err := tp.factory.NewTarget(
 		[]TargetOption{
 			WithProject(tp),
 			WithTargetRef(
 				&vagrant_plugin_sdk.Ref_Target{
 					Project: tp.Ref().(*vagrant_plugin_sdk.Ref_Project),
-					Name:    "test-target",
+					Name:    filepath.Base(testTempDir(t)),
 				},
 			),
 		}...,
 	)
-
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	if err = tp.Reload(); err != nil {
-		t.Fatal(err)
-	}
+	require.NoError(t, err)
+	require.NoError(t, target.Save())
+	require.NoError(t, tp.Reload())
 
 	return
 }
@@ -111,9 +77,7 @@ func TestMinimalTarget(t testing.T) (target *Target) {
 func TestMachine(t testing.T, tp *Project, opts ...TestTargetOption) (machine *Machine) {
 	tt := TestTarget(t, tp, &vagrant_server.Target{})
 	specialized, err := tt.Specialize((*core.Machine)(nil))
-	if err != nil {
-		t.Fatal(err)
-	}
+	require.NoError(t, err)
 
 	machine = specialized.(*Machine)
 	for _, opt := range opts {
@@ -121,9 +85,7 @@ func TestMachine(t testing.T, tp *Project, opts ...TestTargetOption) (machine *M
 			err = multierror.Append(err, oerr)
 		}
 	}
-	if err != nil {
-		t.Fatal(err)
-	}
+	require.NoError(t, err)
 
 	return
 }
@@ -134,9 +96,8 @@ func TestMinimalMachine(t testing.T) (machine *Machine) {
 	tp := TestMinimalProject(t)
 	tt := TestTarget(t, tp, &vagrant_server.Target{})
 	specialized, err := tt.Specialize((*core.Machine)(nil))
-	if err != nil {
-		t.Fatal(err)
-	}
+	require.NoError(t, err)
+
 	machine = specialized.(*Machine)
 	return
 }

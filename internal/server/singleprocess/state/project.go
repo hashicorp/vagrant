@@ -2,6 +2,7 @@ package state
 
 import (
 	"errors"
+	"fmt"
 
 	"github.com/go-ozzo/ozzo-validation/v4"
 	"github.com/hashicorp/vagrant-plugin-sdk/proto/vagrant_plugin_sdk"
@@ -394,7 +395,7 @@ func (s *State) ProjectList() ([]*vagrant_plugin_sdk.Ref_Project, error) {
 func (s *State) ProjectFind(p *vagrant_server.Project) (*vagrant_server.Project, error) {
 	project, err := s.ProjectFromProtoFuzzy(p)
 	if err != nil {
-		return nil, saveErrorToStatus("project", err)
+		return nil, lookupErrorToStatus("project", fmt.Errorf("%w (%#v)", err, p))
 	}
 
 	return project.ToProto(), nil

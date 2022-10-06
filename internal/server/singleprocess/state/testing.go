@@ -33,7 +33,7 @@ func TestState(t testing.T) *State {
 	t.Cleanup(func() {
 		t.Log(buf.String())
 	})
-	result, err := New(l, testDB(t))
+	result, err := New(l, TestDB(t))
 	require.NoError(t, err)
 	return result
 }
@@ -83,7 +83,7 @@ func TestState(t testing.T) *State {
 // 	return New(hclog.L(), db)
 // }
 
-func testDB(t testing.T) *gorm.DB {
+func TestDB(t testing.T) *gorm.DB {
 	t.Helper()
 
 	db, err := gorm.Open(sqlite.Open(""), &gorm.Config{
@@ -106,7 +106,7 @@ func testDB(t testing.T) *gorm.DB {
 }
 
 func requireAndDB(t testing.T) (*require.Assertions, *gorm.DB) {
-	db := testDB(t)
+	db := TestDB(t)
 	require := require.New(t)
 	if err := db.AutoMigrate(models...); err != nil {
 		require.NoError(err)

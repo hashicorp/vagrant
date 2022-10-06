@@ -237,7 +237,9 @@ func (m *Machine) MachineState() (state *core.MachineState, err error) {
 // SetMachineState implements core.Machine
 func (m *Machine) SetMachineState(state *core.MachineState) (err error) {
 	var st *vagrant_plugin_sdk.Args_Target_Machine_State
-	mapstructure.Decode(state, &st)
+	if err := mapstructure.Decode(state, &st); err != nil {
+		return err
+	}
 	m.machine.State = st
 
 	switch st.Id {
