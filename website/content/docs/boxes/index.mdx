@@ -9,7 +9,7 @@ description: |-
 
 # Vagrant boxes
 
-Boxes are the package format for Vagrant environments. You specify a box environment and operating configurations in your [Vagrantfile](/docs/vagrantfile). You can use a box on any [supported platform](https://www.vagrantup.com/downloads) to bring up identical working environments. To enable teams to use and manage the same boxes, versions are supported. 
+Boxes are the package format for Vagrant environments. You specify a box environment and operating configurations in your [Vagrantfile](/docs/vagrantfile). You can use a box on any [supported platform](https://www.vagrantup.com/downloads) to bring up identical working environments. To enable teams to use and manage the same boxes, [versions are supported](/docs/boxes/versioning). 
 
 ~> Boxes require a provider, a virtualization product, to operate. Before you can use a box, 
 ensure that you have properly installed a supported [provider](/docs/providers).
@@ -69,4 +69,10 @@ For other base operating system environments, we recommend the [Bento boxes](htt
 Special thanks to the Bento project for providing a solid base template for the `hashicorp/bionic64` box.
 
 ~> It is often a point of confusion, but Canonical, the company that makes the Ubuntu operating system, publishes boxes under the "ubuntu" namespace on Vagrant Cloud. These boxes only support VirtualBox.
+
+## Create a box
+
+If you are unable to find a box that meets your specific use case, you can create one. We recommend that you first create a [base box](/docs/boxes/base) to have a clean slate to start from when you build future development environments.
+
+Learn more about [box formats](/docs/boxes/format) to get started. 
 
