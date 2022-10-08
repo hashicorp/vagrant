@@ -551,10 +551,12 @@ module Vagrant
         # Mount pattern for extracting local mount information
         MOUNT_PATTERN = /^(?<device>.+?) on (?<mount>.+?) type (?<type>.+?) \((?<options>.+)\)/.freeze
 
+        # List of supported file systems for WSL
+        WSL_MOUNT_TYPES = ['drvfs', '9p', 'ext4']
+
         # Get list of local mount paths that are DrvFs file systems
         #
         # @return [Array<String>]
-        # @todo(chrisroberts): Constantize types for check
         def wsl_drvfs_mounts
           if !defined?(@_wsl_drvfs_mounts)
             @_wsl_drvfs_mounts = []
@@ -562,7 +564,7 @@ module Vagrant
               result = Util::Subprocess.execute("mount")
               result.stdout.each_line do |line|
                 info = line.match(MOUNT_PATTERN)
-                if info && (info[:type] == "drvfs" || info[:type] == "9p")
+                if info && WSL_MOUNT_TYPES.include?(info[:type])
                   @_wsl_drvfs_mounts << info[:mount]
                 end
               end
