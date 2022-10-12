@@ -22,7 +22,7 @@ You must install Ruby 2.2 or newer to develop and build Vagrant. The
 specific Ruby version that you will need is documented in `vagrant.gemspec`, located in the repository on GitHub. It contains the most
 up-to-date requirements. 
 
-~> Note that it is not recommended that you use the system Ruby. You need a Ruby version manager like RVM or chruby.
+~> **Note:** It is not recommended that you use the system Ruby. You need a Ruby version manager like RVM or chruby.
 
 You will also need to be aware of plugin compatibility between Vagrant source installations and package based installations. Since Vagrant plugins are configured based on the current environment, plugins installed with Vagrant from source will not work with the package based Vagrant installation.
 
@@ -34,7 +34,7 @@ Clone Vagrant's repository from GitHub into the directory where you keep code on
 $ git clone https://github.com/hashicorp/vagrant.git
 ```
 
-Next, `cd` into that path. All commands need to be initiated from this directory.
+Next, `cd` into that path. You must initiate all commands from this directory.
 
 ```shell-session
 $ cd /path/to/your/vagrant/clone
@@ -69,7 +69,7 @@ the full path to the `exec/vagrant` anywhere on your operating system.
 $ /path/to/vagrant/exec/vagrant init -m hashicorp/bionic64
 ```
 
-~> Warning messages are expected when you use a local Vagrant from source installation, since it is not supported or recommend. 
+-> **Tip:** Warning messages are expected when you use a local Vagrant from source installation, since it is not supported or recommend. 
 
 If you do not want to specify the full path to Vagrant (i.e. you just want to
 run `vagrant`), you can create a symbolic link to your exec.
