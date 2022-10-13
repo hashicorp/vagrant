@@ -7,9 +7,13 @@ require "vagrant/action/builtin/mixin_synced_folders"
 require "vagrant/config/v2/util"
 require "vagrant/util/platform"
 require "vagrant/util/presence"
+require "vagrant/util/experimental"
+require "vagrant/util/map_command_options"
 
 require File.expand_path("../vm_provisioner", __FILE__)
 require File.expand_path("../vm_subvm", __FILE__)
+require File.expand_path("../disk", __FILE__)
+require File.expand_path("../cloud_init", __FILE__)
 
 module VagrantPlugins
   module Kernel_V2
@@ -19,7 +23,10 @@ module VagrantPlugins
       DEFAULT_VM_NAME = :default
 
       attr_accessor :allowed_synced_folder_types
+      attr_accessor :allow_fstab_modification
+      attr_accessor :allow_hosts_modification
       attr_accessor :base_mac
+      attr_accessor :base_address
       attr_accessor :boot_timeout
       attr_accessor :box
       attr_accessor :ignore_box_vagrantfile
@@ -34,6 +41,7 @@ module VagrantPlugins
       attr_accessor :box_download_client_cert
       attr_accessor :box_download_insecure
       attr_accessor :box_download_location_trusted
+      attr_accessor :box_download_options
       attr_accessor :communicator
       attr_accessor :graceful_halt_timeout
       attr_accessor :guest
@@ -41,6 +49,9 @@ module VagrantPlugins
       attr_accessor :post_up_message
       attr_accessor :usable_port_range
       attr_reader :provisioners
+      attr_reader :disks
+      attr_reader :cloud_init_configs
+      attr_reader :box_extra_download_options
 
       # This is an experimental feature that isn't public yet.
       attr_accessor :clone
@@ -49,7 +60,9 @@ module VagrantPlugins
         @logger = Log4r::Logger.new("vagrant::config::vm")
 
         @allowed_synced_folder_types   = UNSET_VALUE
+        @allow_fstab_modification      = UNSET_VALUE
         @base_mac                      = UNSET_VALUE
+        @base_address                  = UNSET_VALUE
         @boot_timeout                  = UNSET_VALUE
         @box                           = UNSET_VALUE
         @ignore_box_vagrantfile        = UNSET_VALUE
@@ -61,8 +74,11 @@ module VagrantPlugins
         @box_download_client_cert      = UNSET_VALUE
         @box_download_insecure         = UNSET_VALUE
         @box_download_location_trusted = UNSET_VALUE
+        @box_download_options          = UNSET_VALUE
+        @box_extra_download_options    = UNSET_VALUE
         @box_url                       = UNSET_VALUE
         @box_version                   = UNSET_VALUE
+        @allow_hosts_modification      = UNSET_VALUE
         @clone                         = UNSET_VALUE
         @communicator                  = UNSET_VALUE
         @graceful_halt_timeout         = UNSET_VALUE
@@ -70,6 +86,8 @@ module VagrantPlugins
         @hostname                      = UNSET_VALUE
         @post_up_message               = UNSET_VALUE
         @provisioners                  = []
+        @disks                         = []
+        @cloud_init_configs            = []
         @usable_port_range             = UNSET_VALUE
 
         # Internal state
@@ -119,6 +137,50 @@ module VagrantPlugins
               new_defined_vms[key].options.merge!(subvm.options)
             end
           end
+
+          # Merge defined disks
+          other_disks = other.instance_variable_get(:@disks)
+          new_disks   = []
+          @disks.each do |p|
+            other_p = other_disks.find { |o| p.id == o.id }
+            if other_p
+              # there is an override. take it.
+              other_p.config = p.config.merge(other_p.config)
+
+              # Remove duplicate disk config from other
+              p = other_p
+              other_disks.delete(other_p)
+            end
+
+            # there is an override, merge it into the
+            new_disks << p.dup
+          end
+          other_disks.each do |p|
+            new_disks << p.dup
+          end
+          result.instance_variable_set(:@disks, new_disks)
+
+          # Merge defined cloud_init_configs
+          other_cloud_init_configs = other.instance_variable_get(:@cloud_init_configs)
+          new_cloud_init_configs   = []
+          @cloud_init_configs.each do |p|
+            other_p = other_cloud_init_configs.find { |o| p.id == o.id }
+            if other_p
+              # there is an override. take it.
+              other_p.config = p.config.merge(other_p.config)
+
+              # Remove duplicate disk config from other
+              p = other_p
+              other_cloud_init_configs.delete(other_p)
+            end
+
+            # there is an override, merge it into the
+            new_cloud_init_configs << p.dup
+          end
+          other_cloud_init_configs.each do |p|
+            new_cloud_init_configs << p.dup
+          end
+          result.instance_variable_set(:@cloud_init_configs, new_cloud_init_configs)
 
           # Merge the providers by prepending any configuration blocks we
           # have for providers onto the new configuration.
@@ -329,14 +391,28 @@ module VagrantPlugins
         end
 
         if !prov
-          prov = VagrantConfigProvisioner.new(name, type.to_sym)
+          if options.key?(:before)
+            before = options.delete(:before)
+          end
+          if options.key?(:after)
+            after = options.delete(:after)
+          end
+
+          if Vagrant::Util::Experimental.feature_enabled?("dependency_provisioners")
+            opts = {before: before, after: after}
+            prov = VagrantConfigProvisioner.new(name, type.to_sym, **opts)
+          else
+            prov = VagrantConfigProvisioner.new(name, type.to_sym)
+          end
           @provisioners << prov
         end
 
         prov.preserve_order = !!options.delete(:preserve_order) if \
           options.key?(:preserve_order)
         prov.run = options.delete(:run) if options.key?(:run)
-        prov.add_config(options, &block)
+        prov.communicator_required = options.delete(:communicator_required) if options.key?(:communicator_required)
+
+        prov.add_config(**options, &block)
         nil
       end
 
@@ -369,6 +445,63 @@ module VagrantPlugins
         @__defined_vms[name].config_procs << [options[:config_version], block] if block
       end
 
+      # Stores disk config options from Vagrantfile
+      #
+      # @param [Symbol] type
+      # @param [Hash]   options
+      # @param [Block]  block
+      def disk(type, **options, &block)
+        disk_config = VagrantConfigDisk.new(type)
+
+        # Remove provider__option options before set_options, otherwise will
+        # show up as missing setting
+        # Extract provider hash options as well
+        provider_options = {}
+        options.delete_if do |p,o|
+          if o.is_a?(Hash) || p.to_s.include?("__")
+            provider_options[p] = o
+            true
+          end
+        end
+
+        disk_config.set_options(options)
+
+        # Add provider config
+        disk_config.add_provider_config(**provider_options, &block)
+
+        if !Vagrant::Util::Experimental.feature_enabled?("disks")
+          @logger.warn("Disk config defined, but experimental feature is not enabled. To use this feature, enable it with the experimental flag `disks`. Disk will not be added to internal config, and will be ignored.")
+          return
+        end
+
+        @disks << disk_config
+      end
+
+      # Stores config options for cloud_init
+      #
+      # @param [Symbol] type
+      # @param [Hash]   options
+      # @param [Block]  block
+      def cloud_init(type=nil, **options, &block)
+        type = type.to_sym if type
+
+        cloud_init_config = VagrantConfigCloudInit.new(type)
+
+        if block_given?
+          block.call(cloud_init_config, VagrantConfigCloudInit)
+        else
+          # config is hash
+          cloud_init_config.set_options(options)
+        end
+
+        if !Vagrant::Util::Experimental.feature_enabled?("cloud_init")
+          @logger.warn("cloud_init config defined, but experimental feature is not enabled. To use this feature, enable it with the experimental flag `cloud_init`. cloud_init config will not be added to internal config, and will be ignored.")
+          return
+        end
+
+        @cloud_init_configs << cloud_init_config
+      end
+
       #-------------------------------------------------------------------
       # Internal methods, don't call these.
       #-------------------------------------------------------------------
@@ -377,6 +510,7 @@ module VagrantPlugins
         # Defaults
         @allowed_synced_folder_types = nil if @allowed_synced_folder_types == UNSET_VALUE
         @base_mac = nil if @base_mac == UNSET_VALUE
+        @base_address = nil if @base_address == UNSET_VALUE
         @boot_timeout = 300 if @boot_timeout == UNSET_VALUE
         @box = nil if @box == UNSET_VALUE
         @ignore_box_vagrantfile = false if @ignore_box_vagrantfile == UNSET_VALUE
@@ -394,6 +528,9 @@ module VagrantPlugins
         @box_download_location_trusted = false if @box_download_location_trusted == UNSET_VALUE
         @box_url = nil if @box_url == UNSET_VALUE
         @box_version = nil if @box_version == UNSET_VALUE
+        @box_download_options = {} if @box_download_options == UNSET_VALUE
+        @box_extra_download_options = Vagrant::Util::MapCommandOptions.map_to_command_options(@box_download_options)
+        @allow_hosts_modification = true if @allow_hosts_modification == UNSET_VALUE
         @clone = nil if @clone == UNSET_VALUE
         @communicator = nil if @communicator == UNSET_VALUE
         @graceful_halt_timeout = 60 if @graceful_halt_timeout == UNSET_VALUE
@@ -493,7 +630,7 @@ module VagrantPlugins
 
             line = "(unknown)"
             if e.backtrace && e.backtrace[0]
-              line = e.backtrace[0].split(":")[1]
+              line = e.backtrace.first.slice(0, e.backtrace.first.rindex(':')).rpartition(':').last
             end
 
             raise Vagrant::Errors::VagrantfileLoadError,
@@ -521,14 +658,17 @@ module VagrantPlugins
             options[:type] = :nfs
           end
 
-          # Ignore NFS on Windows
-          if options[:type] == :nfs && Vagrant::Util::Platform.windows?
-            options.delete(:type)
-          end
-
           if options[:hostpath]  == '.'
             current_dir_shared = true
           end
+        end
+
+        @disks.each do |d|
+          d.finalize!
+        end
+
+        @cloud_init_configs.each do |c|
+          c.finalize!
         end
 
         if !current_dir_shared && !@__synced_folders["/vagrant"]
@@ -585,6 +725,17 @@ module VagrantPlugins
       def validate(machine, ignore_provider=nil)
         errors = _detected_errors
 
+        if @allow_fstab_modification == UNSET_VALUE
+          machine.synced_folders.types.each do |impl_name|
+            inst = machine.synced_folders.type(impl_name)
+            if inst.capability?(:default_fstab_modification) && inst.capability(:default_fstab_modification) == false
+              @allow_fstab_modification = false
+              break
+            end
+          end
+          @allow_fstab_modification = true if @allow_fstab_modification == UNSET_VALUE
+        end
+
         if !box && !clone && !machine.provider_options[:box_optional]
           errors << I18n.t("vagrant.config.vm.box_missing")
         end
@@ -593,7 +744,11 @@ module VagrantPlugins
           errors << I18n.t("vagrant.config.vm.clone_and_box")
         end
 
-        errors << I18n.t("vagrant.config.vm.hostname_invalid_characters") if \
+        if box && box.empty?
+          errors << I18n.t("vagrant.config.vm.box_empty", machine_name: machine.name)
+        end
+
+        errors << I18n.t("vagrant.config.vm.hostname_invalid_characters", name: machine.name) if \
           @hostname && @hostname !~ /^[a-z0-9][-.a-z0-9]*$/i
 
         if @box_version
@@ -634,6 +789,19 @@ module VagrantPlugins
         else
           if box_download_checksum != ""
             errors << I18n.t("vagrant.config.vm.box_download_checksum_notblank")
+          end
+        end
+
+        if !box_download_options.is_a?(Hash)
+          errors <<  I18n.t("vagrant.config.vm.box_download_options_type", type: box_download_options.class.to_s)
+        end
+
+        box_download_options.each do |k, v|
+          # If the value is truthy and
+          # if `box_extra_download_options` does not include the key
+          # then the conversion to extra download options produced an error
+          if v && !box_extra_download_options.include?("--#{k}")
+            errors <<  I18n.t("vagrant.config.vm.box_download_options_not_converted", missing_key: k)
           end
         end
 
@@ -678,9 +846,14 @@ module VagrantPlugins
             errors << I18n.t("vagrant.config.vm.shared_folder_mount_options_array")
           end
 
-          # One day remove this probably.
-          if options[:extra]
-            errors << "The 'extra' flag on synced folders is now 'mount_options'"
+          if options[:type]
+            plugins = Vagrant.plugin("2").manager.synced_folders
+            impl_class = plugins[options[:type]]
+            if !impl_class
+              errors << I18n.t("vagrant.config.vm.shared_folder_invalid_option_type",
+                              type: options[:type],
+                              options: plugins.keys.join(', '))
+            end
           end
         end
 
@@ -690,7 +863,17 @@ module VagrantPlugins
         valid_network_types = [:forwarded_port, :private_network, :public_network]
 
         port_range=(1..65535)
+        has_hostname_config = false
         networks.each do |type, options|
+          if options[:hostname]
+            if has_hostname_config
+              errors << I18n.t("vagrant.config.vm.multiple_networks_set_hostname")
+            end
+            if options[:ip] == nil
+              errors << I18n.t("vagrant.config.vm.network_with_hostname_must_set_ip")
+            end
+            has_hostname_config = true
+          end
           if !valid_network_types.include?(type)
             errors << I18n.t("vagrant.config.vm.network_type_invalid",
                             type: type.to_s)
@@ -732,6 +915,41 @@ module VagrantPlugins
           end
         end
 
+        # Validate disks
+        # Check if there is more than one primary disk defined and throw an error
+        primary_disks = @disks.select { |d| d.primary && d.type == :disk }
+        if primary_disks.size > 1
+          errors << I18n.t("vagrant.config.vm.multiple_primary_disks_error",
+                           name: machine.name)
+        end
+
+        disk_names = @disks.map { |d| d.name }
+        duplicate_names = disk_names.find_all { |d| disk_names.count(d) > 1 }
+        if duplicate_names.any?
+          errors << I18n.t("vagrant.config.vm.multiple_disk_names_error",
+                           name: machine.name,
+                           disk_names: duplicate_names.uniq.join("\n"))
+        end
+
+        disk_files = @disks.map { |d| d.file }
+        duplicate_files = disk_files.find_all { |d| d && disk_files.count(d) > 1 }
+        if duplicate_files.any?
+          errors << I18n.t("vagrant.config.vm.multiple_disk_files_error",
+                           name: machine.name,
+                           disk_files: duplicate_files.uniq.join("\n"))
+        end
+
+        @disks.each do |d|
+          error = d.validate(machine)
+          errors.concat(error) if !error.empty?
+        end
+
+        # Validate clout_init_configs
+        @cloud_init_configs.each do |c|
+          error = c.validate(machine)
+          errors.concat error if !error.empty?
+        end
+
         # We're done with VM level errors so prepare the section
         errors = { "vm" => errors }
 
@@ -755,6 +973,11 @@ module VagrantPlugins
             errors["vm"] << I18n.t("vagrant.config.vm.provisioner_not_found",
                                    name: name)
             next
+          end
+
+          provisioner_errors = vm_provisioner.validate(machine, @provisioners)
+          if provisioner_errors
+            errors = Vagrant::Config::V2::Util.merge_errors(errors, provisioner_errors)
           end
 
           if vm_provisioner.config
@@ -799,6 +1022,18 @@ module VagrantPlugins
               "vagrant.config.vm.name_invalid",
               name: name)
           end
+        end
+
+        if ![TrueClass, FalseClass].include?(@allow_fstab_modification.class)
+          errors["vm"] << I18n.t("vagrant.config.vm.config_type",
+            option: "allow_fstab_modification", given: @allow_fstab_modification.class, required: "Boolean"
+          )
+        end
+
+        if ![TrueClass, FalseClass].include?(@allow_hosts_modification.class)
+          errors["vm"] << I18n.t("vagrant.config.vm.config_type",
+            option: "allow_hosts_modification", given: @allow_hosts_modification.class, required: "Boolean"
+          )
         end
 
         errors

@@ -32,6 +32,7 @@ describe VagrantPlugins::Ansible::Config::Guest do
                             inventory_path
                             limit
                             pip_args
+                            pip_install_cmd
                             playbook
                             playbook_command
                             provisioning_path
@@ -60,6 +61,7 @@ describe VagrantPlugins::Ansible::Config::Guest do
       expect(subject.install_mode).to eql(:default)
       expect(subject.provisioning_path).to eql("/vagrant")
       expect(subject.tmp_path).to eql("/tmp/vagrant-ansible")
+      expect(subject.pip_install_cmd).to eql("")
     end
   end
 

@@ -1,0 +1,101 @@
+.block {
+  padding: 100px 0;
+}
+
+.hero {
+  display: flex;
+  align-items: center;
+  text-align: center;
+  margin: 150px 0;
+
+  & img {
+    max-width: 445px;
+  }
+
+  & .buttons > * {
+    margin-right: 15px;
+    margin-top: 25px;
+
+    & > *:last-child {
+      margin-right: 0;
+    }
+
+    @media (max-width: 500px) {
+      width: 100%;
+      margin-top: 20px;
+    }
+  }
+}
+
+.unifiedWorkflow {
+  composes: block;
+  background: var(--vagrant);
+  color: white;
+
+  & :global(.g-code-block) {
+    width: 100%;
+    margin-left: 50px;
+    overflow: scroll;
+
+    @media (max-width: 1000px) {
+      margin-left: 0;
+    }
+  }
+}
+
+/* enforce consistency section */
+
+.enforceConsistency {
+  composes: block;
+
+  & img {
+    max-width: 70%;
+  }
+}
+
+/* cross-platform section */
+
+.crossPlatform {
+  composes: block;
+  background: #0d44cc;
+  color: white;
+
+  & img {
+    max-width: 130px;
+    min-width: 20px;
+    height: auto;
+    fill: #fff;
+    padding: 0 20px;
+  }
+}
+
+/* trusted at scale section */
+
+.trustedAtScale {
+  composes: block;
+  background: var(--black);
+  color: white;
+
+  & .customerImg {
+    max-width: 80%;
+    margin: 50px auto 0 auto;
+    display: block;
+
+    @media (max-width: 800px) {
+      max-width: 100%;
+    }
+  }
+}
+
+.tag {
+  composes: g-type-label from global;
+  display: inline-block;
+  background: white;
+  color: black;
+  padding: 6px 8px;
+}
+
+.h2 {
+  composes: g-type-display-2 from global;
+  margin: 20px 0 10px 0;
+}

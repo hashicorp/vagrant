@@ -44,18 +44,22 @@ module VagrantPlugins
         command.flatten!
         blk = block
 
-        if !block_given? && command.last.is_a?(Hash)
-          # We were given a hash rather than a block,
-          # so the last element should be the "config block"
-          # and the rest are commands for the trigger
-          blk = command.pop
+        if command.last.is_a?(Hash)
+          if block_given?
+            extra_cfg = command.pop
+          else
+            # We were given a hash rather than a block,
+            # so the last element should be the "config block"
+            # and the rest are commands for the trigger
+            blk = command.pop
+          end
         elsif !block_given?
           raise Vagrant::Errors::TriggersNoBlockGiven,
             command: command
         end
 
         command.each do |cmd|
-          trigger = create_trigger(cmd, blk)
+          trigger = create_trigger(cmd, blk, extra_cfg)
           @_before_triggers << trigger
         end
       end
@@ -69,18 +73,22 @@ module VagrantPlugins
         command.flatten!
         blk = block
 
-        if !block_given? && command.last.is_a?(Hash)
-          # We were given a hash rather than a block,
-          # so the last element should be the "config block"
-          # and the rest are commands for the trigger
-          blk = command.pop
+        if command.last.is_a?(Hash)
+          if block_given?
+            extra_cfg = command.pop
+          else
+            # We were given a hash rather than a block,
+            # so the last element should be the "config block"
+            # and the rest are commands for the trigger
+            blk = command.pop
+          end
         elsif !block_given?
           raise Vagrant::Errors::TriggersNoBlockGiven,
             command: command
         end
 
         command.each do |cmd|
-          trigger = create_trigger(cmd, blk)
+          trigger = create_trigger(cmd, blk, extra_cfg)
           @_after_triggers << trigger
         end
       end
@@ -95,13 +103,15 @@ module VagrantPlugins
       #
       # @param [Symbol] command Vagrant command to create trigger on
       # @param [Block] block The defined config block
+      # @param [Hash] extra_cfg Extra configurations for a block defined trigger (Optional)
       # @return [VagrantConfigTrigger]
-      def create_trigger(command, block)
+      def create_trigger(command, block, extra_cfg=nil)
         trigger = VagrantConfigTrigger.new(command)
         if block.is_a?(Hash)
           trigger.set_options(block)
         else
           block.call(trigger, VagrantConfigTrigger)
+          trigger.set_options(extra_cfg) if extra_cfg
         end
         return trigger
       end

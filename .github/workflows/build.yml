@@ -1,0 +1,38 @@
+on:
+  push:
+    branches:
+      - master
+    paths-ignore:
+      - 'CHANGELOG.md'
+      - 'website/**'
+
+jobs:
+  build-gem:
+    if: github.repository == 'hashicorp/vagrant'
+    name: Build Vagrant RubyGem
+    runs-on: ubuntu-18.04
+    steps:
+      - name: Code Checkout
+        uses: actions/checkout@v1
+      - name: Set Ruby
+        uses: actions/setup-ruby@v1
+        with:
+          ruby-version: '2.6'
+      - name: Build RubyGem
+        run: ./.ci/build.sh
+        working-directory: ${{github.workspace}}
+        env:
+          ASSETS_LONGTERM_PREFIX: elt
+          ASSETS_PRIVATE_BUCKET: ${{ secrets.ASSETS_PRIVATE_BUCKET }}
+          ASSETS_PRIVATE_LONGTERM: ${{ secrets.ASSETS_PRIVATE_LONGTERM }}
+          ASSETS_PRIVATE_SHORTTERM: ${{ secrets.ASSETS_PRIVATE_SHORTTERM }}
+          ASSETS_PUBLIC_BUCKET: ${{ secrets.ASSETS_PUBLIC_BUCKET }}
+          ASSETS_PUBLIC_LONGTERM: ${{ secrets.ASSETS_PUBLIC_LONGTERM }}
+          ASSETS_PUBLIC_SHORTTERM: ${{ secrets.ASSETS_PUBLIC_SHORTTERM }}
+          ASSETS_SHORTTERM_PREFIX: est
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          HASHIBOT_EMAIL: ${{ secrets.HASHIBOT_EMAIL }}
+          HASHIBOT_TOKEN: ${{ secrets.HASHIBOT_TOKEN }}
+          HASHIBOT_USERNAME: ${{ secrets.HASHIBOT_USERNAME }}
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}

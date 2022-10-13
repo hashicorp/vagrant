@@ -120,7 +120,7 @@ describe VagrantPlugins::CommunicatorSSH::Communicator do
       context "when printing message to the user" do
         before do
           allow(machine).to receive(:ssh_info).
-            and_return(host: '10.1.2.3', port: 22).ordered
+            and_return(host: '10.1.2.3', port: 22)
           allow(communicator).to receive(:connect)
           allow(communicator).to receive(:ready?).and_return(true)
         end
@@ -317,10 +317,20 @@ describe VagrantPlugins::CommunicatorSSH::Communicator do
       end
     end
 
+    context "with no exit code received" do
+      let(:exit_data) { double("exit_data", read_long: nil) }
+
+      it "raises error when exit code is nil" do
+        expect(command_channel).to receive(:send_data).with(/make\n/)
+        expect{ communicator.execute("make") }.to raise_error(Vagrant::Errors::SSHNoExitStatus)
+      end
+    end
+
     context "with garbage content prepended to command output" do
       let(:command_stdout_data) do
         "Line of garbage\nMore garbage\n#{command_garbage_marker}bin\ntmp\n"
       end
+      let(:command_stderr_data) { "some data" }
 
       it "removes any garbage output prepended to command output" do
         stdout = ''
@@ -333,12 +343,23 @@ describe VagrantPlugins::CommunicatorSSH::Communicator do
         ).to eq(0)
         expect(stdout).to eq("bin\ntmp\n")
       end
+
+      it "should not receive any stderr data" do
+        stderr = ''
+        communicator.execute("ls /") do |type, data|
+          if type == :stderr
+            stderr << data
+          end
+        end
+        expect(stderr).to be_empty
+      end
     end
 
     context "with no command output" do
       let(:command_stdout_data) do
         "#{command_garbage_marker}"
       end
+      let(:command_stderr_data) { "some data" }
 
       it "does not send empty stdout data string" do
         empty = true
@@ -351,12 +372,23 @@ describe VagrantPlugins::CommunicatorSSH::Communicator do
         ).to eq(0)
         expect(empty).to be(true)
       end
+
+      it "should not receive any stderr data" do
+        stderr = ''
+        communicator.execute("ls /") do |type, data|
+          if type == :stderr
+            stderr << data
+          end
+        end
+        expect(stderr).to be_empty
+      end
     end
 
     context "with garbage content prepended to command stderr output" do
       let(:command_stderr_data) do
         "Line of garbage\nMore garbage\n#{command_garbage_marker}bin\ntmp\n"
       end
+      let(:command_stdout_data) { "some data" }
 
       it "removes any garbage output prepended to command stderr output" do
         stderr = ''
@@ -369,12 +401,23 @@ describe VagrantPlugins::CommunicatorSSH::Communicator do
         ).to eq(0)
         expect(stderr).to eq("bin\ntmp\n")
       end
+
+      it "should not receive any stdout data" do
+        stdout = ''
+        communicator.execute("ls /") do |type, data|
+          if type == :stdout
+            stdout << data
+          end
+        end
+        expect(stdout).to be_empty
+      end
     end
 
     context "with no command output on stderr" do
       let(:command_stderr_data) do
         "#{command_garbage_marker}"
       end
+      let(:command_std_data) { "some data" }
 
       it "does not send empty stderr data string" do
         empty = true
@@ -386,6 +429,16 @@ describe VagrantPlugins::CommunicatorSSH::Communicator do
           end
         ).to eq(0)
         expect(empty).to be(true)
+      end
+
+      it "should not receive any stdout data" do
+        stdout = ''
+        communicator.execute("ls /") do |type, data|
+          if type == :stdout
+            stdout << data
+          end
+        end
+        expect(stdout).to be_empty
       end
     end
 
@@ -453,12 +506,39 @@ describe VagrantPlugins::CommunicatorSSH::Communicator do
   describe ".upload" do
     before do
       expect(communicator).to receive(:scp_connect).and_yield(scp)
+      allow(communicator).to receive(:create_remote_directory)
     end
 
-    it "uploads a directory if local path is a directory" do
-      Dir.mktmpdir('vagrant-test') do |dir|
-        expect(scp).to receive(:upload!).with(dir, '/destination', recursive: true)
-        communicator.upload(dir, '/destination')
+    context "directory uploads" do
+      let(:test_dir) { @dir }
+      let(:test_file) { File.join(test_dir, "test-file") }
+      let(:dir_name) { File.basename(test_dir) }
+      let(:file_name) { File.basename(test_file) }
+
+      before do
+        @dir = Dir.mktmpdir("vagrant-test")
+        FileUtils.touch(test_file)
+      end
+
+      after { FileUtils.rm_rf(test_dir) }
+
+      it "uploads directory when directory path provided" do
+        expect(scp).to receive(:upload!).with(instance_of(File),
+          File.join("", "destination", dir_name, file_name))
+        communicator.upload(test_dir, "/destination")
+      end
+
+      it "uploads contents of directory when dot suffix provided on directory" do
+        expect(scp).to receive(:upload!).with(instance_of(File),
+          File.join("", "destination", file_name))
+        communicator.upload(File.join(test_dir, "."), "/destination")
+      end
+
+      it "creates directories before upload" do
+        expect(communicator).to receive(:create_remote_directory).with(
+          /#{Regexp.escape(File.join("", "destination", dir_name))}/)
+        allow(scp).to receive(:upload!)
+        communicator.upload(test_dir, "/destination")
       end
     end
 
@@ -469,6 +549,38 @@ describe VagrantPlugins::CommunicatorSSH::Communicator do
         communicator.upload(file.path, '/destination/file')
       ensure
         file.delete
+      end
+    end
+
+    it "uploads file to directory if destination ends with file separator" do
+      file = Tempfile.new('vagrant-test')
+      begin
+        expect(scp).to receive(:upload!).with(instance_of(File), "/destination/dir/#{File.basename(file.path)}")
+        expect(communicator).to receive(:create_remote_directory).with("/destination/dir")
+        communicator.upload(file.path, "/destination/dir/")
+      ensure
+        file.delete
+      end
+    end
+
+    it "creates remote directory path to destination on upload" do
+      file = Tempfile.new('vagrant-test')
+      begin
+        expect(scp).to receive(:upload!).with(instance_of(File), "/destination/dir/file.txt")
+        expect(communicator).to receive(:create_remote_directory).with("/destination/dir")
+        communicator.upload(file.path, "/destination/dir/file.txt")
+      ensure
+        file.delete
+      end
+    end
+
+    it "creates remote directory given an empty directory" do
+      file = Dir.mktmpdir
+      begin
+        expect(communicator).to receive(:create_remote_directory).with("/destination/dir/#{ File.basename(file)}/")
+        communicator.upload(file, "/destination/dir")
+      ensure
+        FileUtils.rm_rf(file)
       end
     end
 
@@ -559,20 +671,6 @@ describe VagrantPlugins::CommunicatorSSH::Communicator do
         expect(Net::SSH).to receive(:start).with(
           nil, nil, hash_including(
             auth_methods: ["none", "hostbased"]
-          )
-        ).and_return(true)
-        communicator.send(:connect)
-      end
-
-      it "includes the default cipher array for encryption" do
-        cipher_array = %w(aes128-cbc 3des-cbc blowfish-cbc cast128-cbc
-                         aes192-cbc aes256-cbc rijndael-cbc@lysator.liu.se
-                         idea-cbc arcfour128 arcfour256 arcfour
-                         aes128-ctr aes192-ctr aes256-ctr
-                         cast128-ctr blowfish-ctr 3des-ctr none)
-        expect(Net::SSH).to receive(:start).with(
-          nil, nil, hash_including(
-            encryption: cipher_array
           )
         ).and_return(true)
         communicator.send(:connect)
@@ -743,6 +841,67 @@ describe VagrantPlugins::CommunicatorSSH::Communicator do
         expect(Net::SSH).to receive(:start).with(
           anything, anything, hash_including(
             auth_methods: ["none", "hostbased", "publickey", "password"]
+          )
+        ).and_return(true)
+        communicator.send(:connect)
+      end
+    end
+
+    context "with config configured" do
+      before do
+        expect(machine).to receive(:ssh_info).and_return(
+          host: '127.0.0.1',
+          port: 2222,
+          config: './ssh_config',
+          keys_only: true,
+          verify_host_key: false
+        )
+      end
+
+      it "has config defined" do
+        expect(Net::SSH).to receive(:start).with(
+          anything, anything, hash_including(
+            config: './ssh_config'
+          )
+        ).and_return(true)
+        communicator.send(:connect)
+      end
+    end
+
+    context "with remote_user configured" do
+      let(:remote_user) { double("remote_user") }
+
+      before do
+        expect(machine).to receive(:ssh_info).and_return(
+          host: '127.0.0.1',
+          port: 2222,
+          remote_user: remote_user
+        )
+      end
+
+      it "has remote_user defined" do
+        expect(Net::SSH).to receive(:start).with(
+          anything, anything, hash_including(
+            remote_user: remote_user
+          )
+        ).and_return(true)
+        communicator.send(:connect)
+      end
+    end
+
+    context "with connect_timeout configured" do
+      before do
+        expect(machine).to receive(:ssh_info).and_return(
+          host: '127.0.0.1',
+          port: 2222,
+          connect_timeout: 30
+        )
+      end
+
+      it "has connect_timeout defined" do
+        expect(Net::SSH).to receive(:start).with(
+          anything, anything, hash_including(
+            timeout: 30
           )
         ).and_return(true)
         communicator.send(:connect)

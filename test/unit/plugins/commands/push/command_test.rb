@@ -11,6 +11,7 @@ describe VagrantPlugins::CommandPush::Command do
     iso_env.vagrantfile(<<-VF)
       Vagrant.configure("2") do |config|
         config.vm.box = "hashicorp/precise64"
+        config.vm.synced_folder ".", "/vagrant", disabled: true
       end
     VF
     iso_env.create_vagrant_env
@@ -47,6 +48,7 @@ describe VagrantPlugins::CommandPush::Command do
       iso_env.vagrantfile <<-EOH
         Vagrant.configure("2") do |config|
           config.vm.box = "hashicorp/precise64"
+          config.vm.synced_folder ".", "/vagrant", disabled: true
 
           config.push.define "noop" do |push|
             push.bad = "ham"

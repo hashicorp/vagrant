@@ -8,9 +8,10 @@ describe "VagrantPlugins::GuestWindows::Cap::Reboot" do
   end
   let(:vm) { double("vm") }
   let(:config) { double("config") }
-  let(:machine) { double("machine") }
+  let(:machine) { double("machine", ui: ui) }
   let(:guest) { double("guest") }
   let(:communicator) { double("communicator") }
+  let(:ui) { double("ui") }
 
   before do
     allow(machine).to receive(:communicate).and_return(communicator)
@@ -18,6 +19,7 @@ describe "VagrantPlugins::GuestWindows::Cap::Reboot" do
     allow(machine.guest).to receive(:ready?).and_return(true)
     allow(machine).to receive(:config).and_return(config)
     allow(config).to receive(:vm).and_return(vm)
+    allow(ui).to receive(:info)
   end
 
   describe ".reboot" do
@@ -26,13 +28,52 @@ describe "VagrantPlugins::GuestWindows::Cap::Reboot" do
     end
 
     it "reboots the vm" do
+      allow(communicator).to receive(:execute)
+
+      expect(communicator).to receive(:test).with(/# Function/, { error_check: false, shell: :powershell }).and_return(0)
+      expect(communicator).to receive(:execute).with(/shutdown/, { shell: :powershell }).and_return(0)
+      expect(described_class).to receive(:wait_for_reboot)
+
+      described_class.reboot(machine)
+    end
+
+    context "user output" do
+      before do
+        allow(communicator).to receive(:execute)
+        allow(described_class).to receive(:wait_for_reboot)
+      end
+
+      after { described_class.reboot(machine) }
+
+      it "sends message to user that guest is rebooting" do
+        expect(communicator).to receive(:test).and_return(true)
+        expect(ui).to receive(:info)
+      end
+    end
+
+    context "with exceptions while waiting for reboot" do
+      before { allow(described_class).to receive(:sleep) }
+
+      it "should retry on any standard error" do
         allow(communicator).to receive(:execute)
 
         expect(communicator).to receive(:test).with(/# Function/, { error_check: false, shell: :powershell }).and_return(0)
         expect(communicator).to receive(:execute).with(/shutdown/, { shell: :powershell }).and_return(0)
+        expect(described_class).to receive(:wait_for_reboot).and_raise(StandardError)
         expect(described_class).to receive(:wait_for_reboot)
 
         described_class.reboot(machine)
+      end
+
+      it "should not retry when exception is not a standard error" do
+        allow(communicator).to receive(:execute)
+
+        expect(communicator).to receive(:test).with(/# Function/, { error_check: false, shell: :powershell }).and_return(0)
+        expect(communicator).to receive(:execute).with(/shutdown/, { shell: :powershell }).and_return(0)
+        expect(described_class).to receive(:wait_for_reboot).and_raise(Exception)
+
+        expect { described_class.reboot(machine) }.to raise_error(Exception)
+      end
     end
   end
 

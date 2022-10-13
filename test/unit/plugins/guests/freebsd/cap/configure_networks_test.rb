@@ -13,8 +13,7 @@ describe "VagrantPlugins::GuestFreeBSD::Cap::ConfigureNetworks" do
 
   before do
     allow(machine).to receive(:communicate).and_return(comm)
-    comm.stub_command("ifconfig -a | grep -o '^[0-9a-z]*' | grep -v '^lo'",
-      stdout: "em1\nem2")
+    comm.stub_command("ifconfig -l ether", stdout: "em1 em2")
   end
 
   after do

@@ -64,6 +64,11 @@ module Vagrant
         # @return [Registry<Symbol, Array<Class, Integer>>]
         attr_reader :synced_folders
 
+        # This contains all the registered synced folder capabilities.
+        #
+        # @return [Hash<Symbol, Registry>]
+        attr_reader :synced_folder_capabilities
+
         def initialize
           # The action hooks hash defaults to []
           @action_hooks = Hash.new { |h, k| h[k] = [] }
@@ -78,6 +83,7 @@ module Vagrant
           @provider_capabilities = Hash.new { |h, k| h[k] = Registry.new }
           @pushes = Registry.new
           @synced_folders = Registry.new
+          @synced_folder_capabilities = Hash.new { |h, k| h[k] = Registry.new }
         end
       end
     end

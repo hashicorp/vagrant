@@ -10,6 +10,8 @@ describe "VagrantPlugins::GuestArch::Cap::ChangeHostName" do
 
   let(:machine) { double("machine") }
   let(:comm) { VagrantTests::DummyCommunicator::Communicator.new(machine) }
+  let(:name) { "banana-rama.example.com" }
+  let(:basename) { "banana-rama" }
 
   before do
     allow(machine).to receive(:communicate).and_return(comm)
@@ -20,19 +22,28 @@ describe "VagrantPlugins::GuestArch::Cap::ChangeHostName" do
   end
 
   describe ".change_host_name" do
-    let(:name) { "banana-rama.example.com" }
+    context "minimal network config" do 
+      let(:networks) { [
+        [:forwarded_port, {:guest=>22, :host=>2222, :host_ip=>"127.0.0.1", :id=>"ssh", :auto_correct=>true, :protocol=>"tcp"}]
+      ] }
 
-    it "sets the hostname" do
-      comm.stub_command("hostname -f | grep '^#{name}$'", exit_code: 1)
+      before do 
+        allow(machine).to receive_message_chain(:config, :vm, :networks).and_return(networks)
+      end
 
-      described_class.change_host_name(machine, name)
-      expect(comm.received_commands[1]).to match(/hostnamectl set-hostname 'banana-rama'/)
-    end
+      it "sets the hostname" do
+        comm.stub_command("hostname -f | grep '^#{name}$'", exit_code: 1)
 
-    it "does not change the hostname if already set" do
-      comm.stub_command("hostname -f | grep '^#{name}$'", exit_code: 0)
-      described_class.change_host_name(machine, name)
-      expect(comm.received_commands.size).to eq(1)
+        described_class.change_host_name(machine, name)
+        expect(comm.received_commands[2]).to match(/hostnamectl set-hostname '#{basename}'/)
+      end
+
+      it "does not change the hostname if already set" do
+        comm.stub_command("hostname -f | grep '^#{name}$'", exit_code: 0)
+
+        described_class.change_host_name(machine, name)
+        expect(comm).to_not receive(:sudo).with(/hostnamectl set-hostname/)
+      end
     end
   end
 end

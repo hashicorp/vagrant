@@ -17,14 +17,22 @@ module VagrantPlugins
         def execute
           options = {}
           options[:snapshot_delete] = true
+          options[:provision_ignore_sentinel] = false
+          options[:snapshot_start] = true
+
           opts = OptionParser.new do |o|
             o.banner = "Usage: vagrant snapshot pop [options] [vm-name]"
             o.separator ""
+            o.separator "Restore state that was pushed onto the snapshot stack"
+            o.separator "with `vagrant snapshot push`."
+            o.separator ""
             build_start_options(o, options)
-            o.separator "Restore state that was pushed with `vagrant snapshot push`."
 
             o.on("--no-delete", "Don't delete the snapshot after the restore") do
                 options[:snapshot_delete] = false
+            end
+            o.on("--no-start", "Don't start the snapshot after the restore") do
+              options[:snapshot_start] = false
             end
           end
 

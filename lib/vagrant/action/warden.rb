@@ -1,4 +1,5 @@
 require "log4r"
+require 'vagrant/util/experimental'
 
 module Vagrant
   module Action
@@ -16,8 +17,21 @@ module Vagrant
       attr_accessor :actions, :stack
 
       def initialize(actions, env)
+        if Vagrant::Util::Experimental.feature_enabled?("typed_triggers")
+          if env[:trigger_env]
+            @env = env[:trigger_env]
+          else
+            @env = env[:env]
+          end
+
+          machine = env[:machine]
+          machine_name = machine.name if machine
+          ui = Vagrant::UI::Prefixed.new(@env.ui, "vagrant")
+          @triggers = Vagrant::Plugin::V2::Trigger.new(@env, @env.vagrantfile.config.trigger, machine, ui)
+        end
+
         @stack      = []
-        @actions    = actions.map { |m| finalize_action(m, env) }
+        @actions    = actions.map { |m| finalize_action(m, env) }.flatten
         @logger     = Log4r::Logger.new("vagrant::action::warden")
         @last_error = nil
       end
@@ -34,9 +48,9 @@ module Vagrant
           @stack.unshift(action).first.call(env)
           raise Errors::VagrantInterrupt if env[:interrupted]
           @logger.info("Calling OUT action: #{action}")
-        rescue SystemExit
-          # This means that an "exit" or "abort" was called. In these cases,
-          # we just exit immediately.
+        rescue SystemExit, NoMemoryError
+          # This means that an "exit" or "abort" was called, or we have run out
+          # of memory. In these cases, we just exit immediately.
           raise
         rescue Exception => e
           # We guard this so that the Warden only outputs this once for
@@ -78,16 +92,34 @@ module Vagrant
       # A somewhat confusing function which simply initializes each
       # middleware properly to call the next middleware in the sequence.
       def finalize_action(action, env)
-        klass, args, block = action
+        if action.is_a?(Builder::StackItem)
+          klass = action.middleware
+          args = action.arguments.parameters
+          keywords = action.arguments.keywords
+          block = action.arguments.block
+        else
+          klass = action
+          args = []
+          keywords = {}
+        end
 
-        # Default the arguments to an empty array. Otherwise in Ruby 1.8
-        # a `nil` args will actually pass `nil` into the class.
-        args ||= []
+        args = nil if args.empty?
+        keywords = nil if keywords.empty?
 
         if klass.is_a?(Class)
-          # A action klass which is to be instantiated with the
-          # app, env, and any arguments given
-          klass.new(self, env, *args, &block)
+          # NOTE: We need to detect if we are passing args and/or
+          #       keywords and do it explicitly. Earlier versions
+          #       are not as lax about splatting keywords when the
+          #       target method is not expecting them.
+          if args && keywords
+            klass.new(self, env, *args, **keywords, &block)
+          elsif args
+            klass.new(self, env, *args, &block)
+          elsif keywords
+            klass.new(self, env, **keywords, &block)
+          else
+            klass.new(self, env, &block)
+          end
         elsif klass.respond_to?(:call)
           # Make it a lambda which calls the item then forwards
           # up the chain

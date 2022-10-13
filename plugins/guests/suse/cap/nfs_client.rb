@@ -5,8 +5,8 @@ module VagrantPlugins
         def self.nfs_client_install(machine)
           machine.communicate.sudo <<-EOH.gsub(/^ {12}/, '')
             zypper -n install nfs-client
-            /sbin/service rpcbind restart
-            /sbin/service nfs restart
+            /usr/bin/systemctl restart rpcbind
+            /usr/bin/systemctl restart nfs-client.target
           EOH
         end
       end

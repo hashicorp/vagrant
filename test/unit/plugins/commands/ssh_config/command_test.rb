@@ -165,5 +165,18 @@ Host #{machine.name}
       expect(output).to include('StrictHostKeyChecking ')
       expect(output).to include('UserKnownHostsFile ')
     end
+
+    it "includes custom ssh_config path when provided" do
+      allow(machine).to receive(:ssh_info) { ssh_info.merge(config: "/custom/ssh/config") }
+
+      output = ""
+      allow(subject).to receive(:safe_puts) do |data|
+        output += data if data
+      end
+
+      subject.execute
+
+      expect(output).to include("Include /custom/ssh/config")
+    end
   end
 end

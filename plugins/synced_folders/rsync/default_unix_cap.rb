@@ -23,12 +23,13 @@ module VagrantPlugins
         if opts.key?(:chown) && !opts[:chown]
           return
         end
+
         machine.communicate.sudo(build_rsync_chown(opts))
       end
 
       def build_rsync_chown(opts)
         guest_path = Shellwords.escape(opts[:guestpath])
-        if(opts[:exclude])
+        if(opts[:exclude] && !Array(opts[:exclude]).empty?)
           exclude_base = Pathname.new(opts[:guestpath])
           exclusions = Array(opts[:exclude]).map do |ex_path|
             ex_path = ex_path.slice(1, ex_path.size) if ex_path.start_with?(File::SEPARATOR)

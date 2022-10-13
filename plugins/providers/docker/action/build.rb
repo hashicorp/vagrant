@@ -19,7 +19,7 @@ module VagrantPlugins
           build_dir ||= machine.provider_config.build_dir
           git_repo  = env[:git_repo]
           git_repo  ||= machine.provider_config.git_repo
-          
+
           # If we're not building a container, then just skip this step
           return @app.call(env) if (!build_dir && !git_repo)
 

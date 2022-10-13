@@ -281,4 +281,35 @@ describe Vagrant::Util::PowerShell do
     end
 
   end
+
+  describe ".powerup_command" do
+    let(:result) do
+      Vagrant::Util::Subprocess::Result.new( exit_code, stdout, stderr)
+    end
+    let(:exit_code){ 0 }
+    let(:stdout){ "" }
+    let(:stderr){ "" }
+
+    context "when the powershell executable is 'powershell'" do
+      before do
+        allow(described_class).to receive(:executable).and_return("powershell")
+      end
+
+      it "should use the 'powershell' executable" do
+        expect(Vagrant::Util::Subprocess).to receive(:execute).with("powershell", any_args).and_return(result)
+        described_class.powerup_command("run", [], [])
+      end
+    end
+
+    context "when the powershell executable is 'powershell.exe'" do
+      before do
+        allow(described_class).to receive(:executable).and_return("powershell.exe")
+      end
+
+      it "should use the 'powershell.exe' executable" do
+        expect(Vagrant::Util::Subprocess).to receive(:execute).with("powershell.exe", any_args).and_return(result)
+        described_class.powerup_command("run", [], [])
+      end
+    end
+  end
 end

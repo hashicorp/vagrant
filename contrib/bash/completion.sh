@@ -75,7 +75,19 @@ _vagrant() {
               then
                 local vm_list=$(find "${vagrant_state_file}/machines" -mindepth 1 -maxdepth 1 -type d -exec basename {} \;)
               fi
-              local up_commands="--no-provision"
+              local up_commands="\
+                --provision \
+                --no-provision \
+                --provision-with \
+                --destroy-on-error \
+                --no-destroy-on-error \
+                --parallel \
+                --no-parallel
+                --provider \
+                --install-provider \
+                --no-install-provider \
+                -h \
+                --help"
               COMPREPLY=($(compgen -W "${up_commands} ${vm_list}" -- ${cur}))
               return 0
             ;;
@@ -85,7 +97,7 @@ _vagrant() {
               then
                 running_vm_list=$(grep 'active' "${vagrant_state_file}" | sed -e 's/"active"://' | tr ',' '\n' | cut -d '"' -f 2 | tr '\n' ' ')
               else
-                running_vm_list=$(find "${vagrant_state_file}" -type f -name "id" | awk -F"/" '{print $(NF-2)}')
+                running_vm_list=$(find "${vagrant_state_file}/machines" -type f -name "id" | awk -F"/" '{print $(NF-2)}')
               fi
               COMPREPLY=($(compgen -W "${running_vm_list}" -- ${cur}))
               return 0

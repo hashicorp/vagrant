@@ -35,6 +35,14 @@ module Vagrant
     !!ENV["VAGRANT_INSTALLER_ENV"]
   end
 
+  # This returns a true/false if we are running within a bundler environment
+  #
+  # @return [Boolean]
+  def self.in_bundler?
+    !!ENV["BUNDLE_GEMFILE"] &&
+      !defined?(::Bundler).nil?
+  end
+
   # Returns the path to the embedded directory of the Vagrant installer,
   # if there is one (if we're running in an installer).
   #
@@ -177,5 +185,33 @@ module Vagrant
       @_global_logger = Log4r::Logger.new("vagrant::global")
     end
     @_global_logger
+  end
+
+  # Add a new block of default CLI options which
+  # should be automatically added to all commands
+  #
+  # @param [Proc] block Proc instance containing OptParser configuration
+  # @return [nil]
+  def self.add_default_cli_options(block)
+    if !block.is_a?(Proc)
+      raise TypeError,
+        "Expecting type `Proc` but received `#{block.class}`"
+    end
+    if block.arity != 1 && block.arity != -1
+      raise ArgumentError,
+        "Proc must accept OptionParser argument"
+    end
+    @_default_cli_options = [] if !@_default_cli_options
+    @_default_cli_options << block
+    nil
+  end
+
+  # Array of default CLI options to automatically
+  # add to commands.
+  #
+  # @return [Array<Proc>] Default optparse options
+  def self.default_cli_options
+    @_default_cli_options = [] if !@_default_cli_options
+    @_default_cli_options.dup
   end
 end

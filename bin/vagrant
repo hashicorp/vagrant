@@ -89,9 +89,27 @@ begin
   require 'vagrant/bundler'
   require 'vagrant/cli'
   require 'vagrant/util/platform'
+  require 'vagrant/util/experimental'
 
   # Schedule the cleanup of things
   at_exit(&Vagrant::Bundler.instance.method(:deinit))
+
+  # If this is not a pre-release disable verbose output
+  if !Vagrant.prerelease?
+    $VERBOSE = nil
+  end
+
+  # Add any option flags defined within this file here
+  # so they are automatically propagated to all commands
+  Vagrant.add_default_cli_options(proc { |o|
+    o.on("--[no-]color", "Enable or disable color output")
+    o.on("--machine-readable", "Enable machine readable output")
+    o.on("-v", "--version", "Display Vagrant version")
+    o.on("--debug", "Enable debug output")
+    o.on("--timestamp", "Enable timestamps on log output")
+    o.on("--debug-timestamp", "Enable debug output with timestamps")
+    o.on("--no-tty", "Enable non-interactive output")
+  })
 
   # Create a logger right away
   logger = Log4r::Logger.new("vagrant::bin::vagrant")
@@ -129,6 +147,12 @@ begin
     opts[:ui_class] = Vagrant::UI::MachineReadable
   end
 
+  # Setting to enable/disable showing progress bars
+  if argv.include?("--no-tty")
+    argv.delete("--no-tty")
+    opts[:ui_class] = Vagrant::UI::NonInteractive
+  end
+
   # Default to colored output
   opts[:ui_class] ||= Vagrant::UI::Colored
 
@@ -157,6 +181,23 @@ begin
   if !Vagrant.in_installer? && !Vagrant.very_quiet?
     # If we're not in the installer, warn.
     env.ui.warn(I18n.t("vagrant.general.not_in_installer") + "\n", prefix: false)
+  end
+
+  # Acceptable experimental flag values include:
+  #
+  # Unset  - Disables experimental features
+  # 0      - Disables experimental features
+  # 1      - Enables all features
+  # String - Enables one or more features, separated by commas
+  if Vagrant::Util::Experimental.enabled?
+    experimental = Vagrant::Util::Experimental.features_requested
+    ui = Vagrant::UI::Prefixed.new(env.ui, "vagrant")
+    logger.debug("Experimental flag is enabled")
+    if Vagrant::Util::Experimental.global_enabled?
+      ui.warn(I18n.t("vagrant.general.experimental.all"), bold: true, prefix: true, channel: :error)
+    else
+      ui.warn(I18n.t("vagrant.general.experimental.features", features: experimental.join(", ")), bold: true, prefix: true, channel: :error)
+    end
   end
 
   begin

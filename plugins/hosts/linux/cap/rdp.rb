@@ -48,7 +48,7 @@ module VagrantPlugins
           end
 
           # Finally, run the client.
-          Vagrant::Util::Subprocess.execute(rdp_client, *args)
+          Vagrant::Util::Subprocess.execute(rdp_client, *args, {:detach => true})
         end
       end
     end

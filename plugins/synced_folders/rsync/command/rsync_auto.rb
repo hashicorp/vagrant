@@ -8,11 +8,6 @@ require "vagrant/util/platform"
 
 require_relative "../helper"
 
-# This is to avoid a bug in nio 1.0.0. Remove around nio 1.0.1
-if Vagrant::Util::Platform.windows?
-  ENV["NIO4R_PURE"] = "1"
-end
-
 require "listen"
 
 module VagrantPlugins
@@ -37,6 +32,10 @@ module VagrantPlugins
 
             o.on("--[no-]poll", "Force polling filesystem (slow)") do |poll|
               options[:poll] = poll
+            end
+
+            o.on("--[no-]rsync-chown", "Use rsync to modify ownership") do |chown|
+              options[:rsync_chown] = chown
             end
           end
 
@@ -88,6 +87,9 @@ module VagrantPlugins
                 machine.ui.info(I18n.t("vagrant.rsync_auto_remove_folder",
                                     folder: folder_opts[:hostpath]))
               else
+                if options.has_key?(:rsync_chown)
+                  folder_opts = folder_opts.merge(rsync_ownership: options[:rsync_chown])
+                end
                 sync_folders[id] = folder_opts
               end
             end
@@ -119,9 +121,13 @@ module VagrantPlugins
 
               if folder_opts[:exclude]
                 Array(folder_opts[:exclude]).each do |pattern|
-                  ignores << RsyncHelper.exclude_to_regexp(hostpath, pattern.to_s)
+                  ignores << RsyncHelper.exclude_to_regexp(pattern.to_s)
                 end
               end
+
+              # Always ignore Vagrant
+              ignores << /.vagrant\//
+              ignores.uniq!
             end
           end
 
@@ -217,6 +223,10 @@ module VagrantPlugins
                 # halt is happening. Just notify the user but don't fail out.
                 opts[:machine].ui.error(I18n.t(
                   "vagrant.rsync_communicator_not_ready_callback"))
+              rescue Vagrant::Errors::RSyncPostCommandError => e
+                # Error executing rsync chown command
+                opts[:machine].ui.error(I18n.t(
+                  "vagrant.rsync_auto_post_command_error", message: e.to_s))
               rescue Vagrant::Errors::RSyncError => e
                 # Error executing rsync, so show an error
                 opts[:machine].ui.error(I18n.t(

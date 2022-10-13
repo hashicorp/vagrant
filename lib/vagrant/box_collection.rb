@@ -116,7 +116,7 @@ module Vagrant
           # Extract the box into a temporary directory.
           @logger.debug("Unpacking box into temporary directory: #{temp_dir}")
           result = Util::Subprocess.execute(
-            "bsdtar", "-v", "-x", "-m", "-s", "|\\\\\|/|", "-C", temp_dir.to_s, "-f", path.to_s)
+            "bsdtar", "--no-same-owner", "--no-same-permissions", "-v", "-x", "-m", "-s", "|\\\\\|/|", "-C", temp_dir.to_s, "-f", path.to_s)
           if result.exit_code != 0
             raise Errors::BoxUnpackageFailure,
               output: result.stderr.to_s
@@ -233,14 +233,23 @@ module Vagrant
             version = versiondir.basename.to_s
 
             versiondir.children(true).each do |provider|
+              # Ensure version of box is correct before continuing
+              if !Gem::Version.correct?(version)
+                ui = Vagrant::UI::Prefixed.new(Vagrant::UI::Colored.new, "vagrant")
+                ui.warn(I18n.t("vagrant.box_version_malformed",
+                              version: version, box_name: box_name))
+                @logger.debug("Invalid version #{version} for box #{box_name}")
+                next
+              end
+
               # Verify this is a potentially valid box. If it looks
               # correct enough then include it.
               if provider.directory? && provider.join("metadata.json").file?
                 provider_name = provider.basename.to_s.to_sym
-                @logger.debug("Box: #{box_name} (#{provider_name})")
+                @logger.debug("Box: #{box_name} (#{provider_name}, #{version})")
                 results << [box_name, version, provider_name]
               else
-                @logger.debug("Invalid box, ignoring: #{provider}")
+                @logger.debug("Invalid box #{box_name}, ignoring: #{provider}")
               end
             end
           end
@@ -316,7 +325,7 @@ module Vagrant
 
             return Box.new(
               name, provider, version_dir_map[v.to_s], provider_dir,
-              metadata_url: metadata_url,
+              metadata_url: metadata_url, hook: @hook
             )
           end
         end

@@ -22,7 +22,7 @@ module VagrantPlugins
             args = rdp_info[:extra_args] + args
           end
           # Launch it
-          Vagrant::Util::Subprocess.execute("mstsc", *args)
+          Vagrant::Util::Subprocess.execute("mstsc", *args, {:detach => true})
         end
       end
     end

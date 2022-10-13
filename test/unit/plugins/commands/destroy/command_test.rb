@@ -44,7 +44,7 @@ describe VagrantPlugins::CommandDestroy::Command do
     end
 
     it "should destroy the default box" do
-      allow_any_instance_of(Vagrant::BatchAction).to receive(:action) .with(machine, :destroy, anything)
+      allow_any_instance_of(Vagrant::BatchAction).to receive(:action) .with(machine, :destroy, force_confirm_destroy: false, force_halt: true)
 
       expect(machine.state).to receive(:id).and_return(:running)
       expect(machine.state).to receive(:id).and_return(:dead)
@@ -98,6 +98,17 @@ describe VagrantPlugins::CommandDestroy::Command do
         expect(machine).to be_kind_of(Vagrant::Machine)
         expect(action).to eq(:destroy)
       end
+      subject.execute
+    end
+  end
+
+  context "with --graceful set" do
+    let(:argv){ ["--graceful", "--force"] }
+
+    it "passes in true to batch" do
+      batch = double("environment_batch")
+      expect(iso_env).to receive(:batch).and_yield(batch)
+      expect(batch).to receive(:action).with(anything, :destroy, force_confirm_destroy: true, force_halt: false)
       subject.execute
     end
   end

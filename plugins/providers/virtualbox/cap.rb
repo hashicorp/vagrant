@@ -29,6 +29,7 @@ module VagrantPlugins
       #
       # @return [Array<String>] Snapshot Name
       def self.snapshot_list(machine)
+        return [] if machine.id.nil?
         machine.provider.driver.list_snapshots(machine.id)
       end
     end

@@ -11,7 +11,7 @@ module VagrantPlugins
             command = "test -x #{knife}"
 
             if version != :latest
-              command << "&& #{knife} --version | grep 'Chef: #{version}'"
+              command << "&& #{knife} --version | grep '#{version}'"
             end
 
             machine.communicate.test(command, sudo: true)         

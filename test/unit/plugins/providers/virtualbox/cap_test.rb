@@ -40,4 +40,19 @@ describe VagrantPlugins::ProviderVirtualBox::Cap do
       expect(described_class.forwarded_ports(machine)).to be(nil)
     end
   end
+
+  describe "#snapshot_list" do
+    it "returns all the snapshots" do
+      allow(machine).to receive(:id).and_return("1234")
+      allow(driver).to receive(:list_snapshots).with(machine.id).
+        and_return(["backup", "old"])
+
+      expect(described_class.snapshot_list(machine)).to eq(["backup", "old"])
+    end
+
+    it "returns empty array when the machine is does not exist" do
+      allow(machine).to receive(:id).and_return(nil)
+      expect(described_class.snapshot_list(machine)).to eq([])
+    end
+  end
 end

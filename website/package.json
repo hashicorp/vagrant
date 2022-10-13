@@ -1,0 +1,52 @@
+{
+  "name": "vagrant-docs",
+  "description": "Documentation website for HashiCorp Vagrant",
+  "version": "1.0.0",
+  "author": "HashiCorp",
+  "dependencies": {
+    "@hashicorp/nextjs-scripts": "11.0.2",
+    "@hashicorp/react-button": "2.2.1",
+    "@hashicorp/react-code-block": "1.2.7",
+    "@hashicorp/react-content": "4.0.0",
+    "@hashicorp/react-docs-page": "4.0.0",
+    "@hashicorp/react-docs-sidenav": "3.2.5",
+    "@hashicorp/react-global-styles": "4.4.0",
+    "@hashicorp/react-hashi-stack-menu": "^1.0.7",
+    "@hashicorp/react-head": "1.1.1",
+    "@hashicorp/react-image": "2.0.1",
+    "@hashicorp/react-product-downloader": "4.0.2",
+    "@hashicorp/react-search": "^2.1.0",
+    "@hashicorp/react-section-header": "2.0.0",
+    "@hashicorp/react-subnav": "3.2.3",
+    "@hashicorp/react-vertical-text-block-list": "2.0.1",
+    "babel-plugin-import-glob-array": "0.2.0",
+    "imagemin-mozjpeg": "9.0.0",
+    "imagemin-optipng": "8.0.0",
+    "imagemin-svgo": "8.0.0",
+    "next": "9.4.4",
+    "react": "16.13.1",
+    "react-dom": "16.13.1"
+  },
+  "devDependencies": {
+    "dart-linkcheck": "2.0.15",
+    "husky": "4.2.5",
+    "prettier": "2.0.5"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "next-hashicorp precommit"
+    }
+  },
+  "main": "index.js",
+  "scripts": {
+    "build": "node --max-old-space-size=2048 ./node_modules/.bin/next build",
+    "export": "node --max-old-space-size=2048 ./node_modules/.bin/next export",
+    "format": "next-hashicorp format",
+    "generate:component": "next-hashicorp generate component",
+    "generate:readme": "next-hashicorp markdown-blocks README.md",
+    "lint": "next-hashicorp lint",
+    "start": "rm -rf .next/cache/next-babel-loader/ && next dev",
+    "static": "npm run build && npm run export && cp _redirects out/.",
+    "linkcheck": "linkcheck https://vagrantup.com"
+  }
+}

@@ -25,6 +25,7 @@ module Vagrant
         def initialize(app, env)
           @app    = app
           @logger = Log4r::Logger.new("vagrant::action::builtin::box_add")
+          @parser = URI::RFC2396_Parser.new
         end
 
         def call(env)
@@ -44,7 +45,7 @@ module Vagrant
             u = u.gsub("\\", "/")
             if Util::Platform.windows? && u =~ /^[a-z]:/i
               # On Windows, we need to be careful about drive letters
-              u = "file:///#{URI.escape(u)}"
+              u = "file:///#{@parser.escape(u)}"
             end
 
             if u =~ /^[a-z0-9]+:.*$/i && !u.start_with?("file://")
@@ -53,9 +54,9 @@ module Vagrant
             end
 
             # Expand the path and try to use that, if possible
-            p = File.expand_path(URI.unescape(u.gsub(/^file:\/\//, "")))
+            p = File.expand_path(@parser.unescape(u.gsub(/^file:\/\//, "")))
             p = Util::Platform.cygwin_windows_path(p)
-            next "file://#{URI.escape(p.gsub("\\", "/"))}" if File.file?(p)
+            next "file://#{@parser.escape(p.gsub("\\", "/"))}" if File.file?(p)
 
             u
           end
@@ -348,9 +349,15 @@ module Vagrant
             end
 
             if opts[:checksum] && opts[:checksum_type]
-              env[:ui].detail(I18n.t("vagrant.actions.box.add.checksumming"))
-              validate_checksum(
-                opts[:checksum_type], opts[:checksum], box_url)
+              if opts[:checksum].to_s.strip.empty?
+                @logger.warn("Given checksum is empty, cannot validate checksum for box")
+              elsif opts[:checksum_type].to_s.strip.empty?
+                @logger.warn("Given checksum type is empty, cannot validate checksum for box")
+              else
+                env[:ui].detail(I18n.t("vagrant.actions.box.add.checksumming"))
+                validate_checksum(
+                  opts[:checksum_type], opts[:checksum], box_url)
+              end
             end
 
             # Add the box!
@@ -427,14 +434,18 @@ module Vagrant
           downloader_options[:headers] = ["Accept: application/json"] if opts[:json]
           downloader_options[:ui] = env[:ui] if opts[:ui]
           downloader_options[:location_trusted] = env[:box_download_location_trusted]
+          downloader_options[:box_extra_download_options] = env[:box_extra_download_options]
 
-          Util::Downloader.new(url, temp_path, downloader_options)
+          d = Util::Downloader.new(url, temp_path, downloader_options)
+          env[:hook].call(:authenticate_box_downloader, downloader: d)
+          d
         end
 
         def download(url, env, **opts)
           opts[:ui] = true if !opts.key?(:ui)
 
           d = downloader(url, env, **opts)
+          env[:hook].call(:authenticate_box_downloader, downloader: d)
 
           # Download the box to a temporary path. We store the temporary
           # path as an instance variable so that the `#recover` method can
@@ -478,6 +489,7 @@ module Vagrant
         # @return [Boolean] true if metadata
         def metadata_url?(url, env)
           d = downloader(url, env, json: true, ui: false)
+          env[:hook].call(:authenticate_box_downloader, downloader: d)
 
           # If we're downloading a file, cURL just returns no
           # content-type (makes sense), so we just test if it is JSON
@@ -488,7 +500,7 @@ module Vagrant
             url ||= uri.opaque
             #7570 Strip leading slash left in front of drive letter by uri.path
             Util::Platform.windows? && url.gsub!(/^\/([a-zA-Z]:)/, '\1')
-            url = URI.unescape(url)
+            url = @parser.unescape(url)
 
             begin
               File.open(url, "r") do |f|
@@ -527,22 +539,11 @@ module Vagrant
         end
 
         def validate_checksum(checksum_type, checksum, path)
-          checksum_klass = case checksum_type.to_sym
-          when :md5
-            Digest::MD5
-          when :sha1
-            Digest::SHA1
-          when :sha256
-            Digest::SHA2
-          else
-            raise Errors::BoxChecksumInvalidType,
-              type: checksum_type.to_s
-          end
-
-          @logger.info("Validating checksum with #{checksum_klass}")
+          @logger.info("Validating checksum with #{checksum_type}")
           @logger.info("Expected checksum: #{checksum}")
 
-          actual = FileChecksum.new(path, checksum_klass).checksum
+          actual = FileChecksum.new(path, checksum_type).checksum
+          @logger.info("Actual checksum: #{actual}")
           if actual.casecmp(checksum) != 0
             raise Errors::BoxChecksumMismatch,
               actual: actual,

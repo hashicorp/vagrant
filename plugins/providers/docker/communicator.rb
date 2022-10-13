@@ -151,7 +151,7 @@ module VagrantPlugins
           "-i #{path}"
         end
 
-        # Use ad-hoc SSH options for the hop on the docker proxy 
+        # Use ad-hoc SSH options for the hop on the docker proxy
         if info[:forward_agent]
           ssh_args << "-o ForwardAgent=yes"
         end

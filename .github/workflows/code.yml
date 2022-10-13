@@ -1,0 +1,27 @@
+on:
+  push:
+    branches:
+      - 'master'
+      - 'spec-test-*'
+
+jobs:
+  sync-blackbox:
+    if: github.repository == 'hashicorp/vagrant'
+    runs-on: ubuntu-18.04
+    steps:
+      - name: Code Checkout
+        uses: actions/checkout@v2
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+      - name: Set Ruby
+        uses: actions/setup-ruby@v1
+        with:
+          ruby-version: '2.6'
+      - name: Sync Blackbox Testing Repository
+        run: ./.ci/sync.sh
+        working-directory: ${{github.workspace}}
+        env:
+          HASHIBOT_TOKEN: ${{ secrets.HASHIBOT_TOKEN }}
+          HASHIBOT_USERNAME: ${{ secrets.HASHIBOT_USERNAME }}
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}

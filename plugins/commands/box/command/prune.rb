@@ -30,6 +30,10 @@ module VagrantPlugins
             o.on("-f", "--force", "Destroy without confirmation even when box is in use.") do |f|
               options[:force] = f
             end
+
+            o.on("-k", "--keep-active-boxes", "When combined with `--force`, will keep boxes still actively in use.") do |k|
+              options[:keep] = k
+            end
           end
 
           # Parse the options
@@ -41,7 +45,7 @@ module VagrantPlugins
             return @env.ui.warn(I18n.t("vagrant.commands.box.no_installed_boxes"), prefix: false)
           end
 
-          delete_oldest_boxes(boxes, options[:provider], options[:force], options[:name], options[:dry_run])
+          delete_oldest_boxes(boxes, options[:provider], options[:force], options[:name], options[:dry_run], options[:keep])
 
           # Success, exit status 0
           0
@@ -49,7 +53,7 @@ module VagrantPlugins
 
         private
 
-        def delete_oldest_boxes(boxes, only_provider, skip_confirm, only_name, dry_run)
+        def delete_oldest_boxes(boxes, only_provider, skip_confirm, only_name, dry_run, keep_used_boxes)
           # Find the longest box name
           longest_box = boxes.max_by { |x| x[0].length }
           longest_box_length = longest_box[0].length
@@ -112,6 +116,7 @@ module VagrantPlugins
                     box_provider: provider,
                     box_version: version,
                     force_confirm_box_remove: skip_confirm,
+                    keep_used_boxes: keep_used_boxes,
                     box_remove_all_versions: false,
                 })
               end

@@ -25,8 +25,10 @@ module VagrantPlugins
           @env[:ui].info I18n.t("vagrant.actions.vm.export.exporting")
           export_tmp_dir = Vagrant::Util::Platform.wsl_to_windows_path(@env["export.temp_dir"])
           @env[:machine].provider.driver.export(export_tmp_dir) do |progress|
-            @env[:ui].clear_line
-            @env[:ui].report_progress(progress.percent, 100, false)
+            @env[:ui].rewriting do |ui|
+              ui.clear_line
+              ui.report_progress(progress.percent, 100, false)
+            end
           end
 
           # Clear the line a final time so the next data can appear

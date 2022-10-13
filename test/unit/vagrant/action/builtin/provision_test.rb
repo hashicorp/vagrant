@@ -71,7 +71,7 @@ describe Vagrant::Action::Builtin::Provision do
         prov.config = provisioner_config
         prov
       end
-      let(:provisioner_config){ {} }
+      let(:provisioner_config){ double("provisioner_config", name: "spec-test") }
 
       before{ expect(vm_config).to receive(:provisioners).and_return([provisioner]) }
 
@@ -107,13 +107,13 @@ describe Vagrant::Action::Builtin::Provision do
         end
 
         it "should not run if provision types are set and provisioner is not included" do
-          env[:provision_types] = ["other-provisioner", "other-test"]
+          env[:provision_types] = [:"other-provisioner", :"other-test"]
           expect(hook).not_to receive(:call).with(:provisioner_run, anything)
           instance.call(env)
         end
 
         it "should run if provision types are set and include provisioner name" do
-          env[:provision_types] = ["spec-test"]
+          env[:provision_types] = [:"spec-test"]
           expect(hook).to receive(:call).with(:provisioner_run, anything)
           instance.call(env)
         end
@@ -142,13 +142,13 @@ describe Vagrant::Action::Builtin::Provision do
         end
 
         it "should not run if provision types are set and provisioner is not included" do
-          env[:provision_types] = ["other-provisioner", "other-test"]
+          env[:provision_types] = [:"other-provisioner", :"other-test"]
           expect(hook).not_to receive(:call).with(:provisioner_run, anything)
           instance.call(env)
         end
 
         it "should run if provision types are set and include provisioner name" do
-          env[:provision_types] = ["spec-test"]
+          env[:provision_types] = [:"spec-test"]
           expect(hook).to receive(:call).with(:provisioner_run, anything)
           instance.call(env)
         end
@@ -177,13 +177,13 @@ describe Vagrant::Action::Builtin::Provision do
         end
 
         it "should not run if provision types are set and provisioner is not included" do
-          env[:provision_types] = ["other-provisioner", "other-test"]
+          env[:provision_types] = [:"other-provisioner", :"other-test"]
           expect(hook).not_to receive(:call).with(:provisioner_run, anything)
           instance.call(env)
         end
 
         it "should run if provision types are set and include provisioner name" do
-          env[:provision_types] = ["spec-test"]
+          env[:provision_types] = [:"spec-test"]
           expect(hook).to receive(:call).with(:provisioner_run, anything)
           instance.call(env)
         end
@@ -192,7 +192,7 @@ describe Vagrant::Action::Builtin::Provision do
           File.open(File.join(data_dir.to_s, "action_provision"), "w") do |file|
             file.write("1.5:machine-id")
           end
-          env[:provision_types] = ["spec-test"]
+          env[:provision_types] = [:"spec-test"]
           expect(hook).to receive(:call).with(:provisioner_run, anything)
           instance.call(env)
         end

@@ -67,7 +67,7 @@ describe VagrantPlugins::CommandBox::Command::Update do
         expect(called).to be(false)
       end
 
-      it "does update if there is an update" do
+      it "does the correct update if there is an update" do
         metadata_url.open("w") do |f|
           f.write(<<-RAW)
       {
@@ -77,7 +77,25 @@ describe VagrantPlugins::CommandBox::Command::Update do
             "version": "1.0"
           },
           {
-            "version": "1.1",
+            "version": "1.8",
+            "providers": [
+              {
+                "name": "virtualbox",
+                "url": "bar"
+              }
+            ]
+          },
+          {
+            "version": "1.10",
+            "providers": [
+              {
+                "name": "virtualbox",
+                "url": "bar"
+              }
+            ]
+          },
+          {
+            "version": "1.11",
             "providers": [
               {
                 "name": "virtualbox",
@@ -97,10 +115,10 @@ describe VagrantPlugins::CommandBox::Command::Update do
             expect(opts[:box_force]).to eq(nil)
             expect(opts[:box_url]).to eq(metadata_url.to_s)
             expect(opts[:box_provider]).to eq("virtualbox")
-            expect(opts[:box_version]).to eq("1.1")
+            expect(opts[:box_version]).to eq("1.11")
             expect(opts[:box_download_ca_path]).to be_nil
             expect(opts[:box_download_ca_cert]).to be_nil
-            expect(opts[:box_client_cert]).to be_nil
+            expect(opts[:box_download_client_cert]).to be_nil
             expect(opts[:box_download_insecure]).to be_nil
           end
 
@@ -206,7 +224,7 @@ describe VagrantPlugins::CommandBox::Command::Update do
               action_called = true
               expect(opts[:box_download_ca_cert]).to eq("foo")
               expect(opts[:box_download_ca_path]).to eq("bar")
-              expect(opts[:box_client_cert]).to eq("baz")
+              expect(opts[:box_download_client_cert]).to eq("baz")
               expect(opts[:box_download_insecure]).to be(true)
             end
 
@@ -355,7 +373,7 @@ describe VagrantPlugins::CommandBox::Command::Update do
             expect(action_runner).to receive(:run).with(any_args) { |action, opts|
               expect(opts[:box_download_ca_cert]).to eq("oof")
               expect(opts[:box_download_ca_path]).to eq("rab")
-              expect(opts[:box_client_cert]).to eq("zab")
+              expect(opts[:box_download_client_cert]).to eq("zab")
               expect(opts[:box_download_insecure]).to be(false)
               true
             }
@@ -378,11 +396,29 @@ describe VagrantPlugins::CommandBox::Command::Update do
               expect(action_runner).to receive(:run).with(any_args) { |action, opts|
                 expect(opts[:box_download_ca_cert]).to eq("foo")
                 expect(opts[:box_download_ca_path]).to eq("bar")
-                expect(opts[:box_client_cert]).to eq("baz")
+                expect(opts[:box_download_client_cert]).to eq("baz")
                 expect(opts[:box_download_insecure]).to be(true)
                 true
               }
 
+              subject.execute
+            end
+          end
+
+          context "ignoring boxes with no metadata" do
+            before do
+              allow(subject).to receive(:with_target_vms) { |&block| block.call machine }
+            end
+
+            let(:box) do
+              box_dir = test_iso_env.box3("foo", "1.0", :virtualbox)
+              box = Vagrant::Box.new(
+                "foo", :virtualbox, "1.0", box_dir, metadata_url: "foo")
+              allow(box).to receive(:has_update?).and_raise(Vagrant::Errors::BoxUpdateNoMetadata, name: "foo")
+              box
+            end
+
+            it "continues to update the rest of the boxes in the environment" do
               subject.execute
             end
           end

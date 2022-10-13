@@ -63,5 +63,24 @@ describe Vagrant::BatchAction do
       subject.action(machine, "up")
       subject.run
     end
+
+    context "with provider supporting parallel actions" do
+      let(:provider_options) { {parallel: true} }
+
+      it "should flag threads as being parallel actions" do
+        parallel = nil
+        subject.custom(machine) { |m| parallel = Thread.current[:batch_parallel_action] }
+        subject.custom(machine) { |*_| }
+        subject.run
+        expect(parallel).to eq(true)
+      end
+
+      it "should exit the process if exit_code has been set" do
+        subject.custom(machine) { |m| Thread.current[:exit_code] = 1}
+        subject.custom(machine) { |*_| }
+        expect(Process).to receive(:exit!).with(1)
+        subject.run
+      end
+    end
   end
 end

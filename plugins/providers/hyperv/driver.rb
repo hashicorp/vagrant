@@ -10,15 +10,16 @@ module VagrantPlugins
       ERROR_REGEXP  = /===Begin-Error===(.+?)===End-Error===/m
       OUTPUT_REGEXP = /===Begin-Output===(.+?)===End-Output===/m
 
-      # Name mapping for integration services for nicer keys
+      # Name mapping for integration services for id
+      # https://social.technet.microsoft.com/Forums/de-DE/154917de-f3ca-4b1e-b3f8-23dd4b4f0f06/getvmintegrationservice-sprachabhngig?forum=powershell_de
       INTEGRATION_SERVICES_MAP = {
-        guest_service_interface: "Guest Service Interface",
-        heartbeat: "Heartbeat",
-        key_value_pair_exchange: "Key-Value Pair Exchange",
-        shutdown: "Shutdown",
-        time_synchronization: "Time Synchronization",
-        vss: "VSS",
-      }
+        guest_service_interface: "6C09BB55-D683-4DA0-8931-C9BF705F6480".freeze,
+        heartbeat: "84EAAE65-2F2E-45F5-9BB5-0E857DC8EB47".freeze,
+        key_value_pair_exchange: "2A34B1C2-FD73-4043-8A5B-DD2159BC743F".freeze,
+        shutdown: "9F8233AC-BE49-4C79-8EE3-E7E1985B2077".freeze,
+        time_synchronization: "2497F4DE-E9FA-4204-80E4-4B75C46419C0".freeze,
+        vss: "5CED1297-4598-4915-A5FC-AD21BB4D02A4".freeze,
+      }.freeze
 
       # @return [String] VM ID
       attr_reader :vm_id
@@ -203,7 +204,7 @@ module VagrantPlugins
       #       to configurable even if Vagrant is not aware of them.
       def set_vm_integration_services(config)
         config.each_pair do |srv_name, srv_enable|
-          args = {VMID: vm_id, Name: INTEGRATION_SERVICES_MAP.fetch(srv_name.to_sym, srv_name).to_s}
+          args = {VMID: vm_id, Id: INTEGRATION_SERVICES_MAP.fetch(srv_name.to_sym, srv_name).to_s}
           args[:Enable] = true if srv_enable
           execute(:set_vm_integration_services, args)
         end
@@ -217,6 +218,85 @@ module VagrantPlugins
         execute(:set_name, VMID: vm_id, VMName: vmname)
       end
 
+      #
+      # Disk Driver methods
+      #
+
+      # @param [String] controller_type
+      # @param [String] controller_number
+      # @param [String] controller_location
+      # @param [Hash] opts
+      # @option opts [String] :ControllerType
+      # @option opts [String] :ControllerNumber
+      # @option opts [String] :ControllerLocation
+      def attach_disk(disk_file_path,  **opts)
+        execute(:attach_disk_drive, VmId: @vm_id, Path: disk_file_path, ControllerType: opts[:ControllerType],
+                ControllerNumber: opts[:ControllerNumber], ControllerLocation: opts[:ControllerLocation])
+      end
+
+      # @param [String] path
+      # @param [Int] size_bytes
+      # @param [Hash] opts
+      # @option opts [Bool] :Fixed
+      # @option opts [String] :BlockSizeBytes
+      # @option opts [String] :LogicalSectorSizeBytes
+      # @option opts [String] :PhysicalSectorSizeBytes
+      # @option opts [String] :SourceDisk
+      # @option opts [Bool] :Differencing
+      # @option opts [String] :ParentPath
+      def create_disk(path, size_bytes, **opts)
+        execute(:new_vhd, Path: path, SizeBytes: size_bytes, Fixed: opts[:Fixed],
+               BlockSizeBytes: opts[:BlockSizeBytes], LogicalSectorSizeBytes: opts[:LogicalSectorSizeBytes],
+               PhysicalSectorSizeBytes: opts[:PhysicalSectorSizeBytes],
+               SourceDisk: opts[:SourceDisk], Differencing: opts[:Differencing],
+               ParentPath: opts[:ParentPath])
+      end
+
+      # @param [String] disk_file_path
+      def dismount_disk(disk_file_path)
+        execute(:dismount_vhd, DiskFilePath: disk_file_path)
+      end
+
+      # @param [String] disk_file_path
+      def get_disk(disk_file_path)
+        execute(:get_vhd, DiskFilePath: disk_file_path)
+      end
+
+      # @return [Array[Hash]]
+      def list_hdds
+        execute(:list_hdds, VmId: @vm_id)
+      end
+
+      # @param [String] controller_type
+      # @param [String] controller_number
+      # @param [String] controller_location
+      # @param [String] disk_file_path
+      # @param [Hash] opts
+      # @option opts [String] :ControllerType
+      # @option opts [String] :ControllerNumber
+      # @option opts [String] :ControllerLocation
+      def remove_disk(controller_type, controller_number, controller_location, disk_file_path, **opts)
+        execute(:remove_disk_drive, VmId: @vm_id, ControllerType: controller_type,
+                ControllerNumber: controller_number, ControllerLocation: controller_location,
+                DiskFilePath: disk_file_path)
+      end
+
+      # @param [String] path
+      # @param [Int] size_bytes
+      # @param [Hash] opts
+      def resize_disk(disk_file_path, size_bytes, **opts)
+        execute(:resize_disk_drive, VmId: @vm_id, DiskFilePath: disk_file_path,
+                DiskSize: size_bytes)
+      end
+
+      # Set enhanced session transport type of the VM
+      #
+      # @param [String] enhanced session transport type of the VM
+      # @return [nil]
+      def set_enhanced_session_transport_type(transport_type)
+        execute(:set_enhanced_session_transport_type, VmID: vm_id, type: transport_type)
+      end
+
       protected
 
       def execute_powershell(path, options, &block)
@@ -226,6 +306,7 @@ module VagrantPlugins
         options = options || {}
         ps_options = []
         options.each do |key, value|
+          next if !value || value.to_s.empty?
           next if value == false
           ps_options << "-#{key}"
           # If the value is a TrueClass assume switch

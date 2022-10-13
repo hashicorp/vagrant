@@ -42,6 +42,7 @@ module VagrantPlugins
       autoload :PrepareForwardedPortCollisionParams, File.expand_path("../action/prepare_forwarded_port_collision_params", __FILE__)
       autoload :Resume, File.expand_path("../action/resume", __FILE__)
       autoload :SaneDefaults, File.expand_path("../action/sane_defaults", __FILE__)
+      autoload :SetDefaultNICType, File.expand_path("../action/set_default_nic_type", __FILE__)
       autoload :SetName, File.expand_path("../action/set_name", __FILE__)
       autoload :SnapshotDelete, File.expand_path("../action/snapshot_delete", __FILE__)
       autoload :SnapshotRestore, File.expand_path("../action/snapshot_restore", __FILE__)
@@ -71,16 +72,29 @@ module VagrantPlugins
           b.use SyncedFolderCleanup
           b.use SyncedFolders
           b.use PrepareNFSSettings
+          b.use SetDefaultNICType
           b.use ClearNetworkInterfaces
           b.use Network
           b.use NetworkFixIPv6
           b.use ForwardPorts
           b.use SetHostname
           b.use SaneDefaults
+          b.use Call, IsEnvSet, :cloud_init do |env, b2|
+            if env[:result]
+              b2.use CloudInitSetup
+            end
+          end
+          b.use CleanupDisks
+          b.use Disk
           b.use Customize, "pre-boot"
           b.use Boot
           b.use Customize, "post-boot"
           b.use WaitForCommunicator, [:starting, :running]
+          b.use Call, IsEnvSet, :cloud_init do |env, b2|
+            if env[:result]
+              b2.use CloudInitWait
+            end
+          end
           b.use Customize, "post-comm"
           b.use CheckGuestAdditions
         end
@@ -102,7 +116,7 @@ module VagrantPlugins
                 b3.use ConfigValidate
                 b3.use ProvisionerCleanup, :before
                 b3.use CheckAccessible
-                b3.use EnvSet, force_halt: true
+                b3.use EnvSet, force_halt: env2[:force_halt]
                 b3.use action_halt
                 b3.use Destroy
                 b3.use CleanMachineFolder
@@ -265,7 +279,11 @@ module VagrantPlugins
               end
             end
 
-            b2.use action_start
+            b2.use Call, IsEnvSet, :snapshot_start do |env2, b3|
+              if env2[:result]
+                b3.use action_start
+              end
+            end
           end
         end
       end
@@ -403,6 +421,7 @@ module VagrantPlugins
             end
           end
 
+          b.use EnvSet, cloud_init: true
           b.use action_start
         end
       end

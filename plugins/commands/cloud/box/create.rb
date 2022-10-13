@@ -19,7 +19,7 @@ module VagrantPlugins
               o.on("-d", "--description DESCRIPTION", String, "Full description of the box") do |d|
                 options[:description] = d
               end
-              o.on("-u", "--username USERNAME_OR_EMAIL", String, "Vagrant Cloud username or email address") do |t|
+              o.on("-u", "--username USERNAME_OR_EMAIL", String, "Vagrant Cloud username or email address") do |u|
                 options[:username] = u
               end
               o.on("-s", "--short-description DESCRIPTION", String, "Short description of the box") do |s|

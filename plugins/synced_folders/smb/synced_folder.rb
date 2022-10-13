@@ -57,7 +57,7 @@ module VagrantPlugins
               smb_username = username if username != ""
               modify_username = true
             else
-              smb_username = machine.ui.ask("Username: ")
+              smb_username = machine.ui.ask("Username (user[@domain]): ")
             end
 
             smb_password = machine.ui.ask("Password (will be hidden): ", echo: false)
@@ -66,7 +66,7 @@ module VagrantPlugins
             if machine.env.host.capability?(:smb_validate_password)
               Vagrant::Util::CredentialScrubber.sensitive(smb_password)
               auth_success = machine.env.host.capability(:smb_validate_password,
-                smb_username, smb_password)
+                machine, smb_username, smb_password)
             end
 
             break if auth_success
@@ -152,6 +152,15 @@ module VagrantPlugins
             guest: data[:guestpath].to_s))
           machine.guest.capability(
             :mount_smb_shared_folder, data[:smb_id], data[:guestpath], data)
+
+          clean_folder_configuration(data)
+        end
+      end
+
+      # Nothing to do here but ensure folder options are scrubbed
+      def disable(machine, folders, opts)
+        folders.each do |_, data|
+          clean_folder_configuration(data)
         end
       end
 
@@ -159,6 +168,18 @@ module VagrantPlugins
         if machine.env.host.capability?(:smb_cleanup)
           machine.env.host.capability(:smb_cleanup, machine, opts)
         end
+      end
+
+      protected
+
+      # Remove data that should not be persisted within folder
+      # specific configuration
+      #
+      # @param [Hash] data Folder configuration
+      def clean_folder_configuration(data)
+        return if !data.is_a?(Hash)
+        data.delete(:smb_password)
+        nil
       end
     end
   end

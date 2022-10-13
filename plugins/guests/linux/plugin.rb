@@ -11,6 +11,11 @@ module VagrantPlugins
         Guest
       end
 
+      guest_capability(:linux, :change_host_name) do
+        require_relative "cap/change_host_name"
+        Cap::ChangeHostName
+      end
+
       guest_capability(:linux, :choose_addressable_ip_addr) do
         require_relative "cap/choose_addressable_ip_addr"
         Cap::ChooseAddressableIPAddr
@@ -61,6 +66,11 @@ module VagrantPlugins
         Cap::MountVirtualBoxSharedFolder
       end
 
+      guest_capability(:linux, :persist_mount_shared_folder) do
+        require_relative "cap/persist_mount_shared_folder"
+        Cap::PersistMountSharedFolder
+      end
+
       guest_capability(:linux, :network_interfaces) do
         require_relative "cap/network_interfaces"
         Cap::NetworkInterfaces
@@ -80,6 +90,16 @@ module VagrantPlugins
       guest_capability(:linux, :read_ip_address) do
         require_relative "cap/read_ip_address"
         Cap::ReadIPAddress
+      end
+
+      guest_capability(:linux, :wait_for_reboot) do
+        require_relative "cap/reboot"
+        Cap::Reboot
+      end
+
+      guest_capability(:linux, :reboot) do
+        require_relative "cap/reboot"
+        Cap::Reboot
       end
 
       guest_capability(:linux, :remove_public_key) do

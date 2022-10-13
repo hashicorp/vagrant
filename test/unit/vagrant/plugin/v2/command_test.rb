@@ -1,5 +1,6 @@
 require File.expand_path("../../../../base", __FILE__)
 require 'optparse'
+require 'vagrant/machine_index'
 
 describe Vagrant::Plugin::V2::Command do
   include_context "unit"
@@ -42,6 +43,12 @@ describe Vagrant::Plugin::V2::Command do
 
     it "raises an error if invalid options are given" do
       instance = klass.new(["-f"], nil)
+      expect { instance.parse_options(OptionParser.new) }.
+        to raise_error(Vagrant::Errors::CLIInvalidOptions)
+    end
+
+    it "raises an error if ambiguous options are given" do
+      instance = klass.new(["-provision"], nil)
       expect { instance.parse_options(OptionParser.new) }.
         to raise_error(Vagrant::Errors::CLIInvalidOptions)
     end
@@ -143,6 +150,40 @@ describe Vagrant::Plugin::V2::Command do
       vms = []
       expect(foo_vm).to receive(:state)
       instance.with_target_vms("foo") { |vm| vms << vm }
+    end
+
+    it "does not recover the vm if it has no uuid" do
+      foo_vm = double("foo")
+      provider = :foobarbaz
+      state_id = :some_state
+      allow(foo_vm).to receive(:name).and_return("foo")
+      allow(foo_vm).to receive(:provider).and_return(provider)
+      allow(foo_vm).to receive(:ui).and_return(Vagrant::UI::Silent.new)
+      allow(foo_vm).to receive(:state).and_return(double("state", id: state_id))
+      allow(foo_vm).to receive(:index_uuid).and_return(nil)
+      allow(environment).to receive(:machine).with(:foo, provider).and_return(foo_vm)
+      
+      expect(foo_vm).not_to receive(:recover_machine).with(state_id)
+      vms = []
+      instance.with_target_vms("foo", provider: provider) { |vm| vms << vm }
+      expect(vms).to eq([foo_vm])
+    end
+
+    it "recovers the vm" do
+      foo_vm = double("foo")
+      provider = :foobarbaz
+      state_id = :some_state
+      allow(foo_vm).to receive(:name).and_return("foo")
+      allow(foo_vm).to receive(:provider).and_return(provider)
+      allow(foo_vm).to receive(:ui).and_return(Vagrant::UI::Silent.new)
+      allow(foo_vm).to receive(:state).and_return(double("state", id: state_id))
+      allow(foo_vm).to receive(:index_uuid).and_return("someuuid")
+      allow(environment).to receive(:machine).with(:foo, provider).and_return(foo_vm)
+      
+      expect(foo_vm).to receive(:recover_machine).with(state_id)
+      vms = []
+      instance.with_target_vms("foo", provider: provider) { |vm| vms << vm }
+      expect(vms).to eq([foo_vm])
     end
 
     it "yields the given VM with proper provider if given" do

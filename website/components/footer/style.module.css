@@ -1,0 +1,28 @@
+.root {
+  padding: 25px 0 17px 0;
+  flex-shrink: 0;
+  display: flex;
+
+  & :global(.g-container) {
+    display: flex;
+    flex-wrap: wrap;
+  }
+
+  & a {
+    color: black;
+    opacity: 0.5;
+    transition: opacity 0.25s ease;
+    cursor: pointer;
+    display: inline-block;
+    margin-right: 20px;
+    margin-bottom: 8px;
+
+    &:last-child {
+      margin-right: 0;
+    }
+
+    &:hover {
+      opacity: 1;
+    }
+  }
+}

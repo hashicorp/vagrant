@@ -1,0 +1,48 @@
+.root {
+  display: flex;
+  flex-direction: row;
+
+  @media (max-width: 1000px) {
+    flex-direction: column;
+  }
+}
+
+.reverse {
+  flex-direction: row-reverse;
+
+  @media (max-width: 1000px) {
+    flex-direction: column;
+  }
+}
+
+.tag {
+  composes: g-type-label from global;
+  display: inline-block;
+  background: black;
+  color: white;
+  padding: 6px 8px;
+}
+
+.headline {
+  margin: 20px 0 10px 0;
+}
+
+.text {
+  width: 50%;
+
+  @media (max-width: 1000px) {
+    width: 100%;
+    margin-bottom: 50px;
+  }
+}
+
+.content {
+  width: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  @media (max-width: 1000px) {
+    width: 100%;
+  }
+}

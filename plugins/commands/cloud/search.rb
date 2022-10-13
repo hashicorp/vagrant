@@ -37,7 +37,7 @@ module VagrantPlugins
             o.on("--sort-by SORT", "Field to sort results on (created, downloads, updated) Default: downloads") do |s|
               options[:sort] = s
             end
-            o.on("-u", "--username USERNAME_OR_EMAIL", String, "Vagrant Cloud username or email address") do |t|
+            o.on("-u", "--username USERNAME_OR_EMAIL", String, "Vagrant Cloud username or email address to login with") do |u|
               options[:username] = u
             end
           end

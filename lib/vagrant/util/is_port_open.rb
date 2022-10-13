@@ -1,5 +1,4 @@
 require "socket"
-require "timeout"
 
 module Vagrant
   module Util
@@ -14,27 +13,16 @@ module Vagrant
       # @return [Boolean] `true` if the port is open (listening), `false`
       #   otherwise.
       def is_port_open?(host, port)
-        # We wrap this in a timeout because once in awhile the TCPSocket
-        # _will_ hang, but this signals that the port is closed.
-        Timeout.timeout(1) do
-          # Attempt to make a connection
-          s = TCPSocket.new(host, port)
-
-          # A connection was made! Properly clean up the socket, not caring
-          # at all if any exception is raised, because we already know the
-          # result.
-          s.close rescue nil
-
-          # The port is open if we reached this point, since we were able
-          # to connect.
-          return true
+        begin
+          Socket.tcp(host, port, connect_timeout: 0.1).close
+          true
+        rescue Errno::ETIMEDOUT, Errno::ECONNREFUSED, Errno::EHOSTUNREACH, \
+            Errno::ENETUNREACH, Errno::EACCES, Errno::ENOTCONN
+          false
         end
-      rescue Timeout::Error, Errno::ECONNREFUSED, Errno::EHOSTUNREACH, \
-             Errno::ENETUNREACH, Errno::EACCES, Errno::ENOTCONN, \
-             Errno::EADDRNOTAVAIL
-        # Any of the above exceptions signal that the port is closed.
-        return false
       end
+
+      extend IsPortOpen
     end
   end
 end

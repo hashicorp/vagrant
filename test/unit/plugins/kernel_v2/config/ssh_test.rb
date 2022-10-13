@@ -8,6 +8,7 @@ describe VagrantPlugins::Kernel_V2::SSHConfig do
   describe "#default" do
     it "defaults to vagrant username" do
       subject.finalize!
+      expect(subject.default.port).to eq(22)
       expect(subject.default.username).to eq("vagrant")
     end
   end

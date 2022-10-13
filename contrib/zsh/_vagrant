@@ -1,0 +1,736 @@
+
+#compdef _vagrant vagrant
+
+# ZSH completion for Vagrant
+#
+# To use this completion add this to ~/.zshrc
+# fpath=(/path/to/this/dir $fpath)
+# compinit
+#
+# For development reload the function after making changes
+# unfunction _vagrant && autoload -U _vagrant 
+
+
+__box_list ()
+{
+    _wanted application expl 'command' compadd $(command vagrant box list | awk '{print $1}' )
+}
+
+
+__plugin_list ()
+{
+    _wanted application expl 'command' compadd $(command vagrant plugin list | awk '{print $1}')
+}
+
+
+function _vagrant () {
+
+  local -a sub_commands && sub_commands=(
+    'box:manages boxes: installation, removal, etc.'
+    'cloud:manages everything related to Vagrant Cloud'
+    'destroy:stops and deletes all traces of the vagrant machine'
+    'global-status:outputs status Vagrant environments for this user'
+    'halt:stops the vagrant machine'
+    'help:shows the help for a subcommand'
+    'init:initializes a new Vagrant environment by creating a Vagrantfile'
+    'login:'
+    'package:packages a running vagrant environment into a box'
+    'plugin:manages plugins: install, uninstall, update, etc.'
+    'port:displays information about guest port mappings'
+    'powershell:connects to machine via powershell remoting'
+    'provision:provisions the vagrant machine'
+    'push:deploys code in this environment to a configured destination'
+    'rdp:connects to machine via RDP'
+    'reload:restarts vagrant machine, loads new Vagrantfile configuration'
+    'resume:resume a suspended vagrant machine'
+    'snapshot:manages snapshots: saving, restoring, etc.'
+    'ssh:connects to machine via SSH'
+    'ssh-config:outputs OpenSSH valid configuration to connect to the machine'
+    'status:outputs status of the vagrant machine'
+    'suspend:suspends the machine'
+    'up:starts and provisions the vagrant environment'
+    'upload:upload to machine via communicator'
+    'validate:validates the Vagrantfile'
+    'version:prints current and latest Vagrant version'
+    'winrm:executes commands on a machine via WinRM'
+    'winrm-config:outputs WinRM configuration to connect to the machine'
+)
+
+  local -a cloud_arguments && cloud_arguments=(
+    '--(no-)color=[Enable or disable color output]'
+    '--machine-readable=[Enable machine readable output]'
+    '--debug=[Enable debug output]'
+    '--timestamp=[Enable timestamps on log output]'
+    '--debug-timestamp=[Enable debug output with timestamps]'
+    '--no-tty=[Enable non_interactive output]'
+)
+
+local -a destroy_arguments && destroy_arguments=(
+    '--(no-)parallel=[Enable or disable parallelism if provider supports it (automatically enables force)]'
+    '--(no-)color=[Enable or disable color output]'
+    '--machine-readable=[Enable machine readable output]'
+    '--debug=[Enable debug output]'
+    '--timestamp=[Enable timestamps on log output]'
+    '--debug-timestamp=[Enable debug output with timestamps]'
+    '--no-tty=[Enable non_interactive output]'
+)
+
+local -a global_status_arguments && global_status_arguments=(
+    '--prune=[Prune invalid entries.]'
+    '--(no-)color=[Enable or disable color output]'
+    '--machine-readable=[Enable machine readable output]'
+    '--debug=[Enable debug output]'
+    '--timestamp=[Enable timestamps on log output]'
+    '--debug-timestamp=[Enable debug output with timestamps]'
+    '--no-tty=[Enable non_interactive output]'
+)
+
+local -a halt_arguments && halt_arguments=(
+    '--(no-)color=[Enable or disable color output]'
+    '--machine-readable=[Enable machine readable output]'
+    '--debug=[Enable debug output]'
+    '--timestamp=[Enable timestamps on log output]'
+    '--debug-timestamp=[Enable debug output with timestamps]'
+    '--no-tty=[Enable non_interactive output]'
+)
+
+local -a help_arguments && help_arguments=(
+    '--(no-)color=[Enable or disable color output]'
+    '--machine-readable=[Enable machine readable output]'
+    '--debug=[Enable debug output]'
+    '--timestamp=[Enable timestamps on log output]'
+    '--debug-timestamp=[Enable debug output with timestamps]'
+    '--no-tty=[Enable non_interactive output]'
+)
+
+local -a init_arguments && init_arguments=(
+    '--box-version=[Version of the box to add]'
+    '--output=[Output path for the box. _ for stdout]'
+    '--template=[Path to custom Vagrantfile template]'
+    '--(no-)color=[Enable or disable color output]'
+    '--machine-readable=[Enable machine readable output]'
+    '--debug=[Enable debug output]'
+    '--timestamp=[Enable timestamps on log output]'
+    '--debug-timestamp=[Enable debug output with timestamps]'
+    '--no-tty=[Enable non_interactive output]'
+)
+
+local -a login_arguments && login_arguments=(
+    '--(no-)color=[Enable or disable color output]'
+    '--machine-readable=[Enable machine readable output]'
+    '--debug=[Enable debug output]'
+    '--timestamp=[Enable timestamps on log output]'
+    '--debug-timestamp=[Enable debug output with timestamps]'
+    '--no-tty=[Enable non_interactive output]'
+)
+
+local -a package_arguments && package_arguments=(
+    '--base=[Name of a VM in VirtualBox to package as a base box (VirtualBox Only)]'
+    '--output=[Name of the file to output]'
+    '--include=[Comma separated additional files to package with the box]'
+    '--vagrantfile=[Vagrantfile to package with the box]'
+    '--(no-)color=[Enable or disable color output]'
+    '--machine-readable=[Enable machine readable output]'
+    '--debug=[Enable debug output]'
+    '--timestamp=[Enable timestamps on log output]'
+    '--debug-timestamp=[Enable debug output with timestamps]'
+    '--no-tty=[Enable non_interactive output]'
+)
+
+local -a port_arguments && port_arguments=(
+    '--guest=[Output the host port that maps to the given guest port]'
+    '--(no-)color=[Enable or disable color output]'
+    '--machine-readable=[Enable machine readable output]'
+    '--debug=[Enable debug output]'
+    '--timestamp=[Enable timestamps on log output]'
+    '--debug-timestamp=[Enable debug output with timestamps]'
+    '--no-tty=[Enable non_interactive output]'
+)
+
+local -a powershell_arguments && powershell_arguments=(
+    '--(no-)color=[Enable or disable color output]'
+    '--machine-readable=[Enable machine readable output]'
+    '--debug=[Enable debug output]'
+    '--timestamp=[Enable timestamps on log output]'
+    '--debug-timestamp=[Enable debug output with timestamps]'
+    '--no-tty=[Enable non_interactive output]'
+)
+
+local -a provision_arguments && provision_arguments=(
+    '--provision-with=[Enable only certain provisioners, by type or by name.]'
+    '--(no-)color=[Enable or disable color output]'
+    '--machine-readable=[Enable machine readable output]'
+    '--debug=[Enable debug output]'
+    '--timestamp=[Enable timestamps on log output]'
+    '--debug-timestamp=[Enable debug output with timestamps]'
+    '--no-tty=[Enable non_interactive output]'
+)
+
+local -a push_arguments && push_arguments=(
+    '--(no-)color=[Enable or disable color output]'
+    '--machine-readable=[Enable machine readable output]'
+    '--debug=[Enable debug output]'
+    '--timestamp=[Enable timestamps on log output]'
+    '--debug-timestamp=[Enable debug output with timestamps]'
+    '--no-tty=[Enable non_interactive output]'
+)
+
+local -a rdp_arguments && rdp_arguments=(
+    '--(no-)color=[Enable or disable color output]'
+    '--machine-readable=[Enable machine readable output]'
+    '--debug=[Enable debug output]'
+    '--timestamp=[Enable timestamps on log output]'
+    '--debug-timestamp=[Enable debug output with timestamps]'
+    '--no-tty=[Enable non_interactive output]'
+)
+
+local -a reload_arguments && reload_arguments=(
+    '--(no-)provision=[Enable or disable provisioning]'
+    '--provision-with=[Enable only certain provisioners, by type or by name.]'
+    '--(no-)color=[Enable or disable color output]'
+    '--machine-readable=[Enable machine readable output]'
+    '--debug=[Enable debug output]'
+    '--timestamp=[Enable timestamps on log output]'
+    '--debug-timestamp=[Enable debug output with timestamps]'
+    '--no-tty=[Enable non_interactive output]'
+)
+
+local -a resume_arguments && resume_arguments=(
+    '--(no-)provision=[Enable or disable provisioning]'
+    '--provision-with=[Enable only certain provisioners, by type or by name.]'
+    '--(no-)color=[Enable or disable color output]'
+    '--machine-readable=[Enable machine readable output]'
+    '--debug=[Enable debug output]'
+    '--timestamp=[Enable timestamps on log output]'
+    '--debug-timestamp=[Enable debug output with timestamps]'
+    '--no-tty=[Enable non_interactive output]'
+)
+
+local -a ssh_arguments && ssh_arguments=(
+    '--(no-)color=[Enable or disable color output]'
+    '--machine-readable=[Enable machine readable output]'
+    '--debug=[Enable debug output]'
+    '--timestamp=[Enable timestamps on log output]'
+    '--debug-timestamp=[Enable debug output with timestamps]'
+    '--no-tty=[Enable non_interactive output]'
+)
+
+local -a ssh_config_arguments && ssh_config_arguments=(
+    '--host=[Name the host for the config]'
+    '--(no-)color=[Enable or disable color output]'
+    '--machine-readable=[Enable machine readable output]'
+    '--debug=[Enable debug output]'
+    '--timestamp=[Enable timestamps on log output]'
+    '--debug-timestamp=[Enable debug output with timestamps]'
+    '--no-tty=[Enable non_interactive output]'
+)
+
+local -a status_arguments && status_arguments=(
+    '--(no-)color=[Enable or disable color output]'
+    '--machine-readable=[Enable machine readable output]'
+    '--debug=[Enable debug output]'
+    '--timestamp=[Enable timestamps on log output]'
+    '--debug-timestamp=[Enable debug output with timestamps]'
+    '--no-tty=[Enable non_interactive output]'
+)
+
+local -a suspend_arguments && suspend_arguments=(
+    '--(no-)color=[Enable or disable color output]'
+    '--machine-readable=[Enable machine readable output]'
+    '--debug=[Enable debug output]'
+    '--timestamp=[Enable timestamps on log output]'
+    '--debug-timestamp=[Enable debug output with timestamps]'
+    '--no-tty=[Enable non_interactive output]'
+)
+
+local -a up_arguments && up_arguments=(
+    '--(no-)provision=[Enable or disable provisioning]'
+    '--provision-with=[Enable only certain provisioners, by type or by name.]'
+    '--(no-)destroy-on-error=[Destroy machine if any fatal error happens (default to true)]'
+    '--(no-)parallel=[Enable or disable parallelism if provider supports it]'
+    '--provider=[Back the machine with a specific provider]'
+    '--(no-)install-provider=[If possible, install the provider if it isnt installed]'
+    '--(no-)color=[Enable or disable color output]'
+    '--machine-readable=[Enable machine readable output]'
+    '--debug=[Enable debug output]'
+    '--timestamp=[Enable timestamps on log output]'
+    '--debug-timestamp=[Enable debug output with timestamps]'
+    '--no-tty=[Enable non_interactive output]'
+)
+
+local -a upload_arguments && upload_arguments=(
+    '--(no-)color=[Enable or disable color output]'
+    '--machine-readable=[Enable machine readable output]'
+    '--debug=[Enable debug output]'
+    '--timestamp=[Enable timestamps on log output]'
+    '--debug-timestamp=[Enable debug output with timestamps]'
+    '--no-tty=[Enable non_interactive output]'
+)
+
+local -a validate_arguments && validate_arguments=(
+    '--(no-)color=[Enable or disable color output]'
+    '--machine-readable=[Enable machine readable output]'
+    '--debug=[Enable debug output]'
+    '--timestamp=[Enable timestamps on log output]'
+    '--debug-timestamp=[Enable debug output with timestamps]'
+    '--no-tty=[Enable non_interactive output]'
+)
+
+local -a version_arguments && version_arguments=(
+    '--(no-)color=[Enable or disable color output]'
+    '--machine-readable=[Enable machine readable output]'
+    '--debug=[Enable debug output]'
+    '--timestamp=[Enable timestamps on log output]'
+    '--debug-timestamp=[Enable debug output with timestamps]'
+    '--no-tty=[Enable non_interactive output]'
+)
+
+local -a winrm_arguments && winrm_arguments=(
+    '--(no-)color=[Enable or disable color output]'
+    '--machine-readable=[Enable machine readable output]'
+    '--debug=[Enable debug output]'
+    '--timestamp=[Enable timestamps on log output]'
+    '--debug-timestamp=[Enable debug output with timestamps]'
+    '--no-tty=[Enable non_interactive output]'
+)
+
+local -a winrm_config_arguments && winrm_config_arguments=(
+    '--host=[Name the host for the config]'
+    '--(no-)color=[Enable or disable color output]'
+    '--machine-readable=[Enable machine readable output]'
+    '--debug=[Enable debug output]'
+    '--timestamp=[Enable timestamps on log output]'
+    '--debug-timestamp=[Enable debug output with timestamps]'
+    '--no-tty=[Enable non_interactive output]'
+)
+
+
+
+  _arguments -C ':command:->command' '*::options:->options'
+
+case $state in 
+  (command)
+    _describe -t commands 'command' sub_commands
+    return
+  ;;
+
+  (options)
+    case $line[1] in
+  box)
+    __vagrant-box ;;
+  cloud)
+    _arguments -s -S : $cloud_arguments  ;;
+  destroy)
+    _arguments -s -S : $destroy_arguments  ;;
+  global-status)
+    _arguments -s -S : $global_status_arguments  ;;
+  halt)
+    _arguments -s -S : $halt_arguments  ;;
+  help)
+    _arguments -s -S : $help_arguments  ;;
+  init)
+    _arguments -s -S : $init_arguments  ;;
+  login)
+    _arguments -s -S : $login_arguments  ;;
+  package)
+    _arguments -s -S : $package_arguments  ;;
+  plugin)
+    __vagrant-plugin ;;
+  port)
+    _arguments -s -S : $port_arguments  ;;
+  powershell)
+    _arguments -s -S : $powershell_arguments  ;;
+  provision)
+    _arguments -s -S : $provision_arguments  ;;
+  push)
+    _arguments -s -S : $push_arguments  ;;
+  rdp)
+    _arguments -s -S : $rdp_arguments  ;;
+  reload)
+    _arguments -s -S : $reload_arguments  ;;
+  resume)
+    _arguments -s -S : $resume_arguments  ;;
+  snapshot)
+    __vagrant-snapshot ;;
+  ssh)
+    _arguments -s -S : $ssh_arguments  ;;
+  ssh-config)
+    _arguments -s -S : $ssh_config_arguments  ;;
+  status)
+    _arguments -s -S : $status_arguments  ;;
+  suspend)
+    _arguments -s -S : $suspend_arguments  ;;
+  up)
+    _arguments -s -S : $up_arguments  ;;
+  upload)
+    _arguments -s -S : $upload_arguments  ;;
+  validate)
+    _arguments -s -S : $validate_arguments  ;;
+  version)
+    _arguments -s -S : $version_arguments  ;;
+  winrm)
+    _arguments -s -S : $winrm_arguments  ;;
+  winrm-config)
+    _arguments -s -S : $winrm_config_arguments  ;;
+esac
+  ;;
+esac
+
+}
+
+function __vagrant-box () {
+
+  local -a sub_commands && sub_commands=(
+    'add:add'
+    'list:list'
+    'outdated:outdated'
+    'prune:prune'
+    'remove:remove'
+    'repackage:repackage'
+    'update:update'
+)
+
+  local -a add_arguments && add_arguments=(
+    '--insecure=[Do not validate SSL certificates]'
+    '--cacert=[CA certificate for SSL download]'
+    '--capath=[CA certificate directory for SSL download]'
+    '--cert=[A client SSL cert, if needed]'
+    '--location-trusted=[Trust Location header from HTTP redirects and use the same credentials for subsequent urls as for the initial one]'
+    '--provider=[Provider the box should satisfy]'
+    '--box-version=[Constrain version of the added box]'
+    '--checksum=[Checksum for the box]'
+    '--checksum-type=[Checksum type (md5, sha1, sha256)]'
+    '--name=[Name of the box]'
+    '--(no-)color=[Enable or disable color output]'
+    '--machine-readable=[Enable machine readable output]'
+    '--debug=[Enable debug output]'
+    '--timestamp=[Enable timestamps on log output]'
+    '--debug-timestamp=[Enable debug output with timestamps]'
+    '--no-tty=[Enable non_interactive output]'
+)
+
+local -a list_arguments && list_arguments=(
+    '--(no-)color=[Enable or disable color output]'
+    '--machine-readable=[Enable machine readable output]'
+    '--debug=[Enable debug output]'
+    '--timestamp=[Enable timestamps on log output]'
+    '--debug-timestamp=[Enable debug output with timestamps]'
+    '--no-tty=[Enable non_interactive output]'
+)
+
+local -a outdated_arguments && outdated_arguments=(
+    '--global=[Check all boxes installed]'
+    '--insecure=[Do not validate SSL certificates]'
+    '--cacert=[CA certificate for SSL download]'
+    '--capath=[CA certificate directory for SSL download]'
+    '--cert=[A client SSL cert, if needed]'
+    '--(no-)color=[Enable or disable color output]'
+    '--machine-readable=[Enable machine readable output]'
+    '--debug=[Enable debug output]'
+    '--timestamp=[Enable timestamps on log output]'
+    '--debug-timestamp=[Enable debug output with timestamps]'
+    '--no-tty=[Enable non_interactive output]'
+)
+
+local -a prune_arguments && prune_arguments=(
+    '--name=[The specific box name to check for outdated versions.]'
+    '--(no-)color=[Enable or disable color output]'
+    '--machine-readable=[Enable machine readable output]'
+    '--debug=[Enable debug output]'
+    '--timestamp=[Enable timestamps on log output]'
+    '--debug-timestamp=[Enable debug output with timestamps]'
+    '--no-tty=[Enable non_interactive output]'
+)
+
+local -a remove_arguments && remove_arguments=(
+    '--provider=[The specific provider type for the box to remove]'
+    '--box-version=[The specific version of the box to remove]'
+    '--all=[Remove all available versions of the box]'
+    '--(no-)color=[Enable or disable color output]'
+    '--machine-readable=[Enable machine readable output]'
+    '--debug=[Enable debug output]'
+    '--timestamp=[Enable timestamps on log output]'
+    '--debug-timestamp=[Enable debug output with timestamps]'
+    '--no-tty=[Enable non_interactive output]'
+)
+
+local -a repackage_arguments && repackage_arguments=(
+    '--(no-)color=[Enable or disable color output]'
+    '--machine-readable=[Enable machine readable output]'
+    '--debug=[Enable debug output]'
+    '--timestamp=[Enable timestamps on log output]'
+    '--debug-timestamp=[Enable debug output with timestamps]'
+    '--no-tty=[Enable non_interactive output]'
+)
+
+local -a update_arguments && update_arguments=(
+    '--box=[__box flag.]'
+    '--box=[Update a specific box]'
+    '--provider=[Update box with specific provider]'
+    '--insecure=[Do not validate SSL certificates]'
+    '--cacert=[CA certificate for SSL download]'
+    '--capath=[CA certificate directory for SSL download]'
+    '--cert=[A client SSL cert, if needed]'
+    '--(no-)color=[Enable or disable color output]'
+    '--machine-readable=[Enable machine readable output]'
+    '--debug=[Enable debug output]'
+    '--timestamp=[Enable timestamps on log output]'
+    '--debug-timestamp=[Enable debug output with timestamps]'
+    '--no-tty=[Enable non_interactive output]'
+)
+
+
+
+  _arguments -C ':command:->command' '*::options:->options'
+
+case $state in 
+  (command)
+    _describe -t commands 'command' sub_commands
+    return
+  ;;
+
+  (options)
+    case $line[1] in
+  add)
+    _arguments -s -S : $add_arguments  ;;
+  list)
+    _arguments -s -S : $list_arguments  ;;
+  outdated)
+    _arguments -s -S : $outdated_arguments  ;;
+  prune)
+    _arguments -s -S : $prune_arguments  ;;
+  remove)
+    _arguments -s -S : $remove_arguments ':feature:__box_list' ;;
+  repackage)
+    _arguments -s -S : $repackage_arguments ':feature:__box_list' ;;
+  update)
+    _arguments -s -S : $update_arguments ':feature:__box_list' ;;
+esac
+  ;;
+esac
+
+}
+
+function __vagrant-snapshot () {
+
+  local -a sub_commands && sub_commands=(
+    'delete:delete'
+    'list:list'
+    'pop:pop'
+    'push:push'
+    'restore:restore'
+    'save:save'
+)
+
+  local -a delete_arguments && delete_arguments=(
+    '--(no-)color=[Enable or disable color output]'
+    '--machine-readable=[Enable machine readable output]'
+    '--debug=[Enable debug output]'
+    '--timestamp=[Enable timestamps on log output]'
+    '--debug-timestamp=[Enable debug output with timestamps]'
+    '--no-tty=[Enable non_interactive output]'
+)
+
+local -a list_arguments && list_arguments=(
+    '--(no-)color=[Enable or disable color output]'
+    '--machine-readable=[Enable machine readable output]'
+    '--debug=[Enable debug output]'
+    '--timestamp=[Enable timestamps on log output]'
+    '--debug-timestamp=[Enable debug output with timestamps]'
+    '--no-tty=[Enable non_interactive output]'
+)
+
+local -a pop_arguments && pop_arguments=(
+    '--(no-)provision=[Enable or disable provisioning]'
+    '--provision-with=[Enable only certain provisioners, by type or by name.]'
+    '--no-delete=[Dont delete the snapshot after the restore]'
+    '--no-start=[Dont start the snapshot after the restore]'
+    '--(no-)color=[Enable or disable color output]'
+    '--machine-readable=[Enable machine readable output]'
+    '--debug=[Enable debug output]'
+    '--timestamp=[Enable timestamps on log output]'
+    '--debug-timestamp=[Enable debug output with timestamps]'
+    '--no-tty=[Enable non_interactive output]'
+)
+
+local -a push_arguments && push_arguments=(
+    '--(no-)color=[Enable or disable color output]'
+    '--machine-readable=[Enable machine readable output]'
+    '--debug=[Enable debug output]'
+    '--timestamp=[Enable timestamps on log output]'
+    '--debug-timestamp=[Enable debug output with timestamps]'
+    '--no-tty=[Enable non_interactive output]'
+)
+
+local -a restore_arguments && restore_arguments=(
+    '--(no-)provision=[Enable or disable provisioning]'
+    '--provision-with=[Enable only certain provisioners, by type or by name.]'
+    '--no-start=[Dont start the snapshot after the restore]'
+    '--(no-)color=[Enable or disable color output]'
+    '--machine-readable=[Enable machine readable output]'
+    '--debug=[Enable debug output]'
+    '--timestamp=[Enable timestamps on log output]'
+    '--debug-timestamp=[Enable debug output with timestamps]'
+    '--no-tty=[Enable non_interactive output]'
+)
+
+local -a save_arguments && save_arguments=(
+    '--(no-)color=[Enable or disable color output]'
+    '--machine-readable=[Enable machine readable output]'
+    '--debug=[Enable debug output]'
+    '--timestamp=[Enable timestamps on log output]'
+    '--debug-timestamp=[Enable debug output with timestamps]'
+    '--no-tty=[Enable non_interactive output]'
+)
+
+
+
+  _arguments -C ':command:->command' '*::options:->options'
+
+case $state in 
+  (command)
+    _describe -t commands 'command' sub_commands
+    return
+  ;;
+
+  (options)
+    case $line[1] in
+  delete)
+    _arguments -s -S : $delete_arguments  ;;
+  list)
+    _arguments -s -S : $list_arguments  ;;
+  pop)
+    _arguments -s -S : $pop_arguments  ;;
+  push)
+    _arguments -s -S : $push_arguments  ;;
+  restore)
+    _arguments -s -S : $restore_arguments  ;;
+  save)
+    _arguments -s -S : $save_arguments  ;;
+esac
+  ;;
+esac
+
+}
+
+function __vagrant-plugin () {
+
+  local -a sub_commands && sub_commands=(
+    'expunge:expunge'
+    'install:install'
+    'license:license'
+    'list:list'
+    'repair:repair'
+    'uninstall:uninstall'
+    'update:update'
+)
+
+  local -a expunge_arguments && expunge_arguments=(
+    '--force=[Do not prompt for confirmation]'
+    '--local=[Include plugins from local project for expunge]'
+    '--local-only=[Only expunge local project plugins]'
+    '--global-only=[Only expunge global plugins]'
+    '--reinstall=[Reinstall current plugins after expunge]'
+    '--(no-)color=[Enable or disable color output]'
+    '--machine-readable=[Enable machine readable output]'
+    '--debug=[Enable debug output]'
+    '--timestamp=[Enable timestamps on log output]'
+    '--debug-timestamp=[Enable debug output with timestamps]'
+    '--no-tty=[Enable non_interactive output]'
+)
+
+local -a install_arguments && install_arguments=(
+    '--entry-point=[The name of the entry point file for loading the plugin.]'
+    '--plugin-clean-sources=[Remove all plugin sources defined so far (including defaults)]'
+    '--plugin-source=[__plugin_source PLUGIN_SOURCE]'
+    '--plugin-version=[__plugin_version PLUGIN_VERSION]'
+    '--local=[Install plugin for local project only]'
+    '--verbose=[Enable verbose output for plugin installation]'
+    '--(no-)color=[Enable or disable color output]'
+    '--machine-readable=[Enable machine readable output]'
+    '--debug=[Enable debug output]'
+    '--timestamp=[Enable timestamps on log output]'
+    '--debug-timestamp=[Enable debug output with timestamps]'
+    '--no-tty=[Enable non_interactive output]'
+)
+
+local -a license_arguments && license_arguments=(
+    '--(no-)color=[Enable or disable color output]'
+    '--machine-readable=[Enable machine readable output]'
+    '--debug=[Enable debug output]'
+    '--timestamp=[Enable timestamps on log output]'
+    '--debug-timestamp=[Enable debug output with timestamps]'
+    '--no-tty=[Enable non_interactive output]'
+)
+
+local -a list_arguments && list_arguments=(
+    '--local=[Include local project plugins]'
+    '--(no-)color=[Enable or disable color output]'
+    '--machine-readable=[Enable machine readable output]'
+    '--debug=[Enable debug output]'
+    '--timestamp=[Enable timestamps on log output]'
+    '--debug-timestamp=[Enable debug output with timestamps]'
+    '--no-tty=[Enable non_interactive output]'
+)
+
+local -a repair_arguments && repair_arguments=(
+    '--local=[Repair plugins in local project]'
+    '--(no-)color=[Enable or disable color output]'
+    '--machine-readable=[Enable machine readable output]'
+    '--debug=[Enable debug output]'
+    '--timestamp=[Enable timestamps on log output]'
+    '--debug-timestamp=[Enable debug output with timestamps]'
+    '--no-tty=[Enable non_interactive output]'
+)
+
+local -a uninstall_arguments && uninstall_arguments=(
+    '--local=[Remove plugin from local project]'
+    '--(no-)color=[Enable or disable color output]'
+    '--machine-readable=[Enable machine readable output]'
+    '--debug=[Enable debug output]'
+    '--timestamp=[Enable timestamps on log output]'
+    '--debug-timestamp=[Enable debug output with timestamps]'
+    '--no-tty=[Enable non_interactive output]'
+)
+
+local -a update_arguments && update_arguments=(
+    '--local=[Update plugin in local project]'
+    '--(no-)color=[Enable or disable color output]'
+    '--machine-readable=[Enable machine readable output]'
+    '--debug=[Enable debug output]'
+    '--timestamp=[Enable timestamps on log output]'
+    '--debug-timestamp=[Enable debug output with timestamps]'
+    '--no-tty=[Enable non_interactive output]'
+)
+
+
+
+  _arguments -C ':command:->command' '*::options:->options'
+
+case $state in 
+  (command)
+    _describe -t commands 'command' sub_commands
+    return
+  ;;
+
+  (options)
+    case $line[1] in
+  expunge)
+    _arguments -s -S : $expunge_arguments  ;;
+  install)
+    _arguments -s -S : $install_arguments  ;;
+  license)
+    _arguments -s -S : $license_arguments  ;;
+  list)
+    _arguments -s -S : $list_arguments  ;;
+  repair)
+    _arguments -s -S : $repair_arguments ':feature:__plugin_list' ;;
+  uninstall)
+    _arguments -s -S : $uninstall_arguments ':feature:__plugin_list' ;;
+  update)
+    _arguments -s -S : $update_arguments ':feature:__plugin_list' ;;
+esac
+  ;;
+esac
+
+}

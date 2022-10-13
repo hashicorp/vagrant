@@ -30,6 +30,7 @@ describe VagrantPlugins::CommandValidate::Command do
           <<-VF
           Vagrant.configure("2") do |config|
             config.vm.box = "hashicorp/precise64"
+            config.vm.synced_folder ".", "/vagrant", disabled: true
           end
           VF
       end
@@ -52,6 +53,7 @@ describe VagrantPlugins::CommandValidate::Command do
         <<-VF
         Vagrant.configure("2") do |config|
           config.vm.bix = "hashicorp/precise64"
+          config.vm.synced_folder ".", "/vagrant", disabled: true
         end
         VF
       end
@@ -67,6 +69,7 @@ describe VagrantPlugins::CommandValidate::Command do
         <<-VF
         Vagrant.configure("2") do |config|
           config.vm.box = "hashicorp/precise64"
+          config.vm.synced_folder ".", "/vagrant", disabled: true
 
           config.vm.define "test" do |vm|
             vm.vm.provider :virtualbox
@@ -97,6 +100,7 @@ describe VagrantPlugins::CommandValidate::Command do
         <<-VF
         Vagrant.configure("2") do |config|
           config.vm.box = "hashicorp/precise64"
+          config.vm.synced_folder ".", "/vagrant", disabled: true
 
           config.vm.define "test" do |vm|
             vm.vm.provider :virtualbox
@@ -127,6 +131,7 @@ describe VagrantPlugins::CommandValidate::Command do
         <<-VF
         Vagrant.configure("2") do |config|
           config.vm.box = "hashicorp/precise64"
+          config.vm.synced_folder ".", "/vagrant", disabled: true
 
           config.vm.define "test" do |vm|
             vm.vm.hostname = "test"
@@ -138,6 +143,8 @@ describe VagrantPlugins::CommandValidate::Command do
         VF
       end
       it "ignores provider specific configurations with the flag" do
+        allow(subject).to receive(:mockup_providers!).and_return("")
+        allow(FileUtils).to receive(:remove_entry).and_return(true)
         expect(iso_env.ui).to receive(:info).with(any_args) { |message, _|
           expect(message).to include("Vagrantfile validated successfully.")
         }

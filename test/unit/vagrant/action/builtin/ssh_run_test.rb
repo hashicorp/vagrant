@@ -18,8 +18,14 @@ describe Vagrant::Action::Builtin::SSHRun do
     )
   end
 
+  let(:vm) do
+    double("vm",
+      communicator: nil
+    )
+  end
+
   # Configuration mock
-  let(:config) { double("config", ssh: ssh) }
+  let(:config) { double("config", ssh: ssh, vm: vm) }
 
   let(:machine) do
     double("machine",
@@ -79,5 +85,64 @@ describe Vagrant::Action::Builtin::SSHRun do
     env[:ssh_opts] = ssh_opts
     env[:ssh_run_command] = "echo test"
     described_class.new(app, env).call(env)
+  end
+
+  context "when using the WinSSH communicator" do
+    let(:winssh) { double("winssh", shell: "foo") }
+
+    before do
+      expect(vm).to receive(:communicator).and_return(:winssh)
+      expect(config).to receive(:winssh).and_return(winssh)
+      env[:tty] = nil
+    end
+
+    it "should use the WinSSH shell for running ssh commands" do
+      ssh_info = { foo: :bar }
+      opts = {:extra_args=>["foo -c 'dir'"], :subprocess=>true}
+
+      expect(ssh_klass).to receive(:exec).
+        with(ssh_info, opts)
+
+      env[:ssh_info] = ssh_info
+      env[:ssh_run_command] = "dir"
+      described_class.new(app, env).call(env)
+    end
+
+    context "when shell is cmd" do
+      before do
+        expect(winssh).to receive(:shell).and_return('cmd')
+      end
+
+      it "should use appropriate options for cmd" do
+        ssh_info = { foo: :bar }
+        opts = {:extra_args=>["cmd /C dir "], :subprocess=>true}
+
+        expect(ssh_klass).to receive(:exec).
+          with(ssh_info, opts)
+
+        env[:ssh_info] = ssh_info
+        env[:ssh_run_command] = "dir"
+        described_class.new(app, env).call(env)
+      end
+    end
+
+    context "when shell is powershell" do
+      before do
+        expect(winssh).to receive(:shell).and_return('powershell')
+      end
+
+      it "should base64 encode the command" do
+        ssh_info = { foo: :bar }
+        encoded_command = "JABQAHIAbwBnAHIAZQBzAHMAUAByAGUAZgBlAHIAZQBuAGMAZQAgAD0AIAAiAFMAaQBsAGUAbgB0AGwAeQBDAG8AbgB0AGkAbgB1AGUAIgA7ACAAZABpAHIA"
+        opts = {:extra_args=>["powershell -encodedCommand #{encoded_command}"], :subprocess=>true}
+
+        expect(ssh_klass).to receive(:exec).
+          with(ssh_info, opts)
+
+        env[:ssh_info] = ssh_info
+        env[:ssh_run_command] = "dir"
+        described_class.new(app, env).call(env)
+      end
+    end
   end
 end

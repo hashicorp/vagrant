@@ -129,7 +129,7 @@ module Vagrant
                 path = "(unknown)"
                 if e.backtrace && e.backtrace[0]
                   backtrace_tokens = e.backtrace[0].split(":")
-                  path = backtrace_tokens[0]
+                  path = e.backtrace.first.slice(0, e.backtrace.first.rindex(':')).rpartition(':').first
                   backtrace_tokens.each do |part|
                     if part =~ /\d+/
                       line = part.to_i

@@ -1,3 +1,4 @@
+require "fileutils"
 require "shellwords"
 require_relative "../../../synced_folders/unix_mount_helpers"
 
@@ -8,37 +9,32 @@ module VagrantPlugins
 
         extend SyncedFolder::UnixMountHelpers
 
+        # Mounts and SMB folder on linux guest
+        #
+        # @param [Machine] machine
+        # @param [String] name of mount
+        # @param [String] path of mount on guest
+        # @param [Hash] hash of mount options 
         def self.mount_smb_shared_folder(machine, name, guestpath, options)
           expanded_guest_path = machine.guest.capability(
             :shell_expand_guest_path, guestpath)
+          options[:smb_id] ||= name
 
-          mount_device   = "//#{options[:smb_host]}/#{name}"
-
-          mount_options = options.fetch(:mount_options, [])
-          detected_ids = detect_owner_group_ids(machine, guestpath, mount_options, options)
-          mount_uid = detected_ids[:uid]
-          mount_gid = detected_ids[:gid]
-
+          mount_device = options[:plugin].capability(:mount_name, options)
+          mount_options, _, _ = options[:plugin].capability(
+            :mount_options, name, expanded_guest_path, options)
+          mount_type = options[:plugin].capability(:mount_type)
           # If a domain is provided in the username, separate it
           username, domain = (options[:smb_username] || '').split('@', 2)
           smb_password = options[:smb_password]
           # Ensure password is scrubbed
           Vagrant::Util::CredentialScrubber.sensitive(smb_password)
-
-          mnt_opts = []
-          if machine.env.host.capability?(:smb_mount_options)
-            mnt_opts += machine.env.host.capability(:smb_mount_options)
-          else
-            mnt_opts << "sec=ntlmssp"
+        
+          if mount_options.include?("mfsymlinks")
+            display_mfsymlinks_warning(machine.env)
           end
-          mnt_opts << "credentials=/etc/smb_creds_#{name}"
-          mnt_opts << "uid=#{mount_uid}"
-          mnt_opts << "gid=#{mount_gid}"
-
-          mnt_opts = merge_mount_options(mnt_opts, options[:mount_options] || [])
-
-          mount_options = "-o #{mnt_opts.join(",")}"
-          mount_command = "mount -t cifs #{mount_options} #{mount_device} #{expanded_guest_path}"
+          
+          mount_command = "mount -t #{mount_type} -o #{mount_options} #{mount_device} #{expanded_guest_path}"
 
           # Create the guest path if it doesn't exist
           machine.communicate.sudo("mkdir -p #{expanded_guest_path}")
@@ -74,24 +70,19 @@ SCRIPT
           ensure
             # Always remove credentials file after mounting attempts
             # have been completed
-            machine.communicate.sudo("rm /etc/smb_creds_#{name}")
+            if !machine.config.vm.allow_fstab_modification
+              machine.communicate.sudo("rm /etc/smb_creds_#{name}")
+            end
           end
 
           emit_upstart_notification(machine, expanded_guest_path)
         end
 
-        def self.merge_mount_options(base, overrides)
-          base = base.join(",").split(",")
-          overrides = overrides.join(",").split(",")
-          b_kv = Hash[base.map{|item| item.split("=", 2) }]
-          o_kv = Hash[overrides.map{|item| item.split("=", 2) }]
-          merged = {}.tap do |opts|
-            (b_kv.keys + o_kv.keys).uniq.each do |key|
-              opts[key] = o_kv.fetch(key, b_kv[key])
-            end
-          end
-          merged.map do |key, value|
-            [key, value].compact.join("=")
+        def self.display_mfsymlinks_warning(env)
+          d_file = env.data_dir.join("mfsymlinks_warning")
+          if !d_file.exist?
+            FileUtils.touch(d_file.to_path)
+            env.ui.warn(I18n.t("vagrant.actions.vm.smb.mfsymlink_warning"))
           end
         end
       end

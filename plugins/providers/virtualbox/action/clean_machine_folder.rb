@@ -13,7 +13,16 @@ module VagrantPlugins
         end
 
         def call(env)
-          clean_machine_folder(env[:machine].provider.driver.read_machine_folder)
+          machine_folder = env[:machine].provider.driver.read_machine_folder
+
+          begin
+            clean_machine_folder(machine_folder)
+          rescue Errno::EPERM
+            raise Vagrant::Errors::MachineFolderNotAccessible,
+              name: env[:machine].name,
+              path: machine_folder
+          end
+
           @app.call(env)
         end
 

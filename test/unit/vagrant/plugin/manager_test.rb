@@ -35,7 +35,7 @@ describe Vagrant::Plugin::Manager do
     end
 
     it "should init bundler with installed plugins" do
-      expect(subject).to receive(:bundler_init).with(plugins)
+      expect(subject).to receive(:bundler_init).with(plugins, anything)
       subject.globalize!
     end
 
@@ -48,12 +48,12 @@ describe Vagrant::Plugin::Manager do
     let(:env) { double("env", local_data_path: local_data_path) }
     let(:local_data_path) { double("local_data_path") }
     let(:plugins) { double("plugins") }
-    let(:state_file) { double("state_file", installed_plugins: plugins) }
+    let(:state_file) { double("state_file", path: double("state_file_path"), installed_plugins: plugins) }
 
     before do
       allow(Vagrant::Plugin::StateFile).to receive(:new).and_return(state_file)
       allow(bundler).to receive(:environment_path=)
-      allow(local_data_path).to receive(:join).and_return(local_data_path)
+      allow(local_data_path).to receive(:join).and_return(local_data_path) if local_data_path
       allow(subject).to receive(:bundler_init)
     end
 
@@ -71,7 +71,7 @@ describe Vagrant::Plugin::Manager do
     end
 
     it "should run bundler initialization" do
-      expect(subject).to receive(:bundler_init).with(plugins)
+      expect(subject).to receive(:bundler_init).with(plugins, anything)
       subject.localize!(env)
     end
 
@@ -118,7 +118,7 @@ describe Vagrant::Plugin::Manager do
     end
 
     it "should init the bundler instance with plugins" do
-      expect(bundler).to receive(:init!).with(plugins)
+      expect(bundler).to receive(:init!).with(plugins, any_args)
       subject.bundler_init(plugins)
     end
 
@@ -263,6 +263,25 @@ describe Vagrant::Plugin::Manager do
       plugins = subject.installed_plugins
       expect(plugins).to have_key("bar")
       expect(plugins["bar"]["gem_version"]).to eql("1.0")
+    end
+
+    context "with existing activation" do
+      let(:value) { double("value") }
+
+      before do
+        expect(bundler).to receive(:install).and_return([])
+        allow(bundler).to receive(:clean)
+      end
+
+      it "should locate existing activation if available" do
+        expect(Gem::Specification).to receive(:find).and_return(value)
+        expect(subject.install_plugin("foo")).to eq(value)
+      end
+
+      it "should raise an error if no activation is located" do
+        expect(Gem::Specification).to receive(:find).and_return(nil)
+        expect { subject.install_plugin("foo") }.to raise_error(Vagrant::Errors::PluginInstallFailed)
+      end
     end
 
     describe "installation options" do

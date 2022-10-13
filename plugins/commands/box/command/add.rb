@@ -86,7 +86,7 @@ module VagrantPlugins
             box_force: options[:force],
             box_download_ca_cert: options[:ca_cert],
             box_download_ca_path: options[:ca_path],
-            box_client_cert: options[:client_cert],
+            box_download_client_cert: options[:client_cert],
             box_download_insecure: options[:insecure],
             box_download_location_trusted: options[:location_trusted],
             ui: Vagrant::UI::Prefixed.new(@env.ui, "box"),

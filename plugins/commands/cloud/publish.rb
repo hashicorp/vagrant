@@ -9,7 +9,7 @@ module VagrantPlugins
           options = {}
 
           opts = OptionParser.new do |o|
-            o.banner = "Usage: vagrant cloud publish [options] organization/box-name version provider-name [provider-file]"
+            o.banner = "Usage: vagrant cloud publish [options] organization/box-name version provider-name provider-file"
             o.separator ""
             o.separator "Create and release a new Vagrant Box on Vagrant Cloud"
             o.separator ""
@@ -40,27 +40,40 @@ module VagrantPlugins
             o.on("-s", "--short-description DESCRIPTION", String, "Short description of the box") do |s|
               options[:short_description] = s
             end
-            o.on("-u", "--username USERNAME_OR_EMAIL", String, "Vagrant Cloud username or email address") do |t|
+            o.on("-u", "--username USERNAME_OR_EMAIL", String, "Vagrant Cloud username or email address") do |u|
               options[:username] = u
+            end
+            o.on("-c", "--checksum CHECKSUM_VALUE", String, "Checksum of the box for this provider. --checksum-type option is required.") do |c|
+              options[:checksum] = c
+            end
+            o.on("-C", "--checksum-type TYPE", String, "Type of checksum used (md5, sha1, sha256, sha384, sha512). --checksum option is required.") do |c|
+              options[:checksum_type] = c
             end
           end
 
           # Parse the options
           argv = parse_options(opts)
           return if !argv
-          if argv.empty? || argv.length > 4 || argv.length < 3
+
+          if argv.empty? || argv.length > 4 || argv.length < 3 || (argv.length == 3 && !options[:url])
             raise Vagrant::Errors::CLIInvalidUsage,
               help: opts.help.chomp
           end
-
-          @client = VagrantPlugins::CloudCommand::Util.client_login(@env, options[:username])
 
           box = argv.first.split('/', 2)
           org = box[0]
           box_name = box[1]
           version = argv[1]
           provider_name = argv[2]
-          box_file = argv[3] # path expand
+          box_file = argv[3]
+
+          if !options[:url] && !File.file?(box_file)
+            raise Vagrant::Errors::BoxFileNotExist,
+              file: box_file
+          end
+
+          @client = VagrantPlugins::CloudCommand::Util.client_login(@env, options[:username])
+
           publish_box(org, box_name, version, provider_name, box_file, options, @client.token)
         end
 
@@ -90,7 +103,8 @@ module VagrantPlugins
           account = VagrantPlugins::CloudCommand::Util.account(org, access_token, server_url)
           box = VagrantCloud::Box.new(account, box_name, nil, options[:short_description], options[:description], access_token)
           cloud_version = VagrantCloud::Version.new(box, version, nil, options[:version_description], access_token)
-          provider = VagrantCloud::Provider.new(cloud_version, provider_name, nil, options[:url], org, box_name, access_token)
+          provider = VagrantCloud::Provider.new(cloud_version, provider_name, nil, options[:url], org, box_name,
+            access_token, nil, options[:checksum], options[:checksum_type])
 
           ui = Vagrant::UI::Prefixed.new(@env.ui, "cloud")
 
@@ -120,6 +134,10 @@ module VagrantPlugins
               @env.ui.error(e)
               return 1
             end
+          rescue VagrantCloud::InvalidVersion => e
+            @env.ui.error(I18n.t("cloud_command.errors.publish.fail", org: org, box_name: box_name))
+            @env.ui.error(e)
+            return 1
           end
 
           begin

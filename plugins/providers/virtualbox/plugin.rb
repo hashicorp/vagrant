@@ -39,9 +39,44 @@ module VagrantPlugins
         Cap::PublicAddress
       end
 
+      provider_capability(:virtualbox, :configure_disks) do
+        require_relative "cap/configure_disks"
+        Cap::ConfigureDisks
+      end
+
+      provider_capability(:virtualbox, :cleanup_disks) do
+        require_relative "cap/cleanup_disks"
+        Cap::CleanupDisks
+      end
+
+      provider_capability(:virtualbox, :validate_disk_ext) do
+        require_relative "cap/validate_disk_ext"
+        Cap::ValidateDiskExt
+      end
+
+      provider_capability(:virtualbox, :default_disk_exts) do
+        require_relative "cap/validate_disk_ext"
+        Cap::ValidateDiskExt
+      end
+
+      provider_capability(:virtualbox, :set_default_disk_ext) do
+        require_relative "cap/validate_disk_ext"
+        Cap::ValidateDiskExt
+      end
+
       provider_capability(:virtualbox, :snapshot_list) do
         require_relative "cap"
         Cap
+      end
+
+      synced_folder_capability(:virtualbox, "mount_options") do
+        require_relative "cap/mount_options"
+        Cap::MountOptions
+      end
+
+      synced_folder_capability(:virtualbox, "mount_type") do
+        require_relative "cap/mount_options"
+        Cap::MountOptions
       end
     end
 
@@ -59,10 +94,13 @@ module VagrantPlugins
       autoload :Version_5_1, File.expand_path("../driver/version_5_1", __FILE__)
       autoload :Version_5_2, File.expand_path("../driver/version_5_2", __FILE__)
       autoload :Version_6_0, File.expand_path("../driver/version_6_0", __FILE__)
+      autoload :Version_6_1, File.expand_path("../driver/version_6_1", __FILE__)
     end
 
     module Model
       autoload :ForwardedPort, File.expand_path("../model/forwarded_port", __FILE__)
+      autoload :StorageController, File.expand_path("../model/storage_controller", __FILE__)
+      autoload :StorageControllerArray, File.expand_path("../model/storage_controller_array", __FILE__)
     end
 
     module Util

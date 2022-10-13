@@ -51,7 +51,7 @@ module Vagrant
         @globalized = true
         @logger.debug("Enabling globalized plugins")
         plugins = installed_plugins
-        bundler_init(plugins)
+        bundler_init(plugins, global: user_file.path)
         plugins
       end
 
@@ -66,7 +66,7 @@ module Vagrant
           @local_file = StateFile.new(env.local_data_path.join("plugins.json"))
           Vagrant::Bundler.instance.environment_path = env.local_data_path
           plugins = local_file.installed_plugins
-          bundler_init(plugins)
+          bundler_init(plugins, local: local_file.path)
           plugins
         end
       end
@@ -80,7 +80,7 @@ module Vagrant
       #
       # @param [Hash] plugins List of plugins
       # @return [nil]
-      def bundler_init(plugins)
+      def bundler_init(plugins, **opts)
         if !Vagrant.plugins_init?
           @logger.warn("Plugin initialization is disabled")
           return nil
@@ -99,7 +99,7 @@ module Vagrant
           )
         end
         begin
-          Vagrant::Bundler.instance.init!(plugins)
+          Vagrant::Bundler.instance.init!(plugins, **opts)
         rescue StandardError, ScriptError => err
           @logger.error("Plugin initialization error - #{err.class}: #{err}")
           err.backtrace.each do |backtrace_line|
@@ -150,17 +150,28 @@ module Vagrant
         else
           result = local_spec
         end
-        # Add the plugin to the state file
-        plugin_file = opts[:env_local] ? @local_file : @user_file
-        plugin_file.add_plugin(
-          result.name,
-          version: opts[:version],
-          require: opts[:require],
-          sources: opts[:sources],
-          env_local: !!opts[:env_local],
-          installed_gem_version: result.version.to_s
-        )
 
+        if result
+          # Add the plugin to the state file
+          plugin_file = opts[:env_local] ? @local_file : @user_file
+          plugin_file.add_plugin(
+            result.name,
+            version: opts[:version],
+            require: opts[:require],
+            sources: opts[:sources],
+            env_local: !!opts[:env_local],
+            installed_gem_version: result.version.to_s
+          )
+        else
+          r = Gem::Dependency.new(name, opts[:version])
+          result = Gem::Specification.find { |s|
+            s.satisfies_requirement?(r) &&
+              s.activated?
+          }
+          raise Errors::PluginInstallFailed,
+            name: name if result.nil?
+          @logger.warn("Plugin install returned no result as no new plugins were installed.")
+        end
         # After install clean plugin gems to remove any cruft. This is useful
         # for removing outdated dependencies or other versions of an installed
         # plugin if the plugin is upgraded/downgraded

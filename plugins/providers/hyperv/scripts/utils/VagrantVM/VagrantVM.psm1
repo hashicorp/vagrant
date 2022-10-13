@@ -223,6 +223,7 @@ function New-VagrantVMXML {
 
     # Determine if secure boot is enabled
     $SecureBoot = (Select-Xml -XML $VMConfig -XPath "//secure_boot_enabled").Node."#text"
+    $SecureBootTemplate = (Select-Xml -XML $VMConfig -XPath "//secure_boot_template").Node."#text"
 
     $NewVMConfig = @{
         Name = $VMName;
@@ -242,6 +243,13 @@ function New-VagrantVMXML {
     if($Gen -gt 1) {
         if($SecureBoot -eq "True") {
             Hyper-V\Set-VMFirmware -VM $VM -EnableSecureBoot On
+            if ( 
+                    ( ![System.String]::IsNullOrEmpty($SecureBootTemplate) )`
+                     -and`
+                    ( (Get-Command Hyper-V\Set-VMFirmware).Parameters.Keys.Contains("secureboottemplate") ) 
+                ) {
+                    Hyper-V\Set-VMFirmware -VM $VM -SecureBootTemplate $SecureBootTemplate
+                }
         } else {
             Hyper-V\Set-VMFirmware -VM $VM -EnableSecureBoot Off
         }
@@ -355,6 +363,9 @@ function Report-ErrorVagrantVMImport {
     )
 
     $ManagementService = Get-WmiObject -Namespace 'root\virtualization\v2' -Class 'Msvm_VirtualSystemManagementService'
+    if($null -eq $ManagementService) {
+        throw 'The Hyper-V Virtual Machine Management Service (VMMS) is not running.'
+    }
 
     # Relative path names will fail when attempting to import a system
     # definition so always ensure we are using the full path to the
@@ -611,15 +622,15 @@ function Set-VagrantVMService {
         [parameter (Mandatory=$true)]
         [Microsoft.HyperV.PowerShell.VirtualMachine] $VM,
         [parameter (Mandatory=$true)]
-        [string] $Name,
+        [string] $Id,
         [parameter (Mandatory=$true)]
         [bool] $Enable
     )
 
     if($Enable) {
-        Hyper-V\Enable-VMIntegrationService -VM $VM -Name $Name
+        Hyper-V\Get-VMIntegrationService -VM $VM | ?{$_.Id -match $Id} | Hyper-V\Enable-VMIntegrationService
     } else {
-        Hyper-V\Disable-VMIntegrationService -VM $VM -Name $Name
+        Hyper-V\Get-VMIntegrationService -VM $VM | ?{$_.Id -match $Id} | Hyper-V\Disable-VMIntegrationService
     }
     return $VM
 <#
@@ -631,9 +642,9 @@ Enable or disable Hyper-V VM integration services.
 
 Hyper-V VM for modification.
 
-.PARAMETER Name
+.PARAMETER Id
 
-Name of the integration service.
+Id of the integration service.
 
 .PARAMETER Enable
 
@@ -719,7 +730,7 @@ function Check-VagrantHyperVAccess {
     )
     $acl = Get-ACL -Path $Path
     $systemACL = $acl.Access | where {
-        $_.IdentityReference.Translate([System.Security.Principal.SecurityIdentifier]).Value -eq "S-1-5-18" -and
+        try { return $_.IdentityReference.Translate([System.Security.Principal.SecurityIdentifier]).Value -eq "S-1-5-18" } catch { return $false } -and
         $_.FileSystemRights -eq "FullControl" -and
         $_.AccessControlType -eq "Allow" -and
         $_.IsInherited -eq $true}

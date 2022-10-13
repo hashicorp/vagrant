@@ -32,7 +32,7 @@ describe VagrantPlugins::DockerProvider::Driver::Compose do
   end
   let(:data_directory){ double("data-directory", join: composition_path) }
   let(:local_data_path){ double("local-data-path") }
-  let(:compose_execute_up){ ["docker-compose", "-f", "docker-compose.yml", "-p", "cwd", "up", "--remove-orphans", "-d", {}] }
+  let(:compose_execute_up){ ["docker-compose", "-f", "docker-compose.yml", "-p", "cwd", "up", "--remove-orphans", "-d", any_args] }
 
 
   subject{ described_class.new(machine) }
@@ -51,6 +51,23 @@ describe VagrantPlugins::DockerProvider::Driver::Compose do
     allow(subject).to receive(:execute) do |*args|
       args.delete_if{|i| i.is_a?(Hash) }
       @cmd = args.join(' ')
+    end
+  end
+
+  describe '#build' do
+    it 'creates a compose config with no extra options' do
+      expect(subject).to receive(:update_composition)
+      subject.build(composition_path)
+    end
+
+    it 'creates a compose config when given an array for build-arg' do
+      expect(subject).to receive(:update_composition)
+      subject.build(composition_path, extra_args: ["foo", "bar"])
+    end
+
+    it 'creates a compose config when given a hash for build-arg' do
+      expect(subject).to receive(:update_composition)
+      subject.build(composition_path, extra_args: {"foo"=>"bar"})
     end
   end
 
@@ -103,6 +120,22 @@ describe VagrantPlugins::DockerProvider::Driver::Compose do
 
       it 'should expand the relative host directory' do
         expect(docker_yml).to receive(:write).with(%r{/compose/cwd/path})
+      end
+    end
+
+    context 'with a volumes key in use for mounting' do
+      let(:compose_config) { {"volumes"=>{"my_volume_key"=>"data"}} }
+
+      before do
+        params[:volumes] = 'my_volume_key:my/guest/path'
+        allow(Pathname).to receive(:new).with('./path').and_call_original
+        allow(Pathname).to receive(:new).with('my_volume_key').and_call_original
+        allow(Pathname).to receive(:new).with('/compose/cwd/my_volume_key').and_call_original
+        allow(subject).to receive(:get_composition).and_return(compose_config)
+      end
+
+      it 'should not expand the relative host directory' do
+        expect(docker_yml).to receive(:write).with(%r{my_volume_key})
       end
     end
 
@@ -244,7 +277,7 @@ describe VagrantPlugins::DockerProvider::Driver::Compose do
       before { allow(subject).to receive(:created?).and_return(true) }
 
       it 'removes the container' do
-        expect(subject).to receive(:execute).with("docker-compose", "-f", "docker-compose.yml", "-p", "cwd", "rm", "-f", "docker_1", {})
+        expect(subject).to receive(:execute).with("docker-compose", "-f", "docker-compose.yml", "-p", "cwd", "rm", "-f", "docker_1", any_args)
         subject.rm(cid)
       end
     end

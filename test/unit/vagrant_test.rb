@@ -48,11 +48,6 @@ describe Vagrant do
   end
 
   describe "has_plugin?" do
-    after(:each) do
-      manager.reset!
-    end
-
-    let(:manager) { described_class.plugin("2").manager }
 
     it "should find the installed plugin by the registered name" do
       Class.new(described_class.plugin(Vagrant::Config::CURRENT_VERSION)) do

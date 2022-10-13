@@ -1,10 +1,8 @@
+require_relative "../container/installer"
+
 module VagrantPlugins
   module DockerProvisioner
-    class Installer
-      def initialize(machine)
-        @machine = machine
-      end
-
+    class Installer < VagrantPlugins::ContainerProvisioner::Installer
       # This handles verifying the Docker installation, installing it if it was
       # requested, and so on. This method will raise exceptions if things are
       # wrong.

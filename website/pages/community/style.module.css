@@ -1,0 +1,8 @@
+.root {
+  max-width: var(--site-max-width);
+  margin: 72px auto;
+
+  & :global(.g-section-header) {
+    margin-bottom: 100px;
+  }
+}

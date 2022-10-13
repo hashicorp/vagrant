@@ -178,6 +178,10 @@ module Vagrant
             "-o", "ForwardX11Trusted=yes"]
         end
 
+        if ssh_info[:config]
+          command_options += ["-F", ssh_info[:config]]
+        end
+
         if ssh_info[:proxy_command]
           command_options += ["-o", "ProxyCommand=#{ssh_info[:proxy_command]}"]
         end

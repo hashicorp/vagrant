@@ -1,0 +1,25 @@
+---
+layout: docs
+page_title: vagrant winrm - Command-Line Interface
+description: |-
+  The "vagrant winrm" command is used execute commands on the remote
+  machine via WinRM
+---
+
+# WinRM
+
+**Command: `vagrant winrm [name|id]`**
+
+Executes the provided command(s) on the guest machine using the
+WinRM communicator. Commands are provided with the `--command`
+option and multiple `--command` flags may be provided for
+executing multiple commands. This command requires the guest
+machine to be configured with the WinRM communicator.
+
+## Options
+
+- `--command COMMAND` - Command to execute.
+
+- `--elevated` - Run command(s) with elevated credentials.
+
+- `--shell (cmd|powershell)` - Shell to execute commands. Defaults to `powershell`.

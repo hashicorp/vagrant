@@ -45,6 +45,7 @@ describe Vagrant::Action::Builtin::SyncedFolders do
       allow(subject).to receive(:plugins).and_return(plugins)
       allow(subject).to receive(:synced_folders).and_return(synced_folders)
       allow(subject).to receive(:save_synced_folders)
+      allow(machine).to receive_message_chain(:guest, :capability?).with(:persist_mount_shared_folder).and_return(false)
     end
 
     after do
@@ -226,6 +227,40 @@ describe Vagrant::Action::Builtin::SyncedFolders do
           machine, anything, merge: true)
 
         subject.call(env)
+      end
+    end
+
+    context "with guest capability to persist synced folders" do
+      it "persists folders" do
+        synced_folders["default"] = {
+          "root" => {
+            hostpath: "foo",
+          },
+
+          "other" => {
+            hostpath: "bar",
+            create: true,
+          }
+        }
+        allow(machine).to receive_message_chain(:guest, :capability?).with(:persist_mount_shared_folder).and_return(true)
+        expect(vm_config).to receive(:allow_fstab_modification).and_return(true)
+        expect(machine).to receive_message_chain(:guest, :capability).with(:persist_mount_shared_folder, synced_folders)
+        subject.call(env)
+      end
+
+      it "does not persists folders if configured to not do so" do
+        allow(machine).to receive_message_chain(:guest, :capability?).with(:persist_mount_shared_folder).and_return(true)
+        expect(vm_config).to receive(:allow_fstab_modification).and_return(false)
+        expect(machine).to receive_message_chain(:guest, :capability).with(:persist_mount_shared_folder, nil)
+        subject.call(env)
+      end
+    end
+
+    context "when guest is not available" do
+      it "does not persist folders if guest is not available" do
+      allow(machine).to receive_message_chain(:guest, :capability?).and_raise(Vagrant::Errors::MachineGuestNotReady)
+      expect(vm_config).to_not receive(:allow_fstab_modification)
+      subject.call(env)
       end
     end
   end

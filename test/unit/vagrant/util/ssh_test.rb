@@ -39,7 +39,11 @@ describe Vagrant::Util::SSH do
       dsa_authentication: true
     }}
 
-    let(:ssh_path) { "/usr/bin/ssh" }
+    let(:ssh_path) { /.*ssh/ }
+
+    before {
+      allow(Vagrant::Util::Which).to receive(:which).with("ssh", any_args).and_return(ssh_path)
+    }
 
     it "searches original PATH for executable" do
       expect(Vagrant::Util::Which).to receive(:which).with("ssh", original_path: true).and_return("valid-return")
@@ -96,8 +100,6 @@ describe Vagrant::Util::SSH do
         compression: true,
         dsa_authentication: true
       }}
-
-      let(:ssh_path) { "/usr/bin/ssh" }
 
       it "uses the IdentityFile argument and escapes the '%' character" do
         allow(Vagrant::Util::SafeExec).to receive(:exec).and_return(nil)
@@ -233,6 +235,26 @@ describe Vagrant::Util::SSH do
         expect(described_class.exec(ssh_info)).to eq(nil)
         expect(Vagrant::Util::SafeExec).to have_received(:exec)
           .with(ssh_path, "vagrant@localhost", "-p", "2222", "-o", "LogLevel=FATAL", "-o", "StrictHostKeyChecking=no", "-o", "UserKnownHostsFile=/dev/null", "-i", ssh_info[:private_key_path][0], "-6")
+      end
+    end
+
+    context "when config is provided" do
+      let(:ssh_info) {{
+        host: "localhost",
+        port: 2222,
+        username: "vagrant",
+        config: "/path/to/config"
+      }}
+
+      it "enables ssh config loading" do
+        allow(Vagrant::Util::SafeExec).to receive(:exec).and_return(nil)
+        expect(Vagrant::Util::SafeExec).to receive(:exec) do |exe_path, *args|
+          expect(exe_path).to match(ssh_path)
+          config_options = ["-F", "/path/to/config"]
+          expect(args & config_options).to eq(config_options)
+        end
+
+        expect(described_class.exec(ssh_info)).to eq(nil)
       end
     end
 

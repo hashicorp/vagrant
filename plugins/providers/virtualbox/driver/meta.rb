@@ -64,6 +64,7 @@ module VagrantPlugins
             "5.1" => Version_5_1,
             "5.2" => Version_5_2,
             "6.0" => Version_6_0,
+            "6.1" => Version_6_1,
           }
 
           if @@version.start_with?("4.2.14")
@@ -96,10 +97,15 @@ module VagrantPlugins
           end
         end
 
-        def_delegators :@driver, :clear_forwarded_ports,
+        def_delegators :@driver,
+          :attach_disk,
+          :clear_forwarded_ports,
           :clear_shared_folders,
+          :clone_disk,
           :clonevm,
+          :close_medium,
           :create_dhcp_server,
+          :create_disk,
           :create_host_only_network,
           :create_snapshot,
           :delete,
@@ -110,9 +116,12 @@ module VagrantPlugins
           :execute_command,
           :export,
           :forward_ports,
+          :get_port_and_device,
+          :get_storage_controller,
           :halt,
           :import,
           :list_snapshots,
+          :list_hdds,
           :read_forwarded_ports,
           :read_bridged_interfaces,
           :read_dhcp_servers,
@@ -125,21 +134,27 @@ module VagrantPlugins
           :read_machine_folder,
           :read_network_interfaces,
           :read_state,
+          :read_storage_controllers,
           :read_used_ports,
           :read_vms,
           :reconfig_host_only,
           :remove_dhcp_server,
+          :remove_disk,
+          :resize_disk,
           :restore_snapshot,
           :resume,
           :set_mac_address,
           :set_name,
           :share_folders,
+          :show_medium_info,
           :ssh_port,
           :start,
           :suspend,
+          :vdi_to_vmdk,
           :verify!,
           :verify_image,
-          :vm_exists?
+          :vm_exists?,
+          :vmdk_to_vdi
 
         protected
 

@@ -36,17 +36,35 @@ module Vagrant
 
           # Get the command and wrap it in a login shell
           command = ShellQuote.escape(env[:ssh_run_command], "'")
-          command = "#{env[:machine].config.ssh.shell} -c '#{command}'"
+
+          if env[:machine].config.vm.communicator == :winssh
+            shell = env[:machine].config.winssh.shell
+          else
+            shell = env[:machine].config.ssh.shell
+          end
+
+          if shell == "cmd"
+            # Add an extra space to the command so cmd.exe quoting works
+            # properly
+            command = "#{shell} /C #{command} "
+          elsif shell == "powershell"
+            command = "$ProgressPreference = \"SilentlyContinue\"; #{command}"
+            command = Base64.strict_encode64(command.encode("UTF-16LE", "UTF-8"))
+            command = "#{shell} -encodedCommand #{command}"
+          else
+            command = "#{shell} -c '#{command}'"
+          end
 
           # Execute!
           opts = env[:ssh_opts] || {}
           opts[:extra_args] ||= []
 
           # Allow the user to specify a tty or non-tty manually, but if they
-          # don't then we default to a TTY
+          # don't then we default to a TTY unless they are using WinSSH
           if !opts[:extra_args].include?("-t") &&
               !opts[:extra_args].include?("-T") &&
-              env[:tty]
+              env[:tty] &&
+              env[:machine].config.vm.communicator != :winssh
             opts[:extra_args] << "-t"
           end
 

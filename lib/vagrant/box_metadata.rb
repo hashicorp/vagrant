@@ -68,11 +68,25 @@ module Vagrant
 
     # Returns all the versions supported by this metadata. These
     # versions are sorted so the last element of the list is the
-    # latest version.
+    # latest version. Optionally filter versions by a matching
+    # provider.
     #
     # @return[Array<String>]
-    def versions
-      @version_map.keys.sort.map(&:to_s)
+    def versions(**opts)
+      provider = nil
+      provider = opts[:provider].to_sym if opts[:provider]
+
+      if provider
+        @version_map.select do |version, raw|
+          if raw["providers"]
+            raw["providers"].detect do |p|
+              p["name"].to_sym == provider
+            end
+          end
+        end.keys.sort.map(&:to_s)
+      else
+        @version_map.keys.sort.map(&:to_s)
+      end
     end
 
     # Represents a single version within the metadata.

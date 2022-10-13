@@ -11,9 +11,24 @@ module VagrantPlugins
         Host
       end
 
+      host_capability("darwin", "isofs_available") do
+        require_relative "cap/fs_iso"
+        Cap::FsISO
+      end
+
+      host_capability("darwin", "create_iso") do
+        require_relative "cap/fs_iso"
+        Cap::FsISO
+      end
+
       host_capability("darwin", "provider_install_virtualbox") do
         require_relative "cap/provider_install_virtualbox"
         Cap::ProviderInstallVirtualBox
+      end
+
+      host_capability("darwin", "resolve_host_path") do
+        require_relative "cap/path"
+        Cap::Path
       end
 
       host_capability("darwin", "rdp_client") do
@@ -49,6 +64,11 @@ module VagrantPlugins
       host_capability("darwin", "configured_ip_addresses") do
         require_relative "cap/configured_ip_addresses"
         Cap::ConfiguredIPAddresses
+      end
+
+      host_capability("darwin", "nfs_exports_template") do
+        require_relative "cap/nfs"
+        Cap::NFS
       end
     end
   end

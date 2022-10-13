@@ -40,7 +40,7 @@ module Vagrant
           # Have download options specified in the environment override
           # options specified for the machine.
           download_options = {
-            automatic_check: true,
+            automatic_check: !env[:box_outdated_force],
             ca_cert: env[:ca_cert] || machine.config.vm.box_download_ca_cert,
             ca_path: env[:ca_path] || machine.config.vm.box_download_ca_path,
             client_cert: env[:client_cert] ||
@@ -51,7 +51,8 @@ module Vagrant
 
           env[:ui].output(I18n.t(
             "vagrant.box_outdated_checking_with_refresh",
-            name: box.name))
+            name: box.name,
+            version: box.version))
           update = nil
           begin
             update = box.has_update?(constraints, download_options: download_options)
@@ -69,15 +70,23 @@ module Vagrant
               message: e.message))
           end
           env[:box_outdated] = update != nil
-          if update
+          local_update = check_outdated_local(env)
+          if update && (local_update.nil? || (local_update.version < update[1].version))
             env[:ui].warn(I18n.t(
               "vagrant.box_outdated_single",
               name: update[0].name,
               provider: box.provider,
               current: box.version,
               latest: update[1].version))
+          elsif local_update
+            env[:ui].warn(I18n.t(
+              "vagrant.box_outdated_local",
+              name: local_update.name,
+              old: box.version,
+              new: local_update.version))
+            env[:box_outdated] = true
           else
-            check_outdated_local(env)
+            env[:box_outdated] = false
           end
 
           @app.call(env)
@@ -92,19 +101,8 @@ module Vagrant
           version ||= ""
           version += "> #{machine.box.version}"
 
-          box = env[:box_collection].find(
+          env[:box_collection].find(
             machine.box.name, machine.box.provider, version)
-          if box
-            env[:ui].warn(I18n.t(
-              "vagrant.box_outdated_local",
-              name: box.name,
-              old: machine.box.version,
-              new: box.version))
-            env[:box_outdated] = true
-            return
-          end
-
-          env[:box_outdated] = false
         end
       end
     end

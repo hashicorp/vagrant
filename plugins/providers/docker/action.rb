@@ -66,14 +66,8 @@ module VagrantPlugins
                 next
               end
 
-              b3.use Call, HasSSH do |env3, b4|
-                if env3[:result]
-                  b4.use Provision
-                else
-                  b4.use Message,
-                    I18n.t("docker_provider.messages.provision_no_ssh"),
-                    post: true
-                end
+              b3.use Call, HasProvisioner do |env3, b4|
+                b4.use Provision
               end
             end
           end
@@ -161,6 +155,7 @@ module VagrantPlugins
                   b4.use action_halt
                   b4.use HostMachineSyncFoldersDisable
                   b4.use Destroy
+                  b4.use DestroyNetwork
                   b4.use DestroyBuildImage
                 else
                   b4.use Message,
@@ -215,14 +210,8 @@ module VagrantPlugins
         Vagrant::Action::Builder.new.tap do |b|
           b.use Call, IsState, :running do |env, b2|
             if env[:machine_action] != :run_command
-              b2.use Call, HasSSH do |env2, b3|
-                if env2[:result]
-                  b3.use Provision
-                else
-                  b3.use Message,
-                    I18n.t("docker_provider.messages.provision_no_ssh"),
-                    post: true
-                end
+              b2.use Call, HasProvisioner do |env2, b3|
+                b3.use Provision
               end
             end
 
@@ -243,20 +232,23 @@ module VagrantPlugins
             b2.use PrepareNFSValidIds
             b2.use SyncedFolderCleanup
             b2.use PrepareNFSSettings
+            b2.use PrepareNetworks
             b2.use Login
             b2.use Build
 
             if env[:machine_action] != :run_command
               # If the container is NOT created yet, then do some setup steps
               # necessary for creating it.
+
               b2.use Call, IsState, :preparing do |env2, b3|
                 if env2[:result]
                   b3.use EnvSet, port_collision_repair: true
                   b3.use HostMachinePortWarning
                   b3.use HostMachinePortChecker
+                  b3.use ForwardedPorts # This action converts the `ports` param into proper network configs
+                  b3.use PrepareForwardedPortCollisionParams
                   b3.use HandleForwardedPortCollisions
                   b3.use SyncedFolders
-                  b3.use ForwardedPorts
                   b3.use Pull
                   b3.use Create
                   b3.use WaitForRunning
@@ -265,6 +257,7 @@ module VagrantPlugins
                 end
               end
 
+              b2.use ConnectNetworks
               b2.use Start
               b2.use WaitForRunning
 
@@ -292,9 +285,11 @@ module VagrantPlugins
       action_root = Pathname.new(File.expand_path("../action", __FILE__))
       autoload :Build, action_root.join("build")
       autoload :CompareSyncedFolders, action_root.join("compare_synced_folders")
+      autoload :ConnectNetworks, action_root.join("connect_networks")
       autoload :Create, action_root.join("create")
       autoload :Destroy, action_root.join("destroy")
       autoload :DestroyBuildImage, action_root.join("destroy_build_image")
+      autoload :DestroyNetwork, action_root.join("destroy_network")
       autoload :ForwardedPorts, action_root.join("forwarded_ports")
       autoload :HasSSH, action_root.join("has_ssh")
       autoload :HostMachine, action_root.join("host_machine")
@@ -308,12 +303,14 @@ module VagrantPlugins
       autoload :IsBuild, action_root.join("is_build")
       autoload :IsHostMachineCreated, action_root.join("is_host_machine_created")
       autoload :Login, action_root.join("login")
-      autoload :Pull, action_root.join("pull")
-      autoload :PrepareSSH, action_root.join("prepare_ssh")
-      autoload :Stop, action_root.join("stop")
+      autoload :PrepareForwardedPortCollisionParams, action_root.join("prepare_forwarded_port_collision_params")
+      autoload :PrepareNetworks, action_root.join("prepare_networks")
       autoload :PrepareNFSValidIds, action_root.join("prepare_nfs_valid_ids")
       autoload :PrepareNFSSettings, action_root.join("prepare_nfs_settings")
+      autoload :PrepareSSH, action_root.join("prepare_ssh")
+      autoload :Pull, action_root.join("pull")
       autoload :Start, action_root.join("start")
+      autoload :Stop, action_root.join("stop")
       autoload :WaitForRunning, action_root.join("wait_for_running")
     end
   end

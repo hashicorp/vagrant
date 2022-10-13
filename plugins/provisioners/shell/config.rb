@@ -7,6 +7,9 @@ module VagrantPlugins
       attr_accessor :path
       attr_accessor :md5
       attr_accessor :sha1
+      attr_accessor :sha256
+      attr_accessor :sha384
+      attr_accessor :sha512
       attr_accessor :env
       attr_accessor :upload_path
       attr_accessor :args
@@ -17,6 +20,7 @@ module VagrantPlugins
       attr_accessor :sensitive
       attr_accessor :powershell_args
       attr_accessor :powershell_elevated_interactive
+      attr_accessor :reboot
       attr_accessor :reset
 
       def initialize
@@ -25,6 +29,9 @@ module VagrantPlugins
         @path                  = UNSET_VALUE
         @md5                   = UNSET_VALUE
         @sha1                  = UNSET_VALUE
+        @sha256                = UNSET_VALUE
+        @sha384                = UNSET_VALUE
+        @sha512                = UNSET_VALUE
         @env                   = UNSET_VALUE
         @upload_path           = UNSET_VALUE
         @privileged            = UNSET_VALUE
@@ -32,6 +39,7 @@ module VagrantPlugins
         @keep_color            = UNSET_VALUE
         @name                  = UNSET_VALUE
         @sensitive             = UNSET_VALUE
+        @reboot                = UNSET_VALUE
         @reset                 = UNSET_VALUE
         @powershell_args       = UNSET_VALUE
         @powershell_elevated_interactive  = UNSET_VALUE
@@ -43,13 +51,17 @@ module VagrantPlugins
         @path                 = nil if @path == UNSET_VALUE
         @md5                  = nil if @md5 == UNSET_VALUE
         @sha1                 = nil if @sha1 == UNSET_VALUE
+        @sha256               = nil if @sha256 == UNSET_VALUE
+        @sha384               = nil if @sha384 == UNSET_VALUE
+        @sha512               = nil if @sha512 == UNSET_VALUE
         @env                  = {}  if @env == UNSET_VALUE
-        @upload_path          = "/tmp/vagrant-shell" if @upload_path == UNSET_VALUE
+        @upload_path          = nil if @upload_path == UNSET_VALUE
         @privileged           = true if @privileged == UNSET_VALUE
         @binary               = false if @binary == UNSET_VALUE
         @keep_color           = false if @keep_color == UNSET_VALUE
         @name                 = nil if @name == UNSET_VALUE
         @sensitive            = false if @sensitive == UNSET_VALUE
+        @reboot               = false if @reboot == UNSET_VALUE
         @reset                = false if @reset == UNSET_VALUE
         @powershell_args      = "-ExecutionPolicy Bypass" if @powershell_args == UNSET_VALUE
         @powershell_elevated_interactive = false if @powershell_elevated_interactive == UNSET_VALUE
@@ -71,7 +83,7 @@ module VagrantPlugins
         # Validate that the parameters are properly set
         if path && inline
           errors << I18n.t("vagrant.provisioners.shell.path_and_inline_set")
-        elsif !path && !inline && !reset
+        elsif !path && !inline && !reset && !reboot
           errors << I18n.t("vagrant.provisioners.shell.no_path_or_inline")
         end
 
@@ -95,11 +107,6 @@ module VagrantPlugins
 
         if !env.is_a?(Hash)
           errors << I18n.t("vagrant.provisioners.shell.env_must_be_a_hash")
-        end
-
-        # There needs to be a path to upload the script to
-        if !upload_path
-          errors << I18n.t("vagrant.provisioners.shell.upload_path_not_set")
         end
 
         if !args_valid?

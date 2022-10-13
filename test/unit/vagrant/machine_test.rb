@@ -411,38 +411,6 @@ describe Vagrant::Machine do
         expect(subject.ui).to_not have_received(:warn)
       end
     end
-
-    context "with the vagrant-triggers community plugin" do
-      it "should not call the internal trigger functions if installed" do
-        action_name = :destroy
-        callable    = lambda { |_env| }
-
-        allow(provider).to receive(:action).with(action_name).and_return(callable)
-
-        # The first call here is to allow the environment to setup with attempting
-        # to load a plugin that does not exist
-        expect(Vagrant::Plugin::Manager.instance).to receive(:installed_plugins)
-          .and_return({})
-
-        expect(Vagrant::Plugin::Manager.instance).to receive(:installed_plugins)
-          .and_return({"vagrant-triggers"=>"stuff"})
-
-        expect(instance.instance_variable_get(:@triggers)).not_to receive(:fire_triggers)
-        instance.action(action_name)
-      end
-
-      it "should call the internal trigger functions if not installed" do
-        action_name = :destroy
-        callable    = lambda { |_env| }
-
-        allow(provider).to receive(:action).with(action_name).and_return(callable)
-        allow(Vagrant::Plugin::Manager.instance).to receive(:installed_plugins)
-          .and_return({})
-
-        expect(instance.instance_variable_get(:@triggers)).to receive(:fire_triggers).twice
-        instance.action(action_name)
-      end
-    end
   end
 
   describe "#action_raw" do
@@ -847,6 +815,26 @@ describe Vagrant::Machine do
         expect(instance.ssh_info[:private_key_path]).to eql([path])
       end
 
+      it "should return the remote_user when set" do
+        instance.config.ssh.remote_user = "remote-user"
+        expect(instance.ssh_info[:remote_user]).to eq("remote-user")
+      end
+
+      it "should return the config when set" do
+        instance.config.ssh.config = "/path/to/ssh_config"
+        expect(instance.ssh_info[:config]).to eq("/path/to/ssh_config")
+      end
+
+      it "should return the default connect_timeout" do
+        expect(instance.ssh_info[:connect_timeout]).
+          to eq(VagrantPlugins::Kernel_V2::SSHConnectConfig::DEFAULT_SSH_CONNECT_TIMEOUT)
+      end
+
+      it "should return the connect_timeout when set" do
+        instance.config.ssh.connect_timeout = 2
+        expect(instance.ssh_info[:connect_timeout]).to eq(2)
+      end
+
       context "with no data dir" do
         let(:base)     { true }
         let(:data_dir) { nil }
@@ -921,6 +909,33 @@ describe Vagrant::Machine do
     end
   end
 
+  describe "#recover_machine" do
+    it "does not recover a machine already in the index" do
+      subject.id = "foo"
+      expected_entry = env.machine_index.get(subject.index_uuid)
+      env.machine_index.release(expected_entry)
+
+      entry = subject.recover_machine(:running)
+      expect(entry.id).to eq(expected_entry.id)
+      # Ensure entry is not locked
+      env.machine_index.get(subject.index_uuid)
+    end
+
+    it "recovers a machine" do
+      instance = new_instance
+      instance.id = "foo"
+
+      entry = instance.recover_machine(:running)
+      expect(entry.id).to eq(instance.index_uuid)
+      # Ensure entry is not locked
+      env.machine_index.get(entry.id)
+      env.machine_index.release(entry)
+
+      query_entry = env.machine_index.get(instance.index_uuid)
+      expect(entry.id).to eq(query_entry.id)
+    end
+  end
+
   describe "#with_ui" do
     it "temporarily changes the UI" do
       ui = Object.new
@@ -932,6 +947,64 @@ describe Vagrant::Machine do
 
       expect(changed_ui).to equal(ui)
       expect(subject.ui).to_not equal(ui)
+    end
+  end
+
+  describe "#reload" do
+    context "when ID is unset and id file does not exist" do
+      it "should remain nil" do
+        expect(subject.id).to be_nil
+        instance.reload
+        expect(subject.id).to be_nil
+      end
+    end
+
+    context "when id file is set" do
+      let(:id_content) { "test-machine-id" }
+
+      before do
+        id_file = subject.data_dir.join("id")
+        File.write(id_file.to_s, id_content)
+      end
+
+      it "should update the machine id" do
+        expect(subject.id).to be_nil
+        instance.reload
+        expect(subject.id).to eq(id_content)
+      end
+
+      it "should notify of the id change when provider is set" do
+        expect(provider).to receive(:machine_id_changed)
+        instance.reload
+      end
+
+      context "when id file content includes whitespace" do
+        let(:id_content) { "   test-machine-id\n" }
+
+        it "should remove all whitespace" do
+          instance.reload
+          expect(instance.id).to eq("test-machine-id")
+        end
+      end
+
+      context "when id file content is all whitespace" do
+        let(:id_content) { "\0\0\0\0\0\0" }
+
+        it "should not update the id" do
+          expect(instance.id).to be_nil
+          instance.reload
+          expect(instance.id).to be_nil
+        end
+      end
+
+      context "when id is already set to value in id file" do
+        it "should not notify of id change" do
+          instance.instance_variable_set(:@id, id_content)
+          expect(provider).not_to receive(:machine_id_changed)
+          instance.reload
+          expect(instance.id).to eq(id_content)
+        end
+      end
     end
   end
 end

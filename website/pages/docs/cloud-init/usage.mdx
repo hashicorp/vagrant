@@ -1,0 +1,78 @@
+---
+layout: docs
+page_title: Vagrant Cloud-Init Usage
+sidebar_title: Usage
+description: Various Vagrant Cloud-Init examples
+---
+
+# Basic Usage
+
+~> **Warning!** This feature is experimental and may break or
+change in between releases. Use at your own risk. It currently is not officially
+supported or functional.
+
+This feature currently reqiures the experimental flag to be used. To explicitly enable this feature, you can set the experimental flag to:
+
+```
+VAGRANT_EXPERIMENTAL="cloud_init"
+```
+
+Please note that `VAGRANT_EXPERIMENTAL` is an environment variable. For more
+information about this flag visit the [Experimental docs page](/docs/experimental)
+for more info. Without this flag enabled, any cloud-init configs defined will
+not be configured.
+
+Also note that the examples below use the VirtualBox provider, which is the current
+supported provider for this feature.
+
+Below are some very simple examples of how to use Vagrant Cloud-Init with the VirtualBox provider.
+
+For more detailed information about these config values and how to use cloud-init,
+please read the [official documentation for cloud-init](https://cloudinit.readthedocs.io/en/latest/index.html).
+
+## Basic Examples
+
+A cloud_init config can be defined as a "hash" of key values, or as a block. Below
+are two examples of this for defining a cloud_init config:
+
+```ruby
+# Simplified form
+config.vm.cloud_init content_type: "text/x-shellscript", path: "./foo/bar.sh"
+
+# Block form
+config.vm.cloud_init do |cloud_init|
+  cloud_init.content_type = "text/cloud-config"
+  cloud_init.inline = <<-EOF
+    package_update: true
+    packages:
+      - nginx
+  EOF
+end
+```
+
+The first part will be read from a local file `./foo/bar`, and the second part
+will be attached using the inline content. Both "block" and "hash" forms are supported,
+and should work interchangeably.
+
+Individual machines may have their own cloud-init data:
+
+```ruby
+config.vm.define "web" do |web|
+  web.vm.cloud_init content_type: "text/cloud-config",
+    inline: <<-EOF
+      package_update: true
+      packages:
+        - nginx
+    EOF
+  end
+end
+
+config.vm.define "db" do |db|
+  db.vm.cloud_init content_type: "text/cloud-config",
+    inline: <<-EOF
+      package_update: true
+      packages:
+        - postgresql
+    EOF
+end
+```

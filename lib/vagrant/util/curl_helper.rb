@@ -37,8 +37,10 @@ module Vagrant
                   source_host = source_uri.host.to_s.split(".", 2).last
                   location_host = location_uri.host.to_s.split(".", 2).last
                   if !redirect_notify && location_host != source_host && !SILENCED_HOSTS.include?(location_host)
-                    ui.clear_line
-                    ui.detail "Download redirected to host: #{location_uri.host}"
+                    ui.rewriting do |ui|
+                      ui.clear_line
+                      ui.detail "Download redirected to host: #{location_uri.host}"
+                    end
                   end
                   redirect_notify = true
                 end
@@ -82,10 +84,11 @@ module Vagrant
             # 9 - Time spent
             # 10 - Time left
             # 11 - Current speed
-
             output = "Progress: #{columns[0]}% (Rate: #{columns[11]}/s, Estimated time remaining: #{columns[10]})"
-            ui.clear_line
-            ui.detail(output, new_line: false)
+            ui.rewriting do |ui|
+              ui.clear_line
+              ui.detail(output, new_line: false)
+            end
           end
         end
 

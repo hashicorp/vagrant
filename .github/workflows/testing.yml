@@ -1,0 +1,36 @@
+on:
+  push:
+    branches:
+      - master
+      - 'test-*'
+    paths:
+      - 'bin/**'
+      - 'lib/**'
+      - 'plugins/**'
+      - 'test/**'
+  pull_request:
+    branches:
+      - master
+    paths:
+      - 'bin/**'
+      - 'lib/**'
+      - 'plugins/**'
+      - 'test/**'
+
+jobs:
+  unit-tests:
+    runs-on: ubuntu-18.04
+    strategy:
+      matrix:
+        ruby: [ '2.5.x', '2.6.x', '2.7.x' ]
+    name: Vagrant unit tests on Ruby ${{ matrix.ruby }}
+    steps:
+      - name: Code Checkout
+        uses: actions/checkout@v1
+      - name: Setup Ruby
+        uses: actions/setup-ruby@v1
+        with:
+          ruby-version: ${{matrix.ruby}}
+          architecture: 'x64'
+      - name: Run Tests
+        run: .ci/test.sh

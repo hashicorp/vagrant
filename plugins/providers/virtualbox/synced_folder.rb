@@ -33,6 +33,7 @@ module VagrantPlugins
 
         # Go through each folder and mount
         machine.ui.output(I18n.t("vagrant.actions.vm.share_folders.mounting"))
+        fstab_folders = []
         folders.each do |id, data|
           if data[:guestpath]
             # Guest path specified, so mount the folder to specified point

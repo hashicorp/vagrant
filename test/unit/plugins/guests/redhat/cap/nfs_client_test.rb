@@ -24,7 +24,7 @@ describe "VagrantPlugins::GuestRedHat::Cap:NFSClient" do
     it "installs nfs client" do
       cap.nfs_client_install(machine)
       expect(comm.received_commands[0]).to match(/install nfs-utils/)
-      expect(comm.received_commands[0]).to match(/\/bin\/systemctl restart rpcbind nfs/)
+      expect(comm.received_commands[0]).to match(/\/bin\/systemctl restart rpcbind nfs-server/)
     end
   end
 end

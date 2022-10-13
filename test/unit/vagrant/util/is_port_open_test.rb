@@ -5,11 +5,7 @@ require "socket"
 require "vagrant/util/is_port_open"
 
 describe Vagrant::Util::IsPortOpen do
-  let(:klass) do
-    Class.new do
-      extend Vagrant::Util::IsPortOpen
-    end
-  end
+  subject { described_class }
 
   let(:open_port)   { 52811 }
   let(:closed_port) { 52811 }
@@ -36,7 +32,7 @@ describe Vagrant::Util::IsPortOpen do
     end
 
     # Verify that we report the port is open
-    expect(klass.is_port_open?("127.0.0.1", open_port)).to be
+    expect(subject.is_port_open?("127.0.0.1", open_port)).to be
 
     # Kill the thread
     thr[:die] = true
@@ -47,7 +43,16 @@ describe Vagrant::Util::IsPortOpen do
     # This CAN fail, since port 52811 might actually be in use, but I'm
     # not sure what to do except choose some random port and hope for the
     # best, really.
-    expect(klass.is_port_open?("127.0.0.1", closed_port)).not_to be
+    expect(subject.is_port_open?("127.0.0.1", closed_port)).not_to be
+  end
+
+  it "should handle connection refused" do
+    expect(Socket).to receive(:tcp).with("0.0.0.0", closed_port, any_args).and_raise(Errno::ECONNREFUSED)
+    expect(subject.is_port_open?("0.0.0.0", closed_port)).to be(false)
+  end
+
+  it "should raise an error if cannot assign requested address" do
+    expect(Socket).to receive(:tcp).with("0.0.0.0", open_port, any_args).and_raise(Errno::EADDRNOTAVAIL)
+    expect { subject.is_port_open?("0.0.0.0", open_port) }.to raise_error(Errno::EADDRNOTAVAIL)
   end
 end
-

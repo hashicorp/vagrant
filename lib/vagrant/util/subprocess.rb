@@ -90,6 +90,8 @@ module Vagrant
         process.io.stdout = stdout_writer
         process.io.stderr = stderr_writer
         process.duplex = true
+        process.leader = true if @options[:detach]
+        process.detach = true if @options[:detach]
 
         # Special installer-related things
         if Vagrant.in_installer?
@@ -129,10 +131,10 @@ module Vagrant
           if ENV["VAGRANT_APPIMAGE"]
             embed_path = Pathname.new(Vagrant.installer_embedded_dir).expand_path.to_s
             exec_path = Pathname.new(@command[0]).expand_path.to_s
-            if !exec_path.start_with?(embed_path) && ENV["VAGRANT_APPIMAGE_LD_LIBRARY_PATH"]
+            if !exec_path.start_with?(embed_path) && ENV["VAGRANT_APPIMAGE_HOST_LD_LIBRARY_PATH"]
               @logger.info("Detected AppImage environment and request to external binary. Updating library path.")
-              @logger.debug("Setting LD_LIBRARY_PATH to #{ENV["VAGRANT_APPIMAGE_LD_LIBRARY_PATH"]}")
-              process.environment["LD_LIBRARY_PATH"] = ENV["VAGRANT_APPIMAGE_LD_LIBRARY_PATH"].to_s
+              @logger.debug("Setting LD_LIBRARY_PATH to #{ENV["VAGRANT_APPIMAGE_HOST_LD_LIBRARY_PATH"]}")
+              process.environment["LD_LIBRARY_PATH"] = ENV["VAGRANT_APPIMAGE_HOST_LD_LIBRARY_PATH"].to_s
             end
           end
         else
@@ -156,6 +158,12 @@ module Vagrant
           # Raise our own version of the error so that users of the class
           # don't need to be aware of ChildProcess
           raise LaunchError.new(ex.message)
+        end
+
+        # If running with the detach option, no need to capture IO or
+        # ensure program exists.
+        if @options[:detach]
+          return
         end
 
         # Make sure the stdin does not buffer
@@ -261,7 +269,7 @@ module Vagrant
         # Return an exit status container
         return Result.new(process.exit_code, io_data[:stdout], io_data[:stderr])
       ensure
-        if process && process.alive?
+        if process && process.alive? && !@options[:detach]
           # Make sure no matter what happens, the process exits
           process.stop(2)
         end

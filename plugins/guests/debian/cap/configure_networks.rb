@@ -10,7 +10,6 @@ module VagrantPlugins
         extend Vagrant::Util::GuestInspection::Linux
 
         NETPLAN_DEFAULT_VERSION = 2
-        NETPLAN_DEFAULT_RENDERER = "networkd".freeze
         NETPLAN_DIRECTORY = "/etc/netplan".freeze
         NETWORKD_DIRECTORY = "/etc/systemd/network".freeze
 
@@ -61,12 +60,21 @@ module VagrantPlugins
           # By default, netplan expects the renderer to be systemd-networkd,
           # but if any device is managed by NetworkManager, then we use that renderer
           # ref: https://netplan.io/reference
-          renderer = NETPLAN_DEFAULT_RENDERER
-          ethernets.keys.each do |k|
-            if nm_controlled?(comm, k)
-              renderer = "NetworkManager"
-              break
+          if systemd_networkd?(comm)
+            renderer = "networkd"
+            ethernets.keys.each do |k|
+              if nm_controlled?(comm, k)
+                render = "NetworkManager"
+                if !nmcli?(comm)
+                  raise Vagrant::Errors::NetworkManagerNotInstalled, device: k
+                end
+                break
+              end
             end
+          elsif nmcli?(comm)
+            renderer = "NetworkManager"
+          else
+            raise Vagrant::Errors::NetplanNoAvailableRenderers
           end
 
           np_config = {"network" => {"version" => NETPLAN_DEFAULT_VERSION,
@@ -89,7 +97,9 @@ module VagrantPlugins
             net_conf << "[Match]"
             net_conf << "Name=#{dev_name}"
             net_conf << "[Network]"
-            if network[:ip]
+            if network[:type].to_s == "dhcp"
+              net_conf << "DHCP=yes"
+            else
               mask = network[:netmask]
               if mask && IPAddr.new(network[:ip]).ipv4?
                 begin
@@ -102,8 +112,6 @@ module VagrantPlugins
               net_conf << "DHCP=no"
               net_conf << "Address=#{address}"
               net_conf << "Gateway=#{network[:gateway]}" if network[:gateway]
-            else
-              net_conf << "DHCP=yes"
             end
 
             remote_path = upload_tmp_file(comm, net_conf.join("\n"))

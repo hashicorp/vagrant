@@ -158,6 +158,10 @@ module VagrantPlugins
           options = "%s -N" % options
         end
 
+        if @config.python_version && @machine.config.vm.communicator != :winrm
+          options = "%s -x python%s" % [options, @config.python_version]
+        end
+
         if @config.install_type && @machine.config.vm.communicator != :winrm
           options = "%s %s" % [options, @config.install_type]
         end

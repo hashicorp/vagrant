@@ -2,6 +2,7 @@ require 'log4r'
 
 require 'vagrant/action/hook'
 require 'vagrant/util/busy'
+require 'vagrant/util/experimental'
 
 module Vagrant
   module Action
@@ -33,17 +34,19 @@ module Vagrant
         environment.merge!(@lazy_globals.call) if @lazy_globals
         environment.merge!(options || {})
 
-        # Setup the action hooks
-        hooks = Vagrant.plugin("2").manager.action_hooks(environment[:action_name])
-        if !hooks.empty?
-          @logger.info("Preparing hooks for middleware sequence...")
-          environment[:action_hooks] = hooks.map do |hook_proc|
-            Hook.new.tap do |h|
-              hook_proc.call(h)
-            end
-          end
+        # NOTE: Triggers are initialized later in the Action::Runer because of
+        # how `@lazy_globals` are evaluated. Rather than trying to guess where
+        # the `env` is coming from, we can wait until they're merged into a single
+        # hash above.
+        env = environment[:env]
+        machine = environment[:machine]
 
-          @logger.info("#{environment[:action_hooks].length} hooks defined.")
+        environment[:triggers] = machine.triggers if machine
+
+        if env
+          ui = Vagrant::UI::Prefixed.new(env.ui, "vagrant")
+          environment[:triggers] ||= Vagrant::Plugin::V2::Trigger.
+            new(env, env.vagrantfile.config.trigger, machine, ui)
         end
 
         # Run the action chain in a busy block, marking the environment as
@@ -52,14 +55,34 @@ module Vagrant
         ui = environment[:ui] if environment.key?(:ui)
         int_callback = lambda do
           if environment[:interrupted]
-            ui.error I18n.t("vagrant.actions.runner.exit_immediately") if ui
+            if ui
+              begin
+                ui.error I18n.t("vagrant.actions.runner.exit_immediately")
+              rescue ThreadError
+                # We're being called in a trap-context. Wrap in a thread.
+                Thread.new {
+                  ui.error I18n.t("vagrant.actions.runner.exit_immediately")
+                }.join(THREAD_MAX_JOIN_TIMEOUT)
+              end
+            end
             abort
           end
 
-          ui.warn I18n.t("vagrant.actions.runner.waiting_cleanup") if ui && !@@reported_interrupt
+          if ui && !@@reported_interrupt
+            begin
+              ui.warn I18n.t("vagrant.actions.runner.waiting_cleanup")
+            rescue ThreadError
+              # We're being called in a trap-context. Wrap in a thread.
+              Thread.new {
+                ui.warn I18n.t("vagrant.actions.runner.waiting_cleanup")
+              }.join(THREAD_MAX_JOIN_TIMEOUT)
+            end
+          end
           environment[:interrupted] = true
           @@reported_interrupt = true
         end
+
+        action_name = environment[:action_name]
 
         # We place a process lock around every action that is called
         @logger.info("Running action: #{environment[:action_name]} #{callable_id}")

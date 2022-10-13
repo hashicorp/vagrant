@@ -22,12 +22,15 @@ describe "VagrantPlugins::GuestRedHat::Cap::Flavor" do
     let(:cap) { caps.get(:flavor) }
 
     {
-      "CentOS Linux 2.4 release 7" => :rhel_7,
+      "Red Hat Enterprise Linux 2.4 release 7" => :rhel_7,
       "Red Hat Enterprise Linux release 7" => :rhel_7,
       "Scientific Linux release 7" => :rhel_7,
       "CloudLinux release 7.2 (Valeri Kubasov)" => :rhel_7,
 
-      "CentOS" => :rhel,
+      "CloudLinux release 8.1.1911 (Valeri Kubasov)" => :rhel_8,
+      "Red Hat Enterprise Linux release 8" => :rhel_8,
+
+      "Red Hat Enterprise Linux" => :rhel,
       "RHEL 6" => :rhel,
       "banana" => :rhel,
     }.each do |str, expected|

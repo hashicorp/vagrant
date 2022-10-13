@@ -105,6 +105,7 @@ describe Vagrant::MachineIndex do
 
     it "returns nil if the machine doesn't exist" do
       expect(subject.get("foo")).to be_nil
+      expect(subject.get(nil)).to be_nil
     end
 
     it "returns a valid entry if the machine exists" do
@@ -138,6 +139,11 @@ describe Vagrant::MachineIndex do
     it "should include? by prefix" do
       expect(subject.include?("b")).to be(true)
     end
+
+    it "should return false if given nil input" do
+      expect(subject.include?(nil)).to be(false)
+    end
+
 
     it "locks the entry so subsequent gets fail" do
       result = subject.get("bar")
@@ -266,6 +272,25 @@ describe Vagrant::MachineIndex do
       expect(entry).to_not be_nil
       expect(entry.name).to eq(entry2.name)
       expect(entry.state).to eq(entry2.state)
+    end
+  end
+
+  describe "#recover" do
+    it "recovers an entry if not in the index" do
+      result = subject.recover(new_entry)
+      expect(result.id).to_not be_empty
+      expect { subject.get(result.id) }.to raise_error(Vagrant::Errors::MachineLocked)
+    end
+
+    it "returns an entry if in the index" do
+      test_entry = entry_klass.new()
+      entry = subject.set(test_entry)
+      subject.release(entry)
+
+      new_test_entry = entry_klass.new(id=entry.id, {})
+      result = subject.recover(new_test_entry)
+
+      expect(result.id).to eq(entry.id)
     end
   end
 end

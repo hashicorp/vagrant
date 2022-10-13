@@ -67,6 +67,11 @@ module VagrantPlugins
         Cap::ProxyMachine
       end
 
+      provider_capability("docker", "has_communicator") do
+        require_relative "cap/has_communicator"
+        Cap::HasCommunicator
+      end
+
       protected
 
       def self.init!

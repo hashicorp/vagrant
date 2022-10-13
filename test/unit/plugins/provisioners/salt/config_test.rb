@@ -156,5 +156,25 @@ describe VagrantPlugins::Salt::Config do
         expect(result[error_key]).to_not be_empty
       end
     end
+
+    context "version" do
+      it "is valid if is set without install_type on Windows" do
+        allow(machine.config.vm).to receive(:communicator).and_return(:winrm)
+
+        subject.version = "2018.3.3"
+        subject.finalize!
+
+        result = subject.validate(machine)
+        expect(result[error_key]).to be_empty
+      end
+
+      it "is invalid if is set without install_type on Linux" do
+        subject.version = "2018.3.3"
+        subject.finalize!
+
+        result = subject.validate(machine)
+        expect(result[error_key]).to_not be_empty
+      end
+    end
   end
 end

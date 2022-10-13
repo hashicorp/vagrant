@@ -10,7 +10,7 @@ describe VagrantPlugins::Chef::Config::ChefApply do
   let(:machine) { double("machine") }
 
   def chef_error(key, options = {})
-    I18n.t("vagrant.provisioners.chef.#{key}", options)
+    I18n.t("vagrant.provisioners.chef.#{key}", **options)
   end
 
   describe "#recipe" do

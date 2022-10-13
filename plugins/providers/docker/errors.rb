@@ -5,6 +5,10 @@ module VagrantPlugins
         error_namespace("docker_provider.errors")
       end
 
+      class BuildError < DockerError
+        error_key(:build_error)
+      end
+
       class CommunicatorNonDocker < DockerError
         error_key(:communicator_non_docker)
       end
@@ -43,6 +47,34 @@ module VagrantPlugins
 
       class NfsWithoutPrivilegedError < DockerError
         error_key(:docker_provider_nfs_without_privileged)
+      end
+
+      class NetworkAddressInvalid < DockerError
+        error_key(:network_address_invalid)
+      end
+
+      class NetworkIPAddressRequired < DockerError
+        error_key(:network_address_required)
+      end
+
+      class NetworkSubnetInvalid < DockerError
+        error_key(:network_subnet_invalid)
+      end
+
+      class NetworkInvalidOption < DockerError
+        error_key(:network_invalid_option)
+      end
+
+      class NetworkNameMissing < DockerError
+        error_key(:network_name_missing)
+      end
+
+      class NetworkNameUndefined < DockerError
+        error_key(:network_name_undefined)
+      end
+
+      class NetworkNoInterfaces < DockerError
+        error_key(:network_no_interfaces)
       end
 
       class PackageNotSupported < DockerError

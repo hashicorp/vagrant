@@ -6,22 +6,22 @@ module VagrantPlugins
       class MountVirtualBoxSharedFolder
         extend SyncedFolder::UnixMountHelpers
 
+        # Mounts and virtualbox folder on linux guest
+        #
+        # @param [Machine] machine
+        # @param [String] name of mount
+        # @param [String] path of mount on guest
+        # @param [Hash] hash of mount options 
         def self.mount_virtualbox_shared_folder(machine, name, guestpath, options)
           guest_path = Shellwords.escape(guestpath)
+          mount_type = options[:plugin].capability(:mount_type)
 
           @@logger.debug("Mounting #{name} (#{options[:hostpath]} to #{guestpath})")
 
-          builtin_mount_type = "-cit vboxsf"
-          addon_mount_type = "-t vboxsf"
+          builtin_mount_type = "-cit #{mount_type}"
+          addon_mount_type = "-t #{mount_type}"
 
-          mount_options = options.fetch(:mount_options, [])
-          detected_ids = detect_owner_group_ids(machine, guest_path, mount_options, options)
-          mount_uid = detected_ids[:uid]
-          mount_gid = detected_ids[:gid]
-
-          mount_options << "uid=#{mount_uid}"
-          mount_options << "gid=#{mount_gid}"
-          mount_options = mount_options.join(',')
+          mount_options, mount_uid, mount_gid = options[:plugin].capability(:mount_options, name, guest_path, options)
           mount_command = "mount #{addon_mount_type} -o #{mount_options} #{name} #{guest_path}"
 
           # Create the guest path if it doesn't exist
@@ -60,7 +60,6 @@ module VagrantPlugins
 
           emit_upstart_notification(machine, guest_path)
         end
-
 
         def self.unmount_virtualbox_shared_folder(machine, guestpath, options)
           guest_path = Shellwords.escape(guestpath)

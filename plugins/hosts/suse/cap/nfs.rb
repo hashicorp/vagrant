@@ -7,11 +7,11 @@ module VagrantPlugins
         end
 
         def self.nfs_check_command(env)
-          "/sbin/service nfsserver status"
+          "systemctl status --no-pager nfs-server"
         end
 
         def self.nfs_start_command(env)
-          "/sbin/service nfsserver start"
+          "systemctl start --no-pager nfs-server"
         end
       end
     end

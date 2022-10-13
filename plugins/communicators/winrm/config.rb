@@ -56,7 +56,7 @@ module VagrantPlugins
         errors << "winrm.port cannot be nil."        if @port.nil?
         errors << "winrm.guest_port cannot be nil."  if @guest_port.nil?
         errors << "winrm.max_tries cannot be nil."   if @max_tries.nil?
-        errors << "winrm.retry_delay cannot be nil." if @max_tries.nil?
+        errors << "winrm.retry_delay cannot be nil." if @retry_delay.nil?
         errors << "winrm.timeout cannot be nil."     if @timeout.nil?
         errors << "winrm.execution_time_limit cannot be nil."     if @execution_time_limit.nil?
         unless @ssl_peer_verification == true || @ssl_peer_verification == false

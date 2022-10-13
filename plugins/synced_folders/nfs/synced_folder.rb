@@ -30,7 +30,9 @@ module VagrantPlugins
         if !machine.config.nfs.functional
           return false
         end
-        return true if machine.env.host.capability(:nfs_installed)
+        if machine.env.host.capability?(:nfs_installed)
+          return true if machine.env.host.capability(:nfs_installed)
+        end
         return false if !raise_error
         raise Vagrant::Errors::NFSNotSupported
       end

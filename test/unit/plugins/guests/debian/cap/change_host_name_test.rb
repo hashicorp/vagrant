@@ -26,18 +26,58 @@ describe "VagrantPlugins::GuestDebian::Cap::ChangeHostName" do
     let(:hostnamectl) { true }
     let(:networkd) { true }
     let(:network_manager) { false }
+    let(:networks) { [
+      [:forwarded_port, {:guest=>22, :host=>2222, :host_ip=>"127.0.0.1", :id=>"ssh", :auto_correct=>true, :protocol=>"tcp"}]
+    ] }
 
     before do
       allow(cap).to receive(:systemd?).and_return(systemd)
       allow(cap).to receive(:hostnamectl?).and_return(hostnamectl)
       allow(cap).to receive(:systemd_networkd?).and_return(networkd)
       allow(cap).to receive(:systemd_controlled?).with(anything, /NetworkManager/).and_return(network_manager)
+      allow(machine).to receive_message_chain(:config, :vm, :networks).and_return(networks)
+      allow(cap).to receive(:add_hostname_to_loopback_interface)
+      allow(cap).to receive(:replace_host)
     end
 
-    it "sets the hostname if not set" do
-      comm.stub_command("hostname -f | grep '^#{name}$'", exit_code: 1)
-      cap.change_host_name(machine, name)
-      expect(comm.received_commands[1]).to match(/echo 'banana-rama' > \/etc\/hostname/)
+    context "minimal network config" do
+      it "sets the hostname if not set" do
+        comm.stub_command("hostname -f | grep '^#{name}$'", exit_code: 1)
+        cap.change_host_name(machine, name)
+        expect(comm.received_commands[1]).to match(/echo 'banana-rama' > \/etc\/hostname/)
+      end
+
+      it "sets the hostname if not set" do
+        comm.stub_command("hostname -f | grep '^#{name}$'", exit_code: 0)
+        cap.change_host_name(machine, name)
+        expect(comm.received_commands[1]).to_not match(/echo 'banana-rama' > \/etc\/hostname/)
+      end
+    end
+
+    context "multiple networks configured with hostname" do 
+      it "adds a new entry only for the hostname" do 
+        networks = [
+          [:forwarded_port, {:guest=>22, :host=>2222, :host_ip=>"127.0.0.1", :id=>"ssh", :auto_correct=>true, :protocol=>"tcp"}],
+          [:public_network, {:ip=>"192.168.0.1", :hostname=>true, :protocol=>"tcp", :id=>"93a4ad88-0774-4127-a161-ceb715ff372f"}],
+          [:public_network, {:ip=>"192.168.0.2", :protocol=>"tcp", :id=>"5aebe848-7d85-4425-8911-c2003d924120"}]
+        ]
+        allow(machine).to receive_message_chain(:config, :vm, :networks).and_return(networks)
+        expect(cap).to receive(:replace_host)
+        expect(cap).to_not receive(:add_hostname_to_loopback_interface)
+        cap.change_host_name(machine, name)
+      end
+
+      it "appends an entry to the loopback interface" do 
+        networks = [
+          [:forwarded_port, {:guest=>22, :host=>2222, :host_ip=>"127.0.0.1", :id=>"ssh", :auto_correct=>true, :protocol=>"tcp"}],
+          [:public_network, {:ip=>"192.168.0.1", :protocol=>"tcp", :id=>"93a4ad88-0774-4127-a161-ceb715ff372f"}],
+          [:public_network, {:ip=>"192.168.0.2", :protocol=>"tcp", :id=>"5aebe848-7d85-4425-8911-c2003d924120"}]
+        ]
+        allow(machine).to receive_message_chain(:config, :vm, :networks).and_return(networks)
+        expect(cap).to_not receive(:replace_host)
+        expect(cap).to receive(:add_hostname_to_loopback_interface).once
+        cap.change_host_name(machine, name)
+      end
     end
 
     context "when hostnamectl is in use" do
@@ -115,8 +155,9 @@ describe "VagrantPlugins::GuestDebian::Cap::ChangeHostName" do
 
     it "does not set the hostname if unset" do
       comm.stub_command("hostname -f | grep '^#{name}$'", exit_code: 0)
+      expect(cap).to_not receive(:add_hostname_to_loopback_interface)
+      expect(cap).to_not receive(:replace_host)
       cap.change_host_name(machine, name)
-      expect(comm.received_commands.size).to eq(1)
     end
   end
 

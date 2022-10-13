@@ -72,7 +72,7 @@ module Vagrant
         #
         # @param [Machine] machine The machine that the folders belong to
         # @param [Hash] folders The result from a {#synced_folders} call.
-        def save_synced_folders(machine, folders, **opts)
+        def save_synced_folders(machine, folders, opts={})
           if opts[:merge]
             existing = cached_synced_folders(machine)
             if existing
@@ -97,8 +97,11 @@ module Vagrant
             end
           end
 
+          # Remove implementation instances
+          folder_data = JSON.dump(folders.to_h)
+
           machine.data_dir.join("synced_folders").open("w") do |f|
-            f.write(JSON.dump(folders))
+            f.write(folder_data)
           end
         end
 
@@ -118,7 +121,7 @@ module Vagrant
           end
 
           config_folders = config.synced_folders
-          folders = {}
+          folders = Vagrant::Plugin::V2::SyncedFolder::Collection.new
 
           # Determine all the synced folders as well as the implementation
           # they're going to use.
@@ -175,8 +178,10 @@ module Vagrant
 
           # Apply the scoped hash overrides to get the options
           folders.dup.each do |impl_name, fs|
+            impl = plugins[impl_name].first.new._initialize(machine, impl_name)
             new_fs = {}
             fs.each do |id, data|
+              data[:plugin] = impl
               id         = data[:id] if data[:id]
               new_fs[id] = scoped_hash_override(data, impl_name)
             end
@@ -184,7 +189,7 @@ module Vagrant
             folders[impl_name] = new_fs
           end
 
-          return folders
+          folders
         end
 
         # This finds the difference between two lists of synced folder
@@ -233,26 +238,26 @@ module Vagrant
         protected
 
         def cached_synced_folders(machine)
-          JSON.parse(machine.data_dir.join("synced_folders").read).tap do |r|
-            # We have to do all sorts of things to make the proper things
-            # symbols and
-            r.keys.each do |k|
-              r[k].each do |ik, v|
-                v.keys.each do |vk|
-                  v[vk.to_sym] = v[vk]
-                  v.delete(vk)
-                end
-              end
-
-              r[k.to_sym] = r[k]
-              r.delete(k)
-            end
+          import = JSON.parse(machine.data_dir.join("synced_folders").read)
+          import.each do |type, folders|
+            impl = plugins[type.to_sym].first.new._initialize(machine, type.to_sym)
+            folders.each { |_, v| v[:plugin] = impl }
           end
+          # Symbolize the keys we want as symbols
+          import.keys.dup.each do |k|
+            import[k].values.each do |item|
+              item.keys.dup.each do |ik|
+                item[ik.to_sym] = item.delete(ik)
+              end
+            end
+            import[k.to_sym] = import.delete(k)
+          end
+          Vagrant::Plugin::V2::SyncedFolder::Collection[import]
         rescue Errno::ENOENT
           # If the file doesn't exist, we probably just have a machine created
           # by a version of Vagrant that didn't cache shared folders. Report no
           # shared folders to be safe.
-          return {}
+          Vagrant::Plugin::V2::SyncedFolder::Collection.new
         end
       end
     end

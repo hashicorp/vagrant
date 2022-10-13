@@ -25,6 +25,12 @@ describe VagrantPlugins::CommandSnapshot::Command::Pop do
   end
 
   describe "execute" do
+    before do
+      machine.id = "mach"
+      allow(machine.provider).to receive(:capability).
+        with(:snapshot_list).and_return(["push_2_0"])
+    end
+
     it "calls snapshot_restore with the last pushed snapshot" do
       machine.id = "foo"
 
@@ -47,6 +53,34 @@ describe VagrantPlugins::CommandSnapshot::Command::Pop do
 
       expect(machine).to_not receive(:action)
       expect(subject.execute).to eq(0)
+    end
+
+    it "should disable ignoring sentinel file for provisioning" do
+      expect(machine).to receive(:action) do |name, opts|
+        expect(name).to eq(:snapshot_restore)
+        expect(opts[:provision_ignore_sentinel]).to eq(false)
+      end
+      subject.execute
+    end
+
+    it "should start the snapshot" do
+      expect(machine).to receive(:action) do |name, opts|
+        expect(name).to eq(:snapshot_restore)
+        expect(opts[:snapshot_start]).to eq(true)
+      end
+      subject.execute
+    end
+
+    context "when --no-start flag is provided" do
+      let(:argv) { ["--no-start"] }
+
+      it "should not start the snapshot" do
+        expect(machine).to receive(:action) do |name, opts|
+          expect(name).to eq(:snapshot_restore)
+          expect(opts[:snapshot_start]).to eq(false)
+        end
+        subject.execute
+      end
     end
   end
 end

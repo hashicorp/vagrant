@@ -55,8 +55,10 @@ module VagrantPlugins
           @logger.info("Creating base snapshot for master VM.")
           env[:machine].provider.driver.create_snapshot(
             env[:clone_id], name) do |progress|
-              env[:ui].clear_line
-              env[:ui].report_progress(progress, 100, false)
+              env[:ui].rewriting do |ui|
+                ui.clear_line
+                ui.report_progress(progress, 100, false)
+              end
           end
         end
       end

@@ -6,7 +6,7 @@ module VagrantPlugins
       module FreeBSD
         module ChefInstall
           def self.chef_install(machine, project, version, channel, omnibus_url, options = {})
-            machine.communicate.sudo("pkg install -y -qq curl bash")
+            machine.communicate.sudo("pkg install -qy curl bash")
 
             command = Omnibus.sh_command(project, version, channel, omnibus_url, options)
             machine.communicate.sudo(command)

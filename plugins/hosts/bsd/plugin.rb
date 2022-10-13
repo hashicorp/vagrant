@@ -36,6 +36,11 @@ module VagrantPlugins
         Cap::NFS
       end
 
+      host_capability("bsd", "resolve_host_path") do
+        require_relative "cap/path"
+        Cap::Path
+      end
+
       host_capability("bsd", "set_ssh_key_permissions") do
         require_relative "cap/ssh"
         Cap::SSH

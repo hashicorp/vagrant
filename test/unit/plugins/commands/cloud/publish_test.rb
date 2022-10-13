@@ -38,6 +38,7 @@ describe VagrantPlugins::CloudCommand::Command::Publish do
     allow(VagrantCloud::Provider).to receive(:new).and_return(provider)
 
     allow(File).to receive(:absolute_path).and_return("/full/#{box_path}")
+    allow(File).to receive(:file?).and_return(true)
   end
 
   context "with no arguments" do
@@ -47,13 +48,32 @@ describe VagrantPlugins::CloudCommand::Command::Publish do
     end
   end
 
+  context "missing required arguments" do
+    let(:argv) { ["vagrant/box", "1.0.0", "virtualbox"] }
+
+    it "shows help" do
+      expect { subject.execute }.
+        to raise_error(Vagrant::Errors::CLIInvalidUsage)
+    end
+  end
+
+  context "missing box file" do
+    let(:argv) { ["vagrant/box", "1.0.0", "virtualbox", "/notreal/file.box"] }
+
+    it "raises an exception" do
+      allow(File).to receive(:file?).and_return(false)
+      expect { subject.execute }.
+        to raise_error(Vagrant::Errors::BoxFileNotExist)
+    end
+  end
+
   context "with arguments" do
     let(:argv) { ["vagrant/box", "1.0.0", "virtualbox", box_path] }
 
     it "publishes a box given options" do
-      allow(provider).to receive(:upload_url).and_return("http://upload.here/there")
+      allow(provider).to receive(:upload_url).and_return("http://example.com/there")
       allow(Vagrant::Util::Uploader).to receive(:new).
-        with("http://upload.here/there", "/full/path/to/the/virtualbox.box", {ui: anything}).
+        with("http://example.com/there", "/full/path/to/the/virtualbox.box", {ui: anything}).
         and_return(uploader)
       allow(uploader).to receive(:upload!)
       expect(VagrantPlugins::CloudCommand::Util).to receive(:format_box_results)
@@ -61,9 +81,9 @@ describe VagrantPlugins::CloudCommand::Command::Publish do
     end
 
     it "catches a ClientError if something goes wrong" do
-      allow(provider).to receive(:upload_url).and_return("http://upload.here/there")
+      allow(provider).to receive(:upload_url).and_return("http://example.com/there")
       allow(Vagrant::Util::Uploader).to receive(:new).
-        with("http://upload.here/there", "/full/path/to/the/virtualbox.box", {ui: anything}).
+        with("http://example.com/there", "/full/path/to/the/virtualbox.box", {ui: anything}).
         and_return(uploader)
       allow(uploader).to receive(:upload!)
       allow(box).to receive(:create).
@@ -72,9 +92,9 @@ describe VagrantPlugins::CloudCommand::Command::Publish do
     end
 
     it "calls update if entity already exists" do
-      allow(provider).to receive(:upload_url).and_return("http://upload.here/there")
+      allow(provider).to receive(:upload_url).and_return("http://example.com/there")
       allow(Vagrant::Util::Uploader).to receive(:new).
-        with("http://upload.here/there", "/full/path/to/the/virtualbox.box", {ui: anything}).
+        with("http://example.com/there", "/full/path/to/the/virtualbox.box", {ui: anything}).
         and_return(uploader)
       allow(uploader).to receive(:upload!)
       allow(box).to receive(:create).
@@ -88,9 +108,9 @@ describe VagrantPlugins::CloudCommand::Command::Publish do
     let(:argv) { ["vagrant/box", "1.0.0", "virtualbox", box_path, "--release"] }
 
     it "releases the box" do
-      allow(provider).to receive(:upload_url).and_return("http://upload.here/there")
+      allow(provider).to receive(:upload_url).and_return("http://example.com/there")
       allow(Vagrant::Util::Uploader).to receive(:new).
-        with("http://upload.here/there", "/full/path/to/the/virtualbox.box", {ui: anything}).
+        with("http://example.com/there", "/full/path/to/the/virtualbox.box", {ui: anything}).
         and_return(uploader)
       allow(uploader).to receive(:upload!)
       expect(VagrantPlugins::CloudCommand::Util).to receive(:format_box_results)
@@ -100,7 +120,7 @@ describe VagrantPlugins::CloudCommand::Command::Publish do
   end
 
   context "with arguments and a remote url" do
-    let(:argv) { ["vagrant/box", "1.0.0", "virtualbox", "--url", "https://www.boxes.com/path/to/the/virtualbox.box"] }
+    let(:argv) { ["vagrant/box", "1.0.0", "virtualbox", "--url", "https://www.example.com/path/to/the/virtualbox.box"] }
 
     it "does not upload a file" do
       expect(VagrantPlugins::CloudCommand::Util).to receive(:format_box_results)

@@ -12,7 +12,7 @@ module Vagrant
         #
         # @return [Boolean]
         def systemd?(comm)
-          comm.test("ps -o comm= 1 | grep systemd")
+          comm.test("ps -o comm= 1 | grep systemd", sudo: true)
         end
 
         # systemd-networkd.service is in use
@@ -21,6 +21,25 @@ module Vagrant
         # @return [Boolean]
         def systemd_networkd?(comm)
           comm.test("systemctl -q is-active systemd-networkd.service", sudo: true)
+        end
+
+        # Check if a unit file with the given name is defined. Name can
+        # be a pattern or explicit name.
+        #
+        # @param [Vagrant::Plugin::V2::Communicator] comm Guest communicator
+        # @param [String] name Name or pattern to search
+        # @return [Boolean]
+        def systemd_unit_file?(comm, name)
+          comm.test("systemctl -q list-unit-files | grep \"#{name}\"")
+        end
+
+        # Check if a unit is currently active within systemd
+        #
+        # @param [Vagrant::Plugin::V2::Communicator] comm Guest communicator
+        # @param [String] name Name or pattern to search
+        # @return [Boolean]
+        def systemd_unit?(comm, name)
+          comm.test("systemctl -q list-units | grep \"#{name}\"")
         end
 
         # Check if given service is controlled by systemd
@@ -36,8 +55,12 @@ module Vagrant
         #
         # @param [Vagrant::Plugin::V2::Communicator] comm Guest communicator
         # @return [Boolean]
+        # NOTE: This test includes actually calling `hostnamectl` to verify
+        # that it is in working order. This prevents attempts to use the
+        # hostnamectl command when it is available, but dbus is not which
+        # renders the command useless
         def hostnamectl?(comm)
-          comm.test("command -v hostnamectl")
+          comm.test("command -v hostnamectl && hostnamectl")
         end
 
         ## netplan helpers
@@ -48,6 +71,14 @@ module Vagrant
         # @return [Boolean]
         def netplan?(comm)
           comm.test("command -v netplan")
+        end
+
+        # is networkd isntalled
+        #
+        # @param [Vagrant::Plugin::V2::Communicator] comm Guest communicator
+        # @return [Boolean]
+        def networkd?(comm)
+          comm.test("command -v networkd")
         end
 
         ## nmcli helpers

@@ -1,5 +1,0 @@
-# VAGRANT-BEGIN: <%= user %> <%= uuid %>
-<% folders.each do |dirs, opts| %>
-<%= dirs.map { |d| "\"#{d}\"" }.join(" ") %> <%= ips.join(" ") %> <%=opts[:bsd__compiled_nfs_options] %>
-<% end %>
-# VAGRANT-END: <%= user %> <%= uuid %>

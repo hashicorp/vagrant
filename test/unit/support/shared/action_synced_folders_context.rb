@@ -10,6 +10,10 @@ shared_context "synced folder actions" do
         raise "#{name}: usable" if raise_error && !usable
         usable
       end
+
+      define_method(:_initialize) do |machine, type|
+        true
+      end
     end
   end
 end

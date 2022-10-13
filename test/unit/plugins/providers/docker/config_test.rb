@@ -76,26 +76,26 @@ describe VagrantPlugins::DockerProvider::Config do
       subject.finalize!
       assert_invalid
     end
-    
+
     it "build dir and git repo" do
       subject.build_dir = build_dir
-      subject.git_repo = "http://someone.com/something.git#branch:dir"
+      subject.git_repo = "http://example.com/something.git#branch:dir"
       subject.image = nil
       subject.finalize!
       assert_invalid
     end
-    
+
     it "git repo dir and image" do
       subject.build_dir = nil
-      subject.git_repo = "http://someone.com/something.git#branch:dir"
+      subject.git_repo = "http://example.com/something.git#branch:dir"
       subject.image = "foo"
       subject.finalize!
       assert_invalid
     end
-    
+
     it "build dir, git repo and image" do
       subject.build_dir = build_dir
-      subject.git_repo = "http://someone.com/something.git#branch:dir"
+      subject.git_repo = "http://example.com/something.git#branch:dir"
       subject.image = "foo"
       subject.finalize!
       assert_invalid
@@ -117,46 +117,46 @@ describe VagrantPlugins::DockerProvider::Config do
       assert_valid
     end
   end
-  
+
   describe "#git_repo" do
     it "should be valid if not set with image or build dir" do
       subject.build_dir = nil
-      subject.git_repo = "http://someone.com/something.git#branch:dir"
+      subject.git_repo = "http://example.com/something.git#branch:dir"
       subject.image = nil
       subject.finalize!
       assert_valid
     end
 
     it "should be valid with a http git url" do
-      subject.git_repo = "http://someone.com/something.git#branch:dir"
+      subject.git_repo = "http://example.com/something.git#branch:dir"
       subject.finalize!
       assert_valid
     end
-    
+
     it "should be valid with a git@ url" do
-      subject.git_repo = "git@someone.com:somebody/something"
+      subject.git_repo = "git@example.com:somebody/something"
       subject.finalize!
       assert_valid
     end
-    
+
     it "should be valid with a git:// url" do
-      subject.git_repo = "git://someone.com/something"
+      subject.git_repo = "git://example.com/something"
       subject.finalize!
       assert_valid
     end
-    
+
     it "should be valid with a short url beginning with github.com url" do
       subject.git_repo = "github.com/somebody/something"
       subject.finalize!
       assert_valid
     end
-    
+
     it "should be invalid with an non-git url" do
       subject.git_repo = "http://foo.bar.com"
       subject.finalize!
       assert_invalid
     end
-    
+
     it "should be invalid with an non url" do
       subject.git_repo = "http||://foo.bar.com sdfs"
       subject.finalize!
@@ -262,7 +262,7 @@ describe VagrantPlugins::DockerProvider::Config do
         expect(subject.build_dir).to be_nil
         expect(subject.image).to eq("bar")
       end
-      
+
       it "overrides image if git_repo is set previously" do
         one.git_repo = "foo"
         two.image = "bar"
@@ -278,15 +278,15 @@ describe VagrantPlugins::DockerProvider::Config do
         expect(subject.build_dir).to eq("bar")
         expect(subject.image).to be_nil
       end
-      
+
       it "overrides build_dir if git_repo is set previously" do
         one.git_repo = "foo"
         two.build_dir = "bar"
-       
+
         expect(subject.build_dir).to eq("bar")
         expect(subject.git_repo).to be_nil
       end
-      
+
       it "overrides git_repo if build_dir is set previously" do
         one.build_dir = "foo"
         two.git_repo = "bar"
@@ -294,7 +294,7 @@ describe VagrantPlugins::DockerProvider::Config do
         expect(subject.build_dir).to be_nil
         expect(subject.git_repo).to eq("bar")
       end
-      
+
       it "overrides git_repo if image is set previously" do
         one.image = "foo"
         two.git_repo = "bar"
@@ -311,7 +311,7 @@ describe VagrantPlugins::DockerProvider::Config do
         expect(subject.build_dir).to eq("bar")
         expect(subject.image).to eq("baz")
       end
-      
+
       it "preserves if both image and git_repo are set" do
         one.image = "foo"
         two.image = "baz"
@@ -320,7 +320,7 @@ describe VagrantPlugins::DockerProvider::Config do
         expect(subject.image).to eq("baz")
         expect(subject.git_repo).to eq("bar")
       end
-      
+
       it "preserves if both build_dir and git_repo are set" do
         one.build_dir = "foo"
         two.build_dir = "baz"

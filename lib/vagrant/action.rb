@@ -2,6 +2,7 @@ require 'vagrant/action/builder'
 
 module Vagrant
   module Action
+    autoload :Hook,        'vagrant/action/hook'
     autoload :Runner,      'vagrant/action/runner'
     autoload :Warden,      'vagrant/action/warden'
 
@@ -12,14 +13,20 @@ module Vagrant
       autoload :BoxCheckOutdated, "vagrant/action/builtin/box_check_outdated"
       autoload :BoxRemove, "vagrant/action/builtin/box_remove"
       autoload :Call,    "vagrant/action/builtin/call"
+      autoload :CleanupDisks, "vagrant/action/builtin/cleanup_disks"
+      autoload :CloudInitSetup, "vagrant/action/builtin/cloud_init_setup"
+      autoload :CloudInitWait, "vagrant/action/builtin/cloud_init_wait"
       autoload :Confirm, "vagrant/action/builtin/confirm"
       autoload :ConfigValidate, "vagrant/action/builtin/config_validate"
+      autoload :Delayed, "vagrant/action/builtin/delayed"
       autoload :DestroyConfirm, "vagrant/action/builtin/destroy_confirm"
+      autoload :Disk, "vagrant/action/builtin/disk"
       autoload :EnvSet,  "vagrant/action/builtin/env_set"
       autoload :GracefulHalt, "vagrant/action/builtin/graceful_halt"
       autoload :HandleBox, "vagrant/action/builtin/handle_box"
       autoload :HandleBoxUrl, "vagrant/action/builtin/handle_box_url"
       autoload :HandleForwardedPortCollisions, "vagrant/action/builtin/handle_forwarded_port_collisions"
+      autoload :HasProvisioner, "vagrant/action/builtin/has_provisioner"
       autoload :IsEnvSet, "vagrant/action/builtin/is_env_set"
       autoload :IsState, "vagrant/action/builtin/is_state"
       autoload :Lock, "vagrant/action/builtin/lock"
@@ -32,6 +39,7 @@ module Vagrant
       autoload :SSHRun,  "vagrant/action/builtin/ssh_run"
       autoload :SyncedFolders, "vagrant/action/builtin/synced_folders"
       autoload :SyncedFolderCleanup, "vagrant/action/builtin/synced_folder_cleanup"
+      autoload :Trigger, "vagrant/action/builtin/trigger"
       autoload :WaitForCommunicator, "vagrant/action/builtin/wait_for_communicator"
     end
 

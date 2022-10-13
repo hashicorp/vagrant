@@ -11,6 +11,16 @@ module VagrantPlugins
         Host
       end
 
+      host_capability("linux", "isofs_available") do
+        require_relative "cap/fs_iso"
+        Cap::FsISO
+      end
+
+      host_capability("linux", "create_iso") do
+        require_relative "cap/fs_iso"
+        Cap::FsISO
+      end
+
       host_capability("linux", "nfs_export") do
         require_relative "cap/nfs"
         Cap::NFS

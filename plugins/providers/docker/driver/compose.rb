@@ -34,6 +34,12 @@ module VagrantPlugins
           @logger.debug("Data directory for composition file `#{@data_directory}`")
         end
 
+        # Updates the docker compose config file with the given arguments
+        #
+        # @param [String] dir - local directory or git repo URL
+        # @param [Hash] opts - valid key: extra_args
+        # @param [Block] block
+        # @return [Nil]
         def build(dir, **opts, &block)
           name = machine.name.to_s
           @logger.debug("Applying build for `#{name}` using `#{dir}` directory.")
@@ -47,26 +53,26 @@ module VagrantPlugins
                 services[name]["build"]["dockerfile"] = opts[:extra_args][opts[:extra_args].index("--file") + 1]
               end
               # Extract any build args that can be found
-              case opts[:build_args]
+              case opts[:extra_args]
               when Array
-                if opts[:build_args].include?("--build-arg")
+                if opts[:extra_args].include?("--build-arg")
                   idx = 0
-                  build_args = {}
-                  while(idx < opts[:build_args].size)
-                    arg_value = opts[:build_args][idx]
+                  extra_args = {}
+                  while(idx < opts[:extra_args].size)
+                    arg_value = opts[:extra_args][idx]
                     idx += 1
                     if arg_value.start_with?("--build-arg")
                       if !arg_value.include?("=")
-                        arg_value = opts[:build_args][idx]
+                        arg_value = opts[:extra_args][idx]
                         idx += 1
                       end
                       key, val = arg_value.to_s.split("=", 2).to_s.split("=")
-                      build_args[key] = val
+                      extra_args[key] = val
                     end
                   end
                 end
               when Hash
-                services[name]["build"]["args"] = opts[:build_args]
+                services[name]["build"]["args"] = opts[:extra_args]
               end
             end
           rescue => error
@@ -102,7 +108,19 @@ module VagrantPlugins
               # will be fixed someday and the gsub below can be removed.
               host.gsub!(/^[^A-Za-z]+/, "")
             end
-            host = @machine.env.cwd.join(host).to_s
+            # if host path is a volume key, don't expand it.
+            # if both exist (a path and a key) show warning and move on
+            # otherwise assume it's a realative path and expand the host path
+            compose_config = get_composition
+            if compose_config["volumes"] && compose_config["volumes"].keys.include?(host)
+              if File.directory?(@machine.env.cwd.join(host).to_s)
+                @machine.env.ui.warn(I18n.t("docker_provider.volume_path_not_expanded",
+                                           host: host))
+              end
+            else
+              @logger.debug("Path expanding #{host} to current Vagrant working dir instead of docker-compose config file directory")
+              host = @machine.env.cwd.join(host).to_s
+            end
             "#{host}:#{guest}"
           end
           cmd     = Array(params.fetch(:cmd))

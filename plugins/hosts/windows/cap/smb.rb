@@ -100,15 +100,21 @@ module VagrantPlugins
             ]
           end
           if !shares.empty?
-            machine.env.ui.warn("\n" + I18n.t("vagrant_sf_smb.uac.create_warning") + "\n")
-            sleep(UAC_PROMPT_WAIT)
-            result = Vagrant::Util::PowerShell.execute(script_path, *shares, sudo: true)
-            if result.exit_code != 0
-              share_path = result.stdout.to_s.sub("share path: ", "")
-              raise SyncedFolderSMB::Errors::DefineShareFailed,
-                host: share_path,
-                stderr: result.stderr,
-                stdout: result.stdout
+            uac_notified = false
+            shares.each_slice(10) do |s_shares|
+              if !uac_notified
+                machine.env.ui.warn("\n" + I18n.t("vagrant_sf_smb.uac.create_warning") + "\n")
+                uac_notified = true
+                sleep(UAC_PROMPT_WAIT)
+              end
+              result = Vagrant::Util::PowerShell.execute(script_path, *s_shares, sudo: true)
+              if result.exit_code != 0
+                share_path = result.stdout.to_s.sub("share path: ", "")
+                raise SyncedFolderSMB::Errors::DefineShareFailed,
+                  host: share_path,
+                  stderr: result.stderr,
+                  stdout: result.stdout
+              end
             end
           end
         end

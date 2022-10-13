@@ -375,7 +375,7 @@ gathered version stdout version:
             config.compatibility_mode = Ansible::COMPATIBILITY_MODE_V2_0
           end
 
-          @machine.env.ui.warn(I18n.t("vagrant.provisioners.ansible.compatibility_mode_warning",
+          @logger.info(I18n.t("vagrant.provisioners.ansible.compatibility_mode_warning",
             compatibility_mode: config.compatibility_mode,
             ansible_version: @gathered_version) +
           "\n")

@@ -368,6 +368,49 @@ describe Vagrant::Vagrantfile do
         to raise_error(Vagrant::Errors::ProviderNotUsable)
     end
 
+    it "does not try to load the box if the box is empty" do
+      provider_cls = register_provider("foo")
+
+      configure do |config|
+        config.vm.box = ""
+      end
+
+      expect(boxes).not_to receive(:find)
+      results = subject.machine_config(:default, :foo, boxes)
+    end
+
+    context "when provider validation is ignored" do
+      before do
+        configure do |config|
+          config.vm.box = "base"
+          config.vm.box_version = "1.0"
+          config.vm.define :guest1
+          config.vm.define :guest2
+
+          config.vm.provider "custom" do |_, c|
+            c.ssh.port = 123
+          end
+        end
+
+        iso_env.box3("base", "1.0", :custom, vagrantfile: <<-VF)
+        Vagrant.configure("2") do |config|
+          config.vagrant.plugins = "vagrant-custom"
+        end
+        VF
+      end
+
+      it "should not raise an error if provider is not found" do
+        expect { subject.machine_config(:guest1, :custom, boxes, nil, false) }.
+          not_to raise_error
+      end
+
+      it "should return configuration from box Vagrantfile" do
+        config = subject.machine_config(:guest1, :custom, boxes, nil, false)[:config]
+        expect(config.vagrant.plugins).to be_a(Hash)
+        expect(config.vagrant.plugins.keys).to include("vagrant-custom")
+      end
+    end
+
     context "local box metadata file" do
       let(:data_path) { double(:data_path) }
       let(:meta_file) { double(:meta_file) }

@@ -6,6 +6,8 @@ module VagrantPlugins
           @app = app
         end
 
+        # Converts the `ports` docker provider param into proper network configs
+        # of type :forwarded_port
         def call(env)
           env[:machine].provider_config.ports.each do |p|
             host_ip = nil

@@ -30,6 +30,21 @@ module VagrantPlugins
         require_relative "cap/remove_public_key"
         Cap::RemovePublicKey
       end
+
+      guest_capability(:haiku, :rsync_install) do
+        require_relative "cap/rsync"
+        Cap::RSync
+      end
+
+      guest_capability(:haiku, :rsync_installed) do
+        require_relative "cap/rsync"
+        Cap::RSync
+      end
+
+      guest_capability(:haiku, :rsync_command) do
+        require_relative "cap/rsync"
+        Cap::RSync
+      end
     end
   end
 end

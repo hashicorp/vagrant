@@ -19,7 +19,7 @@ module Vagrant
                     /\e\[\?[1-9][hl]/,     # Matches \e[?2h
                     /\e\[20[hl]/,          # Matches \e[20l]
                     /\e[DME78H]/,          # Matches \eD, \eH, etc.
-                    /\e\[[0-2]?[JK]/,      # Matches \e[0J, \e[K, etc.
+                    /\e\[[0-3]?[JK]/,      # Matches \e[0J, \e[K, etc.
                     ]
 
         # Take each matcher and replace it with emptiness.

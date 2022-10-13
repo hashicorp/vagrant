@@ -11,6 +11,122 @@ describe Vagrant::Plugin::V2::Manager do
     p
   end
 
+  describe "#generate_hook_keys" do
+    it "should return array with one value" do
+      expect(subject.generate_hook_keys(:test_value)).to eq(["test_value"])
+    end
+
+    it "should return array with two values when key is camel cased" do
+      result = subject.generate_hook_keys("TestValue")
+      expect(result.size).to eq(2)
+      expect(result).to include("TestValue")
+      expect(result).to include("test_value")
+    end
+
+    it "should handle class/module value" do
+      result = subject.generate_hook_keys(Vagrant)
+      expect(result.size).to eq(2)
+      expect(result).to include("Vagrant")
+      expect(result).to include("vagrant")
+    end
+
+    it "should handle namespaced value" do
+      result = subject.generate_hook_keys(Vagrant::Plugin)
+      expect(result.size).to eq(4)
+      expect(result).to include("Vagrant::Plugin")
+      expect(result).to include("Plugin")
+      expect(result).to include("vagrant_plugin")
+      expect(result).to include("plugin")
+    end
+  end
+
+  describe "#find_action_hooks" do
+    let(:hook_name) { "Vagrant::Plugin" }
+
+    before do
+      h_name = hook_name
+      pA = plugin do |p|
+        p.action_hook(:test, h_name) { "hook_called" }
+      end
+      subject.register(pA)
+    end
+
+    it "should find hook with full namespace" do
+      hooks = subject.find_action_hooks(Vagrant::Plugin)
+      expect(hooks).not_to be_empty
+      expect(hooks.first.call).to eq("hook_called")
+    end
+
+    it "should not find hook with short class name" do
+      hooks = subject.find_action_hooks("Plugin")
+      expect(hooks).to be_empty
+    end
+
+    it "should not find hook with full snake cased name" do
+      hooks = subject.find_action_hooks(:vagrant_plugin)
+      expect(hooks).to be_empty
+    end
+
+    it "should not find hook with short snake cased name" do
+      hooks = subject.find_action_hooks("plugin")
+      expect(hooks).to be_empty
+    end
+
+    context "when hook uses full snake cased name" do
+      let(:hook_name) { :vagrant_plugin }
+
+      it "should find hook with full namespace" do
+        hooks = subject.find_action_hooks(Vagrant::Plugin)
+        expect(hooks).not_to be_empty
+        expect(hooks.first.call).to eq("hook_called")
+      end
+
+      it "should find hook with full snake cased name" do
+        hooks = subject.find_action_hooks(:vagrant_plugin)
+        expect(hooks).not_to be_empty
+        expect(hooks.first.call).to eq("hook_called")
+      end
+
+      it "should not find hook with short class name" do
+        hooks = subject.find_action_hooks("Plugin")
+        expect(hooks).to be_empty
+      end
+
+      it "should not find hook with short snake cased name" do
+        hooks = subject.find_action_hooks("plugin")
+        expect(hooks).to be_empty
+      end
+    end
+
+    context "when hook uses short snake cased name" do
+      let(:hook_name) { :plugin }
+
+      it "should find hook with full namespace" do
+        hooks = subject.find_action_hooks(Vagrant::Plugin)
+        expect(hooks).not_to be_empty
+        expect(hooks.first.call).to eq("hook_called")
+      end
+
+      it "should find hook with short class name" do
+        hooks = subject.find_action_hooks("Plugin")
+        expect(hooks).not_to be_empty
+        expect(hooks.first.call).to eq("hook_called")
+      end
+
+      it "should find hook with short snake cased name" do
+        hooks = subject.find_action_hooks("plugin")
+        expect(hooks).not_to be_empty
+        expect(hooks.first.call).to eq("hook_called")
+      end
+
+      it "should not find hook with full snake cased name" do
+        hooks = subject.find_action_hooks(:vagrant_plugin)
+        expect(hooks).to be_empty
+      end
+    end
+
+  end
+
   describe "#action_hooks" do
     it "should contain globally registered hooks" do
       pA = plugin do |p|
@@ -241,4 +357,22 @@ describe Vagrant::Plugin::V2::Manager do
     expect(instance.synced_folders[:foo]).to eq(["bar", 10])
     expect(instance.synced_folders[:bar]).to eq(["baz", 50])
   end
+
+  it "should enumerate registered synced_folder_capabilities classes" do
+    pA = plugin do |p|
+      p.synced_folder_capability("foo", "foo") { "bar" }
+    end
+
+    pB = plugin do |p|
+      p.synced_folder_capability("bar", "bar") { "baz" }
+    end
+
+    instance.register(pA)
+    instance.register(pB)
+
+    expect(instance.synced_folder_capabilities.to_hash.length).to eq(2)
+    expect(instance.synced_folder_capabilities[:foo][:foo]).to eq("bar")
+    expect(instance.synced_folder_capabilities[:bar][:bar]).to eq("baz")
+  end
+
 end

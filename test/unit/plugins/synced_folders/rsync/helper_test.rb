@@ -32,23 +32,23 @@ describe VagrantPlugins::SyncedFolderRSync::RsyncHelper do
     let(:path) { "/foo/bar" }
 
     it "converts a directory match" do
-      expect(described_class.exclude_to_regexp(path, "foo/")).
-        to eq(/^#{Regexp.escape(path)}\/.*foo\//)
+      expect(described_class.exclude_to_regexp("foo/")).
+        to eq(/^foo\/.[^\/]*/)
     end
 
     it "converts the start anchor" do
-      expect(described_class.exclude_to_regexp(path, "/foo")).
-        to eq(/^\/foo\/bar\/foo/)
+      expect(described_class.exclude_to_regexp("/foo")).
+        to eq(/^foo\//)
     end
 
     it "converts the **" do
-      expect(described_class.exclude_to_regexp(path, "fo**o")).
-        to eq(/^#{Regexp.escape(path)}\/.*fo.*o/)
+      expect(described_class.exclude_to_regexp("fo**o")).
+        to eq(/^fo.*o\/.[^\/]*/)
     end
 
     it "converts the *" do
-      expect(described_class.exclude_to_regexp(path, "fo*o")).
-        to eq(/^#{Regexp.escape(path)}\/.*fo[^\/]*o/)
+      expect(described_class.exclude_to_regexp("fo*o")).
+        to eq(/^fo[^\/]*o\/.[^\/]*/)
     end
   end
 
@@ -154,6 +154,75 @@ describe VagrantPlugins::SyncedFolderRSync::RsyncHelper do
       subject.rsync_single(machine, ssh_info, opts)
     end
 
+    context "with rsync_post capability" do
+      before do
+        allow(guest).to receive(:capability?).with(:rsync_post).and_return(true)
+        allow(Vagrant::Util::Subprocess).to receive(:execute).and_return(result)
+      end
+
+      it "should raise custom error when capability errors" do
+        expect(guest).to receive(:capability).with(:rsync_post, opts).
+          and_raise(Vagrant::Errors::VagrantError)
+
+        expect { subject.rsync_single(machine, ssh_info, opts) }.
+          to raise_error(Vagrant::Errors::RSyncPostCommandError)
+      end
+    end
+
+    context "with rsync_ownership option" do
+      let(:rsync_local_version) { "3.1.1" }
+      let(:rsync_remote_version) { "3.1.1" }
+      let(:rsync_result) { Vagrant::Util::Subprocess::Result.new(0, "", "") }
+
+      before do
+        expect(Vagrant::Util::Subprocess).to receive(:execute).
+          with("rsync", "--version").and_return(Vagrant::Util::Subprocess::Result.new(0, " version #{rsync_local_version} ", ""))
+        allow(machine.communicate).to receive(:execute).with(/--version/).and_yield(:stdout, " version #{rsync_remote_version} ")
+        allow(Vagrant::Util::Subprocess).to receive(:execute).with("rsync", any_args).and_return(rsync_result)
+        opts[:rsync_ownership] = true
+      end
+
+      after { subject.reset! }
+
+      it "should use the rsync --chown flag" do
+        expect(Vagrant::Util::Subprocess).to receive(:execute) { |*args|
+          expect(args.detect{|a| a.include?("--chown")}).to be_truthy
+          rsync_result
+        }
+        subject.rsync_single(machine, ssh_info, opts)
+      end
+
+      it "should set the chown option to false" do
+        expect(opts.has_key?(:chown)).to eq(false)
+        subject.rsync_single(machine, ssh_info, opts)
+        expect(opts[:chown]).to eq(false)
+      end
+
+      context "when local rsync version does not support --chown" do
+        let(:rsync_local_version) { "2.0" }
+
+        it "should not use the --chown flag" do
+          expect(Vagrant::Util::Subprocess).to receive(:execute) { |*args|
+            expect(args.detect{|a| a.include?("--chown")}).to be_falsey
+            rsync_result
+          }
+          subject.rsync_single(machine, ssh_info, opts)
+        end
+      end
+
+      context "when remote rsync version does not support --chown" do
+        let(:rsync_remote_version) { "2.0" }
+
+        it "should not use the --chown flag" do
+          expect(Vagrant::Util::Subprocess).to receive(:execute) { |*args|
+            expect(args.detect{|a| a.include?("--chown")}).to be_falsey
+            rsync_result
+          }
+          subject.rsync_single(machine, ssh_info, opts)
+        end
+      end
+    end
+
     context "excluding files" do
       it "excludes files if given as a string" do
         opts[:exclude] = "foo"
@@ -223,6 +292,20 @@ describe VagrantPlugins::SyncedFolderRSync::RsyncHelper do
           expect(args[9]).to include("ControlPath=/tmp/vagrant-rsync-12345")
         }.and_return(result)
 
+        expect(FileUtils).to receive(:remove_entry_secure).with("/tmp/vagrant-rsync-12345", true).and_return(true)
+        subject.rsync_single(machine, ssh_info, opts)
+      end
+
+      it "does not create tmp dir on windows platforms" do
+        allow(Vagrant::Util::Platform).to receive(:windows?).and_return(true)
+        allow(Dir).to receive(:mktmpdir).with("vagrant-rsync-").
+          and_return("/tmp/vagrant-rsync-12345")
+
+        expect(Vagrant::Util::Subprocess).to receive(:execute).with(any_args) { |*args|
+          expect(args).not_to include("ControlPath=/tmp/vagrant-rsync-12345")
+        }.and_return(result)
+
+        expect(FileUtils).not_to receive(:remove_entry_secure).with("/tmp/vagrant-rsync-12345", true)
         subject.rsync_single(machine, ssh_info, opts)
       end
     end
@@ -318,6 +401,153 @@ describe VagrantPlugins::SyncedFolderRSync::RsyncHelper do
       end
 
       subject.rsync_single(machine, ssh_info, opts)
+    end
+
+    it "includes custom ssh config when set" do
+      ssh_info[:config] = "/path/to/ssh/config"
+      expect(Vagrant::Util::Subprocess).to receive(:execute) do |*args|
+        ssh_config_args = "-F /path/to/ssh/config"
+        expect(args.any?{|a| a.include?(ssh_config_args)}).to be_truthy
+        result
+      end
+      subject.rsync_single(machine, ssh_info, opts)
+    end
+  end
+
+  describe ".rsync_chown_support?" do
+    let(:local_version) { "3.1.1" }
+    let(:remote_version) { "3.1.1" }
+
+    before do
+      allow(subject).to receive(:local_rsync_version).and_return(local_version)
+      allow(subject).to receive(:machine_rsync_version).and_return(remote_version)
+    end
+
+    it "should return when local and remote versions support chown" do
+      expect(subject.rsync_chown_support?(machine)).to be_truthy
+    end
+
+    context "when local version does not support chown" do
+      let(:local_version) { "2.0" }
+
+      it "should return false" do
+        expect(subject.rsync_chown_support?(machine)).to be_falsey
+      end
+    end
+
+    context "when remote version does not support chown" do
+      let(:remote_version) { "2.0" }
+
+      it "should return false" do
+        expect(subject.rsync_chown_support?(machine)).to be_falsey
+      end
+    end
+
+    context "when both local and remote versions do not support chown" do
+      let(:local_version) { "2.0" }
+      let(:remote_version) { "2.0" }
+
+      it "should return false" do
+        expect(subject.rsync_chown_support?(machine)).to be_falsey
+      end
+    end
+  end
+
+  describe ".machine_rsync_version" do
+    let(:version_output) {
+      <<-EOV
+      rsync  version 3.1.3  protocol version 31
+      Copyright (C) 1996-2018 by Andrew Tridgell, Wayne Davison, and others.
+      Web site: http://rsync.samba.org/
+      Capabilities:
+      64-bit files, 64-bit inums, 64-bit timestamps, 64-bit long ints,
+      socketpairs, hardlinks, symlinks, IPv6, batchfiles, inplace,
+      append, ACLs, xattrs, iconv, symtimes, prealloc
+
+      rsync comes with ABSOLUTELY NO WARRANTY.  This is free software, and you
+      are welcome to redistribute it under certain conditions.  See the GNU
+      General Public Licence for details.
+      EOV
+    }
+
+    before do
+      allow(machine.communicate).to receive(:execute).with(/--version/).
+        and_yield(:stdout, version_output)
+      allow(guest).to receive(:capability?).and_return(false)
+    end
+
+    it "should extract the version string" do
+      expect(subject.machine_rsync_version(machine)).to eq("3.1.3")
+    end
+
+    context "when version output is an unknown format" do
+      let(:version_output) { "unknown" }
+
+      it "should return nil value" do
+        expect(subject.machine_rsync_version(machine)).to be_nil
+      end
+    end
+
+    context "with guest rsync_command capability" do
+      let(:rsync_path) { "custom_rsync" }
+
+      before do
+        allow(guest).to receive(:capability?).with(:rsync_command).
+          and_return(true)
+        allow(guest).to receive(:capability).with(:rsync_command).
+          and_return(rsync_path)
+      end
+
+      it "should use custom rsync_path" do
+        expect(machine.communicate).to receive(:execute).
+          with("#{rsync_path} --version").and_yield(:stdout, version_output)
+        subject.machine_rsync_version(machine)
+      end
+    end
+  end
+
+  describe ".local_rsync_version" do
+    let(:version_output) {
+      <<-EOV
+      rsync  version 3.1.3  protocol version 31
+      Copyright (C) 1996-2018 by Andrew Tridgell, Wayne Davison, and others.
+      Web site: http://rsync.samba.org/
+      Capabilities:
+      64-bit files, 64-bit inums, 64-bit timestamps, 64-bit long ints,
+      socketpairs, hardlinks, symlinks, IPv6, batchfiles, inplace,
+      append, ACLs, xattrs, iconv, symtimes, prealloc
+
+      rsync comes with ABSOLUTELY NO WARRANTY.  This is free software, and you
+      are welcome to redistribute it under certain conditions.  See the GNU
+      General Public Licence for details.
+      EOV
+    }
+    let(:result) { Vagrant::Util::Subprocess::Result.new(0, version_output, "") }
+
+    before do
+      allow(Vagrant::Util::Subprocess).to receive(:execute).with("rsync", "--version").
+        and_return(result)
+    end
+
+    after { subject.reset! }
+
+    it "should extract the version string" do
+      expect(subject.local_rsync_version).to eq("3.1.3")
+    end
+
+    it "should cache the version lookup" do
+      expect(Vagrant::Util::Subprocess).to receive(:execute).with("rsync", "--version").
+        and_return(result).once
+      expect(subject.local_rsync_version).to eq("3.1.3")
+      expect(subject.local_rsync_version).to eq("3.1.3")
+    end
+
+    context "when version output is an unknown format" do
+      let(:version_output) { "unknown" }
+
+      it "should return nil value" do
+        expect(subject.local_rsync_version).to be_nil
+      end
     end
   end
 end

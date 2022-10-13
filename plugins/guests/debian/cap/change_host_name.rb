@@ -1,4 +1,6 @@
 require "log4r"
+require 'vagrant/util/guest_hosts'
+require 'vagrant/util/guest_inspection'
 require_relative "../../linux/cap/network_interfaces"
 
 module VagrantPlugins
@@ -7,25 +9,24 @@ module VagrantPlugins
       class ChangeHostName
 
         extend Vagrant::Util::GuestInspection::Linux
+        extend Vagrant::Util::GuestHosts::Linux
 
         def self.change_host_name(machine, name)
           @logger = Log4r::Logger.new("vagrant::guest::debian::changehostname")
           comm = machine.communicate
 
           if !comm.test("hostname -f | grep '^#{name}$'", sudo: false)
+            network_with_hostname = machine.config.vm.networks.map {|_, c| c if c[:hostname] }.compact[0]
+            if network_with_hostname
+              replace_host(comm, name, network_with_hostname[:ip])
+            else
+              add_hostname_to_loopback_interface(comm, name)
+            end
+
             basename = name.split(".", 2)[0]
             comm.sudo <<-EOH.gsub(/^ {14}/, '')
               # Set the hostname
               echo '#{basename}' > /etc/hostname
-
-              # Prepend ourselves to /etc/hosts
-              grep -w '#{name}' /etc/hosts || {
-                if grep -w '^127\\.0\\.1\\.1' /etc/hosts ; then
-                  sed -i'' 's/^127\\.0\\.1\\.1\\s.*$/127.0.1.1\\t#{name}\\t#{basename}/' /etc/hosts
-                else
-                  sed -i'' '1i 127.0.1.1\\t#{name}\\t#{basename}' /etc/hosts
-                fi
-              }
 
               # Update mailname
               echo '#{name}' > /etc/mailname
@@ -83,10 +84,10 @@ module VagrantPlugins
           interfaces = VagrantPlugins::GuestLinux::Cap::NetworkInterfaces.network_interfaces(machine)
           nettools = true
           if systemd?(comm)
-            @logger.debug("Attempting to restart networking with systemctl")
+            logger.debug("Attempting to restart networking with systemctl")
             nettools = false
           else
-            @logger.debug("Attempting to restart networking with ifup/down nettools")
+            logger.debug("Attempting to restart networking with ifup/down nettools")
           end
 
           interfaces.each do |iface|

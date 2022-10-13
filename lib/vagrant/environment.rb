@@ -175,9 +175,7 @@ module Vagrant
       # Load any global plugins
       Vagrant::Plugin::Manager.instance.load_plugins(plugins)
 
-      if !vagrantfile.config.vagrant.plugins.empty?
-        plugins = process_configured_plugins
-      end
+      plugins = process_configured_plugins
 
       # Call the hooks that does not require configurations to be loaded
       # by using a "clean" action runner
@@ -210,7 +208,8 @@ module Vagrant
           home_path:      home_path,
           root_path:      root_path,
           tmp_path:       tmp_path,
-          ui:             @ui
+          ui:             @ui,
+          env:            self
         }
       end
     end
@@ -921,6 +920,49 @@ module Vagrant
 
     protected
 
+    # Attempt to guess the configured provider in use. Will fallback
+    # to the default provider if an explicit provider name is not
+    # provided. This can be pretty error prone, but is used during
+    # initial environment setup to allow loading plugins so it doesn't
+    # need to be perfect
+    #
+    # @return [String]
+    def guess_provider
+      gp = nil
+      ARGV.each_with_index do |val, idx|
+        if val.start_with?("--provider=")
+          gp = val.split("=", 2).last
+          break
+        elsif val == "--provider"
+          gp = ARGV[idx+1]
+          break
+        end
+      end
+      return gp.to_sym if gp
+      begin
+        default_provider
+      rescue Errors::NoDefaultProvider
+        # if a provider cannot be determined just return nil
+        nil
+      end
+    end
+
+    # Load any configuration provided by guests defined within
+    # the Vagrantfile to pull plugin information they may have
+    # defined.
+    def find_configured_plugins
+      plugins = []
+      provider = guess_provider
+      vagrantfile.machine_names.each do |mname|
+        ldp = @local_data_path.join("machines/#{mname}/#{provider}") if @local_data_path
+        plugins << vagrantfile.machine_config(mname, guess_provider, boxes, ldp, false)[:config]
+      end
+      result = plugins.reverse.inject(Vagrant::Util::HashWithIndifferentAccess.new) do |memo, val|
+        Vagrant::Util::DeepMerge.deep_merge(memo, val.vagrant.plugins)
+      end
+      Vagrant::Util::DeepMerge.deep_merge(result, vagrantfile.config.vagrant.plugins)
+    end
+
     # Check for any local plugins defined within the Vagrantfile. If
     # found, validate they are available. If they are not available,
     # request to install them, or raise an exception
@@ -938,7 +980,7 @@ module Vagrant
       # Check if defined plugins are installed
       installed = Plugin::Manager.instance.installed_plugins
       needs_install = []
-      config_plugins = vagrantfile.config.vagrant.plugins
+      config_plugins = find_configured_plugins
       config_plugins.each do |name, info|
         if !installed[name]
           needs_install << name
@@ -979,7 +1021,11 @@ module Vagrant
         ui.warn(I18n.t("vagrant.plugins.local.install_rerun_command"))
         exit(-1)
       end
-      Vagrant::Plugin::Manager.instance.local_file.installed_plugins
+      if Vagrant::Plugin::Manager.instance.local_file
+        Vagrant::Plugin::Manager.instance.local_file.installed_plugins
+      else
+        {}
+      end
     end
 
     # This method copies the private key into the home directory if it

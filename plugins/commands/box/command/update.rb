@@ -80,7 +80,7 @@ module VagrantPlugins
           end
 
           to_update = [
-            [name, provider, boxes[name][provider].sort.last],
+            [name, provider, boxes[name][provider].sort_by{|n| Gem::Version.new(n)}.last],
           ]
 
           to_update.each do |n, p, v|
@@ -128,7 +128,13 @@ module VagrantPlugins
             if download_options[:insecure].nil?
               download_options[:insecure] = machine.config.vm.box_download_insecure
             end
-            box_update(box, version, machine.ui, download_options, force)
+
+            begin
+              box_update(box, version, machine.ui, download_options, force)
+            rescue Vagrant::Errors::BoxUpdateNoMetadata => e
+              machine.ui.warn(e)
+              next
+            end
           end
         end
 
@@ -158,7 +164,7 @@ module VagrantPlugins
             box_version: update[1].version,
             ui: ui,
             box_force: force,
-            box_client_cert: download_options[:client_cert],
+            box_download_client_cert: download_options[:client_cert],
             box_download_ca_cert: download_options[:ca_cert],
             box_download_ca_path: download_options[:ca_path],
             box_download_insecure: download_options[:insecure]

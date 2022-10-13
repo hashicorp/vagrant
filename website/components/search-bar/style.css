@@ -1,0 +1,8 @@
+.g-search {
+  width: calc(100% - 2rem);
+  max-width: 600px;
+
+  & .c-hits .ais-Highlight-highlighted {
+    /* Insert custom background color applied to highlighted hits */
+  }
+}

@@ -14,7 +14,7 @@ try
     # type was loaded in Microsoft.HyperV.PowerShell
     [void][System.Reflection.Assembly]::LoadWithPartialName('Microsoft.HyperV.PowerShell.Objects, Culture=neutral, PublicKeyToken=31bf3856ad364e35')
 } catch {
-	# Empty catch ok, since if we didn't load the types, we will fail in the next block
+  # Empty catch ok, since if we didn't load the types, we will fail in the next block
 }
 
 $VmmsPath = if ([environment]::Is64BitProcess) { "$($env:SystemRoot)\System32\vmms.exe" } else { "$($env:SystemRoot)\Sysnative\vmms.exe" }

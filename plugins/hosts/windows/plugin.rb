@@ -11,6 +11,16 @@ module VagrantPlugins
         Host
       end
 
+      host_capability("windows", "isofs_available") do
+        require_relative "cap/fs_iso"
+        Cap::FsISO
+      end
+
+      host_capability("windows", "create_iso") do
+        require_relative "cap/fs_iso"
+        Cap::FsISO
+      end
+
       host_capability("windows", "provider_install_virtualbox") do
         require_relative "cap/provider_install_virtualbox"
         Cap::ProviderInstallVirtualBox
@@ -59,6 +69,11 @@ module VagrantPlugins
       host_capability("windows", "set_ssh_key_permissions") do
         require_relative "cap/ssh"
         Cap::SSH
+      end
+
+      host_capability("windows", "smb_validate_password") do
+        require_relative "cap/smb"
+        Cap::SMB
       end
     end
   end

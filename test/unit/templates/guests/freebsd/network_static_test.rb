@@ -28,7 +28,7 @@ describe "templates/guests/freebsd/network_static" do
     expect(result).to eq <<-EOH.gsub(/^ {6}/, "")
       #VAGRANT-BEGIN
       ifconfig_eth1="inet 1.1.1.1 netmask 255.255.0.0"
-      default_router="1.2.3.4"
+      defaultrouter="1.2.3.4"
       #VAGRANT-END
     EOH
   end

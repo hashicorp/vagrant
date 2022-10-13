@@ -134,6 +134,22 @@ describe "VagrantPlugins::Shell::Config" do
       result = subject.validate(machine)
       expect(result["shell provisioner"]).to be_empty
     end
+
+    it "returns no error when inline and path are unset but reboot is true" do
+      subject.reboot = true
+      subject.finalize!
+
+      result = subject.validate(machine)
+      expect(result["shell provisioner"]).to be_empty
+    end
+
+    it "returns no error if upload_path is unset" do
+      subject.inline = "script"
+      subject.finalize!
+
+      result = subject.validate(machine)
+      expect(result["shell provisioner"]).to be_empty
+    end
   end
 
   describe 'finalize!' do
@@ -142,7 +158,7 @@ describe "VagrantPlugins::Shell::Config" do
       subject.args = 1
       subject.finalize!
 
-      expect(subject.args).to eq '1'
+      expect(subject.args).to eq('1')
     end
 
     it 'changes integer args in arrays into strings' do
@@ -150,7 +166,13 @@ describe "VagrantPlugins::Shell::Config" do
       subject.args = ["string", 1, 2]
       subject.finalize!
 
-      expect(subject.args).to eq ["string", '1', '2']
+      expect(subject.args).to eq(["string", '1', '2'])
+    end
+
+    it "no longer sets a default for upload_path" do
+      subject.finalize!
+
+      expect(subject.upload_path).to eq(nil)
     end
 
     context "with sensitive option enabled" do

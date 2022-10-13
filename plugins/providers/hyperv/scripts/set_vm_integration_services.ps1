@@ -4,7 +4,7 @@ param (
     [parameter (Mandatory=$true)]
     [string] $VMID,
     [parameter (Mandatory=$true)]
-    [string] $Name,
+    [string] $Id,
     [parameter (Mandatory=$false)]
     [switch] $Enable
 )
@@ -19,9 +19,9 @@ try {
 }
 
 try {
-    Set-VagrantVMService -VM $VM -Name $Name -Enable $Enable
+    Set-VagrantVMService -VM $VM -Id $Id -Enable $Enable
 } catch {
     if($Enable){ $action = "enable" } else { $action = "disable" }
-    Write-ErrorMessage "Failed to ${action} VM integration service ${Name}: ${PSItem}"
+    Write-ErrorMessage "Failed to ${action} VM integration service id ${Id}: ${PSItem}"
     exit 1
 }

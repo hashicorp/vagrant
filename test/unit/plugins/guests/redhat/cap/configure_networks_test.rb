@@ -11,7 +11,7 @@ describe "VagrantPlugins::GuestRedHat::Cap::ConfigureNetworks" do
   let(:config) { double("config", vm: vm) }
   let(:guest) { double("guest") }
   let(:machine) { double("machine", guest: guest, config: config) }
-  let(:networks){ [[{}], [{}]] }
+  let(:networks){ [[:public_network, network_1], [:private_network, network_2]] }
   let(:vm){ double("vm", networks: networks) }
 
   before do
@@ -56,7 +56,59 @@ describe "VagrantPlugins::GuestRedHat::Cap::ConfigureNetworks" do
       }
     end
 
+    let(:network_3) do
+      {
+        interface: 2,
+        type: "static",
+        ip: "33.33.33.11",
+        netmask: "255.255.0.0",
+        gateway: "33.33.0.1",
+      }
+    end
+
+    context "network configuration file" do
+      let(:networks){ [[:public_network, network_1], [:private_network, network_2], [:private_network, network_3]] }
+      let(:tempfile) { double("tempfile") }
+
+      before do
+        allow(tempfile).to receive(:binmode)
+        allow(tempfile).to receive(:write)
+        allow(tempfile).to receive(:fsync)
+        allow(tempfile).to receive(:close)
+        allow(tempfile).to receive(:path)
+        allow(Tempfile).to receive(:open).and_yield(tempfile)
+      end
+
+      it "should generate two configuration files" do
+        expect(Tempfile).to receive(:open).twice
+        cap.configure_networks(machine, [network_1, network_2])
+      end
+
+      it "should generate three configuration files" do
+        expect(Tempfile).to receive(:open).thrice
+        cap.configure_networks(machine, [network_1, network_2, network_3])
+      end
+
+      it "should generate configuration with network_2 IP address" do
+        expect(tempfile).to receive(:write).with(/#{network_2[:ip]}/)
+        cap.configure_networks(machine, [network_1, network_2, network_3])
+      end
+
+      it "should generate configuration with network_3 IP address" do
+        expect(tempfile).to receive(:write).with(/#{network_3[:ip]}/)
+        cap.configure_networks(machine, [network_1, network_2, network_3])
+      end
+    end
+
     context "with NetworkManager installed" do
+      let(:net1_nm_controlled) { true }
+      let(:net2_nm_controlled) { true }
+
+      let(:networks){ [
+        [:public_network, network_1.merge(nm_controlled: net1_nm_controlled)],
+        [:private_network, network_2.merge(nm_controlled: net2_nm_controlled)]
+      ] }
+
       before do
         allow(cap).to receive(:nmcli?).and_return true
       end
@@ -67,6 +119,11 @@ describe "VagrantPlugins::GuestRedHat::Cap::ConfigureNetworks" do
         end
 
         context "with nm_controlled option omitted" do
+          let(:networks){ [
+            [:public_network, network_1],
+            [:private_network, network_2]
+          ] }
+
           it "creates and starts the networks via nmcli" do
             cap.configure_networks(machine, [network_1, network_2])
             expect(comm.received_commands[0]).to match(/nmcli/)
@@ -75,8 +132,6 @@ describe "VagrantPlugins::GuestRedHat::Cap::ConfigureNetworks" do
         end
 
         context "with nm_controlled option set to true" do
-          let(:networks){ [[{nm_controlled: true}], [{nm_controlled: true}]] }
-
           it "creates and starts the networks via nmcli" do
             cap.configure_networks(machine, [network_1, network_2])
             expect(comm.received_commands[0]).to match(/nmcli/)
@@ -85,7 +140,8 @@ describe "VagrantPlugins::GuestRedHat::Cap::ConfigureNetworks" do
         end
 
         context "with nm_controlled option set to false" do
-          let(:networks){ [[{nm_controlled: false}], [{nm_controlled: false}]] }
+          let(:net1_nm_controlled) { false }
+          let(:net2_nm_controlled) { false }
 
           it "creates and starts the networks via ifup and disables devices in NetworkManager" do
             cap.configure_networks(machine, [network_1, network_2])
@@ -96,7 +152,8 @@ describe "VagrantPlugins::GuestRedHat::Cap::ConfigureNetworks" do
         end
 
         context "with nm_controlled option set to false on first device" do
-          let(:networks){ [[{nm_controlled: false}], [{nm_controlled: true}]] }
+          let(:net1_nm_controlled) { false }
+          let(:net2_nm_controlled) { true }
 
           it "creates and starts the networks with one managed manually and one NetworkManager controlled" do
             cap.configure_networks(machine, [network_1, network_2])
@@ -113,6 +170,11 @@ describe "VagrantPlugins::GuestRedHat::Cap::ConfigureNetworks" do
         end
 
         context "with nm_controlled option omitted" do
+          let(:networks){ [
+            [:public_network, network_1],
+            [:private_network, network_2]
+          ] }
+
           it "creates and starts the networks manually" do
             cap.configure_networks(machine, [network_1, network_2])
             expect(comm.received_commands[0]).to match(/ifdown/)
@@ -123,7 +185,8 @@ describe "VagrantPlugins::GuestRedHat::Cap::ConfigureNetworks" do
         end
 
         context "with nm_controlled option set to true" do
-          let(:networks){ [[{nm_controlled: true}], [{nm_controlled: true}]] }
+          let(:net1_nm_controlled) { true }
+          let(:net2_nm_controlled) { true }
 
           it "creates and starts the networks via nmcli" do
             cap.configure_networks(machine, [network_1, network_2])
@@ -134,7 +197,8 @@ describe "VagrantPlugins::GuestRedHat::Cap::ConfigureNetworks" do
         end
 
         context "with nm_controlled option set to false" do
-          let(:networks){ [[{nm_controlled: false}], [{nm_controlled: false}]] }
+          let(:net1_nm_controlled) { false }
+          let(:net2_nm_controlled) { false }
 
           it "creates and starts the networks via ifup " do
             cap.configure_networks(machine, [network_1, network_2])
@@ -146,7 +210,8 @@ describe "VagrantPlugins::GuestRedHat::Cap::ConfigureNetworks" do
         end
 
         context "with nm_controlled option set to false on first device" do
-          let(:networks){ [[{nm_controlled: false}], [{nm_controlled: true}]] }
+          let(:net1_nm_controlled) { false }
+          let(:net2_nm_controlled) { true }
 
           it "creates and starts the networks with one managed manually and one NetworkManager controlled" do
             cap.configure_networks(machine, [network_1, network_2])
@@ -174,7 +239,10 @@ describe "VagrantPlugins::GuestRedHat::Cap::ConfigureNetworks" do
       end
 
       context "with nm_controlled option set" do
-        let(:networks){ [[{nm_controlled: false}], [{nm_controlled: true}]] }
+        let(:networks){ [
+          [:public_network, network_1.merge(nm_controlled: true)],
+          [:private_network, network_2.merge(nm_controlled: true)]
+        ] }
 
         it "raises an error" do
           expect{ cap.configure_networks(machine, [network_1, network_2]) }.to raise_error(Vagrant::Errors::NetworkManagerNotInstalled)

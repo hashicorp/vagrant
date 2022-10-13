@@ -1,0 +1,26 @@
+---
+layout: docs
+page_title: Common Issues - Disks Hyper-V Provider
+sidebar_title: Common Issues
+description: |-
+  This page lists some common issues people run into with Vagrant and Hyper-V
+  as well as solutions for those issues.
+---
+
+# Common Issues and Troubleshooting
+
+This page lists some common issues people run into with Vagrant and Hyper-V
+as well as solutions for those issues.
+
+## Are my disks attached?
+
+A handy way to figure out what disks are attached (or not attached) to your guest
+is to open up the Hyper-V GUI and select the guest. When selecting a guest on the GUI,
+it should open more information about the guest, including storage information. Here
+you should see a list of disks attached to your guest.
+
+## Applying Vagrant disk configuration changes to guests
+
+Due to how Hyper-V works, you must reload your guest for any disk config changes
+to be applied. So if you update your Vagrantfile to update or even remove disks, make
+sure to `vagrant reload` your guests for these changes to be applied.

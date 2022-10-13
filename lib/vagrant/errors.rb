@@ -100,7 +100,7 @@ module Vagrant
 
       def translate_error(opts)
         return nil if !opts[:_key]
-        I18n.t("#{opts[:_namespace]}.#{opts[:_key]}", opts)
+        I18n.t("#{opts[:_namespace]}.#{opts[:_key]}", **opts)
       end
     end
 
@@ -158,6 +158,10 @@ module Vagrant
 
     class BoxConfigChangingBox < VagrantError
       error_key(:box_config_changing_box)
+    end
+
+    class BoxFileNotExist < VagrantError
+      error_key(:box_file_not_exist)
     end
 
     class BoxMetadataCorrupted < VagrantError
@@ -244,6 +248,10 @@ module Vagrant
       error_key(:bundler_error)
     end
 
+    class SourceSpecNotFound < BundlerError
+      error_key(:source_spec_not_found)
+    end
+
     class CantReadMACAddresses < VagrantError
       error_key(:cant_read_mac_addresses)
     end
@@ -296,6 +304,14 @@ module Vagrant
       error_key(:clone_machine_not_found)
     end
 
+    class CloudInitNotFound < VagrantError
+      error_key(:cloud_init_not_found)
+    end
+
+    class CloudInitCommandFailed < VagrantError
+      error_key(:cloud_init_command_failed)
+    end
+
     class CommandDeprecated < VagrantError
       error_key(:command_deprecated)
     end
@@ -330,6 +346,10 @@ module Vagrant
 
     class CorruptMachineIndex < VagrantError
       error_key(:corrupt_machine_index)
+    end
+
+    class CreateIsoHostCapNotFound < VagrantError
+      error_key(:create_iso_host_cap_not_found)
     end
 
     class DarwinMountFailed < VagrantError
@@ -392,6 +412,10 @@ module Vagrant
       error_key(:auto_empty, "vagrant.actions.vm.forward_ports")
     end
 
+    class ForwardPortHostIPNotFound < VagrantError
+      error_key(:host_ip_not_found, "vagrant.actions.vm.forward_ports")
+    end
+
     class ForwardPortCollision < VagrantError
       error_key(:collision_error, "vagrant.actions.vm.forward_ports")
     end
@@ -416,6 +440,10 @@ module Vagrant
       error_key(:host_explicit_not_detected)
     end
 
+    class ISOBuildFailed < VagrantError
+      error_key(:iso_build_failed)
+    end
+
     class LinuxMountFailed < VagrantError
       error_key(:linux_mount_failed)
     end
@@ -430,6 +458,10 @@ module Vagrant
 
     class MachineActionLockedError < VagrantError
       error_key(:machine_action_locked)
+    end
+
+    class MachineFolderNotAccessible < VagrantError
+      error_key(:machine_folder_not_accessible)
     end
 
     class MachineGuestNotReady < VagrantError
@@ -450,6 +482,10 @@ module Vagrant
 
     class MultiVMTargetRequired < VagrantError
       error_key(:multi_vm_target_required)
+    end
+
+    class NetplanNoAvailableRenderers < VagrantError
+      error_key(:netplan_no_available_renderers)
     end
 
     class NetSSHException < VagrantError
@@ -608,6 +644,10 @@ module Vagrant
       error_key(:plugin_install_license_not_found)
     end
 
+    class PluginInstallFailed < VagrantError
+      error_key(:plugin_install_failed)
+    end
+
     class PluginInstallSpace < VagrantError
       error_key(:plugin_install_space)
     end
@@ -662,6 +702,10 @@ module Vagrant
 
     class PushStrategyNotProvided < VagrantError
       error_key(:push_strategy_not_provided)
+    end
+
+    class RSyncPostCommandError < VagrantError
+      error_key(:rsync_post_command_error)
     end
 
     class RSyncError < VagrantError
@@ -768,6 +812,10 @@ module Vagrant
       error_key(:ssh_key_type_not_supported)
     end
 
+    class SSHNoExitStatus < VagrantError
+      error_key(:ssh_no_exit_status)
+    end
+
     class SSHNoRoute < VagrantError
       error_key(:ssh_no_route)
     end
@@ -794,6 +842,10 @@ module Vagrant
 
     class TriggersBadExitCodes < VagrantError
       error_key(:triggers_bad_exit_codes)
+    end
+
+    class TriggersGuestNotExist < VagrantError
+      error_key(:triggers_guest_not_exist)
     end
 
     class TriggersGuestNotRunning < VagrantError
@@ -886,6 +938,26 @@ module Vagrant
 
     class VirtualBoxBrokenVersion040214 < VagrantError
       error_key(:virtualbox_broken_version_040214)
+    end
+
+    class VirtualBoxDisksDefinedExceedLimit < VagrantError
+      error_key(:virtualbox_disks_defined_exceed_limit)
+    end
+
+    class VirtualBoxDisksControllerNotFound < VagrantError
+      error_key(:virtualbox_disks_controller_not_found)
+    end
+
+    class VirtualBoxDisksNoSupportedControllers < VagrantError
+      error_key(:virtualbox_disks_no_supported_controllers)
+    end
+
+    class VirtualBoxDisksPrimaryNotFound < VagrantError
+      error_key(:virtualbox_disks_primary_not_found)
+    end
+
+    class VirtualBoxDisksUnsupportedController < VagrantError
+      error_key(:virtualbox_disks_unsupported_controller)
     end
 
     class VirtualBoxGuestPropertyNotFound < VagrantError

@@ -56,4 +56,54 @@ describe VagrantPlugins::Kernel_V2::VagrantConfig do
       subject.finalize!
     end
   end
+
+  describe "#plugins" do
+    it "converts string into hash of plugins" do
+      subject.plugins = "vagrant-plugin"
+      subject.finalize!
+      expect(subject.plugins).to be_a(Hash)
+    end
+
+    it "converts array of strings into hash of plugins" do
+      subject.plugins = ["vagrant-plugin", "vagrant-other-plugin"]
+      subject.finalize!
+      expect(subject.plugins).to be_a(Hash)
+      expect(subject.plugins.keys).to eq(["vagrant-plugin", "vagrant-other-plugin"])
+    end
+
+    it "does not convert hash" do
+      plugins = {"vagrant-plugin" => {}}
+      subject.plugins = plugins
+      subject.finalize
+      expect(subject.plugins).to eq(plugins)
+    end
+
+    it "converts array of mixed strings and hashes" do
+      subject.plugins = ["vagrant-plugin", {"vagrant-other-plugin" => {:version => "1"}}]
+      subject.finalize!
+      expect(subject.plugins["vagrant-plugin"]).to eq({})
+      expect(subject.plugins["vagrant-other-plugin"]).to eq({"version" => "1"})
+    end
+
+    it "generates a validation error when incorrect type is provided" do
+      subject.plugins = 0
+      subject.finalize!
+      result = subject.validate(machine)
+      expect(result.values).not_to be_empty
+    end
+
+    it "generates a validation error when invalid option is provided" do
+      subject.plugins = {"vagrant-plugin" => {"badkey" => true}}
+      subject.finalize!
+      result = subject.validate(machine)
+      expect(result.values).not_to be_empty
+    end
+
+    it "generates a validation error when options are incorrect type" do
+      subject.plugins = {"vagrant-plugin" => 1}
+      subject.finalize!
+      result = subject.validate(machine)
+      expect(result.values).not_to be_empty
+    end
+  end
 end

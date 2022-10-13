@@ -15,8 +15,12 @@ module VagrantPlugins
               o.separator ""
               o.separator "Options:"
               o.separator ""
-              o.on("-u", "--username USERNAME_OR_EMAIL", String, "Vagrant Cloud username or email address") do |t|
+              o.on("-u", "--username USERNAME_OR_EMAIL", String, "Vagrant Cloud username or email address") do |u|
                 options[:username] = u
+              end
+              options[:force] = false
+              o.on("-f", "--force", "Release without confirmation") do |f|
+                options[:force] = f
               end
             end
 
@@ -28,9 +32,11 @@ module VagrantPlugins
                 help: opts.help.chomp
             end
 
-            @env.ui.warn(I18n.t("cloud_command.version.release_warn", version: argv[1], box: argv.first))
-            cont = @env.ui.ask(I18n.t("cloud_command.continue"))
-            return 1 if cont.strip.downcase != "y"
+            if not options[:force]
+                @env.ui.warn(I18n.t("cloud_command.version.release_warn", version: argv[1], box: argv.first))
+                cont = @env.ui.ask(I18n.t("cloud_command.continue"))
+                return 1 if cont.strip.downcase != "y"
+            end
 
             @client = VagrantPlugins::CloudCommand::Util.client_login(@env, options[:username])
             box = argv.first.split('/', 2)

@@ -285,6 +285,24 @@ describe Vagrant::Box, :skip_windows do
       expect { subject.load_metadata }.
         to raise_error(Vagrant::Errors::BoxMetadataDownloadError)
     end
+
+    context "box has a hook for adding authentication" do
+
+      let(:hook){ double("hook") }
+
+      subject do
+        described_class.new(
+          name, provider, version, directory,
+          metadata_url: metadata_url.path, hook: hook)
+      end
+
+      it "add authentication headers to the url" do
+        expect(hook).to receive(:call).with(:authenticate_box_downloader, any_args)
+        result = subject.load_metadata
+        expect(result.name).to eq("foo")
+        expect(result.description).to eq("bar")
+      end
+    end
   end
 
   describe "destroying" do
@@ -320,7 +338,7 @@ describe Vagrant::Box, :skip_windows do
       FileUtils.rm_rf(scratch)
     end
 
-    it "should repackage the box" do
+    it "should repackage the box", :bsdtar do
       test_file_contents = "hello, world!"
 
       # Put a file in the box directory to verify it is packaged properly

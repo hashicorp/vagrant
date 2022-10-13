@@ -30,8 +30,6 @@ describe VagrantPlugins::CloudCommand::VersionCommand::Command::Release do
     allow(VagrantCloud::Box).to receive(:new)
       .with(anything, "box-name", nil, nil, nil, client.token)
       .and_return(box)
-    allow(iso_env.ui).to receive(:ask).
-      and_return("y")
   end
 
   context "with no arguments" do
@@ -41,8 +39,35 @@ describe VagrantPlugins::CloudCommand::VersionCommand::Command::Release do
     end
   end
 
-  context "with arguments" do
+  context "interactive mode with arguments" do
     let (:argv) { ["vagrant/box-name", "1.0.0"] }
+
+    it "releases a version" do
+      allow(iso_env.ui).to receive(:ask).
+        and_return("y")
+      allow(VagrantCloud::Version).to receive(:new).
+        with(box, "1.0.0", nil, nil, client.token).
+        and_return(version)
+
+      expect(version).to receive(:release).and_return({})
+      expect(subject.execute).to eq(0)
+    end
+
+    it "displays an error if encoutering a problem with the request" do
+      allow(iso_env.ui).to receive(:ask).
+        and_return("y")
+      allow(VagrantCloud::Version).to receive(:new).
+        with(box, "1.0.0", nil, nil, client.token).
+        and_return(version)
+
+      allow(version).to receive(:release).
+        and_raise(VagrantCloud::ClientError.new("Fail Message", "Message", 404))
+      expect(subject.execute).to eq(1)
+    end
+  end
+
+  context "non-interactive mode with arguments" do
+    let (:argv) { ["--force", "vagrant/box-name", "1.0.0"] }
 
     it "releases a version" do
       allow(VagrantCloud::Version).to receive(:new).

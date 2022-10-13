@@ -1,22 +1,22 @@
+require_relative '../../linux/cap/change_host_name'
+
 module VagrantPlugins
   module GuestSUSE
     module Cap
       class ChangeHostName
-        def self.change_host_name(machine, name)
-          comm = machine.communicate
+        extend VagrantPlugins::GuestLinux::Cap::ChangeHostName
 
-          if !comm.test("hostname -f | grep '^#{name}$'", sudo: false)
-            basename = name.split(".", 2)[0]
-            comm.sudo <<-EOH.gsub(/^ {14}/, '')
-              echo '#{basename}' > /etc/HOSTNAME
-              hostname '#{basename}'
+        def self.change_host_name?(comm, name)
+          basename = name.split(".", 2)[0]
+          !comm.test("test \"$(hostnamectl --static status)\" = \"#{basename}\"", sudo: false)
+        end
 
-              # Prepend ourselves to /etc/hosts
-              grep -w '#{name}' /etc/hosts || {
-                sed -i'' '1i 127.0.0.1\\t#{name}\\t#{basename}' /etc/hosts
-              }
-            EOH
-          end
+        def self.change_name_command(name)
+          basename = name.split(".", 2)[0]
+          return <<-EOH.gsub(/^ {14}/, "")
+          hostnamectl set-hostname '#{basename}'
+          echo #{name} > /etc/HOSTNAME
+          EOH
         end
       end
     end

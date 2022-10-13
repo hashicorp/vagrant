@@ -51,7 +51,7 @@ module Vagrant
           argv = @argv.dup
 
           # Default opts to a blank optionparser if none is given
-          opts ||= OptionParser.new
+          opts ||= Vagrant::OptionParser.new
 
           # Add the help option, which must be on every command.
           opts.on_tail("-h", "--help", "Print this help") do
@@ -61,7 +61,7 @@ module Vagrant
 
           opts.parse!(argv)
           return argv
-        rescue OptionParser::InvalidOption, OptionParser::MissingArgument
+        rescue OptionParser::InvalidOption, OptionParser::MissingArgument, OptionParser::AmbiguousOption
           raise Errors::CLIInvalidOptions, help: opts.help.chomp
         end
 
@@ -230,6 +230,11 @@ module Vagrant
           color_index = 0
 
           machines.each do |machine|
+            if (machine.state && machine.state.id != :not_created && 
+                !machine.index_uuid.nil? && !@env.machine_index.include?(machine.index_uuid))
+              machine.recover_machine(machine.state.id)
+            end
+
             # Set the machine color
             machine.ui.opts[:color] = color_order[color_index % color_order.length]
             color_index += 1

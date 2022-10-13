@@ -80,8 +80,10 @@ module Vagrant
           @app.call(env)
 
           @env[:ui].info I18n.t("vagrant.actions.general.package.compressing", fullpath: fullpath)
+
           copy_include_files
           setup_private_key
+          write_metadata_json
           compress
         end
 
@@ -149,6 +151,22 @@ module Vagrant
             # Package!
             Util::Subprocess.execute("bsdtar", "-czf", output_path, *files)
           end
+        end
+
+        # Write the metadata file into the box so that the provider
+        # can be automatically detected when adding the box
+        def write_metadata_json
+          meta_path = File.join(@env["package.directory"], "metadata.json")
+          return if File.exist?(meta_path)
+
+          if @env[:machine] && @env[:machine].provider_name
+            provider_name = @env[:machine].provider_name
+          elsif @env[:env] && @env[:env].default_provider
+            provider_name = @env[:env].default_provider
+          else
+            return
+          end
+          File.write(meta_path, {provider: provider_name}.to_json)
         end
 
         # This will copy the generated private key into the box and use

@@ -47,5 +47,26 @@ describe VagrantPlugins::CommandCap::Command do
         expect(subject.execute).to eq(1)
       end
     end
+
+    context "runs against target vm" do
+      let(:argv) { ["provider", "foo", "--target=dummy"] }
+      let(:cap) {
+        Class.new do
+          def self.foo(m)
+            true
+          end
+        end
+      }
+
+      before do
+        register_plugin do |p|
+          p.provider_capability(:dummy, :foo) { cap }
+        end
+      end
+
+      it "exits with 0 if it exists" do
+        expect(subject.execute).to eq(0)
+      end
+    end
   end
 end

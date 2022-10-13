@@ -16,6 +16,30 @@ module VagrantPlugins
           @uuid = uuid
         end
 
+        # Controller-Port-Device looks like:
+        # SATA Controller-ImageUUID-0-0 (sub out ImageUUID)
+        # - Controller: SATA Controller
+        # - Port: 0
+        # - Device: 0
+        #
+        # @param [String] controller_name - name of storage controller to attach disk to
+        # @param [String] port - port on device to attach disk to
+        # @param [String] device - device on controller for disk
+        # @param [String] type - type of disk to attach
+        # @param [String] file - disk file path
+        # @param [Hash]   opts -  additional options
+        def attach_disk(controller_name, port, device, type, file, **opts)
+          comment = "This disk is managed externally by Vagrant. Removing or adjusting settings could potentially cause issues with Vagrant."
+
+          execute('storageattach', @uuid,
+                  '--storagectl', controller_name,
+                  '--port', port.to_s,
+                  '--device', device.to_s,
+                  '--type', type,
+                  '--medium', file,
+                  '--comment', comment)
+        end
+
         def clear_forwarded_ports
           retryable(on: Vagrant::Errors::VBoxManageError, tries: 3, sleep: 1) do
             args = []
@@ -38,6 +62,13 @@ module VagrantPlugins
           end
         end
 
+        # @param [String] source
+        # @param [String] destination
+        # @param [String] disk_format
+        def clone_disk(source, destination, disk_format, **opts)
+          execute("clonemedium", source, destination, '--format', disk_format)
+        end
+
         def clonevm(master_id, snapshot_name)
           machine_name = "temp_clone_#{(Time.now.to_f * 1000.0).to_i}_#{rand(100000)}"
           args = ["--register", "--name", machine_name]
@@ -47,6 +78,14 @@ module VagrantPlugins
 
           execute("clonevm", master_id, *args, retryable: true)
           return get_machine_id(machine_name)
+        end
+
+        # Removes a disk from the given virtual machine
+        #
+        # @param [String] disk_uuid or file path
+        # @param [Hash]   opts -  additional options
+        def close_medium(disk_uuid)
+          execute("closemedium", disk_uuid, '--delete')
         end
 
         def create_dhcp_server(network, options)
@@ -64,6 +103,17 @@ module VagrantPlugins
             end
           end
         end
+
+       # Creates a disk. Default format is VDI unless overridden
+       #
+       # @param [String] disk_file
+       # @param [Integer] disk_size - size in bytes
+       # @param [String] disk_format - format of disk, defaults to "VDI"
+        # @param [Hash]  opts -  additional options
+       def create_disk(disk_file, disk_size, disk_format="VDI", **opts)
+         execute("createmedium", '--filename', disk_file, '--sizebyte', disk_size.to_i.to_s, '--format', disk_format)
+       end
+
 
         def create_host_only_network(options)
           # Create the interface
@@ -130,6 +180,33 @@ module VagrantPlugins
           end
         end
 
+        # Lists all attached harddisks from a given virtual machine. Additionally,
+        # this method adds a new key "Disk Name" based on the disks file path from "Location"
+        #
+        # @return [Array] hdds An array of hashes of harddrive info for a guest
+        def list_hdds
+          hdds = []
+          tmp_drive = {}
+          execute('list', 'hdds', retryable: true).split("\n").each do |line|
+            if line == "" # separator between disks
+              hdds << tmp_drive
+              tmp_drive = {}
+              next
+            end
+            parts = line.partition(":")
+            key = parts.first.strip
+            value = parts.last.strip
+            tmp_drive[key] = value
+
+            if key == "Location"
+              tmp_drive["Disk Name"] = File.basename(value, ".*")
+            end
+          end
+          hdds << tmp_drive unless tmp_drive.empty?
+
+          hdds
+        end
+
         def list_snapshots(machine_id)
           output = execute(
             "snapshot", machine_id, "list", "--machinereadable",
@@ -147,6 +224,24 @@ module VagrantPlugins
           d = e.extra_data
           return [] if d[:stderr].include?("does not have") || d[:stdout].include?("does not have")
           raise
+        end
+
+        # @param [String] controller_name - controller name to remove disk from
+        # @param [String] port - port on device to attach disk to
+        # @param [String] device - device on controller for disk
+        def remove_disk(controller_name, port, device)
+          execute('storageattach', @uuid,
+                  '--storagectl', controller_name,
+                  '--port', port.to_s,
+                  '--device', device.to_s,
+                  '--medium', "none")
+        end
+
+        # @param [String] disk_file
+        # @param [Integer] disk_size in bytes
+        # @param [Hash]   opts -  additional options
+        def resize_disk(disk_file, disk_size, **opts)
+          execute("modifymedium", disk_file, '--resizebyte', disk_size.to_i.to_s)
         end
 
         def restore_snapshot(machine_id, snapshot_name)
@@ -295,6 +390,28 @@ module VagrantPlugins
           nil
         end
 
+        # Returns port and device for an attached disk given a disk uuid. Returns
+        # empty hash if disk is not attachd to guest
+        #
+        # @param [String] disk_uuid - the UUID for the disk we are searching for
+        # @return [Hash] disk_info - Contains a device and port number
+        def get_port_and_device(disk_uuid)
+          disk = {}
+
+          storage_controllers = read_storage_controllers
+          storage_controllers.each do |controller|
+            controller.attachments.each do |attachment|
+              if disk_uuid == attachment[:uuid]
+                disk[:port] = attachment[:port]
+                disk[:device] = attachment[:device]
+                return disk
+              end
+            end
+          end
+
+          return disk
+        end
+
         def halt
           execute("controlvm", @uuid, "poweroff", retryable: true)
         end
@@ -370,7 +487,7 @@ module VagrantPlugins
             end
           end
 
-          return get_machine_id specified_name
+          return get_machine_id(specified_name)
         end
 
         def max_network_adapters
@@ -476,6 +593,11 @@ module VagrantPlugins
 
         def read_guest_ip(adapter_number)
           ip = read_guest_property("/VirtualBox/GuestInfo/Net/#{adapter_number}/V4/IP")
+          if ip.end_with?(".1")
+            @logger.warn("VBoxManage guest property returned: #{ip}. Result resembles IP of DHCP server and is being ignored.")
+            ip = nil
+          end
+
           if !valid_ip_address?(ip)
             raise Vagrant::Errors::VirtualBoxGuestPropertyNotFound,
               guest_property: "/VirtualBox/GuestInfo/Net/#{adapter_number}/V4/IP"
@@ -686,6 +808,26 @@ module VagrantPlugins
           end
         end
 
+        # Returns information for a given disk
+        #
+        # @param [String] disk_type - can be "disk", "dvd", or "floppy"
+        # @param [String] disk_uuid_or_file
+        # @return [Hash] disk
+        def show_medium_info(disk_type, disk_uuid_or_file)
+          disk = {}
+          execute('showmediuminfo', disk_type, disk_uuid_or_file, retryable: true).split("\n").each do |line|
+            parts = line.partition(":")
+            key = parts.first.strip
+            value = parts.last.strip
+            disk[key] = value
+
+            if key == "Location"
+              disk["Disk Name"] = File.basename(value, ".*")
+            end
+          end
+          disk
+        end
+
         def ssh_port(expected_port)
           @logger.debug("Searching for SSH port: #{expected_port.inspect}")
 
@@ -783,12 +925,85 @@ module VagrantPlugins
           return true
         end
 
+        # @param [VagrantPlugins::VirtualboxProvider::Driver] driver
+        # @param [String] defined_disk_path
+        # @return [String] destination - The cloned disk
+        def vmdk_to_vdi(defined_disk_path)
+          source = defined_disk_path
+          destination = File.join(File.dirname(source), File.basename(source, ".*")) + ".vdi"
+
+          clone_disk(source, destination, 'VDI')
+
+          destination
+        end
+
+        # @param [VagrantPlugins::VirtualboxProvider::Driver] driver
+        # @param [String] defined_disk_path
+        # @return [String] destination - The cloned disk
+        def vdi_to_vmdk(defined_disk_path)
+          source = defined_disk_path
+          destination = File.join(File.dirname(source), File.basename(source, ".*")) + ".vmdk"
+
+          clone_disk(source, destination, 'VMDK')
+
+          destination
+        end
+
+        # Helper method to get a list of storage controllers added to the
+        # current VM
+        #
+        # @return [VagrantPlugins::ProviderVirtualBox::Model::StorageControllerArray]
+        def read_storage_controllers
+          vm_info = show_vm_info
+          count = vm_info.count { |key, value| key.match(/^storagecontrollername\d+$/) }
+          all_disks = list_hdds
+
+          storage_controllers = Model::StorageControllerArray.new
+
+          (0..count - 1).each do |n|
+            # basic controller metadata
+            name = vm_info["storagecontrollername#{n}"]
+            type = vm_info["storagecontrollertype#{n}"]
+            maxportcount = vm_info["storagecontrollermaxportcount#{n}"].to_i
+
+            # build attachments array
+            attachments = []
+            vm_info.each do |k, v|
+              if /^#{name}-ImageUUID-(\d+)-(\d+)$/ =~ k
+                port = $1.to_s
+                device = $2.to_s
+                uuid = v
+                location = vm_info["#{name}-#{port}-#{device}"]
+
+                extra_disk_data = all_disks.detect { |d| d["UUID"] == uuid }
+
+                attachment = { port: port,
+                               device: device,
+                               uuid: uuid,
+                               location: location }
+
+                extra_disk_data&.each do |dk,dv|
+                  # NOTE: We convert the keys from VirtualBox to symbols
+                  # to be consistent with the other keys
+                  attachment[dk.downcase.gsub(' ', '_').to_sym] = dv
+                end
+
+                attachments << attachment
+              end
+            end
+
+            storage_controllers << Model::StorageController.new(name, type, maxportcount, attachments)
+          end
+
+          storage_controllers
+        end
+
         protected
 
         def valid_ip_address?(ip)
           # Filter out invalid IP addresses
           # GH-4658 VirtualBox can report an IP address of 0.0.0.0 for FreeBSD guests.
-          if ip == "0.0.0.0"
+          if ip == "0.0.0.0" || ip.nil?
             return false
           else
             return true

@@ -17,6 +17,10 @@ module VagrantPlugins
       class PowerShellError < PSCommandError
         error_key(:powershell_error)
       end
+
+      class ElevatedNoCommand < PSCommandError
+        error_key(:elevated_no_command)
+      end
     end
   end
 end

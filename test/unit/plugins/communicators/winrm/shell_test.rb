@@ -33,13 +33,17 @@ describe VagrantPlugins::CommunicatorWinRM::WinRMShell do
 
   describe "#upload" do
     let(:fm) { double("file_manager") }
+
+    before do
+      allow(WinRM::FS::FileManager).to receive(:new).with(connection)
+        .and_return(fm)
+    end
+
     it "should call file_manager.upload for each passed in path" do
       from = ["/path", "/path/folder", "/path/folder/file.py"]
       to = "/destination"
       size = 80
 
-      allow(WinRM::FS::FileManager).to receive(:new).with(connection)
-        .and_return(fm)
       allow(fm).to receive(:upload).and_return(size)
 
       expect(fm).to receive(:upload).exactly(from.size).times
@@ -51,12 +55,33 @@ describe VagrantPlugins::CommunicatorWinRM::WinRMShell do
       to = "/destination"
       size = 80
 
-      allow(WinRM::FS::FileManager).to receive(:new).with(connection)
-        .and_return(fm)
       allow(fm).to receive(:upload).and_return(size)
 
       expect(fm).to receive(:upload).exactly(1).times
       expect(subject.upload(from, to)).to eq(size)
+    end
+
+    context "when source is a directory" do
+      let(:source) { "path/sourcedir" }
+
+      before do
+        allow(File).to receive(:directory?).with(/#{Regexp.escape(source)}/).and_return(true)
+      end
+
+      it "should add source directory name to destination" do
+        expect(fm).to receive(:upload) do |from, to|
+          expect(to).to include("sourcedir")
+        end
+        subject.upload(source, "/dest")
+      end
+
+      it "should not add source directory name to destination when source ends with '.'" do
+        source << "/."
+        expect(fm).to receive(:upload) do |from, to|
+          expect(to).to eq("/dest")
+        end
+        subject.upload(source, "/dest")
+      end
     end
   end
 
@@ -75,10 +100,16 @@ describe VagrantPlugins::CommunicatorWinRM::WinRMShell do
   end
 
   describe ".elevated" do
+    let(:eusername) { double("elevatedusername") }
     let(:username) { double("username") }
+    let(:failed_output) { WinRM::Output.new.tap { |out|
+        out.exitcode = described_class.const_get(:INVALID_USERID_EXITCODE)
+        out << {stderr: "(10,8):UserId:"}
+        out << {stderr: "At line:72 char:1"}
+      } }
 
     before do
-      allow(subject).to receive(:elevated_username).and_return(username)
+      allow(subject).to receive(:elevated_username).and_return(eusername)
       allow(shell).to receive(:username).and_return(username)
       allow(shell).to receive(:username=)
     end
@@ -102,11 +133,19 @@ describe VagrantPlugins::CommunicatorWinRM::WinRMShell do
         VagrantPlugins::CommunicatorWinRM::Errors::ExecutionError)
     end
 
-    it "should use elevated username" do
-      expect(subject).to receive(:elevated_username).and_return(username)
+    it "should use elevated username and retry on username failure" do
+      expect(subject).to receive(:elevated_username).and_return(eusername)
+      expect(shell).to receive(:run).with("dir").and_return(failed_output)
       expect(shell).to receive(:run).with("dir").and_return(output)
       expect(shell).to receive(:interactive_logon=).with(false)
       expect(subject.elevated("dir").exitcode).to eq(0)
+    end
+
+    it "should not retry on username failure if elevated username is the same" do
+      expect(subject).to receive(:elevated_username).and_return(username)
+      expect(shell).to receive(:run).with("dir").and_return(failed_output)
+      expect(shell).to receive(:interactive_logon=).with(false)
+      expect(subject.elevated("dir").exitcode).to eq(failed_output.exitcode)
     end
   end
 
@@ -215,8 +254,8 @@ describe VagrantPlugins::CommunicatorWinRM::WinRMShell do
       expect(subject.send(:elevated_username)).to eq("COMPUTERNAME\\#{username}")
     end
 
-    it "should only compute elevated username once" do
-      expect(subject).to receive(:powershell).once.with(/computername/).and_yield(:stdout, "COMPUTERNAME")
+    it "should compute elevated username every time" do
+      expect(subject).to receive(:powershell).twice.with(/computername/).and_yield(:stdout, "COMPUTERNAME")
       expect(subject.send(:elevated_username)).to eq("COMPUTERNAME\\#{username}")
       expect(subject.send(:elevated_username)).to eq("COMPUTERNAME\\#{username}")
     end

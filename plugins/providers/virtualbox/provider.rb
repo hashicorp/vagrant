@@ -8,9 +8,10 @@ module VagrantPlugins
       def self.installed?
         Driver::Meta.new
         true
-      rescue Vagrant::Errors::VirtualBoxInvalidVersion
-        return false
-      rescue Vagrant::Errors::VirtualBoxNotDetected
+      rescue Vagrant::Errors::VirtualBoxInvalidVersion,
+             Vagrant::Errors::VirtualBoxNotDetected,
+             Vagrant::Errors::VirtualBoxKernelModuleNotLoaded,
+             Vagrant::Errors::VirtualBoxInstallIncomplete
         return false
       end
 
@@ -19,10 +20,10 @@ module VagrantPlugins
         # version and all that, which checks for VirtualBox being present
         Driver::Meta.new
         true
-      rescue Vagrant::Errors::VirtualBoxInvalidVersion
-        raise if raise_error
-        return false
-      rescue Vagrant::Errors::VirtualBoxNotDetected
+      rescue Vagrant::Errors::VirtualBoxInvalidVersion,
+             Vagrant::Errors::VirtualBoxNotDetected,
+             Vagrant::Errors::VirtualBoxKernelModuleNotLoaded,
+             Vagrant::Errors::VirtualBoxInstallIncomplete
         raise if raise_error
         return false
       end

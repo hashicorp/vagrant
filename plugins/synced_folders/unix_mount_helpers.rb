@@ -100,6 +100,20 @@ module VagrantPlugins
           EOH
       end
 
+      def merge_mount_options(base, overrides)
+        base = base.join(",").split(",")
+        overrides = overrides.join(",").split(",")
+        b_kv = Hash[base.map{|item| item.split("=", 2) }]
+        o_kv = Hash[overrides.map{|item| item.split("=", 2) }]
+        merged = {}.tap do |opts|
+          (b_kv.keys + o_kv.keys).uniq.each do |key|
+            opts[key] = o_kv.fetch(key, b_kv[key])
+          end
+        end
+        merged.map do |key, value|
+          [key, value].compact.join("=")
+        end
+      end
     end
   end
 end

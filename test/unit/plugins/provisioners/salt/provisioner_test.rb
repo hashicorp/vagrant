@@ -31,21 +31,48 @@ describe VagrantPlugins::Salt::Provisioner do
 
   describe "#provision" do
     context "minion" do
-      it "does not add linux-only bootstrap flags when on windows" do
-        additional_windows_options = "-only -these options -should -remain"
-        allow(config).to receive(:seed_master).and_return(true)
+      let(:python_version) { "2" }
+
+      before do
+        allow(config).to receive(:seed_master).and_return([])
         allow(config).to receive(:install_master).and_return(true)
         allow(config).to receive(:install_syndic).and_return(true)
         allow(config).to receive(:no_minion).and_return(true)
+        allow(config).to receive(:python_version).and_return(python_version)
         allow(config).to receive(:install_type).and_return('stable')
         allow(config).to receive(:install_args).and_return('develop')
         allow(config).to receive(:verbose).and_return(true)
         allow(config).to receive(:master_json_config).and_return(true)
         allow(config).to receive(:minion_json_config).and_return(true)
+        allow(config).to receive(:bootstrap_options).and_return("")
+      end
+
+      it "does not add linux-only bootstrap flags when on windows" do
+        additional_windows_options = "-only -these options -should -remain"
         allow(machine.config.vm).to receive(:communicator).and_return(:winrm)
-        allow(config).to receive(:bootstrap_options).and_return(additional_windows_options)
+        expect(config).to receive(:bootstrap_options).twice.and_return(additional_windows_options)
+
         result = subject.bootstrap_options(true, true, "C:\\salttmp")
         expect(result.strip).to eq(additional_windows_options)
+      end
+
+      context "python version" do
+        before { allow(communicator).to receive(:sudo) }
+        context "when not set" do
+          let(:python_version) { nil }
+
+          it "should not include python flag" do
+            result = subject.bootstrap_options(true, true, "/tmp")
+            expect(result).not_to include("-python")
+          end
+        end
+
+        context "when set" do
+          it "should include python flag" do
+            result = subject.bootstrap_options(true, true, "/tmp")
+            expect(result).to include("python#{python_version}")
+          end
+        end
       end
     end
   end

@@ -8,14 +8,14 @@ describe Vagrant do
 
   subject { described_class }
 
-  describe "#global_lock" do
+  describe ".global_lock" do
     it "yields to the block" do
       result = subject.global_lock { 42 }
       expect(result).to eq(42)
     end
   end
 
-  describe "#in_installer?" do
+  describe ".in_installer?" do
     it "is not if env is not set" do
       with_temp_env("VAGRANT_INSTALLER_ENV" => nil) do
         expect(subject.in_installer?).to be(false)
@@ -29,7 +29,7 @@ describe Vagrant do
     end
   end
 
-  describe "#installer_embedded_dir" do
+  describe ".installer_embedded_dir" do
     it "returns nil if not in an installer" do
       allow(Vagrant).to receive(:in_installer?).and_return(false)
       expect(subject.installer_embedded_dir).to be_nil
@@ -44,7 +44,7 @@ describe Vagrant do
     end
   end
 
-  describe "#plugins_enabled?" do
+  describe ".plugins_enabled?" do
     it "returns true if the env is not set" do
       with_temp_env("VAGRANT_NO_PLUGINS" => nil) do
         expect(subject.plugins_enabled?).to be(true)
@@ -58,7 +58,7 @@ describe Vagrant do
     end
   end
 
-  describe "#server_url" do
+  describe ".server_url" do
     it "defaults to the default value" do
       with_temp_env("VAGRANT_SERVER_URL" => nil) do
         expect(subject.server_url).to eq(
@@ -92,7 +92,7 @@ describe Vagrant do
     end
   end
 
-  describe "#user_data_path" do
+  describe ".user_data_path" do
     around do |example|
       env = {
         "USERPROFILE" => nil,
@@ -132,7 +132,7 @@ describe Vagrant do
     end
   end
 
-  describe "#prerelease?" do
+  describe ".prerelease?" do
     it "should return true when Vagrant version is development" do
       stub_const("Vagrant::VERSION", "1.0.0.dev")
       expect(subject.prerelease?).to be(true)
@@ -144,7 +144,7 @@ describe Vagrant do
     end
   end
 
-  describe "#enable_resolv_replace" do
+  describe ".enable_resolv_replace" do
     it "should not attempt to require resolv-replace by default" do
       expect(subject).not_to receive(:require).with("resolv-replace")
       subject.enable_resolv_replace
@@ -163,7 +163,7 @@ describe Vagrant do
     end
   end
 
-  describe "#global_logger" do
+  describe ".global_logger" do
     after{ subject.global_logger = nil }
 
     it "should return a logger when none have been provided" do
@@ -174,6 +174,28 @@ describe Vagrant do
       logger = double("logger")
       expect(subject.global_logger = logger).to eq(logger)
       expect(subject.global_logger).to eq(logger)
+    end
+  end
+
+  describe ".add_default_cli_options" do
+    it "should raise a type error when no provided with proc" do
+      expect { subject.add_default_cli_options(true) }.
+        to raise_error(TypeError)
+    end
+
+    it "should raise an argument error when proc does not accept argument" do
+      expect { subject.add_default_cli_options(proc{}) }.
+        to raise_error(ArgumentError)
+    end
+
+    it "should accept a proc type argument" do
+      expect(subject.add_default_cli_options(proc{|o|})).to be_nil
+    end
+  end
+
+  describe ".default_cli_options" do
+    it "should return array of items" do
+      expect(subject.default_cli_options).to be_a(Array)
     end
   end
 end

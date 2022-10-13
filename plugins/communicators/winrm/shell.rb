@@ -17,6 +17,10 @@ module VagrantPlugins
     class WinRMShell
       include Vagrant::Util::Retryable
 
+      # Exit code generated when user is invalid. Can occur
+      # after a hostname update
+      INVALID_USERID_EXITCODE = -2147024809
+
       # These are the exceptions that we retry because they represent
       # errors that are generally fixed from a retry and don't
       # necessarily represent immediate failure cases.
@@ -71,13 +75,22 @@ module VagrantPlugins
       def elevated(command, opts = {}, &block)
         connection.shell(:elevated) do |shell|
           shell.interactive_logon = opts[:interactive] || false
-          uname = shell.username
-          begin
-            shell.username = elevated_username
-            execute_with_rescue(shell, command, &block)
-          ensure
-            shell.username = uname
+          result = execute_with_rescue(shell, command, &block)
+          if result.exitcode == INVALID_USERID_EXITCODE && result.stderr.include?(":UserId:")
+            uname = shell.username
+            ename = elevated_username
+            if uname != ename
+              @logger.warn("elevated command failed due to username error")
+              @logger.warn("retrying command using machine prefixed username - #{ename}")
+              begin
+                shell.username = ename
+                result = execute_with_rescue(shell, command, &block)
+              ensure
+                shell.username = uname
+              end
+            end
           end
+          result
         end
       end
 
@@ -95,6 +108,13 @@ module VagrantPlugins
       # @return [FixNum] Total size transfered from host to guest
       def upload(from, to)
         file_manager = WinRM::FS::FileManager.new(connection)
+        if from.is_a?(String) && File.directory?(from)
+          if from.end_with?(".")
+            from = from[0, from.length - 1]
+          else
+            to = File.join(to, File.basename(File.expand_path(from)))
+          end
+        end
         if from.is_a?(Array)
           # Preserve return FixNum of bytes transfered
           return_bytes = 0
@@ -224,11 +244,8 @@ module VagrantPlugins
       end
 
       def elevated_username
-        if @elevated_username
-          return @elevated_username
-        end
         if username.include?("\\")
-          return @elevated_username = username
+          return username
         end
         computername = ""
         powershell("Write-Output $env:computername") do |type, data|
@@ -236,9 +253,9 @@ module VagrantPlugins
         end
         computername.strip!
         if computername.empty?
-          return @elevated_username = username
+          return username
         end
-        @elevated_username = "#{computername}\\#{username}"
+        "#{computername}\\#{username}"
       end
     end #WinShell class
   end
