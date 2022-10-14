@@ -28,6 +28,7 @@ on:
 jobs:
   unit-tests-ruby:
     runs-on: ubuntu-18.04
+    continue-on-error: true
     strategy:
       matrix:
         ruby: [ '2.6', '2.7', '3.0', '3.1' ]
