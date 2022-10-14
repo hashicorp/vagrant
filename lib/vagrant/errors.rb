@@ -972,6 +972,10 @@ module Vagrant
       error_key(:virtualbox_broken_version_040214)
     end
 
+    class VirtualBoxConfigNotFound < VagrantError
+      error_key(:virtualbox_config_not_found)
+    end
+
     class VirtualBoxDisksDefinedExceedLimit < VagrantError
       error_key(:virtualbox_disks_defined_exceed_limit)
     end
