@@ -2,6 +2,8 @@
 
 FEATURES:
 
+- provider/virtualbox: Add support for VirtualBox 7.0 [GH-12947]
+
 IMPROVEMENTS:
 
 BUG FIXES:
