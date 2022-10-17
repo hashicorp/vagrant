@@ -1743,6 +1743,11 @@ en:
         4.2.14 contains a critical bug which prevents it from working with
         Vagrant. VirtualBox 4.2.16+ fixes this problem. Please upgrade
         VirtualBox.
+      virtualbox_config_not_found: |-
+        Vagrant was unable to locate the configuration file for the requested
+        VirtualBox VM. Verify the requested VM exists and try again.
+
+          UUID provided: %{uuid}
       virtualbox_disks_controller_not_found: |-
         Vagrant expected to find a storage controller called '%{name}',
         but there is no controller with this name attached to the current VM.
