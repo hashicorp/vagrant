@@ -1,14 +1,8 @@
-## 2.3.2 (Unreleased)
+## 2.3.2 (October 18, 2022)
 
 FEATURES:
 
 - provider/virtualbox: Add support for VirtualBox 7.0 [GH-12947]
-
-IMPROVEMENTS:
-
-BUG FIXES:
-
-VAGRANT-GO:
 
 ## 2.3.1 (September 29, 2022)
 
