@@ -3,7 +3,7 @@ module Vagrant
     # Generic installation of content to shell config file
     class InstallShellConfig
 
-      PERPEND_STRING = "# >>>> Vagrant command completion (start)".freeze
+      PREPEND_STRING = "# >>>> Vagrant command completion (start)".freeze
       APPEND_STRING = "# <<<<  Vagrant command completion (end)".freeze
 
       attr_accessor :prepend_string
@@ -12,7 +12,7 @@ module Vagrant
       attr_accessor :config_paths
 
       def initialize(string_insert, config_paths)
-        @prepend_string = PERPEND_STRING
+        @prepend_string = PREPEND_STRING
         @string_insert = string_insert
         @append_string = APPEND_STRING
         @config_paths = config_paths
