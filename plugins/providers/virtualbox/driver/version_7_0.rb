@@ -61,6 +61,110 @@ module VagrantPlugins
 
           results
         end
+        
+        # The initial VirtualBox 7.0 release with depreciation to Host Only Adapter.
+        # Converting to Host Only Network
+        def create_host_only_network(options)
+          # Create the interface
+          execute("hostonlynets", "create", retryable: true) =~ /^Interface '(.+?)' was successfully created$/
+          name = $1.to_s
+
+          # Get the IP so we can determine v4 vs v6
+          ip = IPAddr.new(options[:adapter_ip])
+
+          # Configure
+          if ip.ipv4?
+            execute("hostonlynets", "ipconfig", name,
+                    "--ip", options[:adapter_ip],
+                    "--netmask", options[:netmask],
+                    retryable: true)
+          elsif ip.ipv6?
+            execute("hostonlynets", "ipconfig", name,
+                    "--ipv6", options[:adapter_ip],
+                    "--netmasklengthv6", options[:netmask].to_s,
+                    retryable: true)
+          else
+            raise "BUG: Unknown IP type: #{ip.inspect}"
+          end
+
+          # Return the details
+          return {
+            name: name,
+            ip:   options[:adapter_ip],
+            netmask: options[:netmask],
+            dhcp: nil
+          }
+        end
+        
+        def delete_unused_host_only_networks
+          networks = []
+          execute("list", "hostonlynets", retryable: true).split("\n").each do |line|
+            networks << $1.to_s if line =~ /^Name:\s+(.+?)$/
+          end
+
+          execute("list", "vms", retryable: true).split("\n").each do |line|
+            if line =~ /^".+?"\s+\{(.+?)\}$/
+              begin
+                info = execute("showvminfo", $1.to_s, "--machinereadable", retryable: true)
+                info.split("\n").each do |inner_line|
+                  if inner_line =~ /^hostonlynetwork\d+="(.+?)"$/
+                    networks.delete($1.to_s)
+                  end
+                end
+              rescue Vagrant::Errors::VBoxManageError => e
+                raise if !e.extra_data[:stderr].include?("VBOX_E_OBJECT_NOT_FOUND")
+
+                # VirtualBox could not find the vm. It may have been deleted
+                # by another process after we called 'vboxmanage list vms'? Ignore this error.
+              end
+            end
+          end
+
+          networks.each do |name|
+            # First try to remove any DHCP servers attached. We use `raw` because
+            # it is okay if this fails. It usually means that a DHCP server was
+            # never attached.
+            raw("dhcpserver", "remove", "--ifname", name)
+
+            # Delete the actual host only network interface.
+            execute("hostonlynets", "remove", name, retryable: true)
+          end
+        end
+        
+        def read_host_only_interfaces
+          execute("list", "hostonlynets", retryable: true).split("\n\n").collect do |block|
+            info = {}
+
+            block.split("\n").each do |line|
+              if line =~ /^Name:\s+(.+?)$/
+                info[:name] = $1.to_s
+              elsif line =~ /^IPAddress:\s+(.+?)$/
+                info[:ip] = $1.to_s
+              elsif line =~ /^NetworkMask:\s+(.+?)$/
+                info[:netmask] = $1.to_s
+              elsif line =~ /^IPV6Address:\s+(.+?)$/
+                info[:ipv6] = $1.to_s.strip
+              elsif line =~ /^IPV6NetworkMaskPrefixLength:\s+(.+?)$/
+                info[:ipv6_prefix] = $1.to_s.strip
+              elsif line =~ /^Status:\s+(.+?)$/
+                info[:status] = $1.to_s
+              end
+            end
+
+            info
+          end
+        end
+        
+        def reconfig_host_only(interface)
+          execute("hostonlynets", "ipconfig", interface[:name],
+                  "--ipv6", interface[:ipv6], retryable: true)
+        end
+        
+        def verify!
+          # This command sometimes fails if kernel drivers aren't properly loaded
+          # so we just run the command and verify that it succeeded.
+          execute("list", "hostonlynets", retryable: true)
+        end
       end
     end
   end
