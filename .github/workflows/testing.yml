@@ -27,7 +27,7 @@ on:
 
 jobs:
   unit-tests-ruby:
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-latest
     continue-on-error: true
     strategy:
       matrix:
@@ -35,10 +35,11 @@ jobs:
     name: Vagrant unit tests on Ruby ${{ matrix.ruby }}
     steps:
       - name: Code Checkout
-        uses: actions/checkout@v1
+        uses: actions/checkout@v3
       - name: Setup Ruby
         uses: ruby/setup-ruby@v1
         with:
           ruby-version: ${{matrix.ruby}}
+          bundler-cache: true
       - name: Run Tests
-        run: .ci/test.sh
+        run: bundle exec rake test:unit

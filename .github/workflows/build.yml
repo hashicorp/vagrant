@@ -10,7 +10,7 @@ jobs:
   build-gem:
     if: github.repository == 'hashicorp/vagrant'
     name: Build Vagrant RubyGem
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-latest
     steps:
       - name: Code Checkout
         uses: actions/checkout@v1
@@ -26,19 +26,7 @@ jobs:
         run: ./.ci/build.sh
         working-directory: ${{github.workspace}}
         env:
-          ASSETS_LONGTERM_PREFIX: elt
-          ASSETS_PRIVATE_BUCKET: ${{ secrets.ASSETS_PRIVATE_BUCKET }}
-          ASSETS_PRIVATE_LONGTERM: ${{ secrets.ASSETS_PRIVATE_LONGTERM }}
-          ASSETS_PRIVATE_SHORTTERM: ${{ secrets.ASSETS_PRIVATE_SHORTTERM }}
-          ASSETS_PUBLIC_BUCKET: ${{ secrets.ASSETS_PUBLIC_BUCKET }}
-          ASSETS_PUBLIC_LONGTERM: ${{ secrets.ASSETS_PUBLIC_LONGTERM }}
-          ASSETS_PUBLIC_SHORTTERM: ${{ secrets.ASSETS_PUBLIC_SHORTTERM }}
-          ASSETS_SHORTTERM_PREFIX: est
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_ASSUME_ROLE_ARN: ${{ secrets.AWS_ROLE_ARN }}
           HASHIBOT_EMAIL: ${{ secrets.HASHIBOT_EMAIL }}
           HASHIBOT_TOKEN: ${{ secrets.HASHIBOT_TOKEN }}
           HASHIBOT_USERNAME: ${{ secrets.HASHIBOT_USERNAME }}
           SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
-          VAGRANT_CI_LOADER_BUCKET: ${{ secrets.VAGRANT_CI_LOADER_BUCKET }}

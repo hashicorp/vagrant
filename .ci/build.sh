@@ -6,10 +6,10 @@ root="$( cd -P "$( dirname "$csource" )/../" && pwd )"
 
 . "${root}/.ci/init.sh"
 
-pushd "${root}" > "${output}"
+pushd "${root}"
 
 # Build our gem
-wrap gem build *.gemspec \
+wrap gem build ./*.gemspec \
      "Failed to build Vagrant RubyGem"
 
 # Get the path of our new gem
