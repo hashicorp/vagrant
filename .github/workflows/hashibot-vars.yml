@@ -1,0 +1,37 @@
+name: HashiBot Vars
+
+on:
+  workflow_call:
+    outputs:
+      HASHIBOT_EMAIL:
+        value: ${{ jobs.get-vars.outputs.HASHIBOT_EMAIL }}
+      HASHIBOT_TOKEN:
+        value: ${{ jobs.get-vars.outputs.HASHIBOT_TOKEN }}
+      HASHIBOT_USERNAME:
+        value: ${{ jobs.get-vars.outputs.HASHIBOT_USERNAME }}
+
+jobs:
+  get-vars:
+    runs-on: self-hosted
+    permissions:
+      id-token: write
+      contents: read
+    outputs:
+      HASHIBOT_EMAIL: ${{ steps.vars.outputs.HASHIBOT_EMAIL }}
+      HASHIBOT_TOKEN: ${{ steps.vars.outputs.HASHIBOT_TOKEN }}
+      HASHIBOT_USERNAME: ${{ steps.vars.outputs.HASHIBOT_USERNAME }}
+    steps:
+      - name: Authentication
+        id: vault-auth
+        run: vault-auth
+      - name: Fetch vars
+        id: vars
+        uses: hashicorp/vault-action@2.2.0
+        with:
+          url: ${{ steps.vault-auth.outputs.addr }}
+          caCertificates: ${{ steps.vault-auth.outputs.ca_certificate }}
+          token: ${{ steps.vault-auth.outputs.token }}
+          secrets:
+            kv/data/github/${{ github.repository }} hashibot_email | HASHIBOT_EMAIL;
+            kv/data/github/${{ github.repository }} hashibot_token | HASHIBOT_TOKEN;
+            kv/data/github/${{ github.repository }} hashibot_username | HASHIBOT_USERNAME;
