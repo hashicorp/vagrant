@@ -1,0 +1,37 @@
+name: Packet Vars
+
+on:
+  workflow_call:
+    outputs:
+      PACKET_EXEC_TOKEN:
+        value: ${{ jobs.get-vars.outputs.PACKET_TOKEN }}
+      PACKET_EXEC_PROJECT_ID:
+        value: ${{ jobs.get-vars.outputs.PACKET_PROJECT_ID }}
+      PACKET_SSH_KEY_CONTENT:
+        value: ${{ jobs.get-vars.outputs.PACKET_SSH_KEY_CONTENT }}
+
+jobs:
+  get-vars:
+    runs-on: self-hosted
+    permissions:
+      id-token: write
+      contents: read
+    outputs:
+      PACKET_EXEC_TOKEN: ${{ steps.vars.outputs.PACKET_TOKEN }}
+      PACKET_EXEC_PROJECT_ID: ${{ steps.vars.outputs.PACKET_PROJECT_ID }}
+      PACKET_SSH_KEY_CONTENT: ${{ steps.vars.outputs.PACKET_SSH_KEY_CONTENT }}
+    steps:
+      - name: Authentication
+        id: vault-auth
+        run: vault-auth
+      - name: Fetch vars
+        id: vars
+        uses: hashicorp/vault-action@2.2.0
+        with:
+          url: ${{ steps.vault-auth.outputs.addr }}
+          caCertificates: ${{ steps.vault-auth.outputs.ca_certificate }}
+          token: ${{ steps.vault-auth.outputs.token }}
+          secrets:
+            kv/data/github/${{ github.repository }} packet_token | PACKET_TOKEN;
+            kv/data/github/${{ github.repository }} packet_project_id | PACKET_PROJECT_ID;
+            kv/data/github/${{ github.repository }} packet_ssh_key_content | PACKET_SSH_KEY_CONTENT;
