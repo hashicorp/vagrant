@@ -14,12 +14,13 @@ This command creates and configures guest machines according to your
 [Vagrantfile](/docs/vagrantfile/).
 
 This is the single most important command in Vagrant, since it is how
-any Vagrant machine is created. Anyone using Vagrant must use this command
-on a day-to-day basis.
+any Vagrant machine is created.
 
 ## Options
 
-- `name` - Name of machine defined in [Vagrantfile](/docs/vagrantfile/)
+- `name` - Name of machine defined in [Vagrantfile](/docs/vagrantfile/). Using
+  `name` to specify the Vagrant machine to act on must be done from within a
+  Vagrant project (directory where the Vagrantfile exists).
 
 - `id` - Machine id found with `vagrant global-status`. Using `id` allows
   you to call `vagrant up id` from any directory.
