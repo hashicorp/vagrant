@@ -7,25 +7,17 @@ on:
 jobs:
   sync-acceptance:
     if: github.repository == 'hashicorp/vagrant'
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-latest
     steps:
       - name: Code Checkout
         uses: actions/checkout@v2
         with:
           persist-credentials: false
           fetch-depth: 0
-      - name: Set Ruby
-        uses: ruby/setup-ruby@v1
-        with:
-          ruby-version: '2.6'
       - name: Sync Acceptance Testing Repository
         run: ./.ci/sync.sh
         working-directory: ${{github.workspace}}
         env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_ASSUME_ROLE_ARN: ${{ secrets.AWS_ROLE_ARN }}
           HASHIBOT_TOKEN: ${{ secrets.HASHIBOT_TOKEN }}
           HASHIBOT_USERNAME: ${{ secrets.HASHIBOT_USERNAME }}
           SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
-          VAGRANT_CI_LOADER_BUCKET: ${{ secrets.VAGRANT_CI_LOADER_BUCKET }}

@@ -6,15 +6,15 @@ root="$( cd -P "$( dirname "$csource" )/../" && pwd )"
 
 . "${root}/.ci/init.sh"
 
-pushd "${root}" > "${output}"
+pushd "${root}"
 
 # Build our gem
-wrap gem build *.gemspec \
+wrap gem build ./*.gemspec \
      "Failed to build Vagrant RubyGem"
 
 # Get the path of our new gem
 g=(vagrant*.gem)
-gem=$(printf "%s" "${g}")
+gem=$(printf "%s" "${g[0]}")
 
 # Store the gem asset
 wrap aws s3 cp "${gem}" "${ASSETS_PRIVATE_BUCKET}/${repository}/vagrant-main.gem" \

@@ -7,23 +7,39 @@ on:
     # Run nightly on weekdays at 05:00 UTC or midnight-ish in US time zones
     - cron: '0 5 * * 1-5'
 
+env:
+  runs-on: ['self-hosted', 'ondemand', 't3.nano']
+
 jobs:
+  slack-vars:
+    if: github.repository == 'hashicorp/vagrant-builders'
+    name: Populate vars
+    runs-on: env.runs-on
+    uses: ./.github/workflows/slack-vars.yml
+  packet-vars:
+    if: github.repository == 'hashicorp/vagrant-builders'
+    name: Populate vars
+    runs-on: env.runs-on
+    uses: ./.github/workflows/packet-vars.yml
   setup-packet:
     if: github.repository == 'hashicorp/vagrant-acceptance'
-    runs-on: self-hosted
+    runs-on: env.runs-on
     name: Build Packet Instance
     steps:
       - name: Code Checkout
-        uses: actions/checkout@v1
+        uses: actions/checkout@v3
       - name: Create packet instance
         run: ./.ci/spec/create-packet.sh
         working-directory: ${{github.workspace}}
         env:
-          VAGRANT_CI_LOADER_BUCKET: ${{ secrets.VAGRANT_CI_LOADER_BUCKET }}
-
+          PACKET_EXEC_TOKEN: ${{ needs.packet-vars.outputs.PACKET_EXEC_TOKEN }}
+          PACKET_EXEC_PROJECT_ID: ${{ needs.packet-vars.outputs.PACKET_EXEC_PROJECT_ID }}
+          PACKET_SSH_KEY_CONTENT: ${{ needs.packet-vars.outputs.PACKET_SSH_KEY_CONTENT }}
+          PKT_SECRET_PHRASE: ${{ needs.packaging-vars.outputs.ASSETS_PASSWORD }}
+          SLACK_WEBHOOK: ${{ needs.slack-vars.outputs.SLACK_WEBHOOK }}
   setup-hosts:
     if: github.repository == 'hashicorp/vagrant-acceptance'
-    runs-on: self-hosted
+    runs-on: env.runs-on
     name: Vagrant-Spec Start Hosts
     needs: setup-packet
     strategy:
@@ -33,22 +49,26 @@ jobs:
         providers: ['virtualbox', 'docker']
     steps:
       - name: Code Checkout
-        uses: actions/checkout@v1
+        uses: actions/checkout@v3
         with:
           submodules: 'recursive'
       - name: Create hosts for tests (provider ${{ matrix.providers }})
         run: ./.ci/spec/create-hosts.sh
         working-directory: ${{github.workspace}}
         env:
+          PACKET_EXEC_TOKEN: ${{ needs.packet-vars.outputs.PACKET_EXEC_TOKEN }}
+          PACKET_EXEC_PROJECT_ID: ${{ needs.packet-vars.outputs.PACKET_EXEC_PROJECT_ID }}
+          PACKET_SSH_KEY_CONTENT: ${{ needs.packet-vars.outputs.PACKET_SSH_KEY_CONTENT }}
+          PKT_SECRET_PHRASE: ${{ needs.packaging-vars.outputs.ASSETS_PASSWORD }}
+          SLACK_WEBHOOK: ${{ needs.slack-vars.outputs.SLACK_WEBHOOK }}
           VAGRANT_HOST_BOXES: ${{matrix.host_os}}
           VAGRANT_GUEST_BOXES: ${{matrix.guest_os}}
           VAGRANT_PRERELEASE_VERSION: ${{ github.event.client_payload.prerelease_version }}
           VAGRANT_SPEC_PROVIDERS: ${{matrix.providers}}
-          VAGRANT_CI_LOADER_BUCKET: ${{ secrets.VAGRANT_CI_LOADER_BUCKET }}
 
   spec-tests:
     if: github.repository == 'hashicorp/vagrant-acceptance'
-    runs-on: self-hosted
+    runs-on: env.runs-on
     name: Vagrant-Spec Tests
     needs: setup-hosts
     strategy:
@@ -62,31 +82,34 @@ jobs:
         run: ./.ci/spec/run-test.sh
         working-directory: ${{github.workspace}}
         env:
+          PACKET_EXEC_TOKEN: ${{ needs.packet-vars.outputs.PACKET_EXEC_TOKEN }}
+          PACKET_EXEC_PROJECT_ID: ${{ needs.packet-vars.outputs.PACKET_EXEC_PROJECT_ID }}
+          PACKET_SSH_KEY_CONTENT: ${{ needs.packet-vars.outputs.PACKET_SSH_KEY_CONTENT }}
+          PKT_SECRET_PHRASE: ${{ needs.packaging-vars.outputs.ASSETS_PASSWORD }}
+          SLACK_WEBHOOK: ${{ needs.slack-vars.outputs.SLACK_WEBHOOK }}
           VAGRANT_HOST_BOXES: ${{matrix.host_os}}
           VAGRANT_GUEST_BOXES: ${{matrix.guest_os}}
           VAGRANT_SPEC_PROVIDERS: ${{matrix.providers}}
           VAGRANT_DOCKER_IMAGES: ${{matrix.docker_images}}
-          VAGRANT_CI_LOADER_BUCKET: ${{ secrets.VAGRANT_CI_LOADER_BUCKET }}
-          HASHIBOT_USERNAME: ${{ secrets.HASHIBOT_USERNAME }}
-          HASHIBOT_TOKEN: ${{ secrets.HASHIBOT_TOKEN }}
       - name: Pull log from guest
         if: always()
         run: ./.ci/spec/pull-log.sh
         env:
+          PACKET_EXEC_TOKEN: ${{ needs.packet-vars.outputs.PACKET_EXEC_TOKEN }}
+          PACKET_EXEC_PROJECT_ID: ${{ needs.packet-vars.outputs.PACKET_EXEC_PROJECT_ID }}
+          PACKET_SSH_KEY_CONTENT: ${{ needs.packet-vars.outputs.PACKET_SSH_KEY_CONTENT }}
+          PKT_SECRET_PHRASE: ${{ needs.packaging-vars.outputs.ASSETS_PASSWORD }}
+          SLACK_WEBHOOK: ${{ needs.slack-vars.outputs.SLACK_WEBHOOK }}
           VAGRANT_HOST_BOXES: ${{matrix.host_os}}
           VAGRANT_GUEST_BOXES: ${{matrix.guest_os}}
           VAGRANT_SPEC_PROVIDERS: ${{matrix.providers}}
           VAGRANT_DOCKER_IMAGES: ${{matrix.docker_images}}
-          VAGRANT_CI_LOADER_BUCKET: ${{ secrets.VAGRANT_CI_LOADER_BUCKET }}
-          HASHIBOT_USERNAME: ${{ secrets.HASHIBOT_USERNAME }}
-          HASHIBOT_TOKEN: ${{ secrets.HASHIBOT_TOKEN }}
       - name: Upload log
         if: always()
         uses: actions/upload-artifact@v3
         with:
           name: vagrant-spec-${{matrix.providers}}.log
           path: ${{ github.workspace }}/vagrant-spec.log
-
   notify-on-success:
     if: github.repository == 'hashicorp/vagrant-acceptance' && success()
     runs-on: self-hosted
@@ -95,6 +118,8 @@ jobs:
     steps:
       - name: Notify on Success
         run: ./.ci/spec/notify-success.sh
+    env:
+      SLACK_WEBHOOK: ${{ needs.slack-vars.outputs.SLACK_WEBHOOK }}
 
   cleanup:
     if: github.repository == 'hashicorp/vagrant-acceptance'
@@ -104,6 +129,11 @@ jobs:
     steps:
       - name: Clean Packet
         run: ./.ci/spec/clean-packet.sh
+        env:
+          PACKET_EXEC_TOKEN: ${{ needs.packet-vars.outputs.PACKET_EXEC_TOKEN }}
+          PACKET_EXEC_PROJECT_ID: ${{ needs.packet-vars.outputs.PACKET_EXEC_PROJECT_ID }}
+          PACKET_SSH_KEY_CONTENT: ${{ needs.packet-vars.outputs.PACKET_SSH_KEY_CONTENT }}
+          PKT_SECRET_PHRASE: ${{ needs.packaging-vars.outputs.ASSETS_PASSWORD }}
+          SLACK_WEBHOOK: ${{ needs.slack-vars.outputs.SLACK_WEBHOOK }}
       - name: Clean Workspace
         run: rm -rf ${{ github.workspace }}
-
