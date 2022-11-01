@@ -41,5 +41,7 @@ jobs:
         with:
           ruby-version: ${{matrix.ruby}}
           bundler-cache: true
+      - name: install dependencies
+        run: sudo apt -y install libarchive-tools
       - name: Run Tests
         run: bundle exec rake test:unit
