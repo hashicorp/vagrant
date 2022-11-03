@@ -481,10 +481,7 @@ module VagrantPlugins
         #-----------------------------------------------------------------
         # This creates a host only network for the given configuration.
         def hostonly_create_network(config)
-          @env[:machine].provider.driver.create_host_only_network(
-            adapter_ip: config[:adapter_ip],
-            netmask:    config[:netmask]
-          )
+          @env[:machine].provider.driver.create_host_only_network(config)
         end
 
         # This finds a matching host only network for the given configuration.
