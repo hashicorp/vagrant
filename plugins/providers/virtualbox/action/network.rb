@@ -21,6 +21,8 @@ module VagrantPlugins
         VBOX_NET_CONF = "/etc/vbox/networks.conf".freeze
         # Version of VirtualBox that introduced hostonly network range restrictions
         HOSTONLY_VALIDATE_VERSION = Gem::Version.new("6.1.28")
+        # Version of VirtualBox on darwin platform that ignores restrictions
+        DARWIN_IGNORE_HOSTONLY_VALIDATE_VERSION = Gem::Version.new("7.0.0")
         # Default valid range for hostonly networks
         HOSTONLY_DEFAULT_RANGE = [IPAddr.new("192.168.56.0/21").freeze].freeze
 
@@ -517,7 +519,11 @@ module VagrantPlugins
         # placed on the valid ranges
         def validate_hostonly_ip!(ip, driver)
           return if Gem::Version.new(driver.version) < HOSTONLY_VALIDATE_VERSION ||
-            Vagrant::Util::Platform.windows?
+                    (
+                      Vagrant::Util::Platform.darwin? &&
+                      Gem::Version.new(driver.version) >= DARWIN_IGNORE_HOSTONLY_VALIDATE_VERSION
+                    ) ||
+                    Vagrant::Util::Platform.windows?
 
           ip = IPAddr.new(ip.to_s) if !ip.is_a?(IPAddr)
           valid_ranges = load_net_conf
