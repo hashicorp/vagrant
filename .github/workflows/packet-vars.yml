@@ -32,6 +32,6 @@ jobs:
           caCertificates: ${{ steps.vault-auth.outputs.ca_certificate }}
           token: ${{ steps.vault-auth.outputs.token }}
           secrets:
-            kv/data/github/${{ github.repository }} packet_token | PACKET_TOKEN;
-            kv/data/github/${{ github.repository }} packet_project_id | PACKET_PROJECT_ID;
-            kv/data/github/${{ github.repository }} packet_ssh_key_content | PACKET_SSH_KEY_CONTENT;
+            kv/data/teams/vagrant/packet token | PACKET_TOKEN;
+            kv/data/teams/vagrant/packet project_id | PACKET_PROJECT_ID;
+            kv/data/teams/vagrant/packet ssh_key_content | PACKET_SSH_KEY_CONTENT;
