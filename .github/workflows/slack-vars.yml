@@ -20,7 +20,7 @@ jobs:
         run: vault-auth
       - name: Fetch vars
         id: vars
-        uses: hashicorp/vault-action@2.2.0
+        uses: hashicorp/vault-action@v2
         with:
           url: ${{ steps.vault-auth.outputs.addr }}
           caCertificates: ${{ steps.vault-auth.outputs.ca_certificate }}
