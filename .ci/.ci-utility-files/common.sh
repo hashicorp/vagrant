@@ -473,9 +473,9 @@ function draft_release() {
     fi
 
     if ! wrap_raw ghr -u "${repo_owner}" -r "${repo_name}" -c "${full_sha}" -n "${ptag}" \
-             -delete -draft "${ptag}" "${assets}"; then
+             -replace -delete -draft "${ptag}" "${assets}"; then
         wrap ghr -u "${repo_owner}" -r "${repo_name}" -c "${full_sha}" -n "${ptag}" \
-             -prerelease "${ptag}" "${assets}" \
+             -replace -draft "${ptag}" "${assets}" \
              "Failed to create draft for version ${1}"
     fi
     echo -n "${ptag}"
