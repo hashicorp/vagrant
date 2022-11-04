@@ -6,6 +6,9 @@ on:
       - 'CHANGELOG.md'
       - 'website/**'
 
+permissions:
+  contents: write
+
 jobs:
   build-gem:
     if: github.repository == 'hashicorp/vagrant'
@@ -26,7 +29,5 @@ jobs:
         run: ./.ci/build.sh
         working-directory: ${{github.workspace}}
         env:
-          HASHIBOT_EMAIL: ${{ secrets.HASHIBOT_EMAIL }}
-          HASHIBOT_TOKEN: ${{ secrets.HASHIBOT_TOKEN }}
-          HASHIBOT_USERNAME: ${{ secrets.HASHIBOT_USERNAME }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
