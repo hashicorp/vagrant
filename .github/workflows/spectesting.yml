@@ -7,23 +7,20 @@ on:
     # Run nightly on weekdays at 05:00 UTC or midnight-ish in US time zones
     - cron: '0 5 * * 1-5'
 
-env:
-  runs-on: ['self-hosted', 'ondemand', 't3.nano']
-
 jobs:
   slack-vars:
     if: github.repository == 'hashicorp/vagrant-builders'
     name: Populate vars
-    runs-on: env.runs-on
+    runs-on: ['self-hosted', 'ondemand', 'linux', 'type=t3.nano']
     uses: ./.github/workflows/slack-vars.yml
   packet-vars:
     if: github.repository == 'hashicorp/vagrant-builders'
     name: Populate vars
-    runs-on: env.runs-on
+    runs-on: ['self-hosted', 'ondemand', 'linux', 'type=t3.nano']
     uses: ./.github/workflows/packet-vars.yml
   setup-packet:
     if: github.repository == 'hashicorp/vagrant-acceptance'
-    runs-on: env.runs-on
+    runs-on: ['self-hosted', 'ondemand', 'linux', 'type=t3.nano']
     name: Build Packet Instance
     steps:
       - name: Code Checkout
@@ -39,7 +36,7 @@ jobs:
           SLACK_WEBHOOK: ${{ needs.slack-vars.outputs.SLACK_WEBHOOK }}
   setup-hosts:
     if: github.repository == 'hashicorp/vagrant-acceptance'
-    runs-on: env.runs-on
+    runs-on: ['self-hosted', 'ondemand', 'linux', 'type=t3.nano']
     name: Vagrant-Spec Start Hosts
     needs: setup-packet
     strategy:
@@ -68,7 +65,7 @@ jobs:
 
   spec-tests:
     if: github.repository == 'hashicorp/vagrant-acceptance'
-    runs-on: env.runs-on
+    runs-on: ['self-hosted', 'ondemand', 'linux', 'type=t3.nano']
     name: Vagrant-Spec Tests
     needs: setup-hosts
     strategy:
