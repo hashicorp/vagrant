@@ -32,6 +32,6 @@ jobs:
           caCertificate: ${{ steps.vault-auth.outputs.ca_certificate }}
           token: ${{ steps.vault-auth.outputs.token }}
           secrets:
-            kv/data/team/vagrant/hashibot email | HASHIBOT_EMAIL;
-            kv/data/team/vagrant/hashibot token | HASHIBOT_TOKEN;
-            kv/data/team/vagrant/hashibot username | HASHIBOT_USERNAME;
+            kv/data/teams/vagrant/hashibot email | HASHIBOT_EMAIL;
+            kv/data/teams/vagrant/hashibot token | HASHIBOT_TOKEN;
+            kv/data/teams/vagrant/hashibot username | HASHIBOT_USERNAME;
