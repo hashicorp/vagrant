@@ -23,7 +23,7 @@ jobs:
         uses: hashicorp/vault-action@v2
         with:
           url: ${{ steps.vault-auth.outputs.addr }}
-          caCertificates: ${{ steps.vault-auth.outputs.ca_certificate }}
+          caCertificate: ${{ steps.vault-auth.outputs.ca_certificate }}
           token: ${{ steps.vault-auth.outputs.token }}
           secrets:
             kv/data/teams/vagrant/slack webhook | SLACK_WEBHOOK;
