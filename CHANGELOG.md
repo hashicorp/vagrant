@@ -6,6 +6,8 @@ IMPROVEMENTS:
 
 BUG FIXES:
 
+- provider/virtualbox: Fix `:private_network` support for VirtualBox 7 on macOS [GH-12983]
+
 VAGRANT-GO:
 
 ## 2.3.2 (October 18, 2022)
