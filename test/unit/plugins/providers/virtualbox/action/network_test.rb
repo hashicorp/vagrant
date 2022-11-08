@@ -231,10 +231,10 @@ describe VagrantPlugins::ProviderVirtualBox::Action::Network do
 
     subject.call(env)
 
-    expect(driver).to have_received(:create_host_only_network).with({
+    expect(driver).to have_received(:create_host_only_network).with(hash_including({
       adapter_ip: interface_ip,
       netmask: 64,
-    })
+    }))
 
     expect(guest).to have_received(:capability).with(:configure_networks, [{
       type: :static6,
@@ -308,10 +308,10 @@ describe VagrantPlugins::ProviderVirtualBox::Action::Network do
 
       subject.call(env)
 
-      expect(driver).to have_received(:create_host_only_network).with({
+      expect(driver).to have_received(:create_host_only_network).with(hash_including({
         adapter_ip: '192.168.56.1',
         netmask: '255.255.255.0',
-      })
+      }))
 
       expect(driver).to have_received(:create_dhcp_server).with('vboxnet0', {
         adapter_ip: "192.168.56.1",
