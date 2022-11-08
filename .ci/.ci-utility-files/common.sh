@@ -1470,7 +1470,7 @@ function github_draft_release_assets() {
 
     readarray -t assets <  <(printf "%s" "${asset_list}")
     # shellcheck disable=SC2066
-    for asset in "${assets[@}]}"; do
+    for asset in "${assets[@]}"; do
         artifact="${asset##*/}"
         wrap curl -SsL --fail -o "${artifact}" \
             -H "Accept: application/octet-stream" "${asset}" \
