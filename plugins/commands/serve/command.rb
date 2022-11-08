@@ -21,7 +21,7 @@ module VagrantPlugins
     # Simple constant aliases to reduce namespace typing
     SDK = Hashicorp::Vagrant::Sdk
     SRV = Hashicorp::Vagrant
-    Empty = Google::Protobuf::Empty
+    Empty = ::Google::Protobuf::Empty
 
     autoload :Broker, Vagrant.source_root.join("plugins/commands/serve/broker").to_s
     autoload :Client, Vagrant.source_root.join("plugins/commands/serve/client").to_s
