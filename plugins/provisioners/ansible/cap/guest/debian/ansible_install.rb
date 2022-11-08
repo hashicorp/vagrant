@@ -37,7 +37,7 @@ INLINE_CRIPT
 
             def self.pip_setup(machine, pip_install_cmd = "")
               machine.communicate.sudo "apt-get update -y -qq"
-              machine.communicate.sudo "DEBIAN_FRONTEND=noninteractive apt-get install -y -qq --option \"Dpkg::Options::=--force-confold\" build-essential curl git libssl-dev libffi-dev python-dev"
+              machine.communicate.sudo "DEBIAN_FRONTEND=noninteractive apt-get install -y -qq --option \"Dpkg::Options::=--force-confold\" build-essential curl git libssl-dev libffi-dev python-dev-is-python3"
               Pip::get_pip machine, pip_install_cmd
             end
 
