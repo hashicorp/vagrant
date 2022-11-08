@@ -8,6 +8,7 @@ IMPROVEMENTS:
 
 BUG FIXES:
 
+- commands/serve: Force root level namespace for Google constant [GH-12989]
 - provider/virtualbox: Fix `:private_network` support for VirtualBox 7 on macOS [GH-12983]
 
 VAGRANT-GO:
