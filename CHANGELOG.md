@@ -4,6 +4,8 @@ FEATURES:
 
 IMPROVEMENTS:
 
+- core: Bump net-ssh dependency to 7.0 and remove patches [GH-12979]
+
 BUG FIXES:
 
 - provider/virtualbox: Fix `:private_network` support for VirtualBox 7 on macOS [GH-12983]
