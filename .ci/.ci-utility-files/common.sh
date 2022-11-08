@@ -15,9 +15,17 @@ export asset_cache="${ASSETS_PRIVATE_SHORTTERM}/${repository}/${GITHUB_ACTION}"
 export run_number="${GITHUB_RUN_NUMBER}"
 export run_id="${GITHUB_RUN_ID}"
 export job_id="${run_id}-${run_number}"
-# shellcheck disable=SC2155
-export ci_bin_dir="${ci_bin_dir:-./.ci-bin}"
 readonly hc_releases_metadata_filename="release-meta.json"
+
+if [ -z "${ci_bin_dir}" ]; then
+    if ci_bin_dir="$(realpath ./.ci-bin)"; then
+        export ci_bin_dir
+    else
+        echo "ERROR: Failed to create the local CI bin directory"
+        exit 1
+    fi
+fi
+
 
 # We are always noninteractive
 export DEBIAN_FRONTEND=noninteractive
@@ -1044,7 +1052,7 @@ function load-signing() {
 
         # Content will be encoded so first we decode
         local content
-        content="$(printf "%s" "${!content_variable}" | base64 --decode -)" ||
+        content="$(base64 --decode - <<< "${!content_variable}")" ||
             fail "Failed to decode secret file content"
         # Now we save it into the expected file
         printf "%s" "${content}" > "${local_path}"
@@ -1194,6 +1202,7 @@ function slack() {
 
     attach=$(jq -n \
         --arg msg "$(printf "%b" "${message}")" \
+        --arg title "${title}" \
         --arg state "${state}" \
         --arg time "${ts}" \
         --arg footer "${footer}" \
@@ -1237,9 +1246,9 @@ function slack() {
 #  linux_amd64.zip
 #
 # $1: Name of repository
-function install_internal_tool() {
+function install_hashicorp_tool() {
     local tool_name="${1}"
-    local asset release tmp
+    local asset release_content tmp
 
     tmp="$(mktemp -d --tmpdir vagrantci-XXXXXX)" ||
         fail "Failed to create temporary working directory"
@@ -1249,12 +1258,12 @@ function install_internal_tool() {
         fail "HASHIBOT_TOKEN is required for internal tool install"
     fi
 
-    release=$(curl -SsL --fail -H "Authorization: token ${HASHIBOT_TOKEN}" \
+    release_content=$(curl -SsL --fail -H "Authorization: token ${HASHIBOT_TOKEN}" \
         -H "Content-Type: application/json" \
         "https://api.github.com/repos/hashicorp/${tool_name}/releases/latest") ||
         fail "Failed to request latest releases for hashicorp/${tool_name}"
 
-    asset=$(printf "%s" "${release}" | jq -r \
+    asset=$(printf "%s" "${release_content}" | jq -r \
         '.assets[] | select(.name | contains("linux_amd64.zip")) | .url') ||
         fail "Failed to detect latest release for hashicorp/${tool_name}"
 
@@ -1369,9 +1378,11 @@ function packet-setup() {
         fail "Cannot setup packet, missing ssh key"
     fi
 
+    install_hashicorp_tool "packet-exec"
+
     # Write the ssh key to disk
     local content
-    content="$(printf "%s" "${PACKET_SSH_KEY_CONTENT}" | base64 --decode -)" ||
+    content="$(base64 --decode - <<< "${PACKET_SSH_KEY_CONTENT}")" ||
         fail "Cannot setup packet, failed to decode key"
     touch ./packet-key
     chmod 0600 ./packet-key
