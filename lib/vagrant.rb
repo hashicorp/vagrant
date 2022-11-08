@@ -15,9 +15,6 @@ class Log4r::BasicFormatter
   end
 end
 
-# Add our patches to net-ssh
-require "vagrant/patches/net-ssh"
-
 require "optparse"
 
 module Vagrant
