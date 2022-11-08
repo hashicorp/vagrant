@@ -4,7 +4,7 @@ module VagrantPlugins
   module HostGentoo
     class Host < Vagrant.plugin("2", :host)
       def detect?(env)
-        File.exists?("/etc/gentoo-release")
+        File.exist?("/etc/gentoo-release")
       end
     end
   end
