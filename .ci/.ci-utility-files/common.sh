@@ -1445,18 +1445,24 @@ function github_release_assets() {
 # $3: release name
 # $4: artifact pattern (optional, all artifacts downloaded if omitted)
 function github_draft_release_assets() {
+    if [ -z "${HASHIBOT_TOKEN}" ]; then
+        fail "Fetching draft release assets requires hashibot configuration"
+    fi
+
     local release_list release_repo release_name asset_pattern release_content
     release_repo="${1}/${2}"
     release_name="${3}"
     asset_pattern="${4}"
 
     release_list=$(curl -SsL --fail \
+        -H "Authorization: token ${HASHIBOT_TOKEN}" \
         -H "Content-Type: application/json" \
         "https://api.github.com/repos/${release_repo}/releases?per_page=100") ||
         fail "Failed to request releases list for ${release_repo}"
 
-    local asset_list query artifact asset
+    local asset_list name_list query artifact asset assets asset_names idx
     query="$(printf '.[] | select(.name == "%s")' "${release_name}")"
+
     release_content=$(printf "%s" "${release_list}" | jq -r "${query}") ||
         fail "Failed to find release (${release_name}) in releases list for ${release_repo}"
 
@@ -1464,17 +1470,27 @@ function github_draft_release_assets() {
     if [ -n "${asset_pattern}" ]; then
         query+="$(printf ' | select(.name | contains("%s"))' "${asset_pattern}")"
     fi
-    query+=" | .url"
-    asset_list=$(printf "%s" "${release_content}" | jq -r "${query}") ||
+
+    asset_list=$(printf "%s" "${release_content}" | jq -r "${query} | .url") ||
+        fail "Failed to detect asset in release (${release_name}) for ${release_repo}"
+
+    name_list=$(printf "%s" "${release_content}" | jq -r "${query} | .name") ||
         fail "Failed to detect asset in release (${release_name}) for ${release_repo}"
 
     readarray -t assets <  <(printf "%s" "${asset_list}")
-    # shellcheck disable=SC2066
-    for asset in "${assets[@]}"; do
-        artifact="${asset##*/}"
+    readarray -t asset_names < <(printf "%s" "${name_list}")
+
+    if [ "${#assets[@]}" -ne "${#asset_names[@]}" ]; then
+        fail "Failed to match download assets with names in release list for ${release_repo}"
+    fi
+
+    for ((idx=0; idx<"${#assets[@]}"; idx++ )); do
+        asset="${assets[$idx]}"
+        artifact="${asset_names[$idx]}"
         wrap curl -SsL --fail -o "${artifact}" \
+            -H "Authorization: token ${HASHIBOT_TOKEN}" \
             -H "Accept: application/octet-stream" "${asset}" \
-            "Failed to download asset in release (${release_name}) for ${release_repo}"
+            "Failed to download asset in release (${release_name}) for ${release_repo} - ${artifact}"
     done
 }
 
