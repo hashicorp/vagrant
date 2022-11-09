@@ -108,7 +108,7 @@ module VagrantPlugins
           ssh_config_file,
           control_options,
         ]
-        rsh += ssh_info[:extra_args]
+        rsh += ssh_info[:extra_args] if ssh_info[:extra_args]
 
         # Solaris/OpenSolaris/Illumos uses SunSSH which doesn't support the
         # IdentitiesOnly option. Also, we don't enable it if keys_only is false
