@@ -186,4 +186,91 @@ OUTPUT
       expect(storage_controllers.first.attachments).to eq(attachments_result)
     end
   end
+
+  describe "#read_machine_folder" do
+    let(:system_properties) { VBOX_SYSTEM_PROPERTIES }
+    let(:machine_folder) { "/home/username/VirtualBox VMs"}
+
+    before do
+      allow(subject).to receive(:execute).
+                          with("list", "systemproperties", any_args).
+                          and_return(system_properties)
+    end
+
+    it "should read the default folder" do
+      expect(subject.read_machine_folder).to eq(machine_folder)
+    end
+
+    context "when default folder value is missing" do
+      let(:system_properties) { VBOX_SYSTEM_PROPERTIES.sub(/^Default machine folder:.+$/, "")}
+
+      it "should raise a custom error" do
+        expect {
+          subject.read_machine_folder
+        }.to raise_error(Vagrant::Errors::VirtualBoxMachineFolderNotFound)
+      end
+    end
+  end
 end
+
+VBOX_SYSTEM_PROPERTIES=%(
+API version:                     7_0
+Minimum guest RAM size:          4 Megabytes
+Maximum guest RAM size:          2097152 Megabytes
+Minimum video RAM size:          0 Megabytes
+Maximum video RAM size:          256 Megabytes
+Maximum guest monitor count:     64
+Minimum guest CPU count:         1
+Maximum guest CPU count:         64
+Virtual disk limit (info):       2199022206976 Bytes
+Maximum Serial Port count:       4
+Maximum Parallel Port count:     2
+Maximum Boot Position:           4
+Maximum PIIX3 Network Adapter count:   8
+Maximum ICH9 Network Adapter count:   36
+Maximum PIIX3 IDE Controllers:   1
+Maximum ICH9 IDE Controllers:    1
+Maximum IDE Port count:          2
+Maximum Devices per IDE Port:    2
+Maximum PIIX3 SATA Controllers:  1
+Maximum ICH9 SATA Controllers:   8
+Maximum SATA Port count:         30
+Maximum Devices per SATA Port:   1
+Maximum PIIX3 SCSI Controllers:  1
+Maximum ICH9 SCSI Controllers:   8
+Maximum SCSI Port count:         16
+Maximum Devices per SCSI Port:   1
+Maximum SAS PIIX3 Controllers:   1
+Maximum SAS ICH9 Controllers:    8
+Maximum SAS Port count:          255
+Maximum Devices per SAS Port:    1
+Maximum NVMe PIIX3 Controllers:  1
+Maximum NVMe ICH9 Controllers:   8
+Maximum NVMe Port count:         255
+Maximum Devices per NVMe Port:   1
+Maximum virtio-scsi PIIX3 Controllers:  1
+Maximum virtio-scsi ICH9 Controllers:   8
+Maximum virtio-scsi Port count:         256
+Maximum Devices per virtio-scsi Port:   1
+Maximum PIIX3 Floppy Controllers:1
+Maximum ICH9 Floppy Controllers: 1
+Maximum Floppy Port count:       1
+Maximum Devices per Floppy Port: 2
+Default machine folder:          /home/username/VirtualBox VMs
+Raw-mode Supported:              no
+Exclusive HW virtualization use: on
+Default hard disk format:        VDI
+VRDE auth library:               VBoxAuth
+Webservice auth. library:        VBoxAuth
+Remote desktop ExtPack:
+VM encryption ExtPack:
+Log history count:               3
+Default frontend:
+Default audio driver:            ALSA
+Autostart database path:
+Default Guest Additions ISO:     /usr/share/virtualbox/VBoxGuestAdditions.iso
+Logging Level:                   all
+Proxy Mode:                      System
+Proxy URL:
+User language:                   en_US
+)
