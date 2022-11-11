@@ -30,21 +30,22 @@ shared_examples_for "Ansible setup via pip on Debian-based systems" do
     pip_install_cmd = "foo"
 
     it "calls Cap::Guest::Pip::get_pip with 'pip' install_mode" do
-      expect(communicator).to receive(:sudo).once.ordered.
+      expect(communicator).to receive(:sudo).
         with("apt-get update -y -qq")
-      expect(communicator).to receive(:sudo).once.ordered.
-        with("DEBIAN_FRONTEND=noninteractive apt-get install -y -qq --option \"Dpkg::Options::=--force-confold\" build-essential curl git libssl-dev libffi-dev python-dev-is-python3
+      expect(communicator).to receive(:sudo).
+        with("DEBIAN_FRONTEND=noninteractive apt-get install -y -qq --option \"Dpkg::Options::=--force-confold\" build-essential curl git libssl-dev libffi-dev python-dev-is-python3")
+      expect(communicator).to receive(:sudo).
         with("pip install --upgrade ansible")
 
       subject.ansible_install(machine, :pip, "", "", pip_install_cmd)
     end
 
     it "calls Cap::Guest::Pip::get_pip with 'pip_args_only' install_mode" do
-      expect(communicator).to receive(:sudo).once.ordered.
+      expect(communicator).to receive(:sudo).
         with("apt-get update -y -qq")
-      expect(communicator).to receive(:sudo).once.ordered.
+      expect(communicator).to receive(:sudo).
         with("DEBIAN_FRONTEND=noninteractive apt-get install -y -qq --option \"Dpkg::Options::=--force-confold\" build-essential curl git libssl-dev libffi-dev python-dev-is-python3")
-      expect(communicator).to receive(:sudo).once.ordered.
+      expect(communicator).to receive(:sudo).
         with("pip install")
 
       subject.ansible_install(machine, :pip_args_only, "", "", pip_install_cmd)
