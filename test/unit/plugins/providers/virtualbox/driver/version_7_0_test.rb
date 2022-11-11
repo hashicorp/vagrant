@@ -563,6 +563,12 @@ memory=1024)
         expect(result.first[:netmask]).to eq(result.first[:networkmask])
         expect(result.first[:status]).to eq("Up")
       end
+
+      it "should assign the address as the first in the subnet" do
+        result = subject.read_host_only_interfaces
+        ip = IPAddr.new(result.first[:lowerip]).mask(result.first[:networkmask])
+        expect(result.first[:ip]).to eq(ip.succ.to_s)
+      end
     end
   end
 
@@ -584,6 +590,71 @@ memory=1024)
       expect(result.last[:name]).to eq("vagrantnet-vbox2")
       expect(result.last[:lowerip]).to eq("192.168.22.0")
       expect(result.last[:networkmask]).to eq("255.255.255.0")
+    end
+  end
+
+  describe "#read_network_interfaces" do
+    before do
+      allow(subject)
+        .to receive(:execute).
+              with("showvminfo", any_args).
+              and_return(VBOX_GUEST_HOSTONLYVNETS_INFO)
+    end
+
+    context "when hostonlynets is disabled" do
+      before do
+        allow(subject).to receive(:use_host_only_nets?).and_return(false)
+      end
+
+      it "should return two interfaces" do
+        valid_interfaces = subject.read_network_interfaces.find_all { |k, v|
+          v[:type] != :none
+        }
+        expect(valid_interfaces.size).to eq(2)
+      end
+
+      it "should include a nat type" do
+        expect(subject.read_network_interfaces.detect { |_, v| v[:type] == :nat }).to be
+      end
+
+      it "should include a hostonlynetwork type with no information" do
+        expect(subject.read_network_interfaces[2]).to eq({type: :hostonlynetwork})
+      end
+    end
+
+    context "when hostonlynets is enabled" do
+      before do
+        allow(subject).to receive(:use_host_only_nets?).and_return(true)
+      end
+
+      it "should return two interfaces" do
+        valid_interfaces = subject.read_network_interfaces.find_all { |k, v|
+          v[:type] != :none
+        }
+        expect(valid_interfaces.size).to eq(2)
+      end
+
+      it "should include a nat type" do
+        expect(subject.read_network_interfaces.detect { |_, v| v[:type] == :nat }).to be
+      end
+
+      it "should include a hostonly type" do
+        expect(subject.read_network_interfaces.detect { |_, v| v[:type] == :hostonly }).to be
+      end
+
+      it "should not include a hostonlynetwork type" do
+        expect(subject.read_network_interfaces.detect { |_, v|
+                 v[:type] == :hostonlynetwork
+               }).to_not be
+      end
+
+      it "should include the hostonly network name" do
+        hostonly = subject.read_network_interfaces.values.detect { |v|
+          v[:type] == :hostonly
+        }
+        expect(hostonly).to be
+        expect(hostonly[:hostonly]).to eq("vagrantnet-vbox1")
+      end
     end
   end
 end
@@ -695,3 +766,30 @@ NetworkMask:     255.255.255.0
 LowerIP:         192.168.22.0
 UpperIP:         192.168.22.0
 VBoxNetworkName: hostonly-vagrantnet-vbox2)
+
+VBOX_GUEST_HOSTONLYVNETS_INFO=%(
+natnet1="nat"
+macaddress1="080027BB1475"
+cableconnected1="on"
+nic1="nat"
+nictype1="82540EM"
+nicspeed1="0"
+mtu="0"
+sockSnd="64"
+sockRcv="64"
+tcpWndSnd="64"
+tcpWndRcv="64"
+Forwarding(0)="ssh,tcp,127.0.0.1,2222,,22"
+hostonly-network2="vagrantnet-vbox1"
+macaddress2="080027FBC15B"
+cableconnected2="on"
+nic2="hostonlynetwork"
+nictype2="82540EM"
+nicspeed2="0"
+nic3="none"
+nic4="none"
+nic5="none"
+nic6="none"
+nic7="none"
+nic8="none"
+)
