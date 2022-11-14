@@ -157,17 +157,40 @@ module VagrantPlugins
             addr = IPAddr.new(net[:lowerip])
             net[:netmask] = net[:networkmask]
             if addr.ipv4?
-              net[:ip] = addr.mask(net[:netmask]).to_s
+              net[:ip] = addr.mask(net[:netmask]).succ.to_s
               net[:ipv6] = ""
             else
               net[:ip] = ""
-              net[:ipv6] = addr.mask(net[:netmwask]).to_s
+              net[:ipv6] = addr.mask(net[:netmwask]).succ.to_s
               net[:ipv6_prefix] = net[:netmask]
             end
 
             net[:status] = net[:state] == "Enabled" ? "Up" : "Down"
 
             net
+          end
+        end
+
+        def read_network_interfaces
+          return super if !use_host_only_nets?
+
+          {}.tap do |nics|
+            execute("showvminfo", @uuid, "--machinereadable", retryable: true).each_line do |line|
+              if m = line.match(/nic(?<adapter>\d+)="(?<type>.+?)"$/)
+                nics[m[:adapter].to_i] ||= {}
+                if m[:type] == "hostonlynetwork"
+                  nics[m[:adapter].to_i][:type] = :hostonly
+                else
+                  nics[m[:adapter].to_i][:type] = m[:type].to_sym
+                end
+              elsif m = line.match(/^bridgeadapter(?<adapter>\d+)="(?<network>.+?)"$/)
+                nics[m[:adapter].to_i] ||= {}
+                nics[m[:adapter].to_i][:bridge] = m[:network]
+              elsif m = line.match(/^hostonly-network(?<adapter>\d+)="(?<network>.+?)"$/)
+                nics[m[:adapter].to_i] ||= {}
+                nics[m[:adapter].to_i][:hostonly] = m[:network]
+              end
+            end
           end
         end
 
