@@ -1794,6 +1794,10 @@ en:
         VirtualBox is complaining that the installation is incomplete. Please
         run `VBoxManage --version` to see the error message which should contain
         instructions on how to fix this error.
+      virtualbox_machine_folder_not_found: |-
+        Vagrant failed to determine the machine folder on this host from
+        the VirtualBox system information. Try running the command again.
+        If this error persists, please report this error as a bug.
       virtualbox_mount_failed: |-
         Vagrant was unable to mount VirtualBox shared folders. This is usually
         because the filesystem "vboxsf" is not available. This filesystem is

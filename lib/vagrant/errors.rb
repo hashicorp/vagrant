@@ -1020,6 +1020,10 @@ module Vagrant
       error_key(:virtualbox_install_incomplete)
     end
 
+    class VirtualBoxMachineFolderNotFound < VagrantError
+      error_key(:virtualbox_machine_folder_not_found)
+    end
+
     class VirtualBoxNoName < VagrantError
       error_key(:virtualbox_no_name)
     end

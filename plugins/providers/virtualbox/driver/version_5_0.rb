@@ -662,13 +662,17 @@ module VagrantPlugins
         end
 
         def read_machine_folder
-          execute("list", "systemproperties", retryable: true).split("\n").each do |line|
-            if line =~ /^Default machine folder:\s+(.+?)$/i
-              return $1.to_s
-            end
+          info = execute("list", "systemproperties", retryable: true)
+          info.each_line do |line|
+            match = line.match(/Default machine folder:\s+(?<folder>.+?)$/i)
+            next if match.nil?
+            return match[:folder]
           end
 
-          nil
+          @logger.warn("failed to determine machine folder from system properties")
+          @logger.debug("processed output for machine folder lookup:\n#{info}")
+
+          raise Vagrant::Errors::VirtualBoxMachineFolderNotFound
         end
 
         def read_network_interfaces
