@@ -1050,12 +1050,19 @@ function load-signing() {
         local var_name="PKT_SECRET_FILE_${key}"
         local content_variable="${key}_CONTENT"
 
+        if [ -z "${!content_variable}" ]; then
+            fail "Missing content in environment variable: ${content_variable}"
+        fi
+
         # Content will be encoded so first we decode
         local content
-        content="$(base64 --decode - <<< "${!content_variable}")" ||
-            fail "Failed to decode secret file content"
-        # Now we save it into the expected file
-        printf "%s" "${content}" > "${local_path}"
+
+        printf "%s" "${!content_variable}" > ./.load-signing-temp-file
+        wrap gpg --dearmor ./.load-signing-temp-file \
+            "Failed to decode secret file content"
+        wrap mv ./.load-signing-temp-file.gpg "${local_path}" \
+            "Failed to move signing content to destination"
+        rm -f ./.load-signing-temp-file*
 
         result+="export ${var_name}=\"${local_path}\"\n"
     done
@@ -1445,8 +1452,14 @@ function github_release_assets() {
 # $3: release name
 # $4: artifact pattern (optional, all artifacts downloaded if omitted)
 function github_draft_release_assets() {
-    if [ -z "${HASHIBOT_TOKEN}" ]; then
-        fail "Fetching draft release assets requires hashibot configuration"
+    local gtoken
+
+    if [ -n "${HASHIBOT_TOKEN}" ]; then
+        gtoken="${HASHIBOT_TOKEN}"
+    elif [ -n "${GITHUB_TOKEN}" ]; then
+        gtoken="${GITHUB_TOKEN}"
+    else
+        fail "Fetching draft release assets requires hashibot or github token with write permission"
     fi
 
     local release_list release_repo release_name asset_pattern release_content
@@ -1455,7 +1468,7 @@ function github_draft_release_assets() {
     asset_pattern="${4}"
 
     release_list=$(curl -SsL --fail \
-        -H "Authorization: token ${HASHIBOT_TOKEN}" \
+        -H "Authorization: token ${gtoken}" \
         -H "Content-Type: application/json" \
         "https://api.github.com/repos/${release_repo}/releases?per_page=100") ||
         fail "Failed to request releases list for ${release_repo}"
@@ -1488,9 +1501,64 @@ function github_draft_release_assets() {
         asset="${assets[$idx]}"
         artifact="${asset_names[$idx]}"
         wrap curl -SsL --fail -o "${artifact}" \
-            -H "Authorization: token ${HASHIBOT_TOKEN}" \
+            -H "Authorization: token ${gtoken}" \
             -H "Accept: application/octet-stream" "${asset}" \
             "Failed to download asset in release (${release_name}) for ${release_repo} - ${artifact}"
+    done
+}
+
+# This function is identical to the github_draft_release_assets
+# function above with one caveat: it does not download the files.
+# Each file that would be downloaded is simply touched in the
+# current directory. This provides an easy way to check the
+# files that would be downloaded without actually downloading
+# them.
+#
+# An example usage of this can be seen in the vagrant package
+# building where we use this to enable building missing substrates
+# or packages on re-runs and only download the artifacts if
+# actually needed.
+function github_draft_release_asset_names() {
+    local gtoken
+
+    if [ -n "${HASHIBOT_TOKEN}" ]; then
+        gtoken="${HASHIBOT_TOKEN}"
+    elif [ -n "${GITHUB_TOKEN}" ]; then
+        gtoken="${GITHUB_TOKEN}"
+    else
+        fail "Fetching draft release assets requires hashibot or github token with write permission"
+    fi
+
+    local release_list release_repo release_name asset_pattern release_content
+    release_repo="${1}/${2}"
+    release_name="${3}"
+    asset_pattern="${4}"
+
+    release_list=$(curl -SsL --fail \
+        -H "Authorization: token ${gtoken}" \
+        -H "Content-Type: application/json" \
+        "https://api.github.com/repos/${release_repo}/releases?per_page=100") ||
+        fail "Failed to request releases list for ${release_repo}"
+
+    local name_list query artifact asset_names idx
+    query="$(printf '.[] | select(.name == "%s")' "${release_name}")"
+
+    release_content=$(printf "%s" "${release_list}" | jq -r "${query}") ||
+        fail "Failed to find release (${release_name}) in releases list for ${release_repo}"
+
+    query=".assets[]"
+    if [ -n "${asset_pattern}" ]; then
+        query+="$(printf ' | select(.name | contains("%s"))' "${asset_pattern}")"
+    fi
+
+    name_list=$(printf "%s" "${release_content}" | jq -r "${query} | .name") ||
+        fail "Failed to detect asset in release (${release_name}) for ${release_repo}"
+
+    readarray -t asset_names < <(printf "%s" "${name_list}")
+
+    for ((idx=0; idx<"${#asset_names[@]}"; idx++ )); do
+        artifact="${asset_names[$idx]}"
+        touch "${artifact}"
     done
 }
 
@@ -1518,12 +1586,15 @@ function github_repository_dispatch() {
     for arg in "${@:4}"; do
         payload_key="${arg%%=*}"
         payload_value="${arg##*=}"
-        payload_template=", ${payload_key}: \$${payload_key}"
+        payload_template+=", ${payload_key}: \$${payload_key}"
         jqargs+=" --arg \$${payload_key} \"${payload_value}\""
     done
-    payload_template="}"
+    payload_template+="}"
 
-    payload=$(jq -n "${jqargs}" "${payload_template}" ) ||
+    # NOTE: we want the arguments to be expanded below
+    # shellcheck disable=SC2086
+    # shellcheck disable=SC2090
+    payload=$(jq -n ${jqargs} "${payload_template}" ) ||
         fail "Failed to generate repository dispatch payload"
 
     # shellcheck disable=SC2016
