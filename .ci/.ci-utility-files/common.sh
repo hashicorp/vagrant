@@ -1581,13 +1581,13 @@ function github_repository_dispatch() {
     event_type="${3}"
 
     # shellcheck disable=SC2016
-    payload_template='{vagrant-ci: $vagrant_ci'
+    payload_template='{"vagrant-ci": $vagrant_ci'
     jqargs="--arg vagrant_ci true"
     for arg in "${@:4}"; do
         payload_key="${arg%%=*}"
         payload_value="${arg##*=}"
         payload_template+=", ${payload_key}: \$${payload_key}"
-        jqargs+=" --arg \$${payload_key} \"${payload_value}\""
+        jqargs+=" --arg ${payload_key} \"${payload_value}\""
     done
     payload_template+="}"
 
