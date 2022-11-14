@@ -343,6 +343,19 @@ describe VagrantPlugins::SyncedFolderRSync::RsyncHelper do
       allow(guest).to receive(:capability?){ false }
     end
 
+    context "with extra args defined" do
+      before { ssh_info[:extra_args] = ["-o", "Compression=yes"] }
+
+      it "appends the extra arguments from ssh_info" do
+        expect(Vagrant::Util::Subprocess).to receive(:execute) { |*args|
+          cmd = args.detect { |a| a.is_a?(String) && a.start_with?("ssh") }
+          expect(cmd).to be
+          expect(cmd).to include("-o Compression=yes")
+        }.and_return(result)
+        subject.rsync_single(machine, ssh_info, opts)
+      end
+    end
+
     context "with an IPv6 address" do
       before { ssh_info[:host] = "fe00::0" }
 
