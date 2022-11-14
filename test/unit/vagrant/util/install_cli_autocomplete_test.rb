@@ -12,7 +12,7 @@ describe Vagrant::Util::InstallZSHShellConfig do
 
   describe "#shell_installed" do
     it "should return path to config file if exists" do
-      allow(File).to receive(:exists?).with(target_file).and_return(true)
+      allow(File).to receive(:exist?).with(target_file).and_return(true)
       expect(subject.shell_installed(home)).to eq(target_file) 
     end
 
@@ -36,7 +36,7 @@ describe Vagrant::Util::InstallZSHShellConfig do
 
   describe "#install" do
     it "installs autocomplete" do
-      allow(File).to receive(:exists?).with(target_file).and_return(true)
+      allow(File).to receive(:exist?).with(target_file).and_return(true)
       allow(File).to receive(:foreach).with(target_file).and_yield("nothing")
       expect(File).to receive(:open).with(target_file, "a")
       subject.install(home)
