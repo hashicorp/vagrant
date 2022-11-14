@@ -5,6 +5,7 @@ FEATURES:
 IMPROVEMENTS:
 
 - core: Bump net-ssh dependency to 7.0 and remove patches [GH-12979]
+- synced_folders/rsync: Include ssh `extra_args` value [GH-12973]
 
 BUG FIXES:
 
