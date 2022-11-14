@@ -12,6 +12,7 @@ BUG FIXES:
 - command/serve: Force root level namespace for Google constant [GH-12989]
 - guest/solaris: Fix insecure key authorized keys removal [GH-12740]
 - provider/virtualbox: Fix `:private_network` support for VirtualBox 7 on macOS [GH-12983]
+- provider/virtualbox: Prevent localization of command output [GH-12994]
 - provisioner/ansible: Update setup packages in debian capability [GH-12832]
 
 VAGRANT-GO:
