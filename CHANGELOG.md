@@ -1,6 +1,4 @@
-## UNRELEASED 
-
-FEATURES:
+## 2.3.3 (November 15, 2022) 
 
 IMPROVEMENTS:
 
@@ -14,8 +12,6 @@ BUG FIXES:
 - provider/virtualbox: Fix `:private_network` support for VirtualBox 7 on macOS [GH-12983]
 - provider/virtualbox: Prevent localization of command output [GH-12994]
 - provisioner/ansible: Update setup packages in debian capability [GH-12832]
-
-VAGRANT-GO:
 
 ## 2.3.2 (October 18, 2022)
 
