@@ -1409,12 +1409,25 @@ function packet-setup() {
 # $3: release tag name
 # $4: artifact pattern (optional, all artifacts downloaded if omitted)
 function github_release_assets() {
+    local gtoken auth_header
+
+    if [ -n "${HASHIBOT_TOKEN}" ]; then
+        gtoken="${HASHIBOT_TOKEN}"
+    elif [ -n "${GITHUB_TOKEN}" ]; then
+        gtoken="${GITHUB_TOKEN}"
+    fi
+
+    if [ -n "${gtoken}" ]; then
+        auth_header="$(printf '-H "Authorization: token %s"' "${gtoken}")"
+    fi
+
     local release_repo release_name asset_pattern release_content
     release_repo="${1}/${2}"
     release_name="${3}"
     asset_pattern="${4}"
 
-    release_content=$(curl -SsL --fail \
+    # shellcheck disable=SC2086
+    release_content=$(curl -SsL --fail ${auth_header} \
         -H "Content-Type: application/json" \
         "https://api.github.com/repos/${release_repo}/releases/tags/${release_name}") ||
         fail "Failed to request release (${release_name}) for ${release_repo}"
@@ -1432,7 +1445,9 @@ function github_release_assets() {
     # shellcheck disable=SC2066
     for asset in "${assets[@}]}"; do
         artifact="${asset##*/}"
-        wrap curl -SsL --fail -o "${artifact}" \
+
+        # shellcheck disable=SC2086
+        wrap curl -SsL --fail -o "${artifact}" ${auth_header} \
             -H "Accept: application/octet-stream" "${asset}" \
             "Failed to download asset in release (${release_name}) for ${release_repo}"
     done
@@ -1587,7 +1602,7 @@ function github_repository_dispatch() {
         payload_key="${arg%%=*}"
         payload_value="${arg##*=}"
         payload_template+=", ${payload_key}: \$${payload_key}"
-        jqargs+=" --arg ${payload_key} \"${payload_value}\""
+        jqargs+="$(printf ' --arg "%s" "%s"' "${payload_key}" "${payload_value}")"
     done
     payload_template+="}"
 
@@ -1683,5 +1698,6 @@ if [[ "${GITHUB_REF}" == *"refs/tags/"* ]]; then
         readonly release
     fi
 else
+    # shellcheck disable=SC2034
     readonly release
 fi
