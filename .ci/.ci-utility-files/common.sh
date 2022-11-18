@@ -26,7 +26,6 @@ if [ -z "${ci_bin_dir}" ]; then
     fi
 fi
 
-
 # We are always noninteractive
 export DEBIAN_FRONTEND=noninteractive
 
@@ -43,7 +42,12 @@ export DEBIAN_FRONTEND=noninteractive
 # through directly
 #
 # NOTE: Required environment variable: AWS_ASSUME_ROLE_ARN
-function aws() {
+# NOTE: This was a wrapper for the AWS command that would properly
+#       handle the assume role process and and automatically refresh
+#       if close to expiry. With credentials being handled by the doormat
+#       action now, this is no longer needed but remains in case it's
+#       needed for some reason in the future.
+function deprecated_aws() {
     # Grab the actual aws cli path
     if ! aws_path="$(which aws)"; then
         (>&2 echo "AWS error: failed to locate aws cli executable")
@@ -231,7 +235,7 @@ function pkt_wrap_stream_raw() {
 # if the pushd command fails. Arguments
 # are just passed through.
 function pushd() {
-    wrap command pushd "${@}" "Failed to push into directory"
+    wrap command builtin pushd "${@}" "Failed to push into directory"
 }
 
 # Wrap the popd command so we fail
@@ -239,7 +243,7 @@ function pushd() {
 # are just passed through.
 # shellcheck disable=SC2120
 function popd() {
-    wrap command popd "${@}" "Failed to pop from directory"
+    wrap command builtin popd "${@}" "Failed to pop from directory"
 }
 
 # Generates location within the asset storage
@@ -555,6 +559,10 @@ function hashicorp_release_validate() {
 #
 # $1: Asset directory
 function hashicorp_release_verify() {
+    if [ -z "${HASHICORP_PUBLIC_GPG_KEY_ID}" ]; then
+        fail "Cannot verify release without GPG key ID. Set HASHICORP_PUBLIC_GPG_KEY_ID."
+    fi
+
     local directory="${1}"
     local gpghome
 
@@ -602,8 +610,6 @@ function generate_release_metadata() {
     rm -f "${hc_releases_input_metadata}"
 }
 
-
-
 # Upload release metadata and assets to the staging api
 #
 # $1: Product Name (e.g. "vagrant")
@@ -614,7 +620,7 @@ function upload_to_staging() {
     local version="${2}"
     local directory="${3}"
 
-    if ! command -v "hc-releases-api"; then
+    if ! command -v "hc-releases"; then
         install_hashicorp_tool "releases-api"
     fi
 
@@ -624,20 +630,17 @@ function upload_to_staging() {
     pushd "${directory}"
 
     # Create -file parameter list for hc-releases upload
-    local fileParams=""
+    local fileParams=()
     for file in *; do
-        fileParams="-file=${file} ${fileParams}"
+        fileParams+=("-file=${file}")
     done
 
     echo -n "Uploading release assets... "
 
-    # shellcheck disable=SC2086
-    # NOTE: Do not quote ${fileParams}, it will expand to
-    #       multiple -file parameters
-    wrap_stream hc-releases-api upload \
+    wrap_stream hc-releases upload \
         -product "${product}" \
         -version "${version}" \
-        ${fileParams} \
+        "${fileParams[@]}" \
         "Failed to upload HashiCorp release assets"
 
     echo "complete!"
@@ -645,7 +648,7 @@ function upload_to_staging() {
 
     echo -n "Creating release metadata... "
 
-    wrap_stream hc-releases-api metadata create \
+    wrap_stream hc-releases metadata create \
         -product "${product}" \
         -input "${hc_releases_metadata_filename}" \
         "Failed to create metadata for HashiCorp release"
@@ -664,7 +667,7 @@ function promote_to_production() {
     local product="${1}"
     local version="${2}"
 
-    if ! command -v "hc-releases-api"; then
+    if ! command -v "hc-releases"; then
         install_hashicorp_tool "releases-api"
     fi
 
@@ -674,7 +677,7 @@ function promote_to_production() {
 
     echo -n "Promoting release to production... "
 
-    wrap_stream hc-releases-api promote \
+    wrap_stream hc-releases promote \
                 -product "${product}" \
                 -version "${version}" \
                 -source-env staging \
@@ -692,13 +695,7 @@ function promote_to_production() {
 # $1: Product name (e.g. "vagrant") defaults to $repo_name
 # $2: AWS Region of SNS (defaults to us-east-1)
 function sns_publish() {
-    local oid
-    local okey
-    local otok
-    local orol
-    local oexp
     local message
-
     local product="${1}"
     local region="${2}"
 
@@ -710,43 +707,11 @@ function sns_publish() {
         region="us-east-1"
     fi
 
-    if [ -n "${RELEASE_AWS_ASSUME_ROLE_ARN}" ]; then
-        oid="${AWS_ACCESS_KEY_ID}"
-        okey="${AWS_SECRET_ACCESS_KEY}"
-        otok="${AWS_SESSION_TOKEN}"
-        orol="${AWS_ASSUME_ROLE_ARN}"
-        oexp="${AWS_SESSION_EXPIRATION}"
-        unset AWS_SESSION_TOKEN
-        unset AWS_SESSION_EXPIRATION
-        # This is basically a no-op to force our AWS wrapper to
-        # run and do the whole session setup dance
-        export AWS_ASSUME_ROLE_ARN="${RELEASE_AWS_ASSUME_ROLE_ARN}"
-        export AWS_ACCESS_KEY_ID="${RELEASE_AWS_ACCESS_KEY_ID}"
-        export AWS_SECRET_ACCESS_KEY="${RELEASE_AWS_SECRET_ACCESS_KEY}"
-        wrap aws configure list \
-             "Failed to reconfigure AWS credentials for release"
-    else
-        oid="${AWS_ACCESS_KEY_ID}"
-        okey="${AWS_SECRET_ACCESS_KEY}"
-        export AWS_ACCESS_KEY_ID="${RELEASE_AWS_ACCESS_KEY_ID}"
-        export AWS_SECRET_ACCESS_KEY="${RELEASE_AWS_SECRET_ACCESS_KEY}"
-        export AWS_REGION="${region}"
-    fi
-
-    echo -n "Sending notification to update package repositories... "
+    echo "Sending notification to update package repositories... "
     message=$(jq --null-input --arg product "$product" '{"product": $product}')
     wrap_stream aws sns publish --region "${region}" --topic-arn "${HC_RELEASES_PROD_SNS_TOPIC}" --message "${message}" \
         "Failed to send SNS message for package repository update"
     echo "complete!"
-
-    export AWS_ACCESS_KEY_ID="${oid}"
-    export AWS_SECRET_ACCESS_KEY="${okey}"
-
-    if [ -z "${RELEASE_AWS_ASSUME_ROLE_ARN}" ]; then
-        export AWS_ASSUME_ROLE_ARN="${orol}"
-        export AWS_SESSION_TOKEN="${otok}"
-        export AWS_SESSION_EXPIRATION="${oexp}"
-    fi
 
     return 0
 }
@@ -843,60 +808,6 @@ function hashicorp_release() {
     # Send a notification to update the package repositories
     # with the new release.
     sns_publish "${product}"
-}
-
-# Generate a HashiCorp release
-#
-# $1: Asset directory
-# $2: Product name (e.g. "vagrant") defaults to $repo_name
-function hashicorp_legacy_release() {
-    directory="${1}"
-    product="${2}"
-
-    if [ -z "${product}" ]; then
-        product="${repo_name}"
-    fi
-
-    hashicorp_release_validate "${directory}"
-    hashicorp_release_verify "${directory}"
-
-    if [ -n "${RELEASE_AWS_ASSUME_ROLE_ARN}" ]; then
-        oid="${AWS_ACCESS_KEY_ID}"
-        okey="${AWS_SECRET_ACCESS_KEY}"
-        otok="${AWS_SESSION_TOKEN}"
-        orol="${AWS_ASSUME_ROLE_ARN}"
-        oexp="${AWS_SESSION_EXPIRATION}"
-        unset AWS_SESSION_TOKEN
-        unset AWS_SESSION_EXPIRATION
-        # This is basically a no-op to force our AWS wrapper to
-        # run and do the whole session setup dance
-        export AWS_ASSUME_ROLE_ARN="${RELEASE_AWS_ASSUME_ROLE_ARN}"
-        export AWS_ACCESS_KEY_ID="${RELEASE_AWS_ACCESS_KEY_ID}"
-        export AWS_SECRET_ACCESS_KEY="${RELEASE_AWS_SECRET_ACCESS_KEY}"
-        wrap aws configure list \
-             "Failed to reconfigure AWS credentials for release"
-    else
-        oid="${AWS_ACCESS_KEY_ID}"
-        okey="${AWS_SECRET_ACCESS_KEY}"
-        export AWS_ACCESS_KEY_ID="${RELEASE_AWS_ACCESS_KEY_ID}"
-        export AWS_SECRET_ACCESS_KEY="${RELEASE_AWS_SECRET_ACCESS_KEY}"
-    fi
-
-    wrap_stream hc-releases upload "${directory}" \
-                "Failed to upload HashiCorp release assets"
-    wrap_stream hc-releases publish -product="${product}" \
-                "Failed to publish HashiCorp release"
-
-    export AWS_ACCESS_KEY_ID="${oid}"
-    export AWS_SECRET_ACCESS_KEY="${okey}"
-
-    if [ -z "${RELEASE_AWS_ASSUME_ROLE_ARN}" ]; then
-        export AWS_ASSUME_ROLE_ARN="${orol}"
-        export AWS_SESSION_TOKEN="${otok}"
-        export AWS_SESSION_EXPIRATION="${oexp}"
-    fi
-
-    return 0
 }
 
 # Check if gem version is already published to RubyGems
@@ -1255,6 +1166,7 @@ function slack() {
 # $1: Name of repository
 function install_hashicorp_tool() {
     local tool_name="${1}"
+    local exten="zip"
     local asset release_content tmp
 
     tmp="$(mktemp -d --tmpdir vagrantci-XXXXXX)" ||
@@ -1274,14 +1186,27 @@ function install_hashicorp_tool() {
         '.assets[] | select(.name | contains("linux_amd64.zip")) | .url') ||
         fail "Failed to detect latest release for hashicorp/${tool_name}"
 
-    wrap curl -SsL --fail -o "${tool_name}.zip" -H "Authorization: token ${HASHIBOT_TOKEN}" \
+    if [ -z "${asset}" ]; then
+        asset=$(printf "%s" "${release_content}" | jq -r \
+            '.assets[] | select(.name | contains("linux_x86_64.tar.gz")) | .url') ||
+            fail "Failed to detect latest release for hashicorp/${tool_name}"
+        exten="tar.gz"
+    fi
+
+
+    wrap curl -SsL --fail -o "${tool_name}.${exten}" -H "Authorization: token ${HASHIBOT_TOKEN}" \
         -H "Accept: application/octet-stream" "${asset}" \
         "Failed to download latest release for hashicorp/${tool_name}"
 
-    wrap unzip "${tool_name}.zip" \
-        "Failed to unpack latest release for hashicorp/${tool_name}"
+    if [ "${exten}" = "zip" ]; then
+        wrap unzip "${tool_name}.${exten}" \
+            "Failed to unpack latest release for hashicorp/${tool_name}"
+    else
+        wrap tar xf "${tool_name}.${exten}" \
+            "Failed to unpack latest release for hashicorp/${tool_name}"
+    fi
 
-    rm -f "${tool_name}.zip"
+    rm -f "${tool_name}.${exten}"
 
     wrap chmod 0755 ./* \
         "Failed to change mode on latest release for hashicorp/${tool_name}"
@@ -1409,7 +1334,8 @@ function packet-setup() {
 # $3: release tag name
 # $4: artifact pattern (optional, all artifacts downloaded if omitted)
 function github_release_assets() {
-    local gtoken auth_header
+    local gtoken curl_args
+    curl_args=()
 
     if [ -n "${HASHIBOT_TOKEN}" ]; then
         gtoken="${HASHIBOT_TOKEN}"
@@ -1418,7 +1344,7 @@ function github_release_assets() {
     fi
 
     if [ -n "${gtoken}" ]; then
-        auth_header="$(printf '-H "Authorization: token %s"' "${gtoken}")"
+        curl_args+=("-H" "Authorization: token ${gtoken}")
     fi
 
     local release_repo release_name asset_pattern release_content
@@ -1426,30 +1352,39 @@ function github_release_assets() {
     release_name="${3}"
     asset_pattern="${4}"
 
-    # shellcheck disable=SC2086
-    release_content=$(curl -SsL --fail ${auth_header} \
-        -H "Content-Type: application/json" \
-        "https://api.github.com/repos/${release_repo}/releases/tags/${release_name}") ||
+    curl_args+=("-SsL" "--fail" "-H" "Content-Type: application/json")
+    curl_args+=("https://api.github.com/repos/${release_repo}/releases/tags/${release_name}")
+
+    release_content=$(curl "${curl_args[@]}") ||
         fail "Failed to request release (${release_name}) for ${release_repo}"
 
-    local asset_list query artifact asset
+    local asset_list name_list asset_names query artifact asset
     query=".assets[]"
     if [ -n "${asset_pattern}" ]; then
         query+="$(printf ' | select(.name | contains("%s"))' "${asset_pattern}")"
     fi
-    query+=" | .url"
-    asset_list=$(printf "%s" "${release_content}" | jq -r "${query}") ||
+
+    asset_list=$(printf "%s" "${release_content}" | jq -r "${query} | .url") ||
         fail "Failed to detect asset in release (${release_name}) for ${release_repo}"
 
-    readarray -t assets <  <(printf "%s" "${asset_list}")
-    # shellcheck disable=SC2066
-    for asset in "${assets[@}]}"; do
-        artifact="${asset##*/}"
+    name_list=$(printf "%s" "${release_content}" | jq -r "${query} | .name") ||
+        fail "Failed to detect asset in release (${release_name}) for ${release_repo}"
 
-        # shellcheck disable=SC2086
-        wrap curl -SsL --fail -o "${artifact}" ${auth_header} \
-            -H "Accept: application/octet-stream" "${asset}" \
-            "Failed to download asset in release (${release_name}) for ${release_repo}"
+    curl_args=()
+    if [ -n "${gtoken}" ]; then
+        curl_args+=("-H" "Authorization: token ${gtoken}")
+    fi
+    curl_args+=("-SsL" "--fail" "-H" "Accept: application/octet-stream")
+
+    readarray -t assets <  <(printf "%s" "${asset_list}")
+    readarray -t asset_names < <(printf "%s" "${name_list}")
+
+    for ((idx=0; idx<"${#assets[@]}"; idx++ )); do
+        asset="${assets[$idx]}"
+        artifact="${asset_names[$idx]}"
+
+        wrap curl "${curl_args[@]}" -o "${artifact}" "${asset}" \
+            "Failed to download asset (${artifact}) in release ${release_name} for ${release_repo}"
     done
 }
 
@@ -1597,19 +1532,18 @@ function github_repository_dispatch() {
 
     # shellcheck disable=SC2016
     payload_template='{"vagrant-ci": $vagrant_ci'
-    jqargs="--arg vagrant_ci true"
+    jqargs=("--arg" "vagrant_ci" "true")
     for arg in "${@:4}"; do
         payload_key="${arg%%=*}"
         payload_value="${arg##*=}"
-        payload_template+=", ${payload_key}: \$${payload_key}"
-        jqargs+="$(printf ' --arg "%s" "%s"' "${payload_key}" "${payload_value}")"
+        payload_template+=", \"${payload_key}\": \$${payload_key}"
+        # shellcheck disable=SC2089
+        jqargs+=("--arg" "${payload_key}" "${payload_value}")
     done
     payload_template+="}"
 
     # NOTE: we want the arguments to be expanded below
-    # shellcheck disable=SC2086
-    # shellcheck disable=SC2090
-    payload=$(jq -n ${jqargs} "${payload_template}" ) ||
+    payload=$(jq -n "${jqargs[@]}" "${payload_template}" ) ||
         fail "Failed to generate repository dispatch payload"
 
     # shellcheck disable=SC2016
@@ -1627,13 +1561,19 @@ function github_repository_dispatch() {
         "Repository dispatch to ${dorg_name}/${drepo_name} failed"
 }
 
+# Cleanup wrapper so we get some output that cleanup is starting
+function _cleanup() {
+    (>&2 echo "* Running cleanup task...")
+    cleanup
+}
+
 # Stub cleanup method which can be redefined
 # within actual script
 function cleanup() {
     (>&2 echo "** No cleanup tasks defined")
 }
 
-trap cleanup EXIT
+trap _cleanup EXIT
 
 # Make sure the CI bin directory exists
 if [ ! -d "${ci_bin_dir}" ]; then
@@ -1657,14 +1597,28 @@ fi
 # If repository is public, FORCE_PUBLIC_DEBUG environment
 # variable must also be set.
 
-# If we have a token, we can run the actual check for
-# repository visibility. If we don't, then default
-# the is_private value to false.
+priv_args=("-H" "Accept: application/json")
+# If we have a token available, use it for the check query
 if [ -n "${HASHIBOT_TOKEN}" ]; then
-    is_private=$(curl -H "Authorization: token ${HASHIBOT_TOKEN}" -s "https://api.github.com/repos/${GITHUB_REPOSITORY}" | jq .private) ||
-        fail "Repository visibility check failed"
+    priv_args+=("-H" "Authorization: token ${GITHUB_TOKEN}")
+elif [ -n "${GITHUB_TOKEN}" ]; then
+    priv_args+=("-H" "Authorization: token ${HASHIBOT_TOKEN}")
+fi
+
+priv_check="$(curl "${priv_args[@]}" -s "https://api.github.com/repos/${GITHUB_REPOSITORY}" | jq .private)" ||
+    fail "Repository visibility check failed"
+
+# If the value wasn't true we unset it to indicate not private. The
+# repository might actually be private but we weren't supplied a
+# token (or one with correct permissions) so we fallback to the safe
+# assumption of not private.
+if [ "${priv_check}" != "true" ]; then
+    readonly is_public="1"
+    readonly is_private=""
 else
-    is_private="false"
+    readonly is_public=""
+    # shellcheck disable=SC2034
+    readonly is_private="1"
 fi
 
 # If we have debugging enabled, check if we are in a private
@@ -1672,7 +1626,7 @@ fi
 # debugging is being forced and allow it. Otherwise, return
 # an error message to prevent leaking unintended information.
 if [ "${DEBUG}" != "" ]; then
-    if [ "${is_private}" = "false" ]; then
+    if [ -n "${is_public}" ]; then
         if [ "${FORCE_PUBLIC_DEBUG}" != "" ]; then
             set -x
             output="/dev/stdout"
