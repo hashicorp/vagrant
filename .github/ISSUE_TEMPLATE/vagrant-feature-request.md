@@ -2,7 +2,7 @@
 name: Vagrant Feature request
 about: Suggest an idea or enhancement for Vagrant
 title: 'Enhancement Request: Your description here'
-labels: 'enhancement'
+labels: ['enhancement', 'waiting-intake']
 assignees: ''
 
 ---
