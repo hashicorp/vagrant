@@ -108,6 +108,7 @@ In order to create a usable box on Vagrant Cloud, perform the following steps:
 ```shell
 # Create a new box
 curl \
+  --request POST \
   --header "Content-Type: application/json" \
   --header "Authorization: Bearer $VAGRANT_CLOUD_TOKEN" \
   https://app.vagrantup.com/api/v1/boxes \
@@ -116,6 +117,7 @@ curl \
 # Create a new version
 
 curl \
+  --request POST \
   --header "Content-Type: application/json" \
   --header "Authorization: Bearer $VAGRANT_CLOUD_TOKEN" \
   https://app.vagrantup.com/api/v1/box/myuser/test/versions \
@@ -124,6 +126,7 @@ curl \
 # Create a new provider
 
 curl \
+  --request POST \
   --header "Content-Type: application/json" \
   --header "Authorization: Bearer $VAGRANT_CLOUD_TOKEN" \
   https://app.vagrantup.com/api/v1/box/myuser/test/version/1.2.3/providers \
@@ -132,8 +135,9 @@ curl \
 # Prepare the provider for upload/get an upload URL
 
 response=$(curl \
+    --request GET \
     --header "Authorization: Bearer $VAGRANT_CLOUD_TOKEN" \
- https://app.vagrantup.com/api/v1/box/myuser/test/version/1.2.3/provider/virtualbox/upload)
+    https://app.vagrantup.com/api/v1/box/myuser/test/version/1.2.3/provider/virtualbox/upload)
 
 # Extract the upload URL from the response (requires the jq command)
 
@@ -141,14 +145,14 @@ upload_path=$(echo "$response" | jq .upload_path)
 
 # Perform the upload
 
-curl $upload_path --request PUT --upload-file virtualbox-1.2.3.box
+curl --request PUT $upload_path --upload-file virtualbox-1.2.3.box
 
 # Release the version
 
 curl \
+  --request PUT \
   --header "Authorization: Bearer $VAGRANT_CLOUD_TOKEN" \
-  https://app.vagrantup.com/api/v1/box/myuser/test/version/1.2.3/release \
-  --request PUT
+  https://app.vagrantup.com/api/v1/box/myuser/test/version/1.2.3/release
 
 ```
 
@@ -225,6 +229,7 @@ Creates a new token for the given user.
 
 ```shell
 curl \
+  --request POST \
   --header "Content-Type: application/json" \
   https://app.vagrantup.com/api/v1/authenticate \
   --data '
@@ -290,6 +295,7 @@ Responds [`200 OK`](#200-ok) if the authentication request was successful, other
 
 ```shell
 curl \
+  --request GET \
   --header "Authorization: Bearer $VAGRANT_CLOUD_TOKEN" \
   https://app.vagrantup.com/api/v1/authenticate
 ```
@@ -330,8 +336,8 @@ Responds [`204 OK`](#204-no-content) if the deletion request was successful, oth
 
 ```shell
 curl \
-  --header "Authorization: Bearer $VAGRANT_CLOUD_TOKEN" \
   --request DELETE \
+  --header "Authorization: Bearer $VAGRANT_CLOUD_TOKEN" \
   https://app.vagrantup.com/api/v1/authenticate
 ```
 
@@ -379,8 +385,9 @@ Sends a 2FA code to the requested delivery method.
 
 ```shell
 curl \
+  --request POST \
   --header "Content-Type: application/json" \
-  https://app.vagrantup.com/api/v1/authenticate \
+  https://app.vagrantup.com/api/v1/two-factor/request-code \
   --data '
     {
       "two_factor": {
@@ -443,6 +450,7 @@ end
 
 ```shell
 curl \
+  --request GET \
   --header "Authorization: Bearer $VAGRANT_CLOUD_TOKEN" \
   https://app.vagrantup.com/api/v1/user/myuser
 ```
@@ -506,6 +514,7 @@ end
 
 ```shell
 curl \
+  --request GET \
   --header "Authorization: Bearer $VAGRANT_CLOUD_TOKEN" \
   https://app.vagrantup.com/api/v1/search?q=test&provider=virtualbox
 ```
@@ -594,6 +603,7 @@ end
 
 ```shell
 curl \
+  --request GET \
   --header "Authorization: Bearer $VAGRANT_CLOUD_TOKEN" \
   https://app.vagrantup.com/api/v1/box/myuser/test
 ```
@@ -704,6 +714,7 @@ end
 
 ```shell
 curl \
+  --request POST \
   --header "Content-Type: application/json" \
   --header "Authorization: Bearer $VAGRANT_CLOUD_TOKEN" \
   https://app.vagrantup.com/api/v1/boxes \
@@ -777,10 +788,10 @@ Response body is identical to [Reading a box](#read-a-box).
 
 ```shell
 curl \
+  --request PUT \
   --header "Content-Type: application/json" \
   --header "Authorization: Bearer $VAGRANT_CLOUD_TOKEN" \
   https://app.vagrantup.com/api/v1/box/myuser/test \
-  --request PUT \
   --data '
     {
       "box": {
@@ -837,8 +848,8 @@ end
 
 ```shell
 curl \
-  --header "Authorization: Bearer $VAGRANT_CLOUD_TOKEN" \
   --request DELETE \
+  --header "Authorization: Bearer $VAGRANT_CLOUD_TOKEN" \
   https://app.vagrantup.com/api/v1/box/myuser/test
 ```
 
@@ -884,6 +895,7 @@ Response body is identical to [Reading a box](#read-a-box).
 
 ```shell
 curl \
+  --request GET \
   --header "Authorization: Bearer $VAGRANT_CLOUD_TOKEN" \
   https://app.vagrantup.com/api/v1/box/myuser/test/version/1.2.3
 ```
@@ -959,6 +971,7 @@ end
 
 ```shell
 curl \
+  --request POST \
   --header "Content-Type: application/json" \
   --header "Authorization: Bearer $VAGRANT_CLOUD_TOKEN" \
   https://app.vagrantup.com/api/v1/box/myuser/test/versions \
@@ -1024,10 +1037,10 @@ Response body is identical to [Reading a version](#read-a-version).
 
 ```shell
 curl \
+  --request PUT \
   --header "Content-Type: application/json" \
   --header "Authorization: Bearer $VAGRANT_CLOUD_TOKEN" \
   https://app.vagrantup.com/api/v1/box/myuser/test/version/1.2.3 \
-  --request PUT \
   --data '
     {
       "version": {
@@ -1084,8 +1097,8 @@ Response body is identical to [Reading a version](#read-a-version).
 
 ```shell
 curl \
-  --header "Authorization: Bearer $VAGRANT_CLOUD_TOKEN" \
   --request DELETE \
+  --header "Authorization: Bearer $VAGRANT_CLOUD_TOKEN" \
   https://app.vagrantup.com/api/v1/box/myuser/test/version/1.2.3
 ```
 
@@ -1129,9 +1142,9 @@ Response body is identical to [Reading a version](#read-a-version).
 
 ```shell
 curl \
+  --request PUT \
   --header "Authorization: Bearer $VAGRANT_CLOUD_TOKEN" \
-  https://app.vagrantup.com/api/v1/box/myuser/test/version/1.2.3/release \
-  --request PUT
+  https://app.vagrantup.com/api/v1/box/myuser/test/version/1.2.3/release
 ```
 
 </Tab>
@@ -1174,9 +1187,9 @@ Response body is identical to [Reading a version](#read-a-version).
 
 ```shell
 curl \
+  --request PUT \
   --header "Authorization: Bearer $VAGRANT_CLOUD_TOKEN" \
-  https://app.vagrantup.com/api/v1/box/myuser/test/version/1.2.3/revoke \
-  --request PUT
+  https://app.vagrantup.com/api/v1/box/myuser/test/version/1.2.3/revoke
 ```
 
 </Tab>
@@ -1221,6 +1234,7 @@ Response body is identical to [Reading a version](#read-a-version).
 
 ```shell
 curl \
+  --request GET \
   --header "Authorization: Bearer $VAGRANT_CLOUD_TOKEN" \
   https://app.vagrantup.com/api/v1/box/myuser/test/version/1.2.3/provider/virtualbox
 ```
@@ -1285,6 +1299,7 @@ end
 
 ```shell
 curl \
+  --request POST \
   --header "Content-Type: application/json" \
   --header "Authorization: Bearer $VAGRANT_CLOUD_TOKEN" \
   https://app.vagrantup.com/api/v1/box/myuser/test/version/1.2.3/providers \
@@ -1352,10 +1367,10 @@ Response body is identical to [Reading a provider](#read-a-provider).
 
 ```shell
 curl \
+  --request PUT \
   --header "Content-Type: application/json" \
   --header "Authorization: Bearer $VAGRANT_CLOUD_TOKEN" \
   https://app.vagrantup.com/api/v1/box/myuser/test/version/1.2.3/provider/virtualbox \
-  --request PUT \
   --data '
     {
       "provider": {
@@ -1414,8 +1429,8 @@ Response body is identical to [Reading a provider](#read-a-provider).
 
 ```shell
 curl \
-  --header "Authorization: Bearer $VAGRANT_CLOUD_TOKEN" \
   --request DELETE \
+  --header "Authorization: Bearer $VAGRANT_CLOUD_TOKEN" \
   https://app.vagrantup.com/api/v1/box/myuser/test/version/1.2.3/provider/virtualbox
 ```
 
@@ -1463,6 +1478,7 @@ Prepares the provider for upload, and returns a JSON blob containing an `upload_
 
 ```shell
 response=$(curl \
+  --request GET \
   --header "Authorization: Bearer $VAGRANT_CLOUD_TOKEN" \
   https://app.vagrantup.com/api/v1/box/myuser/test/version/1.2.3/provider/virtualbox/upload)
 
@@ -1470,9 +1486,9 @@ response=$(curl \
 upload_path=$(echo "$response" | jq .upload_path)
 
 curl \
-  $upload_path \
   --request PUT \
-  --upload-file virtualbox-1.2.3.box
+  --upload-file virtualbox-1.2.3.box \
+  "${upload_path}"
 ```
 
 </Tab>
@@ -1534,6 +1550,7 @@ provided in the `callback` field (complete with authentication header) finalizes
 
 ```shell
 response=$(curl \
+  --request GET \
   --header "Authorization: Bearer $VAGRANT_CLOUD_TOKEN" \
   https://app.vagrantup.com/api/v1/box/myuser/test/version/1.2.3/provider/virtualbox/upload/direct)
 
@@ -1542,14 +1559,14 @@ upload_path=$(echo "$response" | jq .upload_path)
 callback=$(echo "$response" | jq .callback)
 
 curl \
-  "$upload_path" \
   --request PUT \
-  --upload-file virtualbox-1.2.3.box
+  --upload-file virtualbox-1.2.3.box \
+  "${upload_path}"
 
 curl
-  $callback \
-  --header "Authorization: Bearer $VAGRANT_CLOUD_TOKEN" \
-  --request PUT
+  --request PUT \
+  --header "Authorization: Bearer $VAGRANT_CLOUD_TOKEN"
+  "${callback}"
 ```
 
 </Tab>
