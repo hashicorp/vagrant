@@ -145,7 +145,7 @@ upload_path=$(echo "$response" | jq .upload_path)
 
 # Perform the upload
 
-curl --request PUT $upload_path --upload-file virtualbox-1.2.3.box
+curl --request PUT "${upload_path}" --upload-file virtualbox-1.2.3.box
 
 # Release the version
 
@@ -516,7 +516,7 @@ end
 curl \
   --request GET \
   --header "Authorization: Bearer $VAGRANT_CLOUD_TOKEN" \
-  https://app.vagrantup.com/api/v1/search?q=test&provider=virtualbox
+  "https://app.vagrantup.com/api/v1/search?q=test&provider=virtualbox"
 ```
 
 </Tab>
@@ -1565,7 +1565,7 @@ curl \
 
 curl
   --request PUT \
-  --header "Authorization: Bearer $VAGRANT_CLOUD_TOKEN"
+  --header "Authorization: Bearer $VAGRANT_CLOUD_TOKEN" \
   "${callback}"
 ```
 
