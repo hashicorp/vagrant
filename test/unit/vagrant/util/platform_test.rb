@@ -230,20 +230,22 @@ describe Vagrant::Util::Platform do
 
     context "when user is in the Hyper-V administators group" do
       it "should return true" do
-        expect(Vagrant::Util::PowerShell).to receive(:execute_cmd).and_return(["Value" => "S-1-5-32-578"].to_json)
+        expect(Vagrant::Util::PowerShell).to receive(:execute_cmd).with(/S-1-5-32-578/).and_return("true")
         expect(Vagrant::Util::Platform.windows_hyperv_admin?).to be_truthy
       end
     end
 
     context "when user is in the Domain Admins group" do
       it "should return true" do
-        expect(Vagrant::Util::PowerShell).to receive(:execute_cmd).and_return(["Value" => "S-1-5-21-000-000-000-512"].to_json)
+        expect(Vagrant::Util::PowerShell).to receive(:execute_cmd).with(/S-1-5-32-578/).and_return(nil)
+        expect(Vagrant::Util::PowerShell).to receive(:execute_cmd).with(/GetCurrent/).and_return(["Value" => "S-1-5-21-000-000-000-512"].to_json)
         expect(Vagrant::Util::Platform.windows_hyperv_admin?).to be_truthy
       end
     end
 
     context "when user has access to Hyper-V" do
       it "should return true" do
+        expect(Vagrant::Util::PowerShell).to receive(:execute_cmd).with(/S-1-5-32-578/).and_return(nil)
         expect(Vagrant::Util::PowerShell).to receive(:execute_cmd).with(/GetCurrent/).and_return(nil)
         expect(Vagrant::Util::PowerShell).to receive(:execute_cmd).with(/Get-VMHost/).and_return("true")
         expect(Vagrant::Util::Platform.windows_hyperv_admin?).to be_truthy

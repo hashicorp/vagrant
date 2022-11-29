@@ -71,14 +71,14 @@ module Vagrant
         # privileges.
         #
         # From: https://support.microsoft.com/en-us/kb/243330
-        # SID: S-1-5-19
+        # SID: S-1-5-32-544
+        # Name: Administrators
         #
         # @return [Boolean]
         def windows_admin?
           return @_windows_admin if defined?(@_windows_admin)
-
           @_windows_admin = -> {
-            ps_cmd = '(new-object System.Security.Principal.WindowsPrincipal([System.Security.Principal.WindowsIdentity]::GetCurrent())).IsInRole([System.Security.Principal.WindowsBuiltInRole]::Administrator)'
+            ps_cmd = '$x = (Get-LocalGroupMember -SID "S-1-5-32-544" | where Name -eq $(Get-WMIObject -class Win32_ComputerSystem | select username).username); if ($x){ Write-Output "True"}'
             output = Vagrant::Util::PowerShell.execute_cmd(ps_cmd)
             return output == 'True'
           }.call
@@ -105,6 +105,13 @@ module Vagrant
             return @_windows_hyperv_admin = true
           end
 
+          ps_cmd = "$x = (Get-LocalGroupMember -SID 'S-1-5-32-578' | where Name -eq $(Get-WMIObject -class Win32_ComputerSystem | select username).username); if ($x){ Write-Output 'true'}"
+          output = Vagrant::Util::PowerShell.execute_cmd(ps_cmd)
+          return @_windows_hyperv_admin = true if output == "true"
+
+          # This won't work in constrained language mode, but there is no easy way to replicate.
+          # Leaving it as is because the most likley two cases (user is in administrators or hyperv administrators group)
+          # are already checked, so this script is unlikley to be required.
           ps_cmd = "Write-Output ([System.Security.Principal.WindowsIdentity]::GetCurrent().Groups | " \
             "Select-Object Value | ConvertTo-JSON)"
           output = Vagrant::Util::PowerShell.execute_cmd(ps_cmd)
@@ -115,8 +122,7 @@ module Vagrant
                        []
                      end
             admin_group = groups.detect do |g|
-              g["Value"].to_s == "S-1-5-32-578" ||
-                (g["Value"].start_with?("S-1-5-21") && g["Value"].to_s.end_with?("-512"))
+              g["Value"].start_with?("S-1-5-21") && g["Value"].to_s.end_with?("-512")
             end
 
             if admin_group
@@ -124,7 +130,7 @@ module Vagrant
             end
           end
 
-          ps_cmd = "$x = (Get-VMHost).Name; if($x -eq [System.Net.Dns]::GetHostName()){ Write-Output 'true'}"
+          ps_cmd = "if ((Get-VMHost).Name.StartsWith($env:computername)){ Write-Output 'true'}"
           output = Vagrant::Util::PowerShell.execute_cmd(ps_cmd)
           result = output == "true"
 
