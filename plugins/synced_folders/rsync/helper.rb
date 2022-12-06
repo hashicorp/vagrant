@@ -196,7 +196,7 @@ module VagrantPlugins
         command_opts[:workdir] = machine.env.root_path.to_s
 
         machine.ui.info(I18n.t(
-          "vagrant.rsync_folder", guestpath: guestpath, hostpath: hostpath))
+          "vagrant.rsync_folder", guestpath: guestpath, hostpath: hostpath, sync_time: DateTime.now.strftime("%d/%m/%Y %H:%M")))
         if excludes.length > 1
           machine.ui.info(I18n.t(
             "vagrant.rsync_folder_excludes", excludes: excludes.inspect))
