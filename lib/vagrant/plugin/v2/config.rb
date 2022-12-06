@@ -12,7 +12,13 @@ module Vagrant
         # was never set, and a value that is nil (explicitly). Best practice
         # is to initialize all variables to this value, then the {#merge}
         # method below will "just work" in many cases.
-        UNSET_VALUE = Object.new
+
+        UNSET_VALUE = :__UNSET__VALUE__
+
+        if Vagrant.server_mode?
+          GENERAL_CONFIG_CLS = Hashicorp::Vagrant::Sdk::Vagrantfile::GeneralConfig
+          SYMBOL_PROTO = Hashicorp::Vagrant::Sdk::Args::Symbol
+        end
 
         # This is called as a last-minute hook that allows the configuration
         # object to finalize itself before it will be put into use. This is
@@ -71,6 +77,20 @@ module Vagrant
         # message later during validation.
         def method_missing(name, *args, &block)
           return super if @__finalized
+
+          # There are a few scenarios where ruby will attempt to implicity
+          # coerce a given object into a certain type. Configs can end up
+          # in some of these scenarios when they're being shipped around in
+          # callbacks with splats. If method_missing allows these methods to be
+          # called but continues to return Config back, Ruby will raise a
+          # TypeError. Doing the normal thing of raising NoMethodError allows
+          # Config to behave normally as its being passed through splats.
+          #
+          # For a bit more detail and some keywords for further searching, see:
+          # https://ruby-doc.org/core-2.7.2/doc/implicit_conversion_rdoc.html
+          if [:to_hash, :to_ary].include?(name)
+            return super
+          end
 
           name = name.to_s
           name = name[0...-1] if name.end_with?("=")
@@ -136,6 +156,12 @@ module Vagrant
         # An internal finalize call that no subclass should override.
         def _finalize!
           @__finalized = true
+        end
+
+        def clean_up_config_object(config)
+          # Remote variables that are internal
+          config.delete_if{|k,_| k.start_with?("_") }
+          config
         end
       end
     end

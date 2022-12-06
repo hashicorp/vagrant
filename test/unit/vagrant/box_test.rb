@@ -45,6 +45,19 @@ describe Vagrant::Box, :skip_windows do
     end
 
     # Verify the metadata
+    expect { subject.metadata }.
+        to raise_error(Vagrant::Errors::BoxMetadataMissingRequiredFields)
+  end
+
+  it "provides the metadata associated with a box" do
+    data = { "provider" => "bar" }
+
+    # Write the metadata
+    directory.join("metadata.json").open("w") do |f|
+      f.write(JSON.generate(data))
+    end
+
+    # Verify the metadata
     expect(subject.metadata).to eq(data)
   end
 

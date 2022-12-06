@@ -2,14 +2,20 @@ require 'vagrant/action/builder'
 
 module Vagrant
   module Action
-    autoload :Builder,     'vagrant/action/builder'
-    autoload :Hook,        'vagrant/action/hook'
-    autoload :Runner,      'vagrant/action/runner'
-    autoload :Warden,      'vagrant/action/warden'
+    autoload :Builder,       'vagrant/action/builder'
+    autoload :Hook,          'vagrant/action/hook'
+    autoload :Runner,        'vagrant/action/runner'
+    autoload :PrimaryRunner, 'vagrant/action/primary_runner'
+    autoload :Warden,        'vagrant/action/warden'
 
     # Builtin contains middleware classes that are shipped with Vagrant-core
     # and are thus available to all plugins as a "standard library" of sorts.
     module Builtin
+      module Remote
+        autoload :MixinSyncedFolders, "vagrant/action/builtin/remote/mixin_synced_folders"
+        autoload :SSHRun, "vagrant/action/builtin/remote/ssh_run"
+      end
+
       autoload :BoxAdd,    "vagrant/action/builtin/box_add"
       autoload :BoxCheckOutdated, "vagrant/action/builtin/box_check_outdated"
       autoload :BoxRemove, "vagrant/action/builtin/box_remove"

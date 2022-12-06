@@ -1,5 +1,11 @@
 require "log4r"
-require "vagrant/util/credential_scrubber"
+
+# Add patches to log4r to support trace level
+require "vagrant/patches/log4r"
+# Set our log levels and include trace
+require 'log4r/configurator'
+Log4r::Configurator.custom_levels(*(["TRACE"] + Log4r::Log4rConfig::LogLevels))
+
 # Update the default formatter within the log4r library to ensure
 # sensitive values are being properly scrubbed from logger data
 class Log4r::BasicFormatter
@@ -8,9 +14,6 @@ class Log4r::BasicFormatter
     Vagrant::Util::CredentialScrubber.desensitize(vagrant_format_object(obj))
   end
 end
-
-# Add our patches to net-ssh
-require "vagrant/patches/net-ssh"
 
 require "optparse"
 
@@ -45,24 +48,10 @@ require "vagrant/plugin/manager"
 # anything else so that we can setup the output before
 # any logging occurs.
 if ENV["VAGRANT_LOG"] && ENV["VAGRANT_LOG"] != ""
-  # Require Log4r and define the levels we'll be using
-  require 'log4r/config'
-  Log4r.define_levels(*Log4r::Log4rConfig::LogLevels)
-
-  level = nil
-  begin
-    level = Log4r.const_get(ENV["VAGRANT_LOG"].upcase)
-  rescue NameError
-    # This means that the logging constant wasn't found,
-    # which is fine. We just keep `level` as `nil`. But
-    # we tell the user.
-    level = nil
+  level = Log4r::LNAMES.index(ENV["VAGRANT_LOG"].upcase)
+  if level.nil?
+    level = Log4r::LNAMES.index("FATAL")
   end
-
-  # Some constants, such as "true" resolve to booleans, so the
-  # above error checking doesn't catch it. This will check to make
-  # sure that the log level is an integer, as Log4r requires.
-  level = nil if !level.is_a?(Integer)
 
   if !level
     # We directly write to stderr here because the VagrantError system
@@ -85,9 +74,17 @@ if ENV["VAGRANT_LOG"] && ENV["VAGRANT_LOG"] != ""
         debug(msg.strip)
       end
     end
-    logger = VagrantLogger.new("vagrant")
-    logger.outputters = Log4r::Outputter.stderr
-    logger.level = level
+
+    ["vagrant", "vagrantplugins"].each do |lname|
+      logger = VagrantLogger.new(lname)
+      if ENV["VAGRANT_LOG_FILE"] && ENV["VAGRANT_LOG_FILE"] != ""
+        logger.outputters = Log4r::FileOutputter.new("vagrant", filename: ENV["VAGRANT_LOG_FILE"])
+      else
+        logger.outputters = Log4r::Outputter.stderr
+      end
+      logger.level = level
+    end
+
     base_formatter = Log4r::BasicFormatter.new
     if ENV["VAGRANT_LOG_TIMESTAMP"]
       base_formatter = Log4r::PatternFormatter.new(
@@ -97,7 +94,6 @@ if ENV["VAGRANT_LOG"] && ENV["VAGRANT_LOG"] != ""
     end
 
     Log4r::Outputter.stderr.formatter = Vagrant::Util::LoggingFormatter.new(base_formatter)
-    logger = nil
   end
 end
 
@@ -176,6 +172,8 @@ module Vagrant
     c.register([:"2", :provisioner])  { Plugin::V2::Provisioner }
     c.register([:"2", :push])         { Plugin::V2::Push }
     c.register([:"2", :synced_folder]) { Plugin::V2::SyncedFolder }
+
+    c.register(:remote)               { Plugin::Remote::Plugin }
   end
 
   # Configure a Vagrant environment. The version specifies the version

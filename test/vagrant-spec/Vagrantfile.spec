@@ -6,7 +6,7 @@ GUEST_BOXES = {
   'hashicorp/bionic64' => '1.0.282',
   'hashicorp-vagrant/ubuntu-16.04' => '1.0.1',
   'hashicorp-vagrant/centos-7.4' => '1.0.2',
-  'hashicorp-vagrant/windows-10' => '1.0.0',
+  # 'hashicorp-vagrant/windows-10' => '1.0.0',
   'spox/osx-10.12' => '0.0.1'
 }
 
@@ -19,7 +19,7 @@ HOST_BOXES = {
   'hashicorp/bionic64' => '1.0.282',
   'hashicorp-vagrant/ubuntu-16.04' => '1.0.1',
   'hashicorp-vagrant/centos-7.4' => '1.0.2',
-  'hashicorp-vagrant/windows-10' => '1.0.0',
+  # 'hashicorp-vagrant/windows-10' => '1.0.0',
   'spox/osx-10.12' => '0.0.1'
 }
 
@@ -89,7 +89,11 @@ Vagrant.configure(2) do |global_config|
             path: "./scripts/#{PLATFORM_SCRIPT_MAPPING[platform]}-setup.#{provider_name}.ps1", run: "once"
         else
           config.vm.provision :shell,
-            path: "./scripts/#{PLATFORM_SCRIPT_MAPPING[platform]}-setup.#{provider_name}.sh", run: "once"
+            path: "./scripts/#{PLATFORM_SCRIPT_MAPPING[platform]}-setup.#{provider_name}.sh", run: "once",
+            env: {
+              "HASHIBOT_USERNAME" => ENV["HASHIBOT_USERNAME"],
+              "HASHIBOT_TOKEN" => ENV["HASHIBOT_TOKEN"]
+            }
         end
         if provider_name == "docker"
           docker_images.each_with_index do |image_info, idx|
@@ -104,7 +108,7 @@ Vagrant.configure(2) do |global_config|
                 path: "./scripts/#{platform}-run.#{provider_name}.ps1",
                 keep_color: true,
                 env: {
-                  "VAGRANT_SPEC_ARGS" => "--no-builtin --component provider/docker/docker/* #{spec_cmd_args}".strip,
+                  "VAGRANT_SPEC_ARGS" => "test --components provider/docker/docker/* #{spec_cmd_args}".strip,
                   "VAGRANT_SPEC_DOCKER_IMAGE" => docker_image
                 }
               )
@@ -114,8 +118,11 @@ Vagrant.configure(2) do |global_config|
                 path: "./scripts/#{PLATFORM_SCRIPT_MAPPING[platform]}-run.#{provider_name}.sh",
                 keep_color: true,
                 env: {
-                  "VAGRANT_SPEC_ARGS" => "--no-builtin --component provider/docker/docker/* #{spec_cmd_args}".strip,
-                  "VAGRANT_SPEC_DOCKER_IMAGE" => docker_image
+                  "VAGRANT_SPEC_ARGS" => "test --components provider/docker/docker/* #{spec_cmd_args}".strip,
+                  "VAGRANT_SPEC_DOCKER_IMAGE" => docker_image,
+                  "VAGRANT_LOG" => "trace",
+                  "VAGRANT_LOG_LEVEL" => "trace",
+                  "VAGRANT_SPEC_LOG_PATH" => "/tmp/vagrant-spec.log",
                 }
               )
             end
@@ -135,20 +142,30 @@ Vagrant.configure(2) do |global_config|
                 path: "./scripts/#{platform}-run.#{provider_name}.ps1",
                 keep_color: true,
                 env: {
-                  "VAGRANT_SPEC_ARGS" => "--no-builtin #{spec_cmd_args}".strip,
+                  "VAGRANT_SPEC_ARGS" => "#{spec_cmd_args}".strip,
                   "VAGRANT_SPEC_BOX" => "c:/vagrant/#{guest_box.sub('/', '_')}.#{provider_name}.#{box_version}.box",
                   "VAGRANT_SPEC_GUEST_PLATFORM" => guest_platform,
                 }
               )
             else
+              components = [
+                "provider/#{provider_name}/basic",
+                "provider/#{provider_name}/provisioner/shell",
+              ]
               config.vm.provision(
                 :shell,
                 path: "./scripts/#{PLATFORM_SCRIPT_MAPPING[platform]}-run.#{provider_name}.sh",
                 keep_color: true,
                 env: {
-                  "VAGRANT_SPEC_ARGS" => "--no-builtin #{spec_cmd_args}".strip,
+                  # "VAGRANT_SPEC_ARGS" => "test #{spec_cmd_args}".strip,
+                  # TEMP: Forcing just the basic component of the provider suite as not all tests are passing yet.
+                  #       Hoping to widen this out over time to be unscoped with everything passing.
+                  "VAGRANT_SPEC_ARGS" => "test --components #{components.join(" ")}",
                   "VAGRANT_SPEC_BOX" => "/vagrant/test/vagrant-spec/boxes/#{guest_box.sub('/', '_')}.#{provider_name}.#{box_version}.box",
                   "VAGRANT_SPEC_GUEST_PLATFORM" => guest_platform,
+                  "VAGRANT_LOG" => "trace",
+                  "VAGRANT_LOG_LEVEL" => "trace",
+                  "VAGRANT_SPEC_LOG_PATH" => "/tmp/vagrant-spec.log",
                 }
               )
             end

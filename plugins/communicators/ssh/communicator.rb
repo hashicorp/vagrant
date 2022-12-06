@@ -645,7 +645,7 @@ module VagrantPlugins
               if auth_socket != ""
                 # Make sure we only read the last line which should be
                 # the $SSH_AUTH_SOCK env var we printed.
-                auth_socket = auth_socket.split("\n").last.chomp
+                auth_socket = auth_socket.split("\n").last.to_s.chomp
               end
 
               if auth_socket == ""

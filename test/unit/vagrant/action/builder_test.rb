@@ -2,6 +2,12 @@ require File.expand_path("../../../base", __FILE__)
 
 describe Vagrant::Action::Builder do
   let(:data) { { data: [] } }
+  let(:primary) { true }
+  let(:subject) do
+    described_class.new.tap do |b|
+      b.primary = primary
+    end
+  end
 
   # This returns a proc that can be used with the builder
   # that simply appends data to an array in the env.
@@ -245,8 +251,8 @@ describe Vagrant::Action::Builder do
     end
 
     it "applies them properly" do
-      hook_proc = proc{ |h| h.append(appender_proc(2)) }
-      expect(manager).to receive(:action_hooks).with(:test_action).
+      hook_proc = proc{ |h| h.append(appender_proc(:hook)) }
+      allow(manager).to receive(:action_hooks).with(:test_action).
         and_return([hook_proc])
 
       data[:action_name] = :test_action
@@ -254,7 +260,23 @@ describe Vagrant::Action::Builder do
       subject.use appender_proc(1)
       subject.call(data)
 
-      expect(data[:data]).to eq([1, 2])
+      expect(data[:data]).to eq([1, :hook])
+    end
+
+    it "applies them properly even with nested stacks" do
+      hook_proc = proc{ |h| h.append(appender_proc(:hook)) }
+      allow(manager).to receive(:action_hooks).with(:test_action).
+        and_return([hook_proc])
+
+      data[:action_name] = :test_action
+
+      subject.use appender_proc(1)
+      subject.use Vagrant::Action::Builtin::Call, proc {} do |env, b2|
+        b2.use appender_proc(2)
+      end
+      subject.call(data)
+
+      expect(data[:data]).to eq([1, 2, :hook])
     end
   end
 
@@ -344,7 +366,7 @@ describe Vagrant::Action::Builder do
     end
 
     it "should call hook before running action" do
-      instance = described_class.build(ActionTwo)
+      instance = described_class.build(ActionTwo).tap { |b| b.primary = true }
       instance.call(data)
       expect(data[:data].first).to eq(:first)
       expect(data[:data].last).to eq(2)
@@ -359,8 +381,8 @@ describe Vagrant::Action::Builder do
       end
 
       it "should execute the hook" do
-        described_class.build(ActionTwo).call(data)
-        described_class.build(ActionOne).call(data)
+        described_class.build(ActionTwo).tap { |b| b.primary = true }.call(data)
+        described_class.build(ActionOne).tap { |b| b.primary = true }.call(data)
         expect(data[:data]).to include(:first)
       end
     end
@@ -374,14 +396,14 @@ describe Vagrant::Action::Builder do
       end
 
       it "should execute the hook" do
-        described_class.build(ActionTwo).call(data)
-        described_class.build(ActionOne).call(data)
+        described_class.build(ActionTwo).tap { |b| b.primary = true }.call(data)
+        described_class.build(ActionOne).tap { |b| b.primary = true }.call(data)
         expect(data[:data]).to include(:first)
       end
 
       it "should execute the hook multiple times" do
-        described_class.build(ActionTwo).call(data)
-        described_class.build(ActionOne).call(data)
+        described_class.build(ActionTwo).tap { |b| b.primary = true }.call(data)
+        described_class.build(ActionOne).tap { |b| b.primary = true }.call(data)
         expect(data[:data].count{|d| d == :first}).to eq(2)
       end
     end
@@ -519,6 +541,7 @@ describe Vagrant::Action::Builder do
 
     let(:subject) do
       @subject ||= described_class.new.tap do |b|
+        b.primary = primary
         b.use Vagrant::Action::Builtin::EnvSet
         b.use Vagrant::Action::Builtin::Confirm
       end
@@ -673,6 +696,7 @@ describe Vagrant::Action::Builder do
 
     let(:subject) do
       @subject ||= described_class.new.tap do |b|
+        b.primary = primary
         b.use Vagrant::Action::Builtin::EnvSet
         b.use Vagrant::Action::Builtin::Confirm
       end
@@ -681,7 +705,7 @@ describe Vagrant::Action::Builder do
     before { allow(triggers).to receive(:find).and_return([]) }
     after { @subject = nil }
 
-    context "when a plugin has added an action hook" do
+    context "when a plugin has added an action hook using prepend" do
       let(:plugin) do
         @plugin ||= Class.new(Vagrant.plugin("2")) do
           name "Test Plugin"
@@ -698,7 +722,7 @@ describe Vagrant::Action::Builder do
         @plugin = nil
       end
 
-      it "should add new action to the call stack" do
+      it "should add new action to the beginning of the call stack" do
         subject.apply_action_name(env)
         expect(subject.stack[0].first).to eq(Vagrant::Action::Builtin::Call)
       end

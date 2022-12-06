@@ -168,6 +168,10 @@ module Vagrant
       error_key(:box_metadata_corrupted)
     end
 
+    class BoxMetadataMissingRequiredFields < VagrantError
+      error_key(:box_metadata_missing_required_fields)
+    end
+
     class BoxMetadataDownloadError < VagrantError
       error_key(:box_metadata_download_error)
     end
@@ -238,6 +242,10 @@ module Vagrant
 
     class BoxVerificationFailed < VagrantError
       error_key(:failed, "vagrant.actions.box.verify")
+    end
+
+    class BoxVersionInvalid < VagrantError
+      error_key(:box_version_invalid)
     end
 
     class BundlerDisabled < VagrantError
@@ -928,6 +936,10 @@ module Vagrant
       error_key(:vagrantfile_name_error)
     end
 
+    class VagrantRemoteError < VagrantError
+      error_key(:vagrant_remote_error)
+    end
+
     class VagrantfileSyntaxError < VagrantError
       error_key(:vagrantfile_syntax_error)
     end
@@ -958,6 +970,10 @@ module Vagrant
 
     class VirtualBoxBrokenVersion040214 < VagrantError
       error_key(:virtualbox_broken_version_040214)
+    end
+
+    class VirtualBoxConfigNotFound < VagrantError
+      error_key(:virtualbox_config_not_found)
     end
 
     class VirtualBoxDisksDefinedExceedLimit < VagrantError
@@ -1002,6 +1018,10 @@ module Vagrant
 
     class VirtualBoxInstallIncomplete < VagrantError
       error_key(:virtualbox_install_incomplete)
+    end
+
+    class VirtualBoxMachineFolderNotFound < VagrantError
+      error_key(:virtualbox_machine_folder_not_found)
     end
 
     class VirtualBoxNoName < VagrantError

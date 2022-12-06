@@ -1,0 +1,57 @@
+on:
+  push:
+    branches:
+      - main
+      - 'test-*'
+    paths:
+      - 'builtin/**'
+      - 'cmd/**'
+      - 'internal/**'
+      - '.github/workflows**'
+      - 'go.mod'
+      - 'go.sum'
+  # Allows manual trigger on arbitrary branches via GitHub UI/API
+  workflow_dispatch:
+
+jobs:
+  vagrant-spec-tests:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        go: ['^1.16']
+        ruby: ['2.7']
+    name: Vagrant acceptance tests
+    steps:
+      - name: Code Checkout
+        uses: actions/checkout@v3
+        with:
+          submodules: 'recursive'
+          # Also fetch all tags, since we need our version number in the build
+          # to be based off a tag
+          fetch-depth: 0
+      - name: Setup Go
+        uses: actions/setup-go@v3
+        with:
+          go-version: ${{matrix.go}}
+      - name: Setup Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: ${{matrix.ruby}}
+          bundler-cache: true
+      - name: Build Vagrant
+        run:  |
+          git config --global url."https://${HASHIBOT_USERNAME}:${HASHIBOT_TOKEN}@github.com".insteadOf "https://github.com"
+          make bin/linux
+        env:
+          HASHIBOT_USERNAME: ${{ secrets.HASHIBOT_USERNAME }}
+          HASHIBOT_TOKEN: ${{ secrets.HASHIBOT_TOKEN }}
+      - name: Add binstubs to path
+        run: |
+          echo "$PWD/binstubs" >> $GITHUB_PATH
+        env:
+          VAGRANT_SPEC_BOX: "hashicorp/bionic64"
+      - name: Run vagrant-spec
+        run: |
+          VAGRANT_PATH="$GITHUB_WORKSPACE/vagrant" bundle exec vagrant-spec test --components=cli/version --config test/vagrant-spec/configs/vagrant-spec.config.virtualbox.rb
+        env:
+          VAGRANT_SPEC_BOX: "hashicorp/bionic64"

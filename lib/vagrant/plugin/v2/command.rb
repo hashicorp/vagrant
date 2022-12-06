@@ -230,7 +230,7 @@ module Vagrant
           color_index = 0
 
           machines.each do |machine|
-            if (machine.state && machine.state.id != :not_created && 
+            if (machine.state && machine.state.id != :not_created &&
                 !machine.index_uuid.nil? && !@env.machine_index.include?(machine.index_uuid))
               machine.recover_machine(machine.state.id)
             end

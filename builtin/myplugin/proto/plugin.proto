@@ -1,0 +1,12 @@
+syntax = "proto3";
+
+package myplugin;
+
+option go_package = "vagrant-ruby/builtin/myplugin/proto";
+
+message UpResult {}
+
+message CommunicatorOptions {
+  string keep_alive = 1;
+  int64 timeout = 2;
+}

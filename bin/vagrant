@@ -188,54 +188,72 @@ begin
     argv += argv_extra
   end
 
-  # Create the environment, which is the cwd of wherever the
-  # `vagrant` command was invoked from
-  logger.debug("Creating Vagrant environment")
-  env = Vagrant::Environment.new(opts)
-
-  # If we are running with the Windows Subsystem for Linux do
-  # some extra setup to allow access to Vagrant managed machines
-  # outside the subsystem
-  if Vagrant::Util::Platform.wsl?
-    recreate_env = Vagrant::Util::Platform.wsl_init(env, logger)
-    if recreate_env
-      logger.info("Re-creating Vagrant environment due to WSL modifications.")
-      env = Vagrant::Environment.new(opts)
+  sub_cmd = Class.new(Vagrant.plugin("2", :command)) {
+    def sub_command
+      split_main_and_subcommand(@argv)[1]
     end
-  end
+  }.new(argv.dup, nil).sub_command
 
-  if !Vagrant.in_installer? && !Vagrant.very_quiet?
-    # If we're not in the installer, warn.
-    env.ui.warn(I18n.t("vagrant.general.not_in_installer") + "\n", prefix: false)
-  end
+  # Check if we are running the server. If we are, we extract
+  # the command from the plugin manager and run it directly.
+  # Doing this prevents Vagrant from attempting to load an
+  # Environment directly.
+  if sub_cmd == "serve"
+    cmd = Vagrant.plugin("2").manager.commands[:serve].first
+    Vagrant.enable_server_mode!
+    cmd_call = cmd.call
+    result = cmd_call.new([], nil).execute
+    exit(result)
+  else
+    # Create the environment, which is the cwd of wherever the
+    # `vagrant` command was invoked from
+    logger.debug("Creating Vagrant environment")
+    env = Vagrant::Environment.new(opts)
 
-  # Acceptable experimental flag values include:
-  #
-  # Unset  - Disables experimental features
-  # 0      - Disables experimental features
-  # 1      - Enables all features
-  # String - Enables one or more features, separated by commas
-  if Vagrant::Util::Experimental.enabled?
-    experimental = Vagrant::Util::Experimental.features_requested
-    ui = Vagrant::UI::Prefixed.new(env.ui, "vagrant")
-    logger.debug("Experimental flag is enabled")
-    if Vagrant::Util::Experimental.global_enabled?
-      ui.warn(I18n.t("vagrant.general.experimental.all"), bold: true, prefix: true, channel: :error)
-    else
-      ui.warn(I18n.t("vagrant.general.experimental.features", features: experimental.join(", ")), bold: true, prefix: true, channel: :error)
+    # If we are running with the Windows Subsystem for Linux do
+    # some extra setup to allow access to Vagrant managed machines
+    # outside the subsystem
+    if Vagrant::Util::Platform.wsl?
+      recreate_env = Vagrant::Util::Platform.wsl_init(env, logger)
+      if recreate_env
+        logger.info("Re-creating Vagrant environment due to WSL modifications.")
+        env = Vagrant::Environment.new(opts)
+      end
     end
-  end
 
-  begin
-    # Execute the CLI interface, and exit with the proper error code
-    exit_status = env.cli(argv)
-  ensure
-    # Unload the environment so cleanup can be done
-    env.unload
-  end
+    if !Vagrant.in_installer? && !Vagrant.very_quiet?
+      # If we're not in the installer, warn.
+      env.ui.warn(I18n.t("vagrant.general.not_in_installer") + "\n", prefix: false)
+    end
 
-  # Exit with the exit status from our CLI command
-  exit(exit_status)
+    # Acceptable experimental flag values include:
+    #
+    # Unset  - Disables experimental features
+    # 0      - Disables experimental features
+    # 1      - Enables all features
+    # String - Enables one or more features, separated by commas
+    if Vagrant::Util::Experimental.enabled?
+      experimental = Vagrant::Util::Experimental.features_requested
+      ui = Vagrant::UI::Prefixed.new(env.ui, "vagrant")
+      logger.debug("Experimental flag is enabled")
+      if Vagrant::Util::Experimental.global_enabled?
+        ui.warn(I18n.t("vagrant.general.experimental.all"), bold: true, prefix: true, channel: :error)
+      else
+        ui.warn(I18n.t("vagrant.general.experimental.features", features: experimental.join(", ")), bold: true, prefix: true, channel: :error)
+      end
+    end
+
+    begin
+      # Execute the CLI interface, and exit with the proper error code
+      exit_status = env.cli(argv)
+    ensure
+      # Unload the environment so cleanup can be done
+      env.unload
+    end
+
+    # Exit with the exit status from our CLI command
+    exit(exit_status)
+  end
 rescue Exception => e
   # It is possible for errors to happen in Vagrant's initialization. In
   # this case, we don't have access to this class yet, so we check for it.

@@ -1,4 +1,4 @@
-## Next version (Unreleased)
+## UNRELEASED
 
 FEATURES:
 
@@ -6,8 +6,67 @@ IMPROVEMENTS:
 
 BUG FIXES:
 
+VAGRANT-GO:
+
+## 2.3.3 (November 15, 2022) 
+
+IMPROVEMENTS:
+
+- core: Bump net-ssh dependency to 7.0 and remove patches [GH-12979]
+- synced_folders/rsync: Include ssh `extra_args` value [GH-12973]
+
+BUG FIXES:
+
+- command/serve: Force root level namespace for Google constant [GH-12989]
+- guest/solaris: Fix insecure key authorized keys removal [GH-12740]
+- provider/virtualbox: Fix `:private_network` support for VirtualBox 7 on macOS [GH-12983]
+- provider/virtualbox: Prevent localization of command output [GH-12994]
+- provisioner/ansible: Update setup packages in debian capability [GH-12832]
+
+## 2.3.2 (October 18, 2022)
+
+FEATURES:
+
+- provider/virtualbox: Add support for VirtualBox 7.0 [GH-12947]
+
+## 2.3.1 (September 29, 2022)
+
+IMPROVEMENTS:
+
+- core: Raise error if required metadata.json box fields are not present [GH-12895]
+- core: Provider helpful error when box version format is invalid [GH-12911]
+
+BUG FIXES:
+
+- Fix flakiness when bringing up a machine that forwards ssh [GH-12909]
+- communicator/ssh: Fix `private_key_path` behavior when `keys_only` is disabled [GH-12885]
+- synced_folder/nfs: Update exports file creation [GH-12910]
+- util/downloader: Fix user agent [GH-12925]
+
+VAGRANT-GO:
+
+- Support secret interactive input [GH-12876]
+- Support terminal coloring [GH-12888]
+- Validate if requested provider is usable and append/prepend information to errors [GH-12898]
+- Raise error if required metadata.json box fields are not present [GH-12919]
+
+## 2.3.0 (August 5, 2022)
+
+FEATURES:
+
+- core: Introduce vagrant-go [GH-12819]
+
+IMPROVEMENTS:
+
+- core: Set rsa-sha2 in kex algorithm set to enable in key exchange [GH-12584]
+- core/bundler: Improve Gem spec selection when resolving [GH-12567]
+- push/heroku: Display output from push [GH-12646]
+
+BUG FIXES:
+
 - host/darwin: Fix `NameError` for version capability [GH-12581]
 - push/ftp:  Fix `VAGRANT_CWD` handling [GH-12645]
+- guests/redhat: Fix NFS shares on Rocky 9 guests [GH-12813]
 
 ## 2.2.19 (November 5, 2021)
 

@@ -19,6 +19,8 @@ module Vagrant
   # etc. In day-to-day usage, every `vagrant` invocation typically
   # leads to a single Vagrant environment.
   class Environment
+    autoload :Remote, "vagrant/environment/remote"
+
     # This is the current version that this version of Vagrant is
     # compatible with in the home directory.
     #
@@ -80,6 +82,7 @@ module Vagrant
         home_path:        nil,
         local_data_path:  nil,
         ui_class:         nil,
+        ui_opts:          nil,
         vagrantfile_name: nil,
       }.merge(opts || {})
 
@@ -106,8 +109,16 @@ module Vagrant
       @cwd              = opts[:cwd]
       @home_path        = opts[:home_path]
       @vagrantfile_name = opts[:vagrantfile_name]
-      @ui               = opts[:ui_class].new
+      @ui               = opts.fetch(:ui, opts[:ui_class].new)
       @ui_class         = opts[:ui_class]
+
+      if @ui.nil?
+        if opts[:ui_opts].nil?
+          @ui = opts[:ui_class].new
+        else
+          @ui = opts[:ui_class].new(*opts[:ui_opts])
+        end
+      end
 
       # This is the batch lock, that enforces that only one {BatchAction}
       # runs at a time from {#batch}.
@@ -179,10 +190,10 @@ module Vagrant
 
       # Call the hooks that does not require configurations to be loaded
       # by using a "clean" action runner
-      hook(:environment_plugins_loaded, runner: Action::Runner.new(env: self))
+      hook(:environment_plugins_loaded, runner: Action::PrimaryRunner.new(env: self))
 
       # Call the environment load hooks
-      hook(:environment_load, runner: Action::Runner.new(env: self))
+      hook(:environment_load, runner: Action::PrimaryRunner.new(env: self))
     end
 
     # Return a human-friendly string for pretty printed or inspected
@@ -197,7 +208,7 @@ module Vagrant
     #
     # @return [Action::Runner]
     def action_runner
-      @action_runner ||= Action::Runner.new do
+      @action_runner ||= Action::PrimaryRunner.new do
         {
           action_runner:  action_runner,
           box_collection: boxes,
@@ -293,6 +304,12 @@ module Vagrant
     # This returns the provider name for the default provider for this
     # environment.
     #
+    # @param check_usable [Boolean] (true) whether to filter for `.usable?` providers
+    # @param exclude [Array<Symbol>] ([]) list of provider names to exclude from
+    #   consideration
+    # @param force_default [Boolean] (true) whether to prefer the value of
+    #   VAGRANT_DEFAULT_PROVIDER over other strategies if it is set
+    # @param machine [Symbol] (nil) a machine name to scope this lookup
     # @return [Symbol] Name of the default provider.
     def default_provider(**opts)
       opts[:exclude]       = Set.new(opts[:exclude]) if opts[:exclude]
@@ -646,8 +663,15 @@ module Vagrant
     # This executes the push with the given name, raising any exceptions that
     # occur.
     #
+    # @param name [String] Push plugin name
+    # @param manager [Vagrant::Plugin::Manager] Plugin Manager to use,
+    # defaults to the primary one registered but parameterized so it can be
+    # overridden in server mode
+    #
+    # @see VagrantPlugins::CommandServe::Service::PushService Server mode behavior
+    #
     # Precondition: the push is not nil and exists.
-    def push(name)
+    def push(name, manager: Vagrant.plugin("2").manager)
       @logger.info("Getting push: #{name}")
 
       name = name.to_sym
@@ -660,7 +684,7 @@ module Vagrant
       end
 
       strategy, config = pushes[name]
-      push_registry = Vagrant.plugin("2").manager.pushes
+      push_registry = manager.pushes
       klass, _ = push_registry.get(strategy)
       if klass.nil?
         raise Vagrant::Errors::PushStrategyNotLoaded,
@@ -956,7 +980,7 @@ module Vagrant
       provider = guess_provider
       vagrantfile.machine_names.each do |mname|
         ldp = @local_data_path.join("machines/#{mname}/#{provider}") if @local_data_path
-        plugins << vagrantfile.machine_config(mname, guess_provider, boxes, ldp, false)[:config]
+        plugins << vagrantfile.machine_config(mname, provider, boxes, ldp, false)[:config]
       end
       result = plugins.reverse.inject(Vagrant::Util::HashWithIndifferentAccess.new) do |memo, val|
         Vagrant::Util::DeepMerge.deep_merge(memo, val.vagrant.plugins)

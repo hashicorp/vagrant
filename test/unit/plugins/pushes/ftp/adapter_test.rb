@@ -77,7 +77,7 @@ describe VagrantPlugins::FTPPush::FTPAdapter do
         ftp.upload("#{@dir}/file", "/file")
       end
 
-      expect(server.files).to include("file")
+      expect(server.files).to include("/file")
     end
 
     it "uploads in passive mode" do
@@ -86,7 +86,7 @@ describe VagrantPlugins::FTPPush::FTPAdapter do
         ftp.upload("#{@dir}/file", "/file")
       end
 
-      expect(server.file("file")).to be_passive
+      expect(server.file("/file")).to be_passive
     end
   end
 end

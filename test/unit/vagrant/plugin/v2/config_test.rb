@@ -72,5 +72,12 @@ describe Vagrant::Plugin::V2::Config do
       expect { subject.i_should_not_exist }.
         to raise_error(NoMethodError)
     end
+
+    it "should survive being the last arg to a method that captures kwargs without a ruby conversion error" do
+      arg_capturer = lambda { |*args, **kwargs| }
+      expect {
+        arg_capturer.call(subject)
+      }.to_not raise_error
+    end
   end
 end

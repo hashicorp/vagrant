@@ -21,6 +21,7 @@ To ensure that the Vagrant community remains an open and safe space for everyone
 3. Unless it is critical, the issue is left for a period of time, giving outside contributors a chance to address the issue. Later, the issue may be assigned to a Vagrant collaborator and planned for a specific release [milestone](https://github.com/hashicorp/vagrant/milestones)
 4. The issue is addressed in a pull request or commit. The issue will be referenced in the commit message so that the code that fixes it is clearly linked.
 5. The issue is closed. Sometimes, valid issues will be closed to keep the issue tracker clean. The issue is still indexed and available for future viewers, or can be re-opened if necessary.
+6. The issue is locked. After about 30 days the issue will be locked. This is done to keep issue activity in open issues and encourge users to open a new issue if an old issue is being encountered again.
 
 ## Pull Requests
 
@@ -31,6 +32,10 @@ Before starting work on a new feature or anything besides a minor bug fix, it is
 No pull request template is provided on GitHub. The expected changes are often already described and validated in an existing issue, that obviously should be referenced. The Pull Request thread should be mainly used for the code review.
 
 **Tip:** Make it small! A focused PR gives you the best chance of having it accepted. Then, repeat if you have more to propose!
+
+### Vagrant Go
+
+The Vagrant port to Go is currently in an alpha state and under heavy development. Please refer to [this issue](https://github.com/hashicorp/vagrant/issues/12819) before starting or submitting pull requests related to Vagrant Go.
 
 ### Setup a development installation of Vagrant
 
@@ -50,7 +55,7 @@ It's nice to have a way to control what version of ruby is installed, so you may
 Clone Vagrant's repository from GitHub into the directory where you keep code on your machine:
 
 ```
-  $ git clone https://github.com/hashicorp/vagrant.git
+  $ git clone --recurse-submodules https://github.com/hashicorp/vagrant.git
 ```
 
 Next, move into the newly created `./vagrant` directory.
@@ -65,7 +70,23 @@ All commands will be run from this path. Now, run the `bundle` command to instal
   $ bundle install
 ```
 
-You can now run Vagrant by running `bundle exec vagrant` from inside that directory.    
+You can now run Vagrant by running `bundle exec vagrant` from inside that directory.
+
+##### Setting up Vagrant-go
+
+Add the generated `binstubs` to your `PATH`
+```
+  $ export PATH=/path/to/my/vagrant/binstubs
+```
+
+Install go using the method of your choice.
+
+Build the Vagrant go binary using `make`
+```
+  $ make
+```
+
+This will generate a `./vagrant` binary in your project root.
 
 ### How to prepare your pull request
 

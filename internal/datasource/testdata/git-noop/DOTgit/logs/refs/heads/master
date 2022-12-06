@@ -1,0 +1,3 @@
+0000000000000000000000000000000000000000 1924b8606e1d56acb7e2059652ad059d4bac6f2e Mitchell Hashimoto <mitchell.hashimoto@gmail.com> 1597721732 -0700	commit (initial): Initial commit
+1924b8606e1d56acb7e2059652ad059d4bac6f2e b6bf15100c570f2be6a231a095d395ed16dfed81 Mitchell Hashimoto <mitchell.hashimoto@gmail.com> 1597722255 -0700	commit: Fixes
+b6bf15100c570f2be6a231a095d395ed16dfed81 1dea92c978dfb5de0a2c4fd06b5d66aa94030a52 sophia <scastellarin95@gmail.com> 1626726228 -0500	commit: Update waypoint.hcl to vagrant-hcl

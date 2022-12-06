@@ -77,7 +77,7 @@ module Vagrant
   #
   # @return [String]
   def self.log_level
-    ENV["VAGRANT_LOG"]
+    ENV.fetch("VAGRANT_LOG", "fatal").downcase
   end
 
   # Returns the URL prefix to the server.
@@ -222,4 +222,56 @@ module Vagrant
     @_default_cli_options = [] if !@_default_cli_options
     @_default_cli_options.dup
   end
+
+  # Check if Vagrant is running in server mode
+  #
+  # @return [Boolean]
+  def self.server_mode?
+    !!@_server_mode
+  end
+
+  # Flag Vagrant as running in server mode
+  #
+  # @return [true]
+  def self.enable_server_mode!
+    if !server_mode?
+      SERVER_MODE_CALLBACKS.each(&:call)
+      Util::HCLogOutputter.new("hclog")
+      Log4r::Outputter["hclog"].formatter = Util::HCLogFormatter.new
+      Log4r::Logger.each_logger do |l|
+        l.outputters = Log4r::Outputter["hclog"] if l.parent == Log4r::RootLogger.instance
+      end
+      Log4r::Logger::Repository.class_eval do
+        def self.[]=(n, l)
+          self.synchronize do
+            l.outputters = Log4r::Outputter["hclog"] if l.parent == Log4r::RootLogger.instance
+            instance.loggers[n] = l
+          end
+        end
+      end
+    end
+    if ENV["VAGRANT_LOG_MAPPER"].to_s == ""
+      l = Log4r::Logger.new("vagrantplugins::commandserve::mappers::internal")
+      l.level = Log4r::ERROR
+    end
+    @_server_mode = true
+  end
+
+  SERVER_MODE_CALLBACKS = [
+    ->{ Vagrant::Box.prepend(Vagrant::Box::Remote) },
+    ->{ Vagrant::BoxCollection.prepend(Vagrant::BoxCollection::Remote) },
+    ->{ Vagrant::BoxMetadata.prepend(Vagrant::BoxMetadata::Remote) },
+    ->{ Vagrant::Guest.prepend(Vagrant::Guest::Remote) },
+    ->{ Vagrant::Host.prepend(Vagrant::Host::Remote) },
+    ->{ Vagrant::Machine.prepend(Vagrant::Machine::Remote) },
+    ->{ Vagrant::Environment.prepend(Vagrant::Environment::Remote) },
+    ->{ Vagrant::MachineIndex.prepend(Vagrant::MachineIndex::Remote) },
+    ->{ Vagrant::MachineIndex::Entry.prepend(Vagrant::MachineIndex::Entry::Remote::InstanceMethods) },
+    ->{ Vagrant::MachineIndex::Entry.extend(Vagrant::MachineIndex::Entry::Remote::ClassMethods) },
+    ->{ Vagrant::Action::Builtin::MixinSyncedFolders.prepend(Vagrant::Action::Builtin::Remote::MixinSyncedFolders) },
+    ->{ Vagrant::Action::Builtin::SSHRun.prepend(Vagrant::Action::Builtin::Remote::SSHRun) },
+    ->{ Vagrant::Vagrantfile.prepend(Vagrant::Vagrantfile::Remote) },
+    ->{ Vagrant::Util::SSH.prepend(Vagrant::Util::Remote::SSH) },
+    ->{ Vagrant::Util::SafePuts.prepend(Vagrant::Util::Remote::SafePuts) },
+  ].freeze
 end

@@ -52,18 +52,19 @@ module VagrantPlugins
               opts.banner = "Usage: vagrant cloud provider <subcommand> [<args>]"
               opts.separator ""
               opts.separator "For various provider actions with Vagrant Cloud"
-              opts.separator ""
-              opts.separator "Available subcommands:"
-
-              # Add the available subcommands as separators in order to print them
-              # out as well.
-              keys = []
-              @subcommands.each { |key, value| keys << key.to_s }
-
-              keys.sort.each do |key|
-                opts.separator "     #{key}"
+              if !Vagrant.server_mode?
+                opts.separator ""
+                opts.separator "Available subcommands:"
+  
+                # Add the available subcommands as separators in order to print them
+                # out as well.
+                keys = []
+                @subcommands.each { |key, value| keys << key.to_s }
+  
+                keys.sort.each do |key|
+                  opts.separator "     #{key}"
+                end
               end
-
               opts.separator ""
               opts.separator "For help on any individual subcommand run `vagrant cloud provider <subcommand> -h`"
             end

@@ -777,6 +777,16 @@ describe Vagrant::Machine do
         )
       end
 
+      it "should return the default private key path with keys_only = false" do
+        provider_ssh_info[:private_key_path] = nil
+        instance.config.ssh.private_key_path = nil
+        instance.config.ssh.keys_only = false
+
+        expect(instance.ssh_info[:private_key_path]).to eq(
+          [instance.env.default_private_key_path.to_s]
+        )
+      end
+
       it "should not set any default private keys if a password is specified" do
         provider_ssh_info[:private_key_path] = nil
         instance.config.ssh.private_key_path = nil

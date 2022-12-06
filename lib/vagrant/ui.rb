@@ -9,6 +9,7 @@ require "vagrant/util/safe_puts"
 
 module Vagrant
   module UI
+    autoload :Remote, "vagrant/ui/remote"
     # Vagrant UIs handle communication with the outside world (typically
     # through a shell). They must respond to the following methods:
     #
@@ -81,6 +82,11 @@ module Vagrant
       # updating content like download progress.
       def rewriting
         yield self
+      end
+
+      def to_proto
+        raise NotImplementedError,
+          "Vagrant::UI::Interface#to_proto"
       end
     end
 
@@ -259,7 +265,6 @@ module Vagrant
       end
     end
 
-
     class NonInteractive < Basic
       def initialize
         super
@@ -294,6 +299,14 @@ module Vagrant
 
         @prefix = prefix
         @ui     = ui
+      end
+
+      def to_proto
+        @ui.to_proto
+      end
+
+      def client
+        @ui.client
       end
 
       def initialize_copy(original)

@@ -13,17 +13,23 @@ boxes/*
 /website/build
 /vagrant-spec.config.rb
 test/vagrant-spec/.vagrant/
+.vagrant/
+/vagrant
+/pkg
+data.db
+vagrant-restore.db.lock
+cmd/vagrant/Vagrantfile
+binstubs/
 
 # Bundler/Rubygems
 *.gem
 .bundle
 pkg/*
-tags
 /Gemfile.lock
 test/tmp/
-vendor/
 /exec
 .ruby-bundle
+vendor/bundle
 
 # Documentation
 _site/*
@@ -40,6 +46,7 @@ doc/
 .idea/*
 *.iml
 .project
+.vscode
 
 # Ruby Managers
 .rbenv
@@ -50,3 +57,16 @@ doc/
 
 # Box storage for spec
 test/vagrant-spec/boxes/*.box
+
+simple_speed.py
+cover.out
+
+# nektos/act secrets file
+.secrets
+
+# delve debug binary
+__debug_bin
+
+# solargraph (ruby lsp) & rubocop
+.solargraph.yml
+.rubocop.yml

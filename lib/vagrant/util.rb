@@ -1,5 +1,10 @@
 module Vagrant
   module Util
+    module Remote
+      autoload :SafePuts, 'vagrant/util/remote/safe_puts'
+      autoload :SSH, 'vagrant/util/remote/ssh'
+    end
+
     autoload :ANSIEscapeCodeRemover,     'vagrant/util/ansi_escape_code_remover'
     autoload :Busy,                      'vagrant/util/busy'
     autoload :Caps,                      'vagrant/util/caps'
@@ -18,6 +23,8 @@ module Vagrant
     autoload :GuestHosts,                'vagrant/util/guest_hosts'
     autoload :GuestInspection,           'vagrant/util/guest_inspection'
     autoload :HashWithIndifferentAccess, 'vagrant/util/hash_with_indifferent_access'
+    autoload :HCLogFormatter,            'vagrant/util/logging_formatter'
+    autoload :HCLogOutputter,            'vagrant/util/logging_formatter'
     autoload :InstallShellConfig,        'vagrant/util/install_cli_autocomplete'
     autoload :InstallZSHShellConfig,     'vagrant/util/install_cli_autocomplete'
     autoload :InstallBashShellConfig,    'vagrant/util/install_cli_autocomplete'

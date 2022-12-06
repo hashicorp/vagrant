@@ -36,6 +36,8 @@ module Vagrant
   #   }
   #
   class MachineIndex
+    autoload :Remote, "vagrant/machine_index/remote"
+
     include Enumerable
 
     # Initializes a MachineIndex at the given file location.
@@ -353,6 +355,8 @@ module Vagrant
 
     # An entry in the MachineIndex.
     class Entry
+      autoload :Remote, "vagrant/machine_index/remote"
+
       # The unique ID for this entry. This is _not_ the ID for the
       # machine itself (which is provider-specific and in the data directory).
       #
@@ -378,6 +382,11 @@ module Vagrant
       #
       # @return [String]
       attr_accessor :state
+
+      # The last known state of this machine.
+      #
+      # @return [MachineState]
+      attr_accessor :full_state
 
       # The valid Vagrantfile filenames for this environment.
       #
@@ -405,16 +414,18 @@ module Vagrant
       # The parameter given should be nil if this is being created
       # publicly.
       def initialize(id=nil, raw=nil)
-        @extra_data = {}
+        @logger = Log4r::Logger.new("vagrant::machine_index::entry")
 
+        @extra_data = {}
+        @id = id
         # Do nothing if we aren't given a raw value. Otherwise, parse it.
         return if !raw
 
-        @id               = id
         @local_data_path  = raw["local_data_path"]
         @name             = raw["name"]
         @provider         = raw["provider"]
         @state            = raw["state"]
+        @full_state       = raw["full_state"]
         @vagrantfile_name = raw["vagrantfile_name"]
         @vagrantfile_path = raw["vagrantfile_path"]
         # TODO(mitchellh): parse into a proper datetime

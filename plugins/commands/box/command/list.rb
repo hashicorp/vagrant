@@ -24,7 +24,8 @@ module VagrantPlugins
 
           boxes = @env.boxes.all
           if boxes.empty?
-            return @env.ui.warn(I18n.t("vagrant.commands.box.no_installed_boxes"), prefix: false)
+            @env.ui.warn(I18n.t("vagrant.commands.box.no_installed_boxes"), prefix: false)
+            return 0
           end
 
           list_boxes(boxes, options[:info])

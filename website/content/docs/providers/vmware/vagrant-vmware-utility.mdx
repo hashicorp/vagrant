@@ -37,7 +37,7 @@ generate the required certificates:
 $ sudo /opt/vagrant-vmware-desktop/bin/vagrant-vmware-utility certificate generate
 ```
 
-The path provided from this command can be used to set the [`utility_certificate_path`](/docs/vmware/configuration#utility_certificate_path) in the Vagrantfile
+The path provided from this command can be used to set the [`utility_certificate_path`](/docs/providers/vmware/configuration#utility_certificate_path) in the Vagrantfile
 configuration if installing to a non-standard path.
 
 Finally, install the service. This will also enable the service.
@@ -117,7 +117,7 @@ $ sudo sv start vagrant-vmware-utility
 ## Utility Service Configuration
 
 When installing the Vagrant VMware utility service, a configuration file is generated
-that is used when the process is started. On windows, this can be found at:
+that is used when the process is started. On Windows, this can be found at:
 
 ```text
 C:\ProgramData\HashiCorp\vagrant-vmware-desktop\config\service.hcl

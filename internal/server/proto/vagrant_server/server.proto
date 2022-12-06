@@ -1,0 +1,1872 @@
+syntax = "proto3";
+
+package hashicorp.vagrant;
+
+option go_package = "github.com/hashicorp/vagrant/internal/server/proto/vagrant_server";
+
+import "google/protobuf/any.proto";
+import "google/protobuf/empty.proto";
+import "google/protobuf/timestamp.proto";
+import "google/rpc/status.proto";
+import "google/protobuf/struct.proto";
+import "protostructure.proto";
+
+import "plugin.proto";
+
+// The service that is implemented for the server backend.
+service Vagrant {
+  // GetVersionInfo returns information about the server. This RPC call does
+  // NOT require authentication. It can be used by clients to determine if they
+  // are capable of talking to this server.
+  rpc GetVersionInfo(google.protobuf.Empty) returns (GetVersionInfoResponse);
+
+  rpc UpsertBasis(UpsertBasisRequest) returns (UpsertBasisResponse);
+
+  rpc GetBasis(GetBasisRequest) returns (GetBasisResponse);
+
+  rpc FindBasis(FindBasisRequest) returns (FindBasisResponse);
+
+  rpc ListBasis(google.protobuf.Empty) returns (ListBasisResponse);
+
+  // ListTasks returns the tasks.
+  rpc ListTasks(ListTasksRequest) returns (ListTasksResponse);
+
+  // GetTask returns a task
+  rpc GetTask(GetTaskRequest) returns (Task);
+
+  // GetLatestRelease returns the most recent successfully completed
+  // task within the given scope.
+  rpc GetLatestTask(GetLatestTaskRequest) returns (Task);
+
+  // UpsertRelease updates or inserts a task.
+  rpc UpsertTask(UpsertTaskRequest) returns (UpsertTaskResponse);
+
+  // UpsertProject upserts the project.
+  rpc UpsertProject(UpsertProjectRequest) returns (UpsertProjectResponse);
+
+  // GetProject returns the project.
+  rpc GetProject(GetProjectRequest) returns (GetProjectResponse);
+
+  rpc FindProject(FindProjectRequest) returns (FindProjectResponse);
+
+  // ListProjects returns a list of all the projects. There is no equivalent
+  // ListApplications because applications are a part of projects and you
+  // can use GetProject to get more information about the project.
+  rpc ListProjects(google.protobuf.Empty) returns (ListProjectsResponse);
+
+  // UpsertTarget upserts a target with a project. If the target
+  // is already registered this does nothing.
+  rpc UpsertTarget(UpsertTargetRequest) returns (UpsertTargetResponse);
+
+  rpc DeleteTarget(DeleteTargetRequest) returns (google.protobuf.Empty);
+
+  rpc GetTarget(GetTargetRequest) returns (GetTargetResponse);
+
+  rpc FindTarget(FindTargetRequest) returns (FindTargetResponse);
+
+  rpc ListTargets(google.protobuf.Empty) returns (ListTargetsResponse);
+
+  // CRUD operations for box
+  rpc UpsertBox(UpsertBoxRequest) returns (UpsertBoxResponse);
+
+  rpc DeleteBox(DeleteBoxRequest) returns (google.protobuf.Empty);
+
+  rpc GetBox(GetBoxRequest) returns (GetBoxResponse);
+
+  rpc ListBoxes(google.protobuf.Empty) returns (ListBoxesResponse);
+
+  rpc FindBox(FindBoxRequest) returns (FindBoxResponse);
+
+  // GetLogStream reads the log stream for a deployment. This will immediately
+  // send a single LogEntry with the lines we have so far. If there are no
+  // available lines this will NOT block and instead will return an error.
+  // The client can choose to retry or not.
+  rpc GetLogStream(GetLogStreamRequest) returns (stream LogBatch);
+
+  // Set a single configuration item for the application.
+  rpc SetConfig(ConfigSetRequest) returns (ConfigSetResponse);
+
+  // Retrieve merged configuration values for a specific scope. You can determine
+  // where a configuration variable was set by looking at the scope field on
+  // each variable.
+  rpc GetConfig(ConfigGetRequest) returns (ConfigGetResponse);
+
+  // QueueJob queues a job for execution by a runner. This will return as
+  // soon as the job is queued, it will not wait for execution.
+  rpc QueueJob(QueueJobRequest) returns (QueueJobResponse);
+
+  // CancelJob cancels a job. If the job is still queued this is a quick
+  // and easy operation. If the job is already completed, then this does
+  // nothing. If the job is assigned or running, then this will signal
+  // the runner about the cancellation but it may take time.
+  //
+  // This RPC always returns immediately. You must use GetJob or GetJobStream
+  // to wait on the status of the cancellation.
+  rpc CancelJob(CancelJobRequest) returns (google.protobuf.Empty);
+
+  // GetJob queries a job by ID.
+  rpc GetJob(GetJobRequest) returns (Job);
+
+  // INTERNAL: ListJobs lists all the jobs the server has processed. This
+  // is not yet ready for public use.
+  rpc _ListJobs(ListJobsRequest) returns (ListJobsResponse);
+
+  // ValidateJob checks if a job appears valid. This will check the job
+  // structure itself (i.e. missing fields) and can also check to ensure
+  // the job is assignable to a runner.
+  rpc ValidateJob(ValidateJobRequest) returns (ValidateJobResponse);
+
+  // GetJobStream opens a job event stream for a running job. This can be
+  // used to listen for terminal output and other events of a running job.
+  // Multiple listeners can open a job stream.
+  rpc GetJobStream(GetJobStreamRequest) returns (stream GetJobStreamResponse);
+
+  // Clean out old jobs from the job database
+  rpc PruneOldJobs(google.protobuf.Empty) returns (google.protobuf.Empty);
+
+  // GetRunner gets information about a single runner.
+  rpc GetRunner(GetRunnerRequest) returns (Runner);
+
+  // GetServerConfig sets configuration for the Vagrant server.
+  rpc GetServerConfig(google.protobuf.Empty) returns (GetServerConfigResponse);
+
+  // SetServerConfig sets configuration for the Vagrant server.
+  rpc SetServerConfig(SetServerConfigRequest) returns (google.protobuf.Empty);
+
+  // CreateSnapshot creates a new database snapshot.
+  rpc CreateSnapshot(google.protobuf.Empty) returns (stream CreateSnapshotResponse);
+
+  // RestoreSnapshot performs a database restore with the given snapshot.
+  // This API doesn't do a full online restore, it only stages the restore
+  // for the next server start to finalize the restore. See the arguments for
+  // more information.
+  rpc RestoreSnapshot(stream RestoreSnapshotRequest) returns (google.protobuf.Empty);
+
+  // BootstrapToken returns the initial token for the server. This can only
+  // be requested once on first startup. After initial request this will
+  // always return a PermissionDenied error.
+  rpc BootstrapToken(google.protobuf.Empty) returns (NewTokenResponse);
+
+  // Generate a new invite token that users can exchange for a login token.
+  rpc GenerateInviteToken(InviteTokenRequest) returns (NewTokenResponse);
+
+  // Generate a new login token that users can use to login directly.
+  rpc GenerateLoginToken(google.protobuf.Empty) returns (NewTokenResponse);
+
+  // Exchange a invite token for a login token.
+  rpc ConvertInviteToken(ConvertInviteTokenRequest) returns (NewTokenResponse);
+
+  //----------------------------------------------------------------------
+  // Runner endpoints. These are expected to be called only by a runner.
+  // These are not meant to be public endpoints.
+  //----------------------------------------------------------------------
+
+  // RunnerConfig is called to register a runner and receive the configuration
+  // for the runner. The response is a stream so that the configuration can
+  // be updated later.
+  rpc RunnerConfig(stream RunnerConfigRequest) returns (stream RunnerConfigResponse);
+
+  // RunnerJobStream is called by a runner to request a single job for
+  // execution and update the status of that job.
+  rpc RunnerJobStream(stream RunnerJobStreamRequest) returns (stream RunnerJobStreamResponse);
+}
+
+/********************************************************************
+* Server Info
+********************************************************************/
+
+message GetVersionInfoResponse {
+  VersionInfo info = 1;
+}
+
+message VersionInfo {
+  ProtocolVersion api = 1;
+  ProtocolVersion entrypoint = 2;
+
+  // Full version string (semver-syntax). This may be hidden/blank for
+  // security purposes so clients should gracefully handle blank values.
+  string version = 3;
+
+  message ProtocolVersion {
+    uint32 current = 1;
+    uint32 minimum = 2;
+  }
+}
+
+/********************************************************************
+* Basic Data Model
+********************************************************************/
+
+message Vagrantfile {
+  // The Vagrantfile can be provided in a number of formats
+  enum Format {
+    JSON = 0;
+    HCL = 1;
+    RUBY = 2;
+  }
+
+  // Unfinalized Vagrantfile configuration. This content is
+  // still able to be used for file merges.
+  sdk.Args.Hash unfinalized = 1;
+
+  // Finalized Vagrantfile configuration. This is the final
+  // configuration which is not suitable for future merges.
+  sdk.Args.Hash finalized = 2;
+
+  // Raw contents of the file (not used for Ruby based Vagrantfile)
+  bytes raw = 3;
+
+  // Format of this Vagrantfile
+  Format format = 4;
+
+  // Original path of the Vagrantfileo
+  sdk.Args.Path path = 5;
+}
+
+
+// This is considered the core configuration and information for the
+// run. This correlates to a VAGRANT_HOME and contains information
+// around projects which utilize this basis as well as the configuration
+// for the basis
+message Basis {
+
+  // Unique resource identifier (internal use)
+  string resource_id = 1;
+
+  // Name for this basis
+  string name = 2;
+
+  // Path to this basis
+  string path = 3;
+
+  // Projects within this basis
+  repeated sdk.Ref.Project projects = 4;
+
+  // Custom metadata
+  sdk.Args.MetadataSet metadata = 5;
+
+  // Serialized configuration of the basis (Vagrantfile)
+  Vagrantfile configuration = 6;
+
+  // TODO(spox): look back over these options and see if we
+  // still care about them (i'm thinking no)
+
+  // If true, then the `-remote` flag or the `vagrant build project/app`
+  // syntax can be used with a remote runner. If this is false, then
+  // this is not allowed. This is typically configured using the
+  // `runner {}` block in the vagrant config.
+  bool remote_enabled = 100;
+
+  // Where data is sourced for remote operations. If this isn't set, then
+  // there is no default data source and it will be an error if a job is
+  // queued for this project without a data source set. This is usually
+  // set using the `runner {}` block in the vagrant config.
+  Job.DataSource data_source = 101;
+}
+
+message Project {
+  // Unique resource identifier
+  string resource_id = 1;
+
+  // Name of this project
+  string name = 2;
+
+  // Path where this project lives
+  string path = 3;
+
+  // Targets associated with this project
+  repeated sdk.Ref.Target targets = 4;
+
+  // The basis which this project is within
+  sdk.Ref.Basis basis = 5;
+
+  // Custom metadata
+  sdk.Args.MetadataSet metadata = 6;
+
+  // Serialized configuration of the project (Vagrantfile)
+  Vagrantfile configuration = 7;
+
+  // TODO(spox): look back over these options and see if we
+  // still care about them (i'm thinking no)
+
+  // If true, then the `-remote` flag or the `vagrant build project/app`
+  // syntax can be used with a remote runner. If this is false, then
+  // this is not allowed. This is typically configured using the
+  // `runner {}` block in the vagrant config.
+  bool remote_enabled = 100;
+
+  // Where data is sourced for remote operations. If this isn't set, then
+  // there is no default data source and it will be an error if a job is
+  // queued for this project without a data source set. This is usually
+  // set using the `runner {}` block in the vagrant config.
+  Job.DataSource data_source = 101;
+}
+
+message Box {
+  // Internal ID of the box
+  string id = 1;
+
+  // This is the provider that this box is built for.
+  string provider = 2;
+
+  // The version of this box.
+  string version = 3;
+
+  // This is the directory on disk where this box exists.
+  string directory = 4;
+
+  // This is the metadata for the box. This is read from the "metadata.json"
+  // file that all boxes require.
+  google.protobuf.Struct metadata = 5;
+
+  // This is the URL to the version info and other metadata for this
+  // box.
+  string metadata_url = 6;
+
+  // The box name. This is the logical name used when adding the box.
+  string name = 7;
+
+  // Tracks the last automatic update for the box
+  google.protobuf.Timestamp last_update = 8;
+}
+
+message Target {
+  // Unique resource identifier
+  string resource_id = 1;
+
+  // Data directory for target specific files
+  sdk.Args.DataDir.Target datadir = 2;
+
+  // Name of the target
+  string name = 3;
+
+  // Project the target is associated
+  sdk.Ref.Project project = 4;
+
+  // State of the target
+  Operation.PhysicalState state = 5;
+
+  // Targets contained within this target
+  repeated Target subtargets = 6;
+
+  // Parent if this target is a subtarget
+  Target parent = 7;
+
+  // Public unique identifier for target
+  string uuid = 8;
+
+  // Custom metadata
+  sdk.Args.MetadataSet metadata = 9;
+
+  // Serialized configuration of the target
+  sdk.Args.ConfigData configuration = 10;
+
+  // Specialized target information (from provider)
+  google.protobuf.Any record = 11;
+
+  // Provider name backing machine
+  string provider = 12;
+
+  // Specialized target (machine)
+  message Machine {
+    // ID of machine as assigned by provider
+    string id = 1;
+
+    // Box information for guest
+    Box box = 7;
+
+    // User ID of machine creator
+    string uid = 9;
+
+    // State of the machine (Vagrant representation)
+    sdk.Args.Target.Machine.State state = 10;
+  }
+
+  // TODO(spox): look back over these options and see if we
+  // still care about them (i'm thinking no)
+
+  // If true, then the `-remote` flag or the `vagrant build project/app`
+  // syntax can be used with a remote runner. If this is false, then
+  // this is not allowed. This is typically configured using the
+  // `runner {}` block in the vagrant config.
+  bool remote_enabled = 100;
+
+  // Where data is sourced for remote operations. If this isn't set, then
+  // there is no default data source and it will be an error if a job is
+  // queued for this project without a data source set. This is usually
+  // set using the `runner {}` block in the vagrant config.
+  Job.DataSource data_source = 101;
+}
+
+/********************************************************************
+* Shared Messages
+********************************************************************/
+
+// Ref contains shared messages used for references to other resources.
+//
+// Refs should be used when the full type shouldn't be embedded in the message.
+message Ref {
+  // Component references a component.
+  message Component {
+    hashicorp.vagrant.Component.Type type = 1;
+    string name = 2;
+  }
+
+  // Operation references an operation (build, deploy, etc.). This can reference
+  // an operation in multiple ways so you must use the oneof to choose.
+  message Operation {
+    oneof target {
+      string id = 1;
+      TargetOperationSeq target_sequence = 2;
+      ProjectOperationSeq project_sequence = 3;
+      BasisOperationSeq basis_sequence = 4;
+    }
+  }
+
+  // TargetOperationSeq references an operation by sequence number anchored
+  // to a Target
+  message TargetOperationSeq {
+    sdk.Ref.Target target = 1;
+    uint64 number = 2;
+  }
+
+  // MachineOperationSeq references an operation by sequence number anchored
+  // to a Project
+  message ProjectOperationSeq {
+    sdk.Ref.Project project = 1;
+    uint64 number = 2;
+  }
+
+  // BasisOperationSeq references an operation by sequence number anchored
+  // to a Basis
+  message BasisOperationSeq {
+    sdk.Ref.Basis basis = 1;
+    uint64 number = 2;
+  }
+
+  // Runner references a runner process which executes operations. This
+  // can reference a runner by any of the more specific types, such as
+  // by ID. If you want to constrain which runners can be targeted,
+  // a different ref type should be used.
+  message Runner {
+    oneof target {
+      RunnerAny any = 1;
+      RunnerId id = 2;
+    }
+  }
+
+  // RunenrId references a runner by ID.
+  message RunnerId {
+    string id = 1;
+  }
+
+  // RunnerAny will reference any runner.
+  message RunnerAny {}
+
+  // Vagrantfile references a Vagrantfile
+  message Vagrantfile {
+    string resource_id = 1;
+  }
+}
+
+// Component represents metadata about a component. A component is the
+// generic name for a plugin type
+message Component {
+  // type of the component
+  Type type = 1;
+
+  // name of the component
+  string name = 2;
+
+  string server_addr = 3;
+
+  // Supported component types, the values here MUST match the enum values
+  // in the Go sdk/component package exactly. A test in internal/server
+  // validates this.
+  enum Type {
+    UNKNOWN = 0;
+    COMMAND = 1;
+    COMMUNICATOR = 2;
+    GUEST = 3;
+    HOST = 4;
+    PROVIDER = 5;
+    PROVISIONER = 6;
+    SYNCEDFOLDER = 7;
+    AUTHENTICATOR = 8;
+    LOGPLATFORM = 9;
+    LOGVIEWER = 10;
+    MAPPER = 11;
+    CONFIG = 12;
+    PLUGININFO = 13;
+    PUSH = 14;
+  }
+}
+
+// Status represents the status of an async operation.
+message Status {
+  // state is the state of this operation.
+  State state = 1;
+
+  // details may be non-empty to provide human-friendly information
+  // about the current status. This may change between status updates
+  // for the same state to provide updated details about the state.
+  string details = 2;
+
+  // error is set if the state == ERROR with the error that occurred.
+  google.rpc.Status error = 3;
+
+  // start_time is the time the operation was started.
+  google.protobuf.Timestamp start_time = 4;
+
+  // complete_time is the time the operation completed (success or fail).
+  google.protobuf.Timestamp complete_time = 5;
+
+  enum State {
+    UNKNOWN = 0;
+    RUNNING = 1;
+    SUCCESS = 2;
+    ERROR = 3;
+  }
+}
+
+message StatusFilter {
+  // Filters are ANDed together.
+  repeated Filter filters = 1;
+
+  message Filter {
+    oneof filter {
+      // state will match any status that has the given state.
+      Status.State state = 2;
+    }
+  }
+}
+
+// Operation is a shared message type used to describe "operations" which are
+// executions of a build, deploy, etc. This just contains shared message types
+// used for fields. Each individual operation has their own message type
+// such as Deployment.
+message Operation {
+  // PhysicalState is the state of any physical resources associated with
+  // an operation. A physical resource for example is the actual container
+  // that might be created alongside an operation.
+  enum PhysicalState {
+    UNKNOWN = 0;
+    PENDING = 1;
+    CREATED = 2;
+    DESTROYED = 3;
+    HALTED = 4;
+    NOT_CREATED = 5;
+  };
+}
+
+// OperationOrder is a shared message type used for controlling the order
+// of results in queries for app operations such as build, deploys, etc.
+message OperationOrder {
+  // Order for the results.
+  Order order = 2;
+  bool desc = 3;
+
+  // Limit the number of results
+  uint32 limit = 4;
+
+  enum Order {
+    UNSET = 0;
+    START_TIME = 1;
+    COMPLETE_TIME = 2;
+  }
+}
+
+/********************************************************************
+* Queueing
+********************************************************************/
+
+message QueueJobRequest {
+  // The job to queue. See the Job message documentation for more details
+  // on what to set.
+  Job job = 1;
+
+  // Set an expiration duration. If the job is not assigned and acked
+  // in the given duration then the job will be automatically cancelled.
+  string expires_in = 2;
+}
+
+message QueueJobResponse {
+  // the job ID that was queued. This can be used with other RPC methods
+  // to check on the status, cancel, etc.
+  string job_id = 1;
+}
+
+
+message CancelJobRequest {
+  // The job to cancel
+  string job_id = 1;
+}
+
+message ValidateJobRequest {
+  // The job to validate.
+  Job job = 1;
+
+  // If true, will NOT validate that the job is assignable.
+  bool disable_assign = 2;
+}
+
+message ValidateJobResponse {
+  // valid will be true if the job structure is valid. If it is invalid
+  // validation_error will be set with a reason.
+  bool valid = 1;
+  google.rpc.Status validation_error = 2;
+
+  // assignable will be true if the job is assignable at this point-in-time.
+  // Assignable means that there are runners registered with the server that
+  // claim to be able to service this job. Note that this is a point-in-time
+  // result so it doesn't guarantee that a job will be serviced when queued.
+  // Additionally, assignability doesn't imply anything about queue length,
+  // so the job may still be queued for some time.
+  //
+  // This will always be false if "valid" is false since we don't check
+  // assignability of invalid jobs.
+  bool assignable = 3;
+}
+
+// A Job is a job that executes on a runner and is queued by QueueOperation.
+message Job {
+  reserved 56 to 79; // future operation range
+
+  // id of the job. This is generated on the server side when queued. If
+  // you are queueing a job, this must be empty or unset.
+  string id = 1;
+
+  // The application to target for the operation. Some operations may allow
+  // certain fields of this to be empty, so check with the operation
+  // documentation to determine what needs to be set. Generally, project
+  // must be set.
+  sdk.Ref.Basis basis = 2;
+  sdk.Ref.Project project = 3;
+  sdk.Ref.Target target = 4;
+
+  // The runner that should execute this job. This is required.
+  Ref.Runner target_runner = 5;
+
+  // Labels are the labels to set for this operation.
+  map<string, string> labels = 6;
+
+  // data_source determines where the data to operate on (such as the
+  // application source code and Vagrant configuration) comes from.
+  // If this is not set then QueueJob will populate this if a default
+  // data source is configured for the target project.
+  //
+  // The overrides will set overrides of configs for the data source. This is
+  // data source dependent but this allows for example setting the Git ref
+  // without knowing the full data source. Invalid overrides will fail the
+  // job.
+  DataSource data_source = 7;
+  map<string, string> data_source_overrides = 8;
+
+  // The operation to execute. See the message docs for details on the operation.
+  oneof operation {
+    Noop noop = 50;
+    AuthOp auth = 51;
+    DocsOp docs = 52;
+    ValidateOp validate = 53;
+    RunOp run = 54;
+    InitOp init = 55;
+  }
+
+  //-----------------------------------------------------------------
+  // Server-side fields - the fields below are all set by the server
+  // and should not be set on the queueing request.
+  //-----------------------------------------------------------------
+
+  // state of the job
+  State state = 100;
+
+  // The runner that was assigned to execute this job. Note that the
+  // runner may have been ephemeral and may no longer exist.
+  Ref.RunnerId assigned_runner = 101;
+
+  // The time when the job was queued.
+  google.protobuf.Timestamp queue_time = 102;
+  google.protobuf.Timestamp assign_time = 103;
+  google.protobuf.Timestamp ack_time = 104;
+  google.protobuf.Timestamp complete_time = 105;
+
+  // error is set if state == ERROR
+  google.rpc.Status error = 106;
+
+  // result is set based on the operation specified. A nil result is possible
+  // for some operations.
+  Result result = 107;
+
+  // cancel time is the time that cancellation of this job was requested.
+  // If this is zero then this job was not cancelled. Note that this is the
+  // cancellation _request_ time. The actual time a job ended is noted by
+  // the complete_time field.
+  google.protobuf.Timestamp cancel_time = 108;
+
+  // expire time is the time when this job would expire. If this isn't set
+  // then this is a non-expiring job. This will remain set even if the job
+  // never expired because it was accepted and run. This field can be used
+  // to detect that it was configured to expire.
+  google.protobuf.Timestamp expire_time = 109;
+
+  enum State {
+    UNKNOWN = 0;
+    QUEUED = 1; // queued and waiting for assignment
+    WAITING = 2; // assigned to a runner, waiting for runner to ack
+    RUNNING = 3; // runner acked and is executing
+    ERROR = 4; // job failed
+    SUCCESS = 5; // job succeeded
+  }
+
+  message Result {
+    AuthResult auth = 1;
+    DocsResult docs = 2;
+    ValidateResult validate = 3;
+    InitResult init = 4;
+    RunResult run = 5;
+  }
+
+  message DataSource {
+    oneof source {
+      // local means the runner has access to the data locally and will
+      // know what to do. This is primarily only useful if the target_runner
+      // is a specific runner and should not be used by any runner unless your
+      // runners are configured to have access to the proper data.
+      Local local = 1;
+
+      // git will check out the data from a Git repository.
+      Git git = 2;
+    }
+  }
+
+  message Local {}
+
+  message Git {
+    // url of the repository to clone. Local paths are not allowed.
+    string url = 1;
+
+    // a ref to checkout. If this isn't specified, then the default
+    // ref that is cloned from the URL above will be used.
+    string ref = 2;
+
+    // path is a subdirectory within the checked out repository to
+    // go into for the configuration. This must be a relative path
+    // and may not contain ".."
+    string path = 3;
+  }
+
+  // Noop operations do nothing. This is primarily used for testing.
+  // This operation will still download the data from the data source.
+  // A noop may be useful outside of testing to verify a runner is
+  // executing properly or can access data properly.
+  message Noop {}
+
+  // ValidateOp validates various aspects of a configuration.
+  message ValidateOp {}
+
+  message ValidateResult {}
+
+  message InitOp {  }
+
+  message InitResult {
+    repeated Action actions = 1;
+    repeated sdk.Command.CommandInfo commands = 2;
+    repeated Hook hooks = 3;
+  }
+
+  message Action {
+    string name = 1;
+    string source = 2;
+  }
+
+  message Hook {
+    string target_action_name = 1;
+    Location location = 2;
+    string action_name = 3;
+    string source = 4;
+
+    enum Location {
+      BEFORE = 0;
+      AFTER = 1;
+    }
+  }
+
+  message RunOp {
+    Task task = 1;
+  }
+
+  message RunResult {
+    // Task which was run
+    Task task = 1;
+
+    // True if the task did not encounter any errors
+    bool run_result = 2;
+    // Provides any error information
+    google.rpc.Status run_error = 3;
+    // Exit code if applicable
+    sint32 exit_code = 4;
+  }
+
+  // AuthOp is the configuration to authenticate any plugins.
+  message AuthOp {
+    // if true, auth will only be checked but not attempted. Currently
+    // this must ALWAYS be true. Only authentication checking is supported.
+    bool check_only = 1;
+
+    // if set, only the component matching this reference will be authed.
+    // If this component doesn't exist, an error will be returned. If this is
+    // unset, all components wll be authed.
+    Ref.Component component = 2;
+  }
+
+  message AuthResult {
+    // results are the list of components that were checked
+    repeated Result results = 1;
+
+    message Result {
+      // component that was checked
+      Component component = 1;
+
+      // result of the auth check. If the component didn't implement the
+      // auth interface this will be set to true. You can check for interface
+      // implementation using auth_supported. If auth is attempted, the auth
+      // operation will recheck the status and this value will reflect the
+      // check post-auth attempt. You can use this to verify if the auth
+      // succeeded.
+      bool check_result = 2;
+      google.rpc.Status check_error = 3;
+
+      // this is true if the component was authenticated using the Auth
+      // callback. If false, then no attempt was made to authenticate. This
+      // can be on purpose for example if "check_only" is set to true on
+      // the op.
+      bool auth_completed = 4;
+      google.rpc.Status auth_error = 5;
+
+      // auth supported is true if this component implemented the auth
+      // interface.
+      bool auth_supported = 6;
+    }
+  }
+
+  message DocsOp {
+
+  }
+
+  message DocsResult {
+    // results are the list of components that were checked
+    repeated Result results = 1;
+
+    message Result {
+      // component that the docs are for
+      Component component = 1;
+      Documentation docs = 2;
+    }
+  }
+}
+
+message Documentation {
+  string description = 1;
+  string example = 2;
+  string input = 3;
+  string output = 4;
+  map<string, Field> fields = 5;
+  repeated Mapper mappers = 6;
+
+  message Field {
+    string name = 1;
+    string synopsis = 2;
+    string summary = 3;
+    bool optional = 4;
+    string env_var = 5;
+    string type = 6;
+    string default = 7;
+  }
+
+  message Mapper {
+    string input = 1;
+    string output = 2;
+    string description = 3;
+  }
+}
+
+
+message GetJobRequest {
+  // ID of the job to request.
+  string job_id = 1;
+}
+
+message ListJobsRequest {}
+
+message ListJobsResponse {
+  repeated Job jobs = 1;
+}
+
+message GetJobStreamRequest {
+  string job_id = 1;
+
+  // Future: can add a timestamp here so that only output from after the
+  // given timestamp is sent down.
+}
+
+message GetJobStreamResponse {
+  oneof event {
+    // Open is sent as confirmation that the job stream successfully opened.
+    // This will be sent immediately by the server if the job ID is valid.
+    // This is useful since other events such as terminal output may not
+    // happen for a long time while the job is executing, queued, etc.
+    //
+    // This is ALWAYS sent. If the job is already completed, this will be
+    // sent first followed immediately by a Complete.
+    Open open = 1;
+
+    // state is sent when there is a job state change event.
+    State state = 2;
+
+    // terminal output. On initial connection, the server may send buffered
+    // historical terminal data so there isn't a race between queueing a job
+    // and getting its first byte output. You can determine this based on the
+    // flag on Terminal.
+    Terminal terminal = 3;
+
+    // an error regarding the stream itself, rather than the executing job.
+    // For example, if you request a job stream for an invalid job ID,
+    // this will be sent back. If this is sent, no further messages will
+    // be sent and the stream is terminated.
+    //
+    // For errors in job execution, see "complete".
+    Error error = 4;
+
+    // job completion, no more events will follow this one. This can be
+    // both success or failure, the event must be checked. Any errors
+    // in complete are errors from the job execution itself.
+    Complete complete = 5;
+  }
+
+  message Open {}
+
+  message State {
+    // previous and current are the previous and current states, respectively.
+    Job.State previous = 1;
+    Job.State current = 2;
+
+    // The full updated job is also sent because additional fields may be
+    // set depending on the state (such as the assigned runner, assignment
+    // times, etc.)
+    Job job = 3;
+
+    // canceling is true if the job was requested to be canceled.
+    bool canceling = 4;
+  }
+
+  message Terminal {
+    repeated Event events = 1;
+
+    // buffered if true signifies that the data being sent is from the
+    // server buffer and is historical vs real-time since the stream was
+    // opened. If this is true, all lines are buffered. We will never mix
+    // buffered and non-buffered lines.
+    bool buffered = 2;
+
+    message Event {
+      // timestamp of the event as seen by the runner. This might be
+      // skewed from the server or the client but relative to all other
+      // line output, it will be accurate.
+      google.protobuf.Timestamp timestamp = 1;
+
+      oneof event {
+        Line line = 2;
+        Status status = 3;
+        NamedValues named_values = 4;
+        Raw raw = 5;
+        Table table = 6;
+        StepGroup step_group = 7;
+        Step step = 8;
+      }
+
+      message Status {
+        string status = 1;
+        string msg = 2;
+        bool step = 3;
+      }
+
+      message Line {
+        string msg = 1;
+        string style = 2;
+        bool disable_new_line = 3;
+        string color = 4;
+      }
+
+      message Raw {
+        bytes data = 1;
+        bool stderr = 2;
+      }
+
+      message NamedValue {
+        string name = 1;
+        string value = 2;
+      }
+
+      message NamedValues {
+        repeated NamedValue values = 1;
+      }
+
+      message TableEntry {
+        string value = 1;
+        string color = 2;
+      }
+
+      message TableRow {
+        repeated TableEntry entries = 1;
+      }
+
+      message Table {
+        repeated string headers = 1;
+        repeated TableRow rows = 2;
+      }
+
+      message StepGroup {
+        bool close = 1;
+      }
+
+      message Step {
+        int32 id = 1;
+        bool close = 2;
+        string msg = 3;
+        string status = 4;
+        bytes output = 5;
+      }
+    }
+  }
+
+  message Error {
+    google.rpc.Status error = 1;
+  }
+
+  message Complete {
+    // error, if set, is an error that occurred as part of the job execution
+    // and resulted in job termination. This is different than the "error"
+    // event which is an error in the stream itself.
+    google.rpc.Status error = 1;
+
+    // Result will be set to the final result of the job execution, if any.
+    Job.Result result = 2;
+  }
+}
+
+/********************************************************************
+* Runner
+********************************************************************/
+
+message Runner {
+  // id is a unique ID generated by the runner. This should be a UUID or some
+  // other guaranteed unique mechanism. This is not an auth mechanism, just
+  // a way to associate an ID to a runner.
+  string id = 1;
+
+  // The runner will only be assigned jobs that directly target this
+  // runner by ID. This is used by local runners to prevent external
+  // jobs from being assigned to them.
+  bool by_id_only = 2;
+
+  // Components are the list of components that the runner supports. This
+  // is used to match jobs to this runner.
+  repeated Component components = 3;
+}
+
+message RunnerConfigRequest {
+  oneof event {
+    Open open = 1;
+  }
+
+  message Open {
+    // Runner to register. See Runner for what fields can be set.
+    Runner runner = 1;
+  }
+}
+
+message RunnerConfigResponse {
+  // config is any updated configuration for the runner.
+  RunnerConfig config = 2;
+}
+
+message RunnerConfig {
+  // The configuration for the runner. Any locally set runner config will
+  // take priority in a conflict. This allows operators to setup runners
+  // with specific configuration without fear that the server will override
+  // them.
+  repeated ConfigVar config_vars = 1;
+}
+
+message RunnerJobStreamRequest {
+  oneof event {
+    // request MUST BE the first message sent by a client. This is used to
+    // signify that a runner is ready to accept a job. This is only ever
+    // sent once. Once a job is complete, the client must terminate the
+    // stream and open a new connection.
+    Request request = 1;
+
+    // ack is sent to accept a job assignment from the server. This
+    // should be sent soon after the job is assigned to avoid the job being
+    // reassigned and duplicated.
+    Ack ack = 2;
+
+    // complete is sent on job completion. This is only sent if there
+    // were no errors, so this signals a successful completion. An erroneous
+    // completion is signaled by sending an Error event.
+    Complete complete = 3;
+
+    // error is sent when there was an error with job execution (after
+    // accept was sent). This signals that the job failed and it cannot
+    // be retried. This terminates the job and no other events should be
+    // sent.
+    Error error = 4;
+
+    // terminal output from the job.
+    GetJobStreamResponse.Terminal terminal = 5;
+
+    // heartbeat that the job is still running.
+    Heartbeat heartbeat = 6;
+  }
+
+  message Request {
+    string runner_id = 1;
+  }
+
+  message Ack {}
+
+  message Complete {
+    Job.Result result = 1;
+  }
+
+  message Error {
+    google.rpc.Status error = 1;
+  }
+
+  message Heartbeat {}
+}
+
+message RunnerJobStreamResponse {
+  oneof event {
+    // assignment is when a job is assigned to this job stream. This
+    // will happen ONLY in response to a "Request" message from the client.
+    JobAssignment assignment = 1;
+
+    // cancel is sent when a cancel request is made.
+    JobCancel cancel = 2;
+  }
+
+  message JobAssignment {
+    Job job = 1;
+  }
+
+  message JobCancel {
+    bool force = 1;
+  }
+}
+
+message RunnerGetDeploymentConfigRequest {}
+
+message RunnerGetDeploymentConfigResponse {
+  string server_addr = 1;
+  bool server_tls = 2;
+  bool server_tls_skip_verify = 3;
+}
+
+message GetRunnerRequest {
+  // ID of the runner to request.
+  string runner_id = 1;
+}
+
+/********************************************************************
+* Server
+********************************************************************/
+
+message SetServerConfigRequest {
+  ServerConfig config = 1;
+}
+
+message GetServerConfigResponse {
+  ServerConfig config = 1;
+}
+
+// ServerConfig is the configuration for the server that can be read and
+// set online. This differs from the configuration used to start the server
+// since some settings can only be set via the file vs. the API.
+message ServerConfig {
+  // The addresses that are advertised for entrypoints. These define how
+  // applications reach back to the server. Currently you may only set
+  // EXACTLY ONE address. In the future, we'll support multiple advertise
+  // addrs and more controls over which are advertised when.
+  repeated AdvertiseAddr advertise_addrs = 1;
+
+  message AdvertiseAddr {
+    string addr = 1;
+    bool tls = 2;
+    bool tls_skip_verify = 3;
+  }
+}
+
+/********************************************************************
+* Projects & Machines
+********************************************************************/
+
+message UpsertBasisRequest {
+  // Basis to upsert. See the message for what fields to set.
+  Basis basis = 1;
+}
+
+message UpsertBasisResponse {
+  Basis basis = 1;
+}
+
+message GetBasisRequest {
+  sdk.Ref.Basis basis = 1;
+}
+
+message GetBasisResponse {
+  Basis basis = 1;
+}
+
+message FindBasisRequest {
+  Basis basis = 1;
+}
+
+message FindBasisResponse {
+  Basis basis = 2;
+}
+
+message ListBasisResponse {
+  repeated sdk.Ref.Basis basis = 1;
+}
+
+message UpsertProjectRequest {
+  // Project to upsert. See the message for what fields to set.
+  Project project = 1;
+}
+
+message UpsertProjectResponse {
+  Project project = 1;
+}
+
+message GetProjectRequest {
+  sdk.Ref.Project project = 1;
+}
+
+message GetProjectResponse {
+  Project project = 1;
+}
+
+message FindProjectRequest {
+  Project project = 1;
+}
+
+message FindProjectResponse {
+  Project project = 2;
+}
+
+message ListProjectsResponse {
+  repeated sdk.Ref.Project projects = 1;
+}
+
+message UpsertTargetRequest {
+  // project to register the app against
+  sdk.Ref.Project project = 1;
+
+  Target target = 2;
+}
+
+message UpsertTargetResponse {
+  Target target = 1;
+}
+
+message DeleteTargetRequest {
+  sdk.Ref.Project project = 1;
+  sdk.Ref.Target target = 2;
+}
+
+message GetTargetRequest {
+  sdk.Ref.Project project = 1;
+  sdk.Ref.Target target = 2;
+}
+
+message GetTargetResponse {
+  Target target = 1;
+}
+
+message FindTargetRequest {
+  Target target = 1;
+}
+
+message FindTargetResponse {
+  Target target = 2;
+}
+
+message ListTargetsResponse {
+  repeated sdk.Ref.Target targets = 1;
+}
+
+message UpsertBoxRequest {
+  Box box = 1;
+}
+
+message UpsertBoxResponse {
+  Box box = 1;
+}
+
+message DeleteBoxRequest {
+  sdk.Ref.Box box = 1;
+}
+
+message GetBoxRequest {
+  sdk.Ref.Box box = 2;
+}
+
+message GetBoxResponse {
+  Box box = 1;
+}
+
+message ListBoxesResponse {
+  repeated sdk.Ref.Box boxes = 1;
+}
+
+message FindBoxRequest {
+  sdk.Ref.Box box = 2;
+}
+
+message FindBoxResponse {
+  Box box = 1;
+}
+
+
+/********************************************************************
+* Logs
+********************************************************************/
+
+message GetLogStreamRequest {
+  oneof scope {
+    sdk.Ref.Basis basis = 1;
+    sdk.Ref.Project project = 2;
+    sdk.Ref.Target target = 3;
+  }
+
+  // limit_backlog sets the maximum backlog lines to return on the initial
+  // connection. This setting is per instance, not global. The maximum
+  // backlog to expect is `n * limit_backlog` where n is the number of
+  // instances.
+  //
+  // A negative value will not limit the backlog.
+  //
+  // A value of zero will default to a value of 50.
+  int32 limit_backlog = 4;
+}
+
+message LogBatch {
+  string deployment_id = 1;
+  string instance_id = 2;
+  repeated Entry lines = 3;
+
+  message Entry {
+    google.protobuf.Timestamp timestamp = 1;
+    string line = 2;
+  }
+}
+
+/********************************************************************
+* Config
+********************************************************************/
+
+message ConfigVar {
+  // scope is the scoping for this config variable.
+  oneof scope {
+    sdk.Ref.Target target = 3;
+    sdk.Ref.Project project = 4;
+
+    // This specifies that the configuration variable is for runners only.
+    // You can use more complex runner targeting via this ref.
+    Ref.Runner runner = 5;
+  }
+
+  string name = 1;
+  string value = 2;
+}
+
+message ConfigSetRequest {
+  repeated ConfigVar variables = 1;
+}
+
+message ConfigSetResponse {}
+
+message ConfigGetRequest {
+  // scope is the scoping for this config variable.
+  oneof scope {
+    sdk.Ref.Target target = 2;
+    sdk.Ref.Project project = 3;
+    Ref.RunnerId runner = 4;
+  }
+
+  // Get all configuration entries under the given prefix. When empty,
+  // returns all config variables.
+  string prefix = 1;
+}
+
+message ConfigGetResponse {
+  repeated ConfigVar variables = 1;
+}
+
+/********************************************************************
+* Exec
+********************************************************************/
+
+message ExecStreamRequest {
+  oneof event {
+    Start start = 1;
+    Input input = 2;
+    WindowSize winch = 3;
+  }
+
+  message Start {
+    // Deployment to exec into
+    string deployment_id = 1;
+
+    // Args including the command at args[0] to execute.
+    repeated string args = 2;
+
+    // Pty is set if we should allocate a PTY for this exec stream.
+    PTY pty = 3;
+  }
+
+  message Input {
+    bytes data = 1;
+  }
+
+  message PTY {
+    bool enable = 1;
+
+    // term is the TERM value to request on the remote side. This should be set.
+    string term = 2;
+
+    // window_size is the initial window size
+    WindowSize window_size = 3;
+  }
+
+  message WindowSize {
+    int32 rows = 1;
+    int32 cols = 2;
+    int32 width = 3;
+    int32 height = 4;
+  }
+}
+
+message ExecStreamResponse {
+  oneof event {
+    // Open is always sent first no matter what (unless there is an error
+    // in which case the stream will exit). This should be used to validate
+    // that the exec process started properly.
+    Open open = 3;
+
+    Output output = 1;
+    Exit exit = 2;
+  }
+
+  message Open {}
+
+  message Exit {
+    int32 code = 1;
+  }
+
+  message Output {
+    Channel channel = 1;
+    bytes data = 2;
+
+    enum Channel {
+      UNKNOWN = 0;
+      STDOUT  = 1;
+      STDERR  = 2;
+    }
+  }
+}
+
+/********************************************************************
+* Entrypoint
+********************************************************************/
+
+message EntrypointConfigRequest {
+  // id of the deployment that this instance is a part of
+  string deployment_id = 1;
+
+  // instance_id is a unique ID generated by the running entrypoint. This is
+  // not an auth mechanism, just a way to associate data with the correct instance.
+  string instance_id = 2;
+}
+
+message EntrypointConfigResponse {
+  EntrypointConfig config = 2;
+}
+
+message EntrypointConfig {
+  // Exec are requested exec sessions for this instance.
+  repeated Exec exec = 1;
+
+  repeated ConfigVar env_vars = 2;
+
+  // The URL service configuration. This might be nil. If this is nil,
+  // then the URL service is disabled.
+  URLService url_service = 3;
+
+  message Exec {
+    int64 index = 1;
+    repeated string args = 2;
+    ExecStreamRequest.PTY pty = 3;
+  }
+
+  message URLService {
+    // address to the control server and the token for auth
+    string control_addr = 1;
+    string token = 2;
+
+    // labels to register this instance under
+    string labels = 3;
+  }
+}
+
+// A batch of data for log streaming from the entrypoint.
+message EntrypointLogBatch {
+  // instance_id is a unique ID generated by the running entrypoint. This is
+  // not an auth mechanism, just a way to associate data with the correct instance.
+  string instance_id = 1;
+
+  // lines is the set of lines
+  repeated LogBatch.Entry lines = 2;
+}
+
+message EntrypointExecRequest {
+  oneof event {
+    // open MUST BE the first message sent by a client. This will be used
+    // by the server side to perform some initialization. If the first message
+    // is not open the server will close the connection.
+    Open open = 1;
+
+    // exit should be sent as a final message type after the command exits.
+    Exit exit = 2;
+
+    // output contains stdout/stderr
+    Output output = 3;
+
+    // error indicates an error occurred. This will terminate the stream.
+    Error error = 4;
+  }
+
+  message Open {
+    string instance_id = 1;
+    int64 index = 2;
+  }
+
+  message Exit {
+    int32 code = 1;
+  }
+
+  message Output {
+    Channel channel = 1;
+    bytes data = 2;
+
+    enum Channel {
+      UNKNOWN = 0;
+      STDOUT  = 1;
+      STDERR  = 2;
+    }
+  }
+
+  message Error {
+    google.rpc.Status error = 1;
+  }
+}
+
+message EntrypointExecResponse {
+  oneof event {
+    // input is raw stdin input from the client
+    bytes input = 1;
+
+    // winch is SIGWNCH information for window sizing
+    ExecStreamRequest.WindowSize winch = 2;
+
+    // opened is sent when the entrypoint session is successfully opened.
+    // The value of this message is meaningless. The existence of the message
+    // itself is a signal that the stream was opened properly.
+    bool opened = 3;
+  }
+}
+
+/********************************************************************
+* Token
+********************************************************************/
+
+// The outer structure of the token that is directly Marshaled and
+// ASCII armored.
+message TokenTransport {
+  // A Marshaled token, stored as bytes because we need to to validate
+  // it with the given signature.
+  bytes body = 1;
+
+  // The signature of body for validation.
+  bytes signature = 2;
+
+  // The key used to generate the signature.
+  string key_id = 3;
+
+  // Any configuration style metadata that can be passed along with the token
+  // without invalidating the token body itself.
+  map<string, string> metadata = 4;
+}
+
+// The authenticated Token information. This is used to authenticate requests.
+message Token {
+  // The user that the token is fore.
+  string user = 1;
+
+  // A random id for the token. Also functions as a nonce when signing.
+  bytes token_id = 2;
+
+  // When the token is valid until. After the given date, the token will be rejected.
+  // When this is not set, the token is valid forever.
+  google.protobuf.Timestamp valid_until = 3;
+
+  // Indicates whether or not this token can be used for to authenticate RPCs.
+  bool login = 4;
+
+  // Inidicates whether or not this token can be used as an invite.
+  bool invite = 5;
+
+  // Entrypoint if set indicates that this token is for entrypoint binary
+  // usage only and specific restrictions are specified in this message.
+  Entrypoint entrypoint = 6;
+
+  message Entrypoint {
+    // deployment id is the deployment to restrict this token to.
+    string deployment_id = 1;
+  }
+}
+
+// Represents a key used to sign tokens using HMAC
+message HMACKey {
+  // The identifier of the key.
+  string id = 1;
+
+  // A randomly generated key used to sign tokens with
+  bytes key = 2;
+}
+
+// Passed with GenerateInviteToken with the params on how the invite token should
+// be generate.
+message InviteTokenRequest {
+  // How long the token should be valid until. The resulting token has a timestamp
+  // encoded within it by adding the current time to this duration.
+  string duration = 1;
+
+  // If set, the token generated by this invite code is for the given entrypoint.
+  Token.Entrypoint entrypoint = 2;
+}
+
+// Returned by any action that creates a token.
+message NewTokenResponse {
+  // The new token which can be presented to whichever API expects it.
+  string token = 1;
+}
+
+// Passed to ConvertInviteToken to create a new token that can be used to authenticate RPCs.
+message ConvertInviteTokenRequest {
+  // A token previous returned by GenerateInviteToken.
+  string token = 1;
+}
+
+/********************************************************************
+* Snapshot/Restore
+********************************************************************/
+
+message CreateSnapshotResponse {
+  oneof event {
+    // Open is sent as the opening message with information about the
+    // snapshot. This is always sent first (before any data).
+    Open open = 1;
+
+    // Chunk is a next chunk of data. You should continue to expect
+    // data until an EOF is received on the stream.
+    bytes chunk = 2;
+  }
+
+  // One day we may add information here. For now we are reserving this.
+  message Open {}
+}
+
+message RestoreSnapshotRequest {
+  oneof event {
+    // Open MUST be sent as the first message and sent exactly once.
+    // This sets the settings for the restore.
+    Open open = 1;
+
+    // Chunk is a chunk of restore data. The restore snapshot API will
+    // continue reading data until an EOF is received (the write end is
+    // closed).
+    bytes chunk = 2;
+  }
+
+  message Open {
+    // If true, the server will exit after the restore is staged. This will
+    // SHUT DOWN the server and some external process you created is expected
+    // to bring it back. The Vagrant server on its own WILL NOT automatically
+    // restart. You should only set this if you have some operation to
+    // automate restart such as running in Nomad or Kubernetes.
+    bool exit = 1;
+  }
+}
+
+// Snapshot is the encoding of the snapshot for all snapshot APIs.
+// The encoding is proto.Message delimited data. This is also the encoding
+// expected if the vagrant-restore.db file is copied manually from the
+// snapshot data.
+//
+// For snapshots, the Header message is always guaranteed first. After that,
+// it is NOT guaranteed that only data chunks are sent. It is only guaranteed
+// that the data chunks are over at EOF. Unknown messages can probably be
+// ignored.
+//
+// It is HIGHLY RECOMMENDED you do not modify snapshots, but these messages
+// are publicly exported so that you can try to inspect snapshots.
+message Snapshot {
+  // Header is _always_ the first message encoded into a snapshot. If
+  // this isn't present, the entire snapshot can be considered corrupt.
+  message Header {
+    // version is the version of Vagrant that generated this snapshot.
+    VersionInfo version = 1;
+
+    // format is the format of the remaining messages. This can be used
+    // to determine what messages to expect following the header.
+    Format format = 2;
+
+    enum Format {
+      UNKNOWN = 0;
+      BOLT = 1; // Expect a series of BoltChunk messages
+    }
+  }
+
+  // Trailer is sent as the final message encoded into a snapshot. Detecting
+  // when the trailer is is dependent on the format.
+  message Trailer {
+    // checksum is the checksum of all the bytes up to but not including
+    // this proto message. The checksum is for the raw uncompressed bytes.
+    oneof checksum {
+      string sha256 = 1; // SHA-256 checksum
+    }
+  }
+
+  // BoltChunk is a single chunk of data for BoltDB if the snapshot format
+  // is BOLT. A chunk will always contain items designated for a single bucket,
+  // but a bucket may be repeated multiple time across chunks if there are
+  // too many items in the bucket.
+  //
+  // The final BoltChunk will have trailer set to true. Immediaetly following
+  // that chunk will be the Trailer message.
+  message BoltChunk {
+    // bucket is the name of the bucket. This may be empty. If this is empty,
+    // then this chunk should be ignored.
+    string bucket = 1;
+
+    // items is a id/value mapping of all this chunk of items in this bucket
+    map<string, bytes> items = 2;
+
+    // final is true if this is the last bolt chunk being written.
+    bool final = 3;
+  }
+}
+
+/**
+ * Task
+ **/
+
+message UpsertTaskRequest {
+  Task task = 1;
+}
+
+message UpsertTaskResponse {
+  // Resultant task in this response will likely be
+  // updated and should replace the task sent in request
+  Task task = 1;
+}
+
+message GetLatestTaskRequest {
+  // The scope of the task
+  oneof scope {
+    sdk.Ref.Target target = 1;
+    sdk.Ref.Project project = 2;
+    sdk.Ref.Basis basis = 3;
+  }
+}
+
+message ListTasksRequest {
+  // The scope of the task
+  oneof scope {
+    sdk.Ref.Target target = 1;
+    sdk.Ref.Project project = 2;
+    sdk.Ref.Basis basis = 3;
+  }
+
+  // The filters to apply to this request. These are ORed, so you should
+  // specify multiple filters in the StatusFilter for AND behavior.
+  repeated StatusFilter status = 4;
+
+  // The physical state to filter for. If this is zero or unset then no
+  // filtering on physical state will be done.
+  Operation.PhysicalState physical_state = 5;
+
+  // Specifies the order of results. If this isn't specified, the results
+  // are in an undefined order.
+  OperationOrder order = 6;
+}
+
+message ListTasksResponse {
+  repeated Task tasks = 1;
+}
+
+message GetTaskRequest {
+  Ref.Operation ref = 1;
+}
+
+message Task {
+  // The scope this task was run within
+  oneof scope {
+    sdk.Ref.Target target = 1;
+    sdk.Ref.Project project = 2;
+    sdk.Ref.Basis basis = 3;
+  }
+
+  // Name of the task executed
+  string task = 4;
+
+  // The sequence number for this task
+  uint64 sequence = 5;
+
+  // id is the unique ID for this task
+  string id = 6;
+
+  // Status is the current status of the task
+  Status status = 7;
+
+  // State of any resources related to the task
+  Operation.PhysicalState state = 8;
+
+  // Component responsible for this task
+  Component component = 9;
+
+  // Any labels which were set for this task
+  map<string,string> labels = 10;
+
+  // ID of the job that created this task
+  string job_id = 11;
+
+  // Map of cli arguments
+  sdk.Command.Arguments cli_args = 12;
+
+  string command_name = 13;
+
+  Vagrantfile vagrantfile = 14;
+}

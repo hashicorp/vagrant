@@ -10,6 +10,15 @@ require "vagrant/util/presence"
 require "vagrant/util/experimental"
 require "vagrant/util/map_command_options"
 
+$LOAD_PATH << Vagrant.source_root.join("lib/vagrant/protobufs/proto").to_s
+
+require "vagrant/protobufs/proto/protostructure_pb"
+require "vagrant/protobufs/proto/vagrant_plugin_sdk/plugin_pb"
+require "vagrant/protobufs/proto/vagrant_plugin_sdk/plugin_services_pb"
+
+# Include mappers
+require Vagrant.source_root.join("plugins/commands/serve/command").to_s
+
 require File.expand_path("../vm_provisioner", __FILE__)
 require File.expand_path("../vm_subvm", __FILE__)
 require File.expand_path("../disk", __FILE__)
@@ -611,12 +620,20 @@ module VagrantPlugins
 
         # Compile all the provider configurations
         @__providers.each do |name, blocks|
+          # TODO(spox): this is a hack that needs to be resolved elsewhere
+
+          name = name.to_sym
+
+
           # If we don't have any configuration blocks, then ignore it
           next if blocks.empty?
 
           # Find the configuration class for this provider
           config_class = Vagrant.plugin("2").manager.provider_configs[name]
           config_class ||= Vagrant::Config::V2::DummyConfig
+
+          l = Log4r::Logger.new(self.class.name.downcase)
+          l.info("config class lookup for provider #{name.inspect} gave us base class: #{config_class}")
 
           # Load it up
           config = config_class.new
@@ -687,12 +704,19 @@ module VagrantPlugins
       def get_provider_config(name)
         raise "Must finalize first." if !@__finalized
 
+        @logger = Log4r::Logger.new(self.class.name.downcase)
+        @logger.info("looking up provider config for: #{name.inspect}")
+
         result = @__compiled_provider_configs[name]
+
+        @logger.info("provider config value that was stored: #{result.inspect}")
 
         # If no compiled configuration was found, then we try to just
         # use the default configuration from the plugin.
         if !result
+          @logger.info("no result so doing plugin config lookup using name: #{name.inspect}")
           config_class = Vagrant.plugin("2").manager.provider_configs[name]
+          @logger.info("config class that we got for the lookup: #{config_class}")
           if config_class
             result = config_class.new
             result.finalize!

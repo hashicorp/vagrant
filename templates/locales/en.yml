@@ -615,6 +615,12 @@ en:
         The metadata associated with the box '%{name}' appears corrupted.
         This is most often caused by a disk issue or system crash. Please
         remove the box, re-add it, and try again.
+      box_metadata_missing_required_fields: |-
+        The metadata associated with the box '%{name}' appears to be missing
+        the required field '%{required_field}'. Please ensure `metadata.json`
+        has all required fields.
+
+        Required fields: %{all_fields}
       box_metadata_download_error: |-
         There was an error while downloading the metadata for this box.
         The error message is shown below:
@@ -713,6 +719,15 @@ en:
         such as from the public Vagrant Server.
       box_update_no_name: |-
         This machine doesn't have a box. Won't update anything.
+      box_version_invalid: |-
+        The format of box version provided (%{version}) is incorrect. The
+        version must follow the semantic versioning format or semantic
+        versioning compatible constraint format. Examples of valid values:
+
+          2.0
+          2.1.4
+          >= 2
+          < 3.0.0
       bundler_disabled: |-
         Vagrant's built-in bundler management mechanism is disabled because
         Vagrant is running in an external bundler environment. In these
@@ -1672,6 +1687,8 @@ en:
         Path: %{path}
         Line number: %{line}
         Message: %{message}
+      vagrant_remote_error: |-
+        %{msg}
       vagrantfile_syntax_error: |-
         There is a syntax error in the following Vagrantfile. The syntax error
         message is reproduced below for convenience:
@@ -1726,6 +1743,11 @@ en:
         4.2.14 contains a critical bug which prevents it from working with
         Vagrant. VirtualBox 4.2.16+ fixes this problem. Please upgrade
         VirtualBox.
+      virtualbox_config_not_found: |-
+        Vagrant was unable to locate the configuration file for the requested
+        VirtualBox VM. Verify the requested VM exists and try again.
+
+          UUID provided: %{uuid}
       virtualbox_disks_controller_not_found: |-
         Vagrant expected to find a storage controller called '%{name}',
         but there is no controller with this name attached to the current VM.
@@ -1772,6 +1794,10 @@ en:
         VirtualBox is complaining that the installation is incomplete. Please
         run `VBoxManage --version` to see the error message which should contain
         instructions on how to fix this error.
+      virtualbox_machine_folder_not_found: |-
+        Vagrant failed to determine the machine folder on this host from
+        the VirtualBox system information. Try running the command again.
+        If this error persists, please report this error as a bug.
       virtualbox_mount_failed: |-
         Vagrant was unable to mount VirtualBox shared folders. This is usually
         because the filesystem "vboxsf" is not available. This filesystem is

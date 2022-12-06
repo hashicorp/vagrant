@@ -1,14 +1,12 @@
 #!/bin/bash
-set -xe
+set -e
 
+export DEBIAN_FRONTEND=noninteractive
 apt-get update -q
-apt-get install -qy linux-headers-$(uname -r)
-apt-get install -qy virtualbox
-apt-get install -qy nfs-kernel-server
+apt-get install -qqy linux-headers-$(uname -r)
+apt-get install -qqy virtualbox
+apt-get install -qqy nfs-kernel-server
 
-pushd /vagrant
+/bin/bash /vagrant/test/vagrant-spec/scripts/ubuntu-install-vagrant.sh
 
-dpkg -i vagrant_*_x86_64.deb
-vagrant plugin install ./vagrant-spec.gem
 
-popd

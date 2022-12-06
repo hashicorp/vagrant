@@ -21,4 +21,11 @@ describe Vagrant::Config::V2::DummyConfig do
     expect { subject[:foo] = :bar }.
       to_not raise_error
   end
+
+  it "should survive being the last arg to a method that captures kwargs without a ruby conversion error" do
+    arg_capturer = lambda { |*args, **kwargs| }
+    expect {
+      arg_capturer.call(subject)
+    }.to_not raise_error
+  end
 end

@@ -86,7 +86,7 @@ module Vagrant
 
         unknown_sources = @sources.keys - order
         if !unknown_sources.empty?
-          @logger.error("Unknown config sources: #{unknown_sources.inspect}")
+          @logger.warn("Unknown config sources: #{unknown_sources.inspect}")
         end
 
         # Get the current version config class to use
@@ -198,6 +198,51 @@ module Vagrant
 
         @logger.debug("Configuration loaded successfully, finalizing and returning")
         [current_config_klass.finalize(result), warnings, errors]
+      end
+
+      # This method is used for doing partial loads of the
+      # Vagrantfile. It will load the contents of a single
+      # location and return the config. No merging is performed
+      # and no finalization is applied.
+      #
+      # @param key [Symbol] name of location
+      # @return [Object] configuration
+      # @note: This will load either version, but we assume a v2 result
+      # @todo(spox): check version and raise error on v1
+      def partial_load(key)
+        raise KeyError,
+              "Unknown path key provided (#{key})" if !@sources.key?(key)
+
+        version, proc = @sources[key].first
+        @logger.debug("Loading from: #{key} (evaluating)")
+
+        # Get the proper version loader for this version and load
+        version_loader = @versions.get(version)
+        raise KeyError,
+              "Failed to create loader for requested version: #{version}" if version_loader.nil?
+
+        begin
+          version_config = version_loader.load(proc)
+        rescue NameError => e
+          line = "(unknown)"
+          path = "(unknown)"
+          if e.backtrace && e.backtrace[0]
+            backtrace_tokens = e.backtrace[0].split(":")
+            path = e.backtrace.first.slice(0, e.backtrace.first.rindex(':')).rpartition(':').first
+            backtrace_tokens.each do |part|
+              if part =~ /\d+/
+                line = part.to_i
+                break
+              end
+            end
+          end
+
+          raise Errors::VagrantfileNameError,
+                path: path,
+                line: line,
+                message: e.message.sub(/' for .*$/, "'") + "\n#{e.backtrace.join("\n")}" + "\nVersion #{version.inspect} loader: #{version_loader.inspect} versions: #{@versions.inspect}"
+        end
+        version_config
       end
 
       protected

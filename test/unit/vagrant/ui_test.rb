@@ -379,12 +379,12 @@ describe Vagrant::UI::Prefixed do
 
   describe "#machine" do
     it "sets the target option" do
-      expect(ui).to receive(:machine).with(:foo, target: prefix)
+      expect(ui).to receive(:machine).with(:foo, { target: prefix })
       subject.machine(:foo)
     end
 
     it "preserves existing options" do
-      expect(ui).to receive(:machine).with(:foo, :bar, foo: :bar, target: prefix)
+      expect(ui).to receive(:machine).with(:foo, :bar, { foo: :bar, target: prefix })
       subject.machine(:foo, :bar, foo: :bar)
     end
   end

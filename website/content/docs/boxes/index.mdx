@@ -1,71 +1,62 @@
 ---
 layout: docs
-page_title: Boxes
+page_title: Vagrant Boxes
 description: |-
   Boxes are the package format for Vagrant environments. A box can be used by
   anyone on any platform that Vagrant supports to bring up an identical
   working environment.
 ---
 
-# Boxes
+# Vagrant boxes
 
-Boxes are the package format for Vagrant environments. A box can be used by
-anyone on any platform that Vagrant supports to bring up an identical
-working environment.
+Boxes are the package format for Vagrant environments. You specify a box environment and operating configurations in your [Vagrantfile](/docs/vagrantfile). You can use a box on any [supported platform](https://www.vagrantup.com/downloads) to bring up identical working environments. To enable teams to use and manage the same boxes, [versions are supported](/docs/boxes/versioning). 
 
-The `vagrant box` utility provides all the functionality for managing
-boxes. You can read the documentation on the [vagrant box](/docs/cli/box)
+~> **Note**: Boxes require a provider, a virtualization product, to operate. Before you can use a box, 
+ensure that you have properly installed a supported [provider](/docs/providers).
+
+The quickest way to get started is to select a pre-defined box environment from the
+[publicly available catalog on Vagrant Cloud](https://vagrantcloud.com/boxes/search).
+You can also add and share your own customized boxes on Vagrant Cloud.
+
+The `vagrant box` CLI utility provides all the functionality for box management. You can read the documentation on the [vagrant box](/docs/cli/box)
 command for more information.
 
-The easiest way to use a box is to add a box from the
-[publicly available catalog of Vagrant boxes](https://vagrantcloud.com/boxes/search).
-You can also add and share your own customized boxes on this website.
+## Discover boxes
 
-Boxes also support versioning so that members of your team using Vagrant
-can update the underlying box easily, and the people who create boxes
-can push fixes and communicate these fixes efficiently.
-
-You can learn all about boxes by reading this page as well as the
-sub-pages in the navigation to the left.
-
-## Discovering Boxes
-
-The easiest way to find boxes is to look on the
+To find boxes, explore the
 [public Vagrant box catalog](https://vagrantcloud.com/boxes/search)
-for a box matching your use case. The catalog contains most major operating
-systems as bases, as well as specialized boxes to get you up and running
-quickly with LAMP stacks, Ruby, Python, etc.
+for a box that matches your use case. The catalog contains most major operating
+systems as bases, as well as specialized boxes to get you started with common 
+configurations such as LAMP stacks, Ruby, and Python.
 
 The boxes on the public catalog work with many different
-[providers](/docs/providers/). Whether you are using Vagrant with
-VirtualBox, VMware, AWS, etc. you should be able to find a box you need.
+[providers](/docs/providers/). The list of supported providers is located in the box descriptions.  
 
-Adding a box from the catalog is very easy. Each box shows you instructions
-with how to add it, but they all follow the same format:
+### Add a box 
 
-```shell-session
-$ vagrant box add USER/BOX
-```
+You can add a box from the public catalog at any time. The box's description includes instructions
+on how to add it to an existing Vagrantfile or initiate it as a new environment on the command-line.
 
-For example: `vagrant box add hashicorp/bionic64`. You can also quickly
-initialize a Vagrant environment with `vagrant init hashicorp/bionic64`.
-
-~> **Namespaces do not guarantee canonical boxes!** A common misconception is
-that a namespace like "ubuntu" represents the canonical space for Ubuntu boxes.
+A common misconception is
+that a namespace like "ubuntu" represents the official space for Ubuntu boxes.
 This is untrue. Namespaces on Vagrant Cloud behave very similarly to namespaces on
-GitHub, for example. Just as GitHub's support team is unable to assist with
+GitHub. Just as GitHub's support team is unable to assist with
 issues in someone's repository, HashiCorp's support team is unable to assist
 with third-party published boxes.
 
-## Official Boxes
+## Official boxes
 
-HashiCorp (the makers of Vagrant) publish a basic Ubuntu 18.04 64-bit box that is available for minimal use cases. It is highly optimized, small in size, and includes support for VirtualBox, Hyper-V, and VMware. You can use it like this:
+There are only two officially-recommended box sets.
+
+HashiCorp publishes a basic Ubuntu 18.04 64-bit box that is available for minimal use cases. It is highly optimized, small in size, and includes support for VirtualBox, Hyper-V, and VMware. 
+
+To get started, use the `init` command to initialize your environment. 
 
 ```shell-session
 $ vagrant init hashicorp/bionic64
 ```
 
-or you can update your `Vagrantfile` as follows:
+If you have an existing Vagrantfile, add `hashicorp/bionic64`. 
 
 ```ruby
 Vagrant.configure("2") do |config|
@@ -73,10 +64,15 @@ Vagrant.configure("2") do |config|
 end
 ```
 
-For other users, we recommend the [Bento boxes](https://vagrantcloud.com/bento). The Bento boxes are [open source](https://github.com/chef/bento) and built for a number of providers including VMware, VirtualBox, and Parallels. There are a variety of operating systems and versions available.
-
-These are the only two officially-recommended box sets.
+For other base operating system environments, we recommend the [Bento boxes](https://vagrantcloud.com/bento). The Bento boxes are [open source](https://github.com/chef/bento) and built for a number of providers including VMware, VirtualBox, and Parallels. There are a variety of operating systems and versions available.
 
 Special thanks to the Bento project for providing a solid base template for the `hashicorp/bionic64` box.
 
-~> **It is often a point of confusion**, but Canonical (the company that makes the Ubuntu operating system) publishes boxes under the "ubuntu" namespace on Vagrant Cloud. These boxes only support VirtualBox and do not provide an ideal experience for most users. If you encounter issues with these boxes, please try the Bento boxes instead.
+It is often a point of confusion but Canonical, the company that makes the Ubuntu operating system, publishes boxes under the "ubuntu" namespace on Vagrant Cloud. These boxes only support VirtualBox.
+
+## Create a box
+
+If you are unable to find a box that meets your specific use case, you can create one. We recommend that you first create a [base box](/docs/boxes/base) to have a clean slate to start from when you build future development environments.
+
+Learn more about [box formats](/docs/boxes/format) to get started. 
+

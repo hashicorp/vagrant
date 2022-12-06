@@ -31,7 +31,7 @@ describe VagrantPlugins::HyperV::Action::ReadGuestIP do
     end
 
     it "should set the host information into the env" do
-      expect(env).to receive(:[]=).with(:machine_ssh_info, host: "ADDRESS")
+      expect(env).to receive(:[]=).with(:machine_ssh_info, { host: "ADDRESS" })
       expect(driver).to receive(:read_guest_ip).and_return("ip" => "ADDRESS")
       subject.call(env)
     end

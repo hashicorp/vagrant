@@ -100,8 +100,7 @@ module VagrantPlugins
       end
 
       def add_config(**options, &block)
-        return if invalid?
-
+        # Don't skip if config is invalid. It might be a valid non-Ruby plugin
         current = @config_class.new
         current.set_options(options) if options
         block.call(current) if block

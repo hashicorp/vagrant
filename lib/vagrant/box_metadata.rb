@@ -5,6 +5,9 @@ module Vagrant
   # it should have, a description of it, the versions it has, and
   # more.
   class BoxMetadata
+
+    autoload :Remote, "vagrant/box_metadata/remote"
+
     # The name that the box should be if it is added.
     #
     # @return [String]
@@ -19,7 +22,7 @@ module Vagrant
     # IO.
     #
     # @param [IO] io An IO object to read the metadata from.
-    def initialize(io)
+    def initialize(io, **_)
       begin
         @raw = JSON.load(io)
       rescue JSON::ParserError => e
@@ -96,7 +99,7 @@ module Vagrant
       # @return [String]
       attr_accessor :version
 
-      def initialize(raw=nil)
+      def initialize(raw=nil, **_)
         return if !raw
 
         @version = raw["version"]
@@ -146,7 +149,7 @@ module Vagrant
       # @return [String]
       attr_accessor :checksum_type
 
-      def initialize(raw)
+      def initialize(raw, **_)
         @name = raw["name"]
         @url  = raw["url"]
         @checksum = raw["checksum"]

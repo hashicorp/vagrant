@@ -70,18 +70,19 @@ module VagrantPlugins
         def help
           opts = OptionParser.new do |o|
             o.banner = "Usage: vagrant plugin <command> [<args>]"
-            o.separator ""
-            o.separator "Available subcommands:"
-
-            # Add the available subcommands as separators in order to print them
-            # out as well.
-            keys = []
-            @subcommands.each { |key, value| keys << key.to_s }
-
-            keys.sort.each do |key|
-              o.separator "     #{key}"
+            if !Vagrant.server_mode?
+              o.separator ""
+              o.separator "Available subcommands:"
+  
+              # Add the available subcommands as separators in order to print them
+              # out as well.
+              keys = []
+              @subcommands.each { |key, value| keys << key.to_s }
+  
+              keys.sort.each do |key|
+                o.separator "     #{key}"
+              end
             end
-
             o.separator ""
             o.separator "For help on any individual command run `vagrant plugin COMMAND -h`"
           end

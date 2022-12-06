@@ -1,14 +1,10 @@
 #!/bin/bash
-set -xe
+set -e
 
-apt-get update
+apt-get update -q
 apt-get install -qq -y --force-yes curl apt-transport-https
 apt-get purge -qq -y lxc-docker* || true
 curl -sSL https://get.docker.com/ | sh
 
-pushd /vagrant
+/bin/bash /vagrant/test/vagrant-spec/scripts/ubuntu-install-vagrant.sh
 
-dpkg -i vagrant_*_x86_64.deb
-vagrant plugin install ./vagrant-spec.gem
-
-popd

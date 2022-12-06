@@ -1,5 +1,5 @@
-require_relative "util/ssh"
-require_relative "action/builtin/mixin_synced_folders"
+require_relative "./util/ssh"
+require_relative "./action/builtin/mixin_synced_folders"
 
 require "digest/md5"
 require "thread"
@@ -11,6 +11,8 @@ module Vagrant
   # API for querying the state and making state changes to the machine, which
   # is backed by any sort of provider (VirtualBox, VMware, etc.).
   class Machine
+    autoload :Remote, "vagrant/machine/remote"
+
     extend Vagrant::Action::Builtin::MixinSyncedFolders
 
     # The box that is backing this machine.
@@ -499,7 +501,7 @@ module Vagrant
       if !info[:private_key_path] && !info[:password]
         if @config.ssh.private_key_path
           info[:private_key_path] = @config.ssh.private_key_path
-        elsif info[:keys_only]
+        else
           info[:private_key_path] = @env.default_private_key_path
         end
       end

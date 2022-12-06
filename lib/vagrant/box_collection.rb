@@ -17,6 +17,8 @@ module Vagrant
     VAGRANT_SLASH = "-VAGRANTSLASH-".freeze
     VAGRANT_COLON = "-VAGRANTCOLON-".freeze
 
+    autoload :Remote, "vagrant/box_collection/remote"
+
     # The directory where the boxes in this collection are stored.
     #
     # A box collection matches a very specific folder structure that Vagrant
@@ -274,7 +276,12 @@ module Vagrant
 
       # Build up the requirements we have
       requirements = version.to_s.split(",").map do |v|
-        Gem::Requirement.new(v.strip)
+        begin
+          Gem::Requirement.new(v.strip)
+        rescue Gem::Requirement::BadRequirementError
+          raise Errors::BoxVersionInvalid,
+                version: v.strip
+        end
       end
 
       with_collection_lock do
