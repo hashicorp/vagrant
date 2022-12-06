@@ -266,7 +266,7 @@ en:
       machine rebooting or being halted. Please make sure the machine is
       running, and modify a file to try again.
     rsync_folder: |-
-      Rsyncing folder: %{hostpath} => %{guestpath}
+      Rsyncing folder [ %{synctime} ]: %{hostpath} => %{guestpath}
     rsync_folder_excludes: "  - Exclude: %{excludes}"
     rsync_installing: "Installing rsync to the VM..."
     rsync_proxy_machine: |-
