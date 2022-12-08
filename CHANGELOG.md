@@ -7,6 +7,7 @@ IMPROVEMENTS:
 BUG FIXES:
 
 - host/windows: Add fix for Powershell 7.3.0 [GH-13006]
+- provider/virtualbox: Adjust hostnet DHCP configuration, ignore invalid devices [GH-13004]
 
 VAGRANT-GO:
 
