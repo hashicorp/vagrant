@@ -164,12 +164,14 @@ memory=1024)
   end
 
   describe "#read_bridged_interfaces" do
+    let(:bridgedifs) { VBOX_BRIDGEDIFS }
+
     before do
       allow(subject).to receive(:execute).and_call_original
       expect(subject).
         to receive(:execute).
              with("list", "bridgedifs").
-             and_return(VBOX_BRIDGEDIFS)
+             and_return(bridgedifs)
     end
 
     context "when hostonlynets are not enabled" do
@@ -216,6 +218,14 @@ memory=1024)
             }
           ).to be(false)
         end
+      end
+    end
+
+    context "when address is empty" do
+      let(:bridgedifs) { VBOX_BRIDGEDIFS.sub("0.0.0.0", "") }
+
+      it "should not raise an error" do
+        expect { subject.read_bridged_interfaces }.to_not raise_error
       end
     end
   end
@@ -566,8 +576,19 @@ memory=1024)
 
       it "should assign the address as the first in the subnet" do
         result = subject.read_host_only_interfaces
-        ip = IPAddr.new(result.first[:lowerip]).mask(result.first[:networkmask])
-        expect(result.first[:ip]).to eq(ip.succ.to_s)
+        expect(result.first[:ip]).to eq(IPAddr.new(result.first[:lowerip]).succ.to_s)
+      end
+
+      context "when dhcp range is set" do
+        before do
+          allow(subject).to receive(:execute).with("list", "hostonlynets", any_args).
+                              and_return(VBOX_RANGE_HOSTONLYNETS)
+        end
+
+        it "should assign the address as the first in the dhcp range" do
+          result = subject.read_host_only_interfaces
+          expect(result.first[:ip]).to eq(result.first[:lowerip])
+        end
       end
     end
   end
@@ -756,6 +777,42 @@ State:           Enabled
 NetworkMask:     255.255.255.0
 LowerIP:         192.168.61.0
 UpperIP:         192.168.61.0
+VBoxNetworkName: hostonly-vagrantnet-vbox1
+
+Name:            vagrantnet-vbox2
+GUID:            20000000-0000-0000-0000-000000000000
+
+State:           Enabled
+NetworkMask:     255.255.255.0
+LowerIP:         192.168.22.0
+UpperIP:         192.168.22.0
+VBoxNetworkName: hostonly-vagrantnet-vbox2)
+
+VBOX_HOSTONLYNETS=%(Name:            vagrantnet-vbox1
+GUID:            10000000-0000-0000-0000-000000000000
+
+State:           Enabled
+NetworkMask:     255.255.255.0
+LowerIP:         192.168.61.0
+UpperIP:         192.168.61.0
+VBoxNetworkName: hostonly-vagrantnet-vbox1
+
+Name:            vagrantnet-vbox2
+GUID:            20000000-0000-0000-0000-000000000000
+
+State:           Enabled
+NetworkMask:     255.255.255.0
+LowerIP:         192.168.22.0
+UpperIP:         192.168.22.0
+VBoxNetworkName: hostonly-vagrantnet-vbox2)
+
+VBOX_RANGE_HOSTONLYNETS=%(Name:            vagrantnet-vbox1
+GUID:            10000000-0000-0000-0000-000000000000
+
+State:           Enabled
+NetworkMask:     255.255.255.0
+LowerIP:         192.168.61.10
+UpperIP:         192.168.61.100
 VBoxNetworkName: hostonly-vagrantnet-vbox1
 
 Name:            vagrantnet-vbox2

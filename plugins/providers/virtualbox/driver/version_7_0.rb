@@ -30,8 +30,14 @@ module VagrantPlugins
 
           # Prune any hostonly interfaces in the list
           ifaces.delete_if { |i|
-            addr = IPAddr.new(i[:ip]).mask(i[:netmask])
-            hostonly_ifaces.include?(addr)
+            addr = begin
+                     IPAddr.new(i[:ip]).mask(i[:netmask])
+                   rescue IPAddr::Error => err
+                     @logger.warn("skipping bridged interface due to parse error #{err} (#{i}) ")
+                     nil
+                   end
+            addr.nil? ||
+              hostonly_ifaces.include?(addr)
           }
 
           ifaces
@@ -154,21 +160,32 @@ module VagrantPlugins
           # reformat the information to line up with how
           # the interfaces is structured
           read_host_only_networks.map do |net|
-            addr = IPAddr.new(net[:lowerip])
+            addr = begin
+                     IPAddr.new(net[:lowerip])
+                   rescue IPAddr::Error => err
+                     @logger.warn("invalid host only network lower IP encountered: #{err} (#{net})")
+                     next
+                   end
+            # Address of the interface will be the lower bound of the range or
+            # the first available address in the subnet
+            if addr == addr.mask(net[:networkmask])
+              addr = addr.succ
+            end
+
             net[:netmask] = net[:networkmask]
             if addr.ipv4?
-              net[:ip] = addr.mask(net[:netmask]).succ.to_s
+              net[:ip] = addr.to_s
               net[:ipv6] = ""
             else
               net[:ip] = ""
-              net[:ipv6] = addr.mask(net[:netmwask]).succ.to_s
+              net[:ipv6] = addr.to_s
               net[:ipv6_prefix] = net[:netmask]
             end
 
             net[:status] = net[:state] == "Enabled" ? "Up" : "Down"
 
             net
-          end
+          end.compact
         end
 
         def read_network_interfaces
