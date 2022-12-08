@@ -749,7 +749,7 @@ function generate_shasums() {
     pushd "${directory}"
 
     echo -n "Generating shasums file... "
-    if shasum -a256 ./* > "${product}_${version}_SHA256SUMS"; then
+    if (shasum -a256 ./* | sed 's/\.\///g') > "${product}_${version}_SHA256SUMS"; then
         echo "complete"
         popd
         return 0
