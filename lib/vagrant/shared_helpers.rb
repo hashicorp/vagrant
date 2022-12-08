@@ -235,19 +235,6 @@ module Vagrant
   # @return [true]
   def self.enable_server_mode!
     if !server_mode?
-      $LOAD_PATH << Vagrant.source_root.join("lib/vagrant/protobufs").to_s
-      $LOAD_PATH << Vagrant.source_root.join("lib/vagrant/protobufs/proto").to_s
-      $LOAD_PATH << Vagrant.source_root.join("lib/vagrant/protobufs/proto/vagrant_plugin_sdk").to_s
-
-      require 'vagrant/protobufs/proto/vagrant_server/server_pb'
-      require 'vagrant/protobufs/proto/vagrant_server/server_services_pb'
-      require 'vagrant/protobufs/proto/ruby_vagrant/ruby-server_pb'
-      require 'vagrant/protobufs/proto/ruby_vagrant/ruby-server_services_pb'
-      require 'vagrant/protobufs/proto/vagrant_plugin_sdk/plugin_pb'
-      require 'vagrant/protobufs/proto/vagrant_plugin_sdk/plugin_services_pb'
-      require 'vagrant/protobufs/proto/plugin/grpc_broker_pb'
-      require 'vagrant/protobufs/proto/plugin/grpc_broker_services_pb'
-
       SERVER_MODE_CALLBACKS.each(&:call)
       Util::HCLogOutputter.new("hclog")
       Log4r::Outputter["hclog"].formatter = Util::HCLogFormatter.new
