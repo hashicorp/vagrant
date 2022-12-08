@@ -33,7 +33,7 @@ module VagrantPlugins
             addr = begin
                      IPAddr.new(i[:ip]).mask(i[:netmask])
                    rescue IPAddr::Error => err
-                     @logger.debug("skipping bridged interface due to parse error #{err} (#{i}) ")
+                     @logger.warn("skipping bridged interface due to parse error #{err} (#{i}) ")
                      nil
                    end
             addr.nil? ||
@@ -113,8 +113,7 @@ module VagrantPlugins
             opts[:upper] = options[:dhcp_upper]
           else
             addr = IPAddr.new(options[:adapter_ip])
-            opts[:upper] = opts[:lower] =
-            addr.mask(opts[:netmask]).to_range.first.to_s
+            opts[:upper] = opts[:lower] = addr.mask(opts[:netmask]).to_range.first.to_s
           end
 
           name_idx = read_host_only_networks.map { |hn|
