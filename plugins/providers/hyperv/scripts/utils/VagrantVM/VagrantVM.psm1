@@ -1,6 +1,21 @@
 # Always stop when errors are encountered unless instructed not to
 $ErrorActionPreference = "Stop"
 
+# Check the version of Powershell currently in use. If it's
+# under 7.3.0 we need to restrict the maximum version of the
+# security module to prevent errors.
+# Source: https://github.com/PowerShell/PowerShell/issues/18530
+$checkVersion = $PSVersionTable.PSVersion
+if($checkVersion -eq "") {
+    $checkVersion = $(Get-Host).Version
+}
+
+if([System.Version]$checkVersion -lt [System.Version]"7.3.0") {
+    Import-Module Microsoft.Powershell.Security -MaximumVersion 3.0.0.0
+} else {
+    Import-Module Microsoft.Powershell.Security
+}
+
 # Vagrant VM creation functions
 
 function New-VagrantVM {
