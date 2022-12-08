@@ -6,6 +6,8 @@ IMPROVEMENTS:
 
 BUG FIXES:
 
+- host/windows: Add fix for Powershell 7.3.0 [GH-13006]
+
 VAGRANT-GO:
 
 ## 2.3.3 (November 15, 2022) 
