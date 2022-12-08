@@ -23,6 +23,7 @@ describe VagrantPlugins::Ansible::Cap::Guest::Debian::AnsibleInstall do
   before do
     allow(machine).to receive(:communicate).and_return(communicator)
     allow(communicator).to receive(:execute).and_return(true)
+    allow(communicator).to receive(:test).and_return(false)
   end
 
   describe "#ansible_install" do

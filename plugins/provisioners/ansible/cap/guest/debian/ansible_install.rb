@@ -37,12 +37,11 @@ INLINE_CRIPT
 
             def self.pip_setup(machine, pip_install_cmd = "")
               machine.communicate.sudo "apt-get update -y -qq"
-              debian_version = machine.communicate.execute "lsb_release -rs", error_check: false
-              if debian_version > 10
-                machine.communicate.sudo "DEBIAN_FRONTEND=noninteractive apt-get install -y -qq --option \"Dpkg::Options::=--force-confold\" build-essential curl git libssl-dev libffi-dev python-dev-is-python3"
-              else
-                machine.communicate.sudo "DEBIAN_FRONTEND=noninteractive apt-get install -y -qq --option \"Dpkg::Options::=--force-confold\" build-essential curl git libssl-dev libffi-dev"
+              python_dev_pkg = "python-dev"
+              if machine.communicate.test "apt-cache show python-dev-is-python3"
+                python_dev_pkg = "python-dev-is-python3"
               end
+              machine.communicate.sudo "DEBIAN_FRONTEND=noninteractive apt-get install -y -qq --option \"Dpkg::Options::=--force-confold\" build-essential curl git libssl-dev libffi-dev #{python_dev_pkg}"
               Pip::get_pip machine, pip_install_cmd
             end
 
