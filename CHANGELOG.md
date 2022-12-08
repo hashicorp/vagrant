@@ -4,6 +4,8 @@ FEATURES:
 
 IMPROVEMENTS:
 
+- host/darwin: Isolate loading incompatible libraries to support EOL platforms [GH-13022]
+
 BUG FIXES:
 
 - host/windows: Add fix for Powershell 7.3.0 [GH-13006]
