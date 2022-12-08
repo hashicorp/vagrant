@@ -951,7 +951,7 @@ function load-signing() {
     local secrets key result
     declare -A secrets=(
         ["MACOS_PACKAGE_CERT"]="./MacOS_PackageSigning.cert.gpg"
-        ["MACOS_PACKAGE_KEY"]="./MacOS_PackageSigning.key.gpg"
+        ["MACOS_PACKAGE_KEY"]="./MacOS_PackageSigning.p12.gpg"
         ["MACOS_CODE_CERT"]="./MacOS_CodeSigning.p12.gpg"
         ["WIN_SIGNING_KEY"]="./Win_CodeSigning.p12.gpg"
     )
