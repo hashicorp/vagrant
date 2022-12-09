@@ -5,6 +5,7 @@ FEATURES:
 IMPROVEMENTS:
 
 - host/darwin: Isolate loading incompatible libraries to support EOL platforms [GH-13022]
+- provider/virtualbox: Detect network type when not provided [GH-13024]
 
 BUG FIXES:
 
