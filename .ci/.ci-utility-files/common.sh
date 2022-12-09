@@ -271,10 +271,10 @@ function upload_assets() {
     fi
     if [ -d "${1}" ]; then
         wrap aws s3 cp --recursive "${1}" "$(asset_location)/" \
-             "Upload to asset storage failed"
+            "Upload to asset storage failed"
     else
         wrap aws s3 cp "${1}" "$(asset_location)/" \
-             "Upload to asset storage failed"
+            "Upload to asset storage failed"
     fi
 }
 
@@ -303,11 +303,11 @@ function download_assets() {
     if [[ "${remote}" = *" PRE "* ]]; then
         mkdir -p "${dst}"
         wrap aws s3 cp --recursive "${src%/}/" "${dst}" \
-             "Download from asset storage failed"
+            "Download from asset storage failed"
     else
         mkdir -p "$(dirname "${dst}")"
         wrap aws s3 cp "${src}" "${dst}" \
-             "Download from asset storage failed"
+            "Download from asset storage failed"
     fi
 }
 
@@ -320,10 +320,10 @@ function upload_cache() {
     fi
     if [ -d "${1}" ]; then
         wrap aws s3 cp --recursive "${1}" "${asset_cache}/" \
-             "Upload to cache failed"
+            "Upload to cache failed"
     else
         wrap aws s3 cp "${1}" "${asset_cache}/" \
-             "Upload to cache failed"
+            "Upload to cache failed"
     fi
 }
 
@@ -352,11 +352,11 @@ function download_cache() {
     if [[ "${remote}" = *" PRE "* ]]; then
         mkdir -p "${dst}"
         wrap aws s3 cp --recursive "${src%/}/" "${dst}" \
-             "Download from cache storage failed"
+            "Download from cache storage failed"
     else
         mkdir -p "$(dirname "${dst}")"
         wrap aws s3 cp "${src}" "${dst}" \
-             "Download from cache storage failed"
+            "Download from cache storage failed"
     fi
 }
 
@@ -439,9 +439,9 @@ function release() {
         body="New ${repo_name} release - ${tag_name}"
     fi
     if ! wrap_raw ghr -u "${repo_owner}" -r "${repo_name}" -c "${full_sha}" -n "${tag_name}" \
-             -b "${body}" -delete "${tag_name}" "${assets}"; then
+        -b "${body}" -delete "${tag_name}" "${assets}"; then
         wrap ghr -u "${repo_owner}" -r "${repo_name}" -c "${full_sha}" -n "${tag_name}" \
-             -b "${body}" "${tag_name}" "${assets}" "Failed to create release for version ${tag_name}"
+            -b "${body}" "${tag_name}" "${assets}" "Failed to create release for version ${tag_name}"
     fi
 }
 
@@ -464,10 +464,10 @@ function prerelease() {
     fi
 
     if ! wrap_raw ghr -u "${repo_owner}" -r "${repo_name}" -c "${full_sha}" -n "${ptag}" \
-             -delete -prerelease "${ptag}" "${assets}"; then
+        -delete -prerelease "${ptag}" "${assets}"; then
         wrap ghr -u "${repo_owner}" -r "${repo_name}" -c "${full_sha}" -n "${ptag}" \
-             -prerelease "${ptag}" "${assets}" \
-             "Failed to create prerelease for version ${1}"
+            -prerelease "${ptag}" "${assets}" \
+            "Failed to create prerelease for version ${1}"
     fi
     echo -n "${ptag}"
 }
@@ -485,10 +485,10 @@ function draft_release() {
     fi
 
     if ! wrap_raw ghr -u "${repo_owner}" -r "${repo_name}" -c "${full_sha}" -n "${ptag}" \
-             -replace -delete -draft "${ptag}" "${assets}"; then
+        -replace -delete -draft "${ptag}" "${assets}"; then
         wrap ghr -u "${repo_owner}" -r "${repo_name}" -c "${full_sha}" -n "${ptag}" \
-             -replace -draft "${ptag}" "${assets}" \
-             "Failed to create draft for version ${1}"
+            -replace -draft "${ptag}" "${assets}" \
+            "Failed to create draft for version ${1}"
     fi
     echo -n "${ptag}"
 }
@@ -570,14 +570,14 @@ function hashicorp_release_verify() {
 
     # First do a checksum validation
     wrap shasum -a 256 -c ./*_SHA256SUMS \
-         "Checksum validation of release assets failed"
+        "Checksum validation of release assets failed"
     # Next check that the signature is valid
     gpghome=$(mktemp -qd)
     export GNUPGHOME="${gpghome}"
     wrap gpg --keyserver keyserver.ubuntu.com --recv "${HASHICORP_PUBLIC_GPG_KEY_ID}" \
-         "Failed to import HashiCorp public GPG key"
+        "Failed to import HashiCorp public GPG key"
     wrap gpg --verify ./*SHA256SUMS.sig ./*SHA256SUMS \
-         "Validation of SHA256SUMS signature failed"
+        "Validation of SHA256SUMS signature failed"
     rm -rf "${gpghome}" > "${output}" 2>&1
     popd
 }
@@ -600,11 +600,11 @@ function generate_release_metadata() {
 
     echo -n "Generating release metadata... "
     wrap_stream bob generate-release-metadata \
-                -metadata-file "${hc_releases_input_metadata}" \
-                -in-dir "${directory}" \
-                -version "${version}" \
-                -out-file "${hc_releases_metadata_filename}" \
-                "Failed to generate release metadata"
+        -metadata-file "${hc_releases_input_metadata}" \
+        -in-dir "${directory}" \
+        -version "${version}" \
+        -out-file "${hc_releases_metadata_filename}" \
+        "Failed to generate release metadata"
     echo "complete!"
     
     rm -f "${hc_releases_input_metadata}"
@@ -678,10 +678,10 @@ function promote_to_production() {
     echo -n "Promoting release to production... "
 
     wrap_stream hc-releases promote \
-                -product "${product}" \
-                -version "${version}" \
-                -source-env staging \
-                "Failed to promote HashiCorp release to Production"
+        -product "${product}" \
+        -version "${version}" \
+        -source-env staging \
+        "Failed to promote HashiCorp release to Production"
 
     echo "complete!"
 
@@ -847,7 +847,7 @@ function publish_to_rubygems() {
 
     gem_config="$(mktemp -p ./)" || fail "Failed to create temporary credential file"
     wrap gem build ./*.gemspec \
-         "Failed to build RubyGem"
+        "Failed to build RubyGem"
     printf -- "---\n:rubygems_api_key: %s\n" "${RUBYGEMS_API_KEY}" > "${gem_config}"
     wrap_raw gem push --config-file "${gem_config}" ./*.gem
     result=$?
@@ -875,7 +875,7 @@ function publish_to_hashigems() {
     local invalid_id
 
     wrap_stream gem install --user-install --no-document reaper-man \
-                "Failed to install dependency for hashigem generation"
+        "Failed to install dependency for hashigem generation"
     user_bin="$(ruby -e 'puts Gem.user_dir')/bin"
     reaper="${user_bin}/reaper-man"
 
@@ -884,31 +884,31 @@ function publish_to_hashigems() {
         fail "Failed to create working directory for hashigems publish"
     mkdir -p "${tmpdir}/hashigems/gems"
     wrap cp "${path}" "${tmpdir}/hashigems/gems" \
-         "Failed to copy gem to working directory"
+        "Failed to copy gem to working directory"
     pushd "${tmpdir}"
 
     # Run quick test to ensure bucket is accessible
     wrap aws s3 ls "${HASHIGEMS_METADATA_BUCKET}" \
-         "Failed to access hashigems asset bucket"
+        "Failed to access hashigems asset bucket"
 
     # Grab our remote metadata. If the file doesn't exist, that is always an error.
     wrap aws s3 cp "${HASHIGEMS_METADATA_BUCKET}/vagrant-rubygems.list" ./ \
-         "Failed to retrieve hashigems metadata list"
+        "Failed to retrieve hashigems metadata list"
 
     # Add the new gem to the metadata file
     wrap_stream "${reaper}" package add -S rubygems -p vagrant-rubygems.list ./hashigems/gems/*.gem \
-                "Failed to add new gem to hashigems metadata list"
+        "Failed to add new gem to hashigems metadata list"
     # Generate the repository
     wrap_stream "${reaper}" repo generate -p vagrant-rubygems.list -o hashigems -S rubygems \
-                "Failed to generate the hashigems repository"
+        "Failed to generate the hashigems repository"
     # Upload the updated repository
     pushd ./hashigems
     wrap_stream aws s3 sync . "${HASHIGEMS_PUBLIC_BUCKET}" \
-                "Failed to upload the hashigems repository"
+        "Failed to upload the hashigems repository"
     # Store the updated metadata
     popd
     wrap_stream aws s3 cp vagrant-rubygems.list "${HASHIGEMS_METADATA_BUCKET}/vagrant-rubygems.list" \
-                "Failed to upload the updated hashigems metadata file"
+        "Failed to upload the updated hashigems metadata file"
 
     # Invalidate cloudfront so the new content is available
     invalid="$(aws cloudfront create-invalidation --distribution-id "${HASHIGEMS_CLOUDFRONT_ID}" --paths "/*")" ||
@@ -920,7 +920,7 @@ function publish_to_hashigems() {
 
     # Wait for the invalidation process to complete
     wrap aws cloudfront wait invalidation-completed --distribution-id "${HASHIGEMS_CLOUDFRONT_ID}" --id "${invalid_id}" \
-         "Failure encountered while waiting for hashigems CDN invalidation request to complete (ID: ${invalid_id})"
+        "Failure encountered while waiting for hashigems CDN invalidation request to complete (ID: ${invalid_id})"
 
     # Clean up and we are done
     popd
@@ -930,11 +930,11 @@ function publish_to_hashigems() {
 # Configures git for hashibot usage
 function hashibot_git() {
     wrap git config user.name "${HASHIBOT_USERNAME}" \
-         "Failed to setup git for hashibot usage (username)"
+        "Failed to setup git for hashibot usage (username)"
     wrap git config user.email "${HASHIBOT_EMAIL}" \
-         "Failed to setup git for hashibot usage (email)"
+        "Failed to setup git for hashibot usage (email)"
     wrap git remote set-url origin "https://${HASHIBOT_USERNAME}:${HASHIBOT_TOKEN}@github.com/${repository}" \
-         "Failed to setup git for hashibot usage (remote)"
+        "Failed to setup git for hashibot usage (remote)"
 }
 
 # Get the default branch name for the current repository
@@ -1392,10 +1392,6 @@ function github_release_assets() {
 # attached to a tag and therefore is referenced by the release name directly.
 # The artifact pattern is simply a substring that is matched against the
 # artifact download URL. Artifact(s) will be downloaded to the working directory.
-# NOTE: We only fetch at most 100 releases and don't loop to subsequent pages
-#       if release is not found. This is because I'm lazy and don't want to
-#       write the ugly bash to do it, but if it becomes a problem we can add
-#       it in later.
 #
 # $1: organization name
 # $2: repository name
@@ -1413,21 +1409,30 @@ function github_draft_release_assets() {
     fi
 
     local release_list release_repo release_name asset_pattern release_content
+    local name_list query artifact asset_names idx page
+
     release_repo="${1}/${2}"
     release_name="${3}"
     asset_pattern="${4}"
 
-    release_list=$(curl -SsL --fail \
-        -H "Authorization: token ${gtoken}" \
-        -H "Content-Type: application/json" \
-        "https://api.github.com/repos/${release_repo}/releases?per_page=100") ||
-        fail "Failed to request releases list for ${release_repo}"
+    page=$((1))
+    while [ -z "${release_content}" ]; do
+        release_list=$(curl -SsL --fail \
+            -H "Authorization: token ${gtoken}" \
+            -H "Content-Type: application/json" \
+            "https://api.github.com/repos/${release_repo}/releases?per_page=100&page=${page}") ||
+            fail "Failed to request releases list for ${release_repo}"
 
-    local asset_list name_list query artifact asset assets asset_names idx
-    query="$(printf '.[] | select(.name == "%s")' "${release_name}")"
+        if [ "$(jq 'length' <( printf "%s" "${release_list}" ))" -lt "1" ]; then
+            fail "Failed to find release (${release_name}) in releases list for ${release_repo}"
+        fi
 
-    release_content=$(printf "%s" "${release_list}" | jq -r "${query}") ||
-        fail "Failed to find release (${release_name}) in releases list for ${release_repo}"
+        query="$(printf '.[] | select(.name == "%s")' "${release_name}")"
+
+        release_content=$(printf "%s" "${release_list}" | jq -r "${query}")
+
+        ((page++))
+    done
 
     query=".assets[]"
     if [ -n "${asset_pattern}" ]; then
@@ -1480,21 +1485,31 @@ function github_draft_release_asset_names() {
     fi
 
     local release_list release_repo release_name asset_pattern release_content
+    local name_list query artifact asset_names idx page
+
     release_repo="${1}/${2}"
     release_name="${3}"
     asset_pattern="${4}"
 
-    release_list=$(curl -SsL --fail \
-        -H "Authorization: token ${gtoken}" \
-        -H "Content-Type: application/json" \
-        "https://api.github.com/repos/${release_repo}/releases?per_page=100") ||
-        fail "Failed to request releases list for ${release_repo}"
+    page=$((1))
+    while [ -z "${release_content}" ]; do
+        release_list=$(curl -SsL --fail \
+            -H "Authorization: token ${gtoken}" \
+            -H "Content-Type: application/json" \
+            "https://api.github.com/repos/${release_repo}/releases?per_page=100&page=${page}") ||
+            fail "Failed to request releases list for ${release_repo}"
 
-    local name_list query artifact asset_names idx
-    query="$(printf '.[] | select(.name == "%s")' "${release_name}")"
+        if [ "$(jq 'length' <( printf "%s" "${release_list}" ))" -lt "1" ]; then
+            fail "Failed to find release (${release_name}) in releases list for ${release_repo}"
+        fi
 
-    release_content=$(printf "%s" "${release_list}" | jq -r "${query}") ||
-        fail "Failed to find release (${release_name}) in releases list for ${release_repo}"
+
+        query="$(printf '.[] | select(.name == "%s")' "${release_name}")"
+
+        release_content=$(printf "%s" "${release_list}" | jq -r "${query}")
+
+        ((page++))
+    done
 
     query=".assets[]"
     if [ -n "${asset_pattern}" ]; then
@@ -1509,6 +1524,81 @@ function github_draft_release_asset_names() {
     for ((idx=0; idx<"${#asset_names[@]}"; idx++ )); do
         artifact="${asset_names[$idx]}"
         touch "${artifact}"
+    done
+}
+
+# Delete any draft releases that are older than the
+# given number of days
+#
+# $1: days
+# $2: repository (optional, defaults to current repo)
+function github_draft_release_prune() {
+    local gtoken
+
+    if [ -n "${HASHIBOT_TOKEN}" ]; then
+        gtoken="${HASHIBOT_TOKEN}"
+    elif [ -n "${GITHUB_TOKEN}" ]; then
+        gtoken="${GITHUB_TOKEN}"
+    else
+        fail "Fetching draft release assets requires hashibot or github token with write permission"
+    fi
+
+    local days prune_repo
+    days="${1}"
+    prune_repo="${2:-$repository}"
+
+    local prune_seconds page now
+    now="$(date '+%s')"
+    prune_seconds=$(("${now}"-("${days}" * 86400)))
+
+    page=$((1))
+    while true; do
+        local release_list list_length
+
+        release_list=$(curl -SsL --fail \
+            -H "Authorization: token ${gtoken}" \
+            -H "Content-Type: application/json" \
+            "https://api.github.com/repos/${prune_repo}/releases?per_page=100&page=${page}") ||
+            fail "Failed to request releases list for pruning on ${prune_repo}"
+
+        list_length="$(jq 'length' <( printf "%s" "${release_list}" ))" ||
+            fail "Failed to calculate release length for pruning on ${prune_repo}"
+
+        if [ "${list_length}" -lt "1" ]; then
+            break
+        fi
+
+        local count entry i release_draft release_name release_id release_create date_check
+        count="$(jq 'length' <( printf "%s" "${release_list}" ))"
+        for (( i=0; i < "${count}"; i++ )); do
+            entry="$(jq ".[${i}]" <( printf "%s" "${release_list}" ))" ||
+                fail "Failed to read entry for pruning on ${prune_repo}"
+            release_draft="$(jq -r '.draft' <( printf "%s" "${entry}" ))" ||
+                fail "Failed to read entry draft for pruning on ${prune_repo}"
+            release_name="$(jq -r '.name' <( printf "%s" "${entry}" ))" ||
+                fail "Failed to read entry name for pruning on ${prune_repo}"
+            release_id="$(jq -r '.id' <( printf "%s" "${entry}" ))" ||
+                fail "Failed to read entry ID for pruning on ${prune_repo}"
+            release_create="$(jq -r '.created_at' <( printf "%s" "${entry}" ))" ||
+                fail "Failed to read entry created date for pruning on ${prune_repo}"
+            date_check="$(date --date="${release_create}" '+%s')" ||
+                fail "Failed to parse entry created date for pruning on ${prune_repo}"
+
+            if [ "${release_draft}" != "true" ]; then
+                printf "Skipping %s because not draft release\n" "${release_name}"
+                continue
+            fi
+
+            if [ "$(( "${date_check}" ))" -lt "${prune_seconds}" ]; then
+                printf "Deleting draft release %s from %s\n" "${release_name}" "${prune_repo}"
+                curl -SsL --fail \
+                    -X DELETE \
+                    -H "Authorization: token ${gtoken}" \
+                    "https://api.github.com/repos/${prune_repo}/releases/${release_id}" ||
+                    fail "Failed to prune draft release ${release_name} from ${prune_repo}"
+            fi
+        done
+        ((page++))
     done
 }
 
