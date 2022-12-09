@@ -1471,8 +1471,9 @@ function github_draft_release_assets() {
             "https://api.github.com/repos/${release_repo}/releases?per_page=100&page=${page}") ||
             fail "Failed to request releases list for ${release_repo}"
 
+        # If there's no more results, just bust out of the loop
         if [ "$(jq 'length' <( printf "%s" "${release_list}" ))" -lt "1" ]; then
-            fail "Failed to find release (${release_name}) in releases list for ${release_repo}"
+            break
         fi
 
         query="$(printf '.[] | select(.name == "%s")' "${release_name}")"
@@ -1547,8 +1548,9 @@ function github_draft_release_asset_names() {
             "https://api.github.com/repos/${release_repo}/releases?per_page=100&page=${page}") ||
             fail "Failed to request releases list for ${release_repo}"
 
+        # If there's no more results, just bust out of the loop
         if [ "$(jq 'length' <( printf "%s" "${release_list}" ))" -lt "1" ]; then
-            fail "Failed to find release (${release_name}) in releases list for ${release_repo}"
+            break
         fi
 
 
