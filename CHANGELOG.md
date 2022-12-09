@@ -10,6 +10,7 @@ BUG FIXES:
 
 - host/windows: Add fix for Powershell 7.3.0 [GH-13006]
 - provider/virtualbox: Adjust hostnet DHCP configuration, ignore invalid devices [GH-13004]
+- provisioner/ansible: Fix install package names on older debian (and derivatives) versions [GH-13017]
 
 VAGRANT-GO:
 
