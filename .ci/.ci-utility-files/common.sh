@@ -47,7 +47,7 @@ export DEBIAN_FRONTEND=noninteractive
 #       if close to expiry. With credentials being handled by the doormat
 #       action now, this is no longer needed but remains in case it's
 #       needed for some reason in the future.
-function deprecated_aws() {
+function aws() {
     # Grab the actual aws cli path
     if ! aws_path="$(which aws)"; then
         (>&2 echo "AWS error: failed to locate aws cli executable")
@@ -699,6 +699,18 @@ function sns_publish() {
     local product="${1}"
     local region="${2}"
 
+    if [ -z "${RELEASE_AWS_ACCESS_KEY_ID}" ]; then
+        fail "Missing AWS access key ID for SNS publish"
+    fi
+
+    if [ -z "${RELEASE_AWS_SECRET_ACCESS_KEY}" ]; then
+        fail "Missing AWS access key for SNS publish"
+    fi
+
+    if [ -z "${RELEASE_AWS_ASSUME_ROLE_ARN}" ]; then
+        fail "Missing AWS role ARN for SNS publish"
+    fi
+
     if [ -z "${product}" ]; then
         product="${repo_name}"
     fi
@@ -707,11 +719,47 @@ function sns_publish() {
         region="us-east-1"
     fi
 
+    local core_id core_key old_id old_key old_token old_role old_expiration old_region
+    if [ -n "${AWS_ACCESS_KEY_ID}" ]; then
+        # Store current credentials to be restored
+        core_id="${CORE_AWS_ACCESS_KEY_ID}"
+        core_key="${CORE_AWS_SECRET_ACCESS_KEY}"
+        old_id="${AWS_ACCESS_KEY_ID}"
+        old_key="${AWS_SECRET_ACCESS_KEY}"
+        old_token="${AWS_SESSION_TOKEN}"
+        old_role="${AWS_ASSUME_ROLE_ARN}"
+        old_expiration="${AWS_SESSION_EXPIRATION}"
+        old_region="${AWS_REGION}"
+        unset AWS_SESSION_TOKEN
+    fi
+
+    export AWS_ACCESS_KEY_ID="${RELEASE_AWS_ACCESS_KEY_ID}"
+    export AWS_SECRET_ACCESS_KEY="${RELEASE_AWS_SECRET_ACCESS_KEY}"
+    export AWS_ASSUME_ROLE_ARN="${RELEASE_AWS_ASSUME_ROLE_ARN}"
+    export AWS_REGION="${region}"
+
+    # Validate the creds properly assume role and function
+    wrap aws configure list \
+        "Failed to reconfigure AWS credentials for release notification"
+
+    # Now send the release notification
     echo "Sending notification to update package repositories... "
     message=$(jq --null-input --arg product "$product" '{"product": $product}')
     wrap_stream aws sns publish --region "${region}" --topic-arn "${HC_RELEASES_PROD_SNS_TOPIC}" --message "${message}" \
         "Failed to send SNS message for package repository update"
     echo "complete!"
+
+    # Before we finish restore the previously set credentials if we unset them
+    if [ -n "${core_id}" ]; then
+        export CORE_AWS_ACCESS_KEY_ID="${core_id}"
+        export CORE_AWS_SECRET_ACCESS_KEY="${core_key}"
+        export AWS_ACCESS_KEY_ID="${old_id}"
+        export AWS_SECRET_ACCESS_KEY="${old_key}"
+        export AWS_SESSION_TOKEN="${old_token}"
+        export AWS_ASSUME_ROLE_ARN="${old_role}"
+        export AWS_SESSION_EXPIRATION="${old_expiration}"
+        export AWS_REGION="${old_region}"
+    fi
 
     return 0
 }
