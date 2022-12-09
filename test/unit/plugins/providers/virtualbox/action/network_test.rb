@@ -402,6 +402,33 @@ describe VagrantPlugins::ProviderVirtualBox::Action::Network do
     end
   end
 
+  context "without type set" do
+    before { allow(subject).to receive(:hostonly_adapter).and_return({}) }
+
+    [
+      { ip: "192.168.63.5" },
+      { ip: "192.168.63.5", netmask: "255.255.255.0" },
+      { ip: "dead:beef::100" },
+      { ip: "dead:beef::100", netmask: 96 },
+    ].each do |args|
+      it "sets the type automatically" do
+        machine.config.vm.network "private_network", **args
+        expect(subject).to receive(:hostonly_config) do |config|
+          expect(config).to have_key(:type)
+          addr = IPAddr.new(args[:ip])
+          if addr.ipv4?
+            expect(config[:type]).to eq(:static)
+          else
+            expect(config[:type]).to eq(:static6)
+          end
+          config
+        end
+        subject.call(env)
+
+      end
+    end
+  end
+
   describe "#hostonly_find_matching_network" do
     let(:ip){ "192.168.55.2" }
     let(:config){ {ip: ip, netmask: "255.255.255.0"} }

@@ -71,6 +71,21 @@ module VagrantPlugins
               type = :internal_network
             end
 
+            if !options.key?(:type) && options.key?(:ip)
+              begin
+                addr = IPAddr.new(options[:ip])
+                options[:type] = if addr.ipv4?
+                                   :static
+                                 else
+                                   :static6
+                                 end
+              rescue IPAddr::Error => err
+                raise Vagrant::Errors::NetworkAddressInvalid,
+                      address: options[:ip], mask: options[:netmask],
+                      error: err.message
+              end
+            end
+
             # Configure it
             data = nil
             if type == :private_network
