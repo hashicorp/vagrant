@@ -802,6 +802,8 @@ function generate_shasums() {
 
     sed 's/\.\///g' <( printf "%s" "${shacontent}" ) > "${product}_${version}_SHA256SUMS" ||
         fail "Failed to write shasums file"
+
+    popd
 }
 
 # Generate a HashiCorp releases-api compatible release
