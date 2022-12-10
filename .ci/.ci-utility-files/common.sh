@@ -796,15 +796,12 @@ function generate_shasums() {
 
     pushd "${directory}"
 
-    echo -n "Generating shasums file... "
-    if (shasum -a256 ./* | sed 's/\.\///g') > "${product}_${version}_SHA256SUMS"; then
-        echo "complete"
-        popd
-        return 0
-    fi
-    echo "failed!"
-    popd
-    fail "Failed to generate shasums for ${product}"
+    local shacontent
+    shacontent="$(shasum -a256 ./*)" ||
+        fail "Failed to generate shasums in ${directory}"
+
+    sed 's/\.\///g' <( printf "%s" "${shacontent}" ) > "${product}_${version}_SHA256SUMS" ||
+        fail "Failed to write shasums file"
 }
 
 # Generate a HashiCorp releases-api compatible release
