@@ -109,10 +109,12 @@ function aws() {
 function output_file() {
     if [ "${1}" = "clean" ] && [ -f "${ci_output_file_path}" ]; then
         rm -f "${ci_output_file_path}"
+        unset ci_output_file_path
     fi
     if [ -z "${ci_output_file_path}" ] || [ ! -f "${ci_output_file_path}" ]; then
         ci_output_file_path="$(mktemp)"
     fi
+
     printf "%s" "${ci_output_file_path}"
 }
 
@@ -137,7 +139,7 @@ function fail() {
 #
 # $1: Warning message
 function warn() {
-    (>&2 echo "WARN:  ${1}")
+    (>&2 echo "WARN: ${1}")
     if [ -f "$(output_file)" ]; then
         slack -s warn -m "WARNING: ${1}" -f "$(output_file)"
     else
@@ -246,120 +248,6 @@ function popd() {
     wrap command builtin popd "${@}" "Failed to pop from directory"
 }
 
-# Generates location within the asset storage
-# bucket to retain built assets.
-function asset_location() {
-    local dst=""
-    if [ -z "${tag}" ]; then
-        dst="${ASSETS_PRIVATE_LONGTERM}/${repository}/${ident_ref}"
-    else
-        if [[ "${tag}" = *"+"* ]]; then
-            dst="${ASSETS_PRIVATE_LONGTERM}/${repository}/${tag}"
-        else
-            dst="${ASSETS_PRIVATE_BUCKET}/${repository}/${tag}"
-        fi
-    fi
-    echo -n "${dst}"
-}
-
-# Upload assets to the asset storage bucket.
-#
-# $1: Path to asset file or directory to upload
-function upload_assets() {
-    if [ "${1}" = "" ]; then
-        fail "Parameter required for asset upload"
-    fi
-    if [ -d "${1}" ]; then
-        wrap aws s3 cp --recursive "${1}" "$(asset_location)/" \
-            "Upload to asset storage failed"
-    else
-        wrap aws s3 cp "${1}" "$(asset_location)/" \
-            "Upload to asset storage failed"
-    fi
-}
-
-# Download assets from the asset storage bucket. If
-# destination is not provided, remote path will be
-# used locally.
-#
-# $1: Path to asset or directory to download
-# $2: Optional destination for downloaded assets
-function download_assets() {
-    local dst
-    local src
-    local remote
-
-    if [ "${1}" = "" ]; then
-        fail "At least one parameter required for asset download"
-    fi
-    if [ "${2}" = "" ]; then
-        dst="${1#/}"
-    else
-        dst="${2}"
-    fi
-    mkdir -p "${dst}"
-    src="$(asset_location)/${1#/}"
-    remote=$(aws s3 ls "${src}")
-    if [[ "${remote}" = *" PRE "* ]]; then
-        mkdir -p "${dst}"
-        wrap aws s3 cp --recursive "${src%/}/" "${dst}" \
-            "Download from asset storage failed"
-    else
-        mkdir -p "$(dirname "${dst}")"
-        wrap aws s3 cp "${src}" "${dst}" \
-            "Download from asset storage failed"
-    fi
-}
-
-# Upload assets to the cache storage bucket.
-#
-# $1: Path to asset file or directory to upload
-function upload_cache() {
-    if [ "${1}" = "" ]; then
-        fail "Parameter required for cache upload"
-    fi
-    if [ -d "${1}" ]; then
-        wrap aws s3 cp --recursive "${1}" "${asset_cache}/" \
-            "Upload to cache failed"
-    else
-        wrap aws s3 cp "${1}" "${asset_cache}/" \
-            "Upload to cache failed"
-    fi
-}
-
-# Download assets from the cache storage bucket. If
-# destination is not provided, remote path will be
-# used locally.
-#
-# $1: Path to asset or directory to download
-# $2: Optional destination for downloaded assets
-function download_cache() {
-    local dst
-    local src
-    local remote
-
-    if [ "${1}" = "" ]; then
-        fail "At least one parameter required for cache download"
-    fi
-    if [ "${2}" = "" ]; then
-        dst="${1#/}"
-    else
-        dst="${2}"
-    fi
-    mkdir -p "${dst}"
-    src="${asset_cache}/${1#/}"
-    remote=$(aws s3 ls "${src}")
-    if [[ "${remote}" = *" PRE "* ]]; then
-        mkdir -p "${dst}"
-        wrap aws s3 cp --recursive "${src%/}/" "${dst}" \
-            "Download from cache storage failed"
-    else
-        mkdir -p "$(dirname "${dst}")"
-        wrap aws s3 cp "${src}" "${dst}" \
-            "Download from cache storage failed"
-    fi
-}
-
 # Sign a file. This uses signore to generate a
 # gpg signature for a given file. If the destination
 # path for the signature is not provided, it will
@@ -369,24 +257,28 @@ function download_cache() {
 # $2: Path to store signature (optional)
 function sign_file() {
     # Check that we have something to sign
-    if [ "${1}" = "" ]; then
+    if [ -z "${1}" ]; then
         fail "Origin file is required for signing"
     fi
 
+    if [ ! -f "${1}" ]; then
+        fail "Origin file does not exist (${1})"
+    fi
+
     # Validate environment has required signore variables set
-    if [ "${SIGNORE_CLIENT_ID}" = "" ]; then
+    if [ -z "${SIGNORE_CLIENT_ID}" ]; then
         fail "Cannot sign file, SIGNORE_CLIENT_ID is not set"
     fi
-    if [ "${SIGNORE_CLIENT_SECRET}" = "" ]; then
+    if [ -z "${SIGNORE_CLIENT_SECRET}" ]; then
         fail "Cannot sign file, SIGNORE_CLIENT_SECRET is not set"
     fi
-    if [ "${SIGNORE_SIGNER}" = "" ]; then
+    if [ -z "${SIGNORE_SIGNER}" ]; then
         fail "Cannot sign file, SIGNORE_SIGNER is not set"
     fi
 
     local origin="${1}"
     local destination="${2}"
-    if [ "${destination}" = "" ]; then
+    if [ -z "${destination}" ]; then
         destination="${origin}.sig"
     fi
 
@@ -1089,6 +981,12 @@ function slack() {
     done
     shift $((OPTIND-1))
 
+    # If we don't have a webhook provided, stop here
+    if [ -z "${webhook}" ]; then
+        (>&2 echo "ERROR: Cannot send Slack notification, webhook unset")
+        return 1
+    fi
+
     local footer footer_icon ts
 
     # If we are using GitHub actions, format the footer
@@ -1712,7 +1610,10 @@ function cleanup() {
     (>&2 echo "** No cleanup tasks defined")
 }
 
-trap _cleanup EXIT
+# Only setup our cleanup trap when not in testing
+if [ -z "${BATS_TEST_FILENAME}" ]; then
+    trap _cleanup EXIT
+fi
 
 # Make sure the CI bin directory exists
 if [ ! -d "${ci_bin_dir}" ]; then
@@ -1794,3 +1695,6 @@ else
     # shellcheck disable=SC2034
     readonly release
 fi
+
+# Seed an initial output file
+output_file > /dev/null 2>&1
