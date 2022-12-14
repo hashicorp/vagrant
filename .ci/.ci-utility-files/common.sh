@@ -1549,6 +1549,98 @@ function github_draft_release_prune() {
     done
 }
 
+# Delete draft release with given name
+#
+# $1: name of draft release
+# $2: repository (optiona, defaults to current repo)
+function delete_draft_release() {
+    local gtoken
+
+    if [ -n "${HASHIBOT_TOKEN}" ]; then
+        gtoken="${HASHIBOT_TOKEN}"
+    elif [ -n "${GITHUB_TOKEN}" ]; then
+        gtoken="${GITHUB_TOKEN}"
+    else
+        fail "Fetching draft release assets requires hashibot or github token with write permission"
+    fi
+
+    local draft_name="${1}"
+    local delete_repo="${2:-$repository}"
+
+    if [ -z "${draft_name}" ]; then
+        fail "Draft name is required for deletion"
+    fi
+
+    if [ -z "${delete_repo}" ]; then
+        fail "Repository is required for draft deletion"
+    fi
+
+    local draft_id
+    local page=$((1))
+    while true; do
+        local release_list list_length
+        release_list=$(curl -SsL --fail \
+            -H "Authorization: token ${gtoken}" \
+            -H "Content-Type: application/json" \
+            "https://api.github.com/repos/${delete_repo}/releases?per_page=100&page=${page}") ||
+            fail "Failed to request releases list for draft deletion on ${delete_repo}"
+        list_length="$(jq 'length' <( printf "%s" "${release_list}" ))" ||
+            fail "Failed to calculate release length for draft deletion on ${delete_repo}"
+
+        # If the list is empty then the draft release does not exist
+        # so we can just return success
+        if [ "${list_length}" -lt "1" ]; then
+            return 0
+        fi
+
+        local entry i release_draft release_id release_name
+        for (( i=0; i < "${list_length}"; i++ )); do
+            entry="$(jq ".[$i]" <( printf "%s" "${release_list}" ))" ||
+                fail "Failed to read entry for draft deletion on ${delete_repo}"
+            release_draft="$(jq -r '.draft' <( printf "%s" "${entry}" ))" ||
+                fail "Failed to read entry draft for draft deletion on ${delete_repo}"
+            release_id="$(jq -r '.id' <( printf "%s" "${entry}" ))" ||
+                fail "Failed to read entry ID for draft deletion on ${delete_repo}"
+            release_name="$(jq -r '.name' <( printf "%s" "${entry}" ))" ||
+                fail "Failed to read entry name for draft deletion on ${delete_repo}"
+
+            # If the names don't match, skip
+            if [ "${release_name}" != "${draft_name}" ]; then
+                continue
+            fi
+
+            # If the release is not a draft, fail
+            if [ "${release_draft}" != "true" ]; then
+                fail "Cannot delete draft '${draft_name}' from '${delete_repo}' - release is not a draft"
+            fi
+
+            # If we are here, we found a match
+            draft_id="${release_id}"
+            break
+        done
+
+        if [ -n "${draft_id}" ]; then
+            break
+        fi
+    done
+
+    # If no draft id was found, the release was not found
+    # so we can just return success
+    if [ -z "${draft_id}" ]; then
+        return 0
+    fi
+
+    # Still here? Okay! Delete the draft
+    printf "Deleting draft release %s from %s\n" "${draft_name}" "${delete_repo}"
+    curl -SsL --fail \
+        -X DELETE \
+        -H "Authorization: token ${gtoken}" \
+        "https://api.github.com/repos/${delete_repo}/releases/${draft_id}" ||
+        fail "Failed to prune draft release ${draft_name} from ${delete_repo}"
+
+}
+
+
 # Send a repository dispatch to the defined repository
 #
 # $1: organization name
