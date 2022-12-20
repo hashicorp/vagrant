@@ -91,7 +91,7 @@ VF
         expect(args[1]).to eq("--connection=ssh")
         expect(args[2]).to eq("--timeout=30")
 
-        inventory_count = args.count { |x| x =~ /^--inventory-file=.+$/ }
+        inventory_count = args.count { |x| x.respond_to?(:=~) && x =~ /^--inventory-file=.+$/ }
         expect(inventory_count).to be > 0
 
         expect(args[args.length-2]).to eq("playbook.yml")
@@ -100,9 +100,9 @@ VF
 
     it "sets --limit argument" do
       expect(Vagrant::Util::Subprocess).to receive(:execute).with('ansible-playbook', any_args) { |*args|
-        all_limits = args.select { |x| x =~ /^(--limit=|-l)/ }
+        all_limits = args.select { |x| x.respond_to?(:=~) && x =~ /^(--limit=|-l)/ }
         if config.raw_arguments
-          raw_limits = config.raw_arguments.select { |x| x =~ /^(--limit=|-l)/ }
+          raw_limits = config.raw_arguments.select { |x| x.respond_to?(:=~) && x =~ /^(--limit=|-l)/ }
           expect(all_limits.length - raw_limits.length).to eq(1)
           expect(all_limits.last).to eq(raw_limits.last)
         else
