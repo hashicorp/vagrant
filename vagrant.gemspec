@@ -33,7 +33,7 @@ Gem::Specification.new do |s|
   s.add_dependency "rb-kqueue", "~> 0.2.0"
   s.add_dependency "rexml", "~> 3.2"
   s.add_dependency "rgl", "~> 0.5.10"
-  s.add_dependency "rubyzip", "~> 2.3"
+  s.add_dependency "rubyzip", "~> 2.3.2"
   s.add_dependency "vagrant_cloud", "~> 3.0.5"
   s.add_dependency "wdm", "~> 0.1.1"
   s.add_dependency "winrm", ">= 2.3.6", "< 3.0"
