@@ -2014,6 +2014,16 @@ en:
           `%{given}` type which cannot be converted to an Integer type.
         connect_timeout_invalid_value: |-
           The `connect_timeout` key only accepts values greater than 1 (received `%{given}`)
+        retries_invalid_type: |-
+          The `retries` key only accepts values of Integer type. Received
+          `%{given}` type which cannot be converted to an Integer type.
+        retries_invalid_value: |-
+          The `retries` key only accepts values greater than or equal to 1 (received `%{given}`)
+        retry_interval_invalid_type: |-
+          The `retry_interval` key only accepts values of Integer type. Received
+          `%{given}` type which cannot be converted to an Integer type.
+        retry_interval_invalid_value: |-
+          The `retry_interval` key only accepts values greater than or equal to 1 (received `%{given}`)
       triggers:
         bad_trigger_type: |-
           The type '%{type}' defined for trigger '%{trigger}' is not valid. Must be one of the following types: '%{types}'
