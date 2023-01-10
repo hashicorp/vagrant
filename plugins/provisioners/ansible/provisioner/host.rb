@@ -108,8 +108,9 @@ module VagrantPlugins
         end
 
         def gather_ansible_version
-          raw_output = ""
-          command = %w(ansible --version)
+          raw_output = ''
+          command = ['python', '-c',
+                     "\"import importlib.metadata; print('ansible ' + importlib.metadata.version('ansible'))\""]
 
           command << {
             notify: [:stdout, :stderr]
