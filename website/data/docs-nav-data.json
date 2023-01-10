@@ -267,6 +267,10 @@
         "path": "boxes/format"
       },
       {
+        "title": "Box Repository",
+        "path": "boxes/box_repository"
+      },
+      {
         "title": "Box Info Format",
         "path": "boxes/info"
       }
