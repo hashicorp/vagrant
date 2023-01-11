@@ -74,7 +74,7 @@ VF
   def self.it_should_check_ansible_version
     it "execute 'Python ansible version check before executing 'ansible-playbook'" do
       expect(Vagrant::Util::Subprocess).to receive(:execute)
-        .once.with('python', '-c', "\"import importlib.metadata; print('ansible ' + importlib.metadata.version('ansible'))\"", { notify: %i[
+        .once.with('python3', '-c', "\"import importlib.metadata; print('ansible ' + importlib.metadata.version('ansible'))\"", { notify: %i[
                      stdout stderr
                    ] })
       expect(Vagrant::Util::Subprocess).to receive(:execute)
@@ -1050,7 +1050,7 @@ VF
       it 'execute three commands: Python ansible version check, ansible-galaxy, and ansible-playbook' do
         expect(Vagrant::Util::Subprocess).to receive(:execute)
           .once
-          .with('python', '-c',
+          .with('python3', '-c',
                 "\"import importlib.metadata; print('ansible ' + importlib.metadata.version('ansible'))\"", { notify: %i[stdout stderr] })
           .and_return(default_execute_result)
         expect(Vagrant::Util::Subprocess).to receive(:execute)
