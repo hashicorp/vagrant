@@ -11,7 +11,7 @@ module VagrantPlugins
               command = 'test -x "$(command -v ansible)"'
 
               unless version.empty?
-                command << "&& [[ $(python -c \"import importlib.metadata; print(importlib.metadata.version('ansible'))\") == \"#{version}\" ]]"
+                command << "&& [[ $(python3 -c \"import importlib.metadata; print(importlib.metadata.version('ansible'))\") == \"#{version}\" ]]"
               end
 
               machine.communicate.test command, sudo: false
