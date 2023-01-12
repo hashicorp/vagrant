@@ -895,6 +895,12 @@ en:
         support.
 
         State file path: %{state_file}
+      download_already_in_progress_error: |-
+        Download to global Vagrant location already in progress. This
+        may be caused by other Vagrant processes attempting to download
+        a file to the same location.
+
+        Download path: %{dest_path}
       downloader_error: |-
         An error occurred while downloading the remote file. The error
         message, if any, is reproduced below. Please fix this error and try

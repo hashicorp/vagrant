@@ -22,6 +22,10 @@ module Vagrant
         # file already exists.
         RESUME_DELAY = 24 * 60 * 60
 
+        # When a box file is being downloaded, identify the download is in progress
+        # by Vagrant with a mutex file named <box file destination>.<MUTEX_SUFFIX>
+        MUTEX_SUFFIX = ".lock"
+
         def initialize(app, env)
           @app    = app
           @logger = Log4r::Logger.new("vagrant::action::builtin::box_add")
@@ -478,13 +482,22 @@ module Vagrant
             end
           end
 
+          mutex_path = d.destination + MUTEX_SUFFIX
+          if File.file?(mutex_path)
+            raise Errors::DownloadAlreadyInProgress,
+              dest_path: d.destination
+          end
+
           begin
+            File.write(mutex_path, "")
             d.download!
           rescue Errors::DownloaderInterrupted
             # The downloader was interrupted, so just return, because that
             # means we were interrupted as well.
             @download_interrupted = true
             env[:ui].info(I18n.t("vagrant.actions.box.download.interrupted"))
+          ensure
+            File.delete(mutex_path)
           end
 
           Pathname.new(d.destination)

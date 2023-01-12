@@ -376,6 +376,10 @@ module Vagrant
       error_key(:dotfile_upgrade_json_error)
     end
 
+    class DownloadAlreadyInProgress < VagrantError
+      error_key(:download_already_in_progress_error)
+    end
+
     class DownloaderError < VagrantError
       error_key(:downloader_error)
     end
