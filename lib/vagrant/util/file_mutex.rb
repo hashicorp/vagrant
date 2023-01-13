@@ -22,7 +22,7 @@ module Vagrant
       end
 
       def unlock
-        File.delete(@mutex_path)
+        File.delete(@mutex_path) if File.file?(@mutex_path)
       end
     end
   end
