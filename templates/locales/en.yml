@@ -1675,6 +1675,11 @@ en:
       uploader_interrupted: |-
         The upload was interrupted by an external signal. It did not
         complete.
+      vagrant_locked: |-
+        The requested Vagrant action is locked. This may be caused
+        by other Vagrant processes attempting to do a similar action.
+
+        Lock file path: %{lock_file_path}
       vagrantfile_exists: |-
         `Vagrantfile` already exists in this directory. Remove it before
         running `vagrant init`.

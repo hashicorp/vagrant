@@ -6,6 +6,7 @@ require "uri"
 require "vagrant/box_metadata"
 require "vagrant/util/downloader"
 require "vagrant/util/file_checksum"
+require "vagrant/util/file_mutex"
 require "vagrant/util/platform"
 
 module Vagrant
@@ -21,10 +22,6 @@ module Vagrant
         # This is the amount of time to "resume" downloads if a partial box
         # file already exists.
         RESUME_DELAY = 24 * 60 * 60
-
-        # When a box file is being downloaded, identify the download is in progress
-        # by Vagrant with a mutex file named <box file destination>.<MUTEX_SUFFIX>
-        MUTEX_SUFFIX = ".lock"
 
         def initialize(app, env)
           @app    = app
@@ -482,23 +479,22 @@ module Vagrant
             end
           end
 
-          mutex_path = d.destination + MUTEX_SUFFIX
-          if File.file?(mutex_path)
+          begin
+            mutex_path = d.destination + ".lock"
+            Util::FileMutex.new(mutex_path).with_lock do
+              begin
+                d.download!
+              rescue Errors::DownloaderInterrupted
+                # The downloader was interrupted, so just return, because that
+                # means we were interrupted as well.
+                @download_interrupted = true
+                env[:ui].info(I18n.t("vagrant.actions.box.download.interrupted"))
+              end
+            end
+          rescue Errors::VagrantLocked
             raise Errors::DownloadAlreadyInProgress,
               dest_path: d.destination,
               lock_file_path: mutex_path
-          end
-
-          begin
-            File.write(mutex_path, "")
-            d.download!
-          rescue Errors::DownloaderInterrupted
-            # The downloader was interrupted, so just return, because that
-            # means we were interrupted as well.
-            @download_interrupted = true
-            env[:ui].info(I18n.t("vagrant.actions.box.download.interrupted"))
-          ensure
-            File.delete(mutex_path)
           end
 
           Pathname.new(d.destination)

@@ -924,6 +924,10 @@ module Vagrant
       error_key(:uploader_interrupted)
     end
 
+    class VagrantLocked < VagrantError
+      error_key(:vagrant_locked)
+    end
+
     class VagrantInterrupt < VagrantError
       error_key(:interrupted)
     end
