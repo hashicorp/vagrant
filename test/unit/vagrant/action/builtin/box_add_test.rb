@@ -84,7 +84,47 @@ describe Vagrant::Action::Builtin::BoxAdd, :skip_windows, :bsdtar do
     allow(box_collection).to receive(:find).and_return(nil)
   end
 
+  context "the download location is locked" do
+    let(:box_path) { iso_env.box2_file(:virtualbox) }
+
+    before do
+      mutex_path = env[:tmp_path].join("box" + Digest::SHA1.hexdigest("file://" + box_path.to_s) + ".lock").to_s
+      File.write(mutex_path, "")
+    end
+
+    it "raises a download error" do
+      env[:box_name] = "foo"
+      env[:box_url] = box_path.to_s
+
+      expect { subject.call(env) }.
+        to raise_error(Vagrant::Errors::DownloadAlreadyInProgress)
+    end
+  end
+
   context "with box file directly" do
+    it "creates and cleans up a lock file" do
+      box_path = iso_env.box2_file(:virtualbox)
+
+      env[:box_name] = "foo"
+      env[:box_url] = box_path.to_s
+
+      
+      expect(box_collection).to receive(:add).with(any_args) { |path, name, version, opts|
+        expect(checksum(path)).to eq(checksum(box_path))
+        expect(name).to eq("foo")
+        expect(version).to eq("0")
+        expect(opts[:metadata_url]).to be_nil
+        true
+      }.and_return(box)
+
+      expect(app).to receive(:call).with(env)
+
+      mutex_path = env[:tmp_path].join("box" + Digest::SHA1.hexdigest("file://" + box_path.to_s) + ".lock").to_s
+      expect(File).to receive(:write).with(mutex_path, "")
+      expect(File).to receive(:delete).with(mutex_path)
+      subject.call(env)
+    end
+
     it "adds it" do
       box_path = iso_env.box2_file(:virtualbox)
 
