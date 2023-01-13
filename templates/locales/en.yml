@@ -901,6 +901,7 @@ en:
         a file to the same location.
 
         Download path: %{dest_path}
+        Lock file path: %{lock_file_path}
       downloader_error: |-
         An error occurred while downloading the remote file. The error
         message, if any, is reproduced below. Please fix this error and try

@@ -485,7 +485,8 @@ module Vagrant
           mutex_path = d.destination + MUTEX_SUFFIX
           if File.file?(mutex_path)
             raise Errors::DownloadAlreadyInProgress,
-              dest_path: d.destination
+              dest_path: d.destination,
+              lock_file_path: mutex_path
           end
 
           begin
