@@ -104,6 +104,14 @@
         "path": "cli/resume"
       },
       {
+        "title": "rsync",
+        "path": "cli/rsync"
+      },
+      {
+        "title": "rsync-auto",
+        "path": "cli/rsync-auto"
+      },
+      {
         "title": "share",
         "path": "cli/share"
       },
