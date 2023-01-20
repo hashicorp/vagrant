@@ -10,13 +10,13 @@ description: |-
 
 # Plugin Development: Providers
 
-This page documents how to add support for new [providers](/docs/providers/)
+This page documents how to add support for new [providers](/vagrant/docs/providers/)
 to Vagrant, allowing Vagrant to run and manage machines powered by a
 system other than VirtualBox. Prior to reading this, you should be familiar
-with the [plugin development basics](/docs/plugins/development-basics).
+with the [plugin development basics](/vagrant/docs/plugins/development-basics).
 
 Prior to developing a provider you should also be familiar with how
-[providers work](/docs/providers/) from
+[providers work](/vagrant/docs/providers/) from
 a user standpoint.
 
 ~> **Warning: Advanced Topic!** Developing plugins is an
@@ -74,7 +74,7 @@ create your provider.
 Each provider is responsible for having its own box format. This is
 actually an extremely simple step due to how generic boxes are. Before
 explaining you should get familiar with the general
-[box file format](/docs/boxes/format).
+[box file format](/vagrant/docs/boxes/format).
 
 The only requirement for your box format is that the `metadata.json`
 file have a `provider` key which matches the name of your provider you
@@ -162,13 +162,13 @@ from this directory.
 
 ## Configuration
 
-Vagrant supports [provider-specific configuration](/docs/providers/configuration),
+Vagrant supports [provider-specific configuration](/vagrant/docs/providers/configuration),
 allowing for users to finely tune and control specific providers from
 Vagrantfiles. It is easy for your custom provider to expose custom configuration
 as well.
 
 Provider-specific configuration is a special case of a normal
-[configuration plugin](/docs/plugins/configuration). When defining the
+[configuration plugin](/vagrant/docs/plugins/configuration). When defining the
 configuration component, name the configuration the same as the provider,
 and as a second parameter, specify `:provider`, like so:
 
@@ -191,7 +191,7 @@ end
 ```
 
 The configuration class returned from the `config` component in the plugin
-is the same as any other [configuration plugin](/docs/plugins/configuration),
+is the same as any other [configuration plugin](/vagrant/docs/plugins/configuration),
 so read that page for more information. Vagrant automatically handles
 configuration validation and such just like any other configuration piece.
 

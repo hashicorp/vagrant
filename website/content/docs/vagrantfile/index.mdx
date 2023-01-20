@@ -57,14 +57,14 @@ allows Vagrantfiles of varying level of specificity to override prior settings.
 Vagrantfiles are loaded in the order shown below. Note that if a Vagrantfile
 is not found at any step, Vagrant continues with the next step.
 
-1. Vagrantfile packaged with the [box](/docs/boxes) that is to be used
+1. Vagrantfile packaged with the [box](/vagrant/docs/boxes) that is to be used
    for a given machine.
 2. Vagrantfile in your Vagrant home directory (defaults to `~/.vagrant.d`).
    This lets you specify some defaults for your system user.
 3. Vagrantfile from the project directory. This is the Vagrantfile that you will
    be modifying most of the time.
-4. [Multi-machine overrides](/docs/multi-machine/) if any.
-5. [Provider-specific overrides](/docs/providers/configuration),
+4. [Multi-machine overrides](/vagrant/docs/multi-machine/) if any.
+5. [Provider-specific overrides](/vagrant/docs/providers/configuration),
    if any.
 
 At each level, settings set will be merged with previous values. What this

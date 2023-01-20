@@ -12,7 +12,7 @@ description: |-
 This page documents how to add new configuration options to Vagrant,
 settable with `config.YOURKEY` in Vagrantfiles. Prior to reading this,
 you should be familiar with the
-[plugin development basics](/docs/plugins/development-basics).
+[plugin development basics](/vagrant/docs/plugins/development-basics).
 
 ~> **Warning: Advanced Topic!** Developing plugins is an
 advanced topic that only experienced Vagrant users who are reasonably
@@ -74,7 +74,7 @@ there.
 
 ## Merging
 
-Vagrant works by loading [multiple Vagrantfiles and merging them](/docs/vagrantfile/#load-order).
+Vagrant works by loading [multiple Vagrantfiles and merging them](/vagrant/docs/vagrantfile/#load-order).
 This merge logic is built-in to configuration classes. When merging two
 configuration objects, we will call them "old" and "new", it'll by default
 take all the instance variables defined on "new" that are not `UNSET_VALUE`

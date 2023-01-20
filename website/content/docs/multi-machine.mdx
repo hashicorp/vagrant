@@ -32,7 +32,7 @@ benefits of Vagrant.
 
 ## Defining Multiple Machines
 
-Multiple machines are defined within the same project [Vagrantfile](/docs/vagrantfile/)
+Multiple machines are defined within the same project [Vagrantfile](/vagrant/docs/vagrantfile/)
 using the `config.vm.define` method call. This configuration directive
 is a little funny, because it creates a Vagrant configuration within a
 configuration. An example shows this best:
@@ -60,7 +60,7 @@ being defined. Therefore, any configuration on `web` will only affect the
 And importantly, you can continue to use the `config` object as well. The
 configuration object is loaded and merged before the machine-specific configuration,
 just like other Vagrantfiles within the
-[Vagrantfile load order](/docs/vagrantfile/#load-order).
+[Vagrantfile load order](/vagrant/docs/vagrantfile/#load-order).
 
 If you are familiar with programming, this is similar to how languages have
 different variable scopes.
@@ -87,7 +87,7 @@ that "B" is last. That is because the ordering is outside-in, in
 the order of the file.
 
 If you want to apply a slightly different configuration to multiple machines,
-see [this tip](/docs/vagrantfile/tips#loop-over-vm-definitions).
+see [this tip](/vagrant/docs/vagrantfile/tips#loop-over-vm-definitions).
 
 ## Controlling Multiple Machines
 
@@ -115,8 +115,8 @@ slashes, it assumes you are using a regular expression.
 ## Communication Between Machines
 
 In order to facilitate communication within machines in a multi-machine setup,
-the various [networking](/docs/networking/) options should be used.
-In particular, the [private network](/docs/networking/private_network) can
+the various [networking](/vagrant/docs/networking/) options should be used.
+In particular, the [private network](/vagrant/docs/networking/private_network) can
 be used to make a private network between multiple machines and the host.
 
 ## Specifying a Primary Machine

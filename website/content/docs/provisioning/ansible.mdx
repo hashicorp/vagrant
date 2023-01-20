@@ -13,7 +13,7 @@ description: |-
 The Vagrant Ansible provisioner allows you to provision the guest using [Ansible](http://ansible.com) playbooks by executing **`ansible-playbook` from the Vagrant host**.
 
 ~> **Warning:**
-If you are not familiar with Ansible and Vagrant already, we recommend starting with the [shell provisioner](/docs/provisioning/shell). However, if you are comfortable with Vagrant already, Vagrant is a great way to learn Ansible.
+If you are not familiar with Ansible and Vagrant already, we recommend starting with the [shell provisioner](/vagrant/docs/provisioning/shell). However, if you are comfortable with Vagrant already, Vagrant is a great way to learn Ansible.
 
 ## Setup Requirements
 
@@ -21,11 +21,11 @@ If you are not familiar with Ansible and Vagrant already, we recommend starting 
 
 - Your Vagrant host should ideally provide a recent version of OpenSSH that [supports ControlPersist](https://docs.ansible.com/faq.html#how-do-i-get-ansible-to-reuse-connections-enable-kerberized-ssh-or-have-ansible-pay-attention-to-my-local-ssh-config-file).
 
-If installing Ansible directly on the Vagrant host is not an option in your development environment, you might be looking for the [Ansible Local provisioner](/docs/provisioning/ansible_local) alternative.
+If installing Ansible directly on the Vagrant host is not an option in your development environment, you might be looking for the [Ansible Local provisioner](/vagrant/docs/provisioning/ansible_local) alternative.
 
 ## Usage
 
-This page only documents the specific parts of the `ansible` (remote) provisioner. General Ansible concepts like Playbook or Inventory are shortly explained in the [introduction to Ansible and Vagrant](/docs/provisioning/ansible_intro).
+This page only documents the specific parts of the `ansible` (remote) provisioner. General Ansible concepts like Playbook or Inventory are shortly explained in the [introduction to Ansible and Vagrant](/vagrant/docs/provisioning/ansible_intro).
 
 ### Simplest Configuration
 
@@ -46,7 +46,7 @@ end
 
 ## Options
 
-This section lists the _specific_ options for the Ansible (remote) provisioner. In addition to the options listed below, this provisioner supports the [**common options** for both Ansible provisioners](/docs/provisioning/ansible_common).
+This section lists the _specific_ options for the Ansible (remote) provisioner. In addition to the options listed below, this provisioner supports the [**common options** for both Ansible provisioners](/vagrant/docs/provisioning/ansible_common).
 
 - `ask_become_pass` (boolean) - require Ansible to [prompt for a password](https://docs.ansible.com/intro_getting_started.html#remote-connection-information) when switching to another user with the [become/sudo mechanism](http://docs.ansible.com/ansible/become.html).
 
@@ -61,7 +61,7 @@ This section lists the _specific_ options for the Ansible (remote) provisioner. 
 
   The default value is `false`.
 
-* `force_remote_user` (boolean) - require Vagrant to set the `ansible_ssh_user` setting in the generated inventory, or as an extra variable when a static inventory is used. All the Ansible `remote_user` parameters will then be overridden by the value of `config.ssh.username` of the [Vagrant SSH Settings](/docs/vagrantfile/ssh_settings).
+* `force_remote_user` (boolean) - require Vagrant to set the `ansible_ssh_user` setting in the generated inventory, or as an extra variable when a static inventory is used. All the Ansible `remote_user` parameters will then be overridden by the value of `config.ssh.username` of the [Vagrant SSH Settings](/vagrant/docs/vagrantfile/ssh_settings).
 
   If this option is set to `false` Vagrant will set the Vagrant SSH username as a default Ansible remote user, but `remote_user` parameters of your Ansible plays or tasks will still be taken into account and thus override the Vagrant configuration.
 
@@ -83,7 +83,7 @@ This section lists the _specific_ options for the Ansible (remote) provisioner. 
 
 ### Ansible Parallel Execution
 
-Vagrant is designed to provision [multi-machine environments](/docs/multi-machine) in sequence, but the following configuration pattern can be used to take advantage of Ansible parallelism:
+Vagrant is designed to provision [multi-machine environments](/vagrant/docs/multi-machine) in sequence, but the following configuration pattern can be used to take advantage of Ansible parallelism:
 
 ```ruby
 # Vagrant 1.7+ automatically inserts a different
@@ -120,7 +120,7 @@ If you apply this parallel provisioning pattern with a static Ansible inventory,
 you will have to organize the things so that [all the relevant private keys are
 provided to the `ansible-playbook` command](https://github.com/hashicorp/vagrant/pull/5765#issuecomment-120247738).
 The same kind of considerations applies if you are using multiple private keys
-for a same machine (see [`config.ssh.private_key_path` SSH setting](/docs/vagrantfile/ssh_settings)).
+for a same machine (see [`config.ssh.private_key_path` SSH setting](/vagrant/docs/vagrantfile/ssh_settings)).
 
 ### Force Paramiko Connection Mode
 
