@@ -37,16 +37,16 @@ the name of the synced folder plugin.
 - `config.vm.boot_timeout` (integer) - The time in seconds that Vagrant will wait
   for the machine to boot and be accessible. By default this is 300 seconds.
 
-- `config.vm.box` (string) - This configures what [box](/docs/boxes) the
+- `config.vm.box` (string) - This configures what [box](/vagrant/docs/boxes) the
   machine will be brought up against. The value here should be the name
   of an installed box or a shorthand name of a box in
-  [HashiCorp's Vagrant Cloud](/vagrant-cloud).
+  [HashiCorp's Vagrant Cloud](/vagrant/vagrant-cloud).
 
 - `config.vm.box_check_update` (boolean) - If true, Vagrant will check for updates to
   the configured box on every `vagrant up`. If an update is found, Vagrant
   will tell the user. By default this is true. Updates will only be checked
   for boxes that properly support updates (boxes from
-  [HashiCorp's Vagrant Cloud](/vagrant-cloud)
+  [HashiCorp's Vagrant Cloud](/vagrant/vagrant-cloud)
   or some other versioned box).
 
 - `config.vm.box_download_checksum` (string) - The checksum of the box specified by
@@ -88,7 +88,7 @@ the name of the synced folder plugin.
   (if specified) used only for initial HTTP request.
 
 - `config.vm.box_url` (string, array of strings) - The URL that the configured box can be found at.
-  If `config.vm.box` is a shorthand to a box in [HashiCorp's Vagrant Cloud](/vagrant-cloud)
+  If `config.vm.box` is a shorthand to a box in [HashiCorp's Vagrant Cloud](/vagrant/vagrant-cloud)
   then this value does not need to be specified. Otherwise, it should
   point to the proper place where the box can be found if it is not
   installed. This can also be an array of multiple URLs. The URLs will be tried in
@@ -104,7 +104,7 @@ the name of the synced folder plugin.
   are given, Vagrant will use the latest available box satisfying these
   constraints.
 
-- `config.vm.cloud_init` - Stores various [cloud_init](/docs/cloud-init) configurations
+- `config.vm.cloud_init` - Stores various [cloud_init](/vagrant/docs/cloud-init) configurations
   on the machine. **Currently experimental!** Read the documentation for more
   information on how to enable this feature.
 
@@ -112,7 +112,7 @@ the name of the synced folder plugin.
   guest box. By default this is `"ssh"`, but should be changed to `"winrm"` for
   Windows guests.
 
-- `config.vm.disk` - Stores various virtual [disk](/docs/disks) configurations
+- `config.vm.disk` - Stores various virtual [disk](/vagrant/docs/disks) configurations
   on the machine. **Currently experimental!** Read the documentation for more
   information on how to enable this feature.
 
@@ -134,27 +134,27 @@ the name of the synced folder plugin.
 - `config.vm.ignore_box_vagrantfile` (boolean) - If true, Vagrant will not load the the
   settings found inside a boxes Vagrantfile, if present. Defaults to `false`.
 
-- `config.vm.network` - Configures [networks](/docs/networking/) on
+- `config.vm.network` - Configures [networks](/vagrant/docs/networking/) on
   the machine. Please see the networking page for more information.
 
 - `config.vm.post_up_message` (string) - A message to show after `vagrant up`. This
   will be shown to the user and is useful for containing instructions
   such as how to access various components of the development environment.
 
-- `config.vm.provider` - Configures [provider-specific configuration](/docs/providers/configuration),
+- `config.vm.provider` - Configures [provider-specific configuration](/vagrant/docs/providers/configuration),
   which is used to modify settings which are specific to a certain
-  [provider](/docs/providers/). If the provider you are configuring
+  [provider](/vagrant/docs/providers/). If the provider you are configuring
   does not exist or is not setup on the system of the person who runs
   `vagrant up`, Vagrant will ignore this configuration block. This allows
   a Vagrantfile that is configured for many providers to be shared among
   a group of people who may not have all the same providers installed.
 
-- `config.vm.provision` - Configures [provisioners](/docs/provisioning/)
+- `config.vm.provision` - Configures [provisioners](/vagrant/docs/provisioning/)
   on the machine, so that software can be automatically installed and configured
   when the machine is created. Please see the page on provisioners for more
   information on how this setting works.
 
-- `config.vm.synced_folder` - Configures [synced folders](/docs/synced-folders/)
+- `config.vm.synced_folder` - Configures [synced folders](/vagrant/docs/synced-folders/)
   on the machine, so that folders on your host machine can be synced to
   and from the guest machine. Please see the page on synced folders for
   more information on how this setting works.

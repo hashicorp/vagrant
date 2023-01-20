@@ -14,11 +14,11 @@ description: >-
 
 The Vagrant Ansible Local provisioner allows you to provision the guest using [Ansible](http://ansible.com) playbooks by executing **`ansible-playbook` directly on the guest machine**.
 
-~> **Warning:** If you are not familiar with Ansible and Vagrant already, we recommend starting with the [shell provisioner](/docs/provisioning/shell). However, if you are comfortable with Vagrant already, Vagrant is a great way to learn Ansible.
+~> **Warning:** If you are not familiar with Ansible and Vagrant already, we recommend starting with the [shell provisioner](/vagrant/docs/provisioning/shell). However, if you are comfortable with Vagrant already, Vagrant is a great way to learn Ansible.
 
 ## Setup Requirements
 
-The main advantage of the Ansible Local provisioner in comparison to the [Ansible (remote) provisioner](/docs/provisioning/ansible) is that it does not require any additional software on your Vagrant host.
+The main advantage of the Ansible Local provisioner in comparison to the [Ansible (remote) provisioner](/vagrant/docs/provisioning/ansible) is that it does not require any additional software on your Vagrant host.
 
 On the other hand, [Ansible must obviously be installed](https://docs.ansible.com/ansible/latest/installation_guide/intro_installation.html) on your guest machine(s).
 
@@ -26,9 +26,9 @@ On the other hand, [Ansible must obviously be installed](https://docs.ansible.co
 
 ## Usage
 
-This page only documents the specific parts of the `ansible_local` provisioner. General Ansible concepts like Playbook or Inventory are shortly explained in the [introduction to Ansible and Vagrant](/docs/provisioning/ansible_intro).
+This page only documents the specific parts of the `ansible_local` provisioner. General Ansible concepts like Playbook or Inventory are shortly explained in the [introduction to Ansible and Vagrant](/vagrant/docs/provisioning/ansible_intro).
 
-The Ansible Local provisioner requires that all the Ansible Playbook files are available on the guest machine, at the location referred by the `provisioning_path` option. Usually these files are initially present on the host machine (as part of your Vagrant project), and it is quite easy to share them with a Vagrant [Synced Folder](/docs/synced-folders/).
+The Ansible Local provisioner requires that all the Ansible Playbook files are available on the guest machine, at the location referred by the `provisioning_path` option. Usually these files are initially present on the host machine (as part of your Vagrant project), and it is quite easy to share them with a Vagrant [Synced Folder](/vagrant/docs/synced-folders/).
 
 ### Simplest Configuration
 
@@ -47,11 +47,11 @@ end
 
 - The `playbook.yml` file is stored in your Vagrant's project home directory.
 
-- The [default shared directory](/docs/synced-folders/basic_usage) is enabled (`.` &rarr; `/vagrant`).
+- The [default shared directory](/vagrant/docs/synced-folders/basic_usage) is enabled (`.` &rarr; `/vagrant`).
 
 ## Options
 
-This section lists the _specific_ options for the Ansible Local provisioner. In addition to the options listed below, this provisioner supports the [**common options** for both Ansible provisioners](/docs/provisioning/ansible_common).
+This section lists the _specific_ options for the Ansible Local provisioner. In addition to the options listed below, this provisioner supports the [**common options** for both Ansible provisioners](/vagrant/docs/provisioning/ansible_common).
 
 - `install` (boolean) - Try to automatically install Ansible on the guest system.
 
@@ -60,8 +60,8 @@ This section lists the _specific_ options for the Ansible Local provisioner. In 
   Vagrant will try to install (or upgrade) Ansible when one of these conditions are met:
 
   - Ansible is not installed (or cannot be found).
-  - The [`version`](/docs/provisioning/ansible_common#version) option is set to `"latest"`.
-  - The current Ansible version does not correspond to the [`version`](/docs/provisioning/ansible_common#version) option.
+  - The [`version`](/vagrant/docs/provisioning/ansible_common#version) option is set to `"latest"`.
+  - The current Ansible version does not correspond to the [`version`](/vagrant/docs/provisioning/ansible_common#version) option.
 
     ~> **Attention:**
     There is no guarantee that this automated installation will replace a custom Ansible setup, that might be already present on the Vagrant box.
@@ -73,7 +73,7 @@ This section lists the _specific_ options for the Ansible Local provisioner. In 
     - On Ubuntu-like systems, the latest Ansible release is installed from the `ppa:ansible/ansible` repository. The compatibility is maintained only for active long-term support (LTS) versions.
     - On RedHat-like systems, the latest Ansible release is installed from the [EPEL](http://fedoraproject.org/wiki/EPEL) repository.
 
-  - `:pip`: Ansible is installed from [PyPI](https://pypi.python.org/pypi) with [pip](https://pip.pypa.io) package installer. With this mode, Vagrant will systematically try to [install the latest pip version](https://pip.pypa.io/en/stable/installing/#installing-with-get-pip-py). With the `:pip` mode you can optionally install a specific Ansible release by setting the [`version`](/docs/provisioning/ansible_common#version) option.
+  - `:pip`: Ansible is installed from [PyPI](https://pypi.python.org/pypi) with [pip](https://pip.pypa.io) package installer. With this mode, Vagrant will systematically try to [install the latest pip version](https://pip.pypa.io/en/stable/installing/#installing-with-get-pip-py). With the `:pip` mode you can optionally install a specific Ansible release by setting the [`version`](/vagrant/docs/provisioning/ansible_common#version) option.
 
     Example:
 

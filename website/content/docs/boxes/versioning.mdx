@@ -23,13 +23,13 @@ to Vagrant makes it easy to use and fit nicely into the Vagrant workflow.
 
 This page will cover how to use versioned boxes. It does _not_ cover how
 to update your own custom boxes with versions. That is covered in
-[creating a base box](/docs/boxes/base).
+[creating a base box](/vagrant/docs/boxes/base).
 
 ## Viewing Versions and Updating
 
 `vagrant box list` only shows _installed_ versions of boxes. If you want
 to see all available versions of a box, you will have to find the box
-on [HashiCorp's Vagrant Cloud](/vagrant-cloud). An easy way to find a box
+on [HashiCorp's Vagrant Cloud](/vagrant/vagrant-cloud). An easy way to find a box
 is to use the url `https://vagrantcloud.com/$USER/$BOX`. For example, for
 the `hashicorp/bionic64` box, you can find information about it at
 `https://vagrantcloud.com/hashicorp/bionic64`.
@@ -47,7 +47,7 @@ command just downloads these updates locally.
 ## Version Constraints
 
 You can constrain a Vagrant environment to a specific version or versions
-of a box using the [Vagrantfile](/docs/vagrantfile/) by specifying
+of a box using the [Vagrantfile](/vagrant/docs/vagrantfile/) by specifying
 the `config.vm.box_version` option.
 
 If this option is not specified, the latest version is always used. This is
@@ -76,7 +76,7 @@ of the format `X.Y.Z` where `X`, `Y`, and `Z` are all positive integers.
 
 ## Automatic Update Checking
 
-Using the [Vagrantfile](/docs/vagrantfile/), you can also configure
+Using the [Vagrantfile](/vagrant/docs/vagrantfile/), you can also configure
 Vagrant to automatically check for updates during any `vagrant up`. This is
 enabled by default, but can easily be disabled with
 `config.vm.box_check_update = false` in your Vagrantfile.

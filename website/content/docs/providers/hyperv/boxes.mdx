@@ -8,18 +8,18 @@ description: |-
 
 # Creating a Base Box
 
-As with [every Vagrant provider](/docs/providers/basic_usage), the
+As with [every Vagrant provider](/vagrant/docs/providers/basic_usage), the
 Vagrant Hyper-V provider has a custom box format that affects how base boxes are made.
 
 Prior to reading this, you should read the
-[general guide to creating base boxes](/docs/boxes/base). Actually,
+[general guide to creating base boxes](/vagrant/docs/boxes/base). Actually,
 it would probably be most useful to keep this open in a separate tab
 as you may be referencing it frequently while creating a base box. That
 page contains important information about common software to install
 on the box.
 
 Additionally, it is helpful to understand the
-[basics of the box file format](/docs/boxes/format).
+[basics of the box file format](/vagrant/docs/boxes/format).
 
 ~> **Advanced topic!** This is a reasonably advanced topic that
 a beginning user of Vagrant does not need to understand. If you are
@@ -30,7 +30,7 @@ your own custom boxes, this is for you.
 ## Additional Software
 
 In addition to the software that should be installed based on the
-[general guide to creating base boxes](/docs/boxes/base),
+[general guide to creating base boxes](/vagrant/docs/boxes/base),
 Hyper-V base boxes require some additional software.
 
 ### Hyper-V Kernel Modules
@@ -77,7 +77,7 @@ provider and can only add to the size of the box if there are snapshots
 in that folder.
 
 Then, create the "metadata.json" file necessary for the box, as documented
-in [basics of the box file format](/docs/boxes/format). The proper
+in [basics of the box file format](/vagrant/docs/boxes/format). The proper
 provider value to use for the metadata is "hyperv".
 
 Finally, create an archive of those contents (but _not_ the parent folder)

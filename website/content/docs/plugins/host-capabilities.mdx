@@ -9,17 +9,17 @@ description: >-
 
 # Plugin Development: Host Capabilities
 
-This page documents how to add new capabilities for [hosts](/docs/plugins/hosts)
+This page documents how to add new capabilities for [hosts](/vagrant/docs/plugins/hosts)
 to Vagrant, allowing Vagrant to perform new actions on specific host
 operating systems.
 Prior to reading this, you should be familiar
-with the [plugin development basics](/docs/plugins/development-basics).
+with the [plugin development basics](/vagrant/docs/plugins/development-basics).
 
 ~> **Warning: Advanced Topic!** Developing plugins is an
 advanced topic that only experienced Vagrant users who are reasonably
 comfortable with Ruby should approach.
 
-Host capabilities augment [hosts](/docs/plugins/hosts) by attaching
+Host capabilities augment [hosts](/vagrant/docs/plugins/hosts) by attaching
 specific "capabilities" to the host, which are actions that can be performed
 in the context of that host operating system.
 
@@ -31,7 +31,7 @@ core of Vagrant and was not easily augmented.
 ## Definition and Implementation
 
 The definition and implementation of host capabilities is identical
-to [guest capabilities](/docs/plugins/guest-capabilities).
+to [guest capabilities](/vagrant/docs/plugins/guest-capabilities).
 
 The main difference from guest capabilities, however, is that instead of
 taking a machine as the first argument, all host capabilities take an
