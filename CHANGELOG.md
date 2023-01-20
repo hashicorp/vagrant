@@ -1,4 +1,4 @@
-## 2.3.2 (Unreleased)
+## UNRELEASED
 
 FEATURES:
 
@@ -7,6 +7,40 @@ IMPROVEMENTS:
 BUG FIXES:
 
 VAGRANT-GO:
+
+## 2.3.4 (December 9, 2022)
+
+IMPROVEMENTS:
+
+- host/darwin: Isolate loading incompatible libraries to support EOL platforms [GH-13022]
+- provider/virtualbox: Detect network type when not provided [GH-13024]
+
+BUG FIXES:
+
+- host/windows: Add fix for Powershell 7.3.0 [GH-13006]
+- provider/virtualbox: Adjust hostnet DHCP configuration, ignore invalid devices [GH-13004]
+- provisioner/ansible: Fix install package names on older debian (and derivatives) versions [GH-13017]
+
+## 2.3.3 (November 15, 2022) 
+
+IMPROVEMENTS:
+
+- core: Bump net-ssh dependency to 7.0 and remove patches [GH-12979]
+- synced_folders/rsync: Include ssh `extra_args` value [GH-12973]
+
+BUG FIXES:
+
+- command/serve: Force root level namespace for Google constant [GH-12989]
+- guest/solaris: Fix insecure key authorized keys removal [GH-12740]
+- provider/virtualbox: Fix `:private_network` support for VirtualBox 7 on macOS [GH-12983]
+- provider/virtualbox: Prevent localization of command output [GH-12994]
+- provisioner/ansible: Update setup packages in debian capability [GH-12832]
+
+## 2.3.2 (October 18, 2022)
+
+FEATURES:
+
+- provider/virtualbox: Add support for VirtualBox 7.0 [GH-12947]
 
 ## 2.3.1 (September 29, 2022)
 

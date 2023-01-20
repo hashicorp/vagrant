@@ -15,15 +15,15 @@ on:
 
 jobs:
   vagrant-spec-tests:
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-latest
     strategy:
       matrix:
         go: ['^1.16']
-        ruby: ['2.7']
+        ruby: ['3.1']
     name: Vagrant acceptance tests
     steps:
       - name: Code Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           submodules: 'recursive'
           # Also fetch all tags, since we need our version number in the build
@@ -37,10 +37,7 @@ jobs:
         uses: ruby/setup-ruby@v1
         with:
           ruby-version: ${{matrix.ruby}}
-      - name: Setup ruby vagrant
-        run: |
-          gem install --no-document bundler
-          bundle install
+          bundler-cache: true
       - name: Build Vagrant
         run:  |
           git config --global url."https://${HASHIBOT_USERNAME}:${HASHIBOT_TOKEN}@github.com".insteadOf "https://github.com"

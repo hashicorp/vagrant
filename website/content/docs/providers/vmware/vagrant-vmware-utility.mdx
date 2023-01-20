@@ -37,7 +37,7 @@ generate the required certificates:
 $ sudo /opt/vagrant-vmware-desktop/bin/vagrant-vmware-utility certificate generate
 ```
 
-The path provided from this command can be used to set the [`utility_certificate_path`](/docs/providers/vmware/configuration#utility_certificate_path) in the Vagrantfile
+The path provided from this command can be used to set the [`utility_certificate_path`](/vagrant/docs/providers/vmware/configuration#utility_certificate_path) in the Vagrantfile
 configuration if installing to a non-standard path.
 
 Finally, install the service. This will also enable the service.
@@ -153,7 +153,7 @@ api {
 
 ### API options
 
-- `port` (int) - Port to bind the API (changes require changes to [Vagrant configuration](/docs/providers/vmware/configuration#utility_port))
+- `port` (int) - Port to bind the API (changes require changes to [Vagrant configuration](/vagrant/docs/providers/vmware/configuration#utility_port))
 - `driver` (string) - Internal driver to use (utility will auto-detect correct driver)
 - `license_override` (string) - Override the detected VMware license (standard or professional)
 

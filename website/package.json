@@ -3,10 +3,10 @@
   "description": "Documentation website for HashiCorp Vagrant",
   "version": "1.0.0",
   "author": "HashiCorp",
-  "dependencies": {},
   "devDependencies": {
-    "@hashicorp/platform-cli": "^1.2.0",
+    "@hashicorp/platform-cli": "^2.5.1",
     "husky": "4.3.8",
+    "next": "^12.3.1",
     "prettier": "2.2.1"
   },
   "husky": {

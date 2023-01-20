@@ -19,7 +19,7 @@ VAGRANT_EXPERIMENTAL="disks"
 ```
 
 Please note that `VAGRANT_EXPERIMENTAL` is an environment variable. For more
-information about this flag visit the [Experimental docs page](/docs/experimental/)
+information about this flag visit the [Experimental docs page](/vagrant/docs/experimental/)
 for more info. Without this flag enabled, any disks defined will not be configured.
 
 **Vagrant currently only supports VirtualBox version 5.x and newer for configuring and
@@ -42,7 +42,7 @@ disks to a particular storage controller based on the type of disk configured:
 
 Vagrant will not be able to configure disks of a given type if the associated
 storage controller does not exist. In this case, you may use
-[provider-specific customizations](/docs/providers/virtualbox/configuration#vboxmanage-customizations)
+[provider-specific customizations](/vagrant/docs/providers/virtualbox/configuration#vboxmanage-customizations)
 to add a required storage controller.
 
 It should also be noted that storage controllers have different limits for the
@@ -51,5 +51,5 @@ maximum number of disks for a storage controller type will result in a Vagrant
 error.
 
 For more information on how to use VirtualBox to configure disks for a guest, refer
-to the [general usage](/docs/disks/usage) and [configuration](/docs/disks/configuration)
+to the [general usage](/vagrant/docs/disks/usage) and [configuration](/vagrant/docs/disks/configuration)
 guide for more information.

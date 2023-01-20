@@ -21,7 +21,7 @@ machine.
 The rsync synced folder does a one-time one-way sync from the machine running
 to the machine being started by Vagrant.
 
-The [rsync](/docs/cli/rsync) and [rsync-auto](/docs/cli/rsync-auto)
+The [rsync](/vagrant/docs/cli/rsync) and [rsync-auto](/vagrant/docs/cli/rsync-auto)
 commands can be used to force a resync and to automatically resync when
 changes occur in the filesystem. Without running these commands, Vagrant
 only syncs the folders on `vagrant up` or `vagrant reload`.
@@ -56,7 +56,7 @@ The rsync synced folder type accepts the following options:
   option will not automatically invoke the `rsync-auto` subcommand.
 
 - `rsync__chown` (boolean) - If false, then the
-  [`owner` and `group`](/docs/synced-folders/basic_usage)
+  [`owner` and `group`](/vagrant/docs/synced-folders/basic_usage)
   options for the synced folder are ignored and Vagrant will not execute
   a recursive `chown`. This defaults to true. This option exists because
   the `chown` causes issues for some development environments. Note that

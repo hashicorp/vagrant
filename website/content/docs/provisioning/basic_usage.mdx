@@ -27,13 +27,13 @@ option is what type a provisioner is:
   values are `:each` or `:all`, which makes the provisioner run before each and
   every root provisioner, or before all provisioners respectively.
   **Note**: This option is currently experimental, so it needs to be explicitly
-  enabled to work. More info can be found [here](/docs/experimental).
+  enabled to work. More info can be found [here](/vagrant/docs/experimental).
 - `after` (string or symbol) - The exact name of an already defined provisioner
   that _this_ provisioner should run after. If defined as a symbol, its only valid
   values are `:each` or `:all`, which makes the provisioner run after each and
   every root provisioner, or before all provisioners respectively.
   **Note**: This option is currently experimental, so it needs to be explicitly
-  enabled to work. More info can be found [here](/docs/experimental).
+  enabled to work. More info can be found [here](/vagrant/docs/experimental).
 
 * `communicator_required` (boolean) - Specifies the machine must be accessible by
   Vagrant in order to run the provisioner. If set to true, the provisioner will
@@ -46,7 +46,7 @@ More information about how to use `before` and `after` options can be read [belo
 ## Configuration
 
 First, every provisioner is configured within your
-[Vagrantfile](/docs/vagrantfile/)
+[Vagrantfile](/vagrant/docs/vagrantfile/)
 using the `config.vm.provision` method call. For example, the Vagrantfile
 below enables shell provisioning:
 
@@ -162,8 +162,8 @@ can take over later.
 
 If you define provisioners at multiple "scope" levels (such as globally
 in the configuration block, then in a
-[multi-machine](/docs/multi-machine/) definition, then maybe
-in a [provider-specific override](/docs/providers/configuration)),
+[multi-machine](/vagrant/docs/multi-machine/) definition, then maybe
+in a [provider-specific override](/vagrant/docs/providers/configuration)),
 then the outer scopes will always run _before_ any inner scopes. For
 example, in the Vagrantfile below:
 
@@ -193,8 +193,8 @@ an advanced topic that really only becomes useful if you are already
 using multi-machine and/or provider overrides. If you are just getting
 started with Vagrant, you can safely skip this.
 
-When using features such as [multi-machine](/docs/multi-machine/)
-or [provider-specific overrides](/docs/providers/configuration),
+When using features such as [multi-machine](/vagrant/docs/multi-machine/)
+or [provider-specific overrides](/vagrant/docs/providers/configuration),
 you may want to define common provisioners in the global configuration
 scope of a Vagrantfile, but override certain aspects of them internally.
 Vagrant allows you to do this, but has some details to consider.
@@ -269,7 +269,7 @@ VAGRANT_EXPERIMENTAL="dependency_provisioners"
 ```
 
 Please note that `VAGRANT_EXPERIMENTAL` is an environment variable. For more
-information about this flag visit the [Experimental docs page](/docs/experimental/)
+information about this flag visit the [Experimental docs page](/vagrant/docs/experimental/)
 for more info. Without this flag enabled, provisioners with the `before` and
 `after` option will be ignored.
 

@@ -22,11 +22,11 @@ shared_examples "a version 5.x virtualbox driver" do |options|
 
     it "enables SharedFoldersEnableSymlinksCreate if true" do
       expect(subprocess).to receive(:execute).
-        with("VBoxManage", "setextradata", anything, "VBoxInternal2/SharedFoldersEnableSymlinksCreate/folder", "1", {:notify=>[:stdout, :stderr]}).
+        with("VBoxManage", "setextradata", anything, "VBoxInternal2/SharedFoldersEnableSymlinksCreate/folder", "1", {:env => {:LANG => "C"}, :notify=>[:stdout, :stderr]}).
         and_return(subprocess_result(exit_code: 0))
 
       expect(subprocess).to receive(:execute).
-        with("VBoxManage", "sharedfolder", "add", anything, "--name", "folder", "--hostpath", "/Users/brian/vagrant-folder", {:notify=>[:stdout, :stderr]}).
+        with("VBoxManage", "sharedfolder", "add", anything, "--name", "folder", "--hostpath", "/Users/brian/vagrant-folder", {:env => {:LANG => "C"}, :notify=>[:stdout, :stderr]}).
         and_return(subprocess_result(exit_code: 0))
       subject.share_folders(folders)
 
@@ -34,11 +34,11 @@ shared_examples "a version 5.x virtualbox driver" do |options|
 
     it "enables automount if option is true" do
       expect(subprocess).to receive(:execute).
-        with("VBoxManage", "setextradata", anything, "VBoxInternal2/SharedFoldersEnableSymlinksCreate/folder", "1", {:notify=>[:stdout, :stderr]}).
+        with("VBoxManage", "setextradata", anything, "VBoxInternal2/SharedFoldersEnableSymlinksCreate/folder", "1", {:env => {:LANG => "C"}, :notify=>[:stdout, :stderr]}).
         and_return(subprocess_result(exit_code: 0))
 
       expect(subprocess).to receive(:execute).
-        with("VBoxManage", "sharedfolder", "add", anything, "--name", "folder", "--hostpath", "/Users/brian/vagrant-folder", "--automount", {:notify=>[:stdout, :stderr]}).
+        with("VBoxManage", "sharedfolder", "add", anything, "--name", "folder", "--hostpath", "/Users/brian/vagrant-folder", "--automount", {:env => {:LANG => "C"}, :notify=>[:stdout, :stderr]}).
         and_return(subprocess_result(exit_code: 0))
       subject.share_folders(folders_automount)
 
@@ -46,7 +46,7 @@ shared_examples "a version 5.x virtualbox driver" do |options|
 
     it "disables SharedFoldersEnableSymlinksCreate if false" do
       expect(subprocess).to receive(:execute).
-        with("VBoxManage", "sharedfolder", "add", anything, "--name", "folder", "--hostpath", "/Users/brian/vagrant-folder", {:notify=>[:stdout, :stderr]}).
+        with("VBoxManage", "sharedfolder", "add", anything, "--name", "folder", "--hostpath", "/Users/brian/vagrant-folder", {:env => {:LANG => "C"}, :notify=>[:stdout, :stderr]}).
         and_return(subprocess_result(exit_code: 0))
       subject.share_folders(folders_disabled)
 

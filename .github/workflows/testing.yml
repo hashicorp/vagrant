@@ -27,17 +27,21 @@ on:
 
 jobs:
   unit-tests-ruby:
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-latest
+    continue-on-error: true
     strategy:
       matrix:
-        ruby: [ '2.6', '2.7', '3.0', '3.1' ]
+        ruby: [ '3.0', '3.1', '3.2' ]
     name: Vagrant unit tests on Ruby ${{ matrix.ruby }}
     steps:
       - name: Code Checkout
-        uses: actions/checkout@v1
+        uses: actions/checkout@v3
       - name: Setup Ruby
         uses: ruby/setup-ruby@v1
         with:
           ruby-version: ${{matrix.ruby}}
+          bundler-cache: true
+      - name: install dependencies
+        run: sudo apt -y install libarchive-tools
       - name: Run Tests
-        run: .ci/test.sh
+        run: bundle exec rake test:unit

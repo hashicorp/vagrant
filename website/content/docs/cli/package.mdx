@@ -11,8 +11,8 @@ description: |-
 **Command: `vagrant package [name|id]`**
 
 This packages a currently running _VirtualBox_ or _Hyper-V_ environment into a
-re-usable [box](/docs/boxes). This command can only be used with
-other [providers](/docs/providers/) based on the provider implementation
+re-usable [box](/vagrant/docs/boxes). This command can only be used with
+other [providers](/vagrant/docs/providers/) based on the provider implementation
 and if the provider supports it.
 
 ## Options
@@ -30,15 +30,15 @@ and if the provider supports it.
   tasks.
 
 - `--info path/to/info.json` - The package will include a custom JSON file containing
-  information to be displayed by the [list](/docs/cli/box#box-list) command when invoked
+  information to be displayed by the [list](/vagrant/docs/cli/box#box-list) command when invoked
   with the `-i` flag
 
 - `--vagrantfile FILE` - Packages a Vagrantfile with the box, that is loaded
-  as part of the [Vagrantfile load order](/docs/vagrantfile/#load-order)
+  as part of the [Vagrantfile load order](/vagrant/docs/vagrantfile/#load-order)
   when the resulting box is used.
 
 -> **A common misconception** is that the `--vagrantfile`
 option will package a Vagrantfile that is used when `vagrant init`
 is used with this box. This is not the case. Instead, a Vagrantfile
 is loaded and read as part of the Vagrant load process when the box is
-used. For more information, read about the [Vagrantfile load order](/docs/vagrantfile/#load-order).
+used. For more information, read about the [Vagrantfile load order](/vagrant/docs/vagrantfile/#load-order).

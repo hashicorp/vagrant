@@ -21,6 +21,8 @@ module VagrantPlugins
         VBOX_NET_CONF = "/etc/vbox/networks.conf".freeze
         # Version of VirtualBox that introduced hostonly network range restrictions
         HOSTONLY_VALIDATE_VERSION = Gem::Version.new("6.1.28")
+        # Version of VirtualBox on darwin platform that ignores restrictions
+        DARWIN_IGNORE_HOSTONLY_VALIDATE_VERSION = Gem::Version.new("7.0.0")
         # Default valid range for hostonly networks
         HOSTONLY_DEFAULT_RANGE = [IPAddr.new("192.168.56.0/21").freeze].freeze
 
@@ -67,6 +69,21 @@ module VagrantPlugins
             # Internal network is a special type
             if type == :private_network && options[:intnet]
               type = :internal_network
+            end
+
+            if !options.key?(:type) && options.key?(:ip)
+              begin
+                addr = IPAddr.new(options[:ip])
+                options[:type] = if addr.ipv4?
+                                   :static
+                                 else
+                                   :static6
+                                 end
+              rescue IPAddr::Error => err
+                raise Vagrant::Errors::NetworkAddressInvalid,
+                      address: options[:ip], mask: options[:netmask],
+                      error: err.message
+              end
             end
 
             # Configure it
@@ -479,10 +496,7 @@ module VagrantPlugins
         #-----------------------------------------------------------------
         # This creates a host only network for the given configuration.
         def hostonly_create_network(config)
-          @env[:machine].provider.driver.create_host_only_network(
-            adapter_ip: config[:adapter_ip],
-            netmask:    config[:netmask]
-          )
+          @env[:machine].provider.driver.create_host_only_network(config)
         end
 
         # This finds a matching host only network for the given configuration.
@@ -517,7 +531,11 @@ module VagrantPlugins
         # placed on the valid ranges
         def validate_hostonly_ip!(ip, driver)
           return if Gem::Version.new(driver.version) < HOSTONLY_VALIDATE_VERSION ||
-            Vagrant::Util::Platform.windows?
+                    (
+                      Vagrant::Util::Platform.darwin? &&
+                      Gem::Version.new(driver.version) >= DARWIN_IGNORE_HOSTONLY_VALIDATE_VERSION
+                    ) ||
+                    Vagrant::Util::Platform.windows?
 
           ip = IPAddr.new(ip.to_s) if !ip.is_a?(IPAddr)
           valid_ranges = load_net_conf

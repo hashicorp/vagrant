@@ -12,7 +12,7 @@ Gem::Specification.new do |s|
   s.summary       = "Build and distribute virtualized development environments."
   s.description   = "Vagrant is a tool for building and distributing virtualized development environments."
 
-  s.required_ruby_version     = ">= 2.6", "< 3.2"
+  s.required_ruby_version     = ">= 3.0", "< 3.3"
   s.required_rubygems_version = ">= 1.3.6"
 
   s.add_dependency "bcrypt_pbkdf", "~> 1.1"
@@ -22,23 +22,23 @@ Gem::Specification.new do |s|
   s.add_dependency 'googleapis-common-protos-types', '~> 1.3'
   s.add_dependency "grpc"
   s.add_dependency "hashicorp-checkpoint", "~> 0.1.5"
-  s.add_dependency "i18n", "~> 1.8"
-  s.add_dependency "listen", "~> 3.6"
+  s.add_dependency "i18n", "~> 1.12"
+  s.add_dependency "listen", "~> 3.7"
   s.add_dependency "log4r", "~> 1.1.9", "< 1.1.11"
   s.add_dependency "mime-types", "~> 3.3"
-  s.add_dependency "net-ftp", "~> 0.1"
-  s.add_dependency "net-ssh", ">= 6.1.0", "< 6.2"
-  s.add_dependency "net-sftp", "~> 3.0"
-  s.add_dependency "net-scp", "~> 3.0.0"
+  s.add_dependency "net-ftp", "~> 0.2"
+  s.add_dependency "net-ssh", "~> 7.0"
+  s.add_dependency "net-sftp", "~> 4.0"
+  s.add_dependency "net-scp", "~> 4.0"
   s.add_dependency "rb-kqueue", "~> 0.2.0"
   s.add_dependency "rexml", "~> 3.2"
-  s.add_dependency "rgl", "~> 0.5.7"
-  s.add_dependency "rubyzip", "~> 2.0"
+  s.add_dependency "rgl", "~> 0.5.10"
+  s.add_dependency "rubyzip", "~> 2.3.2"
   s.add_dependency "vagrant_cloud", "~> 3.0.5"
-  s.add_dependency "wdm", "~> 0.1.0"
-  s.add_dependency "winrm", ">= 2.3.4", "< 3.0"
-  s.add_dependency "winrm-elevated", ">= 1.2.1", "< 2.0"
-  s.add_dependency "winrm-fs", ">= 1.3.4", "< 2.0"
+  s.add_dependency "wdm", "~> 0.1.1"
+  s.add_dependency "winrm", ">= 2.3.6", "< 3.0"
+  s.add_dependency "winrm-elevated", ">= 1.2.3", "< 2.0"
+  s.add_dependency "winrm-fs", ">= 1.3.5", "< 2.0"
 
   # Needed for go generate to use grpc_tools_ruby_protoc
   s.add_development_dependency "grpc-tools", "~> 1.41"
@@ -49,7 +49,7 @@ Gem::Specification.new do |s|
   # Constraint rake to properly handle deprecated method usage
   # from within rspec
   s.add_development_dependency "rake", "~> 13.0"
-  s.add_development_dependency "rspec", "~> 3.11.0"
+  s.add_development_dependency "rspec", "~> 3.11"
   s.add_development_dependency "rspec-its", "~> 1.3.0"
   s.add_development_dependency "fake_ftp", "~> 0.3.0"
   s.add_development_dependency "webrick", "~> 1.7.0"

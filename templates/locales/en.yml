@@ -1743,6 +1743,11 @@ en:
         4.2.14 contains a critical bug which prevents it from working with
         Vagrant. VirtualBox 4.2.16+ fixes this problem. Please upgrade
         VirtualBox.
+      virtualbox_config_not_found: |-
+        Vagrant was unable to locate the configuration file for the requested
+        VirtualBox VM. Verify the requested VM exists and try again.
+
+          UUID provided: %{uuid}
       virtualbox_disks_controller_not_found: |-
         Vagrant expected to find a storage controller called '%{name}',
         but there is no controller with this name attached to the current VM.
@@ -1789,6 +1794,10 @@ en:
         VirtualBox is complaining that the installation is incomplete. Please
         run `VBoxManage --version` to see the error message which should contain
         instructions on how to fix this error.
+      virtualbox_machine_folder_not_found: |-
+        Vagrant failed to determine the machine folder on this host from
+        the VirtualBox system information. Try running the command again.
+        If this error persists, please report this error as a bug.
       virtualbox_mount_failed: |-
         Vagrant was unable to mount VirtualBox shared folders. This is usually
         because the filesystem "vboxsf" is not available. This filesystem is

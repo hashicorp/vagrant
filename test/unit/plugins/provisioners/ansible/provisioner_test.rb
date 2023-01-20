@@ -91,7 +91,7 @@ VF
         expect(args[1]).to eq("--connection=ssh")
         expect(args[2]).to eq("--timeout=30")
 
-        inventory_count = args.count { |x| x =~ /^--inventory-file=.+$/ }
+        inventory_count = args.count { |x| x.match(/^--inventory-file=.+$/) if x.is_a?(String) }
         expect(inventory_count).to be > 0
 
         expect(args[args.length-2]).to eq("playbook.yml")
@@ -100,9 +100,9 @@ VF
 
     it "sets --limit argument" do
       expect(Vagrant::Util::Subprocess).to receive(:execute).with('ansible-playbook', any_args) { |*args|
-        all_limits = args.select { |x| x =~ /^(--limit=|-l)/ }
+        all_limits = args.select { |x| x.match(/^(--limit=|-l)/) if x.is_a?(String) }
         if config.raw_arguments
-          raw_limits = config.raw_arguments.select { |x| x =~ /^(--limit=|-l)/ }
+          raw_limits = config.raw_arguments.select { |x| x.match(/^(--limit=|-l)/) if x.is_a?(String) }
           expect(all_limits.length - raw_limits.length).to eq(1)
           expect(all_limits.last).to eq(raw_limits.last)
         else
@@ -181,7 +181,7 @@ VF
     it "generates an inventory with all active machines" do
       expect(Vagrant::Util::Subprocess).to receive(:execute).with('ansible-playbook', any_args) { |*args|
         expect(config.inventory_path).to be_nil
-        expect(File.exists?(generated_inventory_file)).to be(true)
+        expect(File.exist?(generated_inventory_file)).to be(true)
         inventory_content = File.read(generated_inventory_file)
         _ssh = config.compatibility_mode == VagrantPlugins::Ansible::COMPATIBILITY_MODE_V2_0 ? "" : "_ssh"
         if with_user
@@ -697,7 +697,7 @@ VF
       it "generates an inventory with winrm connection settings" do
         expect(Vagrant::Util::Subprocess).to receive(:execute).with('ansible-playbook', any_args) { |*args|
           expect(config.inventory_path).to be_nil
-          expect(File.exists?(generated_inventory_file)).to be(true)
+          expect(File.exist?(generated_inventory_file)).to be(true)
           inventory_content = File.read(generated_inventory_file)
 
           expect(inventory_content).to include("machine1 ansible_connection=winrm ansible_ssh_host=127.0.0.1 ansible_ssh_port=55986 ansible_ssh_user='winner' ansible_ssh_pass='winword'\n")
@@ -731,7 +731,7 @@ VF
         expect(Vagrant::Util::Subprocess).to receive(:execute).with('ansible-playbook', any_args) { |*args|
           expect(args).to include("--inventory-file=#{existing_file}")
           expect(args).not_to include("--inventory-file=#{generated_inventory_file}")
-          expect(File.exists?(generated_inventory_file)).to be(false)
+          expect(File.exist?(generated_inventory_file)).to be(false)
         }.and_return(default_execute_result)
       end
 

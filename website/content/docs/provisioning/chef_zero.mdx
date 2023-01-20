@@ -15,12 +15,12 @@ The Vagrant Chef Zero provisioner allows you to provision the guest using
 [Chef Zero/local mode](https://docs.getchef.com/ctl_chef_client.html#run-in-local-mode).
 
 This new provisioner is a middle ground between running a full blown
-Chef Server and using the limited [Chef Solo](/docs/provisioning/chef_solo)
+Chef Server and using the limited [Chef Solo](/vagrant/docs/provisioning/chef_solo)
 provisioner. It runs a local in-memory Chef Server and fakes the validation
 and client key registration.
 
 ~> **Warning:** If you are not familiar with Chef and Vagrant already,
-we recommend starting with the [shell provisioner](/docs/provisioning/shell).
+we recommend starting with the [shell provisioner](/vagrant/docs/provisioning/shell).
 However, if you are comfortable with Vagrant already, Vagrant
 is the best way to learn Chef.
 
@@ -59,12 +59,12 @@ available below this section.
   to "nfs" to use NFS synced folders.
 
 In addition to all the options listed above, the Chef Zero provisioner supports
-the [common options for all Chef provisioners](/docs/provisioning/chef_common).
+the [common options for all Chef provisioners](/vagrant/docs/provisioning/chef_common).
 
 ## Usage
 
 The Chef Zero provisioner is configured basically the same way as the Chef Solo
-provisioner. See the [Chef Solo documentations](/docs/provisioning/chef_solo)
+provisioner. See the [Chef Solo documentations](/vagrant/docs/provisioning/chef_solo)
 for more information.
 
 A basic example could look like this:

@@ -153,6 +153,21 @@ _vagrant() {
               COMPREPLY=($(compgen -W "${box_list}" -- ${cur}))
               return 0
               ;;
+            "add")
+              local add_commands="\
+                --name \
+                --checksum \
+                --checksum-type \
+                -c --clean \
+                -f --force \
+                "
+              if [[ $cur == -* ]]; then
+                COMPREPLY=($(compgen -W "${add_commands}" -- ${cur}))
+              else
+                COMPREPLY=($(compgen -o default -- "${cur}"))
+              fi
+              return 0
+              ;;
             *)
               ;;
           esac

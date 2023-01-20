@@ -21,6 +21,7 @@ To ensure that the Vagrant community remains an open and safe space for everyone
 3. Unless it is critical, the issue is left for a period of time, giving outside contributors a chance to address the issue. Later, the issue may be assigned to a Vagrant collaborator and planned for a specific release [milestone](https://github.com/hashicorp/vagrant/milestones)
 4. The issue is addressed in a pull request or commit. The issue will be referenced in the commit message so that the code that fixes it is clearly linked.
 5. The issue is closed. Sometimes, valid issues will be closed to keep the issue tracker clean. The issue is still indexed and available for future viewers, or can be re-opened if necessary.
+6. The issue is locked. After about 30 days the issue will be locked. This is done to keep issue activity in open issues and encourge users to open a new issue if an old issue is being encountered again.
 
 ## Pull Requests
 

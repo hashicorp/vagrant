@@ -460,7 +460,9 @@ module VagrantPlugins
           end
 
           # Append in the options for subprocess
-          command << { notify: [:stdout, :stderr] }
+          # NOTE: We include the LANG env var set to C to prevent command output
+          #       from being localized
+          command << { notify: [:stdout, :stderr], env: {LANG: "C"}}
 
           Vagrant::Util::Busy.busy(int_callback) do
             Vagrant::Util::Subprocess.execute(@vboxmanage_path, *command, &block)

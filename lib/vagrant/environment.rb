@@ -846,7 +846,7 @@ module Vagrant
         begin
           @logger.info("Creating: #{dir}")
           FileUtils.mkdir_p(dir)
-        rescue Errno::EACCES
+        rescue Errno::EACCES, Errno::EROFS
           raise Errors::HomeDirectoryNotAccessible, home_path: @home_path.to_s
         end
       end

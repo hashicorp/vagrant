@@ -22,15 +22,15 @@ on:
 
 jobs:
   unit-tests-go:
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-latest
     strategy:
       matrix:
         go: ['^1.16']
-        ruby: ['2.7', '3.0']
+        ruby: ['3.0', '3.1']
     name: Vagrant unit tests on Go
     steps:
       - name: Code Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - name: Setup Go
         uses: actions/setup-go@v3
         with:
@@ -39,10 +39,7 @@ jobs:
         uses: ruby/setup-ruby@v1
         with:
           ruby-version: ${{matrix.ruby}}
-      - name: Setup ruby vagrant
-        run: |
-          gem install --no-document bundler
-          bundle install
+          bundler-cache: true
       - name: Get dependencies
         run:  |
           git config --global url."https://${HASHIBOT_USERNAME}:${HASHIBOT_TOKEN}@github.com".insteadOf "https://github.com"

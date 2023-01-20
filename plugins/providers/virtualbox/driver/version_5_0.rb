@@ -104,15 +104,15 @@ module VagrantPlugins
           end
         end
 
-       # Creates a disk. Default format is VDI unless overridden
-       #
-       # @param [String] disk_file
-       # @param [Integer] disk_size - size in bytes
-       # @param [String] disk_format - format of disk, defaults to "VDI"
+        # Creates a disk. Default format is VDI unless overridden
+        #
+        # @param [String] disk_file
+        # @param [Integer] disk_size - size in bytes
+        # @param [String] disk_format - format of disk, defaults to "VDI"
         # @param [Hash]  opts -  additional options
-       def create_disk(disk_file, disk_size, disk_format="VDI", **opts)
-         execute("createmedium", '--filename', disk_file, '--sizebyte', disk_size.to_i.to_s, '--format', disk_format)
-       end
+        def create_disk(disk_file, disk_size, disk_format="VDI", **opts)
+          execute("createmedium", '--filename', disk_file, '--sizebyte', disk_size.to_i.to_s, '--format', disk_format)
+        end
 
 
         def create_host_only_network(options)
@@ -322,22 +322,22 @@ module VagrantPlugins
 
             if adapter[:bridge]
               args.concat(["--bridgeadapter#{adapter[:adapter]}",
-                          adapter[:bridge], "--cableconnected#{adapter[:adapter]}", "on"])
+                           adapter[:bridge], "--cableconnected#{adapter[:adapter]}", "on"])
             end
 
             if adapter[:hostonly]
               args.concat(["--hostonlyadapter#{adapter[:adapter]}",
-                          adapter[:hostonly], "--cableconnected#{adapter[:adapter]}", "on"])
+                           adapter[:hostonly], "--cableconnected#{adapter[:adapter]}", "on"])
             end
 
             if adapter[:intnet]
               args.concat(["--intnet#{adapter[:adapter]}",
-                          adapter[:intnet], "--cableconnected#{adapter[:adapter]}", "on"])
+                           adapter[:intnet], "--cableconnected#{adapter[:adapter]}", "on"])
             end
 
             if adapter[:mac_address]
               args.concat(["--macaddress#{adapter[:adapter]}",
-                          adapter[:mac_address]])
+                           adapter[:mac_address]])
             end
 
             if adapter[:nic_type]
@@ -361,7 +361,7 @@ module VagrantPlugins
 
               # If the file already exists we'll throw a custom error
               raise Vagrant::Errors::VirtualBoxFileExists,
-                stderr: e.extra_data[:stderr]
+                    stderr: e.extra_data[:stderr]
             end
           end
         end
@@ -370,14 +370,14 @@ module VagrantPlugins
           args = []
           ports.each do |options|
             pf_builder = [options[:name],
-              options[:protocol] || "tcp",
-              options[:hostip] || "",
-              options[:hostport],
-              options[:guestip] || "",
-              options[:guestport]]
+                          options[:protocol] || "tcp",
+                          options[:hostip] || "",
+                          options[:hostport],
+                          options[:guestip] || "",
+                          options[:guestport]]
 
             args.concat(["--natpf#{options[:adapter] || 1}",
-                        pf_builder.join(",")])
+                         pf_builder.join(",")])
           end
 
           execute("modifyvm", @uuid, *args, retryable: true) if !args.empty?
@@ -507,11 +507,11 @@ module VagrantPlugins
             # since this comes first.
             current_nic = $1.to_i if line =~ /^nic(\d+)=".+?"$/
 
-              # If we care about active VMs only, then we check the state
-              # to verify the VM is running.
-              if active_only && line =~ /^VMState="(.+?)"$/ && $1.to_s != "running"
-                return []
-              end
+            # If we care about active VMs only, then we check the state
+            # to verify the VM is running.
+            if active_only && line =~ /^VMState="(.+?)"$/ && $1.to_s != "running"
+              return []
+            end
 
             # Parse out the forwarded port information
             # Forwarding(1)="172.22.8.201tcp32977,tcp,172.22.8.201,32977,,3777"
@@ -600,7 +600,7 @@ module VagrantPlugins
 
           if !valid_ip_address?(ip)
             raise Vagrant::Errors::VirtualBoxGuestPropertyNotFound,
-              guest_property: "/VirtualBox/GuestInfo/Net/#{adapter_number}/V4/IP"
+                  guest_property: "/VirtualBox/GuestInfo/Net/#{adapter_number}/V4/IP"
           end
 
           return ip
@@ -662,13 +662,17 @@ module VagrantPlugins
         end
 
         def read_machine_folder
-          execute("list", "systemproperties", retryable: true).split("\n").each do |line|
-            if line =~ /^Default machine folder:\s+(.+?)$/i
-              return $1.to_s
-            end
+          info = execute("list", "systemproperties", retryable: true)
+          info.each_line do |line|
+            match = line.match(/Default machine folder:\s+(?<folder>.+?)$/i)
+            next if match.nil?
+            return match[:folder]
           end
 
-          nil
+          @logger.warn("failed to determine machine folder from system properties")
+          @logger.debug("processed output for machine folder lookup:\n#{info}")
+
+          raise Vagrant::Errors::VirtualBoxMachineFolderNotFound
         end
 
         def read_network_interfaces
@@ -771,7 +775,7 @@ module VagrantPlugins
               # We got VERR_ALREADY_EXISTS. This means that we're renaming to
               # a VM name that already exists. Raise a custom error.
               raise Vagrant::Errors::VirtualBoxNameExists,
-                stderr: e.extra_data[:stderr]
+                    stderr: e.extra_data[:stderr]
             end
           end
         end
@@ -791,9 +795,9 @@ module VagrantPlugins
               hostpath = Vagrant::Util::Platform.windows_path(folder[:hostpath])
             end
             args = ["--name",
-              folder[:name],
-              "--hostpath",
-              hostpath]
+                    folder[:name],
+                    "--hostpath",
+                    hostpath]
             args << "--transient" if folder.key?(:transient) && folder[:transient]
 
             args << "--automount" if folder.key?(:automount) && folder[:automount]
@@ -866,8 +870,8 @@ module VagrantPlugins
 
             # If we reached this point then it didn't work out.
             raise Vagrant::Errors::VBoxManageError,
-              command: command.inspect,
-              stderr: r.stderr
+                  command: command.inspect,
+                  stderr: r.stderr
           end
         end
 
