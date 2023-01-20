@@ -40,7 +40,7 @@ following:
 - SSH user so Vagrant can connect
 - Perhaps Chef, Puppet, etc. but not strictly required.
 
-In addition to this, each [provider](/docs/providers/) may require
+In addition to this, each [provider](/vagrant/docs/providers/) may require
 additional software. For example, if you are making a base box for VirtualBox,
 you will want to include the VirtualBox guest additions so that shared folders
 work properly. But if you are making an AWS base box, this is not required.
@@ -58,16 +58,16 @@ boxes.
 
 Provider-specific guides for creating base boxes are linked below:
 
-- [Docker Base Boxes](/docs/providers/docker/boxes)
-- [Hyper-V Base Boxes](/docs/providers/hyperv/boxes)
-- [VMware Base Boxes](/docs/providers/vmware/boxes)
-- [VirtualBox Base Boxes](/docs/providers/virtualbox/boxes)
+- [Docker Base Boxes](/vagrant/docs/providers/docker/boxes)
+- [Hyper-V Base Boxes](/vagrant/docs/providers/hyperv/boxes)
+- [VMware Base Boxes](/vagrant/docs/providers/vmware/boxes)
+- [VirtualBox Base Boxes](/vagrant/docs/providers/virtualbox/boxes)
 
 ### Packer and Vagrant Cloud
 
-We strongly recommend using [Packer](https://www.packer.io) to create reproducible
+We strongly recommend using [Packer](https://www.packer.io/) to create reproducible
 builds for your base boxes, as well as automating the builds. Read more about
-[automating Vagrant box creation with Packer](https://www.packer.io/guides/packer-on-cicd/build-image-in-cicd)
+[automating Vagrant box creation with Packer](/packer/guides/packer-on-cicd/build-image-in-cicd)
 in the Packer documentation.
 
 ### Disk Space
@@ -282,7 +282,7 @@ provider-specific guides are linked to towards the top of this page.
 You can distribute the box file however you would like. However, if you want
 to support versioning, putting multiple providers at a single URL, pushing
 updates, analytics, and more, we recommend you add the box to
-[HashiCorp's Vagrant Cloud](/vagrant-cloud).
+[HashiCorp's Vagrant Cloud](/vagrant/vagrant-cloud).
 
 You can upload both public and private boxes to this service.
 

@@ -12,7 +12,7 @@ description: |-
 This page documents how to add new guest OS detection to Vagrant, allowing
 Vagrant to properly configure new operating systems.
 Prior to reading this, you should be familiar
-with the [plugin development basics](/docs/plugins/development-basics).
+with the [plugin development basics](/vagrant/docs/plugins/development-basics).
 
 ~> **Warning: Advanced Topic!** Developing plugins is an
 advanced topic that only experienced Vagrant users who are reasonably
@@ -64,7 +64,7 @@ end
 ```
 
 After detecting an OS, that OS is used for various
-[guest capabilities](/docs/plugins/guest-capabilities) that may be
+[guest capabilities](/vagrant/docs/plugins/guest-capabilities) that may be
 required.
 
 ## Guest Inheritance
@@ -76,7 +76,7 @@ Inheritance allows guests to share a lot of common behavior while allowing
 distro-specific overrides.
 
 Inheritance is not done via standard Ruby class inheritance because Vagrant
-uses a custom [capability-based](/docs/plugins/guest-capabilities) system.
+uses a custom [capability-based](/vagrant/docs/plugins/guest-capabilities) system.
 Vagrant handles inheritance dispatch for you.
 
 To subclass another guest, specify that guest's name as a second parameter
