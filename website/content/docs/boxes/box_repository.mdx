@@ -15,10 +15,10 @@ like Vagrantcloud.
 There are two components that make up a Box Repository:
 
 - Vagrant Boxes - These are Vagrant `.box` files. See the 
-  [box documentation](/docs/boxes) for more information on Vagrant boxes.
+  [box documentation](/vagrant/docs/boxes) for more information on Vagrant boxes.
 
 - Box Catalog Metadata - This is a JSON document (typically exchanged
-  during interactions with [HashiCorp's Vagrant Cloud](/vagrant-cloud))
+  during interactions with [HashiCorp's Vagrant Cloud](/vagrant/vagrant-cloud))
   that specifies the name of the box, a description, available
   versions, available providers, and URLs to the actual box files
   (next component) for each provider and version. If this catalog
@@ -28,11 +28,11 @@ There are two components that make up a Box Repository:
 ## Box Catalog Metadata
 
 The metadata is an optional component for a box (but highly recommended)
-that enables [versioning](/docs/boxes/versioning), updating, multiple
+that enables [versioning](/vagrant//docs/boxes/versioning), updating, multiple
 providers from a single file, and more.
 
 -> **You do not need to manually make the metadata.** If you
-have an account with [HashiCorp's Vagrant Cloud](/vagrant-cloud), you
+have an account with [HashiCorp's Vagrant Cloud](/vagrant/vagrant-cloud), you
 can create boxes there, and HashiCorp's Vagrant Cloud automatically creates
 the metadata for you. The format is still documented here.
 
