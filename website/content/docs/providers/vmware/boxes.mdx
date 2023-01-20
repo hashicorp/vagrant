@@ -8,7 +8,7 @@ description: |-
 
 # Boxes
 
-As with [every Vagrant provider](/docs/providers/basic_usage), the
+As with [every Vagrant provider](/vagrant/docs/providers/basic_usage), the
 Vagrant VMware providers have a custom box format.
 
 This page documents the format so that you can create your own base boxes.
@@ -23,7 +23,7 @@ box. If you are an experienced user of Vagrant and want to create
 your own custom boxes, this is for you.
 
 Prior to reading this page, please understand the
-[basics of the box file format](/docs/boxes/format).
+[basics of the box file format](/vagrant/docs/boxes/format).
 
 ## Contents
 
@@ -52,7 +52,7 @@ nvram, vmsd, vmx, vmxf, and vmdk files.
 
 There is also the "metadata.json" file used by Vagrant itself. This file
 contains nothing but the defaults which are documented on the
-[box format](/docs/boxes/format) page.
+[box format](/vagrant/docs/boxes/format) page.
 
 When bringing up a VMware backed machine, Vagrant copies all of the contents
 in the box into a privately managed "vmwarevm" folder, and uses the first

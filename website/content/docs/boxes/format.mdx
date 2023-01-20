@@ -10,7 +10,7 @@ description: |-
 
 In the past, boxes were just [tar files](<https://en.wikipedia.org/wiki/Tar_(computing)>)
 of VirtualBox exports. With Vagrant supporting multiple
-[providers](/docs/providers/) and [versioning](/docs/boxes/versioning)
+[providers](/vagrant/docs/providers/) and [versioning](/vagrant/docs/boxes/versioning)
 now, box files are slightly more complicated.
 
 Box files made for Vagrant 1.0.x (the VirtualBox export `tar` files) continue
@@ -26,7 +26,7 @@ Today, there are three different components:
   box file and so on.
 
 - Box Catalog Metadata - This is a JSON document (typically exchanged
-  during interactions with [HashiCorp's Vagrant Cloud](/vagrant-cloud))
+  during interactions with [HashiCorp's Vagrant Cloud](/vagrant/vagrant-cloud))
   that specifies the name of the box, a description, available
   versions, available providers, and URLs to the actual box files
   (next component) for each provider and version. If this catalog
@@ -35,7 +35,7 @@ Today, there are three different components:
 
 - Box Information - This is a JSON document that can provide additional
   information about the box that displays when a user runs
-  `vagrant box list -i`. More information is provided [here](/docs/boxes/info).
+  `vagrant box list -i`. More information is provided [here](/vagrant/docs/boxes/info).
 
 The first two components are covered in more detail below.
 
@@ -47,7 +47,7 @@ are supported for legacy reasons in Vagrant.
 
 Box files are compressed using `tar`, `tar.gz`, or `zip`. The contents of the
 archive can be anything, and is specific to each
-[provider](/docs/providers/). Vagrant core itself only unpacks
+[provider](/vagrant/docs/providers/). Vagrant core itself only unpacks
 the boxes for use later.
 
 Within the archive, Vagrant does expect a single file:
@@ -80,11 +80,11 @@ file.
 ## Box Metadata
 
 The metadata is an optional component for a box (but highly recommended)
-that enables [versioning](/docs/boxes/versioning), updating, multiple
+that enables [versioning](/vagrant/docs/boxes/versioning), updating, multiple
 providers from a single file, and more.
 
 -> **You do not need to manually make the metadata.** If you
-have an account with [HashiCorp's Vagrant Cloud](/vagrant-cloud), you
+have an account with [HashiCorp's Vagrant Cloud](/vagrant/vagrant-cloud), you
 can create boxes there, and HashiCorp's Vagrant Cloud automatically creates
 the metadata for you. The format is still documented here.
 

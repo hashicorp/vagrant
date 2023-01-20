@@ -12,7 +12,7 @@ description: |-
 **Command: `vagrant rsync-auto`**
 
 This command watches all local directories of any
-[rsync synced folders](/docs/synced-folders/rsync) and automatically
+[rsync synced folders](/vagrant/docs/synced-folders/rsync) and automatically
 initiates an rsync transfer when changes are detected. This command does
 not exit until an interrupt is received.
 
@@ -41,7 +41,7 @@ To ensure that the command works properly, you should start `rsync-auto`
 only when the machine is running, and shut it down before any machine
 state changes.
 
-You can always force a resync with the [rsync](/docs/cli/rsync) command.
+You can always force a resync with the [rsync](/vagrant/docs/cli/rsync) command.
 
 ## Vagrantfile Changes
 
