@@ -22,7 +22,10 @@ try {
     if($present) {
         Hyper-V\Set-VM -VM $VM -EnhancedSessionTransportType $Type
     }else{
-        Write-OutputMessage "This version of HyperV does not support EnhancedSessionTransportType, ignoring."
+        $message = @{
+            "EnhancedSessionTransportTypeSupportPresent"=$false;
+            } | ConvertTo-Json
+        Write-OutputMessage $message
     }
 } catch {
     Write-ErrorMessage "Failed to assign EnhancedSessionTransportType to ${Type}:${PSItem}"
