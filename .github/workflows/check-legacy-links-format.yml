@@ -1,10 +1,13 @@
 name: Legacy Link Format Checker
 
-on: [deployment_status]
+on:
+  push:
+    paths:
+      - "website/content/**/*.mdx"
+      - "website/data/*-nav-data.json"
 
 jobs:
   check-links:
-    if: github.event.deployment_status.state == 'success'
     uses: hashicorp/dev-portal/.github/workflows/docs-content-check-legacy-links-format.yml@475289345d312552b745224b46895f51cc5fc490
     with:
       repo-owner: "hashicorp"
