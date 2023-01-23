@@ -5,7 +5,7 @@ on: [deployment_status]
 jobs:
   check-links:
     if: github.event.deployment_status.state == 'success'
-    uses: hashicorp/dev-portal/.github/workflows/docs-content-check-legacy-links-format.yml@d3c23a582bc0e02a62545644f1fb0a3922cc4b17
+    uses: hashicorp/dev-portal/.github/workflows/docs-content-check-legacy-links-format.yml@475289345d312552b745224b46895f51cc5fc490
     with:
       repo-owner: "hashicorp"
       repo-name: "vagrant"
