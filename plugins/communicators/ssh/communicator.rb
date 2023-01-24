@@ -456,6 +456,11 @@ module VagrantPlugins
                   connect_opts[:remote_user] = ssh_info[:remote_user]
                 end
 
+                if @machine.config.ssh.keep_alive
+                  connect_opts[:keepalive] = true
+                  connect_opts[:keepalive_interval] = 5
+                end
+
                 @logger.info("Attempting to connect to SSH...")
                 @logger.info("  - Host: #{ssh_info[:host]}")
                 @logger.info("  - Port: #{ssh_info[:port]}")
@@ -683,21 +688,6 @@ module VagrantPlugins
         end
 
         begin
-          keep_alive = nil
-
-          if machine_config_ssh.keep_alive
-            # Begin sending keep-alive packets while we wait for the script
-            # to complete. This avoids connections closing on long-running
-            # scripts.
-            keep_alive = Thread.new do
-              loop do
-                sleep 5
-                @logger.debug("Sending SSH keep-alive...")
-                connection.send_global_request("keep-alive@openssh.com")
-              end
-            end
-          end
-
           # Wait for the channel to complete
           begin
             channel.wait
@@ -711,9 +701,6 @@ module VagrantPlugins
           rescue Net::SSH::Disconnect
             raise Vagrant::Errors::SSHDisconnected
           end
-        ensure
-          # Kill the keep-alive thread
-          keep_alive.kill if keep_alive
         end
 
         # If we're in a PTY, we now finally parse the output

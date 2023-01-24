@@ -669,6 +669,32 @@ describe VagrantPlugins::CommunicatorSSH::Communicator do
         ).and_return(true)
         communicator.send(:connect)
       end
+
+      context "keep ssh connection alive" do
+        let(:ssh) do
+          double("ssh",
+            timeout: 1,
+            host: nil,
+            port: 5986,
+            guest_port: 5986,
+            pty: false,
+            keep_alive: true,
+            insert_key: insert_ssh_key,
+            export_command_template: export_command_template,
+            shell: 'bash -l'
+          )
+        end
+
+        it "sets keepalive settings" do
+          expect(Net::SSH).to receive(:start).with(
+            nil, nil, hash_including(
+              keepalive: true,
+              keepalive_interval: 5
+            )
+          ).and_return(true)
+          communicator.send(:connect)
+        end
+      end
     end
 
     context "with keys_only disabled and verify_host_key enabled" do
