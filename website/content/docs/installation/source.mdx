@@ -2,78 +2,81 @@
 layout: docs
 page_title: Installing Vagrant from Source
 description: |-
-  Installing Vagrant from source is an advanced topic and is only recommended
-  when using the official installer is not an option. This page details the
-  steps and prerequisites for installing Vagrant from source.
+  Vagrant installations from source is an advanced operation. It is only recommended
+  if you cannot use the official installer.
 ---
 
-# Installing Vagrant from Source
+# Install Vagrant from source
 
-Installing Vagrant from source is an advanced topic and is only recommended
-when using the official installer is not an option. This page details the
-steps and prerequisites for installing Vagrant from source.
+Vagrant installations from source is an advanced operation. We only recommended
+if you cannot use the official installer. This page details the prerequisites and three
+steps to install Vagrant from source.
+
+1. Install Ruby
+1. Clone Vagrant
+1. Configure locally
 
 ## Install Ruby
 
-You must have a modern Ruby (>= 2.2) in order to develop and build Vagrant. The
-specific Ruby version is documented in the Vagrant's `gemspec`. Please refer to
-the `vagrant.gemspec` in the repository on GitHub, as it will contain the most
-up-to-date requirement. This guide will not discuss how to install and manage Ruby.
-However, beware of the following pitfalls:
+To develop and build Vagrant, you must install a specific version of Ruby. The
+specific Ruby version that you will need is documented 
+in `vagrant.gemspec`, located in the repository on GitHub. 
+It contains the most up-to-date requirements. 
 
-- Do **NOT** use the system Ruby - use a Ruby version manager like rvm or chruby
-- Vagrant plugins are configured based on current environment. If plugins are installed
-  using Vagrant from source, they will not work from the package based Vagrant installation.
+
+You will also need to be aware of plugin compatibility between Vagrant source installations and package based installations. Since Vagrant plugins are configured based on the current environment, plugins installed with Vagrant from source will not work with the package based Vagrant installation.
 
 ## Clone Vagrant
 
-Clone Vagrant's repository from GitHub into the directory where you keep code on your machine:
+Clone Vagrant's repository from GitHub into the directory where you keep code on your machine.
 
 ```shell-session
 $ git clone https://github.com/hashicorp/vagrant.git
 ```
 
-Next, `cd` into that path. All commands will be run from this path:
+Next, `cd` into that path. You must initiate all commands from this directory.
 
 ```shell-session
 $ cd /path/to/your/vagrant/clone
 ```
 
-Run the `bundle` command with a required version\* to install the requirements:
+Use the `bundle` command with a required version\* to install the requirements.
 
 ```shell-session
 $ bundle install
 ```
 
-You can now run Vagrant by running `bundle exec vagrant` from inside that
-directory.
+You can now start Vagrant with the `bundle` command. 
 
-## Use Locally
+```shell-session
+$ bundle exec vagrant
+```
+
+## Configure locally
 
 In order to use your locally-installed version of Vagrant in other projects, you will need to create a binstub and add it to your path.
 
-First, run the following command from the Vagrant repo:
+First, use the `bundle` command from your Vagrant directory.
 
 ```shell-session
 $ bundle --binstubs exec
 ```
 
 This will generate files in `exec/`, including `vagrant`. You can now specify
-the full path to the `exec/vagrant` anywhere on your operating system:
+the full path to the `exec/vagrant` anywhere on your operating system.
 
 ```shell-session
 $ /path/to/vagrant/exec/vagrant init -m hashicorp/bionic64
 ```
 
-Note that you _will_ receive warnings that running Vagrant like this is not
-supported. It's true. It's not. You should listen to those warnings.
+-> **Tip:** Warning messages are expected when you use a local Vagrant from source installation, since it is not supported or recommended. 
 
 If you do not want to specify the full path to Vagrant (i.e. you just want to
-run `vagrant`), you can create a symbolic link to your exec:
+run `vagrant`), you can create a symbolic link to your exec.
 
 ```shell-session
 $ ln -sf /path/to/vagrant/exec/vagrant /usr/local/bin/vagrant
 ```
 
-When you want to switch back to the official Vagrant version, simply
+When you want to switch back to the official Vagrant version,
 remove the symlink.
