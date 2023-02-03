@@ -21,6 +21,7 @@ describe Vagrant::Util::FileMutex do
     mutex_path = temp_dir + "test.lock"
     instance = described_class.new(mutex_path)
     instance.lock
+    expect(File).to exist(mutex_path)
     instance.unlock
     expect(File).to_not exist(mutex_path)
   end
@@ -41,9 +42,40 @@ describe Vagrant::Util::FileMutex do
 
   it "should fail running a function when locked" do
     mutex_path = temp_dir + "test.lock"
+    # create a lock
     instance = described_class.new(mutex_path)
     instance.lock
-    expect {instance.with_lock { true }}.
+    # create a new lock that will run a function
+    instance2 = described_class.new(mutex_path)
+    # lock should persist for multiple runs
+    expect {instance2.with_lock { true }}.
       to raise_error(Vagrant::Errors::VagrantLocked)
+    expect {instance2.with_lock { true }}.
+      to raise_error(Vagrant::Errors::VagrantLocked)
+    # mutex should exist until its unlocked
+    expect(File).to exist(mutex_path)
+    instance.unlock
+    expect(File).to_not exist(mutex_path)
+  end
+
+  it "should fail running a function within a locked" do
+    mutex_path = temp_dir + "test.lock"
+    # create a lock
+    instance = described_class.new(mutex_path)
+    # create a new lock that will run a function
+    instance2 = described_class.new(mutex_path)
+    expect {
+      instance.with_lock { instance2.with_lock{true} }
+    }.to raise_error(Vagrant::Errors::VagrantLocked)
+    expect(File).to_not exist(mutex_path)
+  end
+
+  it "should delete the lock even when the function fails" do
+    mutex_path = temp_dir + "test.lock"
+    instance = described_class.new(mutex_path)
+    expect {
+      instance.with_lock { raise Vagrant::Errors::VagrantError.new }
+    }.to raise_error(Vagrant::Errors::VagrantError)
+    expect(File).to_not exist(mutex_path)
   end
 end

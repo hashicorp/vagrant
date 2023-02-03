@@ -7,18 +7,20 @@ module Vagrant
 
       def with_lock(&block)
         lock
-        block.call
-      ensure
-        unlock
+        begin
+          block.call
+        rescue => e
+          raise e
+        ensure
+          unlock
+        end
       end
 
       def lock
-        if File.file?(@mutex_path)
-          raise Errors::VagrantLocked,
-            lock_file_path: @mutex_path
+        f = File.open(@mutex_path, "w+") 
+        if f.flock(File::LOCK_EX|File::LOCK_NB) === false
+          raise Errors::VagrantLocked, lock_file_path: @mutex_path
         end
-        
-        File.write(@mutex_path, "")
       end
 
       def unlock
