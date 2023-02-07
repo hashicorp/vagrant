@@ -1,0 +1,68 @@
+---
+layout: docs
+page_title: Box Repository
+description: |-
+  Vagrant can download boxes from a Box Repository. [Vagrantcloud](https://vagrantcloud.com/)
+  is the HashiCorp maintained Box Repository.
+---
+
+# Box Repository
+
+A Vagrant Box Repository provides Vagrant with some boxes and information
+on how to get the boxes. This can exist on a local filesystem or a service
+like Vagrantcloud.
+
+There are two components that make up a Box Repository:
+
+- Vagrant Boxes - These are Vagrant `.box` files. See the 
+  [box documentation](/vagrant/docs/boxes) for more information on Vagrant boxes.
+
+- Box Catalog Metadata - This is a JSON document (typically exchanged
+  during interactions with [HashiCorp's Vagrant Cloud](/vagrant/vagrant-cloud))
+  that specifies the name of the box, a description, available
+  versions, available providers, and URLs to the actual box files
+  (next component) for each provider and version. If this catalog
+  metadata does not exist, a box file can still be added directly, but
+  it will not support versioning and updating.
+
+## Box Catalog Metadata
+
+The metadata is an optional component for a box (but highly recommended)
+that enables [versioning](/vagrant//docs/boxes/versioning), updating, multiple
+providers from a single file, and more.
+
+-> **You do not need to manually make the metadata.** If you
+have an account with [HashiCorp's Vagrant Cloud](/vagrant/vagrant-cloud), you
+can create boxes there, and HashiCorp's Vagrant Cloud automatically creates
+the metadata for you. The format is still documented here.
+
+It is a JSON document, structured in the following way:
+
+```json
+{
+  "name": "hashicorp/bionic64",
+  "description": "This box contains Ubuntu 18.04 LTS 64-bit.",
+  "versions": [
+    {
+      "version": "0.1.0",
+      "providers": [
+        {
+          "name": "virtualbox",
+          "url": "http://example.com/bionic64_010_virtualbox.box",
+          "checksum_type": "sha1",
+          "checksum": "foo"
+        }
+      ]
+    }
+  ]
+}
+```
+
+As you can see, the JSON document can describe multiple versions of a box,
+multiple providers, and can add/remove providers in different versions.
+
+This JSON file can be passed directly to `vagrant box add` from the
+local filesystem using a file path or via a URL, and Vagrant will
+install the proper version of the box. In this case, the value for the
+`url` key in the JSON can also be a file path. If multiple providers
+are available, Vagrant will ask what provider you want to use.
