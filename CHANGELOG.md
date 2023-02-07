@@ -7,6 +7,7 @@ IMPROVEMENTS:
 BUG FIXES:
 
 - provider/virtualbox: De-duplicate machine port forward info [GH-13056]
+- communicator/ssh: Use netssh builtin keep alive functionality [GH-13069]
 
 VAGRANT-GO:
 
