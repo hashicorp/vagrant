@@ -683,6 +683,25 @@ end
 VBOX_VMCONFIG_FILE=%(<?xml version="1.0"?>
 <VirtualBox xmlns="http://www.virtualbox.org/" version="1.19-linux">
   <Machine uuid="{623842dc-0947-4143-aa4e-7d180c5eb348}" name="vagrant-test_default_1665781960041_56631" OSType="Ubuntu_64" snapshotFolder="Snapshots">
+    <Snapshot uuid="{467622d6-f25b-4aaa-94dd-e3e949efca0f}" name="Snapshot 1" timeStamp="2023-01-12T18:28:25Z">
+      <Hardware>
+        <Network>
+          <Adapter slot="0" enabled="true" MACAddress="080027BB1475" type="82540EM">
+            <NAT localhost-reachable="true">
+              <DNS use-proxy="true"/>
+              <Forwarding name="ssh" proto="1" hostip="127.0.0.1" hostport="2222" guestport="22"/>
+            </NAT>
+          </Adapter>
+          <Adapter slot="1" enabled="true" MACAddress="080027DD5ADF" type="82540EM">
+            <DisabledModes>
+              <InternalNetwork name="intnet"/>
+              <NATNetwork name="NatNetwork"/>
+            </DisabledModes>
+            <HostOnlyInterface name="vboxnet0"/>
+          </Adapter>
+        </Network>
+      </Hardware>
+    </Snapshot>
     <Hardware>
       <Network>
         <Adapter slot="0" enabled="true" MACAddress="080027BB1475" type="82540EM">

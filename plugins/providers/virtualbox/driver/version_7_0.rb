@@ -257,7 +257,7 @@ module VagrantPlugins
 
           File.open(result[:path], "r") do |f|
             doc = REXML::Document.new(f)
-            networks = REXML::XPath.each(doc.root, "//Adapter")
+            networks = REXML::XPath.each(doc.root, "Machine/Hardware/Network/Adapter")
             networks.each do |net|
               REXML::XPath.each(doc.root, net.xpath + "/NAT/Forwarding") do |fwd|
                 # Result Array values:
