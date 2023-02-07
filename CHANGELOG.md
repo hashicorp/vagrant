@@ -6,6 +6,8 @@ IMPROVEMENTS:
 
 BUG FIXES:
 
+- provider/virtualbox: De-duplicate machine port forward info [GH-13056]
+
 VAGRANT-GO:
 
 ## 2.3.4 (December 9, 2022)
