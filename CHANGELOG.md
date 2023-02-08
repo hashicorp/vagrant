@@ -8,6 +8,7 @@ BUG FIXES:
 
 - provider/virtualbox: De-duplicate machine port forward info [GH-13056]
 - communicator/ssh: Use netssh builtin keep alive functionality [GH-13069]
+- synced_folders/rsync: allow rsync-auto to also ignore relative paths [GH-13066]
 
 VAGRANT-GO:
 
