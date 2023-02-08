@@ -27,18 +27,15 @@ module VagrantPlugins
 
         if exclude.start_with?("/")
           start_anchor = true
-          exclude      = exclude[1..-1]
         end
 
-        exclude = "#{exclude}/" if !exclude.end_with?("/")
-        exclude = "^#{exclude}"
-        exclude += ".*" if !start_anchor
+        exclude = "#{exclude}/" if !exclude.end_with?("/") if start_anchor
+        exclude = "^#{exclude}" if start_anchor
+        exclude += ".*" if (!start_anchor && !exclude.end_with?("*"))
 
         # This is not an ideal solution, but it's a start. We can improve and
         # keep unit tests passing in the future.
         exclude = exclude.gsub("**", "|||GLOBAL|||")
-        exclude = exclude.gsub("*", "|||PATH|||")
-        exclude = exclude.gsub("|||PATH|||", "[^/]*")
         exclude = exclude.gsub("|||GLOBAL|||", ".*")
 
         Regexp.new(exclude)
