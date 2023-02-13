@@ -124,7 +124,7 @@ function output_file() {
 # included in the slack message.
 #
 # $1: Failure message
-function fail() {
+function failure() {
     (>&2 echo "ERROR: ${1}")
     if [ -f "$(output_file)" ]; then
         slack -s error -m "ERROR: ${1}" -f "$(output_file)" -T 5
@@ -158,7 +158,7 @@ function wrap() {
     i=$(("${#}" - 1))
     if ! wrap_raw "${@:1:$i}"; then
         cat "$(output_file)"
-        fail "${@:$#}"
+        failure "${@:$#}"
     fi
     rm "$(output_file)"
 }
@@ -182,7 +182,7 @@ function wrap_raw() {
 function wrap_stream() {
     i=$(("${#}" - 1))
     if ! wrap_stream_raw "${@:1:$i}"; then
-        fail "${@:$#}"
+        failure "${@:$#}"
     fi
     rm "$(output_file)"
 }
@@ -258,22 +258,22 @@ function popd() {
 function sign_file() {
     # Check that we have something to sign
     if [ -z "${1}" ]; then
-        fail "Origin file is required for signing"
+        failure "Origin file is required for signing"
     fi
 
     if [ ! -f "${1}" ]; then
-        fail "Origin file does not exist (${1})"
+        failure "Origin file does not exist (${1})"
     fi
 
     # Validate environment has required signore variables set
     if [ -z "${SIGNORE_CLIENT_ID}" ]; then
-        fail "Cannot sign file, SIGNORE_CLIENT_ID is not set"
+        failure "Cannot sign file, SIGNORE_CLIENT_ID is not set"
     fi
     if [ -z "${SIGNORE_CLIENT_SECRET}" ]; then
-        fail "Cannot sign file, SIGNORE_CLIENT_SECRET is not set"
+        failure "Cannot sign file, SIGNORE_CLIENT_SECRET is not set"
     fi
     if [ -z "${SIGNORE_SIGNER}" ]; then
-        fail "Cannot sign file, SIGNORE_SIGNER is not set"
+        failure "Cannot sign file, SIGNORE_SIGNER is not set"
     fi
 
     local origin="${1}"
@@ -287,7 +287,7 @@ function sign_file() {
     fi
 
     if [ -e "${destination}" ]; then
-        fail "File already exists at signature destination path (${destination})"
+        failure "File already exists at signature destination path (${destination})"
     fi
 
     wrap_stream signore sign --dearmor --file "${origin}" --out "${destination}" \
@@ -302,13 +302,13 @@ function sign_file() {
 # $2: Asset file or directory of assets
 function release_validate() {
     if [ "${1}" = "" ]; then
-        fail "Missing required position 1 argument (TAG) for release"
+        failure "Missing required position 1 argument (TAG) for release"
     fi
     if [ "${2}" = "" ]; then
-        fail "Missing required position 2 argument (PATH) for release"
+        failure "Missing required position 2 argument (PATH) for release"
     fi
     if [ ! -e "${2}" ]; then
-        fail "Path provided for release (${2}) does not exist"
+        failure "Path provided for release (${2}) does not exist"
     fi
 }
 
@@ -429,20 +429,20 @@ function hashicorp_release_validate() {
 
     # Directory checks
     if [ "${directory}" = "" ]; then
-        fail "No asset directory was provided for HashiCorp release"
+        failure "No asset directory was provided for HashiCorp release"
     fi
     if [ ! -d "${directory}" ]; then
-        fail "Asset directory for HashiCorp release does not exist (${directory})"
+        failure "Asset directory for HashiCorp release does not exist (${directory})"
     fi
 
     # SHASUMS checks
     sums=("${directory}/"*SHA256SUMS)
     if [ ${#sums[@]} -lt 1 ]; then
-        fail "Asset directory is missing SHASUMS file"
+        failure "Asset directory is missing SHASUMS file"
     fi
     sigs=("${directory}/"*SHA256SUMS.sig)
     if [ ${#sigs[@]} -lt 1 ]; then
-        fail "Asset directory is missing SHASUMS signature file"
+        failure "Asset directory is missing SHASUMS signature file"
     fi
 }
 
@@ -452,7 +452,7 @@ function hashicorp_release_validate() {
 # $1: Asset directory
 function hashicorp_release_verify() {
     if [ -z "${HASHICORP_PUBLIC_GPG_KEY_ID}" ]; then
-        fail "Cannot verify release without GPG key ID. Set HASHICORP_PUBLIC_GPG_KEY_ID."
+        failure "Cannot verify release without GPG key ID. Set HASHICORP_PUBLIC_GPG_KEY_ID."
     fi
 
     local directory="${1}"
@@ -592,15 +592,15 @@ function sns_publish() {
     local region="${2}"
 
     if [ -z "${RELEASE_AWS_ACCESS_KEY_ID}" ]; then
-        fail "Missing AWS access key ID for SNS publish"
+        failure "Missing AWS access key ID for SNS publish"
     fi
 
     if [ -z "${RELEASE_AWS_SECRET_ACCESS_KEY}" ]; then
-        fail "Missing AWS access key for SNS publish"
+        failure "Missing AWS access key for SNS publish"
     fi
 
     if [ -z "${RELEASE_AWS_ASSUME_ROLE_ARN}" ]; then
-        fail "Missing AWS role ARN for SNS publish"
+        failure "Missing AWS role ARN for SNS publish"
     fi
 
     if [ -z "${product}" ]; then
@@ -690,10 +690,10 @@ function generate_shasums() {
 
     local shacontent
     shacontent="$(shasum -a256 ./*)" ||
-        fail "Failed to generate shasums in ${directory}"
+        failure "Failed to generate shasums in ${directory}"
 
     sed 's/\.\///g' <( printf "%s" "${shacontent}" ) > "${product}_${version}_SHA256SUMS" ||
-        fail "Failed to write shasums file"
+        failure "Failed to write shasums file"
 
     popd
 }
@@ -759,7 +759,7 @@ function is_version_on_rubygems() {
     local result
 
     result="$(gem search --remote --exact --all "${name}")" ||
-        fail "Failed to retreive remote version list from RubyGems"
+        failure "Failed to retreive remote version list from RubyGems"
     local versions="${result##*\(}"
     local versions="${versions%%)*}"
     local oifs="${IFS}"
@@ -778,13 +778,13 @@ function is_version_on_rubygems() {
 # Build and release project gem to RubyGems
 function publish_to_rubygems() {
     if [ -z "${RUBYGEMS_API_KEY}" ]; then
-        fail "RUBYGEMS_API_KEY is currently unset"
+        failure "RUBYGEMS_API_KEY is currently unset"
     fi
 
     local gem_config
     local result
 
-    gem_config="$(mktemp -p ./)" || fail "Failed to create temporary credential file"
+    gem_config="$(mktemp -p ./)" || failure "Failed to create temporary credential file"
     wrap gem build ./*.gemspec \
         "Failed to build RubyGem"
     printf -- "---\n:rubygems_api_key: %s\n" "${RUBYGEMS_API_KEY}" > "${gem_config}"
@@ -793,7 +793,7 @@ function publish_to_rubygems() {
     rm -f "${gem_config}"
 
     if [ $result -ne 0 ]; then
-        fail "Failed to publish RubyGem"
+        failure "Failed to publish RubyGem"
     fi
 }
 
@@ -803,7 +803,7 @@ function publish_to_rubygems() {
 function publish_to_hashigems() {
     local path="${1}"
     if [ -z "${path}" ]; then
-        fail "Path to built gem required for publishing to hashigems"
+        failure "Path to built gem required for publishing to hashigems"
     fi
 
     # Define all the variables we'll need
@@ -820,7 +820,7 @@ function publish_to_hashigems() {
 
     # Create a temporary directory to work from
     tmpdir="$(mktemp -d -p ./)" ||
-        fail "Failed to create working directory for hashigems publish"
+        failure "Failed to create working directory for hashigems publish"
     mkdir -p "${tmpdir}/hashigems/gems"
     wrap cp "${path}" "${tmpdir}/hashigems/gems" \
         "Failed to copy gem to working directory"
@@ -851,10 +851,10 @@ function publish_to_hashigems() {
 
     # Invalidate cloudfront so the new content is available
     invalid="$(aws cloudfront create-invalidation --distribution-id "${HASHIGEMS_CLOUDFRONT_ID}" --paths "/*")" ||
-        fail "Invalidation of hashigems CDN distribution failed"
+        failure "Invalidation of hashigems CDN distribution failed"
     invalid_id="$(printf '%s' "${invalid}" | jq -r ".Invalidation.Id")"
     if [ -z "${invalid_id}" ]; then
-        fail "Failed to determine the ID of the hashigems CDN invalidation request"
+        failure "Failed to determine the ID of the hashigems CDN invalidation request"
     fi
 
     # Wait for the invalidation process to complete
@@ -880,7 +880,7 @@ function hashibot_git() {
 function default_branch() {
     local s
     s="$(git symbolic-ref refs/remotes/origin/HEAD)" ||
-        fail "Failed to determine default branch (is working directory git repository?)"
+        failure "Failed to determine default branch (is working directory git repository?)"
     echo -n "${s##*origin/}"
 }
 
@@ -901,7 +901,7 @@ function load-signing() {
         local content_variable="${key}_CONTENT"
 
         if [ -z "${!content_variable}" ]; then
-            fail "Missing content in environment variable: ${content_variable}"
+            failure "Missing content in environment variable: ${content_variable}"
         fi
 
         # Content will be encoded so first we decode
@@ -976,7 +976,7 @@ function slack() {
             "t") title="${OPTARG}" ;;
             "T") tail="${OPTARG}" ;;
             "w") webhook="${OPTARG}" ;;
-            *) fail "Invalid flag provided to slack" ;;
+            *) failure "Invalid flag provided to slack" ;;
         esac
     done
     shift $((OPTIND-1))
@@ -1103,41 +1103,65 @@ function slack() {
 }
 
 # Install internal HashiCorp tools. These tools are expected to
-# be located in private (though not required) HashiCorp repositories
-# and provide their binary in a zip file with an extension of:
-#
-#  linux_amd64.zip
+# be located in private (though not required) HashiCorp repositories.
+# It will attempt to download the correct artifact for the current
+# platform based on HashiCorp naming conventions. It expects that
+# the name of the repository is the name of the tool.
 #
 # $1: Name of repository
 function install_hashicorp_tool() {
     local tool_name="${1}"
-    local exten="zip"
+    local extensions=("zip" "tar.gz")
     local asset release_content tmp
 
     tmp="$(mktemp -d --tmpdir vagrantci-XXXXXX)" ||
-        fail "Failed to create temporary working directory"
+        failure "Failed to create temporary working directory"
     pushd "${tmp}"
 
     if [ -z "${HASHIBOT_TOKEN}" ]; then
-        fail "HASHIBOT_TOKEN is required for internal tool install"
+        failure "HASHIBOT_TOKEN is required for internal tool install"
+    fi
+
+    local platform
+    platform="$(uname -s)" || failure "Failed to get local platform name"
+    platform="${platform,,}" # downcase the platform name
+
+    local arches=()
+
+    local arch
+    arch="$(uname -m)" || failure "Failed to get local platform architecture"
+    arches+=("${arch}")
+
+    # If the architecture is listed as x86_64, add amd64 to the
+    # arches collection. Hashicorp naming scheme is to use amd64 in
+    # the file name, but isn't always followed
+    if [ "${arch}" = "x86_64" ]; then
+        arches+=("amd64")
     fi
 
     release_content=$(curl -SsL --fail -H "Authorization: token ${HASHIBOT_TOKEN}" \
         -H "Content-Type: application/json" \
         "https://api.github.com/repos/hashicorp/${tool_name}/releases/latest") ||
-        fail "Failed to request latest releases for hashicorp/${tool_name}"
+      failure "Failed to request latest releases for hashicorp/${tool_name}"
 
-    asset=$(printf "%s" "${release_content}" | jq -r \
-        '.assets[] | select(.name | contains("linux_amd64.zip")) | .url') ||
-        fail "Failed to detect latest release for hashicorp/${tool_name}"
+    local exten
+    for exten in "${extensions[@]}"; do
+        for arch in "${arches[@]}"; do
+            local suffix="${platform}_${arch}.${exten}"
+            asset=$(printf "%s" "${release_content}" | jq -r \
+                '.assets[] | select(.name | contains("'"${suffix}"'")) | .url')
+            if [ -n "${asset}" ]; then
+               break
+            fi
+        done
+        if [ -n "${asset}" ]; then
+            break
+        fi
+    done
 
     if [ -z "${asset}" ]; then
-        asset=$(printf "%s" "${release_content}" | jq -r \
-            '.assets[] | select(.name | contains("linux_x86_64.tar.gz")) | .url') ||
-            fail "Failed to detect latest release for hashicorp/${tool_name}"
-        exten="tar.gz"
+        failure "Failed to find release of hashicorp/${tool_name} for ${platform} ${arch[0]}"
     fi
-
 
     wrap curl -SsL --fail -o "${tool_name}.${exten}" -H "Authorization: token ${HASHIBOT_TOKEN}" \
         -H "Accept: application/octet-stream" "${asset}" \
@@ -1177,17 +1201,17 @@ function install_github_tool() {
     local artifact_list artifact basen
 
     tmp="$(mktemp -d --tmpdir vagrantci-XXXXXX)" ||
-        fail "Failed to create temporary working directory"
+        failure "Failed to create temporary working directory"
     pushd "${tmp}"
 
     release_content=$(curl -SsL --fail \
         -H "Content-Type: application/json" \
         "https://api.github.com/repos/${org_name}/${tool_name}/releases/latest") ||
-        fail "Failed to request latest releases for ${org_name}/${tool_name}"
+        failure "Failed to request latest releases for ${org_name}/${tool_name}"
 
     asset=$(printf "%s" "${release_content}" | jq -r \
         '.assets[] | select(.name | contains("linux_amd64")) | .url') ||
-        fail "Failed to detect latest release for ${org_name}/${tool_name}"
+        failure "Failed to detect latest release for ${org_name}/${tool_name}"
 
     artifact="${asset##*/}"
     wrap curl -SsL --fail -o "${artifact}" \
@@ -1215,7 +1239,7 @@ function install_github_tool() {
             rm -rf "${artifact}"
             artifact="${tool_name}"
         else
-            fail "Failed to locate executable in package directory for ${org_name}/${tool_name}"
+            failure "Failed to locate executable in package directory for ${org_name}/${tool_name}"
         fi
     fi
 
@@ -1246,13 +1270,13 @@ function install_ghr() {
 function packet-setup() {
     # First check that we have the environment variables
     if [ -z "${PACKET_EXEC_TOKEN}" ]; then
-        fail "Cannot setup packet, missing token"
+        failure "Cannot setup packet, missing token"
     fi
     if [ -z "${PACKET_EXEC_PROJECT_ID}" ]; then
-        fail "Cannot setup packet, missing project"
+        failure "Cannot setup packet, missing project"
     fi
     if [ -z "${PACKET_SSH_KEY_CONTENT}" ]; then
-        fail "Cannot setup packet, missing ssh key"
+        failure "Cannot setup packet, missing ssh key"
     fi
 
     install_hashicorp_tool "packet-exec"
@@ -1260,13 +1284,13 @@ function packet-setup() {
     # Write the ssh key to disk
     local content
     content="$(base64 --decode - <<< "${PACKET_SSH_KEY_CONTENT}")" ||
-        fail "Cannot setup packet, failed to decode key"
+        failure "Cannot setup packet, failed to decode key"
     touch ./packet-key
     chmod 0600 ./packet-key
     printf "%s" "${content}" > ./packet-key
     local working_directory
     working_directory="$(pwd)" ||
-        fail "Cannot setup packet, failed to determine working directory"
+        failure "Cannot setup packet, failed to determine working directory"
     export PACKET_EXEC_SSH_KEY="${working_directory}/packet-key"
 }
 
@@ -1301,7 +1325,7 @@ function github_release_assets() {
     curl_args+=("https://api.github.com/repos/${release_repo}/releases/tags/${release_name}")
 
     release_content=$(curl "${curl_args[@]}") ||
-        fail "Failed to request release (${release_name}) for ${release_repo}"
+        failure "Failed to request release (${release_name}) for ${release_repo}"
 
     local asset_list name_list asset_names query artifact asset
     query=".assets[]"
@@ -1310,10 +1334,10 @@ function github_release_assets() {
     fi
 
     asset_list=$(printf "%s" "${release_content}" | jq -r "${query} | .url") ||
-        fail "Failed to detect asset in release (${release_name}) for ${release_repo}"
+        failure "Failed to detect asset in release (${release_name}) for ${release_repo}"
 
     name_list=$(printf "%s" "${release_content}" | jq -r "${query} | .name") ||
-        fail "Failed to detect asset in release (${release_name}) for ${release_repo}"
+        failure "Failed to detect asset in release (${release_name}) for ${release_repo}"
 
     curl_args=()
     if [ -n "${gtoken}" ]; then
@@ -1350,7 +1374,7 @@ function github_draft_release_assets() {
     elif [ -n "${GITHUB_TOKEN}" ]; then
         gtoken="${GITHUB_TOKEN}"
     else
-        fail "Fetching draft release assets requires hashibot or github token with write permission"
+        failure "Fetching draft release assets requires hashibot or github token with write permission"
     fi
 
     local release_list release_repo release_name asset_pattern release_content
@@ -1366,7 +1390,7 @@ function github_draft_release_assets() {
             -H "Authorization: token ${gtoken}" \
             -H "Content-Type: application/json" \
             "https://api.github.com/repos/${release_repo}/releases?per_page=100&page=${page}") ||
-            fail "Failed to request releases list for ${release_repo}"
+            failure "Failed to request releases list for ${release_repo}"
 
         # If there's no more results, just bust out of the loop
         if [ "$(jq 'length' <( printf "%s" "${release_list}" ))" -lt "1" ]; then
@@ -1386,16 +1410,16 @@ function github_draft_release_assets() {
     fi
 
     asset_list=$(printf "%s" "${release_content}" | jq -r "${query} | .url") ||
-        fail "Failed to detect asset in release (${release_name}) for ${release_repo}"
+        failure "Failed to detect asset in release (${release_name}) for ${release_repo}"
 
     name_list=$(printf "%s" "${release_content}" | jq -r "${query} | .name") ||
-        fail "Failed to detect asset in release (${release_name}) for ${release_repo}"
+        failure "Failed to detect asset in release (${release_name}) for ${release_repo}"
 
     readarray -t assets <  <(printf "%s" "${asset_list}")
     readarray -t asset_names < <(printf "%s" "${name_list}")
 
     if [ "${#assets[@]}" -ne "${#asset_names[@]}" ]; then
-        fail "Failed to match download assets with names in release list for ${release_repo}"
+        failure "Failed to match download assets with names in release list for ${release_repo}"
     fi
 
     for ((idx=0; idx<"${#assets[@]}"; idx++ )); do
@@ -1405,6 +1429,7 @@ function github_draft_release_assets() {
             -H "Authorization: token ${gtoken}" \
             -H "Accept: application/octet-stream" "${asset}" \
             "Failed to download asset in release (${release_name}) for ${release_repo} - ${artifact}"
+
     done
 }
 
@@ -1427,7 +1452,7 @@ function github_draft_release_asset_names() {
     elif [ -n "${GITHUB_TOKEN}" ]; then
         gtoken="${GITHUB_TOKEN}"
     else
-        fail "Fetching draft release assets requires hashibot or github token with write permission"
+        failure "Fetching draft release assets requires hashibot or github token with write permission"
     fi
 
     local release_list release_repo release_name asset_pattern release_content
@@ -1443,7 +1468,7 @@ function github_draft_release_asset_names() {
             -H "Authorization: token ${gtoken}" \
             -H "Content-Type: application/json" \
             "https://api.github.com/repos/${release_repo}/releases?per_page=100&page=${page}") ||
-            fail "Failed to request releases list for ${release_repo}"
+            failure "Failed to request releases list for ${release_repo}"
 
         # If there's no more results, just bust out of the loop
         if [ "$(jq 'length' <( printf "%s" "${release_list}" ))" -lt "1" ]; then
@@ -1464,7 +1489,7 @@ function github_draft_release_asset_names() {
     fi
 
     name_list=$(printf "%s" "${release_content}" | jq -r "${query} | .name") ||
-        fail "Failed to detect asset in release (${release_name}) for ${release_repo}"
+        failure "Failed to detect asset in release (${release_name}) for ${release_repo}"
 
     readarray -t asset_names < <(printf "%s" "${name_list}")
 
@@ -1487,7 +1512,7 @@ function github_draft_release_prune() {
     elif [ -n "${GITHUB_TOKEN}" ]; then
         gtoken="${GITHUB_TOKEN}"
     else
-        fail "Fetching draft release assets requires hashibot or github token with write permission"
+        failure "Fetching draft release assets requires hashibot or github token with write permission"
     fi
 
     local days prune_repo
@@ -1506,10 +1531,10 @@ function github_draft_release_prune() {
             -H "Authorization: token ${gtoken}" \
             -H "Content-Type: application/json" \
             "https://api.github.com/repos/${prune_repo}/releases?per_page=100&page=${page}") ||
-            fail "Failed to request releases list for pruning on ${prune_repo}"
+            failure "Failed to request releases list for pruning on ${prune_repo}"
 
         list_length="$(jq 'length' <( printf "%s" "${release_list}" ))" ||
-            fail "Failed to calculate release length for pruning on ${prune_repo}"
+            failure "Failed to calculate release length for pruning on ${prune_repo}"
 
         if [ "${list_length}" -lt "1" ]; then
             break
@@ -1519,17 +1544,17 @@ function github_draft_release_prune() {
         count="$(jq 'length' <( printf "%s" "${release_list}" ))"
         for (( i=0; i < "${count}"; i++ )); do
             entry="$(jq ".[${i}]" <( printf "%s" "${release_list}" ))" ||
-                fail "Failed to read entry for pruning on ${prune_repo}"
+                failure "Failed to read entry for pruning on ${prune_repo}"
             release_draft="$(jq -r '.draft' <( printf "%s" "${entry}" ))" ||
-                fail "Failed to read entry draft for pruning on ${prune_repo}"
+                failure "Failed to read entry draft for pruning on ${prune_repo}"
             release_name="$(jq -r '.name' <( printf "%s" "${entry}" ))" ||
-                fail "Failed to read entry name for pruning on ${prune_repo}"
+                failure "Failed to read entry name for pruning on ${prune_repo}"
             release_id="$(jq -r '.id' <( printf "%s" "${entry}" ))" ||
-                fail "Failed to read entry ID for pruning on ${prune_repo}"
+                failure "Failed to read entry ID for pruning on ${prune_repo}"
             release_create="$(jq -r '.created_at' <( printf "%s" "${entry}" ))" ||
-                fail "Failed to read entry created date for pruning on ${prune_repo}"
+                failure "Failed to read entry created date for pruning on ${prune_repo}"
             date_check="$(date --date="${release_create}" '+%s')" ||
-                fail "Failed to parse entry created date for pruning on ${prune_repo}"
+                failure "Failed to parse entry created date for pruning on ${prune_repo}"
 
             if [ "${release_draft}" != "true" ]; then
                 printf "Skipping %s because not draft release\n" "${release_name}"
@@ -1542,7 +1567,7 @@ function github_draft_release_prune() {
                     -X DELETE \
                     -H "Authorization: token ${gtoken}" \
                     "https://api.github.com/repos/${prune_repo}/releases/${release_id}" ||
-                    fail "Failed to prune draft release ${release_name} from ${prune_repo}"
+                    failure "Failed to prune draft release ${release_name} from ${prune_repo}"
             fi
         done
         ((page++))
@@ -1561,18 +1586,18 @@ function delete_draft_release() {
     elif [ -n "${GITHUB_TOKEN}" ]; then
         gtoken="${GITHUB_TOKEN}"
     else
-        fail "Fetching draft release assets requires hashibot or github token with write permission"
+        failure "Fetching draft release assets requires hashibot or github token with write permission"
     fi
 
     local draft_name="${1}"
     local delete_repo="${2:-$repository}"
 
     if [ -z "${draft_name}" ]; then
-        fail "Draft name is required for deletion"
+        failure "Draft name is required for deletion"
     fi
 
     if [ -z "${delete_repo}" ]; then
-        fail "Repository is required for draft deletion"
+        failure "Repository is required for draft deletion"
     fi
 
     local draft_id
@@ -1583,9 +1608,9 @@ function delete_draft_release() {
             -H "Authorization: token ${gtoken}" \
             -H "Content-Type: application/json" \
             "https://api.github.com/repos/${delete_repo}/releases?per_page=100&page=${page}") ||
-            fail "Failed to request releases list for draft deletion on ${delete_repo}"
+            failure "Failed to request releases list for draft deletion on ${delete_repo}"
         list_length="$(jq 'length' <( printf "%s" "${release_list}" ))" ||
-            fail "Failed to calculate release length for draft deletion on ${delete_repo}"
+            failure "Failed to calculate release length for draft deletion on ${delete_repo}"
 
         # If the list is empty then the draft release does not exist
         # so we can just return success
@@ -1596,13 +1621,13 @@ function delete_draft_release() {
         local entry i release_draft release_id release_name
         for (( i=0; i < "${list_length}"; i++ )); do
             entry="$(jq ".[$i]" <( printf "%s" "${release_list}" ))" ||
-                fail "Failed to read entry for draft deletion on ${delete_repo}"
+                failure "Failed to read entry for draft deletion on ${delete_repo}"
             release_draft="$(jq -r '.draft' <( printf "%s" "${entry}" ))" ||
-                fail "Failed to read entry draft for draft deletion on ${delete_repo}"
+                failure "Failed to read entry draft for draft deletion on ${delete_repo}"
             release_id="$(jq -r '.id' <( printf "%s" "${entry}" ))" ||
-                fail "Failed to read entry ID for draft deletion on ${delete_repo}"
+                failure "Failed to read entry ID for draft deletion on ${delete_repo}"
             release_name="$(jq -r '.name' <( printf "%s" "${entry}" ))" ||
-                fail "Failed to read entry name for draft deletion on ${delete_repo}"
+                failure "Failed to read entry name for draft deletion on ${delete_repo}"
 
             # If the names don't match, skip
             if [ "${release_name}" != "${draft_name}" ]; then
@@ -1611,7 +1636,7 @@ function delete_draft_release() {
 
             # If the release is not a draft, fail
             if [ "${release_draft}" != "true" ]; then
-                fail "Cannot delete draft '${draft_name}' from '${delete_repo}' - release is not a draft"
+                failure "Cannot delete draft '${draft_name}' from '${delete_repo}' - release is not a draft"
             fi
 
             # If we are here, we found a match
@@ -1636,10 +1661,239 @@ function delete_draft_release() {
         -X DELETE \
         -H "Authorization: token ${gtoken}" \
         "https://api.github.com/repos/${delete_repo}/releases/${draft_id}" ||
-        fail "Failed to prune draft release ${draft_name} from ${delete_repo}"
+        failure "Failed to prune draft release ${draft_name} from ${delete_repo}"
 
 }
 
+# This function is used to make requests to the GitHub API. It
+# accepts the same argument list that would be provided to the
+# curl executable. It will check the response status and if a
+# 429 is received (rate limited) it will pause until the defined
+# rate limit reset time and then try again.
+#
+# NOTE: Informative information (like rate limit pausing) will
+# be printed to stderr. The response body will be printed to
+# stdout. Return value of the function will be the exit code
+# from the curl process.
+function github_request() {
+    local request_exit=0
+    local raw_response_content
+
+    # Make our request
+    raw_response_content="$(curl -i -SsL --fail "${@#}")" || request_exit="${?}"
+
+    local status
+    local ratelimit_reset
+    local response_content=""
+
+    # Read the response into lines for processing
+    local lines
+    mapfile -t lines < <( printf "%s" "${raw_response_content}" )
+
+    # Process the lines to extract out status and rate
+    # limit information. Populate the response_content
+    # variable with the actual response value
+    local i
+    for (( i=0; i < "${#lines[@]}"; i++ )); do
+        # The line will have a trailing `\r` so just
+        # trim it off
+        local line="${lines[$i]%%$'\r'*}"
+
+        if [ -z "${line}" ] && [[ "${status}" = "2"* ]]; then
+            local start="$(( i + 1 ))"
+            local remain="$(( "${#lines[@]}" - "${start}" ))"
+            local response_lines=("${lines[@]:$start:$remain}")
+            response_content="${response_lines[*]}"
+            break
+        fi
+
+        if [[ "${line}" == "HTTP/"* ]]; then
+            status="${line##* }"
+        fi
+        if [[ "${line}" == "x-ratelimit-reset"* ]]; then
+            ratelimit_reset="${line##*ratelimit-reset: }"
+        fi
+    done
+
+    # If the status was not detected, force an error
+    if [ -z "${status}" ]; then
+        failure "Failed to detect response status for GitHub request"
+    fi
+
+    # If the status was a 2xx code then everything is good
+    # and we can return the response and be done
+    if [[ "${status}" = "2"* ]]; then
+        printf "%s" "${response_content}"
+        return 0
+    fi
+
+    # If we are being rate limited, print a notice and then
+    # wait until the rate limit will be reset
+    if [[ "${status}" = "429" ]]; then
+        # If the ratelimit reset was not detected force an error
+        if [ -z "${ratelimit_reset}" ]; then
+            failure "Failed to detect rate limit reset time for GitHub request"
+        fi
+
+        local reset_date
+        reset_date="$(date --date="@${ratelimit_reset}")" ||
+            failure "Failed to GitHub parse ratelimit reset timestamp (${ratelimit_reset})"
+
+        local now
+        now="$( date '+%s' )" || failure "Failed to get current timestamp in ratelimit check"
+        local reset_wait="$(( "${ratelimit_reset}" - "${now}" + 2))"
+
+        printf "GitHub rate limit encountered, reset at %s (waiting %d seconds)\n" \
+            "${reset_date}" "${reset_wait}" >&2
+
+        sleep "${reset_wait}" || failure "Pause for GitHub rate limited request retry failed"
+
+        github_request "${@}"
+        return "${?}"
+    fi
+
+    # At this point we just need to return error information
+    printf "GitHub request returned HTTP status: %d\n" "${status}" >&2
+    printf "Response body: %s\n" "${response_content}" >&2
+
+    return "${request_exit}"
+}
+
+# Lock issues which have been closed for longer than
+# provided number of days. A date can optionally be
+# provided which will be used as the earliest date to
+# search. A message can optionally be provided which
+# will be added as a comment in the issue before locking.
+#
+# -d: number of days
+# -m: message to include when locking the issue (optional)
+# -s: date to begin searching from (optional)
+function lock_issues() {
+    local OPTIND opt days start since message
+    while getopts ":d:s:m:" opt; do
+        case "${opt}" in
+            "d") days="${OPTARG}" ;;
+            "s") start="${OPTARG}" ;;
+            "m") message="${OPTARG}" ;;
+            *) failure "Invalid flag provided to lock_issues" ;;
+        esac
+    done
+    shift $((OPTIND-1))
+
+    # If days where not provided, return error
+    if [ -z "${days}" ]; then
+        failure "Number of days since closed required for locking issues"
+    fi
+    # If a start date was provided, check that it is a format we can read
+    if [ -n "${start}" ]; then
+        if ! since="$(date --iso-8601=seconds --date="${start}" 2> /dev/null)"; then
+            failure "$(printf "Start date provided for issue locking could not be parsed (%s)" "${start}")"
+        fi
+    fi
+    # GITHUB_TOKEN must be set for locking
+    if [ -z "${GITHUB_TOKEN}" ]; then
+        failure "GITHUB_TOKEN is required for locking issues"
+    fi
+
+    local req_args=()
+    # Start with basic setup
+    req_args+=("-H" "Accept: application/vnd.github+json")
+    # Add authorization header
+    req_args+=("-H" "Authorization: token ${GITHUB_TOKEN}")
+    # Construct our request endpoint
+    local req_endpoint="https://api.github.com/repos/${repository}/issues"
+    # Page counter for requests
+    local page=$(( 1 ))
+    # Request arguments
+    local req_params=("per_page=20" "state=closed")
+
+    # If we have a start time, include it
+    if [ -n "${since}" ]; then
+        req_params+=("since=${since}")
+    fi
+
+    # Compute upper bound for issues we can close
+    local lock_seconds now
+    now="$(date '+%s')"
+    lock_seconds=$(("${now}"-("${days}" * 86400)))
+
+    while true; do
+        # Join all request parameters with '&'
+        local IFS_BAK="${IFS}"
+        IFS="&"
+        local all_params=("${req_params[*]}" "page=${page}")
+        local params="${all_params[*]}"
+        IFS="${IFS_BAK}"
+
+        local issue_list issue_count
+        # Make our request to get a page of issues
+        issue_list="$(github_request "${req_args[@]}" "${req_endpoint}?${params}")" ||
+            failure "Failed to get repository issue list for ${repository}"
+        issue_count="$(jq 'length' <( printf "%s" "${issue_list}" ))" ||
+            failure "Failed to compute count of issues in list for ${repository}"
+
+        if [ -z "${issue_count}" ] || [ "${issue_count}" -lt 1 ]; then
+            break
+        fi
+
+        # Iterate through the list
+        local i
+        for (( i=0; i < "${issue_count}"; i++ )); do
+            # Extract the issue we are going to process
+            local issue
+            issue="$(jq ".[${i}]" <( printf "%s" "${issue_list}" ))" ||
+                failure "Failed to extract issue from list for ${repository}"
+
+            # Grab the ID of this issue
+            local issue_id
+            issue_id="$(jq -r '.id' <( printf "%s" "${issue}" ))" ||
+                failure "Failed to read ID of issue for ${repository}"
+
+            # First check if issue is already locked
+            local issue_locked
+            issue_locked="$(jq -r '.locked' <( printf "%s" "${issue}" ))" ||
+                failure "Failed to read locked state of issue for ${repository}"
+
+            if [ "${issue_locked}" == "true" ]; then
+                printf "Skipping %s#%s because it is already locked\n" "${repository}" "${issue_id}"
+                continue
+            fi
+
+            # Get the closed date
+            local issue_closed
+            issue_closed="$(jq -r '.closed_at' <( printf "%s" "${issue}" ))" ||
+                failure "Failed to read closed at date of issue for ${repository}"
+
+            # Convert closed date to unix timestamp
+            local date_check
+            date_check="$( date --date="${issue_closed}" '+%s' )" ||
+                failure "Failed to parse closed at date of issue for ${repository}"
+
+            # Check if the issue is old enough to be locked
+            if [ "$(( "${date_check}" ))" -lt "${lock_seconds}" ]; then
+                printf "Locking issue %s#%s\n" "${repository}" "${issue_id}"
+
+                # If we have a comment to add before locking, do that now
+                if [ -n "${message}" ]; then
+                    local message_json
+                    message_json=$(jq -n \
+                        --arg msg "$(printf "%b" "${message}")" \
+                        '{body: $msg}'
+                        ) || failure "Failed to create issue comment JSON content for ${repository}"
+
+                    github_request "${req_args[@]}" -X POST "${req_endpoint}/${issue_id}/comments" -d "${message_json}" ||
+                        failure "Failed to create issue comment on ${repository}#${issue_id}"
+                fi
+
+                # Lock the issue
+                github_request "${req_args[@]}" -X PUT "${req_endpoint}/${issue_id}/lock" -d '{"lock_reason":"resolved"}' ||
+                    failure "Failed to lock issue ${repository}#${issue_id}"
+            fi
+        done
+
+        ((page++))
+    done
+}
 
 # Send a repository dispatch to the defined repository
 #
@@ -1649,7 +1903,7 @@ function delete_draft_release() {
 # $n: "key=value" pairs to build payload (optional)
 function github_repository_dispatch() {
     if [ -z "${HASHIBOT_TOKEN}" ] || [ -z "${HASHIBOT_USERNAME}" ]; then
-        fail "Repository dispatch requires hashibot configuration"
+        failure "Repository dispatch requires hashibot configuration"
     fi
 
     local arg payload_key payload_value jqargs payload \
@@ -1673,7 +1927,7 @@ function github_repository_dispatch() {
 
     # NOTE: we want the arguments to be expanded below
     payload=$(jq -n "${jqargs[@]}" "${payload_template}" ) ||
-        fail "Failed to generate repository dispatch payload"
+        failure "Failed to generate repository dispatch payload"
 
     # shellcheck disable=SC2016
     msg_template='{event_type: $event_type, client_payload: $payload}'
@@ -1681,13 +1935,37 @@ function github_repository_dispatch() {
         --argjson payload "${payload}" \
         --arg event_type "${event_type}" \
         "${msg_template}" \
-        ) || fail "Failed to generate repository dispatch message"
+        ) || failure "Failed to generate repository dispatch message"
 
     wrap curl -SsL --fail -X POST "https://api.github.com/repos/${dorg_name}/${drepo_name}/dispatches" \
         -H 'Accept: application/vnd.github.everest-v3+json' \
         -u "${HASHIBOT_USERNAME}:${HASHIBOT_TOKEN}" \
         --data "${msg}" \
         "Repository dispatch to ${dorg_name}/${drepo_name} failed"
+}
+
+# Copy a function to a new name
+#
+# $1: Original function name
+# $2: Copy function name
+function copy_function() {
+    local orig="${1}"
+    local new="${2}"
+    local fn
+    fn="$(declare -f "${orig}")" ||
+        failure "Orignal function (${orig}) not defined"
+    fn="${new}${fn#*"${orig}"}"
+    eval "${fn}"
+}
+
+# Rename a function to a new name
+#
+# $1: Original function name
+# $2: New function name
+function rename_function() {
+    local orig="${1}"
+    copy_function "${@}"
+    unset -f "${orig}"
 }
 
 # Cleanup wrapper so we get some output that cleanup is starting
@@ -1702,9 +1980,16 @@ function cleanup() {
     (>&2 echo "** No cleanup tasks defined")
 }
 
-# Only setup our cleanup trap when not in testing
+# Only setup our cleanup trap and fail alias when not in testing
 if [ -z "${BATS_TEST_FILENAME}" ]; then
     trap _cleanup EXIT
+    # This is a compatibility alias for existing scripts which
+    # use the common.sh library. BATS support defines a `fail`
+    # function so it has been renamed `failure` to prevent the
+    # name collision. When not running under BATS we enable the
+    # `fail` function so any scripts that have not been updated
+    # will not be affected.
+    copy_function "failure" "fail"
 fi
 
 # Make sure the CI bin directory exists
@@ -1719,7 +2004,7 @@ if [[ "${PATH}" != *"${ci_bin_dir}"* ]]; then
 fi
 
 # If the bash version isn't at least 4, bail
-[ "${BASH_VERSINFO:-0}" -ge "4" ] || fail "Expected bash version >= 4 (is: ${BASH_VERSINFO:-0})"
+[ "${BASH_VERSINFO:-0}" -ge "4" ] || failure "Expected bash version >= 4 (is: ${BASH_VERSINFO:-0})"
 
 # Enable debugging. This needs to be enabled with
 # extreme caution when used on public repositories.
@@ -1738,7 +2023,7 @@ elif [ -n "${GITHUB_TOKEN}" ]; then
 fi
 
 priv_check="$(curl "${priv_args[@]}" -s "https://api.github.com/repos/${GITHUB_REPOSITORY}" | jq .private)" ||
-    fail "Repository visibility check failed"
+    failure "Repository visibility check failed"
 
 # If the value wasn't true we unset it to indicate not private. The
 # repository might actually be private but we weren't supplied a
@@ -1763,7 +2048,7 @@ if [ "${DEBUG}" != "" ]; then
             set -x
             output="/dev/stdout"
         else
-            fail "Cannot enable debug mode on public repository unless forced"
+            failure "Cannot enable debug mode on public repository unless forced"
         fi
     else
         set -x
