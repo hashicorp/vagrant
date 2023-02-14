@@ -51,7 +51,6 @@ module VagrantPlugins
           @@logger.debug("shares to be removed: #{prune_shares}")
 
           if prune_shares.size > 0
-            machine.env.ui.warn("\n" + I18n.t("vagrant_sf_smb.uac.prune_warning") + "\n")
             @@logger.info("remove shares: #{prune_shares}")
             result = Vagrant::Util::PowerShell.execute(script_path, *prune_shares, sudo: false)
             if result.exit_code != 0
