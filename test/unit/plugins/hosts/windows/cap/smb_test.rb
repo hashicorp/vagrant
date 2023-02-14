@@ -101,11 +101,6 @@ Remark     Not Vagrant Owned
     end
     after{ subject.smb_cleanup(env, machine, options) }
 
-    it "should pause after warning user" do
-      expect(machine.env.ui).to receive(:warn).and_call_original
-      expect(subject).to receive(:sleep)
-    end
-
     it "should remove owned shares" do
       expect(Vagrant::Util::PowerShell).to receive(:execute) do |*args|
         expect(args).to include("vgt-CUSTOM_ID-1")
@@ -122,7 +117,7 @@ Remark     Not Vagrant Owned
     end
 
     it "should remove all shares in single call" do
-      expect(Vagrant::Util::PowerShell).to receive(:execute).with(any_args, sudo: true).once
+      expect(Vagrant::Util::PowerShell).to receive(:execute).with(any_args, sudo: false).once
     end
 
     context "when no shares are defined" do
@@ -182,14 +177,8 @@ Remark     Not Vagrant Owned
       expect(folders["/second/path"][:smb_id]).to eq("ID1")
     end
 
-    it "should pause after warning user" do
-      expect(machine.env.ui).to receive(:warn).and_call_original
-      expect(subject).to receive(:sleep)
-      subject.smb_prepare(env, machine, folders, options)
-    end
-
     it "should add all shares in single call" do
-      expect(Vagrant::Util::PowerShell).to receive(:execute).with(any_args, sudo: true).once
+      expect(Vagrant::Util::PowerShell).to receive(:execute).with(any_args, sudo: false).once
       subject.smb_prepare(env, machine, folders, options)
     end
 
@@ -236,7 +225,7 @@ Remark     Not Vagrant Owned
       after{ subject.smb_prepare(env, machine, folders, options) }
 
       it "should execute multiple powershell commands" do
-        expect(Vagrant::Util::PowerShell).to receive(:execute).twice.with(any_args, sudo: true)
+        expect(Vagrant::Util::PowerShell).to receive(:execute).twice.with(any_args, sudo: false)
       end
     end
   end
