@@ -1,4 +1,5 @@
 require "json"
+require "log4r"
 
 require "vagrant/util/powershell"
 
@@ -26,6 +27,7 @@ module VagrantPlugins
 
       def initialize(id)
         @vm_id = id
+        @logger = Log4r::Logger.new("vagrant::hyperv::driver")
       end
 
       # @return [Boolean] Supports VMCX
@@ -294,7 +296,10 @@ module VagrantPlugins
       # @param [String] enhanced session transport type of the VM
       # @return [nil]
       def set_enhanced_session_transport_type(transport_type)
-        execute(:set_enhanced_session_transport_type, VmID: vm_id, type: transport_type)
+        result = execute(:set_enhanced_session_transport_type, VmID: vm_id, type: transport_type)
+        if !result.nil?
+          @logger.debug("EnhancedSessionTransportType is not supported by this version of hyperv, ignoring")
+        end
       end
 
       protected
