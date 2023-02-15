@@ -27,10 +27,11 @@ end
 ```
 
 If you want to upload a folder to your guest system, it can be accomplished by
-using a file provisioner seen below. When copied, the resulting folder on the guest will
-replace `folder` as `newfolder` and place its on the guest machine. Note that if
-you'd like the same folder name on your guest machine, make sure that the destination
-path has the same name as the folder on your host.
+using a file provisioner seen below. This will copy the your local `folder` 
+(specified as the `source`) to the the `newfolder` on the guest machine
+(specified as the `destination`). Note that if you'd like the same folder name 
+on your guest machine, make sure that the destination path has the same name as 
+the folder on your host.
 
 ```ruby
 Vagrant.configure("2") do |config|
