@@ -145,7 +145,7 @@ that the path is located in the "vm" at "/path/to/manifests".
 ## Environments
 
 If you are using Puppet 4 or higher, you can provision using
-[Puppet Environments](https://docs.puppetlabs.com/puppet/latest/reference/environments.html) by specifying the name of the environment and the path on the
+[Puppet Environments](https://docs.puppetlabs.com/puppet/latest/environments.html) by specifying the name of the environment and the path on the
 local disk to the environment files:
 
 ```ruby
@@ -166,7 +166,7 @@ the parent directory of `environment_path` and `environment` respectively.
 
 ## Modules
 
-Vagrant also supports provisioning with [Puppet modules](https://docs.puppetlabs.com/guides/modules.html).
+Vagrant also supports provisioning with [Puppet modules](https://www.puppet.com/docs/puppet/latest/modules.html).
 This is done by specifying a path to a modules folder where modules are located.
 The manifest file is still used as an entry-point.
 
@@ -183,7 +183,7 @@ root if a relative path is given.
 
 ## Custom Facts
 
-Custom facts to be exposed by [Facter](https://puppetlabs.com/facter)
+Custom facts to be exposed by [Facter](https://www.puppet.com/docs/puppet/latest/facter.html)
 can be specified as well:
 
 ```ruby
@@ -200,7 +200,7 @@ Now, the `$vagrant` variable in your Puppet manifests will equal "1".
 
 ## Configuring Hiera
 
-[Hiera](https://docs.puppetlabs.com/hiera/1/) configuration is also supported.
+[Hiera](https://www.puppet.com/docs/puppet/latest/hiera.html) configuration is also supported.
 `hiera_config_path` specifies the path to the Hiera configuration file stored on
 the host. If the `:datadir` setting in the Hiera configuration file is a
 relative path, `working_directory` should be used to specify the directory in
