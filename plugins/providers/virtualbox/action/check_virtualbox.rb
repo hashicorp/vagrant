@@ -16,12 +16,6 @@ module VagrantPlugins
           # which will break us out of execution of the middleware sequence.
           Driver::Meta.new.verify!
 
-          if Vagrant::Util::Platform.windows? && Vagrant::Util::Platform.windows_hyperv_enabled?
-            @logger.error("Virtualbox and Hyper-V cannot be used together at the same time on Windows and will result in a system crash.")
-
-            raise Vagrant::Errors::HypervVirtualBoxError
-          end
-
           # Carry on.
           @app.call(env)
         end
