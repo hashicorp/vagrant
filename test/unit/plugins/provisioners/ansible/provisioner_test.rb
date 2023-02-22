@@ -71,12 +71,14 @@ VF
   # Class methods for code reuse across examples
   #
 
-  def self.it_should_check_ansible_version()
-    it "execute 'ansible --version' before executing 'ansible-playbook'" do
-      expect(Vagrant::Util::Subprocess).to receive(:execute).
-        once.with('ansible', '--version', { :notify => [:stdout, :stderr] })
-      expect(Vagrant::Util::Subprocess).to receive(:execute).
-        once.with('ansible-playbook', any_args)
+  def self.it_should_check_ansible_version
+    it "execute 'Python ansible version check before executing 'ansible-playbook'" do
+      expect(Vagrant::Util::Subprocess).to receive(:execute)
+        .once.with('python3', '-c', "\"import importlib.metadata; print('ansible ' + importlib.metadata.version('ansible'))\"", { notify: %i[
+                     stdout stderr
+                   ] })
+      expect(Vagrant::Util::Subprocess).to receive(:execute)
+        .once.with('ansible-playbook', any_args)
     end
   end
 
@@ -326,6 +328,7 @@ VF
         "2.x.y.z": VagrantPlugins::Ansible::COMPATIBILITY_MODE_V2_0,
         "4.3.2.1": VagrantPlugins::Ansible::COMPATIBILITY_MODE_V2_0,
         "[core 2.11.0]": VagrantPlugins::Ansible::COMPATIBILITY_MODE_V2_0,
+        "7.1.0": VagrantPlugins::Ansible::COMPATIBILITY_MODE_V2_0
       }
       valid_versions.each_pair do |ansible_version, mode|
         describe "and ansible version #{ansible_version}" do
@@ -347,7 +350,7 @@ VF
         "2.9.2.1",
       ]
       invalid_versions.each do |unknown_ansible_version|
-        describe "and `ansible --version` returning '#{unknown_ansible_version}'" do
+        describe "and `ansible version check returning '#{unknown_ansible_version}'" do
           before do
             allow(subject).to receive(:gather_ansible_version).and_return(unknown_ansible_version)
           end
@@ -1044,10 +1047,11 @@ VF
         expect {subject.provision}.to raise_error(VagrantPlugins::Ansible::Errors::AnsibleCommandFailed)
       end
 
-      it "execute three commands: ansible --version, ansible-galaxy, and ansible-playbook" do
+      it 'execute three commands: Python ansible version check, ansible-galaxy, and ansible-playbook' do
         expect(Vagrant::Util::Subprocess).to receive(:execute)
           .once
-          .with('ansible', '--version', { :notify => [:stdout, :stderr] })
+          .with('python3', '-c',
+                "\"import importlib.metadata; print('ansible ' + importlib.metadata.version('ansible'))\"", { notify: %i[stdout stderr] })
           .and_return(default_execute_result)
         expect(Vagrant::Util::Subprocess).to receive(:execute)
           .once
