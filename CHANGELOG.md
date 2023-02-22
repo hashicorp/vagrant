@@ -10,6 +10,7 @@ BUG FIXES:
 - guest/arch: Support differentiating between Artix and Arch Linux [GH-13055]
 - host/windows: Get state of Windows feature "Microsoft-Hyper-V-Hypervisor" [GH-11933]
 - provider/virtualbox: De-duplicate machine port forward info [GH-13056]
+- provider/virtualbox:  Remove check for hyperv being enabled when verifying virtualbox is usable on windows [GH-13090]
 - provider/hyperv: Check for hyper-v feature "EnhancedSessionTransportType" [GH-12280]
 - provisioner/ansible: Fix installing Ansible provisioner with version and pip [GH-13054]
 - synced_folders/rsync: allow rsync-auto to also ignore relative paths [GH-13066]
