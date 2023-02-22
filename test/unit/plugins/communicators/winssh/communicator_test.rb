@@ -328,7 +328,7 @@ describe VagrantPlugins::CommunicatorWinSSH::Communicator do
       it "includes `none` and `hostbased` auth methods" do
         expect(Net::SSH).to receive(:start).with(
           nil, nil, hash_including(
-            auth_methods: ["none", "hostbased"]
+            auth_methods: ["none", "hostbased", "keyboard-interactive"]
           )
         ).and_return(connection)
         communicator.send(:connect)
@@ -420,7 +420,7 @@ describe VagrantPlugins::CommunicatorWinSSH::Communicator do
       it "includes `publickey` auth method" do
         expect(Net::SSH).to receive(:start).with(
           anything, anything, hash_including(
-            auth_methods: ["none", "hostbased", "publickey"]
+            auth_methods: ["none", "hostbased", "keyboard-interactive", "publickey"]
           )
         ).and_return(connection)
         communicator.send(:connect)
@@ -458,7 +458,7 @@ describe VagrantPlugins::CommunicatorWinSSH::Communicator do
       it "includes `password` auth method" do
         expect(Net::SSH).to receive(:start).with(
           anything, anything, hash_including(
-            auth_methods: ["none", "hostbased", "password"]
+            auth_methods: ["none", "hostbased", "keyboard-interactive", "password"]
           )
         ).and_return(connection)
         communicator.send(:connect)
@@ -500,7 +500,7 @@ describe VagrantPlugins::CommunicatorWinSSH::Communicator do
       it "includes `publickey` and `password` auth methods" do
         expect(Net::SSH).to receive(:start).with(
           anything, anything, hash_including(
-            auth_methods: ["none", "hostbased", "publickey", "password"]
+            auth_methods: ["none", "hostbased", "keyboard-interactive", "publickey", "password"]
           )
         ).and_return(connection)
         communicator.send(:connect)
