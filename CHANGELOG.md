@@ -7,6 +7,7 @@ IMPROVEMENTS:
 BUG FIXES:
 
 - communicator/ssh: Use netssh builtin keep alive functionality [GH-13069]
+- communicator/ssh: Update connection settings when using a password to connect ssh [GH-13052]
 - guest/arch: Support differentiating between Artix and Arch Linux [GH-13055]
 - host/windows: Get state of Windows feature "Microsoft-Hyper-V-Hypervisor" [GH-11933]
 - provider/virtualbox: De-duplicate machine port forward info [GH-13056]
