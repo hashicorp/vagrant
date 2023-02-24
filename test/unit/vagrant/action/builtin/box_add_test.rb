@@ -84,6 +84,27 @@ describe Vagrant::Action::Builtin::BoxAdd, :skip_windows, :bsdtar do
     allow(box_collection).to receive(:find).and_return(nil)
   end
 
+  context "the download location is locked" do
+    let(:box_path) { iso_env.box2_file(:virtualbox) }
+    let(:mutex_path) {  env[:tmp_path].join("box" + Digest::SHA1.hexdigest("file://" + box_path.to_s) + ".lock").to_s }
+
+    before do
+      # Lock file
+      @f = File.open(mutex_path, "w+") 
+      @f.flock(File::LOCK_EX|File::LOCK_NB) 
+    end
+  
+    after { @f.close }
+    
+    it "raises a download error" do
+      env[:box_name] = "foo"
+      env[:box_url] = box_path.to_s
+
+      expect { subject.call(env) }.
+        to raise_error(Vagrant::Errors::DownloadAlreadyInProgress)
+    end
+  end
+
   context "with box file directly" do
     it "adds it" do
       box_path = iso_env.box2_file(:virtualbox)

@@ -6,6 +6,7 @@ require "uri"
 require "vagrant/box_metadata"
 require "vagrant/util/downloader"
 require "vagrant/util/file_checksum"
+require "vagrant/util/file_mutex"
 require "vagrant/util/platform"
 
 module Vagrant
@@ -479,12 +480,21 @@ module Vagrant
           end
 
           begin
-            d.download!
-          rescue Errors::DownloaderInterrupted
-            # The downloader was interrupted, so just return, because that
-            # means we were interrupted as well.
-            @download_interrupted = true
-            env[:ui].info(I18n.t("vagrant.actions.box.download.interrupted"))
+            mutex_path = d.destination + ".lock"
+            Util::FileMutex.new(mutex_path).with_lock do
+              begin
+                d.download!
+              rescue Errors::DownloaderInterrupted
+                # The downloader was interrupted, so just return, because that
+                # means we were interrupted as well.
+                @download_interrupted = true
+                env[:ui].info(I18n.t("vagrant.actions.box.download.interrupted"))
+              end
+            end
+          rescue Errors::VagrantLocked
+            raise Errors::DownloadAlreadyInProgress,
+              dest_path: d.destination,
+              lock_file_path: mutex_path
           end
 
           Pathname.new(d.destination)

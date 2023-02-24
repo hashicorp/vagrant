@@ -20,6 +20,7 @@ module Vagrant
     autoload :Experimental,              'vagrant/util/experimental'
     autoload :FileChecksum,              'vagrant/util/file_checksum'
     autoload :FileMode,                  'vagrant/util/file_mode'
+    autoload :FileMutex,                 'vagrant/util/file_mutex'
     autoload :GuestHosts,                'vagrant/util/guest_hosts'
     autoload :GuestInspection,           'vagrant/util/guest_inspection'
     autoload :HashWithIndifferentAccess, 'vagrant/util/hash_with_indifferent_access'
