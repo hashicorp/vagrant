@@ -4,7 +4,8 @@
   "version": "1.0.0",
   "author": "HashiCorp",
   "devDependencies": {
-    "@hashicorp/platform-cli": "^2.5.1",
+    "@hashicorp/platform-cli": "^2.6.0",
+    "@hashicorp/platform-content-conformance": "^0.0.9",
     "husky": "4.3.8",
     "next": "^12.3.1",
     "prettier": "2.2.1"
@@ -20,7 +21,8 @@
     "generate:readme": "next-hashicorp markdown-blocks README.md",
     "lint": "next-hashicorp lint",
     "linkcheck": "linkcheck https://vagrantup.com",
-    "start": "./scripts/website-start.sh"
+    "start": "./scripts/website-start.sh",
+    "content-check": "hc-content --config base-docs"
   },
   "engines": {
     "npm": ">=7.0.0"
