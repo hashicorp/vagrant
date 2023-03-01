@@ -8,32 +8,36 @@ on:
     - cron: '0 5 * * 1-5'
 
 jobs:
-  slack-vars:
-    if: github.repository == 'hashicorp/vagrant-builders'
-    name: Populate vars
-    runs-on: ['self-hosted', 'ondemand', 'linux', 'type=t3.nano']
-    uses: ./.github/workflows/slack-vars.yml
-  packet-vars:
-    if: github.repository == 'hashicorp/vagrant-builders'
-    name: Populate vars
-    runs-on: ['self-hosted', 'ondemand', 'linux', 'type=t3.nano']
-    uses: ./.github/workflows/packet-vars.yml
   setup-packet:
     if: github.repository == 'hashicorp/vagrant-acceptance'
     runs-on: ['self-hosted', 'ondemand', 'linux', 'type=t3.nano']
     name: Build Packet Instance
     steps:
+      - name: Authentication
+        id: vault-auth
+        run: vault-auth
+      - name: Secrets
+        id: secrets
+        uses: hashicorp/vault-action@v2
+        with:
+          url: ${{ steps.vault-auth.outputs.addr }}
+          caCertificate: ${{ steps.vault-auth.outputs.ca_certificate }}
+          token: ${{ steps.vault-auth.outputs.token }}
+          secrets:
+            kv/data/teams/vagrant/slack webhook | slack_webhook;
+            kv/data/teams/vagrant/packet token | packet_token;
+            kv/data/teams/vagrant/packet project_id | packet_project_id;
+            kv/data/teams/vagrant/packet ssh_key_content | packet_ssh_key_content;
       - name: Code Checkout
         uses: actions/checkout@v3
       - name: Create packet instance
         run: ./.ci/spec/create-packet.sh
         working-directory: ${{github.workspace}}
         env:
-          PACKET_EXEC_TOKEN: ${{ needs.packet-vars.outputs.PACKET_EXEC_TOKEN }}
-          PACKET_EXEC_PROJECT_ID: ${{ needs.packet-vars.outputs.PACKET_EXEC_PROJECT_ID }}
-          PACKET_SSH_KEY_CONTENT: ${{ needs.packet-vars.outputs.PACKET_SSH_KEY_CONTENT }}
-          PKT_SECRET_PHRASE: ${{ needs.packaging-vars.outputs.ASSETS_PASSWORD }}
-          SLACK_WEBHOOK: ${{ needs.slack-vars.outputs.SLACK_WEBHOOK }}
+          PACKET_EXEC_TOKEN: ${{ steps.secrets.outputs.packet_token }}
+          PACKET_EXEC_PROJECT_ID: ${{ steps.secrets.outputs.packet_project_id }}
+          PACKET_SSH_KEY_CONTENT: ${{ steps.secrets.outputs.packet_ssh_key_content }}
+          SLACK_WEBHOOK: ${{ steps.secrets.outputs.slack_webhook }}
   setup-hosts:
     if: github.repository == 'hashicorp/vagrant-acceptance'
     runs-on: ['self-hosted', 'ondemand', 'linux', 'type=t3.nano']
@@ -53,11 +57,10 @@ jobs:
         run: ./.ci/spec/create-hosts.sh
         working-directory: ${{github.workspace}}
         env:
-          PACKET_EXEC_TOKEN: ${{ needs.packet-vars.outputs.PACKET_EXEC_TOKEN }}
-          PACKET_EXEC_PROJECT_ID: ${{ needs.packet-vars.outputs.PACKET_EXEC_PROJECT_ID }}
-          PACKET_SSH_KEY_CONTENT: ${{ needs.packet-vars.outputs.PACKET_SSH_KEY_CONTENT }}
-          PKT_SECRET_PHRASE: ${{ needs.packaging-vars.outputs.ASSETS_PASSWORD }}
-          SLACK_WEBHOOK: ${{ needs.slack-vars.outputs.SLACK_WEBHOOK }}
+          PACKET_EXEC_TOKEN: ${{ steps.secrets.outputs.packet_token }}
+          PACKET_EXEC_PROJECT_ID: ${{ steps.secrets.outputs.packet_project_id }}
+          PACKET_SSH_KEY_CONTENT: ${{ steps.secrets.outputs.packet_ssh_key_content }}
+          SLACK_WEBHOOK: ${{ steps.secrets.outputs.slack_webhook }}
           VAGRANT_HOST_BOXES: ${{matrix.host_os}}
           VAGRANT_GUEST_BOXES: ${{matrix.guest_os}}
           VAGRANT_PRERELEASE_VERSION: ${{ github.event.client_payload.prerelease_version }}
@@ -79,11 +82,10 @@ jobs:
         run: ./.ci/spec/run-test.sh
         working-directory: ${{github.workspace}}
         env:
-          PACKET_EXEC_TOKEN: ${{ needs.packet-vars.outputs.PACKET_EXEC_TOKEN }}
-          PACKET_EXEC_PROJECT_ID: ${{ needs.packet-vars.outputs.PACKET_EXEC_PROJECT_ID }}
-          PACKET_SSH_KEY_CONTENT: ${{ needs.packet-vars.outputs.PACKET_SSH_KEY_CONTENT }}
-          PKT_SECRET_PHRASE: ${{ needs.packaging-vars.outputs.ASSETS_PASSWORD }}
-          SLACK_WEBHOOK: ${{ needs.slack-vars.outputs.SLACK_WEBHOOK }}
+          PACKET_EXEC_TOKEN: ${{ steps.secrets.outputs.packet_token }}
+          PACKET_EXEC_PROJECT_ID: ${{ steps.secrets.outputs.packet_project_id }}
+          PACKET_SSH_KEY_CONTENT: ${{ steps.secrets.outputs.packet_ssh_key_content }}
+          SLACK_WEBHOOK: ${{ steps.secrets.outputs.slack_webhook }}
           VAGRANT_HOST_BOXES: ${{matrix.host_os}}
           VAGRANT_GUEST_BOXES: ${{matrix.guest_os}}
           VAGRANT_SPEC_PROVIDERS: ${{matrix.providers}}
@@ -92,11 +94,10 @@ jobs:
         if: always()
         run: ./.ci/spec/pull-log.sh
         env:
-          PACKET_EXEC_TOKEN: ${{ needs.packet-vars.outputs.PACKET_EXEC_TOKEN }}
-          PACKET_EXEC_PROJECT_ID: ${{ needs.packet-vars.outputs.PACKET_EXEC_PROJECT_ID }}
-          PACKET_SSH_KEY_CONTENT: ${{ needs.packet-vars.outputs.PACKET_SSH_KEY_CONTENT }}
-          PKT_SECRET_PHRASE: ${{ needs.packaging-vars.outputs.ASSETS_PASSWORD }}
-          SLACK_WEBHOOK: ${{ needs.slack-vars.outputs.SLACK_WEBHOOK }}
+          PACKET_EXEC_TOKEN: ${{ steps.secrets.outputs.packet_token }}
+          PACKET_EXEC_PROJECT_ID: ${{ steps.secrets.outputs.packet_project_id }}
+          PACKET_SSH_KEY_CONTENT: ${{ steps.secrets.outputs.packet_ssh_key_content }}
+          SLACK_WEBHOOK: ${{ steps.secrets.outputs.slack_webhook }}
           VAGRANT_HOST_BOXES: ${{matrix.host_os}}
           VAGRANT_GUEST_BOXES: ${{matrix.guest_os}}
           VAGRANT_SPEC_PROVIDERS: ${{matrix.providers}}
@@ -115,8 +116,8 @@ jobs:
     steps:
       - name: Notify on Success
         run: ./.ci/spec/notify-success.sh
-    env:
-      SLACK_WEBHOOK: ${{ needs.slack-vars.outputs.SLACK_WEBHOOK }}
+        env:
+          SLACK_WEBHOOK: ${{ steps.secrets.outputs.slack_webhook }}
 
   cleanup:
     if: github.repository == 'hashicorp/vagrant-acceptance'
@@ -127,10 +128,9 @@ jobs:
       - name: Clean Packet
         run: ./.ci/spec/clean-packet.sh
         env:
-          PACKET_EXEC_TOKEN: ${{ needs.packet-vars.outputs.PACKET_EXEC_TOKEN }}
-          PACKET_EXEC_PROJECT_ID: ${{ needs.packet-vars.outputs.PACKET_EXEC_PROJECT_ID }}
-          PACKET_SSH_KEY_CONTENT: ${{ needs.packet-vars.outputs.PACKET_SSH_KEY_CONTENT }}
-          PKT_SECRET_PHRASE: ${{ needs.packaging-vars.outputs.ASSETS_PASSWORD }}
-          SLACK_WEBHOOK: ${{ needs.slack-vars.outputs.SLACK_WEBHOOK }}
+          PACKET_EXEC_TOKEN: ${{ steps.secrets.outputs.packet_token }}
+          PACKET_EXEC_PROJECT_ID: ${{ steps.secrets.outputs.packet_project_id }}
+          PACKET_SSH_KEY_CONTENT: ${{ steps.secrets.outputs.packet_ssh_key_content }}
+          SLACK_WEBHOOK: ${{ steps.secrets.outputs.slack_webhook }}
       - name: Clean Workspace
         run: rm -rf ${{ github.workspace }}
