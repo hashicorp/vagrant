@@ -15,11 +15,6 @@ module Vagrant
 
         UNSET_VALUE = :__UNSET__VALUE__
 
-        if Vagrant.server_mode?
-          GENERAL_CONFIG_CLS = Hashicorp::Vagrant::Sdk::Vagrantfile::GeneralConfig
-          SYMBOL_PROTO = Hashicorp::Vagrant::Sdk::Args::Symbol
-        end
-
         # This is called as a last-minute hook that allows the configuration
         # object to finalize itself before it will be put into use. This is
         # a useful place to do some defaults in the case the user didn't

@@ -45,21 +45,6 @@ require "rubygems"
 require "vagrant/util"
 require "vagrant/plugin/manager"
 
-# Update the load path so our protos can be located
-$LOAD_PATH << Vagrant.source_root.join("lib/vagrant/protobufs").to_s
-$LOAD_PATH << Vagrant.source_root.join("lib/vagrant/protobufs/proto").to_s
-$LOAD_PATH << Vagrant.source_root.join("lib/vagrant/protobufs/proto/vagrant_plugin_sdk").to_s
-
-# Load our protos so they are available
-require 'vagrant/protobufs/proto/vagrant_server/server_pb'
-require 'vagrant/protobufs/proto/vagrant_server/server_services_pb'
-require 'vagrant/protobufs/proto/ruby_vagrant/ruby-server_pb'
-require 'vagrant/protobufs/proto/ruby_vagrant/ruby-server_services_pb'
-require 'vagrant/protobufs/proto/vagrant_plugin_sdk/plugin_pb'
-require 'vagrant/protobufs/proto/vagrant_plugin_sdk/plugin_services_pb'
-require 'vagrant/protobufs/proto/plugin/grpc_broker_pb'
-require 'vagrant/protobufs/proto/plugin/grpc_broker_services_pb'
-
 # Enable logging if it is requested. We do this before
 # anything else so that we can setup the output before
 # any logging occurs.
