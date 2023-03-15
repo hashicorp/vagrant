@@ -1,7 +1,26 @@
 #!/usr/bin/env bash
-
 # shellcheck disable=SC2119
 # shellcheck disable=SC2164
+
+# If the bash version isn't at least 4, bail
+if [ "${BASH_VERSINFO:-0}" -lt "4" ]; then
+    printf "ERROR: Expected bash version >= 4 (is: %d)" "${BASH_VERSINFO:-0}"
+    exit 1
+fi
+
+# Lets have some emojis
+WARNING_ICON="⚠️"
+ERROR_ICON="🛑"
+
+# Coloring
+# shellcheck disable=SC2034
+TEXT_BOLD='\e[1m'
+TEXT_RED='\e[31m'
+# shellcheck disable=SC2034
+TEXT_GREEN='\e[32m'
+TEXT_YELLOW='\e[33m'
+TEXT_CYAN='\e[36m'
+TEXT_CLEAR='\e[0m'
 
 # Common variables
 export full_sha="${GITHUB_SHA}"
@@ -16,6 +35,9 @@ export run_number="${GITHUB_RUN_NUMBER}"
 export run_id="${GITHUB_RUN_ID}"
 export job_id="${run_id}-${run_number}"
 readonly hc_releases_metadata_filename="release-meta.json"
+# This value is used in our cleanup trap to restore the value in cases
+# where a function call may have failed and did not restore it
+readonly _repository_backup="${repository}"
 
 if [ -z "${ci_bin_dir}" ]; then
     if ci_bin_dir="$(realpath ./.ci-bin)"; then
@@ -28,6 +50,12 @@ fi
 
 # We are always noninteractive
 export DEBIAN_FRONTEND=noninteractive
+
+# If we are on a runner and debug mode is enabled,
+# enable debug mode for ourselves too
+if [ -n "${RUNNER_DEBUG}" ]; then
+    DEBUG=1
+fi
 
 # Wraps the aws CLI command to support
 # role based access. It will check for
@@ -47,7 +75,7 @@ export DEBIAN_FRONTEND=noninteractive
 #       if close to expiry. With credentials being handled by the doormat
 #       action now, this is no longer needed but remains in case it's
 #       needed for some reason in the future.
-function aws() {
+function aws_deprected() {
     # Grab the actual aws cli path
     if ! aws_path="$(which aws)"; then
         (>&2 echo "AWS error: failed to locate aws cli executable")
@@ -96,7 +124,7 @@ function aws() {
         export AWS_SESSION_TOKEN="${token}"
         export AWS_SESSION_EXPIRATION="${expire}"
     else
-        (>&2 echo "AWS assume role error: ${output}")
+        (>&2 echo "AWS assume role error: ${aws_output}")
         return 1
     fi
     # And we can execute!
@@ -118,6 +146,30 @@ function output_file() {
     printf "%s" "${ci_output_file_path}"
 }
 
+# Write debug output to stderr. Message template
+# and arguments are passed to `printf` for formatting.
+#
+# -f FN_NAME - set function name in output
+# -s SCRIPT_NAME - set script name in ouput
+#
+# $1: message template
+# $#: message arguments
+#
+# NOTE: Debug output is only displayed when DEBUG is set
+function debug() {
+    if [ -n "${DEBUG}" ]; then
+        local msg_template="${1}"
+        local i=$(( "${#}" - 1 ))
+        local msg_args=("${@:2:$i}")
+        # Update template to include caller information
+        msg_template=$(printf "<%s(%s:%d)> %s" "${FUNCNAME[1]}" "${BASH_SOURCE[1]}" "${BASH_LINENO[0]}" "${msg_template}")
+        #shellcheck disable=SC2059
+        msg="$(printf "${msg_template}" "${msg_args[@]}")"
+
+        printf "%b%s%b\n" "${TEXT_CYAN}" "${msg}" "${TEXT_CLEAR}" >&2
+    fi
+}
+
 # Write failure message, send error to configured
 # slack, and exit with non-zero status. If an
 # "$(output_file)" file exists, the last 5 lines will be
@@ -125,11 +177,21 @@ function output_file() {
 #
 # $1: Failure message
 function failure() {
-    (>&2 echo "ERROR: ${1}")
-    if [ -f "$(output_file)" ]; then
-        slack -s error -m "ERROR: ${1}" -f "$(output_file)" -T 5
-    else
-        slack -s error -m "ERROR: ${1}"
+    local msg_template="${1}"
+    local i=$(( "${#}" - 1 ))
+    local msg_args=("${@:2:$i}")
+
+    #shellcheck disable=SC2059
+    msg="$(printf "${msg_template}" "${msg_args[@]}")"
+
+    printf "%s %b%s%b\n" "${ERROR_ICON}" "${TEXT_RED}" "${msg}" "${TEXT_CLEAR}" >&2
+
+    if [ -n "${SLACK_WEBHOOK}" ]; then
+        if [ -f "$(output_file)" ]; then
+            slack -s error -m "ERROR: ${1}" -f "$(output_file)" -T 5
+        else
+            slack -s error -m "ERROR: ${1}"
+        fi
     fi
     exit 1
 }
@@ -139,12 +201,32 @@ function failure() {
 #
 # $1: Warning message
 function warn() {
-    (>&2 echo "WARN: ${1}")
-    if [ -f "$(output_file)" ]; then
-        slack -s warn -m "WARNING: ${1}" -f "$(output_file)"
-    else
-        slack -s warn -m "WARNING: ${1}"
+    local msg_template="${1}"
+    local i=$(( "${#}" - 1 ))
+    local msg_args=("${@:2:$i}")
+
+    #shellcheck disable=SC2059
+    msg="$(printf "${msg_template}" "${msg_args[@]}")"
+
+    printf "%s %b%s%b\n" "${WARNING_ICON}" "${TEXT_YELLOW}" "${msg}" "${TEXT_CLEAR}" >&2
+
+    if [ -n "${SLACK_WEBHOOK}" ]; then
+        if [ -f "$(output_file)" ]; then
+            slack -s warn -m "WARNING: ${1}" -f "$(output_file)"
+        else
+            slack -s warn -m "WARNING: ${1}"
+        fi
     fi
+}
+
+# Write an informational message
+function info() {
+    local msg_template="${1}\n"
+    local i=$(( "${#}" - 1 ))
+    local msg_args=("${@:2:$i}")
+
+    #shellcheck disable=SC2059
+    printf "${msg_template}" "${msg_args[@]}" >&2
 }
 
 # Execute command while redirecting all output to
@@ -155,7 +237,7 @@ function warn() {
 # $@{1:$#-1}: Command to execute
 # $@{$#}: Failure message
 function wrap() {
-    i=$(("${#}" - 1))
+    local i=$(("${#}" - 1))
     if ! wrap_raw "${@:1:$i}"; then
         cat "$(output_file)"
         failure "${@:$#}"
@@ -237,7 +319,9 @@ function pkt_wrap_stream_raw() {
 # if the pushd command fails. Arguments
 # are just passed through.
 function pushd() {
-    wrap command builtin pushd "${@}" "Failed to push into directory"
+    debug "executing 'pushd %s'" "${*}"
+    wrap command builtin pushd "${@}" \
+        "pushd command failed"
 }
 
 # Wrap the popd command so we fail
@@ -245,7 +329,9 @@ function pushd() {
 # are just passed through.
 # shellcheck disable=SC2120
 function popd() {
-    wrap command builtin popd "${@}" "Failed to pop from directory"
+    debug "executing 'popd %s'" "${*}"
+    wrap command builtin popd "${@}" \
+        "popd command failed"
 }
 
 # Sign a file. This uses signore to generate a
@@ -280,9 +366,11 @@ function sign_file() {
     local destination="${2}"
     if [ -z "${destination}" ]; then
         destination="${origin}.sig"
+        debug "destination automatically set (%s)" "${destination}"
     fi
 
     if ! command -v signore; then
+        debug "installing signore tool"
         install_hashicorp_tool "signore"
     fi
 
@@ -322,19 +410,17 @@ function release() {
     local assets="${2}"
     local body
 
-    if ! command -v ghr; then
-        install_ghr
+    if [ -z "${body}" ]; then
+        body="$(release_details "${tag_name}")"
     fi
 
-    body="$(release_details "${tag_name}")"
-    if [ -z "${body}" ]; then
-        body="New ${repo_name} release - ${tag_name}"
-    fi
-    if ! wrap_raw ghr -u "${repo_owner}" -r "${repo_name}" -c "${full_sha}" -n "${tag_name}" \
-        -b "${body}" -delete "${tag_name}" "${assets}"; then
-        wrap ghr -u "${repo_owner}" -r "${repo_name}" -c "${full_sha}" -n "${tag_name}" \
-            -b "${body}" "${tag_name}" "${assets}" "Failed to create release for version ${tag_name}"
-    fi
+    response="$(github_create_release -o "${repo_owner}" -r "${repo_name}" -t "${tag_name}" -n "${tag_name}" -b "${body}")" ||
+        failure "Failed to create GitHub release"
+    local release_id
+    release_id="$(printf "%s" "${response}" | jq -r '.id')" ||
+        failure "Failed to extract release ID from response for %s on %s" "${tag_name}" "${repository}"
+
+    github_upload_release_artifacts "${repo_name}" "${release_id}" "${assets}"
 }
 
 # Generate a GitHub prerelease
@@ -351,17 +437,17 @@ function prerelease() {
     fi
     local assets="${2}"
 
-    if ! command -v ghr; then
-        install_ghr
-    fi
+    response="$(github_create_release -o "${repo_owner}" -r "${repo_name}" -t "${ptag}" -n "${ptag}" -b "${body}" -p -m)" ||
+        failure "Failed to create GitHub prerelease"
+    local release_id
+    release_id="$(printf "%s" "${response}" | jq -r '.id')" ||
+        failure "Failed to extract prerelease ID from response for %s on %s" "${tag_name}" "${repository}"
 
-    if ! wrap_raw ghr -u "${repo_owner}" -r "${repo_name}" -c "${full_sha}" -n "${ptag}" \
-        -delete -prerelease "${ptag}" "${assets}"; then
-        wrap ghr -u "${repo_owner}" -r "${repo_name}" -c "${full_sha}" -n "${ptag}" \
-            -prerelease "${ptag}" "${assets}" \
-            "Failed to create prerelease for version ${1}"
-    fi
-    echo -n "${ptag}"
+    github_upload_release_artifacts "${repo_name}" "${release_id}" "${assets}"
+
+    printf "New prerelease published to %s @ %s\n" "${repo_name}" "${ptag}" >&2
+
+    printf "%s" "${ptag}"
 }
 
 # Generate a GitHub draft release
@@ -372,17 +458,15 @@ function draft_release() {
     local ptag="${1}"
     local assets="${2}"
 
-    if ! command -v ghr; then
-        install_ghr
-    fi
+    response="$(github_create_release -o "${repo_owner}" -r "${repo_name}" -t "${ptag}" -n "${ptag}" -b "${body}" -d)" ||
+        failure "Failed to create GitHub draft release"
+    local release_id
+    release_id="$(printf "%s" "${response}" | jq -r '.id')" ||
+        failure "Failed to extract draft release ID from response for %s on %s" "${tag_name}" "${repository}"
 
-    if ! wrap_raw ghr -u "${repo_owner}" -r "${repo_name}" -c "${full_sha}" -n "${ptag}" \
-        -replace -delete -draft "${ptag}" "${assets}"; then
-        wrap ghr -u "${repo_owner}" -r "${repo_name}" -c "${full_sha}" -n "${ptag}" \
-            -replace -draft "${ptag}" "${assets}" \
-            "Failed to create draft for version ${1}"
-    fi
-    echo -n "${ptag}"
+    github_upload_release_artifacts "${repo_name}" "${release_id}" "${assets}"
+
+    printf "%s" "${ptag}"
 }
 
 
@@ -402,7 +486,7 @@ function release_details() {
     if [ -z "$(git tag -l "${tag_name}")" ] || [ ! -f "${proj_root}/CHANGELOG.md" ]; then
         return
     fi
-    echo -en "CHANGELOG:\n\nhttps://github.com/${repository}/blob/${tag_name}/CHANGELOG.md"
+    printf "CHANGELOG:\n\nhttps://github.com/%s/blob/%s/CHANGELOG.md" "${repository}" "${tag_name}"
 }
 
 # Check if version string is valid for release
@@ -428,18 +512,22 @@ function hashicorp_release_validate() {
     local sigs
 
     # Directory checks
-    if [ "${directory}" = "" ]; then
+    debug "checking asset directory was provided"
+    if [ -z "${directory}" ]; then
         failure "No asset directory was provided for HashiCorp release"
     fi
+    debug "checking that asset directory exists"
     if [ ! -d "${directory}" ]; then
         failure "Asset directory for HashiCorp release does not exist (${directory})"
     fi
 
     # SHASUMS checks
+    debug "checking for shasums file"
     sums=("${directory}/"*SHA256SUMS)
     if [ ${#sums[@]} -lt 1 ]; then
         failure "Asset directory is missing SHASUMS file"
     fi
+    debug "checking for shasums signature file"
     sigs=("${directory}/"*SHA256SUMS.sig)
     if [ ${#sigs[@]} -lt 1 ]; then
         failure "Asset directory is missing SHASUMS signature file"
@@ -461,16 +549,18 @@ function hashicorp_release_verify() {
     pushd "${directory}"
 
     # First do a checksum validation
+    debug "validating shasums are correct"
     wrap shasum -a 256 -c ./*_SHA256SUMS \
         "Checksum validation of release assets failed"
     # Next check that the signature is valid
     gpghome=$(mktemp -qd)
     export GNUPGHOME="${gpghome}"
+    debug "verifying shasums signature file using key: %s" "${HASHICORP_PUBLIC_GPG_KEY_ID}"
     wrap gpg --keyserver keyserver.ubuntu.com --recv "${HASHICORP_PUBLIC_GPG_KEY_ID}" \
         "Failed to import HashiCorp public GPG key"
     wrap gpg --verify ./*SHA256SUMS.sig ./*SHA256SUMS \
         "Validation of SHA256SUMS signature failed"
-    rm -rf "${gpghome}" > "${output}" 2>&1
+    rm -rf "${gpghome}"
     popd
 }
 
@@ -478,11 +568,12 @@ function hashicorp_release_verify() {
 #
 # $1: Product Version
 # $2: Asset directory
-function generate_release_metadata() {
+function hashicorp_release_generate_release_metadata() {
     local version="${1}"
     local directory="${2}"
 
     if ! command -v bob; then
+        debug "bob executable not found, installing"
         install_hashicorp_tool "bob"
     fi
 
@@ -490,15 +581,14 @@ function generate_release_metadata() {
     # The '-metadata-file' flag expects valid json. Contents are not used for Vagrant.
     echo "{}" > "${hc_releases_input_metadata}"
 
-    echo -n "Generating release metadata... "
+    debug "generating release metadata information"
     wrap_stream bob generate-release-metadata \
         -metadata-file "${hc_releases_input_metadata}" \
         -in-dir "${directory}" \
         -version "${version}" \
         -out-file "${hc_releases_metadata_filename}" \
         "Failed to generate release metadata"
-    echo "complete!"
-    
+
     rm -f "${hc_releases_input_metadata}"
 }
 
@@ -507,13 +597,21 @@ function generate_release_metadata() {
 # $1: Product Name (e.g. "vagrant")
 # $2: Product Version
 # $3: Asset directory
-function upload_to_staging() {
+function hashicorp_release_upload_to_staging() {
     local product="${1}"
     local version="${2}"
     local directory="${3}"
 
     if ! command -v "hc-releases"; then
+        debug "releases-api executable not found, installing"
         install_hashicorp_tool "releases-api"
+    fi
+
+    if [ -z "${HC_RELEASES_STAGING_HOST}" ]; then
+        failure "Missing required environment variable HC_RELEASES_STAGING_HOST"
+    fi
+    if [ -z "${HC_RELEASES_STAGING_KEY}" ]; then
+       failure "Missing required environment variable HC_RELEASES_STAGING_KEY"
     fi
 
     export HC_RELEASES_HOST="${HC_RELEASES_STAGING_HOST}"
@@ -527,25 +625,21 @@ function upload_to_staging() {
         fileParams+=("-file=${file}")
     done
 
-    echo -n "Uploading release assets... "
-
+    debug "uploading release assets to staging"
     wrap_stream hc-releases upload \
         -product "${product}" \
         -version "${version}" \
         "${fileParams[@]}" \
         "Failed to upload HashiCorp release assets"
 
-    echo "complete!"
     popd
 
-    echo -n "Creating release metadata... "
+    debug "creating release metadata"
 
     wrap_stream hc-releases metadata create \
         -product "${product}" \
         -input "${hc_releases_metadata_filename}" \
         "Failed to create metadata for HashiCorp release"
-
-    echo "complete!"
 
     unset HC_RELEASES_HOST
     unset HC_RELEASES_KEY
@@ -555,27 +649,35 @@ function upload_to_staging() {
 #
 # $1: Product Name (e.g. "vagrant")
 # $2: Product Version
-function promote_to_production() {
+function hashicorp_release_promote_to_production() {
     local product="${1}"
     local version="${2}"
 
     if ! command -v "hc-releases"; then
+        debug "releases-api executable not found, installing"
         install_hashicorp_tool "releases-api"
+    fi
+
+    if [ -z "${HC_RELEASES_PROD_HOST}" ]; then
+        failure "Missing required environment variable HC_RELEASES_PROD_HOST"
+    fi
+    if [ -z "${HC_RELEASES_PROD_KEY}" ]; then
+       failure "Missing required environment variable HC_RELEASES_PROD_KEY"
+    fi
+    if [ -z "${HC_RELEASES_STAGING_KEY}" ]; then
+       failure "Missing required environment variable HC_RELEASES_STAGING_KEY"
     fi
 
     export HC_RELEASES_HOST="${HC_RELEASES_PROD_HOST}"
     export HC_RELEASES_KEY="${HC_RELEASES_PROD_KEY}"
     export HC_RELEASES_SOURCE_ENV_KEY="${HC_RELEASES_STAGING_KEY}"
 
-    echo -n "Promoting release to production... "
-
+    debug "promoting release to production"
     wrap_stream hc-releases promote \
         -product "${product}" \
         -version "${version}" \
         -source-env staging \
         "Failed to promote HashiCorp release to Production"
-
-    echo "complete!"
 
     unset HC_RELEASES_HOST
     unset HC_RELEASES_KEY
@@ -586,21 +688,21 @@ function promote_to_production() {
 #
 # $1: Product name (e.g. "vagrant") defaults to $repo_name
 # $2: AWS Region of SNS (defaults to us-east-1)
-function sns_publish() {
+function hashicorp_release_sns_publish() {
     local message
     local product="${1}"
     local region="${2}"
 
     if [ -z "${RELEASE_AWS_ACCESS_KEY_ID}" ]; then
-        failure "Missing AWS access key ID for SNS publish"
+        failure "Missing AWS access key ID for release packages SNS publish"
     fi
 
     if [ -z "${RELEASE_AWS_SECRET_ACCESS_KEY}" ]; then
-        failure "Missing AWS access key for SNS publish"
+        failure "Missing AWS access key for release packages SNS publish"
     fi
 
     if [ -z "${RELEASE_AWS_ASSUME_ROLE_ARN}" ]; then
-        failure "Missing AWS role ARN for SNS publish"
+        failure "Missing AWS role ARN for release packages SNS publish"
     fi
 
     if [ -z "${product}" ]; then
@@ -635,11 +737,10 @@ function sns_publish() {
         "Failed to reconfigure AWS credentials for release notification"
 
     # Now send the release notification
-    echo "Sending notification to update package repositories... "
+    debug "sending release notification to package repository"
     message=$(jq --null-input --arg product "$product" '{"product": $product}')
     wrap_stream aws sns publish --region "${region}" --topic-arn "${HC_RELEASES_PROD_SNS_TOPIC}" --message "${message}" \
         "Failed to send SNS message for package repository update"
-    echo "complete!"
 
     # Before we finish restore the previously set credentials if we unset them
     if [ -n "${core_id}" ]; then
@@ -666,12 +767,11 @@ function hashicorp_release_exists() {
     local product="${1}"
     local version="${2}"
 
-    echo -n "Checking for existing release of ${product}@${version}... "
     if curl --silent --fail --head "https://releases.hashicorp.com/${product}/${version}" ; then
-        echo "Found!"
+        debug "hashicorp release of %s@%s found" "${product}" "${version}"
         return 0
     fi
-    echo "not found"
+    debug "hashicorp release of %s@%s not found" "${product}" "${version}"
     return 1
 }
 
@@ -689,6 +789,7 @@ function generate_shasums() {
     pushd "${directory}"
 
     local shacontent
+    debug "generating shasums file for %s@%s" "${product}" "${version}"
     shacontent="$(shasum -a256 ./*)" ||
         failure "Failed to generate shasums in ${directory}"
 
@@ -713,6 +814,8 @@ function hashicorp_release() {
         version="${release_version}"
     fi
 
+    debug "creating hashicorp release - product: %s version: %s assets: %s" "${product}" "${version}" "${directory}"
+
     if ! hashicorp_release_exists "${product}" "${version}"; then
         # Jump into our artifact directory
         pushd "${directory}"
@@ -723,10 +826,15 @@ function hashicorp_release() {
         rm -f ./*.sig
 
         # Generate our shasums file
+        debug "generating shasums file for %s@%s" "${product}" "${version}"
         generate_shasums ./ "${product}" "${version}"
 
         # Grab the shasums file and sign it
-        shasum_file=(./*SHA256SUMS)
+        local shasum_files=(./*SHA256SUMS)
+        local shasum_file="${shasum_files[0]}"
+        # Remove relative prefix if found
+        shasum_file="${shasum_file##*/}"
+        debug "signing shasums file for %s@%s" "${product}" "${version}"
         sign_file "${shasum_file[0]}"
 
         # Jump back out of our artifact directory
@@ -734,30 +842,58 @@ function hashicorp_release() {
 
         # Run validation and verification on release assets before
         # we actually do the release.
+        debug "running release validation for %s@%s" "${product}" "${version}"
         hashicorp_release_validate "${directory}"
+        debug "running release verification for %s@%s" "${product}" "${version}"
         hashicorp_release_verify "${directory}"
 
         # Now that the assets have been validated and verified,
         # peform the release setps
-        generate_release_metadata "${version}" "${directory}"
-        upload_to_staging "${product}" "${version}" "${directory}"
-        promote_to_production "${product}" "${version}"
+        debug "generating release metadata for %s@%s" "${product}" "${version}"
+        hashicorp_release_generate_release_metadata "${version}" "${directory}"
+        debug "uploading release artifacts to staging for %s@%s" "${product}" "${version}"
+        hashicorp_release_upload_to_staging "${product}" "${version}" "${directory}"
+        debug "promoting release to production for %s@%s" "${product}" "${version}"
+        hashicorp_release_promote_to_production "${product}" "${version}"
+
+        printf "HashiCorp release created (%s@%s)\n" "${product}" "${version}"
+    else
+        printf "hashicorp release not published, already exists (%s@%s)\n" "${product}" "${version}"
     fi
 
     # Send a notification to update the package repositories
     # with the new release.
-    sns_publish "${product}"
+    debug "sending packaging notification for %s@%s" "${product}" "${version}"
+    hashicorp_release_sns_publish "${product}"
 }
 
 # Check if gem version is already published to RubyGems
 #
 # $1: Name of RubyGem
 # $2: Verision of RubyGem
+# $3: Custom gem server to search (optional)
 function is_version_on_rubygems() {
     local name="${1}"
     local version="${2}"
-    local result
+    local gemstore="${3}"
 
+    if [ -z "${name}" ]; then
+        failure "Name is required for version check on %s" "${gemstore:-RubyGems.org}"
+    fi
+
+    if [ -z "${version}" ]; then
+        failure "Version is required for version check on %s" "${gemstore:-RubyGems.org}"
+    fi
+
+    debug "checking rubygem %s at version %s is currently published" "${name}" "${version}"
+    local cmd_args=()
+    if [ -n "${gemstore}" ]; then
+        debug "checking rubygem publication at custom source: %s" "${gemstore}"
+        cmd_args+=("--clear-sources" "--source" "${gemstore}")
+    fi
+    cmd_args+=("--remote" "--exact" "--all")
+
+    local result
     result="$(gem search --remote --exact --all "${name}")" ||
         failure "Failed to retreive remote version list from RubyGems"
     local versions="${result##*\(}"
@@ -768,6 +904,7 @@ function is_version_on_rubygems() {
     for v in $versions; do
         if [ "${v}" = "${version}" ]; then
             r=0
+            debug "rubygem %s at version %s was found" "${name}" "${version}"
             break
         fi
     done
@@ -775,26 +912,33 @@ function is_version_on_rubygems() {
     return $r
 }
 
+# Check if gem version is already published to hashigems
+#
+# $1: Name of RubyGem
+# $2: Verision of RubyGem
+function is_version_on_hashigems() {
+    is_version_on_rubygems "${1}" "${2}" "https://gems.hashicorp.com"
+}
+
 # Build and release project gem to RubyGems
 function publish_to_rubygems() {
     if [ -z "${RUBYGEMS_API_KEY}" ]; then
-        failure "RUBYGEMS_API_KEY is currently unset"
+        failure "RUBYGEMS_API_KEY is required for publishing to RubyGems.org"
     fi
 
-    local gem_config
-    local result
+    local gem_file="${1}"
 
-    gem_config="$(mktemp -p ./)" || failure "Failed to create temporary credential file"
-    wrap gem build ./*.gemspec \
-        "Failed to build RubyGem"
-    printf -- "---\n:rubygems_api_key: %s\n" "${RUBYGEMS_API_KEY}" > "${gem_config}"
-    wrap_raw gem push --config-file "${gem_config}" ./*.gem
-    result=$?
-    rm -f "${gem_config}"
-
-    if [ $result -ne 0 ]; then
-        failure "Failed to publish RubyGem"
+    if [ -z "${gem_file}" ]; then
+        failure "RubyGem file is required for publishing to RubyGems.org"
     fi
+
+    if [ ! -f "${gem_file}" ]; then
+        failure "Path provided does not exist or is not a file (%s)" "${gem_file}"
+    fi
+
+    export GEM_HOST_API_KEY="${RUBYGEMS_API_KEY}"
+    wrap gem push "${gem_file}" ||
+        failure "Failed to publish RubyGem at '%s' to RubyGems.org" "${gem_file}"
 }
 
 # Publish gem to the hashigems repository
@@ -806,10 +950,11 @@ function publish_to_hashigems() {
         failure "Path to built gem required for publishing to hashigems"
     fi
 
+    debug "publishing '%s' to hashigems" "${path}"
+
     # Define all the variables we'll need
     local user_bin
     local reaper
-    local tmpdir
     local invalid
     local invalid_id
 
@@ -818,10 +963,14 @@ function publish_to_hashigems() {
     user_bin="$(ruby -e 'puts Gem.user_dir')/bin"
     reaper="${user_bin}/reaper-man"
 
+    debug "using reaper-man installation at: %s" "${reaper}"
+
     # Create a temporary directory to work from
+    local tmpdir
     tmpdir="$(mktemp -d -p ./)" ||
         failure "Failed to create working directory for hashigems publish"
-    mkdir -p "${tmpdir}/hashigems/gems"
+    mkdir -p "${tmpdir}/hashigems/gems" ||
+        failure "Failed to create gems directory"
     wrap cp "${path}" "${tmpdir}/hashigems/gems" \
         "Failed to copy gem to working directory"
     pushd "${tmpdir}"
@@ -831,35 +980,46 @@ function publish_to_hashigems() {
         "Failed to access hashigems asset bucket"
 
     # Grab our remote metadata. If the file doesn't exist, that is always an error.
+    debug "fetching hashigems metadata file from %s" "${HASHIGEMS_METADATA_BUCKET}"
     wrap aws s3 cp "${HASHIGEMS_METADATA_BUCKET}/vagrant-rubygems.list" ./ \
         "Failed to retrieve hashigems metadata list"
 
     # Add the new gem to the metadata file
+    debug "adding new gem to the metadata file"
     wrap_stream "${reaper}" package add -S rubygems -p vagrant-rubygems.list ./hashigems/gems/*.gem \
         "Failed to add new gem to hashigems metadata list"
     # Generate the repository
+    debug "generating the new hashigems repository content"
     wrap_stream "${reaper}" repo generate -p vagrant-rubygems.list -o hashigems -S rubygems \
         "Failed to generate the hashigems repository"
     # Upload the updated repository
     pushd ./hashigems
+    debug "uploading new hashigems repository content to %s" "${HASHIGEMS_PUBLIC_BUCKET}"
     wrap_stream aws s3 sync . "${HASHIGEMS_PUBLIC_BUCKET}" \
         "Failed to upload the hashigems repository"
     # Store the updated metadata
     popd
+    debug "uploading updated hashigems metadata file to %s" "${HASHIGEMS_METADATA_BUCKET}"
     wrap_stream aws s3 cp vagrant-rubygems.list "${HASHIGEMS_METADATA_BUCKET}/vagrant-rubygems.list" \
         "Failed to upload the updated hashigems metadata file"
 
     # Invalidate cloudfront so the new content is available
+    local invalid
+    debug "invalidating hashigems cloudfront distribution (%s)" "${HASHIGEMS_CLOUDFRONT_ID}"
     invalid="$(aws cloudfront create-invalidation --distribution-id "${HASHIGEMS_CLOUDFRONT_ID}" --paths "/*")" ||
         failure "Invalidation of hashigems CDN distribution failed"
+    local invalid_id
     invalid_id="$(printf '%s' "${invalid}" | jq -r ".Invalidation.Id")"
     if [ -z "${invalid_id}" ]; then
         failure "Failed to determine the ID of the hashigems CDN invalidation request"
     fi
+    debug "hashigems cloudfront distribution invalidation identifer - %s" "${invalid_id}"
 
     # Wait for the invalidation process to complete
+    debug "starting wait for hashigems cloudfront distribution invalidation to complete (id: %s)" "${invalid_id}"
     wrap aws cloudfront wait invalidation-completed --distribution-id "${HASHIGEMS_CLOUDFRONT_ID}" --id "${invalid_id}" \
         "Failure encountered while waiting for hashigems CDN invalidation request to complete (ID: ${invalid_id})"
+    debug "hashigems cloudfront distribution invalidation complete (id: %s)" "${invalid_id}"
 
     # Clean up and we are done
     popd
@@ -881,44 +1041,9 @@ function default_branch() {
     local s
     s="$(git symbolic-ref refs/remotes/origin/HEAD)" ||
         failure "Failed to determine default branch (is working directory git repository?)"
-    echo -n "${s##*origin/}"
+    printf "%s" "${s##*origin/}"
 }
 
-# Loads signing files for packaging. The return value can be eval'd
-# to set expected environment variables for packet-exec to use.
-function load-signing() {
-    local secrets key result
-    declare -A secrets=(
-        ["MACOS_PACKAGE_CERT"]="./MacOS_PackageSigning.cert.gpg"
-        ["MACOS_PACKAGE_KEY"]="./MacOS_PackageSigning.p12.gpg"
-        ["MACOS_CODE_CERT"]="./MacOS_CodeSigning.p12.gpg"
-        ["WIN_SIGNING_KEY"]="./Win_CodeSigning.p12.gpg"
-    )
-
-    for key in "${!secrets[@]}"; do
-        local local_path="${secrets[${key}]}"
-        local var_name="PKT_SECRET_FILE_${key}"
-        local content_variable="${key}_CONTENT"
-
-        if [ -z "${!content_variable}" ]; then
-            failure "Missing content in environment variable: ${content_variable}"
-        fi
-
-        # Content will be encoded so first we decode
-        local content
-
-        printf "%s" "${!content_variable}" > ./.load-signing-temp-file
-        wrap gpg --dearmor ./.load-signing-temp-file \
-            "Failed to decode secret file content"
-        wrap mv ./.load-signing-temp-file.gpg "${local_path}" \
-            "Failed to move signing content to destination"
-        rm -f ./.load-signing-temp-file*
-
-        result+="export ${var_name}=\"${local_path}\"\n"
-    done
-
-    printf "%b" "${result}"
-}
 
 # Send a notification to slack. All flag values can be set with
 # environment variables using the upcased name prefixed with SLACK_,
@@ -1041,7 +1166,9 @@ function slack() {
         else
             file_content="$(<"${file}")"
         fi
-        message="${message}\n\n\`\`\`\n${file_content}\n\`\`\`"
+        if [ -n "${file_content}" ]; then
+            message="${message}\n\n\`\`\`\n${file_content}\n\`\`\`"
+        fi
     fi
 
     local attach attach_template payload payload_template ts
@@ -1097,8 +1224,9 @@ function slack() {
         "${payload_template}" \
         )
 
+    debug "sending slack message with payload: %s" "${payload}"
     if ! curl -SsL --fail -X POST -H "Content-Type: application/json" -d "${payload}" "${webhook}"; then
-        echo "ERROR: Failed to send slack notification"
+        echo "ERROR: Failed to send slack notification" >&2
     fi
 }
 
@@ -1114,13 +1242,19 @@ function install_hashicorp_tool() {
     local extensions=("zip" "tar.gz")
     local asset release_content tmp
 
+    if [ -z "${tool_name}" ]; then
+        failure "Repository name is required for hashicorp tool install"
+    fi
+
+    debug "installing hashicorp tool: %s" "${tool_name}"
+
+    # Swap out repository to force correct github token
+    local repository_bak="${repository}"
+    repository="${repo_owner}/${release_repo}"
+
     tmp="$(mktemp -d --tmpdir vagrantci-XXXXXX)" ||
         failure "Failed to create temporary working directory"
     pushd "${tmp}"
-
-    if [ -z "${HASHIBOT_TOKEN}" ]; then
-        failure "HASHIBOT_TOKEN is required for internal tool install"
-    fi
 
     local platform
     platform="$(uname -s)" || failure "Failed to get local platform name"
@@ -1139,8 +1273,7 @@ function install_hashicorp_tool() {
         arches+=("amd64")
     fi
 
-    release_content=$(curl -SsL --fail -H "Authorization: token ${HASHIBOT_TOKEN}" \
-        -H "Content-Type: application/json" \
+    release_content=$(github_request -H "Content-Type: application/json" \
         "https://api.github.com/repos/hashicorp/${tool_name}/releases/latest") ||
       failure "Failed to request latest releases for hashicorp/${tool_name}"
 
@@ -1148,9 +1281,11 @@ function install_hashicorp_tool() {
     for exten in "${extensions[@]}"; do
         for arch in "${arches[@]}"; do
             local suffix="${platform}_${arch}.${exten}"
+            debug "checking for release artifact with suffix: %s" "${suffix}"
             asset=$(printf "%s" "${release_content}" | jq -r \
                 '.assets[] | select(.name | contains("'"${suffix}"'")) | .url')
             if [ -n "${asset}" ]; then
+                debug "release artifact found: %s" "${asset}"
                break
             fi
         done
@@ -1163,8 +1298,10 @@ function install_hashicorp_tool() {
         failure "Failed to find release of hashicorp/${tool_name} for ${platform} ${arch[0]}"
     fi
 
-    wrap curl -SsL --fail -o "${tool_name}.${exten}" -H "Authorization: token ${HASHIBOT_TOKEN}" \
-        -H "Accept: application/octet-stream" "${asset}" \
+    debug "tool artifact match found for install: %s" "${asset}"
+
+    github_request -o "${tool_name}.${exten}" \
+        -H "Accept: application/octet-stream" "${asset}" ||
         "Failed to download latest release for hashicorp/${tool_name}"
 
     if [ "${exten}" = "zip" ]; then
@@ -1177,14 +1314,18 @@ function install_hashicorp_tool() {
 
     rm -f "${tool_name}.${exten}"
 
+    local files=( ./* )
     wrap chmod 0755 ./* \
         "Failed to change mode on latest release for hashicorp/${tool_name}"
 
     wrap mv ./* "${ci_bin_dir}" \
         "Failed to install latest release for hashicorp/${tool_name}"
 
+    debug "new files added to path: %s" "${files[*]}"
     popd
     rm -rf "${tmp}"
+
+    repository="${repository_bak}" # restore the repository value
 }
 
 # Install tool from GitHub releases. It will fetch the latest release
@@ -1194,6 +1335,7 @@ function install_hashicorp_tool() {
 # $1: Organization name
 # $2: Repository name
 #
+# TODO: Match hashicorp install implementation
 function install_github_tool() {
     local org_name="${1}"
     local tool_name="${2}"
@@ -1204,8 +1346,9 @@ function install_github_tool() {
         failure "Failed to create temporary working directory"
     pushd "${tmp}"
 
-    release_content=$(curl -SsL --fail \
-        -H "Content-Type: application/json" \
+    debug "installing github tool from %s/%s" "${org_name}" "${tool_name}"
+
+    release_content=$(github_request -H "Content-Type: application/json" \
         "https://api.github.com/repos/${org_name}/${tool_name}/releases/latest") ||
         failure "Failed to request latest releases for ${org_name}/${tool_name}"
 
@@ -1214,8 +1357,7 @@ function install_github_tool() {
         failure "Failed to detect latest release for ${org_name}/${tool_name}"
 
     artifact="${asset##*/}"
-    wrap curl -SsL --fail -o "${artifact}" \
-        -H "Accept: application/octet-stream" "${asset}" \
+    github_request -o "${artifact}" -H "Accept: application/octet-stream" "${asset}" ||
         "Failed to download latest release for ${org_name}/${tool_name}"
 
     basen="${artifact##*.}"
@@ -1298,99 +1440,369 @@ function packet-setup() {
 # a substring that is matched against the artifact download URL. Artifact(s)
 # will be downloaded to the working directory.
 #
-# $1: organization name
-# $2: repository name
-# $3: release tag name
-# $4: artifact pattern (optional, all artifacts downloaded if omitted)
+# $1: repository name
+# $2: release tag name
+# $3: artifact pattern (optional, all artifacts downloaded if omitted)
 function github_release_assets() {
-    local gtoken curl_args
-    curl_args=()
+    local req_args
+    req_args=()
 
-    if [ -n "${HASHIBOT_TOKEN}" ]; then
-        gtoken="${HASHIBOT_TOKEN}"
-    elif [ -n "${GITHUB_TOKEN}" ]; then
-        gtoken="${GITHUB_TOKEN}"
-    fi
+    local  asset_pattern
+    local release_repo="${1}"
+    local release_name="${2}"
+    local asset_pattern="${3}"
 
-    if [ -n "${gtoken}" ]; then
-        curl_args+=("-H" "Authorization: token ${gtoken}")
-    fi
+    # Swap out repository to force correct github token
+    local repository_bak="${repository}"
+    repository="${repo_owner}/${release_repo}"
 
-    local release_repo release_name asset_pattern release_content
-    release_repo="${1}/${2}"
-    release_name="${3}"
-    asset_pattern="${4}"
+    req_args+=("Content-Type: application/json")
+    req_args+=("https://api.github.com/repos/${repository}/releases/tags/${release_name}")
 
-    curl_args+=("-SsL" "--fail" "-H" "Content-Type: application/json")
-    curl_args+=("https://api.github.com/repos/${release_repo}/releases/tags/${release_name}")
+    debug "fetching release asset list for release %s on %s" "${release_name}" "${repository}"
 
-    release_content=$(curl "${curl_args[@]}") ||
-        failure "Failed to request release (${release_name}) for ${release_repo}"
+    local release_content
+    release_content=$(github_request "${req_args[@]}") ||
+        failure "Failed to request release (${release_name}) for ${repository}"
 
-    local asset_list name_list asset_names query artifact asset
-    query=".assets[]"
+    local query=".assets[]"
     if [ -n "${asset_pattern}" ]; then
+        debug "applying release asset list filter %s" "${asset_pattern}"
         query+="$(printf ' | select(.name | contains("%s"))' "${asset_pattern}")"
     fi
 
+    local asset_list
     asset_list=$(printf "%s" "${release_content}" | jq -r "${query} | .url") ||
         failure "Failed to detect asset in release (${release_name}) for ${release_repo}"
 
+    local name_list
     name_list=$(printf "%s" "${release_content}" | jq -r "${query} | .name") ||
         failure "Failed to detect asset in release (${release_name}) for ${release_repo}"
 
-    curl_args=()
-    if [ -n "${gtoken}" ]; then
-        curl_args+=("-H" "Authorization: token ${gtoken}")
-    fi
-    curl_args+=("-SsL" "--fail" "-H" "Accept: application/octet-stream")
+    req_args=()
+    req_args+=("Accept: application/octet-stream")
 
+    local assets asset_names
     readarray -t assets <  <(printf "%s" "${asset_list}")
     readarray -t asset_names < <(printf "%s" "${name_list}")
 
+    local idx
     for ((idx=0; idx<"${#assets[@]}"; idx++ )); do
-        asset="${assets[$idx]}"
-        artifact="${asset_names[$idx]}"
+        local asset="${assets[$idx]}"
+        local artifact="${asset_names[$idx]}"
 
-        wrap curl "${curl_args[@]}" -o "${artifact}" "${asset}" \
-            "Failed to download asset (${artifact}) in release ${release_name} for ${release_repo}"
+        github_request "${req_args[@]}" -o "${artifact}" "${asset}" ||
+            "Failed to download asset (${artifact}) in release ${release_name} for ${repository}"
+        printf "downloaded release asset %s from release %s on %s" "${artifact}" "${release_name}" "${repository}"
     done
+
+    repository="${repository_bak}" # restore the repository value
 }
 
-# Download artifact(s) from GitHub draft release. A draft release is not
-# attached to a tag and therefore is referenced by the release name directly.
-# The artifact pattern is simply a substring that is matched against the
-# artifact download URL. Artifact(s) will be downloaded to the working directory.
+# Basic helper to create a GitHub prerelease
 #
-# $1: organization name
-# $2: repository name
-# $3: release name
-# $4: artifact pattern (optional, all artifacts downloaded if omitted)
-function github_draft_release_assets() {
-    local gtoken
+# $1: repository name
+# $2: tag name for release
+# $3: path to artifact(s) - single file or directory
+function github_prerelease() {
+    local prerelease_repo="${1}"
+    local tag_name="${2}"
+    local artifacts="${3}"
 
-    if [ -n "${HASHIBOT_TOKEN}" ]; then
-        gtoken="${HASHIBOT_TOKEN}"
-    elif [ -n "${GITHUB_TOKEN}" ]; then
-        gtoken="${GITHUB_TOKEN}"
-    else
-        failure "Fetching draft release assets requires hashibot or github token with write permission"
+    if [ -z "${prerelease_repo}" ]; then
+        failure "Name of repository required for prerelease release"
     fi
 
-    local release_list release_repo release_name asset_pattern release_content
-    local name_list query artifact asset_names idx page
+    if [ -z "${tag_name}" ]; then
+        failure "Name is required for prerelease release"
+    fi
 
-    release_repo="${1}/${2}"
-    release_name="${3}"
-    asset_pattern="${4}"
+    if [ -z "${artifacts}" ]; then
+        failure "Artifacts path is required for prerelease release"
+    fi
 
-    page=$((1))
+    if [ ! -e "${artifacts}" ]; then
+        failure "No artifacts found at provided path (${artifacts})"
+    fi
+
+    local prerelease_target="${repo_owner}/${prerelease_repo}"
+
+    # Create the prerelease
+    local response
+    response="$(github_create_release -p -t "${tag_name}" -o "${repo_owner}" -r "${prerelease_repo}" )" ||
+        failure "Failed to create prerelease on %s/%s" "${repo_owner}" "${prerelease_repo}"
+
+    # Extract the release ID from the response
+    local release_id
+    release_id="$(printf "%s" "${response}" | jq -r '.id')" ||
+        failure "Failed to extract prerelease ID from response for ${tag_name} on ${prerelease_target}"
+
+    github_upload_release_artifacts "${prerelease_repo}" "${release_id}" "${artifacts}"
+
+}
+
+# Upload artifacts to a release
+#
+# $1: target repository name
+# $2: release ID
+# $3: path to artifact(s) - single file or directory
+function github_upload_release_artifacts() {
+    local target_repo_name="${1}"
+    local release_id="${2}"
+    local artifacts="${3}"
+
+    if [ -z "${target_repo_name}" ]; then
+        failure "Repository name required for release artifact upload"
+    fi
+
+    if [ -z "${release_id}" ]; then
+        failure "Release ID require for release artifact upload"
+    fi
+
+    if [ -z "${artifacts}" ]; then
+        failure "Artifacts required for release artifact upload"
+    fi
+
+    if [ ! -e "${artifacts}" ]; then
+        failure "No artifacts found at provided path for release artifact upload (%s)" "${artifacts}"
+    fi
+
+    # Swap out repository to force correct github token
+    local repository_bak="${repository}"
+    repository="${repo_owner}/${target_repo_name}"
+
+    local req_args=("-X" "POST" "-H" "Content-Type: application/octet-stream")
+
+    # Now upload the artifacts to the draft release
+    local artifact_name
+    if [ -f "${artifacts}" ]; then
+        debug "uploading %s to release ID %s on %s" "${artifact}" "${release_id}" "${repository}"
+        artifact_name="${artifacts##*/}"
+        req_args+=("https://uploads.github.com/repos/${repository}/releases/${release_id}/assets?name=${artifact_name}"
+                   "--data-binary" "@${artifacts}")
+        if ! github_request "${req_args[@]}" > /dev/null ; then
+            failure "Failed to upload artifact '${artifacts}' to draft release on ${repository}"
+        fi
+        printf "Uploaded release artifact: %s\n" "${artifact_name}" >&2
+        # Everything is done so get on outta here
+        return 0
+    fi
+
+    # Push into the directory
+    pushd "${artifacts}"
+
+    local artifact_path
+    # Walk through each item and upload
+    for artifact_path in * ; do
+        if [ ! -f "${artifact_path}" ]; then
+            debug "skipping '%s' as it is not a file" "${artifact_path}"
+            continue
+        fi
+        artifact_name="${artifact_path##*/}"
+        debug "uploading %s/%s to release ID %s on %s" "${artifacts}" "${artifact_name}" "${release_id}" "${repository}"
+        local r_args=( "${req_args[@]}" )
+        r_args+=("https://uploads.github.com/repos/${repository}/releases/${release_id}/assets?name=${artifact_name}"
+                   "--data-binary" "@${artifact_path}")
+        if ! github_request "${r_args[@]}" > /dev/null ; then
+            failure "Failed to upload artifact '${artifact_name}' in '${artifacts}' to draft release on ${repository}"
+        fi
+        printf "Uploaded release artifact: %s\n" "${artifact_name}" >&2
+    done
+
+    repository="${repository_bak}"
+}
+
+# Basic helper to create a GitHub draft release
+#
+# $1: repository name
+# $2: tag name for release
+# $3: path to artifact(s) - single file or directory
+function github_draft_release() {
+    local draft_repo="${1}"
+    local tag_name="${2}"
+    local artifacts="${3}"
+
+    if [ -z "${draft_repo}" ]; then
+        failure "Name of repository required for draft release"
+    fi
+
+    if [ -z "${tag_name}" ]; then
+        failure "Name is required for draft release"
+    fi
+
+    if [ -z "${artifacts}" ]; then
+        failure "Artifacts path is required for draft release"
+    fi
+
+    if [ ! -e "${artifacts}" ]; then
+        failure "No artifacts found at provided path (%s)" "${artifacts}"
+    fi
+
+    # Create the draft release
+    local response
+    response="$(github_create_release -d -t "${tag_name}" -o "${repo_owner}" -r "${draft_repo}" )" ||
+        failure "Failed to create draft release on %s" "${repo_owner}/${draft_repo}"
+
+    # Extract the release ID from the response
+    local release_id
+    release_id="$(printf "%s" "${response}" | jq -r '.id')" ||
+        failure "Failed to extract draft release ID from response for %s on %s" "${tag_name}" "${repo_owner}/${draft_repo}"
+
+    github_upload_release_artifacts "${draft_repo}" "${release_id}" "${artifacts}"
+}
+
+# Create a GitHub release
+#
+# -b BODY - body of release
+# -c COMMITISH - commitish of release
+# -n NAME - name of the release
+# -o OWNER - repository owner (required)
+# -r REPO - repository name (required)
+# -t TAG_NAME - tag name for release (required)
+# -d - draft release
+# -p - prerelease
+# -g - generate release notes
+# -m - make release latest
+#
+# NOTE: Artifacts for release must be uploaded using `github_upload_release_artifacts`
+function github_create_release() {
+    local OPTIND opt owner repo tag_name
+    # Values that can be null
+    local body commitish name
+    # Values we default
+    local draft="false"
+    local generate_notes="false"
+    local make_latest="false"
+    local prerelease="false"
+
+    while getopts ":b:c:n:o:r:t:dpgm" opt; do
+        case "${opt}" in
+            "b") body="${OPTARG}" ;;
+            "c") commitish="${OPTARG}" ;;
+            "n") name="${OPTARG}" ;;
+            "o") owner="${OPTARG}" ;;
+            "r") repo="${OPTARG}" ;;
+            "t") tag_name="${OPTARG}" ;;
+            "d") draft="true" ;;
+            "p") prerelease="true" ;;
+            "g") generate_notes="true" ;;
+            "m") make_latest="true" ;;
+            *) failure "Invalid flag provided to github_create_release" ;;
+        esac
+    done
+    shift $((OPTIND-1))
+
+    # Sanity check
+    if [ -z "${owner}" ]; then
+        failure "Repository owner value is required for GitHub release"
+    fi
+
+    if [ -z "${repo}" ]; then
+        failure "Repository name is required for GitHub release"
+    fi
+
+    if [ -z "${tag_name}" ]; then
+        failure "Tag name is required for GitHub release"
+    fi
+
+    # If no name is provided, use the tag name value
+    if [ -z "${name}" ]; then
+        name="${tag_name}"
+    fi
+
+    # shellcheck disable=SC2016
+    local payload_template='{tag_name: $tag_name, draft: $draft, prerelease: $prerelease, generate_release_notes: $generate_notes, make_latest: $make_latest'
+    local jq_args=("-n"
+                   "--arg" "tag_name" "${tag_name}"
+                   "--arg" "make_latest" "${make_latest}"
+                   "--argjson" "draft" "${draft}"
+                   "--argjson" "generate_notes" "${generate_notes}"
+                   "--argjson" "prerelease" "${prerelease}"
+                  )
+
+    if [ -n "${commitish}" ]; then
+        # shellcheck disable=SC2016
+        payload_template+=', target_commitish: $commitish'
+        jq_args+=("--arg" "commitish" "${commitish}")
+    fi
+    if [ -n "${name}" ]; then
+        # shellcheck disable=SC2016
+        payload_template+=', name: $name'
+        jq_args+=("--arg" "name" "${name}")
+    fi
+    if [ -n "${body}" ]; then
+        # shellcheck disable=SC2016
+        payload_template+=', body: $body'
+        jq_args+=("--arg" "body" "${body}")
+    fi
+    payload_template+='}'
+
+    # Generate the payload
+    local payload
+    payload="$(jq "${jq_args[@]}" "${payload_template}" )" ||
+        failure "Could not generate GitHub release JSON payload"
+
+    local target_repo="${owner}/${repo}"
+    # Set repository to get correct token behavior on request
+    local repository_bak="${repository}"
+    repository="${target_repo}"
+
+    # Craft our request arguments
+    local req_args=("-X" "POST" "https://api.github.com/repos/${target_repo}/releases" "-d" "${payload}")
+
+    # Create the draft release
+    local response
+    if ! response="$(github_request "${req_args[@]}")"; then
+        failure "Could not create github release on ${target_repo}"
+    fi
+
+    # Restore the repository
+    repository="${repository_bak}"
+
+    local rel_type
+    if [ "${draft}" = "true" ]; then
+        rel_type="draft release"
+    elif [ "${prerelease}" = "true" ]; then
+        rel_type="prerelease"
+    else
+        rel_type="release"
+    fi
+
+    # Report new draft release was created
+    printf "New %s '%s' created on '%s'\n" "${rel_type}" "${tag_name}" "${target_repo}" >&2
+
+    # Print the response
+    printf "%s" "${response}"
+}
+
+# Check if a draft release exists by name
+#
+# $1: repository name
+# $2: release name
+function github_draft_release_exists() {
+    local release_repo="${1}"
+    local release_name="${2}"
+
+    if [ -z "${release_repo}" ]; then
+        failure "Repository name required for draft release lookup"
+    fi
+    if [ -z "${release_name}" ]; then
+        failure "Release name required for draft release lookup"
+    fi
+
+    # Override repository value to get correct token automatically
+    local repository_bak="${repository}"
+    repository="${repo_owner}/${release_repo}"
+
+    local page=$((1))
+    local release_content
+
     while [ -z "${release_content}" ]; do
-        release_list=$(curl -SsL --fail \
-            -H "Authorization: token ${gtoken}" \
+        local release_list
+        release_list="$(github_request \
             -H "Content-Type: application/json" \
-            "https://api.github.com/repos/${release_repo}/releases?per_page=100&page=${page}") ||
-            failure "Failed to request releases list for ${release_repo}"
+            "https://api.github.com/repos/${repository}/releases?per_page=100&page=${page}")" ||
+            failure "Failed to request releases list for ${repository}"
 
         # If there's no more results, just bust out of the loop
         if [ "$(jq 'length' <( printf "%s" "${release_list}" ))" -lt "1" ]; then
@@ -1404,33 +1816,98 @@ function github_draft_release_assets() {
         ((page++))
     done
 
+    # Restore the $repository value
+    repository="${repository_bak}"
+
+    if [ -z "${release_content}" ]; then
+        debug "did not locate draft release named %s for %s" "${release_name}" "${repo_owner}/${release_repo}"
+        return 1
+    fi
+
+    debug "found draft release name %s in %s" "${release_name}" "${repo_owner}/${release_repo}"
+    return 0
+}
+
+# Download artifact(s) from GitHub draft release. A draft release is not
+# attached to a tag and therefore is referenced by the release name directly.
+# The artifact pattern is simply a substring that is matched against the
+# artifact download URL. Artifact(s) will be downloaded to the working directory.
+#
+# $1: repository name
+# $2: release name
+# $3: artifact pattern (optional, all artifacts downloaded if omitted)
+function github_draft_release_assets() {
+    local release_repo_name="${1}"
+    local release_name="${2}"
+    local asset_pattern="${3}"
+
+    if [ -z "${release_repo_name}" ]; then
+        failure "Repository name is required for draft release asset fetching"
+    fi
+    if [ -z "${release_name}" ]; then
+        failure "Draft release name is required for draft release asset fetching"
+    fi
+
+    # Override repository value to get correct token automatically
+    local repository_bak="${repository}"
+    repository="${repo_owner}/${release_repo_name}"
+
+    local page=$((1))
+    local release_content query
+    while [ -z "${release_content}" ]; do
+        local release_list
+        release_list=$(github_request -H "Content-Type: application/json" \
+            "https://api.github.com/repos/${repository}/releases?per_page=100&page=${page}") ||
+            failure "Failed to request releases list for ${repository}"
+
+        # If there's no more results, just bust out of the loop
+        if [ "$(jq 'length' <( printf "%s" "${release_list}" ))" -lt "1" ]; then
+            debug "did not locate draft release named %s in %s" "${release_name}" "${repository}"
+            break
+        fi
+
+        query="$(printf '.[] | select(.name == "%s")' "${release_name}")"
+        release_content=$(printf "%s" "${release_list}" | jq -r "${query}")
+
+        ((page++))
+    done
+
     query=".assets[]"
     if [ -n "${asset_pattern}" ]; then
+        debug "apply pattern filter to draft assets: %s" "${asset_pattern}"
         query+="$(printf ' | select(.name | contains("%s"))' "${asset_pattern}")"
     fi
 
+    local asset_list
     asset_list=$(printf "%s" "${release_content}" | jq -r "${query} | .url") ||
-        failure "Failed to detect asset in release (${release_name}) for ${release_repo}"
+        failure "Failed to detect asset in release (${release_name}) for ${repository}"
 
+    local name_list
     name_list=$(printf "%s" "${release_content}" | jq -r "${query} | .name") ||
-        failure "Failed to detect asset in release (${release_name}) for ${release_repo}"
+        failure "Failed to detect asset in release (${release_name}) for ${repository}"
 
+    debug "draft release assets list: %s" "${name_list}"
+
+    local assets asset_names
     readarray -t assets <  <(printf "%s" "${asset_list}")
     readarray -t asset_names < <(printf "%s" "${name_list}")
 
     if [ "${#assets[@]}" -ne "${#asset_names[@]}" ]; then
-        failure "Failed to match download assets with names in release list for ${release_repo}"
+        failure "Failed to match download assets with names in release list for ${repository}"
     fi
 
+    local idx
     for ((idx=0; idx<"${#assets[@]}"; idx++ )); do
-        asset="${assets[$idx]}"
-        artifact="${asset_names[$idx]}"
-        wrap curl -SsL --fail -o "${artifact}" \
-            -H "Authorization: token ${gtoken}" \
-            -H "Accept: application/octet-stream" "${asset}" \
-            "Failed to download asset in release (${release_name}) for ${release_repo} - ${artifact}"
+        local asset="${assets[$idx]}"
+        local artifact="${asset_names[$idx]}"
+        github_request -o "${artifact}" \
+            -H "Accept: application/octet-stream" "${asset}" ||
+            "Failed to download asset in release (${release_name}) for ${repository} - ${artifact}"
 
+        printf "downloaded draft release asset at %s\n" "${artifact}" >&2
     done
+
+    repository_bak="${repository}" # restore repository value
 }
 
 # This function is identical to the github_draft_release_assets
@@ -1445,39 +1922,37 @@ function github_draft_release_assets() {
 # or packages on re-runs and only download the artifacts if
 # actually needed.
 function github_draft_release_asset_names() {
-    local gtoken
+    local release_reponame="${1}"
+    local release_name="${2}"
+    local asset_pattern="${3}"
 
-    if [ -n "${HASHIBOT_TOKEN}" ]; then
-        gtoken="${HASHIBOT_TOKEN}"
-    elif [ -n "${GITHUB_TOKEN}" ]; then
-        gtoken="${GITHUB_TOKEN}"
-    else
-        failure "Fetching draft release assets requires hashibot or github token with write permission"
+    if [ -z "${release_reponame}" ]; then
+        failure "Repository name is required for draft release assets names"
     fi
 
-    local release_list release_repo release_name asset_pattern release_content
-    local name_list query artifact asset_names idx page
+    if [ -z "${release_name}" ]; then
+        failure "Release name is required for draft release asset names"
+    fi
 
-    release_repo="${1}/${2}"
-    release_name="${3}"
-    asset_pattern="${4}"
+    # Override repository value to get correct token automatically
+    local repository_bak="${repository}"
+    repository="${repo_owner}/${release_reponame}"
 
-    page=$((1))
+    local page=$((1))
+    local release_content query
     while [ -z "${release_content}" ]; do
-        release_list=$(curl -SsL --fail \
-            -H "Authorization: token ${gtoken}" \
-            -H "Content-Type: application/json" \
-            "https://api.github.com/repos/${release_repo}/releases?per_page=100&page=${page}") ||
-            failure "Failed to request releases list for ${release_repo}"
+        local release_list
+        release_list=$(github_request H "Content-Type: application/json" \
+            "https://api.github.com/repos/${repository}/releases?per_page=100&page=${page}") ||
+            failure "Failed to request releases list for ${repository}"
 
         # If there's no more results, just bust out of the loop
         if [ "$(jq 'length' <( printf "%s" "${release_list}" ))" -lt "1" ]; then
+            debug "did not locate draft release named %s in %s" "${release_name}" "${repository}"
             break
         fi
 
-
         query="$(printf '.[] | select(.name == "%s")' "${release_name}")"
-
         release_content=$(printf "%s" "${release_list}" | jq -r "${query}")
 
         ((page++))
@@ -1485,58 +1960,63 @@ function github_draft_release_asset_names() {
 
     query=".assets[]"
     if [ -n "${asset_pattern}" ]; then
+        debug "apply pattern filter to draft assets: %s" "${asset_pattern}"
         query+="$(printf ' | select(.name | contains("%s"))' "${asset_pattern}")"
     fi
 
+    local name_list
     name_list=$(printf "%s" "${release_content}" | jq -r "${query} | .name") ||
-        failure "Failed to detect asset in release (${release_name}) for ${release_repo}"
+        failure "Failed to detect asset in release (${release_name}) for ${repository}"
 
+    debug "draft release assets list: %s" "${name_list}"
+
+    local asset_names
     readarray -t asset_names < <(printf "%s" "${name_list}")
 
+    local idx
     for ((idx=0; idx<"${#asset_names[@]}"; idx++ )); do
-        artifact="${asset_names[$idx]}"
-        touch "${artifact}"
+        local artifact="${asset_names[$idx]}"
+        touch "${artifact}" ||
+            failure "Failed to touch release asset at path: %s" "${artifact}"
+        printf "touched draft release asset at %s\n" "${artifact}" >&2
     done
+
+    repository_bak="${repository}" # restore repository value
 }
 
 # Delete any draft releases that are older than the
 # given number of days
 #
 # $1: days
-# $2: repository (optional, defaults to current repo)
+# $2: repository name (optional, defaults to current repository name)
 function github_draft_release_prune() {
-    local gtoken
-
-    if [ -n "${HASHIBOT_TOKEN}" ]; then
-        gtoken="${HASHIBOT_TOKEN}"
-    elif [ -n "${GITHUB_TOKEN}" ]; then
-        gtoken="${GITHUB_TOKEN}"
-    else
-        failure "Fetching draft release assets requires hashibot or github token with write permission"
-    fi
-
     local days prune_repo
     days="${1}"
-    prune_repo="${2:-$repository}"
+    prune_repo="${2:-$repo_name}"
 
-    local prune_seconds page now
+    local prune_seconds now
     now="$(date '+%s')"
     prune_seconds=$(("${now}"-("${days}" * 86400)))
 
-    page=$((1))
+    # Override repository value to get correct token automatically
+    local repository_bak="${repository}"
+    repository="${repo_owner}/${delete_repo}"
+
+    debug "deleting drafts over %d days old from %s" "${days}" "${repository}"
+
+    local page=$((1))
     while true; do
         local release_list list_length
 
-        release_list=$(curl -SsL --fail \
-            -H "Authorization: token ${gtoken}" \
-            -H "Content-Type: application/json" \
-            "https://api.github.com/repos/${prune_repo}/releases?per_page=100&page=${page}") ||
-            failure "Failed to request releases list for pruning on ${prune_repo}"
+        release_list=$(github_request -H "Content-Type: application/json" \
+            "https://api.github.com/repos/${repository}/releases?per_page=100&page=${page}") ||
+            failure "Failed to request releases list for pruning on ${repository}"
 
         list_length="$(jq 'length' <( printf "%s" "${release_list}" ))" ||
-            failure "Failed to calculate release length for pruning on ${prune_repo}"
+            failure "Failed to calculate release length for pruning on ${repository}"
 
         if [ "${list_length}" -lt "1" ]; then
+            debug "no draft releases found in %s" "${repository}"
             break
         fi
 
@@ -1544,53 +2024,42 @@ function github_draft_release_prune() {
         count="$(jq 'length' <( printf "%s" "${release_list}" ))"
         for (( i=0; i < "${count}"; i++ )); do
             entry="$(jq ".[${i}]" <( printf "%s" "${release_list}" ))" ||
-                failure "Failed to read entry for pruning on ${prune_repo}"
+                failure "Failed to read entry for pruning on ${repository}"
             release_draft="$(jq -r '.draft' <( printf "%s" "${entry}" ))" ||
-                failure "Failed to read entry draft for pruning on ${prune_repo}"
+                failure "Failed to read entry draft for pruning on ${repository}"
             release_name="$(jq -r '.name' <( printf "%s" "${entry}" ))" ||
-                failure "Failed to read entry name for pruning on ${prune_repo}"
+                failure "Failed to read entry name for pruning on ${repository}"
             release_id="$(jq -r '.id' <( printf "%s" "${entry}" ))" ||
-                failure "Failed to read entry ID for pruning on ${prune_repo}"
+                failure "Failed to read entry ID for pruning on ${repository}"
             release_create="$(jq -r '.created_at' <( printf "%s" "${entry}" ))" ||
-                failure "Failed to read entry created date for pruning on ${prune_repo}"
+                failure "Failed to read entry created date for pruning on ${repository}"
             date_check="$(date --date="${release_create}" '+%s')" ||
-                failure "Failed to parse entry created date for pruning on ${prune_repo}"
+                failure "Failed to parse entry created date for pruning on ${repository}"
 
             if [ "${release_draft}" != "true" ]; then
-                printf "Skipping %s because not draft release\n" "${release_name}"
+                debug "Skipping %s because not draft release" "${release_name}"
                 continue
             fi
 
             if [ "$(( "${date_check}" ))" -lt "${prune_seconds}" ]; then
-                printf "Deleting draft release %s from %s\n" "${release_name}" "${prune_repo}"
-                curl -SsL --fail \
-                    -X DELETE \
-                    -H "Authorization: token ${gtoken}" \
-                    "https://api.github.com/repos/${prune_repo}/releases/${release_id}" ||
-                    failure "Failed to prune draft release ${release_name} from ${prune_repo}"
+                printf "Deleting draft release %s from %s\n" "${release_name}" "${prune_repo}" >&2
+                github_request -X DELETE "https://api.github.com/repos/${repository}/releases/${release_id}" ||
+                    failure "Failed to prune draft release ${release_name} from ${repository}"
             fi
         done
         ((page++))
     done
+
+    repository="${repository_bak}" # restore the repository value
 }
 
 # Delete draft release with given name
 #
 # $1: name of draft release
-# $2: repository (optiona, defaults to current repo)
+# $2: repository name (optional, defaults to current repository name)
 function delete_draft_release() {
-    local gtoken
-
-    if [ -n "${HASHIBOT_TOKEN}" ]; then
-        gtoken="${HASHIBOT_TOKEN}"
-    elif [ -n "${GITHUB_TOKEN}" ]; then
-        gtoken="${GITHUB_TOKEN}"
-    else
-        failure "Fetching draft release assets requires hashibot or github token with write permission"
-    fi
-
     local draft_name="${1}"
-    local delete_repo="${2:-$repository}"
+    local delete_repo="${2:-$repo_name}"
 
     if [ -z "${draft_name}" ]; then
         failure "Draft name is required for deletion"
@@ -1600,34 +2069,38 @@ function delete_draft_release() {
         failure "Repository is required for draft deletion"
     fi
 
+    # Override repository value to get correct token automatically
+    local repository_bak="${repository}"
+    repository="${repo_owner}/${delete_repo}"
+
     local draft_id
     local page=$((1))
     while true; do
         local release_list list_length
-        release_list=$(curl -SsL --fail \
-            -H "Authorization: token ${gtoken}" \
-            -H "Content-Type: application/json" \
-            "https://api.github.com/repos/${delete_repo}/releases?per_page=100&page=${page}") ||
-            failure "Failed to request releases list for draft deletion on ${delete_repo}"
+        release_list=$(github_request -H "Content-Type: application/json" \
+            "https://api.github.com/repos/${repository}/releases?per_page=100&page=${page}") ||
+            failure "Failed to request releases list for draft deletion on ${repository}"
         list_length="$(jq 'length' <( printf "%s" "${release_list}" ))" ||
-            failure "Failed to calculate release length for draft deletion on ${delete_repo}"
+            failure "Failed to calculate release length for draft deletion on ${repository}"
 
         # If the list is empty then the draft release does not exist
         # so we can just return success
         if [ "${list_length}" -lt "1" ]; then
+            debug "no draft releases found in repository %s" "${repository}"
+            repository="${repository_bak}" # restore repository value before return
             return 0
         fi
 
         local entry i release_draft release_id release_name
         for (( i=0; i < "${list_length}"; i++ )); do
             entry="$(jq ".[$i]" <( printf "%s" "${release_list}" ))" ||
-                failure "Failed to read entry for draft deletion on ${delete_repo}"
+                failure "Failed to read entry for draft deletion on ${repository}"
             release_draft="$(jq -r '.draft' <( printf "%s" "${entry}" ))" ||
-                failure "Failed to read entry draft for draft deletion on ${delete_repo}"
+                failure "Failed to read entry draft for draft deletion on ${repository}"
             release_id="$(jq -r '.id' <( printf "%s" "${entry}" ))" ||
-                failure "Failed to read entry ID for draft deletion on ${delete_repo}"
+                failure "Failed to read entry ID for draft deletion on ${repository}"
             release_name="$(jq -r '.name' <( printf "%s" "${entry}" ))" ||
-                failure "Failed to read entry name for draft deletion on ${delete_repo}"
+                failure "Failed to read entry name for draft deletion on ${repository}"
 
             # If the names don't match, skip
             if [ "${release_name}" != "${draft_name}" ]; then
@@ -1636,7 +2109,7 @@ function delete_draft_release() {
 
             # If the release is not a draft, fail
             if [ "${release_draft}" != "true" ]; then
-                failure "Cannot delete draft '${draft_name}' from '${delete_repo}' - release is not a draft"
+                failure "Cannot delete draft '${draft_name}' from '${repository}' - release is not a draft"
             fi
 
             # If we are here, we found a match
@@ -1652,17 +2125,61 @@ function delete_draft_release() {
     # If no draft id was found, the release was not found
     # so we can just return success
     if [ -z "${draft_id}" ]; then
+        debug "no draft release found matching name %s in %s" "${draft_name}" "${repository}"
+        repository="${repository_bak}" # restore repository value before return
         return 0
     fi
 
     # Still here? Okay! Delete the draft
-    printf "Deleting draft release %s from %s\n" "${draft_name}" "${delete_repo}"
-    curl -SsL --fail \
-        -X DELETE \
-        -H "Authorization: token ${gtoken}" \
-        "https://api.github.com/repos/${delete_repo}/releases/${draft_id}" ||
-        failure "Failed to prune draft release ${draft_name} from ${delete_repo}"
+    printf "Deleting draft release %s from %s\n" "${draft_name}" "${repository}" >&2
+    github_request -X DELETE "https://api.github.com/repos/${delete_repo}/releases/${draft_id}" ||
+        failure "Failed to prune draft release ${draft_name} from ${repository}"
 
+    repository="${repository_bak}" # restore repository value before return
+}
+
+# Grab the correct github token to use for authentication. The
+# rules used for the token to return are as follows:
+#
+# * only $GITHUB_TOKEN is set: $GITHUB_TOKEN
+# * only $HASHIBOT_TOKEN is set: $HASHIBOT_TOKEN
+#
+# when both $GITHUB_TOKEN and $HASHIBOT_TOKEN are set:
+#
+# * $repository value matches $GITHUB_REPOSITORY: $GITHUB_TOKEN
+# * $repository value does not match $GITHUB_REPOSITORY: $HASHIBOT_TOKEN
+#
+# Will return `0` when a token is returned, `1` when no token is returned
+function github_token() {
+    local gtoken
+
+    # Return immediately if no tokens are available
+    if [ -z "${GITHUB_TOKEN}" ] && [ -z "${HASHIBOT_TOKEN}" ]; then
+        debug "no github or hashibot token set"
+        return 1
+    fi
+
+    # Return token if only one token exists
+    if [ -n "${GITHUB_TOKEN}" ] && [ -z "${HASHIBOT_TOKEN}" ]; then
+        debug "only github token set"
+        printf "%s\n" "${GITHUB_TOKEN}"
+        return 0
+    elif [ -n "${HASHIBOT_TOKEN}" ] && [ -z "${GITHUB_TOKEN}" ]; then
+        debug "only hashibot token set"
+        printf "%s\n" "${HASHIBOT_TOKEN}"
+        return 0
+    fi
+
+    # If the $repository matches the original $GITHUB_REPOSITORY use the local token
+    if [ "${repository}" = "${GITHUB_REPOSITORY}" ]; then
+        debug "prefer github token "
+        printf "%s\n" "${GITHUB_TOKEN}"
+        return 0
+    fi
+
+    # Still here, then we send back that hashibot token
+    printf "%s\n" "${HASHIBOT_TOKEN}"
+    return 0
 }
 
 # This function is used to make requests to the GitHub API. It
@@ -1677,12 +2194,77 @@ function delete_draft_release() {
 # from the curl process.
 function github_request() {
     local request_exit=0
+    local info_prefix="__info__"
+    local info_tmpl="${info_prefix}:code=%{response_code}:header=%{size_header}:download=%{size_download}:file=%{filename_effective}"
     local raw_response_content
 
-    # Make our request
-    raw_response_content="$(curl -i -SsL --fail "${@#}")" || request_exit="${?}"
+    local curl_cmd=("curl" "-w" "${info_tmpl}" "-i" "-SsL" "--fail")
+    local gtoken
 
+    # Only add the authentication token if we have one
+    if gtoken="$(github_token)"; then
+        curl_cmd+=("-H" "Authorization: token ${gtoken}")
+    fi
+
+    # Attach the rest of the arguments
+    curl_cmd+=("${@#}")
+
+    debug "initial request: %s" "${curl_cmd[*]}"
+
+    # Make our request
+    raw_response_content="$("${curl_cmd[@]}")" || request_exit="${?}"
+
+    # Define the status here since we will set it in
+    # the conditional below of something weird happens
     local status
+
+    # Check if our response content starts with the info prefix.
+    # If it does, we need to extract the headers from the file.
+    if [[ "${raw_response_content}" = "${info_prefix}"* ]]; then
+        debug "extracting request information from: %s" "${raw_response_content}"
+        raw_response_content="${raw_response_content#"${info_prefix}":code=}"
+        local response_code="${raw_response_content%%:*}"
+        debug "response http code: %s" "${response_code}"
+        raw_response_content="${raw_response_content#*:header=}"
+        local header_size="${raw_response_content%%:*}"
+        debug "response header size: %s" "${header_size}"
+        raw_response_content="${raw_response_content#*:download=}"
+        local download_size="${raw_response_content%%:*}"
+        debug "response file size: %s" "${download_size}"
+        raw_response_content="${raw_response_content#*:file=}"
+        local file_name="${raw_response_content}"
+        debug "response file name: %s" "${file_name}"
+        if [ -f "${file_name}" ]; then
+            # Read the headers from the file and place them in the
+            # raw_response_content to be processed
+            local download_fd
+            exec {download_fd}<"${file_name}"
+            debug "file descriptor created for header grab (source: %s): %q" "${file_name}" "${download_fd}"
+            debug "reading response header content from %s" "${file_name}"
+            read -r -N "${header_size}" -u "${download_fd}" raw_response_content
+            # Close our descriptor
+            debug "closing file descriptor: %q" "${download_fd}"
+            exec {download_fd}<&-
+            # Now trim the headers from the file content
+            debug "trimming response header content from %s" "${file_name}"
+            tail -c "${download_size}" "${file_name}" > "${file_name}.trimmed" ||
+                failure "Could not trim headers from downloaded file (%s)" "${file_name}"
+            mv -f "${file_name}.trimmed" "${file_name}" ||
+                failure "Could not replace downloaded file with trimmed file (%s)" "${file_name}"
+        else
+            debug "expected file not found (%s)" "${file_name}"
+            status="${response_code}"
+        fi
+    else
+        # Since the response wasn't written to a file, trim the
+        # info from the end of the response
+        if [[ "${raw_response_content}" != *"${info_prefix}"* ]]; then
+            debug "github request response does not include information footer"
+            failure "Unexpected error encountered, partial GitHub response returned"
+        fi
+        raw_response_content="${raw_response_content%"${info_prefix}"*}"
+    fi
+
     local ratelimit_reset
     local response_content=""
 
@@ -1698,6 +2280,8 @@ function github_request() {
         # The line will have a trailing `\r` so just
         # trim it off
         local line="${lines[$i]%%$'\r'*}"
+        # strip any leading/trailing whitespace characters
+        read -rd '' line <<< "${line}"
 
         if [ -z "${line}" ] && [[ "${status}" = "2"* ]]; then
             local start="$(( i + 1 ))"
@@ -1709,9 +2293,11 @@ function github_request() {
 
         if [[ "${line}" == "HTTP/"* ]]; then
             status="${line##* }"
+            debug "http status found: %d" "${status}"
         fi
         if [[ "${line}" == "x-ratelimit-reset"* ]]; then
             ratelimit_reset="${line##*ratelimit-reset: }"
+            debug "ratelimit reset time found: %s" "${ratelimit_reset}"
         fi
     done
 
@@ -1730,6 +2316,8 @@ function github_request() {
     # If we are being rate limited, print a notice and then
     # wait until the rate limit will be reset
     if [[ "${status}" = "429" ]]; then
+        debug "rate limiting has been detected on request"
+
         # If the ratelimit reset was not detected force an error
         if [ -z "${ratelimit_reset}" ]; then
             failure "Failed to detect rate limit reset time for GitHub request"
@@ -1790,10 +2378,8 @@ function lock_issues() {
             failure "$(printf "Start date provided for issue locking could not be parsed (%s)" "${start}")"
         fi
     fi
-    # GITHUB_TOKEN must be set for locking
-    if [ -z "${GITHUB_TOKEN}" ]; then
-        failure "GITHUB_TOKEN is required for locking issues"
-    fi
+
+    debug "locking issues that have been closed for at least %d days" "${days}"
 
     local req_args=()
     # Start with basic setup
@@ -1855,7 +2441,7 @@ function lock_issues() {
                 failure "Failed to read locked state of issue for ${repository}"
 
             if [ "${issue_locked}" == "true" ]; then
-                printf "Skipping %s#%s because it is already locked\n" "${repository}" "${issue_id}"
+                debug "Skipping %s#%s because it is already locked" "${repository}" "${issue_id}"
                 continue
             fi
 
@@ -1871,7 +2457,7 @@ function lock_issues() {
 
             # Check if the issue is old enough to be locked
             if [ "$(( "${date_check}" ))" -lt "${lock_seconds}" ]; then
-                printf "Locking issue %s#%s\n" "${repository}" "${issue_id}"
+                printf "Locking issue %s#%s\n" "${repository}" "${issue_id}" >&2
 
                 # If we have a comment to add before locking, do that now
                 if [ -n "${message}" ]; then
@@ -1880,6 +2466,8 @@ function lock_issues() {
                         --arg msg "$(printf "%b" "${message}")" \
                         '{body: $msg}'
                         ) || failure "Failed to create issue comment JSON content for ${repository}"
+
+                    debug "adding issue comment before locking on %s#%s" "${repository}" "${issue_id}"
 
                     github_request "${req_args[@]}" -X POST "${req_endpoint}/${issue_id}/comments" -d "${message_json}" ||
                         failure "Failed to create issue comment on ${repository}#${issue_id}"
@@ -1897,28 +2485,25 @@ function lock_issues() {
 
 # Send a repository dispatch to the defined repository
 #
-# $1: organization name
-# $2: repository name
-# $3: event type (single word string)
+# $1: repository name
+# $2: event type (single word string)
 # $n: "key=value" pairs to build payload (optional)
+#
 function github_repository_dispatch() {
-    if [ -z "${HASHIBOT_TOKEN}" ] || [ -z "${HASHIBOT_USERNAME}" ]; then
-        failure "Repository dispatch requires hashibot configuration"
+    local drepo_name="${1}"
+    local event_type="${2}"
+
+    if [ -z "${drepo_name}" ]; then
+        failure "Repository name is required for repository dispatch"
     fi
 
-    local arg payload_key payload_value jqargs payload \
-        msg_template msg dorg_name drepo_name event_type
-
-    dorg_name="${1}"
-    drepo_name="${2}"
-    event_type="${3}"
-
     # shellcheck disable=SC2016
-    payload_template='{"vagrant-ci": $vagrant_ci'
-    jqargs=("--arg" "vagrant_ci" "true")
+    local payload_template='{"vagrant-ci": $vagrant_ci'
+    local jqargs=("--arg" "vagrant_ci" "true")
+    local arg
     for arg in "${@:4}"; do
-        payload_key="${arg%%=*}"
-        payload_value="${arg##*=}"
+        local payload_key="${arg%%=*}"
+        local payload_value="${arg##*=}"
         payload_template+=", \"${payload_key}\": \$${payload_key}"
         # shellcheck disable=SC2089
         jqargs+=("--arg" "${payload_key}" "${payload_value}")
@@ -1926,22 +2511,34 @@ function github_repository_dispatch() {
     payload_template+="}"
 
     # NOTE: we want the arguments to be expanded below
+    local payload
     payload=$(jq -n "${jqargs[@]}" "${payload_template}" ) ||
         failure "Failed to generate repository dispatch payload"
 
     # shellcheck disable=SC2016
-    msg_template='{event_type: $event_type, client_payload: $payload}'
+    local msg_template='{event_type: $event_type, client_payload: $payload}'
+    local msg
     msg=$(jq -n \
         --argjson payload "${payload}" \
         --arg event_type "${event_type}" \
         "${msg_template}" \
         ) || failure "Failed to generate repository dispatch message"
 
-    wrap curl -SsL --fail -X POST "https://api.github.com/repos/${dorg_name}/${drepo_name}/dispatches" \
+    debug "sending repository dispatch to %s/%s with payload: %s" \
+        "${repo_owner}" "${drepo_name}" "${msg}"
+
+    # Update repository value to get correct token
+    local repository_bak="${repository}"
+    repository="${repo_owner}/${drepo_name}"
+
+    github_request -X "POST" \
         -H 'Accept: application/vnd.github.everest-v3+json' \
-        -u "${HASHIBOT_USERNAME}:${HASHIBOT_TOKEN}" \
         --data "${msg}" \
-        "Repository dispatch to ${dorg_name}/${drepo_name} failed"
+        "https://api.github.com/repos/${repo_owner}/${drepo_name}/dispatches" ||
+        failure "Repository dispatch to ${repo_owner}/${drepo_name} failed"
+
+    # Restore the repository value
+    repository="${repository_bak}"
 }
 
 # Copy a function to a new name
@@ -1971,6 +2568,10 @@ function rename_function() {
 # Cleanup wrapper so we get some output that cleanup is starting
 function _cleanup() {
     (>&2 echo "* Running cleanup task...")
+    # Always restore this value for cases where a failure
+    # happened within a function while this value was in
+    # a modified state
+    repository="${_repository_backup}"
     cleanup
 }
 
@@ -2003,9 +2604,6 @@ if [[ "${PATH}" != *"${ci_bin_dir}"* ]]; then
     export PATH="${PATH}:${ci_bin_dir}"
 fi
 
-# If the bash version isn't at least 4, bail
-[ "${BASH_VERSINFO:-0}" -ge "4" ] || failure "Expected bash version >= 4 (is: ${BASH_VERSINFO:-0})"
-
 # Enable debugging. This needs to be enabled with
 # extreme caution when used on public repositories.
 # Output with debugging enabled will likely include
@@ -2033,29 +2631,10 @@ if [ "${priv_check}" != "true" ]; then
     readonly is_public="1"
     readonly is_private=""
 else
+    # shellcheck disable=SC2034
     readonly is_public=""
     # shellcheck disable=SC2034
     readonly is_private="1"
-fi
-
-# If we have debugging enabled, check if we are in a private
-# repository. If we are, enable it. If we are not, check if
-# debugging is being forced and allow it. Otherwise, return
-# an error message to prevent leaking unintended information.
-if [ "${DEBUG}" != "" ]; then
-    if [ -n "${is_public}" ]; then
-        if [ "${FORCE_PUBLIC_DEBUG}" != "" ]; then
-            set -x
-            output="/dev/stdout"
-        else
-            failure "Cannot enable debug mode on public repository unless forced"
-        fi
-    else
-        set -x
-        output="/dev/stdout"
-    fi
-else
-    output="/dev/null"
 fi
 
 # Check if we are running a job created by a tag. If so,
