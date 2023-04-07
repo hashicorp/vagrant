@@ -159,7 +159,7 @@ function output_file() {
 function debug() {
     if [ -n "${DEBUG}" ]; then
         local msg_template="${1}"
-        local i=$(( "${#}" - 1 ))
+        local i=$(( ${#} - 1 ))
         local msg_args=("${@:2:$i}")
         # Update template to include caller information
         msg_template=$(printf "<%s(%s:%d)> %s" "${FUNCNAME[1]}" "${BASH_SOURCE[1]}" "${BASH_LINENO[0]}" "${msg_template}")
@@ -178,7 +178,7 @@ function debug() {
 # $1: Failure message
 function failure() {
     local msg_template="${1}"
-    local i=$(( "${#}" - 1 ))
+    local i=$(( ${#} - 1 ))
     local msg_args=("${@:2:$i}")
 
     #shellcheck disable=SC2059
@@ -202,7 +202,7 @@ function failure() {
 # $1: Warning message
 function warn() {
     local msg_template="${1}"
-    local i=$(( "${#}" - 1 ))
+    local i=$(( ${#} - 1 ))
     local msg_args=("${@:2:$i}")
 
     #shellcheck disable=SC2059
@@ -222,7 +222,7 @@ function warn() {
 # Write an informational message
 function info() {
     local msg_template="${1}\n"
-    local i=$(( "${#}" - 1 ))
+    local i=$(( ${#} - 1 ))
     local msg_args=("${@:2:$i}")
 
     #shellcheck disable=SC2059
@@ -237,7 +237,7 @@ function info() {
 # $@{1:$#-1}: Command to execute
 # $@{$#}: Failure message
 function wrap() {
-    local i=$(("${#}" - 1))
+    local i=$((${#} - 1))
     if ! wrap_raw "${@:1:$i}"; then
         cat "$(output_file)"
         failure "${@:$#}"
@@ -262,7 +262,7 @@ function wrap_raw() {
 # $@{1:$#-1}: Command to execute
 # $@{$#}: Failure message
 function wrap_stream() {
-    i=$(("${#}" - 1))
+    i=$((${#} - 1))
     if ! wrap_stream_raw "${@:1:$i}"; then
         failure "${@:$#}"
     fi
@@ -2620,8 +2620,10 @@ elif [ -n "${GITHUB_TOKEN}" ]; then
     priv_args+=("-H" "Authorization: token ${HASHIBOT_TOKEN}")
 fi
 
-priv_check="$(curl "${priv_args[@]}" -s "https://api.github.com/repos/${GITHUB_REPOSITORY}" | jq .private)" ||
-    failure "Repository visibility check failed"
+if [ -n "${GITHUB_ACTIONS}" ]; then
+    priv_check="$(curl "${priv_args[@]}" -s "https://api.github.com/repos/${GITHUB_REPOSITORY}" | jq .private)" ||
+        failure "Repository visibility check failed"
+fi
 
 # If the value wasn't true we unset it to indicate not private. The
 # repository might actually be private but we weren't supplied a
