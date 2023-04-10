@@ -2567,7 +2567,7 @@ function rename_function() {
 
 # Cleanup wrapper so we get some output that cleanup is starting
 function _cleanup() {
-    (>&2 echo "* Running cleanup task...")
+    debug "* Running cleanup task..."
     # Always restore this value for cases where a failure
     # happened within a function while this value was in
     # a modified state
@@ -2578,7 +2578,7 @@ function _cleanup() {
 # Stub cleanup method which can be redefined
 # within actual script
 function cleanup() {
-    (>&2 echo "** No cleanup tasks defined")
+    debug "** No cleanup tasks defined"
 }
 
 # Only setup our cleanup trap and fail alias when not in testing
