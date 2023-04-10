@@ -1,8 +1,5 @@
 #!/usr/bin/env bash
 
-# shellcheck disable=SC1091
-echo "🤖 Loading VagrantCI 🤖" >&2
-
 csource="${BASH_SOURCE[0]}"
 while [ -h "$csource" ] ; do csource="$(readlink "$csource")"; done
 if ! root="$( cd -P "$( dirname "$csource" )/../" && pwd )"; then
@@ -20,4 +17,4 @@ fi
 export PATH="${PATH}:${ci_bin_dir}"
 
 # And we are done!
-echo "🎉 VagrantCI Loaded! 🎉" >&2
+debug "VagrantCI Loaded"
