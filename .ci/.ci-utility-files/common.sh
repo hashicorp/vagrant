@@ -334,14 +334,179 @@ function popd() {
         "popd command failed"
 }
 
-# Sign a file. This uses signore to generate a
+# Get the full path directory for a given
+# file path. File is not required to exist.
+# NOTE: Parent directories of given path will
+#       be created.
+#
+# $1: file path
+function file_directory() {
+    local path="${1?File path is required}"
+    local dir
+    if [[ "${path}" != *"/"* ]]; then
+        dir="."
+    else
+        dir="${path%/*}"
+    fi
+    if [ ! -d "${dir}" ]; then
+        mkdir -p "${dir}" ||
+            failure "Could not create directory (%s)" "${dir}"
+    fi
+    pushd "${dir}"
+    dir="$(pwd)" ||
+        failure "Could not read directory path (%s)" "${dir}"
+    popd
+    printf "%s" "${dir}"
+}
+
+# Wait until the number of background jobs falls below
+# the maximum number provided.
+# NOTE: using `wait -n` would be cleaner but only became
+#       available in bash as of 4.3
+#
+# $1: maximum number of jobs
+function background_jobs_limit() {
+    local max="${1}"
+    if [ -z "${max}" ] || [[ "${max}" = *[!0123456789]* ]]; then
+        failure "Maximum number of background jobs required"
+    fi
+
+    local jobs
+    read -r -a jobs <<< "$(jobs -l)" || failure "Could not read background job list"
+    while [ "${#jobs[@]}" -gt "${max}" ]; do
+        debug "max background jobs reached (%d), waiting"
+        sleep 1
+    done
+}
+
+# Sign a file using signore. Will automatically apply
+# modified retry settings when larger files are submitted.
+#
+# -b NAME: binary identifier (macOS only)
+# -e PATH: path to entitlements file (macOS only)
+# -o PATH: path to write signed file (optional, will overwrite input by default)
+# $1: file to sign
+#
+# NOTE: If signore is not installed, a HASHIBOT_TOKEN is
+#       required for downloading the signore release. The
+#       token can also be set in SIGNORE_GITHUB_TOKEN if
+#       the HASHIBOT_TOKEN is already set
+#
+# NOTE: SIGNORE_CLIENT_ID, SIGNORE_CLIENT_SECRET, and SIGNORE_SIGNER
+#       environment variables must be set prior to calling this function
+function sign_file() {
+    # Set 50M to be a largish file
+    local largish_file_size="52428800"
+
+    # Signore environment variables are required. Check
+    # that they are set.
+    if [ -z "${SIGNORE_CLIENT_ID}" ]; then
+        failure "Cannot sign file, SIGNORE_CLIENT_ID is not set"
+    fi
+    if [ -z "${SIGNORE_CLIENT_SECRET}" ]; then
+        failure "Cannot sign file, SIGNORE_CLIENT_SECRET is not set"
+    fi
+    if [ -z "${SIGNORE_SIGNER}" ]; then
+        failure "Cannot sign file, SIGNORE_SIGNER is not set"
+    fi
+
+    local binary_identifier=""
+    local entitlements=""
+    local input_file="${1}"
+    local output_file=""
+
+    while getopts ":b:e:o:" opt; do
+        case "${opt}" in
+            "b") binary_identifier="${OPTARG}" ;;
+            "e") entitlements="${OPTARG}" ;;
+            "o") output_file="${OPTARG}" ;;
+            *) failure "Invalid flag provided" ;;
+        esac
+        shift $((OPTIND-1))
+    done
+
+    # Check that a good input file was given
+    if [ -z "${input_file}" ]; then
+        failure "Input file is required for signing"
+    fi
+    if [ ! -f "${input_file}" ]; then
+        failure "Cannot find input file (%s)" "${input_file}"
+    fi
+
+    # If the output file is not set it's a replacement
+    if [ -z "${output_file}" ]; then
+        debug "output file is unset, will replace input file (%s)" "${input_file}"
+        output_file="${input_file}"
+    fi
+
+    # This will ensure parent directories exist
+    file_directory "${output_file}" > /dev/null
+
+    # If signore command is not installed, install it
+    if ! command -v "signore" > /dev/null; then
+        local hashibot_token_backup="${HASHIBOT_TOKEN}"
+        # If the signore github token is set, apply it
+        if [ -n "${SIGNORE_GITHUB_TOKEN}" ]; then
+            HASHIBOT_TOKEN="${SIGNORE_GITHUB_TOKEN}"
+        fi
+
+        install_hashicorp_tool "signore"
+
+        # Restore the hashibot token if it was modified
+        HASHIBOT_TOKEN="${hashibot_token_backup}"
+    fi
+
+    # Define base set of arguments
+    local signore_args=( "sign" "--file" "${input_file}" "--out" "${output_file}" "--match-file-mode" )
+
+    # Check the size of the file to be signed. If it's relatively
+    # large, push up the max retries and lengthen the retry interval
+    # NOTE: Only checked if `wc` is available
+    local file_size="0"
+    if command -v wc > /dev/null; then
+        file_size="$(wc -c <"${input_file}")" ||
+            failure "Could not determine input file size"
+    fi
+
+    if [ "${file_size}" -gt "${largish_file_size}" ]; then
+        debug "largish file detected, adjusting retry settings"
+        signore_args+=( "--max-retries" "30" "--retry-interval" "10s" )
+    fi
+
+    # If a binary identifier was provided then it's a macos signing
+    if [ -n "${binary_identifier}" ]; then
+        # shellcheck disable=SC2016
+        template='{type: "macos", input_format: "EXECUTABLE", binary_identifier: $identifier}'
+        payload="$(jq -n --arg identifier "${binary_identifier}" "${template}")" ||
+            failure "Could not create signore payload for macOS signing"
+        signore_args+=( "--signer-options" "${payload}" )
+    fi
+
+    # If an entitlement was provided, validate the path
+    # and add it to the args
+    if [ -n "${entitlements}" ]; then
+        if [ ! -f "${entitlements}" ]; then
+            failure "Invalid path for entitlements provided (%s)" "${entitlements}"
+        fi
+        signore_args+=( "--entitlements" "${entitlements}" )
+    fi
+
+    debug "signing file '%s' with arguments - %s" "${input_file}" "${signore_args[*]}"
+
+    signore "${signore_args[@]}" ||
+        failure "Failed to sign file '%s'" "${input_file}"
+
+    info "successfully signed file (%s)" "${input_file}"
+}
+
+# Create a GPG signature. This uses signore to generate a
 # gpg signature for a given file. If the destination
 # path for the signature is not provided, it will
 # be stored at the origin path with a .sig suffix
 #
 # $1: Path to origin file
 # $2: Path to store signature (optional)
-function sign_file() {
+function gpg_sign_file() {
     # Check that we have something to sign
     if [ -z "${1}" ]; then
         failure "Origin file is required for signing"
@@ -835,7 +1000,7 @@ function hashicorp_release() {
         # Remove relative prefix if found
         shasum_file="${shasum_file##*/}"
         debug "signing shasums file for %s@%s" "${product}" "${version}"
-        sign_file "${shasum_file[0]}"
+        gpg_sign_file "${shasum_file[0]}"
 
         # Jump back out of our artifact directory
         popd
