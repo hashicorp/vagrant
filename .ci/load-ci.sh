@@ -10,6 +10,7 @@ fi
 export root
 export ci_bin_dir="${root}/.ci/.ci-utility-files"
 
+# shellcheck source=/dev/null
 if ! source "${ci_bin_dir}/common.sh"; then
     echo "⛔ ERROR: Failed to source Vagrant CI common file ⛔" >&2
     exit 1
