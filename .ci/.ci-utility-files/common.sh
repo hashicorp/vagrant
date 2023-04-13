@@ -1940,6 +1940,44 @@ function github_create_release() {
     printf "%s" "${response}"
 }
 
+# Check if a github release exists by tag name
+# NOTE: This can be used for release and prerelease checks.
+#       Draft releases must use the github_draft_release_exists
+#       function.
+#
+# $1: repository name
+# $2: release tag name
+function github_release_exists() {
+    local release_repo="${1}"
+    local release_name="${2}"
+
+    if [ -z "${release_repo}" ]; then
+        failure "Repository name required for release lookup"
+    fi
+    if [ -z "${release_name}" ]; then
+        failure "Release name required for release lookup"
+    fi
+
+    # Override repository value to get correct token automatically
+    local repository_bak="${repository}"
+    repository="${repo_owner}/${release_repo}"
+
+    local result="1"
+    if github_request \
+        -H "Accept: application/vnd.github+json" \
+        "https://api.github.com/repos/${repository}/releases/tags/${release_name}" > /dev/null; then
+        debug "release '${release_name}' found in ${repository}"
+        result="0"
+    else
+        debug "release '${release_name}' not found in ${repository}"
+    fi
+
+    # Restore repository value
+    repository="${repository_bak}"
+
+    return "${result}"
+}
+
 # Check if a draft release exists by name
 #
 # $1: repository name
@@ -2218,11 +2256,57 @@ function github_draft_release_prune() {
     repository="${repository_bak}" # restore the repository value
 }
 
+# Delete a github release by tag name
+# NOTE: Releases and prereleases can be deleted using this
+#       function. For draft releases use github_delete_draft_release
+#
+# $1: tag name of release
+# $2: repository name (optional, defaults to current repository name)
+function github_delete_release() {
+    local release_name="${1}"
+    local release_repo="${2:-$repo_name}"
+
+    if [ -z "${release_name}" ]; then
+        failure "Release name is required for deletion"
+    fi
+    if [ -z "${release_repo}" ]; then
+        failure "Repository is required for release deletion"
+    fi
+
+    # Override repository value to get correct token automatically
+    local repository_bak="${repository}"
+    repository="${repo_owner}/${release_repo}"
+
+    # Fetch the release first
+    local release
+    release="$(github_request \
+        -H "Accept: application/vnd.github+json" \
+        "https://api.github.com/repos/${repository}/releases/tags/${release_name}")" ||
+        failure "Failed to fetch release information for '${release_name}' in ${repository}"
+
+    # Get the release id to reference in delete request
+    local rel_id
+    rel_id="$(jq -r '.id' <( printf "%s" "${release}" ) )" ||
+        failure "Failed to read release id for '${release_name}' in ${repository}"
+
+    debug "deleting github release '${release_name}' in ${repository} with id ${rel_id}"
+
+    # Send the deletion request
+    github_request \
+        -X "DELETE" \
+        -H "Accept: application/vnd.github+json" \
+        "https://api.github.com/repos/${repository}/releases/${rel_id}" > /dev/null ||
+        failure "Failed to delete release '${release_name}' in ${repository}"
+
+    # Restore repository value
+    repository="${repository_bak}"
+}
+
 # Delete draft release with given name
 #
 # $1: name of draft release
 # $2: repository name (optional, defaults to current repository name)
-function delete_draft_release() {
+function github_delete_draft_release() {
     local draft_name="${1}"
     local delete_repo="${2:-$repo_name}"
 
