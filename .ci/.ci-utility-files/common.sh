@@ -2340,7 +2340,7 @@ function github_draft_release_prune() {
 
     # Override repository value to get correct token automatically
     local repository_bak="${repository}"
-    repository="${repo_owner}/${delete_repo}"
+    repository="${repo_owner}/${prune_repo}"
 
     debug "deleting drafts over %d days old from %s" "${days}" "${repository}"
 
