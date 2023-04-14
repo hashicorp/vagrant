@@ -57,6 +57,12 @@ if [ -n "${RUNNER_DEBUG}" ]; then
     DEBUG=1
 fi
 
+# If DEBUG is enabled and we are running tests,
+# flag it so we can adjust where output is sent.
+if [ -n "${DEBUG}" ] && [ -n "${BATS_TEST_FILENAME}" ]; then
+    DEBUG_WITH_BATS=1
+fi
+
 # Wraps the aws CLI command to support
 # role based access. It will check for
 # expected environment variables when
@@ -166,7 +172,11 @@ function debug() {
         #shellcheck disable=SC2059
         msg="$(printf "${msg_template}" "${msg_args[@]}")"
 
-        printf "%b%s%b\n" "${TEXT_CYAN}" "${msg}" "${TEXT_CLEAR}" >&2
+        if [ -n "${DEBUG_WITH_BATS}" ]; then
+            printf "%b%s%b\n" "${TEXT_CYAN}" "${msg}" "${TEXT_CLEAR}" >&3
+        else
+            printf "%b%s%b\n" "${TEXT_CYAN}" "${msg}" "${TEXT_CLEAR}" >&2
+        fi
     fi
 }
 
@@ -379,6 +389,112 @@ function background_jobs_limit() {
     done
 }
 
+# Submit given file to Apple's notarization service and
+# staple the notarization ticket.
+#
+# -i UUID: app store connect issuer ID (optional)
+# -j PATH: JSON file containing API key
+# -k ID:   app store connect API key ID (optional)
+# -m SECS: maximum number of seconds to wait (optional, defaults to 600)
+# -o PATH: path to write notarized file (optional, will modify input by default)
+#
+# $1: file to notarize
+function notarize_file() {
+    local creds_api_key_id
+    local creds_api_key_path
+    local creds_issuer_id
+    local output_file
+    local max_wait="600"
+
+    local opt
+    while getopts ":i:j:k:m:o:" opt; do
+        case "${opt}" in
+            "i") creds_api_key_id="${OPTARG}" ;;
+            "j") creds_api_key_path="${OPTARG}" ;;
+            "k") creds_issuer_id="${OPTARG}" ;;
+            "m") max_wait="${OPTARG}" ;;
+            "o") output_file="${OPTARG}" ;;
+            *) failure "Invalid flag provided" ;;
+        esac
+    done
+    shift $((OPTIND-1))
+
+    # Validate credentials were provided
+    if [ -z "${creds_api_key_path}" ]; then
+        failure "App store connect key path required for notarization"
+    fi
+    if [ ! -f "${creds_api_key_path}" ]; then
+        failure "Invalid path provided for app store connect key path (%s)" "${creds_api_key_path}"
+    fi
+
+    # Collect auth related arguments
+    local base_args=( "--api-key-path" "${creds_api_key_path}" )
+    if [ -n "${creds_api_key_id}" ]; then
+        base_args+=( "--api-key" "${creds_api_key_id}" )
+    fi
+    if [ -n "${creds_issuer_id}" ]; then
+        base_args+=( "--api-issuer" "${creds_issuer_id}" )
+    fi
+
+    local input_file="${1}"
+
+    # Validate the input file
+    if [ -z "${input_file}" ]; then
+        failure "Input file is required for signing"
+    fi
+    if [ ! -f "${input_file}" ]; then
+        failure "Cannot find input file (%s)" "${input_file}"
+    fi
+
+    # Check that rcodesign is available, and install
+    # it if it is not
+    if ! command -v rcodesign > /dev/null; then
+        debug "rcodesign executable not found, installing..."
+        install_github_tool "indygreg" "apple-platform-rs" "rcodesign"
+    fi
+    
+    local notarize_file
+    # If an output file path was defined, copy file
+    # to output location before notarizing
+    if [ -n "${output_file}" ]; then
+        file_directory "${output_file}"
+        # Remove file if it already exists
+        rm -f "${output_file}" ||
+            failure "Could not modify output file (%s)" "${output_file}"
+        cp -f "${input_file}" "${output_file}" ||
+            failure "Could not write to output file (%s)" "${output_file}"
+        notarize_file="${output_file}"
+        debug "notarizing file '%s' and writing to '%s'" "${input_file}" "${output_file}"
+    else
+        notarize_file="${input_file}"
+        debug "notarizing file in place '%s'" "${input_file}"
+    fi
+
+    # Notarize the file
+    local notarize_output
+    if notarize_output="$(rcodesign \
+        notary-submit \
+        "${base_args[@]}" \
+        --max-wait-seconds "${max_wait}" \
+        --staple \
+        "${notarize_file}" 2>&1)"; then
+        return 0
+    fi
+
+    debug "notarization output: %s" "${notarize_output}"
+
+    # Still here means notarization failure. Pull
+    # the logs from the service before failing
+    local submission_id="${notarize_output##*submission ID: }"
+    submission_id="${submission_id%%$'\n'*}"
+    rcodesign \
+        notary-log \
+        "${base_args[@]}" \
+        "${submission_id}"
+
+    failure "Failed to notarize file (%s)" "${input_file}"
+}
+
 # Sign a file using signore. Will automatically apply
 # modified retry settings when larger files are submitted.
 #
@@ -415,6 +531,7 @@ function sign_file() {
     local input_file="${1}"
     local output_file=""
 
+    local opt
     while getopts ":b:e:o:" opt; do
         case "${opt}" in
             "b") binary_identifier="${OPTARG}" ;;
@@ -1499,11 +1616,16 @@ function install_hashicorp_tool() {
 #
 # $1: Organization name
 # $2: Repository name
-#
-# TODO: Match hashicorp install implementation
+# $3: Tool name (optional)
 function install_github_tool() {
     local org_name="${1}"
-    local tool_name="${2}"
+    local r_name="${2}"
+    local tool_name="${3}"
+
+    if [ -z "${tool_name}" ]; then
+        tool_name="${r_name}"
+    fi
+
     local asset release_content tmp
     local artifact_list artifact basen
 
@@ -1511,56 +1633,71 @@ function install_github_tool() {
         failure "Failed to create temporary working directory"
     pushd "${tmp}"
 
-    debug "installing github tool from %s/%s" "${org_name}" "${tool_name}"
+    debug "installing github tool %s from %s/%s" "${tool_name}" "${org_name}" "${r_name}"
 
     release_content=$(github_request -H "Content-Type: application/json" \
-        "https://api.github.com/repos/${org_name}/${tool_name}/releases/latest") ||
-        failure "Failed to request latest releases for ${org_name}/${tool_name}"
+        "https://api.github.com/repos/${org_name}/${r_name}/releases/latest") ||
+        failure "Failed to request latest releases for ${org_name}/${r_name}"
 
     asset=$(printf "%s" "${release_content}" | jq -r \
-        '.assets[] | select(.name | contains("linux_amd64")) | .url') ||
-        failure "Failed to detect latest release for ${org_name}/${tool_name}"
+        '.assets[] | select( ( (.name | contains("amd64")) or (.name | contains("x86_64")) or (.name | contains("x86-64")) ) and (.name | contains("linux")) and (.name | endswith("sha256") | not) and (.name | endswith("sig") | not))  | .url') ||
+        failure "Failed to detect latest release for ${org_name}/${r_name}"
 
     artifact="${asset##*/}"
     github_request -o "${artifact}" -H "Accept: application/octet-stream" "${asset}" ||
-        "Failed to download latest release for ${org_name}/${tool_name}"
+        "Failed to download latest release for ${org_name}/${r_name}"
 
     basen="${artifact##*.}"
     if [ "${basen}" = "zip" ]; then
         wrap unzip "${artifact}" \
-            "Failed to unpack latest release for ${org_name}/${tool_name}"
+            "Failed to unpack latest release for ${org_name}/${r_name}"
         rm -f "${artifact}"
     elif [ -n "${basen}" ]; then
         wrap tar xf "${artifact}" \
-            "Failed to unpack latest release for ${org_name}/${tool_name}"
+            "Failed to unpack latest release for ${org_name}/${r_name}"
         rm -f "${artifact}"
     fi
 
     artifact_list=(./*)
-    artifact="$(printf "%s" "${artifact_list[0]}")"
 
-    # If the artifact is a directory, see if the tool_name is inside
-    if [ -d "${artifact}" ]; then
-        if [ -f "${artifact}/${tool_name}" ]; then
-            mv "${artifact}/${tool_name}" ./
-            rm -rf "${artifact}"
-            artifact="${tool_name}"
-        else
-            failure "Failed to locate executable in package directory for ${org_name}/${tool_name}"
+    # If the artifact only contained a directory, get
+    # the contents of the directory
+    if [ "${#artifact_list[@]}" -eq "1" ] && [ -d "${artifact_list[0]}" ]; then
+        debug "unpacked artifact contained only directory, inspecting contents"
+        artifact_list=( "${artifact_list[0]}/"* )
+    fi
+
+    local tool_match tool_glob_match executable_match
+    local item
+    for item in "${artifact_list[@]}"; do
+        if [ "${item##*/}" = "${tool_name}" ]; then
+            debug "tool name match found: %s" "${item}"
+            tool_match="${item}"
+        elif [ -e "${item}" ]; then
+            debug "executable match found: %s" "${item}"
+            executable_match="${item}"
+        elif [[ "${item}" = "${tool_name}"* ]]; then
+            debug "tool name glob match found: %s" "${item}"
+            tool_glob_match="${item}"
         fi
+    done
+
+    # Install based on best match to worst match
+    if [ -n "${tool_match}" ]; then
+        debug "installing %s from tool name match (%s)" "${tool_name}" "${tool_match}"
+        mv -f "${tool_match}" "${ci_bin_dir}/${tool_name}" ||
+            "Failed to install latest release of %s from %s/%s" "${tool_name}" "${org_name}" "${r_name}"
+    elif [ -n "${tool_glob_match}" ]; then
+        debug "installing %s from tool name glob match (%s)" "${tool_name}" "${tool_glob_match}"
+        mv -f "${tool_glob_match}" "${ci_bin_dir}/${tool_name}" ||
+            "Failed to install latest release of %s from %s/%s" "${tool_name}" "${org_name}" "${r_name}"
+    elif [ -n "${executable_match}" ]; then
+        debug "installing %s from executable file match (%s)" "${tool_name}" "${executable_match}"
+        mv -f "${executable_match}" "${ci_bin_dir}/${tool_name}" ||
+            "Failed to install latest release of %s from %s/%s" "${tool_name}" "${org_name}" "${r_name}"
+    else
+        failure "Failed to locate tool '%s' in latest release from %s/%s" "${org_name}" "${r_name}"
     fi
-
-    # If the tool includes platform/arch information, just
-    # rename to the tool_name
-    if [[ "${artifact}" = *"linux"* ]] || [[ "${artifact}" = *"amd64"* ]]; then
-        mv "${artifact}" "${tool_name}"
-    fi
-
-    wrap chmod 0755 ./* \
-        "Failed to change mode on latest release for ${org_name}/${tool_name}"
-
-    wrap mv ./* "${ci_bin_dir}" \
-        "Failed to install latest release for ${org_name}/${tool_name}"
 
     popd
     rm -rf "${tmp}"
