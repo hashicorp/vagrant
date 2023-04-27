@@ -2496,7 +2496,7 @@ function github_delete_draft_release() {
     local draft_id
     for draft_id in "${draft_ids[@]}"; do
         info "Deleting draft release %s from %s (ID: %d)\n" "${draft_name}" "${repository}" "${draft_id}"
-        github_request -X DELETE "https://api.github.com/repos/${delete_repo}/releases/${draft_id}" ||
+        github_request -X DELETE "https://api.github.com/repos/${repository}/releases/${draft_id}" ||
             failure "Failed to prune draft release ${draft_name} from ${repository}"
     done
 
