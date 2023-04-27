@@ -2468,17 +2468,20 @@ function github_delete_draft_release() {
 
             # If the names don't match, skip
             if [ "${release_name}" != "${draft_name}" ]; then
+                debug "skipping release deletion, name mismatch (%s != %s)" "${release_name}" "${draft_name}"
                 continue
             fi
 
             # If the release is not a draft, fail
             if [ "${release_draft}" != "true" ]; then
-                failure "Cannot delete draft '${draft_name}' from '${repository}' - release is not a draft"
+                debug "skipping release '%s' (ID: %s) from '%s' - release is not a draft" "${draft_name}" "${release_id}" "${repository}"
+                continue
             fi
 
             # If we are here, we found a match
             draft_ids+=( "${release_id}" )
         done
+        ((page++))
     done
 
     # If no draft ids were found, the release was not found
@@ -2615,9 +2618,8 @@ function github_release_prune() {
             break
         fi
 
-        local count entry i release_type release_name release_id release_create date_check
-        count="$(jq 'length' <( printf "%s" "${release_list}" ))"
-        for (( i=0; i < "${count}"; i++ )); do
+        local entry i release_type release_name release_id release_create date_check
+        for (( i=0; i < "${list_length}"; i++ )); do
             entry="$(jq ".[${i}]" <( printf "%s" "${release_list}" ))" ||
                 failure "Failed to read entry for pruning on %s" "${repository}"
             release_type="$(jq -r ".${prune_type}" <( printf "%s" "${entry}" ))" ||
