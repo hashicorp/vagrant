@@ -6,6 +6,8 @@ on:
       - 'CHANGELOG.md'
       - 'website/**'
 
+concurrency: build
+
 permissions:
   contents: write
 

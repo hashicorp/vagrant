@@ -1,26 +1,24 @@
 #!/usr/bin/env bash
 
-success="✅"
-
 csource="${BASH_SOURCE[0]}"
 while [ -h "$csource" ] ; do csource="$(readlink "$csource")"; done
 root="$( cd -P "$( dirname "$csource" )/../" && pwd )"
 
-. "${root}/.ci/init.sh"
+. "${root}/.ci/load-ci.sh"
 
 pushd "${root}"
 
-echo -n "Building RubyGem... "
-
-# Build our gem
+info "Building Vagrant RubyGem..."
 wrap gem build ./*.gemspec \
      "Failed to build Vagrant RubyGem"
 
-echo "${success}"
-
 # Get the path of our new gem
-g=(vagrant*.gem)
-gem=$(printf "%s" "${g[0]}")
+files=( vagrant*.gem )
+gem="${files[0]}"
+if [ ! -f "${gem}" ]; then
+     debug "could not locate gem in %s" "${files[*]}"
+     failure "Unable to locate built Vagrant RubyGem"
+fi
 
 # Create folder to store artifacts
 wrap mkdir -p "generated-artifacts" \
@@ -29,13 +27,13 @@ wrap mkdir -p "generated-artifacts" \
 wrap mv "${gem}" ./generated-artifacts \
      "Failed to move Vagrant RubyGem"
 
-# Install submodules
+info "Installing submodules for vagrant-go build..."
 wrap git submodule update --init --recursive \
      "Failed to install git submodules"
 
 # Build our binaries
 
-echo -n "Building vagrant-go linux amd64... "
+info "Building vagrant-go linux amd64..."
 
 # Build linux amd64 binary
 wrap make bin/linux \
@@ -53,8 +51,7 @@ wrap zip vagrant-go_linux_amd64 vagrant-go_linux_amd64 \
 wrap mv vagrant-go_linux_amd64.zip ./generated-artifacts \
      "Failed to move Vagrant Go linux amd64 build"
 
-echo "${success}"
-echo -n "Building vagrant-go linux 386... "
+info "Building vagrant-go linux 386..."
 
 # Build linux 386 binary
 wrap make bin/linux-386 \
@@ -72,8 +69,7 @@ wrap zip vagrant-go_linux_386 vagrant-go_linux_386 \
 wrap mv vagrant-go_linux_386.zip ./generated-artifacts \
      "Failed to move Vagrant Go linux 386 build"
 
-echo "${success}"
-echo -n "Building vagrant-go darwin amd64... "
+info "Building vagrant-go darwin amd64..."
 
 # Build darwin binary
 wrap make bin/darwin \
@@ -91,10 +87,15 @@ wrap zip vagrant-go_darwin_amd64 vagrant-go_darwin_amd64 \
 wrap mv vagrant-go_darwin_amd64.zip ./generated-artifacts \
      "Failed to move Vagrant Go darwin amd64 build"
 
-echo "${success}"
-echo -n "Storing artifacts... "
+info "Storing commit ID information..."
+printf "%s\n" "${full_sha}" > ./generated-artifacts/commit-id.txt
+
+if github_draft_release_exists "vagrant" "${ident_ref}"; then
+     debug "found existing draft release for %s, deleting existing drafts" "${ident_ref}"
+     github_delete_draft_release "${ident_ref}"
+fi
+
+info "Storing artifacts in draft release '%s'..." "${ident_ref}"
 
 # Store the artifacts for the builders
 draft_release "${ident_ref}" ./generated-artifacts
-
-echo "${success}"
