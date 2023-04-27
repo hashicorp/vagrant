@@ -2373,75 +2373,6 @@ function github_draft_release_asset_names() {
     repository_bak="${repository}" # restore repository value
 }
 
-# Delete any draft releases that are older than the
-# given number of days
-#
-# $1: days
-# $2: repository name (optional, defaults to current repository name)
-function github_draft_release_prune() {
-    local days prune_repo
-    days="${1}"
-    prune_repo="${2:-$repo_name}"
-
-    local prune_seconds now
-    now="$(date '+%s')"
-    prune_seconds=$(("${now}"-("${days}" * 86400)))
-
-    # Override repository value to get correct token automatically
-    local repository_bak="${repository}"
-    repository="${repo_owner}/${prune_repo}"
-
-    debug "deleting drafts over %d days old from %s" "${days}" "${repository}"
-
-    local page=$((1))
-    while true; do
-        local release_list list_length
-
-        release_list=$(github_request -H "Content-Type: application/json" \
-            "https://api.github.com/repos/${repository}/releases?per_page=100&page=${page}") ||
-            failure "Failed to request releases list for pruning on ${repository}"
-
-        list_length="$(jq 'length' <( printf "%s" "${release_list}" ))" ||
-            failure "Failed to calculate release length for pruning on ${repository}"
-
-        if [ "${list_length}" -lt "1" ]; then
-            debug "no draft releases found in %s" "${repository}"
-            break
-        fi
-
-        local count entry i release_draft release_name release_id release_create date_check
-        count="$(jq 'length' <( printf "%s" "${release_list}" ))"
-        for (( i=0; i < "${count}"; i++ )); do
-            entry="$(jq ".[${i}]" <( printf "%s" "${release_list}" ))" ||
-                failure "Failed to read entry for pruning on ${repository}"
-            release_draft="$(jq -r '.draft' <( printf "%s" "${entry}" ))" ||
-                failure "Failed to read entry draft for pruning on ${repository}"
-            release_name="$(jq -r '.name' <( printf "%s" "${entry}" ))" ||
-                failure "Failed to read entry name for pruning on ${repository}"
-            release_id="$(jq -r '.id' <( printf "%s" "${entry}" ))" ||
-                failure "Failed to read entry ID for pruning on ${repository}"
-            release_create="$(jq -r '.created_at' <( printf "%s" "${entry}" ))" ||
-                failure "Failed to read entry created date for pruning on ${repository}"
-            date_check="$(date --date="${release_create}" '+%s')" ||
-                failure "Failed to parse entry created date for pruning on ${repository}"
-
-            if [ "${release_draft}" != "true" ]; then
-                debug "Skipping %s because not draft release" "${release_name}"
-                continue
-            fi
-
-            if [ "$(( "${date_check}" ))" -lt "${prune_seconds}" ]; then
-                printf "Deleting draft release %s from %s\n" "${release_name}" "${prune_repo}" >&2
-                github_request -X DELETE "https://api.github.com/repos/${repository}/releases/${release_id}" ||
-                    failure "Failed to prune draft release ${release_name} from ${repository}"
-            fi
-        done
-        ((page++))
-    done
-
-    repository="${repository_bak}" # restore the repository value
-}
-
 # Delete a github release by tag name
 # NOTE: Releases and prereleases can be deleted using this
 #       function. For draft releases use github_delete_draft_release
@@ -2567,6 +2498,154 @@ function github_delete_draft_release() {
     done
 
     repository="${repository_bak}" # restore repository value before return
+}
+
+# Delete prerelease with given name
+#
+# $1: tag name of prerelease
+# $2: repository name (optional, defaults to current repository name)
+function github_delete_prerelease() {
+    local tag_name="${1}"
+    local delete_repo="${2:-$repo_name}"
+
+    if [ -z "${tag_name}" ]; then
+        failure "Tag name is required for deletion"
+    fi
+
+    if [ -z "${delete_repo}" ]; then
+        failure "Repository is required for prerelease deletion"
+    fi
+
+    # Override repository value to get correct token automatically
+    local repository_bak="${repository}"
+    repository="${repo_owner}/${delete_repo}"
+
+    local prerelease
+    prerelease=$(github_request -H "Content-Type: application/vnd.github+json" \
+        "https://api.github.com/repos/${repository}/releases/tags/${tag_name}") ||
+        failure "Failed to get prerelease %s from %s" "${tag_name}" "${repository}"
+    local prerelease_id
+    prerelease_id="$(jq -r '.id' <( printf "%s" "${prerelease}" ))" ||
+        failure "Failed to read prerelease ID for %s on %s" "${tag_name}" "${repository}"
+    local is_prerelease
+    is_prerelease="$(jq -r '.prerelease' <( printf "%s" "${prerelease}" ))" ||
+        failure "Failed to read prerelease status for %s on %s" "${tag_name}" "${repository}"
+
+    # Validate the matched release is a prerelease
+    if [ "${is_prerelease}" != "true" ]; then
+        failure "Prerelease %s on %s is not marked as a prerelease, cannot delete" "${tag_name}" "${repository}"
+    fi
+
+    info "Deleting prerelease %s from repository %s" "${tag_name}" "${repository}"
+    github_request -X DELETE "https://api.github.com/repos/${repository}/releases/${prerelease_id}" ||
+        failure "Failed to delete prerelease %s from %s" "${tag_name}" "${repository}"
+
+    repository="${repository_bak}" # restore repository value before return
+}
+
+# Delete any draft releases that are older than the
+# given number of days
+#
+# $1: days
+# $2: repository name (optional, defaults to current repository name)
+function github_draft_release_prune() {
+    github_release_prune "draft" "${@}"
+}
+
+# Delete any prereleases that are older than the
+# given number of days
+#
+# $1: days
+# $2: repository name (optional, defaults to current repository name)
+function github_prerelease_prune() {
+    github_release_prune "prerelease" "${@}"
+}
+
+# Delete any releases of provided type that are older than the
+# given number of days
+#
+# $1: type (prerelease or draft)
+# $2: days
+# $3: repository name (optional, defaults to current repository name)
+function github_release_prune() {
+    local prune_type="${1}"
+    if [ -z "${prune_type}" ]; then
+        failure "Type is required for release pruning"
+    fi
+    if [ "${prune_type}" != "draft" ] && [ "${prune_type}" != "prerelease" ]; then
+        failure "Invalid release pruning type provided '%s' (supported: draft or prerelease)" "${prune_type}"
+    fi
+
+    local days="${2}"
+    if [ -z "${days}" ]; then
+        failure "Number of days to retain is required for pruning"
+    fi
+    if [[ "${days}" = *[!0123456789]* ]]; then
+        failure "Invalid value provided for days to retain when pruning (%s)" "${days}"
+    fi
+
+    local prune_repo="${3:-$repo_name}"
+    if [ -z "${prune_repo}" ]; then
+        failure "Repository name is required for pruning"
+    fi
+
+    local prune_seconds now
+    now="$(date '+%s')"
+    prune_seconds=$(("${now}"-("${days}" * 86400)))
+
+    # Override repository value to get correct token automatically
+    local repository_bak="${repository}"
+    repository="${repo_owner}/${prune_repo}"
+
+    debug "deleting %ss over %d days old from %s" "${prune_type}" "${days}" "${repository}"
+
+    local page=$((1))
+    while true; do
+        local release_list list_length
+
+        release_list=$(github_request -H "Accept: application/vnd.github+json" \
+            "https://api.github.com/repos/${repository}/releases?per_page=100&page=${page}") ||
+            failure "Failed to request releases list for pruning on ${repository}"
+
+        list_length="$(jq 'length' <( printf "%s" "${release_list}" ))" ||
+            failure "Failed to calculate release length for pruning on ${repository}"
+
+        if [ -z "${list_length}" ] || [ "${list_length}" -lt "1" ]; then
+            debug "releases listing page %d for %s is empty" "${page}" "${repository}"
+            break
+        fi
+
+        local count entry i release_type release_name release_id release_create date_check
+        count="$(jq 'length' <( printf "%s" "${release_list}" ))"
+        for (( i=0; i < "${count}"; i++ )); do
+            entry="$(jq ".[${i}]" <( printf "%s" "${release_list}" ))" ||
+                failure "Failed to read entry for pruning on %s" "${repository}"
+            release_type="$(jq -r ".${prune_type}" <( printf "%s" "${entry}" ))" ||
+                failure "Failed to read entry %s for pruning on %s" "${prune_type}" "${repository}"
+            release_name="$(jq -r '.name' <( printf "%s" "${entry}" ))" ||
+                failure "Failed to read entry name for pruning on %s" "${repository}"
+            release_id="$(jq -r '.id' <( printf "%s" "${entry}" ))" ||
+                failure "Failed to read entry ID for pruning on %s" "${repository}"
+            release_create="$(jq -r '.created_at' <( printf "%s" "${entry}" ))" ||
+                failure "Failed to read entry created date for pruning on %s" "${repository}"
+            date_check="$(date --date="${release_create}" '+%s')" ||
+                failure "Failed to parse entry created date for pruning on %s" "${repository}"
+
+            if [ "${release_type}" != "true" ]; then
+                debug "Skipping %s on %s because release is not a %s" "${release_name}" "${repository}" "${prune_type}"
+                continue
+            fi
+
+            if [ "$(( "${date_check}" ))" -lt "${prune_seconds}" ]; then
+                info "Deleting release %s from %s\n" "${release_name}" "${prune_repo}" >&2
+                github_request -X DELETE "https://api.github.com/repos/${repository}/releases/${release_id}" ||
+                    failure "Failed to prune %s %s from %s" "${prune_type}" "${release_name}" "${repository}"
+            fi
+        done
+        ((page++))
+    done
+
+    repository="${repository_bak}" # restore the repository value
 }
 
 # Grab the correct github token to use for authentication. The
