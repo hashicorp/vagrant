@@ -2459,7 +2459,7 @@ function github_delete_draft_release() {
     local repository_bak="${repository}"
     repository="${repo_owner}/${delete_repo}"
 
-    local draft_id
+    local draft_ids=()
     local page=$((1))
     while true; do
         local release_list list_length
@@ -2469,12 +2469,10 @@ function github_delete_draft_release() {
         list_length="$(jq 'length' <( printf "%s" "${release_list}" ))" ||
             failure "Failed to calculate release length for draft deletion on ${repository}"
 
-        # If the list is empty then the draft release does not exist
-        # so we can just return success
-        if [ "${list_length}" -lt "1" ]; then
-            debug "no draft releases found in repository %s" "${repository}"
-            repository="${repository_bak}" # restore repository value before return
-            return 0
+        # If the list is empty then there are no more releases to process
+        if [ -z "${list_length}" ] || [ "${list_length}" -lt 1 ]; then
+            debug "no releases returned for page %d in repository %s" "${page}" "${repository}"
+            break
         fi
 
         local entry i release_draft release_id release_name
@@ -2499,27 +2497,25 @@ function github_delete_draft_release() {
             fi
 
             # If we are here, we found a match
-            draft_id="${release_id}"
-            break
+            draft_ids+=( "${release_id}" )
         done
-
-        if [ -n "${draft_id}" ]; then
-            break
-        fi
     done
 
-    # If no draft id was found, the release was not found
+    # If no draft ids were found, the release was not found
     # so we can just return success
-    if [ -z "${draft_id}" ]; then
-        debug "no draft release found matching name %s in %s" "${draft_name}" "${repository}"
+    if [ "${#draft_ids[@]}" -lt "1" ]; then
+        debug "no draft releases found matching name %s in %s" "${draft_name}" "${repository}"
         repository="${repository_bak}" # restore repository value before return
         return 0
     fi
 
-    # Still here? Okay! Delete the draft
-    printf "Deleting draft release %s from %s\n" "${draft_name}" "${repository}" >&2
-    github_request -X DELETE "https://api.github.com/repos/${delete_repo}/releases/${draft_id}" ||
-        failure "Failed to prune draft release ${draft_name} from ${repository}"
+    # Still here? Okay! Delete the draft(s)
+    local draft_id
+    for draft_id in "${draft_ids[@]}"; do
+        info "Deleting draft release %s from %s (ID: %d)\n" "${draft_name}" "${repository}" "${draft_id}"
+        github_request -X DELETE "https://api.github.com/repos/${delete_repo}/releases/${draft_id}" ||
+            failure "Failed to prune draft release ${draft_name} from ${repository}"
+    done
 
     repository="${repository_bak}" # restore repository value before return
 }
