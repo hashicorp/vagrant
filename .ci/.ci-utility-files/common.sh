@@ -191,10 +191,18 @@ function failure() {
     local i=$(( ${#} - 1 ))
     local msg_args=("${@:2:$i}")
 
+    # Update template to include caller information if in DEBUG mode
+    if [ -n "${DEBUG}" ]; then
+        msg_template=$(printf "<%s(%s:%d)> %s" "${FUNCNAME[1]}" "${BASH_SOURCE[1]}" "${BASH_LINENO[0]}" "${msg_template}")
+    fi
     #shellcheck disable=SC2059
     msg="$(printf "${msg_template}" "${msg_args[@]}")"
 
-    printf "%s %b%s%b\n" "${ERROR_ICON}" "${TEXT_RED}" "${msg}" "${TEXT_CLEAR}" >&2
+    if [ -n "${DEBUG_WITH_BATS}" ]; then
+        printf "%s %b%s%b\n" "${ERROR_ICON}" "${TEXT_RED}" "${msg}" "${TEXT_CLEAR}" >&3
+    else
+        printf "%s %b%s%b\n" "${ERROR_ICON}" "${TEXT_RED}" "${msg}" "${TEXT_CLEAR}" >&2
+    fi
 
     if [ -n "${SLACK_WEBHOOK}" ]; then
         if [ -f "$(output_file)" ]; then
@@ -2639,12 +2647,105 @@ function github_release_prune() {
             fi
 
             if [ "$(( "${date_check}" ))" -lt "${prune_seconds}" ]; then
-                info "Deleting release %s from %s\n" "${release_name}" "${prune_repo}" >&2
+                info "Deleting release %s from %s\n" "${release_name}" "${prune_repo}"
                 github_request -X DELETE "https://api.github.com/repos/${repository}/releases/${release_id}" ||
                     failure "Failed to prune %s %s from %s" "${prune_type}" "${release_name}" "${repository}"
             fi
         done
         ((page++))
+    done
+
+    repository="${repository_bak}" # restore the repository value
+}
+
+# Delete all but the latest N number of releases of the provided type
+#
+# $1: type (prerelease or draft)
+# $2: number of releases to retain
+# $3: repository name (optional, defaults to current repository name)
+function github_release_prune_retain() {
+    local prune_type="${1}"
+    if [ -z "${prune_type}" ]; then
+        failure "Type is required for release pruning"
+    fi
+    if [ "${prune_type}" != "draft" ] && [ "${prune_type}" != "prerelease" ]; then
+        failure "Invalid release pruning type provided '%s' (supported: draft or prerelease)" "${prune_type}"
+    fi
+
+    local retain="${2}"
+    if [ -z "${retain}" ]; then
+        failure "Number of releases to retain is required for pruning"
+    fi
+    if [[ "${retain}" = *[!0123456789]* ]]; then
+        failure "Invalid value provided for number of releases to retain when pruning (%s)" "${days}"
+    fi
+
+    local prune_repo="${3:-$repo_name}"
+    if [ -z "${prune_repo}" ]; then
+        failure "Repository name is required for pruning"
+    fi
+
+    # Override repository value to get correct token automatically
+    local repository_bak="${repository}"
+    repository="${repo_owner}/${prune_repo}"
+
+    debug "pruning all %s type releases except latest %d releases" "${prune_type}" "${retain}"
+    local prune_list=()
+    local page=$((1))
+    while true; do
+        local release_list list_length
+
+        release_list=$(github_request -H "Accept: application/vnd.github+json" \
+            "https://api.github.com/repos/${repository}/releases?per_page=100&page=${page}&sort=created_at&direction=desc") ||
+            failure "Failed to request releases list for pruning on ${repository}"
+        list_length="$(jq 'length' <( printf "%s" "${release_list}" ))" ||
+            failure "Failed to calculate release length for pruning on ${repository}"
+        if [ -z "${list_length}" ] || [ "${list_length}" -lt "1" ]; then
+            debug "releases listing page %d for %s is empty" "${page}" "${repository}"
+            break
+        fi
+
+        local entry i release_type release_name release_id release_create date_check
+        for (( i=0; i < "${list_length}"; i++ )); do
+            entry="$(jq ".[${i}]" <( printf "%s" "${release_list}" ))" ||
+                failure "Failed to read entry for pruning on %s" "${repository}"
+            release_type="$(jq -r ".${prune_type}" <( printf "%s" "${entry}" ))" ||
+                failure "Failed to read entry %s for pruning on %s" "${prune_type}" "${repository}"
+            release_name="$(jq -r '.name' <( printf "%s" "${entry}" ))" ||
+                failure "Failed to read entry name for pruning on %s" "${repository}"
+            release_id="$(jq -r '.id' <( printf "%s" "${entry}" ))" ||
+                failure "Failed to read entry ID for pruning on %s" "${repository}"
+
+            if [ "${release_type}" != "true" ]; then
+                debug "Skipping %s on %s because release is not a %s" "${release_name}" "${repository}" "${prune_type}"
+                continue
+            fi
+
+            debug "adding %s '%s' to prune list (ID: %s)" "${prune_type}" "${release_name}" "${release_id}"
+            prune_list+=( "${release_id}" )
+        done
+        (( page++ ))
+    done
+
+    local prune_count="${#prune_list[@]}"
+    local prune_trim=$(( "${prune_count}" - "${retain}" ))
+
+    # If there won't be any remaining items in the list, bail
+    if [ "${prune_trim}" -le 0 ]; then
+        debug "no %ss in %s to prune" "${prune_type}" "${repository}"
+        repository="${repository_bak}" # restore the repository value
+        return 0
+    fi
+
+    # Trim down the list to what should be deleted
+    prune_list=("${prune_list[@]:$retain:$prune_trim}")
+
+    # Now delete what is left in the list
+    local r_id
+    for r_id in "${prune_list[@]}"; do
+        debug "deleting release (ID: %s) from %s" "${r_id}" "${repository}"
+        github_request -X DELETE "https://api.github.com/repos/${repository}/releases/${r_id}" ||
+            failure "Failed to prune %s %s from %s" "${prune_type}" "${r_id}" "${repository}"
     done
 
     repository="${repository_bak}" # restore the repository value
