@@ -1228,7 +1228,7 @@ function is_version_on_rubygems() {
     fi
 
     debug "checking rubygem %s at version %s is currently published" "${name}" "${version}"
-    local cmd_args=()
+    local cmd_args=("gem" "search")
     if [ -n "${gemstore}" ]; then
         debug "checking rubygem publication at custom source: %s" "${gemstore}"
         cmd_args+=("--clear-sources" "--source" "${gemstore}")
@@ -1236,7 +1236,7 @@ function is_version_on_rubygems() {
     cmd_args+=("--remote" "--exact" "--all")
 
     local result
-    result="$(gem search --remote --exact --all "${name}")" ||
+    result="$("${cmd_args[@]}" "${name}")" ||
         failure "Failed to retreive remote version list from RubyGems"
     local versions="${result##*\(}"
     local versions="${versions%%)*}"
@@ -1278,9 +1278,19 @@ function publish_to_rubygems() {
         failure "Path provided does not exist or is not a file (%s)" "${gem_file}"
     fi
 
-    export GEM_HOST_API_KEY="${RUBYGEMS_API_KEY}"
-    wrap gem push "${gem_file}" ||
+    # NOTE: Newer versions of rubygems support setting the
+    #       api key via the GEM_HOST_API_KEY environment
+    #       variable. Config file is still used so that older
+    #       versions can be used for doing pushes.
+    gem_config="$(mktemp -p ./)" ||
+        failure "Could not create gem configuration file"
+    # NOTE: The `--` are required due to the double dash
+    #       start of the first argument
+    printf -- "---\n:rubygems_api_key: %s\n" "${RUBYGEMS_API_KEY}" > "${gem_config}"
+
+    gem push --config-file "${gem_config}" "${gem_file}" ||
         failure "Failed to publish RubyGem at '%s' to RubyGems.org" "${gem_file}"
+    rm -f "${gem_config}"
 }
 
 # Publish gem to the hashigems repository
@@ -1318,12 +1328,12 @@ function publish_to_hashigems() {
     pushd "${tmpdir}"
 
     # Run quick test to ensure bucket is accessible
-    wrap aws s3 ls "${HASHIGEMS_METADATA_BUCKET}" \
+    wrap aws s3 ls "s3://${HASHIGEMS_METADATA_BUCKET}" \
         "Failed to access hashigems asset bucket"
 
     # Grab our remote metadata. If the file doesn't exist, that is always an error.
     debug "fetching hashigems metadata file from %s" "${HASHIGEMS_METADATA_BUCKET}"
-    wrap aws s3 cp "${HASHIGEMS_METADATA_BUCKET}/vagrant-rubygems.list" ./ \
+    wrap aws s3 cp "s3://${HASHIGEMS_METADATA_BUCKET}/vagrant-rubygems.list" ./ \
         "Failed to retrieve hashigems metadata list"
 
     # Add the new gem to the metadata file
@@ -1337,12 +1347,12 @@ function publish_to_hashigems() {
     # Upload the updated repository
     pushd ./hashigems
     debug "uploading new hashigems repository content to %s" "${HASHIGEMS_PUBLIC_BUCKET}"
-    wrap_stream aws s3 sync . "${HASHIGEMS_PUBLIC_BUCKET}" \
+    wrap_stream aws s3 sync . "s3://${HASHIGEMS_PUBLIC_BUCKET}" \
         "Failed to upload the hashigems repository"
     # Store the updated metadata
     popd
     debug "uploading updated hashigems metadata file to %s" "${HASHIGEMS_METADATA_BUCKET}"
-    wrap_stream aws s3 cp vagrant-rubygems.list "${HASHIGEMS_METADATA_BUCKET}/vagrant-rubygems.list" \
+    wrap_stream aws s3 cp vagrant-rubygems.list "s3://${HASHIGEMS_METADATA_BUCKET}/vagrant-rubygems.list" \
         "Failed to upload the updated hashigems metadata file"
 
     # Invalidate cloudfront so the new content is available
@@ -1818,7 +1828,7 @@ function github_release_assets() {
     local repository_bak="${repository}"
     repository="${repo_owner}/${release_repo}"
 
-    req_args+=("Content-Type: application/json")
+    req_args+=("-H" "Accept: application/vnd.github+json")
     req_args+=("https://api.github.com/repos/${repository}/releases/tags/${release_name}")
 
     debug "fetching release asset list for release %s on %s" "${release_name}" "${repository}"
@@ -1842,7 +1852,7 @@ function github_release_assets() {
         failure "Failed to detect asset in release (${release_name}) for ${release_repo}"
 
     req_args=()
-    req_args+=("Accept: application/octet-stream")
+    req_args+=("-H" "Accept: application/octet-stream")
 
     local assets asset_names
     readarray -t assets <  <(printf "%s" "${asset_list}")
@@ -2410,15 +2420,15 @@ function github_delete_release() {
     repository="${repo_owner}/${release_repo}"
 
     # Fetch the release first
-    local release
-    release="$(github_request \
+    local release_content
+    release_content="$(github_request \
         -H "Accept: application/vnd.github+json" \
         "https://api.github.com/repos/${repository}/releases/tags/${release_name}")" ||
         failure "Failed to fetch release information for '${release_name}' in ${repository}"
 
     # Get the release id to reference in delete request
     local rel_id
-    rel_id="$(jq -r '.id' <( printf "%s" "${release}" ) )" ||
+    rel_id="$(jq -r '.id' <( printf "%s" "${release_content}" ) )" ||
         failure "Failed to read release id for '${release_name}' in ${repository}"
 
     debug "deleting github release '${release_name}' in ${repository} with id ${rel_id}"
