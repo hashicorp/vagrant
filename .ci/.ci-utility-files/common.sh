@@ -66,6 +66,48 @@ if [ -n "${DEBUG}" ] && [ -n "${BATS_TEST_FILENAME}" ]; then
     DEBUG_WITH_BATS=1
 fi
 
+# Write debug output to stderr. Message template
+# and arguments are passed to `printf` for formatting.
+#
+# $1: message template
+# $#: message arguments
+#
+# NOTE: Debug output is only displayed when DEBUG is set
+function debug() {
+    if [ -n "${DEBUG}" ]; then
+        local msg_template="${1}"
+        local i=$(( ${#} - 1 ))
+        local msg_args=("${@:2:$i}")
+        # Update template to include caller information
+        msg_template=$(printf "<%s(%s:%d)> %s" "${FUNCNAME[1]}" "${BASH_SOURCE[1]}" "${BASH_LINENO[0]}" "${msg_template}")
+        #shellcheck disable=SC2059
+        msg="$(printf "${msg_template}" "${msg_args[@]}")"
+
+        if [ -n "${DEBUG_WITH_BATS}" ]; then
+            printf "%b%s%b\n" "${TEXT_CYAN}" "${msg}" "${TEXT_CLEAR}" >&3
+        else
+            printf "%b%s%b\n" "${TEXT_CYAN}" "${msg}" "${TEXT_CLEAR}" >&2
+        fi
+    fi
+}
+
+# Wrap the pushd command so we fail
+# if the pushd command fails. Arguments
+# are just passed through.
+function pushd() {
+    debug "executing 'pushd %s'" "${*}"
+    command builtin pushd "${@}" > /dev/null || exit 1
+}
+
+# Wrap the popd command so we fail
+# if the popd command fails. Arguments
+# are just passed through.
+# shellcheck disable=SC2120
+function popd() {
+    debug "executing 'popd %s'" "${*}"
+    command builtin popd "${@}" || exit 1
+}
+
 # Wraps the aws CLI command to support
 # role based access. It will check for
 # expected environment variables when
@@ -84,7 +126,7 @@ fi
 #       if close to expiry. With credentials being handled by the doormat
 #       action now, this is no longer needed but remains in case it's
 #       needed for some reason in the future.
-function aws_deprected() {
+function aws_deprecated() {
     # Grab the actual aws cli path
     if ! aws_path="$(which aws)"; then
         (>&2 echo "AWS error: failed to locate aws cli executable")
@@ -153,34 +195,6 @@ function output_file() {
     fi
 
     printf "%s" "${ci_output_file_path}"
-}
-
-# Write debug output to stderr. Message template
-# and arguments are passed to `printf` for formatting.
-#
-# -f FN_NAME - set function name in output
-# -s SCRIPT_NAME - set script name in ouput
-#
-# $1: message template
-# $#: message arguments
-#
-# NOTE: Debug output is only displayed when DEBUG is set
-function debug() {
-    if [ -n "${DEBUG}" ]; then
-        local msg_template="${1}"
-        local i=$(( ${#} - 1 ))
-        local msg_args=("${@:2:$i}")
-        # Update template to include caller information
-        msg_template=$(printf "<%s(%s:%d)> %s" "${FUNCNAME[1]}" "${BASH_SOURCE[1]}" "${BASH_LINENO[0]}" "${msg_template}")
-        #shellcheck disable=SC2059
-        msg="$(printf "${msg_template}" "${msg_args[@]}")"
-
-        if [ -n "${DEBUG_WITH_BATS}" ]; then
-            printf "%b%s%b\n" "${TEXT_CYAN}" "${msg}" "${TEXT_CLEAR}" >&3
-        else
-            printf "%b%s%b\n" "${TEXT_CYAN}" "${msg}" "${TEXT_CLEAR}" >&2
-        fi
-    fi
 }
 
 # Write failure message, send error to configured
@@ -334,25 +348,6 @@ function pkt_wrap_stream() {
 # $@: Command to execute
 function pkt_wrap_stream_raw() {
     wrap_stream_raw packet-exec run -quiet -- "${@}"
-}
-
-# Wrap the pushd command so we fail
-# if the pushd command fails. Arguments
-# are just passed through.
-function pushd() {
-    debug "executing 'pushd %s'" "${*}"
-    wrap command builtin pushd "${@}" \
-        "pushd command failed"
-}
-
-# Wrap the popd command so we fail
-# if the popd command fails. Arguments
-# are just passed through.
-# shellcheck disable=SC2120
-function popd() {
-    debug "executing 'popd %s'" "${*}"
-    wrap command builtin popd "${@}" \
-        "popd command failed"
 }
 
 # Get the full path directory for a given
@@ -588,7 +583,6 @@ function sign_file() {
 
     local binary_identifier=""
     local entitlements=""
-    local input_file="${1}"
     local output_file=""
 
     local opt
@@ -601,6 +595,8 @@ function sign_file() {
         esac
     done
     shift $((OPTIND-1))
+
+    local input_file="${1}"
 
     # Check that a good input file was given
     if [ -z "${input_file}" ]; then
@@ -1073,9 +1069,10 @@ function hashicorp_release_sns_publish() {
     export AWS_SECRET_ACCESS_KEY="${RELEASE_AWS_SECRET_ACCESS_KEY}"
     export AWS_ASSUME_ROLE_ARN="${RELEASE_AWS_ASSUME_ROLE_ARN}"
     export AWS_REGION="${region}"
+    export AWS_DEFAULT_REGION="${region}"
 
     # Validate the creds properly assume role and function
-    wrap aws configure list \
+    wrap aws_deprecated configure list \
         "Failed to reconfigure AWS credentials for release notification"
 
     # Now send the release notification
@@ -1109,7 +1106,7 @@ function hashicorp_release_exists() {
     local product="${1}"
     local version="${2}"
 
-    if curl --silent --fail --head "https://releases.hashicorp.com/${product}/${version}" ; then
+    if curl --silent --fail --head "https://releases.hashicorp.com/${product}/${version}/" > /dev/null ; then
         debug "hashicorp release of %s@%s found" "${product}" "${version}"
         return 0
     fi
