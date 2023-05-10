@@ -140,6 +140,9 @@ module VagrantPlugins
         all_containers.each do |c|
           container_info = inspect_container(c)
 
+          active = container_info["State"]["Running"]
+          next unless active # Ignore used ports on inactive containers
+
           if container_info["HostConfig"]["PortBindings"]
             port_bindings = container_info["HostConfig"]["PortBindings"]
             next if port_bindings.empty? # Nothing defined, but not nil either
