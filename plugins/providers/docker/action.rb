@@ -231,6 +231,7 @@ module VagrantPlugins
             b2.use HostMachineSyncFolders
             b2.use PrepareNFSValidIds
             b2.use SyncedFolderCleanup
+            b2.use SyncedFolders
             b2.use PrepareNFSSettings
             b2.use PrepareNetworks
             b2.use Login
@@ -248,7 +249,6 @@ module VagrantPlugins
                   b3.use ForwardedPorts # This action converts the `ports` param into proper network configs
                   b3.use PrepareForwardedPortCollisionParams
                   b3.use HandleForwardedPortCollisions
-                  b3.use SyncedFolders
                   b3.use Pull
                   b3.use Create
                   b3.use WaitForRunning
@@ -268,7 +268,6 @@ module VagrantPlugins
               end
             else
               # We're in a run command, so we do things a bit differently.
-              b2.use SyncedFolders
               b2.use Create
             end
           end
