@@ -1,0 +1,70 @@
+#!/usr/bin/env bash
+
+csource="${BASH_SOURCE[0]}"
+while [ -h "$csource" ] ; do csource="$(readlink "$csource")"; done
+root="$( cd -P "$( dirname "$csource" )/../" && pwd )"
+
+. "${root}/.ci/load-ci.sh"
+
+if [ "${#}" -ne 1 ]; then
+      printf "Usage: %s ARTIFACTS_DIR\n" "${0}" >&2
+      exit 1
+fi
+
+dest="${1}"
+mkdir -p "${dest}" ||
+     failure "Could not create destination directory (%s)" "${dest}"
+pushd "${dest}"
+dest="$(pwd)" || failure "Could not read destination directory path"
+popd
+
+# Move to root of project
+pushd "${root}"
+
+info "Building Vagrant RubyGem..."
+wrap gem build ./*.gemspec \
+     "Failed to build Vagrant RubyGem"
+
+# Get the path of the gem
+files=( vagrant*.gem )
+gem="${files[0]}"
+if [ ! -f "${gem}" ]; then
+     debug "could not locate gem in %s" "${files[*]}"
+     failure "Unable to locate built Vagrant RubyGem"
+fi
+
+wrap mv "${gem}" "${dest}" \
+     "Failed to relocate Vagrant RubyGem"
+
+info "Installing submodules for vagrant-go build..."
+wrap git submodule update --init --recursive \
+     "Failed to install git submodules"
+
+# Build vagrant-go binaries
+info "Building vagrant-go linux amd64..."
+wrap make bin/linux \
+     "Failed to build the Vagrant go linux amd64 binary"
+
+# Rename our binary
+wrap mv vagrant "${dest}/vagrant-go_linux_amd64" \
+     "Failed to rename vagrant linux amd64 binary"
+
+info "Building vagrant-go linux 386..."
+# Build linux 386 binary
+wrap make bin/linux-386 \
+     "Failed to build the Vagrant go linux 386 binary"
+
+# Rename our binary
+wrap mv vagrant "${dest}/vagrant-go_linux_386" \
+     "Failed to rename vagrant linux 386 binary"
+
+info "Building vagrant-go darwin amd64..."
+# Build darwin binary
+wrap make bin/darwin \
+     "Failed to build the Vagrant go darwin amd64 binary"
+
+# Rename our binary
+wrap mv vagrant "${dest}/vagrant-go_darwin_amd64" \
+     "Failed to rename vagrant darwin amd64 binary"
+
+printf "build-artifacts-path=%s\n" "${dest}"
