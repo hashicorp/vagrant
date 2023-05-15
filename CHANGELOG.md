@@ -15,6 +15,7 @@ BUG FIXES:
 - provider/docker: Sync folders before preparing nfs settings [GH-13149]
 - provider/virtualbox: De-duplicate machine port forward info [GH-13056]
 - provider/virtualbox:  Remove check for hyperv being enabled when verifying virtualbox is usable on windows [GH-13090]
+- provider/virtualbox: Validate LANG value when possible [GH-13150]
 - provider/hyperv: Check for hyper-v feature "EnhancedSessionTransportType" [GH-12280]
 - provisioner/ansible: Fix installing Ansible provisioner with version and pip [GH-13054]
 - synced_folders/rsync: allow rsync-auto to also ignore relative paths [GH-13066]
