@@ -339,9 +339,10 @@ describe VagrantPlugins::DockerProvider::Driver::Compose do
   describe '#docker_bridge_ip' do
     let(:stdout) { " inet 123.456.789.012/16 " }
 
-    it 'returns an array of all known containers' do
+    it 'returns the bridge ip' do
       expect(subject.docker_bridge_ip).to eq('123.456.789.012')
-      expect(cmd_executed.first).to eq("/sbin/ip -4 addr show scope global docker0")
+      expect(cmd_executed.first).to eq("docker network inspect bridge")
+      expect(cmd_executed.last).to eq("ip -4 addr show scope global docker0")
     end
   end
 end
