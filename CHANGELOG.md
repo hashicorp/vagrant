@@ -1,8 +1,4 @@
-## UNRELEASED
-
-FEATURES:
-
-IMPROVEMENTS:
+## 2.3.5 (May 15, 2023)
 
 BUG FIXES:
 
@@ -20,7 +16,7 @@ BUG FIXES:
 - provisioner/ansible: Fix installing Ansible provisioner with version and pip [GH-13054]
 - synced_folders/rsync: allow rsync-auto to also ignore relative paths [GH-13066]
 
-VAGRANT-GO:
+NOTE: Vagrant installer packages were updated to Ruby 3
 
 ## 2.3.4 (December 9, 2022)
 
