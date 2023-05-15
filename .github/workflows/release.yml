@@ -1,11 +1,6 @@
 on:
   push:
-    branches:
-      - 'build-*'
-    tags: '*'
-    paths-ignore:
-      - 'CHANGELOG.md'
-      - 'website/**'
+    tags: 'v*'
 
 jobs:
   trigger-release:
@@ -15,19 +10,7 @@ jobs:
     steps:
       - name: Code Checkout
         uses: actions/checkout@v3
-      - name: Setup Ruby
-        uses: ruby/setup-ruby@v1
-        with:
-          ruby-version: '3.1'
-      - name: Setup Go
-        uses: actions/setup-go@v3
-        with:
-          go-version-file: go.mod
-      - name: Create Builders Release
-        run: ./.ci/release.sh
-        working-directory: ${{github.workspace}}
+      - name: Trigger Build
+        run: ./.ci/release
         env:
-          HASHIBOT_EMAIL: ${{ secrets.HASHIBOT_EMAIL }}
           HASHIBOT_TOKEN: ${{ secrets.HASHIBOT_TOKEN }}
-          HASHIBOT_USERNAME: ${{ secrets.HASHIBOT_USERNAME }}
-          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
