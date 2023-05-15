@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+
+csource="${BASH_SOURCE[0]}"
+while [ -h "$csource" ] ; do csource="$(readlink "$csource")"; done
+root="$( cd -P "$( dirname "$csource" )/../" && pwd )"
+
+. "${root}/.ci/load-ci.sh"
+
+if [ -z "${tag}" ]; then
+  failure "Tag variable is unset (will be automatically set on tag push)"
+fi
+if [ -z "${full_sha}" ]; then
+  failure "The full_sha variable is unexpectedly missing, cannot trigger release"
+fi
+
+info "Triggering release %s (%s)" "${tag}" "${full_sha}"
+github_repository_dispatch "vagrant-builders" "hashicorp-release" "commit_id=${full_sha}" "tag=${tag}"
