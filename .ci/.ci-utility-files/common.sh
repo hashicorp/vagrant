@@ -1106,7 +1106,7 @@ function hashicorp_release_exists() {
     local product="${1}"
     local version="${2}"
 
-    if curl --silent --fail --head "https://releases.hashicorp.com/${product}/${version}/" > /dev/null ; then
+    if curl --silent --fail --head "https://releases.hashicorp.com/${product}/${product}_${version}/" > /dev/null ; then
         debug "hashicorp release of %s@%s found" "${product}" "${version}"
         return 0
     fi
@@ -3128,7 +3128,7 @@ function github_repository_dispatch() {
     local payload_template='{"vagrant-ci": $vagrant_ci'
     local jqargs=("--arg" "vagrant_ci" "true")
     local arg
-    for arg in "${@:4}"; do
+    for arg in "${@:3}"; do
         local payload_key="${arg%%=*}"
         local payload_value="${arg##*=}"
         payload_template+=", \"${payload_key}\": \$${payload_key}"
@@ -3150,9 +3150,6 @@ function github_repository_dispatch() {
         --arg event_type "${event_type}" \
         "${msg_template}" \
         ) || failure "Failed to generate repository dispatch message"
-
-    debug "sending repository dispatch to %s/%s with payload: %s" \
-        "${repo_owner}" "${drepo_name}" "${msg}"
 
     # Update repository value to get correct token
     local repository_bak="${repository}"
