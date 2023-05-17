@@ -17,9 +17,10 @@ module Vagrant
       end
 
       def lock
-        f = File.open(@mutex_path, "w+") 
-        if f.flock(File::LOCK_EX|File::LOCK_NB) === false
-          raise Errors::VagrantLocked, lock_file_path: @mutex_path
+        File.open(@mutex_path, "w+")  do |f|
+          if f.flock(File::LOCK_EX|File::LOCK_NB) === false
+            raise Errors::VagrantLocked, lock_file_path: @mutex_path
+          end
         end
       end
 
