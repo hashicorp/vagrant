@@ -3077,6 +3077,8 @@ en:
           You must set `python_version` as an integer or string that represents an integer.
         version_type_missing: |-
           You must set the option `install_type` when specifying a `version`.
+        salt_invalid_shasum_error: |-
+          The bootstrap-salt script downloaded from '%{source}' couldn't be verified. Expected SHA256 '%{expected_sha}', but computed '%{computed_sha}'
 
     pushes:
       file:

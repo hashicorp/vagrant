@@ -1,4 +1,5 @@
 require 'json'
+require_relative "bootstrap_downloader"
 
 module VagrantPlugins
   module Salt
@@ -274,11 +275,9 @@ module VagrantPlugins
         if @config.bootstrap_script
           bootstrap_abs_path = expanded_path(@config.bootstrap_script)
         else
-          if @machine.config.vm.communicator == :winrm
-            bootstrap_abs_path = Pathname.new("../bootstrap-salt.ps1").expand_path(__FILE__)
-          else
-            bootstrap_abs_path = Pathname.new("../bootstrap-salt.sh").expand_path(__FILE__)
-          end
+          bootstrap_downloader = BootstrapDownloader.new(@machine.config.vm.guest)
+          bootstrap_script = bootstrap_downloader.get_bootstrap_script
+          bootstrap_abs_path = expanded_path(bootstrap_script.path)
         end
 
         return bootstrap_abs_path
