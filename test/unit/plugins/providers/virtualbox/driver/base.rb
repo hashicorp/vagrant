@@ -42,6 +42,22 @@ describe VagrantPlugins::ProviderVirtualBox::Driver::Base do
           it "should use C for the lang" do
             expect(subject.send(:env_lang)).to eq({LANG: "C"})
           end
+
+          context "when stdout includes UTF-8 variants of C" do
+            let(:stdout) { "#{base}C\nC.UTF-8" }
+
+            it "should use the UTF-8 variant" do
+              expect(subject.send(:env_lang)).to eq({LANG: "C.UTF-8"})
+            end
+          end
+
+          context "when stdout includes utf8 variants of C" do
+            let(:stdout) { "#{base}C\nC.utf8" }
+
+            it "should use the utf8 variant" do
+              expect(subject.send(:env_lang)).to eq({LANG: "C.utf8"})
+            end
+          end
         end
 
         context "when stdout does not include C" do
