@@ -40,14 +40,7 @@ jobs:
         with:
           ruby-version: ${{matrix.ruby}}
           bundler-cache: true
-      - name: Get dependencies
-        run:  |
-          git config --global url."https://${HASHIBOT_USERNAME}:${HASHIBOT_TOKEN}@github.com".insteadOf "https://github.com"
-          go get -v -t -d ./...
-        env:
-          HASHIBOT_USERNAME: ${{ secrets.HASHIBOT_USERNAME }}
-          HASHIBOT_TOKEN: ${{ secrets.HASHIBOT_TOKEN }}
       - name: Vet
-        run:  go vet ./...
+        run:  go vet -mod=mod ./...
       - name: Test
-        run:  go test ./...
+        run:  go test -mod=mod ./...
