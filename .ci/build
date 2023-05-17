@@ -40,31 +40,18 @@ info "Installing submodules for vagrant-go build..."
 wrap git submodule update --init --recursive \
      "Failed to install git submodules"
 
+info "Building vagrant-go linux binaries..."
 # Build vagrant-go binaries
-info "Building vagrant-go linux amd64..."
 wrap make bin/linux \
-     "Failed to build the Vagrant go linux amd64 binary"
+     "Failed to build the Vagrant go linux binaries"
 
-# Rename our binary
-wrap mv vagrant "${dest}/vagrant-go_linux_amd64" \
-     "Failed to rename vagrant linux amd64 binary"
-
-info "Building vagrant-go linux 386..."
-# Build linux 386 binary
-wrap make bin/linux-386 \
-     "Failed to build the Vagrant go linux 386 binary"
-
-# Rename our binary
-wrap mv vagrant "${dest}/vagrant-go_linux_386" \
-     "Failed to rename vagrant linux 386 binary"
-
-info "Building vagrant-go darwin amd64..."
+info "Building vagrant-go darwin binaries..."
 # Build darwin binary
 wrap make bin/darwin \
      "Failed to build the Vagrant go darwin amd64 binary"
 
-# Rename our binary
-wrap mv vagrant "${dest}/vagrant-go_darwin_amd64" \
-     "Failed to rename vagrant darwin amd64 binary"
+info "Relocating vagrant-go binaries..."
+wrap mv bin/vagrant-go* "${dest}" \
+     "Failed to relocate vagrant binaries to destination directory"
 
 printf "build-artifacts-path=%s\n" "${dest}"
