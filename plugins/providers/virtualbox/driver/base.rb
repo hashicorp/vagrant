@@ -475,7 +475,7 @@ module VagrantPlugins
         private
 
         # List of LANG values to attempt to use
-        LANG_VARIATIONS = %w(C C.UTF-8 C.utf8 en_US.UTF-8 en_US.utf8 POSIX).map(&:freeze).freeze
+        LANG_VARIATIONS = %w(C.UTF-8 C.utf8 en_US.UTF-8 en_US.utf8 C POSIX).map(&:freeze).freeze
 
         # By default set the LANG to C. If the host has the locale command
         # available, check installed locales and verify C is included (or
