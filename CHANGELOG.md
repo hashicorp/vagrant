@@ -6,6 +6,9 @@ IMPROVEMENTS:
 
 BUG FIXES:
 
+- core/util: Unlock file prior to deletion [GH-13159]
+- provider/virtualbox: Update preferred locale values for driver [GH-13160]
+
 VAGRANT-GO:
 
 ## 2.3.5 (May 15, 2023)
