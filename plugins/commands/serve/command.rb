@@ -2,17 +2,15 @@ require "optparse"
 
 module VagrantPlugins
   module CommandServe
-    # Simple constant aliases to reduce namespace typing
-    SDK = Hashicorp::Vagrant::Sdk
-    SRV = Hashicorp::Vagrant
-    Empty = ::Google::Protobuf::Empty
-
     autoload :Broker, Vagrant.source_root.join("plugins/commands/serve/broker").to_s
     autoload :Client, Vagrant.source_root.join("plugins/commands/serve/client").to_s
     autoload :Mappers, Vagrant.source_root.join("plugins/commands/serve/mappers").to_s
     autoload :Service, Vagrant.source_root.join("plugins/commands/serve/service").to_s
     autoload :Type, Vagrant.source_root.join("plugins/commands/serve/type").to_s
     autoload :Util, Vagrant.source_root.join("plugins/commands/serve/util").to_s
+    autoload :SDK, Vagrant.source_root.join("plugins/commands/serve/constants").to_s
+    autoload :SRV, Vagrant.source_root.join("plugins/commands/serve/constants").to_s
+    autoload :Empty, Vagrant.source_root.join("plugins/commands/serve/constants").to_s
 
     class << self
       attr_accessor :broker
@@ -27,6 +25,11 @@ module VagrantPlugins
         require 'grpc'
         require 'grpc/health/checker'
         require 'grpc/health/v1/health_services_pb'
+
+        # Add conversion patches
+        require Vagrant.source_root.join("plugins/commands/serve/util/direct_conversions.rb").to_s
+
+        # Mark dependencies as loaded
         @dependencies_loaded = true
       end
     end
@@ -136,6 +139,3 @@ module VagrantPlugins
     end
   end
 end
-
-# Load in our conversions down here so all the autoload stuff is in place
-require Vagrant.source_root.join("plugins/commands/serve/util/direct_conversions.rb").to_s
