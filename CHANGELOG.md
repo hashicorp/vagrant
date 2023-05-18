@@ -6,6 +6,7 @@ IMPROVEMENTS:
 
 BUG FIXES:
 
+- command/serve: Isolate proto constants to file for auto-loading [GH-13165]
 - core/util: Unlock file prior to deletion [GH-13159]
 - provider/virtualbox: Update preferred locale values for driver [GH-13160]
 
