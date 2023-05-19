@@ -236,9 +236,22 @@ module VagrantPlugins
         execute('docker', 'ps', '-a', '-q', '--no-trunc').to_s.split
       end
 
+      # Attempts to first use the docker-cli tool to inspect the default bridge subnet
+      # Falls back to using /sbin/ip if that fails
+      #
       # @return [String] IP address of the docker bridge
       def docker_bridge_ip
-        output = execute('/sbin/ip', '-4', 'addr', 'show', 'scope', 'global', 'docker0')
+        bridge = inspect_network("bridge")&.first
+        if bridge 
+          bridge_ip = bridge.dig("IPAM", "Config", 0, "Gateway")
+        end
+        return bridge_ip if bridge_ip
+        @logger.debug("Failed to get bridge ip from docker, falling back to `ip`")
+        docker_bridge_ip_fallback
+      end
+
+      def docker_bridge_ip_fallback
+        output = execute('ip', '-4', 'addr', 'show', 'scope', 'global', 'docker0')
         if output =~ /^\s+inet ([0-9.]+)\/[0-9]+\s+/
           return $1.to_s
         else
