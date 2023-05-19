@@ -1,8 +1,4 @@
-## UNRELEASED
-
-FEATURES:
-
-IMPROVEMENTS:
+## 2.3.6 (May 19, 2023)
 
 BUG FIXES:
 
@@ -10,8 +6,6 @@ BUG FIXES:
 - core/util: Unlock file prior to deletion [GH-13159]
 - provider/docker: Attempt using docker command for bridge ip [GH-13153]
 - provider/virtualbox: Update preferred locale values for driver [GH-13160]
-
-VAGRANT-GO:
 
 ## 2.3.5 (May 15, 2023)
 
