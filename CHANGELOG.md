@@ -4,6 +4,8 @@ FEATURES:
 
 IMPROVEMENTS:
 
+- provisioner/salt: Verify bootstrap-salt download [GH-13166]
+
 BUG FIXES:
 
 VAGRANT-GO:
