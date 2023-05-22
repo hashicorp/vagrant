@@ -404,9 +404,10 @@ module VagrantPlugins
 
         # Set some valid auth methods. We disable the auth methods that
         # we're not using if we don't have the right auth info.
-        auth_methods = ["none", "hostbased", "keyboard-interactive"]
+        auth_methods = ["none"]
         auth_methods << "publickey" if ssh_info[:private_key_path]
         auth_methods << "password" if ssh_info[:password]
+        auth_methods << "keyboard-interactive"
 
         # Build the options we'll use to initiate the connection via Net::SSH
         common_connect_opts = {
