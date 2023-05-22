@@ -404,7 +404,7 @@ module VagrantPlugins
 
         # Set some valid auth methods. We disable the auth methods that
         # we're not using if we don't have the right auth info.
-        auth_methods = ["none"]
+        auth_methods = ["none", "hostbased"]
         auth_methods << "publickey" if ssh_info[:private_key_path]
         auth_methods << "password" if ssh_info[:password]
         auth_methods << "keyboard-interactive"
