@@ -182,5 +182,4 @@ describe VagrantPlugins::Salt::Provisioner do
       end
     end
   end
-
 end
