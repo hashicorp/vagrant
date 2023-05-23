@@ -29,7 +29,7 @@ jobs:
             kv/data/teams/vagrant/packet project_id | packet_project_id;
             kv/data/teams/vagrant/packet ssh_key_content | packet_ssh_key_content;
       - name: Code Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@8e5e7e5ab8b370d6c329ec480221332ada57f0ab # v3.5.2
       - name: Create packet instance
         run: ./.ci/spec/create-packet.sh
         working-directory: ${{github.workspace}}
@@ -50,7 +50,7 @@ jobs:
         providers: ['virtualbox', 'docker']
     steps:
       - name: Code Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@8e5e7e5ab8b370d6c329ec480221332ada57f0ab # v3.5.2
         with:
           submodules: 'recursive'
       - name: Create hosts for tests (provider ${{ matrix.providers }})
@@ -104,7 +104,7 @@ jobs:
           VAGRANT_DOCKER_IMAGES: ${{matrix.docker_images}}
       - name: Upload log
         if: always()
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@0b7f8abb1508181956e8e162db84b466c27e18ce # v3.1.2
         with:
           name: vagrant-spec-${{matrix.providers}}.log
           path: ${{ github.workspace }}/vagrant-spec.log

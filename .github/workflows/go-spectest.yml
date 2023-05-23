@@ -23,18 +23,18 @@ jobs:
     name: Vagrant acceptance tests
     steps:
       - name: Code Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@8e5e7e5ab8b370d6c329ec480221332ada57f0ab # v3.5.2
         with:
           submodules: 'recursive'
           # Also fetch all tags, since we need our version number in the build
           # to be based off a tag
           fetch-depth: 0
       - name: Setup Go
-        uses: actions/setup-go@v3
+        uses: actions/setup-go@fac708d6674e30b6ba41289acaab6d4b75aa0753 # v4.0.1
         with:
           go-version: ${{matrix.go}}
       - name: Setup Ruby
-        uses: ruby/setup-ruby@v1
+        uses: ruby/setup-ruby@7d546f4868fb108ed378764d873683f920672ae2 # v1.149.0
         with:
           ruby-version: ${{matrix.ruby}}
           bundler-cache: true
