@@ -18,6 +18,7 @@ module VagrantPlugins
       attr_accessor :dsa_authentication
       attr_accessor :extra_args
       attr_accessor :remote_user
+      attr_accessor :disable_deprecated_algorithms
 
       def initialize
         @host             = UNSET_VALUE
@@ -35,6 +36,7 @@ module VagrantPlugins
         @dsa_authentication = UNSET_VALUE
         @extra_args       = UNSET_VALUE
         @remote_user      = UNSET_VALUE
+        @disable_deprecated_algorithms = UNSET_VALUE
       end
 
       def finalize!
@@ -51,6 +53,7 @@ module VagrantPlugins
         @dsa_authentication = true if @dsa_authentication == UNSET_VALUE
         @extra_args       = nil if @extra_args == UNSET_VALUE
         @config           = nil if @config == UNSET_VALUE
+        @disable_deprecated_algorithms = false if @disable_deprecated_algorithms == UNSET_VALUE
         @connect_timeout  = DEFAULT_SSH_CONNECT_TIMEOUT if @connect_timeout == UNSET_VALUE
 
         if @private_key_path && !@private_key_path.is_a?(Array)

@@ -27,6 +27,10 @@ defaults are typically fine, but you can fine tune whatever you would like.
 - `config.ssh.config` (string) - Path to a custom ssh_config file to use for configuring
   the SSH connections.
 
+- `config.ssh.disable_deprecated_algorithms` (boolean) - If `true`, this setting will
+  not configure the SSH client to allow connecting to a host using ssh-rsa key types
+  and host key algorithms. Defaults to false.
+
 - `config.ssh.dsa_authentication` (boolean) - If `false`, this setting will not include
   `DSAAuthentication` when ssh'ing into a machine. If this is not set, it will
   default to `true` and `DSAAuthentication=yes` will be used with ssh.

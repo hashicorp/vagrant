@@ -146,6 +146,13 @@ module Vagrant
             "-o", "UserKnownHostsFile=/dev/null"]
         end
 
+        if !ssh_info[:disable_deprecated_algorithms]
+          command_options += [
+            "-o", "PubkeyAcceptedKeyTypes=+ssh-rsa",
+            "-o", "HostKeyAlgorithms=+ssh-rsa",
+          ]
+        end
+
         # If we're not in plain mode and :private_key_path is set attach the private key path(s).
         if !plain_mode && options[:private_key_path]
           options[:private_key_path].each do |path|
