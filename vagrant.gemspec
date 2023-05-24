@@ -49,6 +49,7 @@ Gem::Specification.new do |s|
   # Constraint rake to properly handle deprecated method usage
   # from within rspec
   s.add_development_dependency "rake", "~> 13.0"
+  s.add_development_dependency "rake-compiler"
   s.add_development_dependency "rspec", "~> 3.11"
   s.add_development_dependency "rspec-its", "~> 1.3.0"
   s.add_development_dependency "fake_ftp", "~> 0.3.0"
@@ -104,5 +105,6 @@ Gem::Specification.new do |s|
 
   s.files         = unignored_files
   s.executables   = unignored_files.map { |f| f[/^bin\/(.*)/, 1] }.compact
+  s.extensions    = ["ext/vagrant_ssl/extconf.rb"]
   s.require_path  = 'lib'
 end

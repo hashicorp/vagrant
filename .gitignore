@@ -73,3 +73,7 @@ __debug_bin
 
 # Ignore generated binaries
 bin/vagrant-go*
+
+# extension
+tmp*
+lib/vagrant/vagrant_ssl.so
