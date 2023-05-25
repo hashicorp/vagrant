@@ -1,6 +1,6 @@
 on:
   schedule:
-    - cron: 30 22 * * *
+    - cron: 30 4 * * *
 
 jobs:
   trigger-nightly:
