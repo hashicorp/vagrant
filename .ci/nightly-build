@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+
+csource="${BASH_SOURCE[0]}"
+while [ -h "$csource" ] ; do csource="$(readlink "$csource")"; done
+root="$( cd -P "$( dirname "$csource" )/../" && pwd )"
+
+. "${root}/.ci/load-ci.sh"
+
+if [ "${#}" -ne 1 ]; then
+  printf "Usage: %s COMMIT_ID\n" "${0}" >&2
+  exit 1
+fi
+
+full_sha="${1}"
+
+if [ -z "${full_sha}" ]; then
+  failure "The full_sha variable is unexpectedly missing, cannot trigger nightly build"
+fi
+
+info "Triggering nightly build %s (%s)" "${tag}" "${full_sha}"
+github_repository_dispatch "vagrant-builders" "nightlies" "commit_id=${full_sha}"

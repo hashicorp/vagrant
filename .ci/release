@@ -6,11 +6,26 @@ root="$( cd -P "$( dirname "$csource" )/../" && pwd )"
 
 . "${root}/.ci/load-ci.sh"
 
+if [ "${#}" -ne 2 ]; then
+  printf "Usage: %s TAG COMMIT_ID\n" "${0}" >&2
+  exit 1
+fi
+
+tag="${1}"
+full_sha="${2}"
+
 if [ -z "${tag}" ]; then
-  failure "Tag variable is unset (will be automatically set on tag push)"
+  failure "Tag variable is unset, required for release"
 fi
 if [ -z "${full_sha}" ]; then
   failure "The full_sha variable is unexpectedly missing, cannot trigger release"
+fi
+
+# Trim the prefix of the tag if it hasn't been
+if [[ "${tag}" = *"refs/tags"* ]]; then
+  debug "trimming tag reference value - %s" "${tag}"
+  tag="${tag##*refs/tags/}"
+  debug "trimmed tag value - %s" "${tag}"
 fi
 
 info "Triggering release %s (%s)" "${tag}" "${full_sha}"

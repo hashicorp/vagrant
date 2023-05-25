@@ -1,18 +1,18 @@
 on:
   push:
-    tags: 'v*'
+    branches: 'build-*'
 
 jobs:
-  trigger-release:
+  trigger-build:
     if: github.repository == 'hashicorp/vagrant'
-    name: Trigger Installers Build
+    name: Trigger Development Build
     runs-on: ubuntu-latest
     steps:
       - name: Code Checkout
         uses: actions/checkout@v3
-      - name: Trigger Build
-        run: ./.ci/release "${TAG}" "${COMMIT_ID}"
+      - name: Trigger Development Build
+        run: ./.ci/dev-build "${BRANCH}" "${COMMIT_ID}"
         env:
           HASHIBOT_TOKEN: ${{ secrets.HASHIBOT_TOKEN }}
-          TAG: ${{ github.ref }}
+          BRANCH: ${{ github.ref_name }}
           COMMIT_ID: ${{ github.sha }}

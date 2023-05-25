@@ -1,18 +1,17 @@
 on:
-  push:
-    tags: 'v*'
+  schedule:
+    - cron: 30 22 * * *
 
 jobs:
-  trigger-release:
+  trigger-nightly:
     if: github.repository == 'hashicorp/vagrant'
-    name: Trigger Installers Build
+    name: Trigger Nightly Build
     runs-on: ubuntu-latest
     steps:
       - name: Code Checkout
         uses: actions/checkout@v3
-      - name: Trigger Build
-        run: ./.ci/release "${TAG}" "${COMMIT_ID}"
+      - name: Trigger Nightly Build
+        run: ./.ci/nightly-build "${COMMIT_ID}"
         env:
           HASHIBOT_TOKEN: ${{ secrets.HASHIBOT_TOKEN }}
-          TAG: ${{ github.ref }}
           COMMIT_ID: ${{ github.sha }}
