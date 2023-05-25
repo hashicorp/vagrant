@@ -11,6 +11,8 @@ jobs:
       - name: Code Checkout
         uses: actions/checkout@v3
       - name: Trigger Build
-        run: ./.ci/release
+        run: ./.ci/release "${TAG}" "${COMMIT_ID}"
         env:
           HASHIBOT_TOKEN: ${{ secrets.HASHIBOT_TOKEN }}
+          TAG: ${{ github.ref }}
+          COMMIT_ID: ${{ github.sha }}
