@@ -1,0 +1,17 @@
+on:
+  schedule:
+    - cron: 30 22 * * *
+
+jobs:
+  trigger-nightly:
+    if: github.repository == 'hashicorp/vagrant'
+    name: Trigger Nightly Build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Code Checkout
+        uses: actions/checkout@v3
+      - name: Trigger Nightly Build
+        run: ./.ci/nightly-build "${COMMIT_ID}"
+        env:
+          HASHIBOT_TOKEN: ${{ secrets.HASHIBOT_TOKEN }}
+          COMMIT_ID: ${{ github.sha }}
