@@ -9,7 +9,7 @@ append_cppflags(Shellwords.shellwords(ENV["CPPFLAGS"])) if ENV["CPPFLAGS"]
 append_ldflags(Shellwords.shellwords(ENV["LDFLAGS"])) if ENV["LDFLAGS"]
 
 if have_header("openssl/opensslv.h")
-  append_ldflags(["-lssl"])
+  append_ldflags(["-lssl", "-lcrypto"])
   create_makefile("vagrant_ssl")
 else
   # If the header file isn't found, just create a dummy
