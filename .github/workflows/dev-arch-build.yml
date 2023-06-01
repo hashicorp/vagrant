@@ -2,6 +2,7 @@ name: Arch Linux Vagrant Development Build
 on:
   push:
     branches: 'dev-arch-*'
+  workflow_dispatch:
 
 jobs:
   trigger-build:

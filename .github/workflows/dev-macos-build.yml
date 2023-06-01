@@ -2,6 +2,7 @@ name: macOS Vagrant Development Build
 on:
   push:
     branches: 'dev-macos-*'
+  workflow_dispatch:
 
 jobs:
   trigger-build:

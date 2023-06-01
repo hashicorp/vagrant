@@ -2,6 +2,7 @@ name: Appimage Vagrant Development Build
 on:
   push:
     branches: 'dev-appimage-*'
+  workflow_dispatch:
 
 jobs:
   trigger-build:
