@@ -4,6 +4,7 @@ FEATURES:
 
 IMPROVEMENTS:
 
+- core: Support loading legacy providers in OpenSSL 3 [GH-13178]
 - provisioner/salt: Verify bootstrap-salt download [GH-13166]
 
 BUG FIXES:
