@@ -1,18 +1,18 @@
-name: Full Vagrant Development Build
+name: Arch Linux Vagrant Development Build
 on:
   push:
-    branches: 'build-*'
+    branches: 'dev-arch-*'
 
 jobs:
   trigger-build:
     if: github.repository == 'hashicorp/vagrant'
-    name: Trigger Vagrant Development Build
+    name: Trigger Vagrant Arch Linux Development Build
     runs-on: ubuntu-latest
     steps:
       - name: Code Checkout
         uses: actions/checkout@v3
       - name: Trigger Development Build
-        run: ./.ci/dev-build "${BRANCH}" "${COMMIT_ID}" build
+        run: ./.ci/dev-build "${BRANCH}" "${COMMIT_ID}" build-arch
         env:
           HASHIBOT_TOKEN: ${{ secrets.HASHIBOT_TOKEN }}
           BRANCH: ${{ github.ref_name }}
