@@ -404,7 +404,7 @@ module VagrantPlugins
 
         # Set some valid auth methods. We disable the auth methods that
         # we're not using if we don't have the right auth info.
-        auth_methods = ["none", "hostbased", "keyboard-interactive"]
+        auth_methods = ["none", "hostbased"]
         auth_methods << "publickey" if ssh_info[:private_key_path]
         auth_methods << "password" if ssh_info[:password]
 
@@ -461,10 +461,6 @@ module VagrantPlugins
                   connect_opts[:keepalive_interval] = 5
                 end
                 
-                if ssh_info[:password]
-                  connect_opts[:non_interactive] = true
-                end
-
                 @logger.info("Attempting to connect to SSH...")
                 @logger.info("  - Host: #{ssh_info[:host]}")
                 @logger.info("  - Port: #{ssh_info[:port]}")
