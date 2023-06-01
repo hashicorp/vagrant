@@ -121,6 +121,22 @@ ENV.each do |k, v|
   global_logger.info("#{k}=#{v.inspect}") if k.start_with?("VAGRANT_")
 end
 
+# If the vagrant_ssl library exists, a recent version
+# of openssl is in use and its needed to load all the
+# providers needed
+if File.exist?(File.expand_path("vagrant/vagrant_ssl.so", __dir__))
+  global_logger.debug("vagrant ssl helper found for loading ssl providers")
+  begin
+    require "vagrant/vagrant_ssl"
+    Vagrant.vagrant_ssl_load
+    global_logger.debug("ssl providers successfully loaded")
+  rescue LoadError => err
+    global_logger.warn("failed to load ssl providers, attempting to continue (#{err})")
+  rescue => err
+    global_logger.warn("unexpected failure loading ssl providers, attempting to continue (#{err})")
+  end
+end
+
 # We need these components always so instead of an autoload we
 # just require them explicitly here.
 require "vagrant/plugin"
