@@ -129,6 +129,16 @@ defaults are typically fine, but you can fine tune whatever you would like.
   net-ssh library (ignored by the `ssh` executable) and should not be used in general.
   This defaults to the value of `config.ssh.username`.
 
+- `config.ssh.retries` (integer) - Number of times to retry establishing an SSH
+  connection before failing. The default value is 5. This value should be >= 1.
+
+- `config.ssh.retry_interval` (integer) - Number seconds to sleep between SSH connection
+  retries. Using this setting together with `config.ssh.retries` can be useful when waiting
+  for hosts to boot where they are pingable first, yet the SSH daemon takes a long time to boot.
+  It is also useful when running provisioning scripts that reboot hosts, allowing time for the
+  hosts to fully boot and SSH to be available.
+  The default value is 10.  This value should be >= 1.
+
 - `config.ssh.shell` (string) - The shell to use when executing SSH commands from
   Vagrant. By default this is `bash -l`.
 

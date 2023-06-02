@@ -2,6 +2,8 @@ module VagrantPlugins
   module Kernel_V2
     class SSHConnectConfig < Vagrant.plugin("2", :config)
       DEFAULT_SSH_CONNECT_TIMEOUT = 15
+      DEFAULT_SSH_RETRIES         = 5
+      DEFAULT_SSH_RETRY_INTERVAL  = 10
 
       attr_accessor :host
       attr_accessor :port
@@ -18,6 +20,8 @@ module VagrantPlugins
       attr_accessor :dsa_authentication
       attr_accessor :extra_args
       attr_accessor :remote_user
+      attr_accessor :retries
+      attr_accessor :retry_interval
 
       def initialize
         @host             = UNSET_VALUE
@@ -35,6 +39,8 @@ module VagrantPlugins
         @dsa_authentication = UNSET_VALUE
         @extra_args       = UNSET_VALUE
         @remote_user      = UNSET_VALUE
+        @retries          = UNSET_VALUE
+        @retry_interval   = UNSET_VALUE
       end
 
       def finalize!
@@ -52,6 +58,8 @@ module VagrantPlugins
         @extra_args       = nil if @extra_args == UNSET_VALUE
         @config           = nil if @config == UNSET_VALUE
         @connect_timeout  = DEFAULT_SSH_CONNECT_TIMEOUT if @connect_timeout == UNSET_VALUE
+        @retries          = DEFAULT_SSH_RETRIES if @retries == UNSET_VALUE
+        @retry_interval   = DEFAULT_SSH_RETRY_INTERVAL if @retry_interval == UNSET_VALUE
 
         if @private_key_path && !@private_key_path.is_a?(Array)
           @private_key_path = [@private_key_path]
@@ -132,6 +140,26 @@ module VagrantPlugins
           errors << I18n.t(
             "vagrant.config.ssh.connect_timeout_invalid_value",
             given: @connect_timeout.to_s)
+        end
+
+        if !@retries.is_a?(Integer)
+          errors << I18n.t(
+            "vagrant.config.ssh.retries_invalid_type",
+            given: @retries.class.name)
+        elsif @retries < 1
+          errors << I18n.t(
+            "vagrant.config.ssh.retries_invalid_value",
+            given: @retries.to_s)
+        end
+
+        if !@retry_interval.is_a?(Integer)
+          errors << I18n.t(
+            "vagrant.config.ssh.retry_interval_invalid_type",
+            given: @retry_interval.class.name)
+        elsif @retry_interval < 1
+          errors << I18n.t(
+            "vagrant.config.ssh.retry_interval_invalid_value",
+            given: @retry_interval.to_s)
         end
 
         errors

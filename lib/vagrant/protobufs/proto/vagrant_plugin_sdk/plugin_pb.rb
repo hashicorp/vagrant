@@ -192,6 +192,8 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
       optional :connect_timeout, :int64, 15
       proto3_optional :ssh_command, :string, 16
       proto3_optional :proxy_command, :string, 17
+      proto3_optional :retries, :int64, 18
+      proto3_optional :retry_interval, :int64, 19
     end
     add_message "hashicorp.vagrant.sdk.Args.Connection.WinrmInfo" do
       optional :username, :string, 1
