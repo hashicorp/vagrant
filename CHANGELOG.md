@@ -10,6 +10,8 @@ IMPROVEMENTS:
 
 BUG FIXES:
 
+- communicator/ssh: Remove keyboard-interactive auth method [GH-13194]
+
 VAGRANT-GO:
 
 ## 2.3.6 (May 19, 2023)
