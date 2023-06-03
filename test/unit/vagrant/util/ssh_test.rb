@@ -87,7 +87,55 @@ describe Vagrant::Util::SSH do
 
       expect(described_class.exec(ssh_info)).to eq(nil)
       expect(Vagrant::Util::SafeExec).to have_received(:exec)
-        .with(ssh_path, "vagrant@localhost", "-p", "2222", "-o", "LogLevel=FATAL","-o", "Compression=yes", "-o", "DSAAuthentication=yes", "-o", "StrictHostKeyChecking=no", "-o", "UserKnownHostsFile=/dev/null", "-i", ssh_info[:private_key_path][0])
+        .with(
+          ssh_path, "vagrant@localhost", "-p", "2222", "-o", "LogLevel=FATAL",
+          "-o", "Compression=yes",
+          "-o", "DSAAuthentication=yes",
+          "-o", "StrictHostKeyChecking=no",
+          "-o", "UserKnownHostsFile=/dev/null",
+          "-o", "PubkeyAcceptedKeyTypes=+ssh-rsa",
+          "-o", "HostKeyAlgorithms=+ssh-rsa",
+          "-i", ssh_info[:private_key_path][0],
+        )
+    end
+
+    context "when deprecated algorithms are disabled" do
+      let(:ssh_info) {{
+        host: "localhost",
+        port: 2222,
+        username: "vagrant",
+        disable_deprecated_algorithms: true,
+      }}
+
+      it "does not include options to enable ssh-rsa key types and host key algorithms" do
+        expect(Vagrant::Util::SafeExec).to receive(:exec) do |*args|
+          args.each do |arg|
+            expect(arg).not_to eq("PubkeyAcceptedKeyTypes=+ssh-rsa")
+            expect(arg).not_to eq("HostKeyAlgorithms=+ssh-rsa")
+          end
+        end
+        described_class.exec(ssh_info)
+      end
+    end
+
+    context "when deprecated algorithms are not disabled" do
+      let(:ssh_info) {{
+        host: "localhost",
+        port: 2222,
+        username: "vagrant",
+      }}
+
+      it "includes options to enable ssh-rsa key types and host key algorithms" do
+        expect(Vagrant::Util::SafeExec).to receive(:exec) do |*args|
+          expect(
+            args.any? { |arg| arg == "PubkeyAcceptedKeyTypes=+ssh-rsa" }
+          ).to be_truthy
+          expect(
+            args.any? { |arg| arg == "HostKeyAlgorithms=+ssh-rsa" }
+          ).to be_truthy
+        end
+        described_class.exec(ssh_info)
+      end
     end
 
     context "when using '%' in a private_key_path" do
@@ -106,7 +154,16 @@ describe Vagrant::Util::SSH do
         described_class.exec(ssh_info)
 
         expect(Vagrant::Util::SafeExec).to have_received(:exec)
-          .with(ssh_path, "vagrant@localhost", "-p", "2222", "-o", "LogLevel=FATAL","-o", "Compression=yes", "-o", "DSAAuthentication=yes", "-o", "StrictHostKeyChecking=no", "-o", "UserKnownHostsFile=/dev/null", "-o", "IdentityFile=\"/tmp/percent%%folder\"")
+          .with(
+            ssh_path, "vagrant@localhost", "-p", "2222", "-o", "LogLevel=FATAL",
+            "-o", "Compression=yes",
+            "-o", "DSAAuthentication=yes",
+            "-o", "StrictHostKeyChecking=no",
+            "-o", "UserKnownHostsFile=/dev/null",
+            "-o", "PubkeyAcceptedKeyTypes=+ssh-rsa",
+            "-o", "HostKeyAlgorithms=+ssh-rsa",
+            "-o", "IdentityFile=\"/tmp/percent%%folder\"",
+          )
       end
     end
 
@@ -125,7 +182,14 @@ describe Vagrant::Util::SSH do
 
         expect(described_class.exec(ssh_info)).to eq(nil)
         expect(Vagrant::Util::SafeExec).to have_received(:exec)
-          .with(ssh_path, "vagrant@localhost", "-p", "2222", "-o", "LogLevel=FATAL", "-o", "StrictHostKeyChecking=no", "-o", "UserKnownHostsFile=/dev/null", "-i", ssh_info[:private_key_path][0])
+          .with(
+            ssh_path, "vagrant@localhost", "-p", "2222", "-o", "LogLevel=FATAL",
+            "-o", "StrictHostKeyChecking=no",
+            "-o", "UserKnownHostsFile=/dev/null",
+            "-o", "PubkeyAcceptedKeyTypes=+ssh-rsa",
+            "-o", "HostKeyAlgorithms=+ssh-rsa",
+            "-i", ssh_info[:private_key_path][0],
+          )
       end
     end
 
@@ -143,7 +207,12 @@ describe Vagrant::Util::SSH do
 
         expect(described_class.exec(ssh_info)).to eq(nil)
         expect(Vagrant::Util::SafeExec).to have_received(:exec)
-          .with(ssh_path, "vagrant@localhost", "-p", "2222", "-o", "LogLevel=FATAL", "-i", ssh_info[:private_key_path][0])
+          .with(
+            ssh_path, "vagrant@localhost", "-p", "2222", "-o", "LogLevel=FATAL",
+            "-o", "PubkeyAcceptedKeyTypes=+ssh-rsa",
+            "-o", "HostKeyAlgorithms=+ssh-rsa",
+            "-i", ssh_info[:private_key_path][0],
+          )
       end
     end
 
@@ -162,7 +231,13 @@ describe Vagrant::Util::SSH do
 
         expect(described_class.exec(ssh_info, {plain_mode: true})).to eq(nil)
         expect(Vagrant::Util::SafeExec).to have_received(:exec)
-          .with(ssh_path, "localhost", "-p", "2222", "-o", "LogLevel=FATAL", "-o", "StrictHostKeyChecking=no", "-o", "UserKnownHostsFile=/dev/null")
+          .with(
+            ssh_path, "localhost", "-p", "2222", "-o", "LogLevel=FATAL",
+            "-o", "StrictHostKeyChecking=no",
+            "-o", "UserKnownHostsFile=/dev/null",
+            "-o", "PubkeyAcceptedKeyTypes=+ssh-rsa",
+            "-o", "HostKeyAlgorithms=+ssh-rsa",
+          )
       end
     end
 
@@ -180,7 +255,16 @@ describe Vagrant::Util::SSH do
 
         expect(described_class.exec(ssh_info)).to eq(nil)
         expect(Vagrant::Util::SafeExec).to have_received(:exec)
-          .with(ssh_path, "vagrant@localhost", "-p", "2222", "-o", "LogLevel=FATAL", "-o", "StrictHostKeyChecking=no", "-o", "UserKnownHostsFile=/dev/null", "-i", ssh_info[:private_key_path][0],"-o", "ForwardX11=yes", "-o", "ForwardX11Trusted=yes")
+          .with(
+            ssh_path, "vagrant@localhost", "-p", "2222", "-o", "LogLevel=FATAL",
+            "-o", "StrictHostKeyChecking=no",
+            "-o", "UserKnownHostsFile=/dev/null",
+            "-o", "PubkeyAcceptedKeyTypes=+ssh-rsa",
+            "-o", "HostKeyAlgorithms=+ssh-rsa",
+            "-i", ssh_info[:private_key_path][0],
+            "-o", "ForwardX11=yes",
+            "-o", "ForwardX11Trusted=yes",
+          )
       end
     end
 
@@ -198,7 +282,15 @@ describe Vagrant::Util::SSH do
 
         expect(described_class.exec(ssh_info)).to eq(nil)
         expect(Vagrant::Util::SafeExec).to have_received(:exec)
-          .with(ssh_path, "vagrant@localhost", "-p", "2222", "-o", "LogLevel=FATAL", "-o", "StrictHostKeyChecking=no", "-o", "UserKnownHostsFile=/dev/null", "-i", ssh_info[:private_key_path][0],"-o", "ForwardAgent=yes")
+          .with(
+            ssh_path, "vagrant@localhost", "-p", "2222", "-o", "LogLevel=FATAL",
+            "-o", "StrictHostKeyChecking=no",
+            "-o", "UserKnownHostsFile=/dev/null",
+            "-o", "PubkeyAcceptedKeyTypes=+ssh-rsa",
+            "-o", "HostKeyAlgorithms=+ssh-rsa",
+            "-i", ssh_info[:private_key_path][0],
+            "-o", "ForwardAgent=yes",
+          )
       end
     end
 
@@ -216,7 +308,15 @@ describe Vagrant::Util::SSH do
 
         expect(described_class.exec(ssh_info)).to eq(nil)
         expect(Vagrant::Util::SafeExec).to have_received(:exec)
-          .with(ssh_path, "vagrant@localhost", "-p", "2222", "-o", "LogLevel=FATAL", "-o", "StrictHostKeyChecking=no", "-o", "UserKnownHostsFile=/dev/null", "-i", ssh_info[:private_key_path][0], "-L", "8008:localhost:80")
+          .with(
+            ssh_path, "vagrant@localhost", "-p", "2222", "-o", "LogLevel=FATAL",
+            "-o", "StrictHostKeyChecking=no",
+            "-o", "UserKnownHostsFile=/dev/null",
+            "-o", "PubkeyAcceptedKeyTypes=+ssh-rsa",
+            "-o", "HostKeyAlgorithms=+ssh-rsa",
+            "-i", ssh_info[:private_key_path][0],
+            "-L", "8008:localhost:80",
+          )
       end
     end
 
@@ -234,7 +334,15 @@ describe Vagrant::Util::SSH do
 
         expect(described_class.exec(ssh_info)).to eq(nil)
         expect(Vagrant::Util::SafeExec).to have_received(:exec)
-          .with(ssh_path, "vagrant@localhost", "-p", "2222", "-o", "LogLevel=FATAL", "-o", "StrictHostKeyChecking=no", "-o", "UserKnownHostsFile=/dev/null", "-i", ssh_info[:private_key_path][0], "-6")
+          .with(
+            ssh_path, "vagrant@localhost", "-p", "2222", "-o", "LogLevel=FATAL",
+            "-o", "StrictHostKeyChecking=no",
+            "-o", "UserKnownHostsFile=/dev/null",
+            "-o", "PubkeyAcceptedKeyTypes=+ssh-rsa",
+            "-o", "HostKeyAlgorithms=+ssh-rsa",
+            "-i", ssh_info[:private_key_path][0],
+            "-6",
+          )
       end
     end
 

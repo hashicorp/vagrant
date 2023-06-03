@@ -36,3 +36,7 @@ Host <%= host_key %>
 <% if proxy_command -%>
   ProxyCommand <%= proxy_command %>
 <% end -%>
+<% if !disable_deprecated_algorithms -%>
+  PubkeyAcceptedKeyTypes +ssh-rsa
+  HostKeyAlgorithms +ssh-rsa
+<% end -%>
