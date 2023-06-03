@@ -11,6 +11,7 @@ IMPROVEMENTS:
 BUG FIXES:
 
 - communicator/ssh: Remove keyboard-interactive auth method [GH-13194]
+- provisioner/salt: Fix usage on Windows guests [GH-13086]
 
 VAGRANT-GO:
 
