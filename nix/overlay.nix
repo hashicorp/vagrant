@@ -2,7 +2,7 @@ final: prev: rec {
   # This is the pinned protoc version we have for this project.
   protobufPin = prev.protobuf3_19;
 
-  ruby = final.ruby_2_7;
+  ruby = final.ruby_3_1;
 
   devShell = final.callPackage ./vagrant.nix { };
 
