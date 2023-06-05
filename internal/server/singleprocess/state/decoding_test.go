@@ -25,7 +25,7 @@ func TestSoftDecode(t *testing.T) {
 		s := TestState(t)
 		defer s.Close()
 
-		pref := testProjectProto(t, s)
+		pref := TestProjectProto(t, s)
 		tproto := &vagrant_server.Target{
 			Project: pref,
 		}

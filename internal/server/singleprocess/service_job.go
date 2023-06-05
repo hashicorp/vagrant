@@ -14,7 +14,6 @@ import (
 	"github.com/hashicorp/vagrant/internal/server"
 	"github.com/hashicorp/vagrant/internal/server/logbuffer"
 	"github.com/hashicorp/vagrant/internal/server/proto/vagrant_server"
-	serverptypes "github.com/hashicorp/vagrant/internal/server/ptypes"
 	"github.com/hashicorp/vagrant/internal/server/singleprocess/state"
 )
 
@@ -117,8 +116,8 @@ func (s *service) ValidateJob(
 	var err error
 	result := &vagrant_server.ValidateJobResponse{Valid: true}
 
-	// Struct validation
-	if err := serverptypes.ValidateJob(req.Job); err != nil {
+	// Validate the job details
+	if err := s.state.JobValidate(req.Job); err != nil {
 		result.Valid = false
 		result.ValidationError = status.New(codes.FailedPrecondition, err.Error()).Proto()
 		return result, nil

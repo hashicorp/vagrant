@@ -107,5 +107,6 @@ func testBox() *vagrant_server.Box {
 		// Id must be Name-Provider-Version because indexing assumes it is
 		// (the NewBox constructor normally generates this in core/box)
 		ResourceId: "test/box-1.2.3-virtualbox",
+		Directory:  "/dev/null/box",
 	}
 }

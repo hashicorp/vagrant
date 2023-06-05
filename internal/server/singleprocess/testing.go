@@ -4,13 +4,16 @@ import (
 	"context"
 	"io/ioutil"
 	"os"
+	"path/filepath"
 
 	"github.com/glebarez/sqlite"
 	"github.com/imdario/mergo"
 	"github.com/mitchellh/go-testing-interface"
+	"github.com/mitchellh/mapstructure"
 	"github.com/stretchr/testify/require"
 	"gorm.io/gorm"
 
+	"github.com/hashicorp/vagrant-plugin-sdk/proto/vagrant_plugin_sdk"
 	"github.com/hashicorp/vagrant/internal/server"
 	pb "github.com/hashicorp/vagrant/internal/server/proto/vagrant_server"
 	"github.com/hashicorp/vagrant/internal/server/singleprocess/state"
@@ -138,19 +141,47 @@ func TestRunner(t testing.T, client pb.VagrantClient, r *pb.Runner) (string, fun
 }
 
 // TestBasis creates the basis in the DB.
-func TestBasis(t testing.T, client pb.VagrantClient, ref *pb.Basis) {
+func TestBasis(t testing.T, client pb.VagrantClient, ref *pb.Basis) *pb.Basis {
+	if ref == nil {
+		ref = &pb.Basis{}
+	}
+
 	td := testTempDir(t)
 	defaultBasis := &pb.Basis{
-		Name: "test",
+		Name: filepath.Base(td),
 		Path: td,
 	}
 
 	require.NoError(t, mergo.Merge(ref, defaultBasis))
 
-	_, err := client.UpsertBasis(context.Background(), &pb.UpsertBasisRequest{
+	resp, err := client.UpsertBasis(context.Background(), &pb.UpsertBasisRequest{
 		Basis: ref,
 	})
 	require.NoError(t, err)
+
+	return resp.Basis
+}
+
+func TestJob(t testing.T, client pb.VagrantClient, ref *pb.Job) *pb.Job {
+	var job pb.Job
+
+	if ref == nil {
+		ref = &pb.Job{}
+	}
+
+	err := mapstructure.Decode(ref, &job)
+	require.NoError(t, err)
+
+	if job.Scope == nil {
+		basis := TestBasis(t, client, nil)
+		job.Scope = &pb.Job_Basis{
+			Basis: &vagrant_plugin_sdk.Ref_Basis{
+				ResourceId: basis.ResourceId,
+			},
+		}
+	}
+
+	return state.TestJobProto(t, &job)
 }
 
 func testDB(t testing.T) *gorm.DB {

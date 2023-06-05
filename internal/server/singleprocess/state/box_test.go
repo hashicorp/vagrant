@@ -10,7 +10,7 @@ import (
 
 func TestBox_Create(t *testing.T) {
 	t.Run("Requires directory, name, provider", func(t *testing.T) {
-		require, db := requireAndDB(t)
+		require, db := RequireAndDB(t)
 
 		result := db.Save(&Box{})
 		require.Error(result.Error)
@@ -20,7 +20,7 @@ func TestBox_Create(t *testing.T) {
 	})
 
 	t.Run("Requires directory", func(t *testing.T) {
-		require, db := requireAndDB(t)
+		require, db := RequireAndDB(t)
 
 		result := db.Save(&Box{Name: "default", Provider: "virt"})
 		require.Error(result.Error)
@@ -28,7 +28,7 @@ func TestBox_Create(t *testing.T) {
 	})
 
 	t.Run("Requires name", func(t *testing.T) {
-		require, db := requireAndDB(t)
+		require, db := RequireAndDB(t)
 
 		result := db.Save(&Box{Provider: "virt", Directory: "/dev/null"})
 		require.Error(result.Error)
@@ -36,7 +36,7 @@ func TestBox_Create(t *testing.T) {
 	})
 
 	t.Run("Requires provider", func(t *testing.T) {
-		require, db := requireAndDB(t)
+		require, db := RequireAndDB(t)
 
 		result := db.Save(&Box{Name: "default", Directory: "/dev/null"})
 		require.Error(result.Error)
@@ -44,7 +44,7 @@ func TestBox_Create(t *testing.T) {
 	})
 
 	t.Run("Sets the ResourceId", func(t *testing.T) {
-		require, db := requireAndDB(t)
+		require, db := RequireAndDB(t)
 
 		result := db.Save(&Box{
 			Name:      "default",
@@ -59,7 +59,7 @@ func TestBox_Create(t *testing.T) {
 	})
 
 	t.Run("Defaults version when not set", func(t *testing.T) {
-		require, db := requireAndDB(t)
+		require, db := RequireAndDB(t)
 
 		result := db.Save(&Box{
 			Name:      "default",
@@ -74,7 +74,7 @@ func TestBox_Create(t *testing.T) {
 	})
 
 	t.Run("Defaults version when set to 0", func(t *testing.T) {
-		require, db := requireAndDB(t)
+		require, db := RequireAndDB(t)
 
 		result := db.Save(&Box{
 			Name:      "default",
@@ -90,7 +90,7 @@ func TestBox_Create(t *testing.T) {
 	})
 
 	t.Run("Requires version to be semver", func(t *testing.T) {
-		require, db := requireAndDB(t)
+		require, db := RequireAndDB(t)
 
 		box := &Box{
 			Name:      "default",
@@ -115,7 +115,7 @@ func TestBox_Create(t *testing.T) {
 	})
 
 	t.Run("Does not allow duplicates", func(t *testing.T) {
-		require, db := requireAndDB(t)
+		require, db := RequireAndDB(t)
 
 		result := db.Save(&Box{
 			Name:      "default",
@@ -138,7 +138,7 @@ func TestBox_Create(t *testing.T) {
 	})
 
 	t.Run("Allows multiple versions", func(t *testing.T) {
-		require, db := requireAndDB(t)
+		require, db := RequireAndDB(t)
 
 		result := db.Save(&Box{
 			Name:      "default",
@@ -158,7 +158,7 @@ func TestBox_Create(t *testing.T) {
 	})
 
 	t.Run("Allows multiple providers", func(t *testing.T) {
-		require, db := requireAndDB(t)
+		require, db := RequireAndDB(t)
 
 		result := db.Save(&Box{
 			Name:      "default",
@@ -390,7 +390,7 @@ func TestBox_State(t *testing.T) {
 		b7, err := s.BoxFind(&vagrant_plugin_sdk.Ref_Box{
 			Name: "dontexist",
 		})
-		require.Error(err)
+		require.NoError(err)
 		require.Nil(b7)
 
 		b8, err := s.BoxFind(&vagrant_plugin_sdk.Ref_Box{
@@ -415,7 +415,7 @@ func TestBox_State(t *testing.T) {
 			Name:    "hashicorp/bionic",
 			Version: "< 1.0",
 		})
-		require.Error(err)
+		require.NoError(err)
 		require.Nil(b10)
 
 		b11, err := s.BoxFind(&vagrant_plugin_sdk.Ref_Box{

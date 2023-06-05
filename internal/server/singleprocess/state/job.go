@@ -8,12 +8,13 @@ import (
 	"sort"
 	"time"
 
+	"github.com/go-ozzo/ozzo-validation/v4"
 	"github.com/hashicorp/go-memdb"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/timestamppb"
 	"gorm.io/gorm"
-	"gorm.io/gorm/clause"
+	//	"gorm.io/gorm/clause"
 
 	"github.com/hashicorp/vagrant/internal/server"
 	"github.com/hashicorp/vagrant/internal/server/logbuffer"
@@ -123,7 +124,7 @@ func (i *InternalJob) AfterFind(tx *gorm.DB) (err error) {
 	switch i.ScopeType {
 	case "basis":
 		var b Basis
-		result := tx.Preload(clause.Associations).
+		result := tx.
 			First(&b, &Basis{Model: Model{ID: *i.ScopeID}})
 		if result.Error != nil {
 			return result.Error
@@ -131,7 +132,7 @@ func (i *InternalJob) AfterFind(tx *gorm.DB) (err error) {
 		i.Scope = &b
 	case "project":
 		var p Project
-		result := tx.Preload(clause.Associations).
+		result := tx.
 			First(&p, &Project{Model: Model{ID: *i.ScopeID}})
 		if result.Error != nil {
 			return result.Error
@@ -139,7 +140,7 @@ func (i *InternalJob) AfterFind(tx *gorm.DB) (err error) {
 		i.Scope = &p
 	case "target":
 		var t Target
-		result := tx.Preload(clause.Associations).
+		result := tx.
 			First(&t, &Target{Model: Model{ID: *i.ScopeID}})
 		if result.Error != nil {
 			return result.Error
@@ -150,6 +151,21 @@ func (i *InternalJob) AfterFind(tx *gorm.DB) (err error) {
 	}
 
 	return nil
+}
+
+func (i *InternalJob) Validate(tx *gorm.DB) error {
+	return validation.ValidateStruct(i,
+		validation.Field(&i.Jid,
+			validation.Required,
+			validation.By(
+				checkUnique(
+					tx.Model((*InternalJob)(nil)).
+						Where(&InternalJob{Jid: i.Jid}).
+						Not(&InternalJob{Model: Model{ID: i.ID}}),
+				),
+			),
+		),
+	)
 }
 
 // Convert job to a protobuf message
@@ -308,6 +324,20 @@ type Job struct {
 	// Blocked is true if this job is blocked on another job for the same
 	// project/app/workspace.
 	Blocked bool
+}
+
+func (s *State) JobValidate(jobpb *vagrant_server.Job) error {
+	var job InternalJob
+
+	if err := s.softDecode(jobpb, &job); err != nil {
+		return errorToStatus(err)
+	}
+
+	if err := job.Validate(s.db); err != nil {
+		return errorToStatus(err)
+	}
+
+	return nil
 }
 
 // JobCreate queues the given job.

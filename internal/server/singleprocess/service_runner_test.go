@@ -11,7 +11,6 @@ import (
 
 	"github.com/hashicorp/vagrant/internal/server"
 	"github.com/hashicorp/vagrant/internal/server/proto/vagrant_server"
-	serverptypes "github.com/hashicorp/vagrant/internal/server/ptypes"
 )
 
 // Complete happy path job stream
@@ -25,10 +24,14 @@ func TestServiceRunnerJobStream_complete(t *testing.T) {
 	client := server.TestServer(t, impl)
 
 	// Initialize our basis
-	TestBasis(t, client, serverptypes.TestBasis(t, nil))
+	TestBasis(t, client, nil)
 
 	// Create a job
-	queueResp, err := client.QueueJob(ctx, &vagrant_server.QueueJobRequest{Job: serverptypes.TestJobNew(t, nil)})
+	queueResp, err := client.QueueJob(ctx,
+		&vagrant_server.QueueJobRequest{
+			Job: TestJob(t, client, nil),
+		},
+	)
 	require.NoError(err)
 	require.NotNil(queueResp)
 	require.NotEmpty(queueResp.JobId)
@@ -73,7 +76,7 @@ func TestServiceRunnerJobStream_complete(t *testing.T) {
 	// Should be done
 	_, err = stream.Recv()
 	require.Error(err)
-	require.Equal(io.EOF, err)
+	require.Equal(io.EOF.Error(), err.Error())
 
 	// Query our job and it should be done
 	job, err := testServiceImpl(impl).state.JobById(queueResp.JobId, nil)
@@ -116,10 +119,14 @@ func TestServiceRunnerJobStream_errorBeforeAck(t *testing.T) {
 	client := server.TestServer(t, impl)
 
 	// Initialize our basis
-	TestBasis(t, client, serverptypes.TestBasis(t, nil))
+	TestBasis(t, client, TestBasis(t, client, nil))
 
 	// Create a job
-	queueResp, err := client.QueueJob(ctx, &vagrant_server.QueueJobRequest{Job: serverptypes.TestJobNew(t, nil)})
+	queueResp, err := client.QueueJob(ctx,
+		&vagrant_server.QueueJobRequest{
+			Job: TestJob(t, client, nil),
+		},
+	)
 	require.NoError(err)
 	require.NotNil(queueResp)
 	require.NotEmpty(queueResp.JobId)
@@ -178,10 +185,14 @@ func TestServiceRunnerJobStream_cancel(t *testing.T) {
 	client := server.TestServer(t, impl)
 
 	// Initialize our basis
-	TestBasis(t, client, serverptypes.TestBasis(t, nil))
+	TestBasis(t, client, TestBasis(t, client, nil))
 
 	// Create a job
-	queueResp, err := client.QueueJob(ctx, &vagrant_server.QueueJobRequest{Job: serverptypes.TestJobNew(t, nil)})
+	queueResp, err := client.QueueJob(ctx,
+		&vagrant_server.QueueJobRequest{
+			Job: TestJob(t, client, nil),
+		},
+	)
 	require.NoError(err)
 	require.NotNil(queueResp)
 	require.NotEmpty(queueResp.JobId)

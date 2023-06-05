@@ -326,10 +326,10 @@ func (s *State) BoxFind(
 	if b.Name == "" {
 		return nil, lookupErrorToStatus("box", fmt.Errorf("no name given for box lookup"))
 	}
-	// If no provider is given, we error immediately
-	if b.Provider == "" {
-		return nil, lookupErrorToStatus("box", fmt.Errorf("no provider given for box lookup"))
-	}
+	// // If no provider is given, we error immediately
+	// if b.Provider == "" {
+	// 	return nil, lookupErrorToStatus("box", fmt.Errorf("no provider given for box lookup"))
+	// }
 
 	// If the version is set to 0, mark it as default
 	if b.Version == "0" {

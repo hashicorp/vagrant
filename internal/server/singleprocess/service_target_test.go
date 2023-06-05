@@ -25,6 +25,7 @@ func TestServiceTarget(t *testing.T) {
 		basisResp, err := client.UpsertBasis(ctx, &vagrant_server.UpsertBasisRequest{
 			Basis: &vagrant_server.Basis{
 				Name: "mybasis",
+				Path: "/dev/null",
 			},
 		})
 		require.NoError(err)
@@ -32,6 +33,7 @@ func TestServiceTarget(t *testing.T) {
 		projectResp, err := client.UpsertProject(ctx, &vagrant_server.UpsertProjectRequest{
 			Project: &vagrant_server.Project{
 				Name:  "myproject",
+				Path:  "/dev/null/project",
 				Basis: &vagrant_plugin_sdk.Ref_Basis{ResourceId: basisResp.Basis.ResourceId},
 			},
 		})
@@ -60,6 +62,7 @@ func TestServiceTarget(t *testing.T) {
 		basisResp, err := client.UpsertBasis(ctx, &vagrant_server.UpsertBasisRequest{
 			Basis: &vagrant_server.Basis{
 				Name: "mybasis",
+				Path: "/dev/null",
 			},
 		})
 		require.NoError(err)
@@ -122,6 +125,6 @@ func TestServiceTarget(t *testing.T) {
 			},
 		})
 		require.Error(err)
-		require.Contains(err.Error(), "not found")
+		require.Contains(err.Error(), "not include parent")
 	})
 }

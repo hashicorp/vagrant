@@ -105,7 +105,7 @@ func TestDB(t testing.T) *gorm.DB {
 	return db
 }
 
-func requireAndDB(t testing.T) (*require.Assertions, *gorm.DB) {
+func RequireAndDB(t testing.T) (*require.Assertions, *gorm.DB) {
 	db := TestDB(t)
 	require := require.New(t)
 	if err := db.AutoMigrate(models...); err != nil {
@@ -114,10 +114,10 @@ func requireAndDB(t testing.T) (*require.Assertions, *gorm.DB) {
 	return require, db
 }
 
-func testBasis(t testing.T, db *gorm.DB) *Basis {
+func TestBasis(t testing.T, db *gorm.DB) *Basis {
 	t.Helper()
 
-	td := testTempDir(t)
+	td := TestTempDir(t)
 	b := &Basis{
 		Name: filepath.Base(td),
 		Path: td,
@@ -129,16 +129,16 @@ func testBasis(t testing.T, db *gorm.DB) *Basis {
 }
 
 // TestBasis creates the basis in the DB.
-func testBasisProto(t testing.T, s *State) *vagrant_plugin_sdk.Ref_Basis {
+func TestBasisProto(t testing.T, s *State) *vagrant_plugin_sdk.Ref_Basis {
 	t.Helper()
 
-	return testBasis(t, s.db).ToProtoRef()
+	return TestBasis(t, s.db).ToProtoRef()
 }
 
-func testProject(t testing.T, db *gorm.DB) *Project {
-	b := testBasis(t, db)
+func TestProject(t testing.T, db *gorm.DB) *Project {
+	b := TestBasis(t, db)
 
-	td := testTempDir(t)
+	td := TestTempDir(t)
 	p := &Project{
 		Name:  filepath.Base(td),
 		Path:  td,
@@ -150,10 +150,10 @@ func testProject(t testing.T, db *gorm.DB) *Project {
 	return p
 }
 
-func testProjectProto(t testing.T, s *State) *vagrant_plugin_sdk.Ref_Project {
+func TestProjectProto(t testing.T, s *State) *vagrant_plugin_sdk.Ref_Project {
 	t.Helper()
 
-	return testProject(t, s.db).ToProtoRef()
+	return TestProject(t, s.db).ToProtoRef()
 }
 
 func testRunnerProto(t testing.T, s *State, src *vagrant_server.Runner) *vagrant_server.Runner {
@@ -175,7 +175,7 @@ func testRunnerProto(t testing.T, s *State, src *vagrant_server.Runner) *vagrant
 	return runner.ToProto()
 }
 
-func testJobProto(t testing.T, src *vagrant_server.Job) *vagrant_server.Job {
+func TestJobProto(t testing.T, src *vagrant_server.Job) *vagrant_server.Job {
 	t.Helper()
 
 	require.NoError(t, mergo.Merge(src,
@@ -199,7 +199,7 @@ func testJobProto(t testing.T, src *vagrant_server.Job) *vagrant_server.Job {
 	return src
 }
 
-func testTempDir(t testing.T) string {
+func TestTempDir(t testing.T) string {
 	t.Helper()
 
 	dir, err := ioutil.TempDir("", "vagrant-test")

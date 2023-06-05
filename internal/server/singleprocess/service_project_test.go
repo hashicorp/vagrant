@@ -115,7 +115,7 @@ func TestServiceProject(t *testing.T) {
 			},
 		})
 		require.Error(err)
-		require.Contains(err.Error(), "not found")
+		require.Contains(err.Error(), "Basis: cannot be blank")
 	})
 
 	t.Run("reasonable errors: get not found", func(t *testing.T) {

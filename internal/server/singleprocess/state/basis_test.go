@@ -11,7 +11,7 @@ import (
 
 func TestBasis_Create(t *testing.T) {
 	t.Run("Requires name and path", func(t *testing.T) {
-		require, db := requireAndDB(t)
+		require, db := RequireAndDB(t)
 
 		result := db.Save(&Basis{})
 		require.Error(result.Error)
@@ -20,7 +20,7 @@ func TestBasis_Create(t *testing.T) {
 	})
 
 	t.Run("Requires name", func(t *testing.T) {
-		require, db := requireAndDB(t)
+		require, db := RequireAndDB(t)
 
 		result := db.Save(&Basis{Path: "/dev/null"})
 		require.Error(result.Error)
@@ -28,7 +28,7 @@ func TestBasis_Create(t *testing.T) {
 	})
 
 	t.Run("Requires path", func(t *testing.T) {
-		require, db := requireAndDB(t)
+		require, db := RequireAndDB(t)
 
 		result := db.Save(&Basis{Name: "default"})
 		require.Error(result.Error)
@@ -36,7 +36,7 @@ func TestBasis_Create(t *testing.T) {
 	})
 
 	t.Run("Sets resource ID", func(t *testing.T) {
-		require, db := requireAndDB(t)
+		require, db := RequireAndDB(t)
 
 		basis := Basis{Name: "default", Path: "/dev/null"}
 		result := db.Save(&basis)
@@ -45,7 +45,7 @@ func TestBasis_Create(t *testing.T) {
 	})
 
 	t.Run("Retains resource ID", func(t *testing.T) {
-		require, db := requireAndDB(t)
+		require, db := RequireAndDB(t)
 
 		rid := "RESOURCE_ID"
 		basis := Basis{Name: "default", Path: "/dev/null", ResourceId: rid}
@@ -55,7 +55,7 @@ func TestBasis_Create(t *testing.T) {
 	})
 
 	t.Run("Does not allow duplicate name", func(t *testing.T) {
-		require, db := requireAndDB(t)
+		require, db := RequireAndDB(t)
 
 		result := db.Save(&Basis{Name: "default", Path: "/dev/null"})
 		require.NoError(result.Error)
@@ -65,7 +65,7 @@ func TestBasis_Create(t *testing.T) {
 	})
 
 	t.Run("Does not allow duplicate path", func(t *testing.T) {
-		require, db := requireAndDB(t)
+		require, db := RequireAndDB(t)
 
 		result := db.Save(&Basis{Name: "default", Path: "/dev/null"})
 		require.NoError(result.Error)
@@ -75,7 +75,7 @@ func TestBasis_Create(t *testing.T) {
 	})
 
 	t.Run("Does not allow duplicate resource IDs", func(t *testing.T) {
-		require, db := requireAndDB(t)
+		require, db := RequireAndDB(t)
 
 		rid := "RESOURCE ID"
 		result := db.Save(&Basis{Name: "default", Path: "/dev/null", ResourceId: rid})
@@ -86,7 +86,7 @@ func TestBasis_Create(t *testing.T) {
 	})
 
 	t.Run("Creates Vagrantfile when set", func(t *testing.T) {
-		require, db := requireAndDB(t)
+		require, db := RequireAndDB(t)
 
 		vagrantfile := Vagrantfile{}
 		basis := Basis{
@@ -103,7 +103,7 @@ func TestBasis_Create(t *testing.T) {
 
 func TestBasis_Update(t *testing.T) {
 	t.Run("Requires name and path", func(t *testing.T) {
-		require, db := requireAndDB(t)
+		require, db := RequireAndDB(t)
 
 		basis := &Basis{Name: "default", Path: "/dev/null"}
 		result := db.Save(basis)
@@ -118,7 +118,7 @@ func TestBasis_Update(t *testing.T) {
 	})
 
 	t.Run("Requires name", func(t *testing.T) {
-		require, db := requireAndDB(t)
+		require, db := RequireAndDB(t)
 
 		basis := &Basis{Name: "default", Path: "/dev/null"}
 		result := db.Save(basis)
@@ -130,7 +130,7 @@ func TestBasis_Update(t *testing.T) {
 	})
 
 	t.Run("Requires path", func(t *testing.T) {
-		require, db := requireAndDB(t)
+		require, db := RequireAndDB(t)
 
 		basis := &Basis{Name: "default", Path: "/dev/null"}
 		result := db.Save(basis)
@@ -142,7 +142,7 @@ func TestBasis_Update(t *testing.T) {
 	})
 
 	t.Run("Does not update resource ID", func(t *testing.T) {
-		require, db := requireAndDB(t)
+		require, db := RequireAndDB(t)
 
 		basis := Basis{Name: "default", Path: "/dev/null"}
 		result := db.Save(&basis)
@@ -160,7 +160,7 @@ func TestBasis_Update(t *testing.T) {
 	})
 
 	t.Run("Adds Vagrantfile", func(t *testing.T) {
-		require, db := requireAndDB(t)
+		require, db := RequireAndDB(t)
 
 		vpath := "/dev/null/Vagrantfile"
 		basis := Basis{Name: "default", Path: "/dev/null"}
@@ -174,7 +174,7 @@ func TestBasis_Update(t *testing.T) {
 	})
 
 	t.Run("Updates existing Vagrantfile content", func(t *testing.T) {
-		require, db := requireAndDB(t)
+		require, db := RequireAndDB(t)
 
 		// Create inital basis
 		vpath := "/dev/null/Vagrantfile"
@@ -210,7 +210,7 @@ func TestBasis_Update(t *testing.T) {
 
 func TestBasis_Delete(t *testing.T) {
 	t.Run("Deletes basis", func(t *testing.T) {
-		require, db := requireAndDB(t)
+		require, db := RequireAndDB(t)
 
 		result := db.Save(&Basis{Name: "default", Path: "/dev/null"})
 		require.NoError(result.Error)
@@ -228,7 +228,7 @@ func TestBasis_Delete(t *testing.T) {
 	})
 
 	t.Run("Deletes Vagrantfile", func(t *testing.T) {
-		require, db := requireAndDB(t)
+		require, db := RequireAndDB(t)
 
 		vpath := "/dev/null/Vagrantfile"
 		result := db.Save(&Basis{
@@ -252,7 +252,7 @@ func TestBasis_Delete(t *testing.T) {
 	})
 
 	t.Run("Deletes Projects", func(t *testing.T) {
-		require, db := requireAndDB(t)
+		require, db := RequireAndDB(t)
 
 		result := db.Save(&Basis{
 			Name: "default",

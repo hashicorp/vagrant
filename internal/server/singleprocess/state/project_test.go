@@ -8,14 +8,12 @@ import (
 	"google.golang.org/grpc/status"
 
 	"github.com/hashicorp/vagrant-plugin-sdk/proto/vagrant_plugin_sdk"
-	"github.com/hashicorp/vagrant/internal/server/proto/vagrant_server"
-	serverptypes "github.com/hashicorp/vagrant/internal/server/ptypes"
 	"gorm.io/gorm"
 )
 
 func TestProject_Create(t *testing.T) {
 	t.Run("Requires name, path, and basis", func(t *testing.T) {
-		require, db := requireAndDB(t)
+		require, db := RequireAndDB(t)
 
 		result := db.Save(&Project{})
 		require.Error(result.Error)
@@ -25,12 +23,12 @@ func TestProject_Create(t *testing.T) {
 	})
 
 	t.Run("Requires name", func(t *testing.T) {
-		require, db := requireAndDB(t)
+		require, db := RequireAndDB(t)
 
 		result := db.Save(
 			&Project{
 				Path:  "/dev/null",
-				Basis: testBasis(t, db),
+				Basis: TestBasis(t, db),
 			},
 		)
 		require.Error(result.Error)
@@ -38,12 +36,12 @@ func TestProject_Create(t *testing.T) {
 	})
 
 	t.Run("Requires path", func(t *testing.T) {
-		require, db := requireAndDB(t)
+		require, db := RequireAndDB(t)
 
 		result := db.Save(
 			&Project{
 				Name:  "default",
-				Basis: testBasis(t, db),
+				Basis: TestBasis(t, db),
 			},
 		)
 		require.Error(result.Error)
@@ -51,7 +49,7 @@ func TestProject_Create(t *testing.T) {
 	})
 
 	t.Run("Requires basis", func(t *testing.T) {
-		require, db := requireAndDB(t)
+		require, db := RequireAndDB(t)
 
 		result := db.Save(
 			&Project{
@@ -64,12 +62,12 @@ func TestProject_Create(t *testing.T) {
 	})
 
 	t.Run("Sets resource ID", func(t *testing.T) {
-		require, db := requireAndDB(t)
+		require, db := RequireAndDB(t)
 
 		project := Project{
 			Name:  "default",
 			Path:  "/dev/null",
-			Basis: testBasis(t, db),
+			Basis: TestBasis(t, db),
 		}
 		result := db.Save(&project)
 		require.NoError(result.Error)
@@ -77,14 +75,14 @@ func TestProject_Create(t *testing.T) {
 	})
 
 	t.Run("Retains resource ID", func(t *testing.T) {
-		require, db := requireAndDB(t)
+		require, db := RequireAndDB(t)
 
 		rid := "RESOURCE_ID"
 		project := Project{
 			Name:       "default",
 			Path:       "/dev/null",
 			ResourceId: rid,
-			Basis:      testBasis(t, db),
+			Basis:      TestBasis(t, db),
 		}
 		result := db.Save(&project)
 		require.NoError(result.Error)
@@ -92,9 +90,9 @@ func TestProject_Create(t *testing.T) {
 	})
 
 	t.Run("Does not allow duplicate name in same basis", func(t *testing.T) {
-		require, db := requireAndDB(t)
+		require, db := RequireAndDB(t)
 
-		basis := testBasis(t, db)
+		basis := TestBasis(t, db)
 		result := db.Save(
 			&Project{
 				Name:  "default",
@@ -115,13 +113,13 @@ func TestProject_Create(t *testing.T) {
 	})
 
 	t.Run("Allows duplicate name in different basis", func(t *testing.T) {
-		require, db := requireAndDB(t)
+		require, db := RequireAndDB(t)
 
 		result := db.Save(
 			&Project{
 				Name:  "default",
 				Path:  "/dev/null",
-				Basis: testBasis(t, db),
+				Basis: TestBasis(t, db),
 			},
 		)
 		require.NoError(result.Error)
@@ -129,16 +127,16 @@ func TestProject_Create(t *testing.T) {
 			&Project{
 				Name:  "default",
 				Path:  "/dev/null/other",
-				Basis: testBasis(t, db),
+				Basis: TestBasis(t, db),
 			},
 		)
 		require.NoError(result.Error)
 	})
 
 	t.Run("Does not allow duplicate path in same basis", func(t *testing.T) {
-		require, db := requireAndDB(t)
+		require, db := RequireAndDB(t)
 
-		basis := testBasis(t, db)
+		basis := TestBasis(t, db)
 		result := db.Save(
 			&Project{
 				Name:  "default",
@@ -159,13 +157,13 @@ func TestProject_Create(t *testing.T) {
 	})
 
 	t.Run("Allows duplicate path in different basis", func(t *testing.T) {
-		require, db := requireAndDB(t)
+		require, db := RequireAndDB(t)
 
 		result := db.Save(
 			&Project{
 				Name:  "default",
 				Path:  "/dev/null",
-				Basis: testBasis(t, db),
+				Basis: TestBasis(t, db),
 			},
 		)
 		require.NoError(result.Error)
@@ -173,14 +171,14 @@ func TestProject_Create(t *testing.T) {
 			&Project{
 				Name:  "other",
 				Path:  "/dev/null",
-				Basis: testBasis(t, db),
+				Basis: TestBasis(t, db),
 			},
 		)
 		require.NoError(result.Error)
 	})
 
 	t.Run("Does not allow duplicate resource IDs", func(t *testing.T) {
-		require, db := requireAndDB(t)
+		require, db := RequireAndDB(t)
 
 		rid := "RESOURCE ID"
 		result := db.Save(
@@ -188,7 +186,7 @@ func TestProject_Create(t *testing.T) {
 				Name:       "default",
 				Path:       "/dev/null",
 				ResourceId: rid,
-				Basis:      testBasis(t, db),
+				Basis:      TestBasis(t, db),
 			},
 		)
 		require.NoError(result.Error)
@@ -197,7 +195,7 @@ func TestProject_Create(t *testing.T) {
 				Name:       "other",
 				Path:       "/dev/null/other",
 				ResourceId: rid,
-				Basis:      testBasis(t, db),
+				Basis:      TestBasis(t, db),
 			},
 		)
 		require.Error(result.Error)
@@ -205,13 +203,13 @@ func TestProject_Create(t *testing.T) {
 	})
 
 	t.Run("Creates Vagrantfile when set", func(t *testing.T) {
-		require, db := requireAndDB(t)
+		require, db := RequireAndDB(t)
 
 		vagrantfile := Vagrantfile{}
 		project := Project{
 			Name:        "default",
 			Path:        "/dev/null",
-			Basis:       testBasis(t, db),
+			Basis:       TestBasis(t, db),
 			Vagrantfile: &vagrantfile,
 		}
 		result := db.Save(&project)
@@ -223,12 +221,12 @@ func TestProject_Create(t *testing.T) {
 
 func TestProject_Update(t *testing.T) {
 	t.Run("Requires name and path", func(t *testing.T) {
-		require, db := requireAndDB(t)
+		require, db := RequireAndDB(t)
 
 		project := &Project{
 			Name:  "default",
 			Path:  "/dev/null",
-			Basis: testBasis(t, db),
+			Basis: TestBasis(t, db),
 		}
 		result := db.Save(project)
 		require.NoError(result.Error)
@@ -242,12 +240,12 @@ func TestProject_Update(t *testing.T) {
 	})
 
 	t.Run("Requires name", func(t *testing.T) {
-		require, db := requireAndDB(t)
+		require, db := RequireAndDB(t)
 
 		project := &Project{
 			Name:  "default",
 			Path:  "/dev/null",
-			Basis: testBasis(t, db),
+			Basis: TestBasis(t, db),
 		}
 		result := db.Save(project)
 		require.NoError(result.Error)
@@ -258,12 +256,12 @@ func TestProject_Update(t *testing.T) {
 	})
 
 	t.Run("Requires path", func(t *testing.T) {
-		require, db := requireAndDB(t)
+		require, db := RequireAndDB(t)
 
 		project := &Project{
 			Name:  "default",
 			Path:  "/dev/null",
-			Basis: testBasis(t, db),
+			Basis: TestBasis(t, db),
 		}
 		result := db.Save(project)
 		require.NoError(result.Error)
@@ -274,12 +272,12 @@ func TestProject_Update(t *testing.T) {
 	})
 
 	t.Run("Requires basis", func(t *testing.T) {
-		require, db := requireAndDB(t)
+		require, db := RequireAndDB(t)
 
 		project := &Project{
 			Name:  "default",
 			Path:  "/dev/null",
-			Basis: testBasis(t, db),
+			Basis: TestBasis(t, db),
 		}
 		result := db.Save(project)
 		require.NoError(result.Error)
@@ -290,12 +288,12 @@ func TestProject_Update(t *testing.T) {
 	})
 
 	t.Run("Does not update resource ID", func(t *testing.T) {
-		require, db := requireAndDB(t)
+		require, db := RequireAndDB(t)
 
 		project := Project{
 			Name:  "default",
 			Path:  "/dev/null",
-			Basis: testBasis(t, db),
+			Basis: TestBasis(t, db),
 		}
 		result := db.Save(&project)
 		require.NoError(result.Error)
@@ -313,13 +311,13 @@ func TestProject_Update(t *testing.T) {
 	})
 
 	t.Run("Adds Vagrantfile", func(t *testing.T) {
-		require, db := requireAndDB(t)
+		require, db := RequireAndDB(t)
 
 		vpath := "/dev/null/Vagrantfile"
 		project := Project{
 			Name:  "default",
 			Path:  "/dev/null",
-			Basis: testBasis(t, db),
+			Basis: TestBasis(t, db),
 		}
 		result := db.Save(&project)
 		require.NoError(result.Error)
@@ -331,7 +329,7 @@ func TestProject_Update(t *testing.T) {
 	})
 
 	t.Run("Updates existing Vagrantfile content", func(t *testing.T) {
-		require, db := requireAndDB(t)
+		require, db := RequireAndDB(t)
 
 		// Create inital basis
 		vpath := "/dev/null/Vagrantfile"
@@ -340,7 +338,7 @@ func TestProject_Update(t *testing.T) {
 			Name:        "default",
 			Path:        "/dev/null",
 			Vagrantfile: v,
-			Basis:       testBasis(t, db),
+			Basis:       TestBasis(t, db),
 		}
 		result := db.Save(&project)
 		require.NoError(result.Error)
@@ -372,9 +370,9 @@ func TestProject_Update(t *testing.T) {
 
 func TestProject_Delete(t *testing.T) {
 	t.Run("Deletes project", func(t *testing.T) {
-		require, db := requireAndDB(t)
+		require, db := RequireAndDB(t)
 
-		seedProject := testProject(t, db)
+		seedProject := TestProject(t, db)
 
 		var project Project
 		result := db.First(&project,
@@ -394,13 +392,13 @@ func TestProject_Delete(t *testing.T) {
 	})
 
 	t.Run("Deletes Vagrantfile", func(t *testing.T) {
-		require, db := requireAndDB(t)
+		require, db := RequireAndDB(t)
 
 		vpath := "/dev/null/Vagrantfile"
 		result := db.Save(&Project{
 			Name:        "default",
 			Path:        "/dev/null",
-			Basis:       testBasis(t, db),
+			Basis:       TestBasis(t, db),
 			Vagrantfile: &Vagrantfile{Path: &vpath},
 		})
 		require.NoError(result.Error)
@@ -419,12 +417,12 @@ func TestProject_Delete(t *testing.T) {
 	})
 
 	t.Run("Deletes targets", func(t *testing.T) {
-		require, db := requireAndDB(t)
+		require, db := RequireAndDB(t)
 
 		result := db.Save(&Project{
 			Name:  "default",
 			Path:  "/dev/null",
-			Basis: testBasis(t, db),
+			Basis: TestBasis(t, db),
 			Targets: []*Target{
 				{
 					Name: "default",
@@ -477,13 +475,9 @@ func TestProject_State(t *testing.T) {
 
 		s := TestState(t)
 		defer s.Close()
-		basisRef := testBasisProto(t, s)
 
 		// Set
-		result, err := s.ProjectPut(serverptypes.TestProject(t, &vagrant_server.Project{
-			Basis: basisRef,
-			Path:  "idontexist",
-		}))
+		result, err := s.ProjectPut(TestProject(t, s.db).ToProto())
 		require.NoError(err)
 
 		// Get exact
@@ -510,13 +504,9 @@ func TestProject_State(t *testing.T) {
 
 		s := TestState(t)
 		defer s.Close()
-		basisRef := testBasisProto(t, s)
 
 		// Set
-		result, err := s.ProjectPut(serverptypes.TestProject(t, &vagrant_server.Project{
-			Basis: basisRef,
-			Path:  "idontexist",
-		}))
+		result, err := s.ProjectPut(TestProject(t, s.db).ToProto())
 		require.NoError(err)
 
 		// Read
@@ -530,7 +520,6 @@ func TestProject_State(t *testing.T) {
 		{
 			err := s.ProjectDelete(&vagrant_plugin_sdk.Ref_Project{
 				ResourceId: result.ResourceId,
-				Basis:      basisRef,
 			})
 			require.NoError(err)
 		}

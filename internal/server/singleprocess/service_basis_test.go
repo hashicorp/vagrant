@@ -26,6 +26,7 @@ func TestServiceBasis(t *testing.T) {
 		resp, err := client.UpsertBasis(ctx, &vagrant_server.UpsertBasisRequest{
 			Basis: &vagrant_server.Basis{
 				Name: "mybasis",
+				Path: "/dev/null",
 			},
 		})
 		require.NoError(err)
@@ -54,6 +55,7 @@ func TestServiceBasis(t *testing.T) {
 		_, err = client.UpsertBasis(ctx, &vagrant_server.UpsertBasisRequest{
 			Basis: &vagrant_server.Basis{
 				Name: "mybasis",
+				Path: "/dev/null",
 			},
 		})
 		require.NoError(err)

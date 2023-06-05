@@ -17,7 +17,7 @@ import (
 
 func TestTarget_Create(t *testing.T) {
 	t.Run("Requires name and project", func(t *testing.T) {
-		require, db := requireAndDB(t)
+		require, db := RequireAndDB(t)
 
 		result := db.Save(&Target{})
 		require.Error(result.Error)
@@ -26,11 +26,11 @@ func TestTarget_Create(t *testing.T) {
 	})
 
 	t.Run("Requires name", func(t *testing.T) {
-		require, db := requireAndDB(t)
+		require, db := RequireAndDB(t)
 
 		result := db.Save(
 			&Target{
-				Project: testProject(t, db),
+				Project: TestProject(t, db),
 			},
 		)
 		require.Error(result.Error)
@@ -38,7 +38,7 @@ func TestTarget_Create(t *testing.T) {
 	})
 
 	t.Run("Requires project", func(t *testing.T) {
-		require, db := requireAndDB(t)
+		require, db := RequireAndDB(t)
 
 		result := db.Save(
 			&Target{
@@ -50,11 +50,11 @@ func TestTarget_Create(t *testing.T) {
 	})
 
 	t.Run("Sets resource ID", func(t *testing.T) {
-		require, db := requireAndDB(t)
+		require, db := RequireAndDB(t)
 
 		target := Target{
 			Name:    "default",
-			Project: testProject(t, db),
+			Project: TestProject(t, db),
 		}
 		result := db.Save(&target)
 		require.NoError(result.Error)
@@ -62,13 +62,13 @@ func TestTarget_Create(t *testing.T) {
 	})
 
 	t.Run("Retains resource ID", func(t *testing.T) {
-		require, db := requireAndDB(t)
+		require, db := RequireAndDB(t)
 
 		rid := "RESOURCE_ID"
 		target := Target{
 			Name:       "default",
 			ResourceId: rid,
-			Project:    testProject(t, db),
+			Project:    TestProject(t, db),
 		}
 		result := db.Save(&target)
 		require.NoError(result.Error)
@@ -77,9 +77,9 @@ func TestTarget_Create(t *testing.T) {
 	})
 
 	t.Run("Does not allow duplicate name in same project", func(t *testing.T) {
-		require, db := requireAndDB(t)
+		require, db := RequireAndDB(t)
 
-		project := testProject(t, db)
+		project := TestProject(t, db)
 		result := db.Save(
 			&Target{
 				Name:    "default",
@@ -98,33 +98,33 @@ func TestTarget_Create(t *testing.T) {
 	})
 
 	t.Run("Allows duplicate name in different projects", func(t *testing.T) {
-		require, db := requireAndDB(t)
+		require, db := RequireAndDB(t)
 
 		result := db.Save(
 			&Target{
 				Name:    "default",
-				Project: testProject(t, db),
+				Project: TestProject(t, db),
 			},
 		)
 		require.NoError(result.Error)
 		result = db.Save(
 			&Target{
 				Name:    "default",
-				Project: testProject(t, db),
+				Project: TestProject(t, db),
 			},
 		)
 		require.NoError(result.Error)
 	})
 
 	t.Run("Does not allow duplicate resource IDs", func(t *testing.T) {
-		require, db := requireAndDB(t)
+		require, db := RequireAndDB(t)
 
 		rid := "RESOURCE ID"
 		result := db.Save(
 			&Target{
 				Name:       "default",
 				ResourceId: rid,
-				Project:    testProject(t, db),
+				Project:    TestProject(t, db),
 			},
 		)
 		require.NoError(result.Error)
@@ -132,7 +132,7 @@ func TestTarget_Create(t *testing.T) {
 			&Target{
 				Name:       "other",
 				ResourceId: rid,
-				Project:    testProject(t, db),
+				Project:    TestProject(t, db),
 			},
 		)
 		require.Error(result.Error)
@@ -140,14 +140,14 @@ func TestTarget_Create(t *testing.T) {
 	})
 
 	t.Run("Does not allow duplicate UUIDs", func(t *testing.T) {
-		require, db := requireAndDB(t)
+		require, db := RequireAndDB(t)
 
 		uuid := "UUID VALUE"
 		result := db.Save(
 			&Target{
 				Name:    "default",
 				Uuid:    &uuid,
-				Project: testProject(t, db),
+				Project: TestProject(t, db),
 			},
 		)
 		require.NoError(result.Error)
@@ -155,7 +155,7 @@ func TestTarget_Create(t *testing.T) {
 			&Target{
 				Name:    "other",
 				Uuid:    &uuid,
-				Project: testProject(t, db),
+				Project: TestProject(t, db),
 			},
 		)
 		require.Error(result.Error)
@@ -163,7 +163,7 @@ func TestTarget_Create(t *testing.T) {
 	})
 
 	t.Run("Stores a record when set", func(t *testing.T) {
-		require, db := requireAndDB(t)
+		require, db := RequireAndDB(t)
 
 		record := &vagrant_server.Target_Machine{
 			Id: "MACHINE_ID",
@@ -171,7 +171,7 @@ func TestTarget_Create(t *testing.T) {
 		result := db.Save(
 			&Target{
 				Name:    "default",
-				Project: testProject(t, db),
+				Project: TestProject(t, db),
 				Record:  &ProtoValue{Message: record},
 			},
 		)
@@ -183,9 +183,9 @@ func TestTarget_Create(t *testing.T) {
 	})
 
 	t.Run("Properly creates child targets", func(t *testing.T) {
-		require, db := requireAndDB(t)
+		require, db := RequireAndDB(t)
 
-		project := testProject(t, db)
+		project := TestProject(t, db)
 		result := db.Save(
 			&Target{
 				Name:    "parent",
@@ -217,9 +217,9 @@ func TestTarget_Create(t *testing.T) {
 
 func TestTarget_Update(t *testing.T) {
 	t.Run("Requires name", func(t *testing.T) {
-		require, db := requireAndDB(t)
+		require, db := RequireAndDB(t)
 
-		target := &Target{Name: "default", Project: testProject(t, db)}
+		target := &Target{Name: "default", Project: TestProject(t, db)}
 		result := db.Save(target)
 		require.NoError(result.Error)
 
@@ -230,9 +230,9 @@ func TestTarget_Update(t *testing.T) {
 	})
 
 	t.Run("Does not update resource ID", func(t *testing.T) {
-		require, db := requireAndDB(t)
+		require, db := RequireAndDB(t)
 
-		target := Target{Name: "default", Project: testProject(t, db)}
+		target := Target{Name: "default", Project: TestProject(t, db)}
 		result := db.Save(&target)
 		require.NoError(result.Error)
 		require.NotEmpty(target.ResourceId)
@@ -248,11 +248,11 @@ func TestTarget_Update(t *testing.T) {
 	})
 
 	t.Run("Updates the state", func(t *testing.T) {
-		require, db := requireAndDB(t)
+		require, db := RequireAndDB(t)
 
 		target := Target{
 			Name:    "default",
-			Project: testProject(t, db),
+			Project: TestProject(t, db),
 			State:   vagrant_server.Operation_NOT_CREATED,
 		}
 		result := db.Save(&target)
@@ -268,9 +268,9 @@ func TestTarget_Update(t *testing.T) {
 	})
 
 	t.Run("Adds subtarget", func(t *testing.T) {
-		require, db := requireAndDB(t)
+		require, db := RequireAndDB(t)
 
-		project := testProject(t, db)
+		project := TestProject(t, db)
 		target := Target{
 			Name:    "parent",
 			Project: project,
@@ -298,11 +298,11 @@ func TestTarget_Update(t *testing.T) {
 	})
 
 	t.Run("It fails to add subtarget with different project", func(t *testing.T) {
-		require, db := requireAndDB(t)
+		require, db := RequireAndDB(t)
 
 		target := Target{
 			Name:    "parent",
-			Project: testProject(t, db),
+			Project: TestProject(t, db),
 		}
 		result := db.Save(&target)
 		require.NoError(result.Error)
@@ -310,7 +310,7 @@ func TestTarget_Update(t *testing.T) {
 		require.NoError(result.Error)
 		target.Subtargets = append(target.Subtargets, &Target{
 			Name:    "subtarget",
-			Project: testProject(t, db),
+			Project: TestProject(t, db),
 		})
 		result = db.Save(&target)
 		require.Error(result.Error)
@@ -319,9 +319,9 @@ func TestTarget_Update(t *testing.T) {
 
 func TestTarget_Delete(t *testing.T) {
 	t.Run("Deletes target", func(t *testing.T) {
-		require, db := requireAndDB(t)
+		require, db := RequireAndDB(t)
 
-		result := db.Save(&Target{Name: "default", Project: testProject(t, db)})
+		result := db.Save(&Target{Name: "default", Project: TestProject(t, db)})
 		require.NoError(result.Error)
 
 		var target Target
@@ -337,9 +337,9 @@ func TestTarget_Delete(t *testing.T) {
 	})
 
 	t.Run("Deletes subtargets", func(t *testing.T) {
-		require, db := requireAndDB(t)
+		require, db := RequireAndDB(t)
 
-		project := testProject(t, db)
+		project := TestProject(t, db)
 		result := db.Save(
 			&Target{
 				Name:    "parent",
@@ -393,7 +393,7 @@ func TestTarget_State(t *testing.T) {
 
 		resp, err := s.TargetPut(&vagrant_server.Target{
 			Name:    "default",
-			Project: testProject(t, s.db).ToProtoRef(),
+			Project: TestProject(t, s.db).ToProtoRef(),
 			State:   vagrant_server.Operation_NOT_CREATED,
 		})
 		require.NoError(err)
@@ -421,7 +421,7 @@ func TestTarget_State(t *testing.T) {
 
 		s := TestState(t)
 		defer s.Close()
-		projectRef := testProjectProto(t, s)
+		projectRef := TestProjectProto(t, s)
 
 		// Set
 		result, err := s.TargetPut(&vagrant_server.Target{
@@ -535,7 +535,7 @@ func TestTarget_State(t *testing.T) {
 
 		s := TestState(t)
 		defer s.Close()
-		projectRef := testProjectProto(t, s)
+		projectRef := TestProjectProto(t, s)
 
 		// Set
 		result, err := s.TargetPut(&vagrant_server.Target{
@@ -582,7 +582,7 @@ func TestTarget_State(t *testing.T) {
 
 		s := TestState(t)
 		defer s.Close()
-		projectRef := testProjectProto(t, s)
+		projectRef := TestProjectProto(t, s)
 
 		// Set
 		result, err := s.TargetPut(&vagrant_server.Target{
