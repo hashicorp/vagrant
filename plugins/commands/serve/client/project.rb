@@ -54,7 +54,7 @@ module VagrantPlugins
           resp.path
         end
 
-        def default_provider(opts)
+        def default_provider(opts={})
           req = ::Hashicorp::Vagrant::Sdk::Project::DefaultProviderRequest.new(
             exclude: opts.fetch(:exclude, []),
             force_default: opts.fetch(:force_default, true),

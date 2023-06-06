@@ -19,7 +19,7 @@ module VagrantPlugins
             end
 
             # If this is already stored, return existing ID
-            idx = @stored.index(value)
+            idx = @stored.key(value)
             return idx if idx
 
             # Create a new ID and store
