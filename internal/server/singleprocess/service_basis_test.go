@@ -5,7 +5,6 @@ import (
 	"testing"
 
 	"github.com/hashicorp/vagrant-plugin-sdk/proto/vagrant_plugin_sdk"
-	"github.com/hashicorp/vagrant/internal/server"
 	"github.com/hashicorp/vagrant/internal/server/proto/vagrant_server"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc/codes"
@@ -18,14 +17,12 @@ func TestServiceBasis(t *testing.T) {
 
 	t.Run("set and get", func(t *testing.T) {
 		require := require.New(t)
-		db := testDB(t)
-		impl, err := New(WithDB(db))
-		require.NoError(err)
-		client := server.TestServer(t, impl)
+		client := TestServer(t)
 
 		resp, err := client.UpsertBasis(ctx, &vagrant_server.UpsertBasisRequest{
 			Basis: &vagrant_server.Basis{
 				Name: "mybasis",
+				Path: "/dev/null",
 			},
 		})
 		require.NoError(err)
@@ -45,15 +42,13 @@ func TestServiceBasis(t *testing.T) {
 
 	t.Run("find and list", func(t *testing.T) {
 		require := require.New(t)
-		db := testDB(t)
-		impl, err := New(WithDB(db))
-		require.NoError(err)
-		client := server.TestServer(t, impl)
+		client := TestServer(t)
 
 		// first insert
-		_, err = client.UpsertBasis(ctx, &vagrant_server.UpsertBasisRequest{
+		_, err := client.UpsertBasis(ctx, &vagrant_server.UpsertBasisRequest{
 			Basis: &vagrant_server.Basis{
 				Name: "mybasis",
+				Path: "/dev/null",
 			},
 		})
 		require.NoError(err)
@@ -77,12 +72,9 @@ func TestServiceBasis(t *testing.T) {
 
 	t.Run("reasonable errors: get not found", func(t *testing.T) {
 		require := require.New(t)
-		db := testDB(t)
-		impl, err := New(WithDB(db))
-		require.NoError(err)
-		client := server.TestServer(t, impl)
+		client := TestServer(t)
 
-		_, err = client.GetBasis(ctx, &vagrant_server.GetBasisRequest{
+		_, err := client.GetBasis(ctx, &vagrant_server.GetBasisRequest{
 			Basis: &vagrant_plugin_sdk.Ref_Basis{
 				ResourceId: "idontexist",
 			},

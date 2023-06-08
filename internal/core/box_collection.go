@@ -46,10 +46,10 @@ func NewBoxCollection(basis *Basis, dir string, logger hclog.Logger) (bc *BoxCol
 
 // This adds a new box to the system.
 // There are some exceptional cases:
-// * BoxAlreadyExists - The box you're attempting to add already exists.
-// * BoxProviderDoesntMatch - If the given box provider doesn't match the
-// 	actual box provider in the untarred box.
-// * BoxUnpackageFailure - An invalid tar file.
+//   - BoxAlreadyExists - The box you're attempting to add already exists.
+//   - BoxProviderDoesntMatch - If the given box provider doesn't match the
+//     actual box provider in the untarred box.
+//   - BoxUnpackageFailure - An invalid tar file.
 func (b *BoxCollection) Add(p path.Path, name, version, metadataURL string, force bool, providers ...string) (box core.Box, err error) {
 	if _, err := os.Stat(p.String()); err != nil {
 		return nil, fmt.Errorf("Could not add box, unable to find path %s", p.String())

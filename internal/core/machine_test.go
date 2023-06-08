@@ -280,8 +280,8 @@ func TestMachineSetState(t *testing.T) {
 		// Set MachineState
 		desiredState := &core.MachineState{ID: tc.id}
 		tm.SetMachineState(desiredState)
-		require.Equal(t, tm.machine.State.Id, tc.id)
-		require.Equal(t, tm.target.State, tc.state)
+		require.Equal(t, tc.id, tm.machine.State.Id)
+		require.Equal(t, tc.state, tm.target.State)
 
 		// Ensure new id is save to db
 		dbTarget, err := tm.Client().GetTarget(tm.ctx,
@@ -289,10 +289,8 @@ func TestMachineSetState(t *testing.T) {
 				Target: tm.Ref().(*vagrant_plugin_sdk.Ref_Target),
 			},
 		)
-		if err != nil {
-			t.Errorf("Failed to get target")
-		}
-		require.Equal(t, dbTarget.Target.State, tc.state)
+		require.NoError(t, err)
+		require.Equal(t, tc.state, dbTarget.Target.State)
 	}
 }
 

@@ -3,6 +3,7 @@ package singleprocess
 import (
 	"context"
 
+	"github.com/hashicorp/vagrant-plugin-sdk/proto/vagrant_plugin_sdk"
 	"github.com/hashicorp/vagrant/internal/server/proto/vagrant_server"
 	"google.golang.org/protobuf/types/known/emptypb"
 )
@@ -11,8 +12,8 @@ func (s *service) UpsertBasis(
 	ctx context.Context,
 	req *vagrant_server.UpsertBasisRequest,
 ) (*vagrant_server.UpsertBasisResponse, error) {
-	result := req.Basis
-	if err := s.state.BasisPut(result); err != nil {
+	result, err := s.state.BasisPut(req.Basis)
+	if err != nil {
 		return nil, err
 	}
 
@@ -50,6 +51,10 @@ func (s *service) ListBasis(
 	if err != nil {
 		return nil, err
 	}
+	all := make([]*vagrant_plugin_sdk.Ref_Basis, len(result))
+	for i, v := range result {
+		all[i] = v.ToProtoRef()
+	}
 
-	return &vagrant_server.ListBasisResponse{Basis: result}, nil
+	return &vagrant_server.ListBasisResponse{Basis: all}, nil
 }

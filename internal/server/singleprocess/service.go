@@ -4,11 +4,9 @@ import (
 	"context"
 	"sync"
 
-	bolt "go.etcd.io/bbolt"
-
 	"github.com/hashicorp/go-hclog"
+	"gorm.io/gorm"
 
-	"github.com/hashicorp/vagrant/internal/server"
 	"github.com/hashicorp/vagrant/internal/server/proto/vagrant_server"
 	"github.com/hashicorp/vagrant/internal/server/singleprocess/state"
 	"github.com/hashicorp/vagrant/internal/serverconfig"
@@ -60,41 +58,6 @@ func New(opts ...Option) (vagrant_server.VagrantServer, error) {
 	}
 	s.state = st
 
-	// If we don't have a server ID, set that.
-	id, err := st.ServerIdGet()
-	if err != nil {
-		return nil, err
-	}
-	if id == "" {
-		id, err = server.Id()
-		if err != nil {
-			return nil, err
-		}
-
-		if err := st.ServerIdSet(id); err != nil {
-			return nil, err
-		}
-	}
-	s.id = id
-
-	// Set specific server config for the deployment entrypoint binaries
-	if scfg := cfg.serverConfig; scfg != nil && scfg.CEBConfig != nil && scfg.CEBConfig.Addr != "" {
-		// only one advertise address can be configured
-		addr := &vagrant_server.ServerConfig_AdvertiseAddr{
-			Addr:          scfg.CEBConfig.Addr,
-			Tls:           scfg.CEBConfig.TLSEnabled,
-			TlsSkipVerify: scfg.CEBConfig.TLSSkipVerify,
-		}
-
-		conf := &vagrant_server.ServerConfig{
-			AdvertiseAddrs: []*vagrant_server.ServerConfig_AdvertiseAddr{addr},
-		}
-
-		if err := s.state.ServerConfigSet(conf); err != nil {
-			return nil, err
-		}
-	}
-
 	// Setup the background context that is used for internal tasks
 	s.bgCtx, s.bgCtxCancel = context.WithCancel(context.Background())
 
@@ -107,17 +70,15 @@ func New(opts ...Option) (vagrant_server.VagrantServer, error) {
 }
 
 type config struct {
-	db           *bolt.DB
+	db           *gorm.DB
 	serverConfig *serverconfig.Config
 	log          hclog.Logger
-
-	acceptUrlTerms bool
 }
 
 type Option func(*service, *config) error
 
 // WithDB sets the Bolt DB for use with the server.
-func WithDB(db *bolt.DB) Option {
+func WithDB(db *gorm.DB) Option {
 	return func(s *service, cfg *config) error {
 		cfg.db = db
 		return nil
@@ -136,13 +97,6 @@ func WithConfig(scfg *serverconfig.Config) Option {
 func WithLogger(log hclog.Logger) Option {
 	return func(s *service, cfg *config) error {
 		cfg.log = log
-		return nil
-	}
-}
-
-func WithAcceptURLTerms(accept bool) Option {
-	return func(s *service, cfg *config) error {
-		cfg.acceptUrlTerms = true
 		return nil
 	}
 }

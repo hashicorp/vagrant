@@ -66,6 +66,7 @@ func (p *Project) LoadVagrantfile() error {
 	}
 
 	p.project.Configuration = vp
+	p.project.Basis = p.basis.Ref()
 	// Push Vagrantfile updates to project
 	result, err := p.vagrant.UpsertProject(
 		p.ctx,

@@ -13,19 +13,23 @@ module VagrantPlugins
 
           # @return [Vagrant::Box] box backing machine
           def box
-            b = client.box(Empty.new)
-            if b == nil || b.box == nil
-              return nil
+            begin
+              b = client.box(Empty.new)
+              if b == nil || b.box == nil
+                return nil
+              end
+              box_client = Box.load(b.box, broker: broker)
+              box = Vagrant::Box.new(
+                box_client.name,
+                box_client.provider.to_sym,
+                box_client.version,
+                Pathname.new(box_client.directory),
+                client: box_client
+              )
+              box
+            rescue GRPC::NotFound
+              nil
             end
-            box_client = Box.load(b.box, broker: broker)
-            box = Vagrant::Box.new(
-              box_client.name,
-              box_client.provider.to_sym,
-              box_client.version,
-              Pathname.new(box_client.directory),
-              client: box_client
-            )
-            box
           end
 
           # @return

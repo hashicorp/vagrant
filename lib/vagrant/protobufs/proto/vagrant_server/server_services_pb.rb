@@ -24,15 +24,6 @@ module Hashicorp
         rpc :GetBasis, ::Hashicorp::Vagrant::GetBasisRequest, ::Hashicorp::Vagrant::GetBasisResponse
         rpc :FindBasis, ::Hashicorp::Vagrant::FindBasisRequest, ::Hashicorp::Vagrant::FindBasisResponse
         rpc :ListBasis, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::ListBasisResponse
-        # ListTasks returns the tasks.
-        rpc :ListTasks, ::Hashicorp::Vagrant::ListTasksRequest, ::Hashicorp::Vagrant::ListTasksResponse
-        # GetTask returns a task
-        rpc :GetTask, ::Hashicorp::Vagrant::GetTaskRequest, ::Hashicorp::Vagrant::Task
-        # GetLatestRelease returns the most recent successfully completed
-        # task within the given scope.
-        rpc :GetLatestTask, ::Hashicorp::Vagrant::GetLatestTaskRequest, ::Hashicorp::Vagrant::Task
-        # UpsertRelease updates or inserts a task.
-        rpc :UpsertTask, ::Hashicorp::Vagrant::UpsertTaskRequest, ::Hashicorp::Vagrant::UpsertTaskResponse
         # UpsertProject upserts the project.
         rpc :UpsertProject, ::Hashicorp::Vagrant::UpsertProjectRequest, ::Hashicorp::Vagrant::UpsertProjectResponse
         # GetProject returns the project.
@@ -60,12 +51,6 @@ module Hashicorp
         # available lines this will NOT block and instead will return an error.
         # The client can choose to retry or not.
         rpc :GetLogStream, ::Hashicorp::Vagrant::GetLogStreamRequest, stream(::Hashicorp::Vagrant::LogBatch)
-        # Set a single configuration item for the application.
-        rpc :SetConfig, ::Hashicorp::Vagrant::ConfigSetRequest, ::Hashicorp::Vagrant::ConfigSetResponse
-        # Retrieve merged configuration values for a specific scope. You can determine
-        # where a configuration variable was set by looking at the scope field on
-        # each variable.
-        rpc :GetConfig, ::Hashicorp::Vagrant::ConfigGetRequest, ::Hashicorp::Vagrant::ConfigGetResponse
         # QueueJob queues a job for execution by a runner. This will return as
         # soon as the job is queued, it will not wait for execution.
         rpc :QueueJob, ::Hashicorp::Vagrant::QueueJobRequest, ::Hashicorp::Vagrant::QueueJobResponse
@@ -94,17 +79,6 @@ module Hashicorp
         rpc :PruneOldJobs, ::Google::Protobuf::Empty, ::Google::Protobuf::Empty
         # GetRunner gets information about a single runner.
         rpc :GetRunner, ::Hashicorp::Vagrant::GetRunnerRequest, ::Hashicorp::Vagrant::Runner
-        # GetServerConfig sets configuration for the Vagrant server.
-        rpc :GetServerConfig, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::GetServerConfigResponse
-        # SetServerConfig sets configuration for the Vagrant server.
-        rpc :SetServerConfig, ::Hashicorp::Vagrant::SetServerConfigRequest, ::Google::Protobuf::Empty
-        # CreateSnapshot creates a new database snapshot.
-        rpc :CreateSnapshot, ::Google::Protobuf::Empty, stream(::Hashicorp::Vagrant::CreateSnapshotResponse)
-        # RestoreSnapshot performs a database restore with the given snapshot.
-        # This API doesn't do a full online restore, it only stages the restore
-        # for the next server start to finalize the restore. See the arguments for
-        # more information.
-        rpc :RestoreSnapshot, stream(::Hashicorp::Vagrant::RestoreSnapshotRequest), ::Google::Protobuf::Empty
         # BootstrapToken returns the initial token for the server. This can only
         # be requested once on first startup. After initial request this will
         # always return a PermissionDenied error.

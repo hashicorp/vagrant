@@ -33,9 +33,9 @@ func (c *DynamicCommand) Run(args []string) int {
 		return 1
 	}
 
-	var r *vagrant_server.Job_RunResult
+	var r *vagrant_server.Job_CommandResult
 	err := c.Do(c.Ctx, func(ctx context.Context, cl *client.Client, modifier client.JobModifier) (err error) {
-		taskArgs := &vagrant_plugin_sdk.Command_Arguments{
+		cmdArgs := &vagrant_plugin_sdk.Command_Arguments{
 			Args:  c.args,
 			Flags: []*vagrant_plugin_sdk.Command_Arguments_Flag{},
 		}
@@ -53,47 +53,25 @@ func (c *DynamicCommand) Run(args []string) int {
 					String_: v.(string),
 				}
 			}
-			taskArgs.Flags = append(taskArgs.Flags, cmdFlag)
+			cmdArgs.Flags = append(cmdArgs.Flags, cmdFlag)
 		}
 
 		c.Log.Debug("collected argument flags",
-			"flags", taskArgs.Flags,
+			"flags", cmdArgs.Flags,
 			"args", args,
 			"remaining", c.args,
 		)
 
-		t := &vagrant_server.Task{
-			Task: c.name,
+		cOp := &vagrant_server.Job_CommandOp{
+			Command: c.name,
 			Component: &vagrant_server.Component{
 				Type: vagrant_server.Component_COMMAND,
 				Name: c.name,
 			},
-			CliArgs:     taskArgs,
-			CommandName: c.name,
+			CliArgs: cmdArgs,
 		}
 
-		if c.basis != nil {
-			t.Scope = &vagrant_server.Task_Basis{
-				Basis: c.basis.Ref(),
-			}
-		}
-
-		if c.project != nil {
-			t.Scope = &vagrant_server.Task_Project{
-				Project: c.project.Ref(),
-			}
-		}
-
-		if c.target != nil {
-			t.Scope = &vagrant_server.Task_Target{
-				Target: c.target.Ref(),
-			}
-		}
-
-		r, err = cl.Task(ctx,
-			&vagrant_server.Job_RunOp{Task: t},
-			modifier,
-		)
+		r, err = cl.Command(ctx, cOp, modifier)
 
 		// If nothing failed but we didn't get a Result back, something may
 		// have gone wrong on the far side so we need to interpret the error.

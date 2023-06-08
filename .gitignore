@@ -77,3 +77,6 @@ bin/vagrant-go*
 # extension
 tmp*
 lib/vagrant/vagrant_ssl.so
+
+# direnv directory
+.direnv

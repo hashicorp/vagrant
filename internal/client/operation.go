@@ -61,18 +61,18 @@ func (c *Client) Commands(
 	return result.Init, nil
 }
 
-func (c *Client) Task(
+func (c *Client) Command(
 	ctx context.Context,
-	op *vagrant_server.Job_RunOp,
+	op *vagrant_server.Job_CommandOp,
 	mod JobModifier,
-) (*vagrant_server.Job_RunResult, error) {
+) (*vagrant_server.Job_CommandResult, error) {
 	if op == nil {
-		op = &vagrant_server.Job_RunOp{}
+		op = &vagrant_server.Job_CommandOp{}
 	}
 
 	job := c.job()
-	job.Operation = &vagrant_server.Job_Run{
-		Run: op,
+	job.Operation = &vagrant_server.Job_Command{
+		Command: op,
 	}
 	if mod != nil {
 		mod(job)

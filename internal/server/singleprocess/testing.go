@@ -1,18 +1,22 @@
 package singleprocess
 
 import (
+	"bytes"
 	"context"
 	"io/ioutil"
 	"os"
 	"path/filepath"
 
+	"github.com/hashicorp/go-hclog"
 	"github.com/imdario/mergo"
 	"github.com/mitchellh/go-testing-interface"
+	"github.com/mitchellh/mapstructure"
 	"github.com/stretchr/testify/require"
-	bolt "go.etcd.io/bbolt"
 
+	"github.com/hashicorp/vagrant-plugin-sdk/proto/vagrant_plugin_sdk"
 	"github.com/hashicorp/vagrant/internal/server"
 	pb "github.com/hashicorp/vagrant/internal/server/proto/vagrant_server"
+	"github.com/hashicorp/vagrant/internal/server/singleprocess/state"
 	"github.com/hashicorp/vagrant/internal/serverclient"
 )
 
@@ -25,10 +29,22 @@ func TestServer(t testing.T, opts ...Option) *serverclient.VagrantClient {
 // TestImpl returns the vagrant server implementation. This can be used
 // with server.TestServer. It is easier to just use TestServer directly.
 func TestImpl(t testing.T, opts ...Option) pb.VagrantServer {
+	var buf bytes.Buffer
+	l := hclog.New(&hclog.LoggerOptions{
+		Name:            "test",
+		Level:           hclog.Trace,
+		Output:          &buf,
+		IncludeLocation: true,
+	})
+
 	impl, err := New(append(
-		[]Option{WithDB(testDB(t))},
+		[]Option{WithDB(state.TestDB(t)), WithLogger(l)},
 		opts...,
 	)...)
+
+	t.Cleanup(func() {
+		t.Log(buf.String())
+	})
 	require.NoError(t, err)
 	return impl
 }
@@ -137,35 +153,55 @@ func TestRunner(t testing.T, client pb.VagrantClient, r *pb.Runner) (string, fun
 }
 
 // TestBasis creates the basis in the DB.
-func TestBasis(t testing.T, client pb.VagrantClient, ref *pb.Basis) {
+func TestBasis(t testing.T, client pb.VagrantClient, ref *pb.Basis) *pb.Basis {
+	if ref == nil {
+		ref = &pb.Basis{}
+	}
+
 	td := testTempDir(t)
 	defaultBasis := &pb.Basis{
-		Name: "test",
+		Name: filepath.Base(td),
 		Path: td,
 	}
 
 	require.NoError(t, mergo.Merge(ref, defaultBasis))
 
-	_, err := client.UpsertBasis(context.Background(), &pb.UpsertBasisRequest{
+	resp, err := client.UpsertBasis(context.Background(), &pb.UpsertBasisRequest{
 		Basis: ref,
 	})
 	require.NoError(t, err)
+
+	return resp.Basis
 }
 
-func testDB(t testing.T) *bolt.DB {
-	t.Helper()
+func TestJob(t testing.T, client pb.VagrantClient, ref *pb.Job) *pb.Job {
+	j := testJobProto(t, client, ref)
+	resp, err := client.QueueJob(context.Background(), &pb.QueueJobRequest{Job: j})
+	require.Nil(t, err)
 
-	// Temporary directory for the database
-	td, err := ioutil.TempDir("", "test")
+	j.Id = resp.JobId
+	return j
+}
+
+func testJobProto(t testing.T, client pb.VagrantClient, ref *pb.Job) *pb.Job {
+	var job pb.Job
+
+	if ref == nil {
+		ref = &pb.Job{}
+	}
+
+	err := mapstructure.Decode(ref, &job)
 	require.NoError(t, err)
-	t.Cleanup(func() { os.RemoveAll(td) })
 
-	// Create the DB
-	db, err := bolt.Open(filepath.Join(td, "test.db"), 0600, nil)
-	require.NoError(t, err)
-	t.Cleanup(func() { db.Close() })
-
-	return db
+	if job.Scope == nil {
+		basis := TestBasis(t, client, nil)
+		job.Scope = &pb.Job_Basis{
+			Basis: &vagrant_plugin_sdk.Ref_Basis{
+				ResourceId: basis.ResourceId,
+			},
+		}
+	}
+	return state.TestJobProto(t, &job)
 }
 
 func testTempDir(t testing.T) string {

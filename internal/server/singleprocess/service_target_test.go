@@ -5,7 +5,6 @@ import (
 	"testing"
 
 	"github.com/hashicorp/vagrant-plugin-sdk/proto/vagrant_plugin_sdk"
-	"github.com/hashicorp/vagrant/internal/server"
 	"github.com/hashicorp/vagrant/internal/server/proto/vagrant_server"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/protobuf/types/known/emptypb"
@@ -16,15 +15,13 @@ func TestServiceTarget(t *testing.T) {
 
 	t.Run("set and get", func(t *testing.T) {
 		require := require.New(t)
-		db := testDB(t)
-		impl, err := New(WithDB(db))
-		require.NoError(err)
-		client := server.TestServer(t, impl)
+		client := TestServer(t)
 
 		// need a basis and a project to have a target
 		basisResp, err := client.UpsertBasis(ctx, &vagrant_server.UpsertBasisRequest{
 			Basis: &vagrant_server.Basis{
 				Name: "mybasis",
+				Path: "/dev/null",
 			},
 		})
 		require.NoError(err)
@@ -32,6 +29,7 @@ func TestServiceTarget(t *testing.T) {
 		projectResp, err := client.UpsertProject(ctx, &vagrant_server.UpsertProjectRequest{
 			Project: &vagrant_server.Project{
 				Name:  "myproject",
+				Path:  "/dev/null/project",
 				Basis: &vagrant_plugin_sdk.Ref_Basis{ResourceId: basisResp.Basis.ResourceId},
 			},
 		})
@@ -51,15 +49,13 @@ func TestServiceTarget(t *testing.T) {
 
 	t.Run("find and list and delete", func(t *testing.T) {
 		require := require.New(t)
-		db := testDB(t)
-		impl, err := New(WithDB(db))
-		require.NoError(err)
-		client := server.TestServer(t, impl)
+		client := TestServer(t)
 
 		// first insert
 		basisResp, err := client.UpsertBasis(ctx, &vagrant_server.UpsertBasisRequest{
 			Basis: &vagrant_server.Basis{
 				Name: "mybasis",
+				Path: "/dev/null",
 			},
 		})
 		require.NoError(err)
@@ -67,6 +63,7 @@ func TestServiceTarget(t *testing.T) {
 		projectResp, err := client.UpsertProject(ctx, &vagrant_server.UpsertProjectRequest{
 			Project: &vagrant_server.Project{
 				Name:  "myproject",
+				Path:  "/dev/null/project",
 				Basis: &vagrant_plugin_sdk.Ref_Basis{ResourceId: basisResp.Basis.ResourceId},
 			},
 		})
@@ -111,17 +108,14 @@ func TestServiceTarget(t *testing.T) {
 
 	t.Run("reasonable errors: set without project", func(t *testing.T) {
 		require := require.New(t)
-		db := testDB(t)
-		impl, err := New(WithDB(db))
-		require.NoError(err)
-		client := server.TestServer(t, impl)
+		client := TestServer(t)
 
-		_, err = client.UpsertTarget(ctx, &vagrant_server.UpsertTargetRequest{
+		_, err := client.UpsertTarget(ctx, &vagrant_server.UpsertTargetRequest{
 			Target: &vagrant_server.Target{
 				Name: "ihavenoproject",
 			},
 		})
 		require.Error(err)
-		require.Contains(err.Error(), "not found")
+		require.Contains(err.Error(), "not include parent")
 	})
 }

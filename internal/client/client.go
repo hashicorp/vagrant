@@ -143,14 +143,21 @@ func New(ctx context.Context, opts ...Option) (c *Client, err error) {
 
 func (c *Client) LoadBasis(n string) (*Basis, error) {
 	var basis *vagrant_server.Basis
+	p, err := paths.NamedVagrantConfig(n)
+	if err != nil {
+		return nil, err
+	}
+
 	result, err := c.client.FindBasis(
 		c.ctx,
 		&vagrant_server.FindBasisRequest{
 			Basis: &vagrant_server.Basis{
 				Name: n,
+				Path: p.String(),
 			},
 		},
 	)
+
 	if err != nil {
 		if status.Code(err) != codes.NotFound {
 			return nil, err
@@ -160,6 +167,7 @@ func (c *Client) LoadBasis(n string) (*Basis, error) {
 			&vagrant_server.UpsertBasisRequest{
 				Basis: &vagrant_server.Basis{
 					Name: n,
+					Path: p.String(),
 				},
 			},
 		)
@@ -169,11 +177,6 @@ func (c *Client) LoadBasis(n string) (*Basis, error) {
 		basis = uresult.Basis
 	} else {
 		basis = result.Basis
-	}
-
-	p, err := paths.NamedVagrantConfig(n)
-	if err != nil {
-		return nil, err
 	}
 
 	return &Basis{

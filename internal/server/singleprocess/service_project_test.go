@@ -5,7 +5,6 @@ import (
 	"testing"
 
 	"github.com/hashicorp/vagrant-plugin-sdk/proto/vagrant_plugin_sdk"
-	"github.com/hashicorp/vagrant/internal/server"
 	"github.com/hashicorp/vagrant/internal/server/proto/vagrant_server"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc/codes"
@@ -18,15 +17,13 @@ func TestServiceProject(t *testing.T) {
 
 	t.Run("set and get", func(t *testing.T) {
 		require := require.New(t)
-		db := testDB(t)
-		impl, err := New(WithDB(db))
-		require.NoError(err)
-		client := server.TestServer(t, impl)
+		client := TestServer(t)
 
 		// need a basis to have a project
 		basisResp, err := client.UpsertBasis(ctx, &vagrant_server.UpsertBasisRequest{
 			Basis: &vagrant_server.Basis{
 				Name: "mybasis",
+				Path: "/path/basis",
 			},
 		})
 		require.NoError(err)
@@ -34,6 +31,7 @@ func TestServiceProject(t *testing.T) {
 		resp, err := client.UpsertProject(ctx, &vagrant_server.UpsertProjectRequest{
 			Project: &vagrant_server.Project{
 				Name:  "myproject",
+				Path:  "/path/project",
 				Basis: &vagrant_plugin_sdk.Ref_Basis{ResourceId: basisResp.Basis.ResourceId},
 			},
 		})
@@ -54,15 +52,13 @@ func TestServiceProject(t *testing.T) {
 
 	t.Run("find and list", func(t *testing.T) {
 		require := require.New(t)
-		db := testDB(t)
-		impl, err := New(WithDB(db))
-		require.NoError(err)
-		client := server.TestServer(t, impl)
+		client := TestServer(t)
 
 		// first insert
 		basisResp, err := client.UpsertBasis(ctx, &vagrant_server.UpsertBasisRequest{
 			Basis: &vagrant_server.Basis{
-				Name: "mybasis",
+				Name: "mybasis2",
+				Path: "/path/basis2",
 			},
 		})
 		require.NoError(err)
@@ -70,6 +66,7 @@ func TestServiceProject(t *testing.T) {
 		resp, err := client.UpsertProject(ctx, &vagrant_server.UpsertProjectRequest{
 			Project: &vagrant_server.Project{
 				Name:  "myproject",
+				Path:  "/path/project",
 				Basis: &vagrant_plugin_sdk.Ref_Basis{ResourceId: basisResp.Basis.ResourceId},
 			},
 		})
@@ -80,7 +77,10 @@ func TestServiceProject(t *testing.T) {
 
 		// see if we can find it by name
 		findResp, err := client.FindProject(ctx, &vagrant_server.FindProjectRequest{
-			Project: &vagrant_server.Project{Name: "myproject"},
+			Project: &vagrant_server.Project{
+				Name:  "myproject",
+				Basis: &vagrant_plugin_sdk.Ref_Basis{ResourceId: basisResp.Basis.ResourceId},
+			},
 		})
 		require.NoError(err)
 		require.NotNil(findResp)
@@ -96,26 +96,21 @@ func TestServiceProject(t *testing.T) {
 
 	t.Run("reasonable errors: set without basis", func(t *testing.T) {
 		require := require.New(t)
-		db := testDB(t)
-		impl, err := New(WithDB(db))
-		require.NoError(err)
-		client := server.TestServer(t, impl)
+		client := TestServer(t)
 
-		_, err = client.UpsertProject(ctx, &vagrant_server.UpsertProjectRequest{
+		_, err := client.UpsertProject(ctx, &vagrant_server.UpsertProjectRequest{
 			Project: &vagrant_server.Project{
 				Name: "ihavenobasis",
+				Path: "/path/project/invalid",
 			},
 		})
 		require.Error(err)
-		require.Contains(err.Error(), "not found")
+		require.Contains(err.Error(), "Basis: cannot be blank")
 	})
 
 	t.Run("reasonable errors: get not found", func(t *testing.T) {
 		require := require.New(t)
-		db := testDB(t)
-		impl, err := New(WithDB(db))
-		require.NoError(err)
-		client := server.TestServer(t, impl)
+		client := TestServer(t)
 
 		getResp, err := client.GetProject(ctx, &vagrant_server.GetProjectRequest{
 			Project: &vagrant_plugin_sdk.Ref_Project{

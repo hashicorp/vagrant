@@ -12,19 +12,17 @@ import (
 
 	"github.com/hashicorp/vagrant/internal/server"
 	"github.com/hashicorp/vagrant/internal/server/proto/vagrant_server"
-	serverptypes "github.com/hashicorp/vagrant/internal/server/ptypes"
 )
 
 func TestServiceQueueJob(t *testing.T) {
 	ctx := context.Background()
 
 	// Create our server
-	impl, err := New(WithDB(testDB(t)))
-	require.NoError(t, err)
+	impl := TestImpl(t)
 	client := server.TestServer(t, impl)
 
 	// Initialize our basis
-	TestBasis(t, client, serverptypes.TestBasis(t, nil))
+	TestBasis(t, client, TestBasis(t, client, nil))
 
 	// Simplify writing tests
 	type Req = vagrant_server.QueueJobRequest
@@ -34,7 +32,7 @@ func TestServiceQueueJob(t *testing.T) {
 
 		// Create, should get an ID back
 		resp, err := client.QueueJob(ctx, &Req{
-			Job: serverptypes.TestJobNew(t, nil),
+			Job: testJobProto(t, client, nil),
 		})
 		require.NoError(err)
 		require.NotNil(resp)
@@ -51,7 +49,7 @@ func TestServiceQueueJob(t *testing.T) {
 
 		// Create, should get an ID back
 		resp, err := client.QueueJob(ctx, &Req{
-			Job:       serverptypes.TestJobNew(t, nil),
+			Job:       testJobProto(t, client, nil),
 			ExpiresIn: "1ms",
 		})
 		require.NoError(err)
@@ -71,9 +69,7 @@ func TestServiceValidateJob(t *testing.T) {
 	ctx := context.Background()
 
 	// Create our server
-	impl, err := New(WithDB(testDB(t)))
-	require.NoError(t, err)
-	client := server.TestServer(t, impl)
+	client := TestServer(t)
 
 	// Simplify writing tests
 	type Req = vagrant_server.ValidateJobRequest
@@ -83,10 +79,11 @@ func TestServiceValidateJob(t *testing.T) {
 
 		// Create, should get an ID back
 		resp, err := client.ValidateJob(ctx, &Req{
-			Job: serverptypes.TestJobNew(t, nil),
+			Job: TestJob(t, client, nil),
 		})
 		require.NoError(err)
 		require.NotNil(resp)
+		require.Nil(resp.ValidationError)
 		require.True(resp.Valid)
 		require.False(resp.Assignable)
 	})
@@ -95,7 +92,7 @@ func TestServiceValidateJob(t *testing.T) {
 		require := require.New(t)
 
 		// Create, should get an ID back
-		job := serverptypes.TestJobNew(t, nil)
+		job := TestJob(t, client, nil)
 		job.Id = "HELLO"
 		resp, err := client.ValidateJob(ctx, &Req{
 			Job: job,
@@ -112,18 +109,13 @@ func TestServiceGetJobStream_complete(t *testing.T) {
 	require := require.New(t)
 
 	// Create our server
-	impl, err := New(WithDB(testDB(t)))
-	require.NoError(err)
-	client := server.TestServer(t, impl)
+	client := TestServer(t)
 
 	// Initialize our basis
-	TestBasis(t, client, serverptypes.TestBasis(t, nil))
+	TestBasis(t, client, nil)
 
 	// Create a job
-	queueResp, err := client.QueueJob(ctx, &vagrant_server.QueueJobRequest{Job: serverptypes.TestJobNew(t, nil)})
-	require.NoError(err)
-	require.NotNil(queueResp)
-	require.NotEmpty(queueResp.JobId)
+	job := TestJob(t, client, nil)
 
 	// Register our runner
 	id, _ := TestRunner(t, client, nil)
@@ -146,7 +138,7 @@ func TestServiceGetJobStream_complete(t *testing.T) {
 		assignment, ok := resp.Event.(*vagrant_server.RunnerJobStreamResponse_Assignment)
 		require.True(ok, "should be an assignment")
 		require.NotNil(assignment)
-		require.Equal(queueResp.JobId, assignment.Assignment.Job.Id)
+		require.Equal(job.Id, assignment.Assignment.Job.Id)
 
 		require.NoError(runnerStream.Send(&vagrant_server.RunnerJobStreamRequest{
 			Event: &vagrant_server.RunnerJobStreamRequest_Ack_{
@@ -156,7 +148,7 @@ func TestServiceGetJobStream_complete(t *testing.T) {
 	}
 
 	// Get our job stream and verify we open
-	stream, err := client.GetJobStream(ctx, &vagrant_server.GetJobStreamRequest{JobId: queueResp.JobId})
+	stream, err := client.GetJobStream(ctx, &vagrant_server.GetJobStreamRequest{JobId: job.Id})
 	require.NoError(err)
 	{
 		resp, err := stream.Recv()
@@ -238,15 +230,17 @@ func TestServiceGetJobStream_bufferedData(t *testing.T) {
 	require := require.New(t)
 
 	// Create our server
-	impl, err := New(WithDB(testDB(t)))
-	require.NoError(err)
-	client := server.TestServer(t, impl)
+	client := TestServer(t)
 
 	// Initialize our basis
-	TestBasis(t, client, serverptypes.TestBasis(t, nil))
+	TestBasis(t, client, TestBasis(t, client, nil))
 
 	// Create a job
-	queueResp, err := client.QueueJob(ctx, &vagrant_server.QueueJobRequest{Job: serverptypes.TestJobNew(t, nil)})
+	queueResp, err := client.QueueJob(ctx,
+		&vagrant_server.QueueJobRequest{
+			Job: testJobProto(t, client, nil),
+		},
+	)
 	require.NoError(err)
 	require.NotNil(queueResp)
 	require.NotEmpty(queueResp.JobId)
@@ -318,7 +312,11 @@ func TestServiceGetJobStream_bufferedData(t *testing.T) {
 	require.Equal(io.EOF, err)
 
 	// Get our job stream and verify we open
-	stream, err := client.GetJobStream(ctx, &vagrant_server.GetJobStreamRequest{JobId: queueResp.JobId})
+	stream, err := client.GetJobStream(ctx,
+		&vagrant_server.GetJobStreamRequest{
+			JobId: queueResp.JobId,
+		},
+	)
 	require.NoError(err)
 	{
 		resp, err := stream.Recv()
@@ -352,21 +350,28 @@ func TestServiceGetJobStream_expired(t *testing.T) {
 	require := require.New(t)
 
 	// Create our server
-	impl, err := New(WithDB(testDB(t)))
-	require.NoError(err)
-	client := server.TestServer(t, impl)
+	client := TestServer(t)
 
 	// Initialize our basis
-	TestBasis(t, client, serverptypes.TestBasis(t, nil))
+	TestBasis(t, client, TestBasis(t, client, nil))
 
 	// Create a job
-	queueResp, err := client.QueueJob(ctx, &vagrant_server.QueueJobRequest{Job: serverptypes.TestJobNew(t, nil), ExpiresIn: "10ms"})
+	queueResp, err := client.QueueJob(ctx,
+		&vagrant_server.QueueJobRequest{
+			Job:       testJobProto(t, client, nil),
+			ExpiresIn: "10ms",
+		},
+	)
 	require.NoError(err)
 	require.NotNil(queueResp)
 	require.NotEmpty(queueResp.JobId)
 
 	// Get our job stream and verify we open
-	stream, err := client.GetJobStream(ctx, &vagrant_server.GetJobStreamRequest{JobId: queueResp.JobId})
+	stream, err := client.GetJobStream(ctx,
+		&vagrant_server.GetJobStreamRequest{
+			JobId: queueResp.JobId,
+		},
+	)
 	require.NoError(err)
 
 	// Wait for completion

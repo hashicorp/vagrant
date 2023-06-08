@@ -5,7 +5,6 @@ import (
 	"testing"
 
 	"github.com/hashicorp/vagrant-plugin-sdk/proto/vagrant_plugin_sdk"
-	"github.com/hashicorp/vagrant/internal/server"
 	"github.com/hashicorp/vagrant/internal/server/proto/vagrant_server"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc/codes"
@@ -17,10 +16,7 @@ func TestServiceBox(t *testing.T) {
 
 	t.Run("set and get", func(t *testing.T) {
 		require := require.New(t)
-		db := testDB(t)
-		impl, err := New(WithDB(db))
-		require.NoError(err)
-		client := server.TestServer(t, impl)
+		client := TestServer(t)
 
 		b := testBox()
 		resp, err := client.UpsertBox(ctx, &vagrant_server.UpsertBoxRequest{
@@ -28,11 +24,11 @@ func TestServiceBox(t *testing.T) {
 		})
 		require.NoError(err)
 		require.NotNil(resp)
-		require.Equal(b.Id, resp.Box.Id)
+		require.Equal(b.ResourceId, resp.Box.ResourceId)
 
 		// should be able to get by ID
 		getResp, err := client.GetBox(ctx, &vagrant_server.GetBoxRequest{
-			Box: &vagrant_plugin_sdk.Ref_Box{ResourceId: b.Id},
+			Box: &vagrant_plugin_sdk.Ref_Box{ResourceId: b.ResourceId},
 		})
 		require.NoError(err)
 		require.NotNil(getResp)
@@ -44,14 +40,11 @@ func TestServiceBox(t *testing.T) {
 
 	t.Run("find", func(t *testing.T) {
 		require := require.New(t)
-		db := testDB(t)
-		impl, err := New(WithDB(db))
-		require.NoError(err)
-		client := server.TestServer(t, impl)
+		client := TestServer(t)
 
 		// first insert
 		b := testBox()
-		_, err = client.UpsertBox(ctx, &vagrant_server.UpsertBoxRequest{
+		_, err := client.UpsertBox(ctx, &vagrant_server.UpsertBoxRequest{
 			Box: b,
 		})
 		require.NoError(err)
@@ -62,11 +55,11 @@ func TestServiceBox(t *testing.T) {
 		})
 		require.NoError(err)
 		require.NotNil(findResp)
-		require.Equal(b.Id, findResp.Box.Id)
+		require.Equal(b.ResourceId, findResp.Box.ResourceId)
 
 		// then delete it and ensure it's no longer found
 		_, err = client.DeleteBox(ctx, &vagrant_server.DeleteBoxRequest{
-			Box: &vagrant_plugin_sdk.Ref_Box{ResourceId: b.Id},
+			Box: &vagrant_plugin_sdk.Ref_Box{ResourceId: b.ResourceId},
 		})
 		require.NoError(err)
 
@@ -79,12 +72,9 @@ func TestServiceBox(t *testing.T) {
 
 	t.Run("reasonable errors: get not found", func(t *testing.T) {
 		require := require.New(t)
-		db := testDB(t)
-		impl, err := New(WithDB(db))
-		require.NoError(err)
-		client := server.TestServer(t, impl)
+		client := TestServer(t)
 
-		_, err = client.GetBox(ctx, &vagrant_server.GetBoxRequest{
+		_, err := client.GetBox(ctx, &vagrant_server.GetBoxRequest{
 			Box: &vagrant_plugin_sdk.Ref_Box{ResourceId: "idontexist"},
 		})
 		require.Error(err)
@@ -106,6 +96,7 @@ func testBox() *vagrant_server.Box {
 		Version:  "1.2.3",
 		// Id must be Name-Provider-Version because indexing assumes it is
 		// (the NewBox constructor normally generates this in core/box)
-		Id: "test/box-1.2.3-virtualbox",
+		ResourceId: "test/box-1.2.3-virtualbox",
+		Directory:  "/dev/null/box",
 	}
 }

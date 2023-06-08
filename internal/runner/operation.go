@@ -30,8 +30,7 @@ func (r *Runner) executeJob(
 		Local: r.local,
 	}
 
-	log.Debug("processing operation ", "job", job, "basis", job.Basis,
-		"project", job.Project, "target", job.Target)
+	log.Debug("processing operation ", "job", job)
 
 	// Initial options for setting up the basis
 	opts := []core.BasisOption{
@@ -43,19 +42,29 @@ func (r *Runner) executeJob(
 
 	var scope Runs
 
-	// Work backwards to setup the basis
-	var ref *vagrant_plugin_sdk.Ref_Basis
-	if job.Target != nil {
-		ref = job.Target.Project.Basis
-	} else if job.Project != nil {
-		ref = job.Project.Basis
-	} else {
-		ref = job.Basis
+	// Determine our basis reference
+	var basisRef *vagrant_plugin_sdk.Ref_Basis
+	var projectRef *vagrant_plugin_sdk.Ref_Project
+	var targetRef *vagrant_plugin_sdk.Ref_Target
+	switch s := job.Scope.(type) {
+	case *vagrant_server.Job_Basis:
+		basisRef = s.Basis
+	case *vagrant_server.Job_Project:
+		projectRef = s.Project
+		basisRef = s.Project.Basis
+	case *vagrant_server.Job_Target:
+		targetRef = s.Target
+		projectRef = s.Target.Project
+		basisRef = s.Target.Project.Basis
+	default:
+		return nil, fmt.Errorf("invalid job scope %T (%#v)", job.Scope, job.Scope)
 	}
-	opts = append(opts, core.WithBasisRef(ref))
+
+	// Work backwards to setup the basis
+	opts = append(opts, core.WithBasisRef(basisRef))
 
 	// Load our basis
-	b, err := r.factory.NewBasis(ref.ResourceId, opts...)
+	b, err := r.factory.NewBasis(basisRef.ResourceId, opts...)
 	if err != nil {
 		return
 	}
@@ -66,10 +75,10 @@ func (r *Runner) executeJob(
 	// load it up now
 	var p *core.Project
 
-	if job.Project != nil {
+	if projectRef != nil {
 		p, err = r.factory.NewProject(
 			core.WithBasis(b),
-			core.WithProjectRef(job.Project),
+			core.WithProjectRef(projectRef),
 		)
 		if err != nil {
 			return
@@ -81,10 +90,10 @@ func (r *Runner) executeJob(
 	// Finally, if we have a target defined, load it up
 	var m *core.Target
 
-	if job.Target != nil && p != nil && job.Target.Name != "" {
+	if targetRef != nil {
 		m, err = r.factory.NewTarget(
 			core.WithProject(p),
-			core.WithTargetRef(job.Target),
+			core.WithTargetRef(targetRef),
 		)
 		if err != nil {
 			return
@@ -111,7 +120,7 @@ func (r *Runner) executeJob(
 	case *vagrant_server.Job_Init:
 		return r.executeInitOp(ctx, job, b)
 
-	case *vagrant_server.Job_Run:
+	case *vagrant_server.Job_Command:
 		log.Warn("running a run operation", "scope", scope, "job", job)
 		return r.executeRunOp(ctx, job, scope)
 

@@ -28,19 +28,6 @@ service Vagrant {
 
   rpc ListBasis(google.protobuf.Empty) returns (ListBasisResponse);
 
-  // ListTasks returns the tasks.
-  rpc ListTasks(ListTasksRequest) returns (ListTasksResponse);
-
-  // GetTask returns a task
-  rpc GetTask(GetTaskRequest) returns (Task);
-
-  // GetLatestRelease returns the most recent successfully completed
-  // task within the given scope.
-  rpc GetLatestTask(GetLatestTaskRequest) returns (Task);
-
-  // UpsertRelease updates or inserts a task.
-  rpc UpsertTask(UpsertTaskRequest) returns (UpsertTaskResponse);
-
   // UpsertProject upserts the project.
   rpc UpsertProject(UpsertProjectRequest) returns (UpsertProjectResponse);
 
@@ -83,14 +70,6 @@ service Vagrant {
   // The client can choose to retry or not.
   rpc GetLogStream(GetLogStreamRequest) returns (stream LogBatch);
 
-  // Set a single configuration item for the application.
-  rpc SetConfig(ConfigSetRequest) returns (ConfigSetResponse);
-
-  // Retrieve merged configuration values for a specific scope. You can determine
-  // where a configuration variable was set by looking at the scope field on
-  // each variable.
-  rpc GetConfig(ConfigGetRequest) returns (ConfigGetResponse);
-
   // QueueJob queues a job for execution by a runner. This will return as
   // soon as the job is queued, it will not wait for execution.
   rpc QueueJob(QueueJobRequest) returns (QueueJobResponse);
@@ -126,21 +105,6 @@ service Vagrant {
 
   // GetRunner gets information about a single runner.
   rpc GetRunner(GetRunnerRequest) returns (Runner);
-
-  // GetServerConfig sets configuration for the Vagrant server.
-  rpc GetServerConfig(google.protobuf.Empty) returns (GetServerConfigResponse);
-
-  // SetServerConfig sets configuration for the Vagrant server.
-  rpc SetServerConfig(SetServerConfigRequest) returns (google.protobuf.Empty);
-
-  // CreateSnapshot creates a new database snapshot.
-  rpc CreateSnapshot(google.protobuf.Empty) returns (stream CreateSnapshotResponse);
-
-  // RestoreSnapshot performs a database restore with the given snapshot.
-  // This API doesn't do a full online restore, it only stages the restore
-  // for the next server start to finalize the restore. See the arguments for
-  // more information.
-  rpc RestoreSnapshot(stream RestoreSnapshotRequest) returns (google.protobuf.Empty);
 
   // BootstrapToken returns the initial token for the server. This can only
   // be requested once on first startup. After initial request this will
@@ -303,8 +267,8 @@ message Project {
 }
 
 message Box {
-  // Internal ID of the box
-  string id = 1;
+  // ID of the box
+  string resource_id = 1;
 
   // This is the provider that this box is built for.
   string provider = 2;
@@ -347,10 +311,10 @@ message Target {
   Operation.PhysicalState state = 5;
 
   // Targets contained within this target
-  repeated Target subtargets = 6;
+  repeated sdk.Ref.Target subtargets = 6;
 
   // Parent if this target is a subtarget
-  Target parent = 7;
+  sdk.Ref.Target parent = 7;
 
   // Public unique identifier for target
   string uuid = 8;
@@ -364,7 +328,7 @@ message Target {
   // Specialized target information (from provider)
   google.protobuf.Any record = 11;
 
-  // Provider name backing machine
+  // Provider name backing target
   string provider = 12;
 
   // Specialized target (machine)
@@ -381,21 +345,6 @@ message Target {
     // State of the machine (Vagrant representation)
     sdk.Args.Target.Machine.State state = 10;
   }
-
-  // TODO(spox): look back over these options and see if we
-  // still care about them (i'm thinking no)
-
-  // If true, then the `-remote` flag or the `vagrant build project/app`
-  // syntax can be used with a remote runner. If this is false, then
-  // this is not allowed. This is typically configured using the
-  // `runner {}` block in the vagrant config.
-  bool remote_enabled = 100;
-
-  // Where data is sourced for remote operations. If this isn't set, then
-  // there is no default data source and it will be an error if a job is
-  // queued for this project without a data source set. This is usually
-  // set using the `runner {}` block in the vagrant config.
-  Job.DataSource data_source = 101;
 }
 
 /********************************************************************
@@ -499,6 +448,7 @@ message Component {
     CONFIG = 12;
     PLUGININFO = 13;
     PUSH = 14;
+    DOWNLOADER = 15;
   }
 }
 
@@ -640,9 +590,11 @@ message Job {
   // certain fields of this to be empty, so check with the operation
   // documentation to determine what needs to be set. Generally, project
   // must be set.
-  sdk.Ref.Basis basis = 2;
-  sdk.Ref.Project project = 3;
-  sdk.Ref.Target target = 4;
+  oneof scope {
+    sdk.Ref.Basis basis = 2;
+    sdk.Ref.Project project = 3;
+    sdk.Ref.Target target = 4;
+  }
 
   // The runner that should execute this job. This is required.
   Ref.Runner target_runner = 5;
@@ -668,7 +620,7 @@ message Job {
     AuthOp auth = 51;
     DocsOp docs = 52;
     ValidateOp validate = 53;
-    RunOp run = 54;
+    CommandOp command = 54;
     InitOp init = 55;
   }
 
@@ -723,7 +675,7 @@ message Job {
     DocsResult docs = 2;
     ValidateResult validate = 3;
     InitResult init = 4;
-    RunResult run = 5;
+    CommandResult run = 5;
   }
 
   message DataSource {
@@ -766,6 +718,8 @@ message Job {
 
   message ValidateResult {}
 
+  // InitOp initializes a Vagrant configuration and returns information
+  // about the runtime.
   message InitOp {  }
 
   message InitResult {
@@ -791,13 +745,45 @@ message Job {
     }
   }
 
-  message RunOp {
-    Task task = 1;
+  // CommandOp runs a command
+  message CommandOp {
+    // The scope this command was run within
+    oneof scope {
+      sdk.Ref.Target target = 1;
+      sdk.Ref.Project project = 2;
+      sdk.Ref.Basis basis = 3;
+    }
+
+    // Name of the command executed
+    string command = 4;
+
+    // id is the unique ID for this task
+    string id = 5;
+
+    // Status is the current status of the task
+    Status status = 6;
+
+    // State of any resources related to the task
+    Operation.PhysicalState state = 7;
+
+    // Component responsible for this task
+    Component component = 8;
+
+    // Any labels which were set for this task
+    map<string,string> labels = 9;
+
+    // ID of the job that created this task
+    string job_id = 10;
+
+    // Map of cli arguments
+    sdk.Command.Arguments cli_args = 11;
+
+    Vagrantfile vagrantfile = 12;
   }
 
-  message RunResult {
-    // Task which was run
-    Task task = 1;
+  message CommandResult {
+    // Operation which was run
+    Operation task = 1;
 
     // True if the task did not encounter any errors
     bool run_result = 2;
@@ -889,7 +875,6 @@ message Documentation {
     string description = 3;
   }
 }
-
 
 message GetJobRequest {
   // ID of the job to request.
@@ -1165,46 +1150,9 @@ message RunnerJobStreamResponse {
   }
 }
 
-message RunnerGetDeploymentConfigRequest {}
-
-message RunnerGetDeploymentConfigResponse {
-  string server_addr = 1;
-  bool server_tls = 2;
-  bool server_tls_skip_verify = 3;
-}
-
 message GetRunnerRequest {
   // ID of the runner to request.
   string runner_id = 1;
-}
-
-/********************************************************************
-* Server
-********************************************************************/
-
-message SetServerConfigRequest {
-  ServerConfig config = 1;
-}
-
-message GetServerConfigResponse {
-  ServerConfig config = 1;
-}
-
-// ServerConfig is the configuration for the server that can be read and
-// set online. This differs from the configuration used to start the server
-// since some settings can only be set via the file vs. the API.
-message ServerConfig {
-  // The addresses that are advertised for entrypoints. These define how
-  // applications reach back to the server. Currently you may only set
-  // EXACTLY ONE address. In the future, we'll support multiple advertise
-  // addrs and more controls over which are advertised when.
-  repeated AdvertiseAddr advertise_addrs = 1;
-
-  message AdvertiseAddr {
-    string addr = 1;
-    bool tls = 2;
-    bool tls_skip_verify = 3;
-  }
 }
 
 /********************************************************************
@@ -1377,18 +1325,18 @@ message LogBatch {
 ********************************************************************/
 
 message ConfigVar {
-  // scope is the scoping for this config variable.
-  oneof scope {
-    sdk.Ref.Target target = 3;
-    sdk.Ref.Project project = 4;
-
-    // This specifies that the configuration variable is for runners only.
-    // You can use more complex runner targeting via this ref.
-    Ref.Runner runner = 5;
-  }
-
   string name = 1;
   string value = 2;
+
+  // scope is the scoping for this config variable.
+  oneof scope {
+    sdk.Ref.Basis basis = 3;
+    sdk.Ref.Project project = 4;
+    sdk.Ref.Target target = 5;
+    // This specifies that the configuration variable is for runners only.
+    // You can use more complex runner targeting via this ref.
+    Ref.Runner runner = 6;
+  }
 }
 
 message ConfigSetRequest {
@@ -1402,7 +1350,8 @@ message ConfigGetRequest {
   oneof scope {
     sdk.Ref.Target target = 2;
     sdk.Ref.Project project = 3;
-    Ref.RunnerId runner = 4;
+    sdk.Ref.Basis basis = 4;
+    Ref.RunnerId runner = 5;
   }
 
   // Get all configuration entries under the given prefix. When empty,
@@ -1777,96 +1726,4 @@ message Snapshot {
     // final is true if this is the last bolt chunk being written.
     bool final = 3;
   }
-}
-
-/**
- * Task
- **/
-
-message UpsertTaskRequest {
-  Task task = 1;
-}
-
-message UpsertTaskResponse {
-  // Resultant task in this response will likely be
-  // updated and should replace the task sent in request
-  Task task = 1;
-}
-
-message GetLatestTaskRequest {
-  // The scope of the task
-  oneof scope {
-    sdk.Ref.Target target = 1;
-    sdk.Ref.Project project = 2;
-    sdk.Ref.Basis basis = 3;
-  }
-}
-
-message ListTasksRequest {
-  // The scope of the task
-  oneof scope {
-    sdk.Ref.Target target = 1;
-    sdk.Ref.Project project = 2;
-    sdk.Ref.Basis basis = 3;
-  }
-
-  // The filters to apply to this request. These are ORed, so you should
-  // specify multiple filters in the StatusFilter for AND behavior.
-  repeated StatusFilter status = 4;
-
-  // The physical state to filter for. If this is zero or unset then no
-  // filtering on physical state will be done.
-  Operation.PhysicalState physical_state = 5;
-
-  // Specifies the order of results. If this isn't specified, the results
-  // are in an undefined order.
-  OperationOrder order = 6;
-}
-
-message ListTasksResponse {
-  repeated Task tasks = 1;
-}
-
-message GetTaskRequest {
-  Ref.Operation ref = 1;
-}
-
-message Task {
-  // The scope this task was run within
-  oneof scope {
-    sdk.Ref.Target target = 1;
-    sdk.Ref.Project project = 2;
-    sdk.Ref.Basis basis = 3;
-  }
-
-  // Name of the task executed
-  string task = 4;
-
-  // The sequence number for this task
-  uint64 sequence = 5;
-
-  // id is the unique ID for this task
-  string id = 6;
-
-  // Status is the current status of the task
-  Status status = 7;
-
-  // State of any resources related to the task
-  Operation.PhysicalState state = 8;
-
-  // Component responsible for this task
-  Component component = 9;
-
-  // Any labels which were set for this task
-  map<string,string> labels = 10;
-
-  // ID of the job that created this task
-  string job_id = 11;
-
-  // Map of cli arguments
-  sdk.Command.Arguments cli_args = 12;
-
-  string command_name = 13;
-
-  Vagrantfile vagrantfile = 14;
 }

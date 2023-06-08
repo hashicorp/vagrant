@@ -14,7 +14,6 @@ import (
 	"github.com/hashicorp/vagrant/internal/server"
 	"github.com/hashicorp/vagrant/internal/server/logbuffer"
 	"github.com/hashicorp/vagrant/internal/server/proto/vagrant_server"
-	serverptypes "github.com/hashicorp/vagrant/internal/server/ptypes"
 	"github.com/hashicorp/vagrant/internal/server/singleprocess/state"
 )
 
@@ -82,45 +81,9 @@ func (s *service) QueueJob(
 	if job == nil {
 		return nil, status.Errorf(codes.FailedPrecondition, "job must be set")
 	}
-	if err := serverptypes.ValidateJob(job); err != nil {
-		return nil, status.Errorf(codes.FailedPrecondition, err.Error())
+	if job.Id != "" {
+		return nil, status.Errorf(codes.InvalidArgument, "job ID must not be set")
 	}
-
-	// sophia: I think this is not needed?
-	// Validate the project/app pair exists.
-	// if job.Application.Application != "" {
-	// 	_, err := s.state.AppGet(job.Application)
-	// 	if status.Code(err) == codes.NotFound {
-	// 		return nil, status.Errorf(codes.NotFound,
-	// 			"Application %s/%s was not found! Please ensure that 'vagrant init' was run with this project.",
-	// 			job.Application.Project,
-	// 			job.Application.Application,
-	// 		)
-	// 	}
-	// }
-
-	// TODO: (sophia) not sure if this should be deleted
-	//       maybe this should register the current working directory as a project
-	// Verify the project exists and use that to set the default data source
-	// project, err := s.state.ProjectGet(&vagrant_server.Ref_Project{Project: job.Application.Project})
-	// if status.Code(err) == codes.NotFound {
-	// 	return nil, status.Errorf(codes.NotFound,
-	// 		"Project %s was not found! Please ensure that 'vagrant init' was run with this project.",
-	// 		job.Application.Project,
-	// 	)
-	// }
-
-	// if job.DataSource == nil {
-	// 	if project.DataSource == nil {
-	// 		return nil, status.Errorf(codes.FailedPrecondition,
-	// 			"Project %s does not have a default data source. A data source must be manually "+
-	// 				"specified for any queued jobs.",
-	// 			job.Application.Project,
-	// 		)
-	// 	}
-
-	// 	job.DataSource = project.DataSource
-	// }
 
 	// Get the next id
 	id, err := server.Id()
@@ -156,8 +119,8 @@ func (s *service) ValidateJob(
 	var err error
 	result := &vagrant_server.ValidateJobResponse{Valid: true}
 
-	// Struct validation
-	if err := serverptypes.ValidateJob(req.Job); err != nil {
+	// Validate the job details
+	if err := s.state.JobValidate(req.Job); err != nil {
 		result.Valid = false
 		result.ValidationError = status.New(codes.FailedPrecondition, err.Error()).Proto()
 		return result, nil

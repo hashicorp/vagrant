@@ -165,6 +165,7 @@ func TestRemoveMissingBox(t *testing.T) {
 	testBoxPath := generateTestBox(t, td, bc.basis)
 	// Insert test box into the collection
 	box, err := bc.Add(path.NewPath(testBoxPath), "test/box", "1.2.3", "", true)
+	require.NoError(t, err)
 	boxPath, _ := box.Directory()
 	require.NoError(t, err)
 	require.NotNil(t, box)
