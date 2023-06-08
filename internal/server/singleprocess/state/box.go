@@ -326,10 +326,6 @@ func (s *State) BoxFind(
 	if b.Name == "" {
 		return nil, lookupErrorToStatus("box", fmt.Errorf("no name given for box lookup"))
 	}
-	// // If no provider is given, we error immediately
-	// if b.Provider == "" {
-	// 	return nil, lookupErrorToStatus("box", fmt.Errorf("no provider given for box lookup"))
-	// }
 
 	// If the version is set to 0, mark it as default
 	if b.Version == "0" {
@@ -337,7 +333,7 @@ func (s *State) BoxFind(
 	}
 
 	// If we are provided an explicit version, just do a direct lookup
-	if _, err := version.NewVersion(b.Version); err == nil {
+	if _, err := version.NewVersion(b.Version); err == nil && b.Provider != "" {
 		box, err := s.BoxFromProtoRefFuzzy(b)
 		if err != nil {
 			if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -350,12 +346,11 @@ func (s *State) BoxFind(
 	}
 
 	var boxes []Box
-	result := s.search().Find(&boxes,
-		&Box{
-			Name:     b.Name,
-			Provider: b.Provider,
-		},
-	)
+	q := &Box{Name: b.Name}
+	if b.Provider != "" {
+		q.Provider = b.Provider
+	}
+	result := s.search().Find(&boxes, q)
 	if result.Error != nil {
 		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
 			return nil, nil

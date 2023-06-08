@@ -195,6 +195,9 @@ func (s *State) InternalJobFromProto(job *vagrant_server.Job) (*InternalJob, err
 	var j InternalJob
 	result := s.search().First(&j, &InternalJob{Jid: &job.Id})
 	if result.Error != nil {
+		if !errors.Is(result.Error, gorm.ErrRecordNotFound) {
+			panic(result.Error)
+		}
 		return nil, result.Error
 	}
 
@@ -327,7 +330,12 @@ type Job struct {
 }
 
 func (s *State) JobValidate(jobpb *vagrant_server.Job) error {
-	var job InternalJob
+	var err error
+	var job *InternalJob
+
+	if job, err = s.InternalJobFromProto(jobpb); err != nil {
+		return errorToStatus(err)
+	}
 
 	if err := s.softDecode(jobpb, &job); err != nil {
 		return errorToStatus(err)
@@ -1055,13 +1063,13 @@ func (s *State) jobCreate(memTxn *memdb.Txn, jobpb *vagrant_server.Job) error {
 
 	// Convert the job proto into a record
 	job, err := s.InternalJobFromProto(jobpb)
-	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
-		return err
+
+	// If the job already exists, force an error
+	if job != nil {
+		return fmt.Errorf("job already exists, cannot create (jid: %s)", *job.Jid)
 	}
 
-	if err != nil {
-		job = &InternalJob{}
-	}
+	job = &InternalJob{}
 
 	if err = s.softDecode(jobpb, job); err != nil {
 		return err
@@ -1096,6 +1104,10 @@ func (s *State) jobById(sid string) (*vagrant_server.Job, error) {
 
 func (s *State) jobReadAndUpdate(id string, f func(*vagrant_server.Job) error) (*vagrant_server.Job, error) {
 	var err error
+
+	if db, err := s.db.DB(); err == nil && db.Ping() != nil {
+		return nil, fmt.Errorf("cannot update job information, database closed")
+	}
 
 	j, err := s.jobById(id)
 	if err != nil {

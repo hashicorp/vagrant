@@ -5,7 +5,6 @@ import (
 	"testing"
 
 	"github.com/hashicorp/vagrant-plugin-sdk/proto/vagrant_plugin_sdk"
-	"github.com/hashicorp/vagrant/internal/server"
 	"github.com/hashicorp/vagrant/internal/server/proto/vagrant_server"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc/codes"
@@ -17,10 +16,7 @@ func TestServiceBox(t *testing.T) {
 
 	t.Run("set and get", func(t *testing.T) {
 		require := require.New(t)
-		db := testDB(t)
-		impl, err := New(WithDB(db))
-		require.NoError(err)
-		client := server.TestServer(t, impl)
+		client := TestServer(t)
 
 		b := testBox()
 		resp, err := client.UpsertBox(ctx, &vagrant_server.UpsertBoxRequest{
@@ -44,14 +40,11 @@ func TestServiceBox(t *testing.T) {
 
 	t.Run("find", func(t *testing.T) {
 		require := require.New(t)
-		db := testDB(t)
-		impl, err := New(WithDB(db))
-		require.NoError(err)
-		client := server.TestServer(t, impl)
+		client := TestServer(t)
 
 		// first insert
 		b := testBox()
-		_, err = client.UpsertBox(ctx, &vagrant_server.UpsertBoxRequest{
+		_, err := client.UpsertBox(ctx, &vagrant_server.UpsertBoxRequest{
 			Box: b,
 		})
 		require.NoError(err)
@@ -79,12 +72,9 @@ func TestServiceBox(t *testing.T) {
 
 	t.Run("reasonable errors: get not found", func(t *testing.T) {
 		require := require.New(t)
-		db := testDB(t)
-		impl, err := New(WithDB(db))
-		require.NoError(err)
-		client := server.TestServer(t, impl)
+		client := TestServer(t)
 
-		_, err = client.GetBox(ctx, &vagrant_server.GetBoxRequest{
+		_, err := client.GetBox(ctx, &vagrant_server.GetBoxRequest{
 			Box: &vagrant_plugin_sdk.Ref_Box{ResourceId: "idontexist"},
 		})
 		require.Error(err)

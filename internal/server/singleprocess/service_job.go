@@ -81,6 +81,9 @@ func (s *service) QueueJob(
 	if job == nil {
 		return nil, status.Errorf(codes.FailedPrecondition, "job must be set")
 	}
+	if job.Id != "" {
+		return nil, status.Errorf(codes.InvalidArgument, "job ID must not be set")
+	}
 
 	// Get the next id
 	id, err := server.Id()

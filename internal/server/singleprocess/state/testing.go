@@ -1,10 +1,10 @@
 package state
 
 import (
-	"bytes"
 	"io/ioutil"
 	"os"
 	"path/filepath"
+	"time"
 
 	"github.com/glebarez/sqlite"
 	"github.com/hashicorp/go-hclog"
@@ -22,79 +22,69 @@ import (
 func TestState(t testing.T) *State {
 	t.Helper()
 
-	var buf bytes.Buffer
-	l := hclog.New(&hclog.LoggerOptions{
-		Name:            "test",
-		Level:           hclog.Trace,
-		Output:          &buf,
-		IncludeLocation: true,
+	var result *State
+	t.Cleanup(func() {
+		t.Log("test state cleanup for", t.Name())
+		result.Close()
 	})
 
-	t.Cleanup(func() {
-		t.Log(buf.String())
-	})
-	result, err := New(l, TestDB(t))
+	result, err := New(
+		hclog.New(&hclog.LoggerOptions{
+			Name:            "testing",
+			Level:           hclog.Trace,
+			Output:          os.Stdout,
+			IncludeLocation: true,
+		}),
+		TestDB(t),
+	)
 	require.NoError(t, err)
 	return result
 }
 
-// // TestStateReinit reinitializes the state by pretending to restart
-// // the server with the database associated with this state. This can be
-// // used to test index init logic.
-// //
-// // This safely copies the entire DB so the old state can continue running
-// // with zero impact.
-// func TestStateReinit(t testing.T, s *State) *State {
-// 	// Copy the old database to a brand new path
-// 	td, err := ioutil.TempDir("", "test")
-// 	require.NoError(t, err)
-// 	t.Cleanup(func() { os.RemoveAll(td) })
-// 	path := filepath.Join(td, "test.db")
-
-// 	// Start db copy
-// 	require.NoError(t, s.db.View(func(tx *bolt.Tx) error {
-// 		return tx.CopyFile(path, 0600)
-// 	}))
-
-// 	// Open the new DB
-// 	db, err := bolt.Open(path, 0600, nil)
-// 	require.NoError(t, err)
-// 	t.Cleanup(func() { db.Close() })
-
-// 	// Init new state
-// 	result, err := New(hclog.L(), db)
-// 	require.NoError(t, err)
-// 	return result
-// }
-
-// // TestStateRestart closes the given state and restarts it against the
-// // same DB file. Unlike TestStateReinit, this does not copy the data and
-// // the old state is no longer usable.
-// func TestStateRestart(t testing.T, s *State) (*State, error) {
-// 	path := s.db.Path()
-// 	require.NoError(t, s.Close())
-
-// 	// Open the new DB
-// 	db, err := bolt.Open(path, 0600, nil)
-// 	require.NoError(t, err)
-// 	t.Cleanup(func() { db.Close() })
-
-// 	// Init new state
-// 	return New(hclog.L(), db)
-// }
+// TestStateReinit reinitializes the state by pretending to restart
+// the server with the database associated with this state. This can be
+// used to test index init logic.
+//
+// NOTE: The new state is created before the old one is closed so the
+// shared in memory database is reused (data retained)
+func TestStateReinit(t testing.T, s *State) *State {
+	newState := TestState(t)
+	require.NoError(t, s.Close())
+	return newState
+}
 
 func TestDB(t testing.T) *gorm.DB {
 	t.Helper()
 
-	db, err := gorm.Open(sqlite.Open(""), &gorm.Config{
-		Logger: logger.Default.LogMode(logger.Silent),
-	})
+	db, err := gorm.Open(sqlite.Open("file::memory:?cache=shared"),
+		&gorm.Config{
+			Logger: logger.New(
+				hclog.New(&hclog.LoggerOptions{
+					Name:            "testing",
+					Level:           hclog.Warn,
+					Output:          os.Stdout,
+					IncludeLocation: false,
+				}).StandardLogger(
+					&hclog.StandardLoggerOptions{
+						InferLevels: true,
+					}),
+				logger.Config{
+					SlowThreshold:             200 * time.Millisecond,
+					LogLevel:                  logger.Warn,
+					IgnoreRecordNotFoundError: false,
+					Colorful:                  true,
+				},
+			),
+		})
 	db.Exec("PRAGMA foreign_keys = ON")
 	if err != nil {
 		panic("failed to enable foreign key constraints: " + err.Error())
 	}
 
-	require.NoError(t, err)
+	if err := db.AutoMigrate(models...); err != nil {
+		require.NoError(t, err)
+	}
+
 	t.Cleanup(func() {
 		dbconn, err := db.DB()
 		if err == nil {
@@ -108,9 +98,6 @@ func TestDB(t testing.T) *gorm.DB {
 func RequireAndDB(t testing.T) (*require.Assertions, *gorm.DB) {
 	db := TestDB(t)
 	require := require.New(t)
-	if err := db.AutoMigrate(models...); err != nil {
-		require.NoError(err)
-	}
 	return require, db
 }
 

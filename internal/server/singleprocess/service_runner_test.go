@@ -19,8 +19,7 @@ func TestServiceRunnerJobStream_complete(t *testing.T) {
 	require := require.New(t)
 
 	// Create our server
-	impl, err := New(WithDB(testDB(t)))
-	require.NoError(err)
+	impl := TestImpl(t)
 	client := server.TestServer(t, impl)
 
 	// Initialize our basis
@@ -29,7 +28,7 @@ func TestServiceRunnerJobStream_complete(t *testing.T) {
 	// Create a job
 	queueResp, err := client.QueueJob(ctx,
 		&vagrant_server.QueueJobRequest{
-			Job: TestJob(t, client, nil),
+			Job: testJobProto(t, client, nil),
 		},
 	)
 	require.NoError(err)
@@ -89,9 +88,7 @@ func TestServiceRunnerJobStream_badOpen(t *testing.T) {
 	require := require.New(t)
 
 	// Create our server
-	impl, err := New(WithDB(testDB(t)))
-	require.NoError(err)
-	client := server.TestServer(t, impl)
+	client := TestServer(t)
 
 	// Start exec with a bad starting message
 	stream, err := client.RunnerJobStream(ctx)
@@ -114,8 +111,7 @@ func TestServiceRunnerJobStream_errorBeforeAck(t *testing.T) {
 	require := require.New(t)
 
 	// Create our server
-	impl, err := New(WithDB(testDB(t)))
-	require.NoError(err)
+	impl := TestImpl(t)
 	client := server.TestServer(t, impl)
 
 	// Initialize our basis
@@ -124,7 +120,7 @@ func TestServiceRunnerJobStream_errorBeforeAck(t *testing.T) {
 	// Create a job
 	queueResp, err := client.QueueJob(ctx,
 		&vagrant_server.QueueJobRequest{
-			Job: TestJob(t, client, nil),
+			Job: testJobProto(t, client, nil),
 		},
 	)
 	require.NoError(err)
@@ -180,17 +176,16 @@ func TestServiceRunnerJobStream_cancel(t *testing.T) {
 	require := require.New(t)
 
 	// Create our server
-	impl, err := New(WithDB(testDB(t)))
-	require.NoError(err)
+	impl := TestImpl(t)
 	client := server.TestServer(t, impl)
 
 	// Initialize our basis
-	TestBasis(t, client, TestBasis(t, client, nil))
+	TestBasis(t, client, nil)
 
 	// Create a job
 	queueResp, err := client.QueueJob(ctx,
 		&vagrant_server.QueueJobRequest{
-			Job: TestJob(t, client, nil),
+			Job: testJobProto(t, client, nil),
 		},
 	)
 	require.NoError(err)

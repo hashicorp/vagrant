@@ -1173,77 +1173,78 @@ func TestJobHeartbeat(t *testing.T) {
 		}, 1*time.Second, 10*time.Millisecond)
 	})
 
-	// t.Run("times out if running state loaded on restart", func(t *testing.T) {
-	// 	require := require.New(t)
+	t.Run("times out if running state loaded on restart", func(t *testing.T) {
+		require := require.New(t)
 
-	// 	// Set a short timeout
-	// 	old := jobHeartbeatTimeout
-	// 	defer func() { jobHeartbeatTimeout = old }()
-	// 	jobHeartbeatTimeout = 250 * time.Millisecond
+		// Set a short timeout
+		old := jobHeartbeatTimeout
+		defer func() { jobHeartbeatTimeout = old }()
+		jobHeartbeatTimeout = 250 * time.Millisecond
 
-	// 	s := TestState(t)
-	// 	defer s.Close()
-	// 	projRef := TestProjectProto(t, s)
-	// 	testRunnerProto(t, s, &vagrant_server.Runner{Id: "R_A"})
+		s := TestState(t)
+		defer s.Close()
+		projRef := TestProjectProto(t, s)
+		testRunnerProto(t, s, &vagrant_server.Runner{Id: "R_A"})
 
-	// 	// Create a build
-	// 	require.NoError(s.JobCreate(TestJobProto(t, &vagrant_server.Job{
-	// 		Id: "A",
-	// 		Scope: &vagrant_server.Job_Project{
-	// 			Project: projRef,
-	// 		},
-	// 	})))
+		// Create a build
+		require.NoError(s.JobCreate(TestJobProto(t, &vagrant_server.Job{
+			Id: "A",
+			Scope: &vagrant_server.Job_Project{
+				Project: projRef,
+			},
+		})))
 
-	// 	// Assign it, we should get this build
-	// 	job, err := s.JobAssignForRunner(context.Background(), &vagrant_server.Runner{Id: "R_A"})
-	// 	require.NoError(err)
-	// 	require.NotNil(job)
-	// 	require.Equal("A", job.Id)
-	// 	require.Equal(vagrant_server.Job_WAITING, job.State)
+		// Assign it, we should get this build
+		job, err := s.JobAssignForRunner(context.Background(), &vagrant_server.Runner{Id: "R_A"})
+		require.NoError(err)
+		require.NotNil(job)
+		require.Equal("A", job.Id)
+		require.Equal(vagrant_server.Job_WAITING, job.State)
 
-	// 	// Ack it
-	// 	_, err = s.JobAck(job.Id, true)
-	// 	require.NoError(err)
+		// Ack it
+		_, err = s.JobAck(job.Id, true)
+		require.NoError(err)
 
-	// 	// Start heartbeating
-	// 	ctx, cancel := context.WithCancel(context.Background())
-	// 	doneCh := make(chan struct{})
-	// 	defer func() {
-	// 		cancel()
-	// 		<-doneCh
-	// 	}()
-	// 	go func(s *State) {
-	// 		defer close(doneCh)
+		// Start heartbeating
+		ctx, cancel := context.WithCancel(context.Background())
+		doneCh := make(chan struct{})
+		defer func() {
+			cancel()
+			<-doneCh
+		}()
+		go func(s *State) {
+			defer close(doneCh)
 
-	// 		tick := time.NewTicker(20 * time.Millisecond)
-	// 		defer tick.Stop()
+			tick := time.NewTicker(20 * time.Millisecond)
+			defer tick.Stop()
 
-	// 		for {
-	// 			select {
-	// 			case <-tick.C:
-	// 				s.JobHeartbeat(job.Id)
+			for {
+				select {
+				case <-tick.C:
+					s.JobHeartbeat(job.Id)
 
-	// 			case <-ctx.Done():
-	// 				return
-	// 			}
-	// 		}
-	// 	}(s)
+				case <-ctx.Done():
+					return
+				}
+			}
+		}(s)
 
-	// 	Reinit the state as if we crashed
-	// 	s = TestStateReinit(t, s)
-	// 	defer s.Close()
+		// Reinit the state as if we crashed
+		s = TestStateReinit(t, s)
+		defer s.Close()
 
-	// 	// Verify it exists
-	// 	job, err = s.JobById("A", nil)
-	// 	require.NoError(err)
-	// 	require.Equal(vagrant_server.Job_RUNNING, job.Job.State)
+		// Verify it exists
+		job, err = s.JobById("A", nil)
+		require.NoError(err)
+		require.NotNil(job)
+		require.Equal(vagrant_server.Job_RUNNING, job.Job.State)
 
-	// 	// Should time out
-	// 	require.Eventually(func() bool {
-	// 		// Verify it is canceled
-	// 		job, err = s.JobById("A", nil)
-	// 		require.NoError(err)
-	// 		return job.Job.State == vagrant_server.Job_ERROR
-	// 	}, 2*time.Second, 10*time.Millisecond)
-	// })
+		// Should time out
+		require.Eventually(func() bool {
+			// Verify it is canceled
+			job, err = s.JobById("A", nil)
+			require.NoError(err)
+			return job.Job.State == vagrant_server.Job_ERROR
+		}, 2*time.Second, 10*time.Millisecond)
+	})
 }

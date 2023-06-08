@@ -1,17 +1,17 @@
 package singleprocess
 
 import (
+	"bytes"
 	"context"
 	"io/ioutil"
 	"os"
 	"path/filepath"
 
-	"github.com/glebarez/sqlite"
+	"github.com/hashicorp/go-hclog"
 	"github.com/imdario/mergo"
 	"github.com/mitchellh/go-testing-interface"
 	"github.com/mitchellh/mapstructure"
 	"github.com/stretchr/testify/require"
-	"gorm.io/gorm"
 
 	"github.com/hashicorp/vagrant-plugin-sdk/proto/vagrant_plugin_sdk"
 	"github.com/hashicorp/vagrant/internal/server"
@@ -29,10 +29,22 @@ func TestServer(t testing.T, opts ...Option) *serverclient.VagrantClient {
 // TestImpl returns the vagrant server implementation. This can be used
 // with server.TestServer. It is easier to just use TestServer directly.
 func TestImpl(t testing.T, opts ...Option) pb.VagrantServer {
+	var buf bytes.Buffer
+	l := hclog.New(&hclog.LoggerOptions{
+		Name:            "test",
+		Level:           hclog.Trace,
+		Output:          &buf,
+		IncludeLocation: true,
+	})
+
 	impl, err := New(append(
-		[]Option{WithDB(state.TestDB(t))},
+		[]Option{WithDB(state.TestDB(t)), WithLogger(l)},
 		opts...,
 	)...)
+
+	t.Cleanup(func() {
+		t.Log(buf.String())
+	})
 	require.NoError(t, err)
 	return impl
 }
@@ -163,6 +175,15 @@ func TestBasis(t testing.T, client pb.VagrantClient, ref *pb.Basis) *pb.Basis {
 }
 
 func TestJob(t testing.T, client pb.VagrantClient, ref *pb.Job) *pb.Job {
+	j := testJobProto(t, client, ref)
+	resp, err := client.QueueJob(context.Background(), &pb.QueueJobRequest{Job: j})
+	require.Nil(t, err)
+
+	j.Id = resp.JobId
+	return j
+}
+
+func testJobProto(t testing.T, client pb.VagrantClient, ref *pb.Job) *pb.Job {
 	var job pb.Job
 
 	if ref == nil {
@@ -180,23 +201,7 @@ func TestJob(t testing.T, client pb.VagrantClient, ref *pb.Job) *pb.Job {
 			},
 		}
 	}
-
 	return state.TestJobProto(t, &job)
-}
-
-func testDB(t testing.T) *gorm.DB {
-	t.Helper()
-
-	db, err := gorm.Open(sqlite.Open("file::memory:"), &gorm.Config{})
-	require.NoError(t, err)
-	t.Cleanup(func() {
-		d, err := db.DB()
-		if err != nil {
-			d.Close()
-		}
-	})
-
-	return db
 }
 
 func testTempDir(t testing.T) string {
