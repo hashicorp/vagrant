@@ -14,6 +14,7 @@ import (
 	"github.com/imdario/mergo"
 	"github.com/mitchellh/go-testing-interface"
 	"github.com/stretchr/testify/require"
+	"google.golang.org/protobuf/proto"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
 )
@@ -165,25 +166,25 @@ func testRunnerProto(t testing.T, s *State, src *vagrant_server.Runner) *vagrant
 func TestJobProto(t testing.T, src *vagrant_server.Job) *vagrant_server.Job {
 	t.Helper()
 
-	require.NoError(t, mergo.Merge(src,
-		&vagrant_server.Job{
-			TargetRunner: &vagrant_server.Ref_Runner{
-				Target: &vagrant_server.Ref_Runner_Any{
-					Any: &vagrant_server.Ref_RunnerAny{},
-				},
-			},
-			DataSource: &vagrant_server.Job_DataSource{
-				Source: &vagrant_server.Job_DataSource_Local{
-					Local: &vagrant_server.Job_Local{},
-				},
-			},
-			Operation: &vagrant_server.Job_Noop_{
-				Noop: &vagrant_server.Job_Noop{},
+	dst := &vagrant_server.Job{
+		TargetRunner: &vagrant_server.Ref_Runner{
+			Target: &vagrant_server.Ref_Runner_Any{
+				Any: &vagrant_server.Ref_RunnerAny{},
 			},
 		},
-	))
+		DataSource: &vagrant_server.Job_DataSource{
+			Source: &vagrant_server.Job_DataSource_Local{
+				Local: &vagrant_server.Job_Local{},
+			},
+		},
+		Operation: &vagrant_server.Job_Noop_{
+			Noop: &vagrant_server.Job_Noop{},
+		},
+	}
 
-	return src
+	proto.Merge(dst, src)
+
+	return dst
 }
 
 func TestTempDir(t testing.T) string {
