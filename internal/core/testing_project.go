@@ -59,6 +59,8 @@ func TestMinimalProject(t testing.T) *Project {
 		}...,
 	)
 
+	require.NotEmpty(t, p.project.Path)
+
 	require.NoError(t, err)
 	require.NoError(t, p.Save())
 

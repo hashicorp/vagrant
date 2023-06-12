@@ -84,6 +84,10 @@ clean:
 test: # run tests
 	go test ./...
 
+.PHONY: force-test
+force-test: # run all tests (no cached results)
+	go test -count=1 ./...
+
 .PHONY: format
 format: # format go code
 	gofmt -s -w ./
