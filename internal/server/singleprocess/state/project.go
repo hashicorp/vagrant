@@ -89,6 +89,7 @@ func (p *Project) BeforeSave(tx *gorm.DB) error {
 			return err
 		}
 	}
+
 	if err := p.Validate(tx); err != nil {
 		return err
 	}
@@ -358,8 +359,11 @@ func (s *State) ProjectPut(
 		return nil, lookupErrorToStatus("project", err)
 	}
 
-	// Make sure we don't have a nil value
-	if err != nil {
+	// If a project is found, remove the basis
+	// ref to prevent update attempts
+	if project != nil {
+		p.Basis = nil
+	} else {
 		project = &Project{}
 	}
 

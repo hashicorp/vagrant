@@ -394,8 +394,12 @@ func (s *State) TargetPut(
 		return nil, lookupErrorToStatus("target", err)
 	}
 
-	// Make sure we don't have a nil
-	if err != nil {
+	// If a target is found, remove the project
+	// ref to prevent update attempts
+	if target != nil {
+		t.Project = nil
+	} else {
+		// Otherwise, init target for the decode
 		target = &Target{}
 	}
 
