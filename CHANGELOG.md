@@ -16,6 +16,7 @@ BUG FIXES:
 VAGRANT-GO:
 
 - Update data layer implementation [GH-12904]
+- Update dependencies [GH-13201]
 
 ## 2.3.6 (May 19, 2023)
 
