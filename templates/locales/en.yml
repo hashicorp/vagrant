@@ -1280,12 +1280,19 @@ en:
         again.
       plugin_missing_library: |-
         Vagrant failed to install the requested plugin because it depends
-        on a library which is not currently installed on this system. The
-        following library is required by the '%{name}' plugin:
+        on development files for a library which is not currently installed
+        on this system. The following library is required by the '%{name}'
+        plugin:
 
           %{library}
 
-        Please install the library and then run the command again.
+        If a package manager is used on this system, please install the development
+        package for the library. The name of the package will be similar to:
+
+          %{library}-dev or %{library}-devel
+
+        After the library and development files have been installed, please
+        run the command again.
       plugin_missing_ruby_dev: |-
         Vagrant failed to install the requested plugin because the Ruby header
         files could not be found. Install the ruby development package for your
