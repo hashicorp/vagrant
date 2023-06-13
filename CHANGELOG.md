@@ -5,6 +5,7 @@ FEATURES:
 IMPROVEMENTS:
 
 - command/ssh: Enable deprecated key types and algorithms [GH-13179]
+- core: Update user error message on failed extension installs [GH-13207]
 - core: Support loading legacy providers in OpenSSL 3 [GH-13178]
 - provisioner/salt: Verify bootstrap-salt download [GH-13166]
 
