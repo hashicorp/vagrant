@@ -444,6 +444,104 @@ function reap_completed_background_job() {
     return 0
 }
 
+# Creates a cache and adds the provided items
+#
+# -d Optional description
+# -f Force cache (deletes cache if already exists)
+#
+# $1: name of cache
+# $2: artifact(s) to cache (path to artifact or directory containing artifacts)
+function create-cache() {
+    local body
+    local force
+    local opt
+    while getopts ":d:f" opt; do
+        case "${opt}" in
+            "d") body="${OPTARG}" ;;
+            "f") force="1" ;;
+            *) failure "Invalid flag provided" ;;
+        esac
+    done
+    shift $((OPTIND-1))
+
+    cache_name="${1}"
+    artifact_path="${2}"
+
+    if [ -z "${cache_name}" ]; then
+        failure "Cache name is required"
+    fi
+    if [ -z "${artifact_path}" ]; then
+        failure "Artifact path is required"
+    fi
+
+    # Check for the cache
+    if github_draft_release_exists "${repo_name}" "${cache_name}"; then
+        # If forcing, delete the cache
+        if [ -n "${force}" ]; then
+            debug "cache '%s' found and force is set, removing"
+            github_delete_draft_release "${cache_name}"
+        else
+            failure "Cache already exists (name: %s repo: %s)" "${cache_name}" "${repo_name}"
+        fi
+    fi
+
+    # If no description is provided, then provide a default
+    if [ -z "${body}" ]; then
+        body="Cache name: %s\nCreate time: %s\nSource run: %s/%s/actions/runs/%s" \
+            "${cache_name}" "$(date)" "${GITHUB_SERVER_URL}" "${GITHUB_REPOSITORY}" "${GITHUB_RUN_ID}"
+    fi
+
+    # Make sure body is formatted
+    if [ -n "${body}" ]; then
+        body="$(printf "%b" "${body}")"
+    fi
+
+    response="$(github_create_release -o "${repo_owner}" -r "${repo_name}" -n "${cache_name}" -b "${body}")" ||
+        failure "Failed to create GitHub release"
+}
+
+# Retrieve items from cache
+#
+# -r Require cache to exist (failure if not found)
+#
+# $1: cache name
+# $2: destination directory
+function restore-cache() {
+    local required
+
+    while getopts ":r" opt; do
+        case "${opt}" in
+            "r") required="1" ;;
+            *) failure "Invalid flag provided" ;;
+        esac
+    done
+    shift $((OPTIND-1))
+
+    cache_name="${1}"
+    destination="${2}"
+
+    if [ -z "${cache_name}" ]; then
+        failure "Cache name is required"
+    fi
+    if [ -z "${destination}" ]; then
+        failure "Destination is required"
+    fi
+
+    # If required, check for the draft release and error if not found
+    if [ -n "${required}" ]; then
+        if ! github_draft_release_exists "${repo_name}" "${cache_name}"; then
+            failure "Cache '%s' does not exist" "${cache_name}"
+        fi
+    fi
+
+    mkdir -p "${destination}" ||
+        failure "Could not create destination directory (%s)" "${destination}"
+
+    pushd "${destination}"
+    github_draft_release_assets "${repo_name}" "${cache_name}"
+    popd
+}
+
 # Submit given file to Apple's notarization service and
 # staple the notarization ticket.
 #
@@ -1031,18 +1129,6 @@ function hashicorp_release_sns_publish() {
     local product="${1}"
     local region="${2}"
 
-    if [ -z "${RELEASE_AWS_ACCESS_KEY_ID}" ]; then
-        failure "Missing AWS access key ID for release packages SNS publish"
-    fi
-
-    if [ -z "${RELEASE_AWS_SECRET_ACCESS_KEY}" ]; then
-        failure "Missing AWS access key for release packages SNS publish"
-    fi
-
-    if [ -z "${RELEASE_AWS_ASSUME_ROLE_ARN}" ]; then
-        failure "Missing AWS role ARN for release packages SNS publish"
-    fi
-
     if [ -z "${product}" ]; then
         product="${repo_name}"
     fi
@@ -1050,26 +1136,6 @@ function hashicorp_release_sns_publish() {
     if [ -z "${region}" ]; then
         region="us-east-1"
     fi
-
-    local core_id core_key old_id old_key old_token old_role old_expiration old_region
-    if [ -n "${AWS_ACCESS_KEY_ID}" ]; then
-        # Store current credentials to be restored
-        core_id="${CORE_AWS_ACCESS_KEY_ID}"
-        core_key="${CORE_AWS_SECRET_ACCESS_KEY}"
-        old_id="${AWS_ACCESS_KEY_ID}"
-        old_key="${AWS_SECRET_ACCESS_KEY}"
-        old_token="${AWS_SESSION_TOKEN}"
-        old_role="${AWS_ASSUME_ROLE_ARN}"
-        old_expiration="${AWS_SESSION_EXPIRATION}"
-        old_region="${AWS_REGION}"
-        unset AWS_SESSION_TOKEN
-    fi
-
-    export AWS_ACCESS_KEY_ID="${RELEASE_AWS_ACCESS_KEY_ID}"
-    export AWS_SECRET_ACCESS_KEY="${RELEASE_AWS_SECRET_ACCESS_KEY}"
-    export AWS_ASSUME_ROLE_ARN="${RELEASE_AWS_ASSUME_ROLE_ARN}"
-    export AWS_REGION="${region}"
-    export AWS_DEFAULT_REGION="${region}"
 
     # Validate the creds properly assume role and function
     wrap aws_deprecated configure list \
@@ -1080,18 +1146,6 @@ function hashicorp_release_sns_publish() {
     message=$(jq --null-input --arg product "$product" '{"product": $product}')
     wrap_stream aws sns publish --region "${region}" --topic-arn "${HC_RELEASES_PROD_SNS_TOPIC}" --message "${message}" \
         "Failed to send SNS message for package repository update"
-
-    # Before we finish restore the previously set credentials if we unset them
-    if [ -n "${core_id}" ]; then
-        export CORE_AWS_ACCESS_KEY_ID="${core_id}"
-        export CORE_AWS_SECRET_ACCESS_KEY="${core_key}"
-        export AWS_ACCESS_KEY_ID="${old_id}"
-        export AWS_SECRET_ACCESS_KEY="${old_key}"
-        export AWS_SESSION_TOKEN="${old_token}"
-        export AWS_ASSUME_ROLE_ARN="${old_role}"
-        export AWS_SESSION_EXPIRATION="${old_expiration}"
-        export AWS_REGION="${old_region}"
-    fi
 
     return 0
 }
@@ -1770,11 +1824,6 @@ function install_github_tool() {
     rm -rf "${tmp}"
 }
 
-# Simple helper to install ghr
-function install_ghr() {
-    install_github_tool "tcnksm" "ghr"
-}
-
 # Prepare host for packet use. It will validate the
 # required environment variables are set, ensure
 # packet-exec is installed, and setup the SSH key.
@@ -2070,7 +2119,7 @@ function github_create_release() {
         failure "Repository name is required for GitHub release"
     fi
 
-    if [ -z "${tag_name}" ]; then
+    if [ -z "${tag_name}" ] && [ "${draft}" != "true" ]; then
         failure "Tag name is required for GitHub release"
     fi
 
