@@ -1,6 +1,4 @@
-## 2.3.7 (UNRELEASED)
-
-FEATURES:
+## 2.3.7 (June 15, 2023)
 
 IMPROVEMENTS:
 
