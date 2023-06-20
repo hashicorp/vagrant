@@ -1353,4 +1353,97 @@ describe Vagrant::Action::Builtin::BoxAdd, :skip_windows, :bsdtar do
       expect(env[:box_added]).to equal(box)
     end
   end
+
+  describe "#downloader" do
+    let(:options) { {} }
+
+    after { subject.send(:downloader, url, env, **options) }
+
+    context "when box is local" do
+      let(:url) { "/dev/null/vagrant.box" }
+
+      it "should prepend file protocol to path" do
+        expect(Vagrant::Util::Downloader).to receive(:new) do |durl, *_|
+          expect(durl).to eq("file://#{url}")
+        end
+      end
+    end
+
+    context "when box is remote" do
+      let(:url) { "http://localhost/vagrant.box" }
+
+      it "should not modify the url" do
+        expect(Vagrant::Util::Downloader).to receive(:new) do |durl, *_|
+          expect(durl).to eq(url)
+        end
+      end
+    end
+
+    context "when options are set in the environment" do
+      let(:url) { "http://localhost/vagrant.box" }
+
+      context "when ca cert value is set" do
+        let(:ca_cert) { "/dev/null/ca.cert" }
+        before { env[:box_download_ca_cert] = ca_cert }
+
+        it "should include ca cert value" do
+          expect(Vagrant::Util::Downloader).to receive(:new) do |_, _, opts|
+            expect(opts[:ca_cert]).to eq(ca_cert)
+          end
+        end
+      end
+
+      context "when ca path value is set" do
+        let(:ca_path) { "/dev/null/ca.path" }
+        before { env[:box_download_ca_path] = ca_path }
+
+        it "should include ca path value" do
+          expect(Vagrant::Util::Downloader).to receive(:new) do |_, _, opts|
+            expect(opts[:ca_path]).to eq(ca_path)
+          end
+        end
+      end
+
+      context "when insecure value is set" do
+        before { env[:box_download_insecure] = true }
+
+        it "should include insecure value" do
+          expect(Vagrant::Util::Downloader).to receive(:new) do |_, _, opts|
+            expect(opts[:insecure]).to be_truthy
+          end
+        end
+      end
+
+      context "when client cert value is set" do
+        let(:client_cert_path) { "/dev/null/client.cert" }
+        before { env[:box_download_client_cert] = client_cert_path }
+
+        it "should include client cert value" do
+          expect(Vagrant::Util::Downloader).to receive(:new) do |_, _, opts|
+            expect(opts[:client_cert]).to eq(client_cert_path)
+          end
+        end
+      end
+
+      context "when location trusted is set" do
+        before { env[:box_download_location_trusted] = true }
+
+        it "should include client cert value" do
+          expect(Vagrant::Util::Downloader).to receive(:new) do |_, _, opts|
+            expect(opts[:location_trusted]).to be_truthy
+          end
+        end
+      end
+
+      context "when disable ssl revoke best effort is set" do
+        before { env[:box_download_disable_ssl_revoke_best_effort] = true }
+
+        it "should include disable revoke best effort value value" do
+          expect(Vagrant::Util::Downloader).to receive(:new) do |_, _, opts|
+            expect(opts[:disable_ssl_revoke_best_effort]).to be_truthy
+          end
+        end
+      end
+    end
+  end
 end

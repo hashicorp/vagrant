@@ -39,6 +39,7 @@ module VagrantPlugins
       attr_accessor :box_download_checksum
       attr_accessor :box_download_checksum_type
       attr_accessor :box_download_client_cert
+      attr_accessor :box_download_disable_ssl_revoke_best_effort
       attr_accessor :box_download_insecure
       attr_accessor :box_download_location_trusted
       attr_accessor :box_download_options
@@ -72,6 +73,7 @@ module VagrantPlugins
         @box_download_checksum         = UNSET_VALUE
         @box_download_checksum_type    = UNSET_VALUE
         @box_download_client_cert      = UNSET_VALUE
+        @box_download_disable_ssl_revoke_best_effort = UNSET_VALUE
         @box_download_insecure         = UNSET_VALUE
         @box_download_location_trusted = UNSET_VALUE
         @box_download_options          = UNSET_VALUE
@@ -529,6 +531,7 @@ module VagrantPlugins
         @box_download_checksum = nil if @box_download_checksum == UNSET_VALUE
         @box_download_checksum_type = nil if @box_download_checksum_type == UNSET_VALUE
         @box_download_client_cert = nil if @box_download_client_cert == UNSET_VALUE
+        @box_download_disable_ssl_revoke_best_effort = false if @box_download_disable_ssl_revoke_best_effort == UNSET_VALUE
         @box_download_insecure = false if @box_download_insecure == UNSET_VALUE
         @box_download_location_trusted = false if @box_download_location_trusted == UNSET_VALUE
         @box_url = nil if @box_url == UNSET_VALUE

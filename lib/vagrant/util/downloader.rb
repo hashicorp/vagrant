@@ -72,6 +72,14 @@ module Vagrant
           :sha512 => options[:sha512]
         }.compact
         @extra_download_options = options[:box_extra_download_options] || []
+        # If on Windows SSL revocation checks should be best effort. More context
+        # for this usage can be found in the following links:
+        #
+        # https://github.com/curl/curl/issues/3727
+        # https://github.com/curl/curl/pull/4981
+        if Platform.windows?
+          @ssl_revoke_best_effort = !options[:disable_ssl_revoke_best_effort]
+        end
       end
 
       # This executes the actual download, downloading the source file
@@ -247,6 +255,7 @@ module Vagrant
         options << "--cert" << @client_cert if @client_cert
         options << "-u" << @auth if @auth
         options << "--location-trusted" if @location_trusted
+        options << "--ssl-revoke-best-effort" if @ssl_revoke_best_effort
 
         options.concat(@extra_download_options)
 
