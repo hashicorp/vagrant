@@ -10,7 +10,7 @@ append_ldflags(Shellwords.shellwords(ENV["LDFLAGS"])) if ENV["LDFLAGS"]
 
 if have_header("openssl/opensslv.h")
   append_ldflags(["-lssl", "-lcrypto"])
-  create_makefile("vagrant_ssl")
+  create_makefile("vagrant/vagrant_ssl")
 else
   # If the header file isn't found, just create a dummy
   # Makefile and stub the library to make it a noop
