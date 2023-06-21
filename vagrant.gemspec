@@ -105,6 +105,6 @@ Gem::Specification.new do |s|
 
   s.files         = unignored_files
   s.executables   = unignored_files.map { |f| f[/^bin\/(.*)/, 1] }.compact
-  s.extensions    = ["ext/vagrant_ssl/extconf.rb"]
+  s.extensions    = ["ext/vagrant/vagrant_ssl/extconf.rb"]
   s.require_path  = 'lib'
 end
