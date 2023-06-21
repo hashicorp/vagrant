@@ -443,6 +443,7 @@ module Vagrant
           downloader_options[:headers] = ["Accept: application/json"] if opts[:json]
           downloader_options[:ui] = env[:ui] if opts[:ui]
           downloader_options[:location_trusted] = env[:box_download_location_trusted]
+          downloader_options[:disable_ssl_revoke_best_effort] = env[:box_download_disable_ssl_revoke_best_effort]
           downloader_options[:box_extra_download_options] = env[:box_extra_download_options]
 
           d = Util::Downloader.new(url, temp_path, downloader_options)

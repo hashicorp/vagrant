@@ -72,6 +72,11 @@ the name of the synced folder plugin.
   CA certificates for downloading a box directly. By default, Vagrant will
   use the Mozilla CA cert bundle.
 
+- `config.vm.box_download_disable_ssl_revoke_best_effort` (boolean) - Disable SSL
+  revocation checking from being best effort. If an error is encountered when attempting
+  to check certificate revocation, enabling this option will halt the request. This
+  option is only applied on the Windows platform and defaults to `false`.
+
 - `config.vm.box_download_options` (map) - A map of extra download options
   to pass to the downloader. For example, a path to a key that the downloader
   should use could be specified as `{key: "<path/to/key>"}`. The keys should

@@ -67,6 +67,7 @@ module Vagrant
           box_download_checksum_type = machine.config.vm.box_download_checksum_type
           box_download_checksum = machine.config.vm.box_download_checksum
           box_download_location_trusted = machine.config.vm.box_download_location_trusted
+          box_download_disable_ssl_revoke_best_effort = machine.config.vm.box_download_disable_ssl_revoke_best_effort
           box_extra_download_options = machine.config.vm.box_extra_download_options
           box_formats = machine.provider_options[:box_format] ||
             machine.provider_name
@@ -93,6 +94,7 @@ module Vagrant
               box_checksum_type: box_download_checksum_type,
               box_checksum: box_download_checksum,
               box_download_location_trusted: box_download_location_trusted,
+              box_download_disable_ssl_revoke_best_effort: box_download_disable_ssl_revoke_best_effort,
               box_extra_download_options: box_extra_download_options,
             }))
           rescue Errors::BoxAlreadyExists
