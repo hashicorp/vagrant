@@ -7,8 +7,7 @@ require "rake/extensiontask"
 $stdout.sync = true
 $stderr.sync = true
 
-Rake::ExtensionTask.new "vagrant_ssl" do |ext|
-  ext.lib_dir = "lib/vagrant"
+Rake::ExtensionTask.new "vagrant/vagrant_ssl" do |ext|
 end
 
 # Load all the rake tasks from the "tasks" folder. This folder
