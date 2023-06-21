@@ -4,6 +4,8 @@ FEATURES:
 
 IMPROVEMENTS:
 
+- util/downloader: Perform best effort revocation checks on Windows [GH-13214]
+
 BUG FIXES:
 
 - core: Fix extension installation path [GH-13215]
