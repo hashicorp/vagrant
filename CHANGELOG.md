@@ -6,6 +6,8 @@ IMPROVEMENTS:
 
 BUG FIXES:
 
+- core: Fix extension installation path [GH-13215]
+
 VAGRANT-GO:
 
 ## 2.3.7 (June 15, 2023)
