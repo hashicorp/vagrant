@@ -1578,7 +1578,7 @@ function slack() {
     ts="$(date '+%s')"
 
     # shellcheck disable=SC2016
-    attach_template='{text: $msg, fallback: $msg, color: $state, mrkdn: true, ts: $time'
+    attach_template='{text: $msg, fallback: $msg, color: $state, mrkdwn_in: ["text"], ts: $time'
     if [ -n "${title}" ]; then
         # shellcheck disable=SC2016
         attach_template+=', title: $title'
