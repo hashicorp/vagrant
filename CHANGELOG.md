@@ -4,7 +4,10 @@ FEATURES:
 
 IMPROVEMENTS:
 
+- keys: Add ed25519 insecure private key [GH-13219]
+- communicator/ssh: Add key type detection on insecure key replacement [GH-13219] 
 - util/downloader: Perform best effort revocation checks on Windows [GH-13214]
+- util/keypair: Add support for generating ed25519 key pairs [GH-13219]
 
 BUG FIXES:
 
