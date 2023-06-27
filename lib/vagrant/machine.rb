@@ -502,7 +502,7 @@ module Vagrant
         if @config.ssh.private_key_path
           info[:private_key_path] = @config.ssh.private_key_path
         else
-          info[:private_key_path] = @env.default_private_key_path
+          info[:private_key_path] = @env.default_private_key_paths
         end
       end
 

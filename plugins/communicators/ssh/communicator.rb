@@ -185,7 +185,29 @@ module VagrantPlugins
             @machine.guest.capability?(:remove_public_key)
           raise Vagrant::Errors::SSHInsertKeyUnsupported if !cap
 
-          _pub, priv, openssh = Vagrant::Util::Keypair.create
+          # Check for supported key type
+          key_type = catch(:key_type) do
+            begin
+              Vagrant::Util::Keypair::PREFER_KEY_TYPES.each do |type_name, type|
+                throw :key_type, type if supports_key_type?(type_name)
+              end
+              nil
+            rescue => err
+              @logger.warn("Failed to check key types server supports: #{err}")
+              nil
+            end
+          end
+
+          @logger.debug("Detected key type for new private key: #{key_type}")
+
+          # If no key type was discovered, default to rsa
+          if key_type.nil?
+            @logger.debug("Failed to detect supported key type, defaulting to rsa")
+            key_type = :rsa
+          end
+
+          @logger.info("Creating new ssh keypair (type: #{key_type.inspect})")
+          _pub, priv, openssh = Vagrant::Util::Keypair.create(type: key_type)
 
           @logger.info("Inserting key to avoid password: #{openssh}")
           @machine.ui.detail("\n"+I18n.t("vagrant.inserting_random_key"))
@@ -748,8 +770,9 @@ module VagrantPlugins
       def insecure_key?(path)
         return false if !path
         return false if !File.file?(path)
-        source_path = Vagrant.source_root.join("keys", "vagrant")
-        return File.read(path).chomp == source_path.read.chomp
+        Dir.glob(Vagrant.source_root.join("keys", "vagrant.key.*")).any? do |source_path|
+          File.read(path).chomp == File.read(source_path).chomp
+        end
       end
 
       def create_remote_directory(dir)
@@ -758,6 +781,35 @@ module VagrantPlugins
 
       def machine_config_ssh
         @machine.config.ssh
+      end
+
+      protected
+
+      # Check if server supports given key type
+      #
+      # @param [String, Symbol] type Key type
+      # @return [Boolean]
+      # @note This does not use a stable API and may be subject
+      # to unexpected breakage on net-ssh updates
+      def supports_key_type?(type)
+        if @connection.nil?
+          raise Vagrant::Errors::SSHNotReady
+        end
+        server_data = @connection.
+          transport&.
+          algorithms&.
+          instance_variable_get(:@server_data)
+        if server_data.nil?
+          @logger.warn("No server data available for key type support check")
+          return false
+        end
+        if !server_data.is_a?(Hash)
+          @logger.warn("Server data is not expected type (expecting Hash, got #{server_data.class})")
+          return false
+        end
+
+        @logger.debug("server data used for host key support check: #{server_data.inspect}")
+        server_data[:host_key].include?(type.to_s)
       end
     end
   end

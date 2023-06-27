@@ -115,15 +115,16 @@ users, passwords, private keys, etc.).
 
 By default, Vagrant expects a "vagrant" user to SSH into the machine as.
 This user should be setup with the
-[insecure keypair](https://github.com/hashicorp/vagrant/tree/main/keys)
+[insecure keypairs](https://github.com/hashicorp/vagrant/tree/main/keys)
 that Vagrant uses as a default to attempt to SSH. It should belong to a
 group named "vagrant". Also, even though Vagrant uses key-based
 authentication by default, it is a general convention to set the
 password for the "vagrant" user to "vagrant". This lets people login as
 that user manually if they need to.
 
-To configure SSH access with the insecure keypair, place the public
-key into the `~/.ssh/authorized_keys` file for the "vagrant" user. Note
+To configure SSH access with the insecure keypair, place the [public
+keys](https://github.com/hashicorp/vagrant/tree/main/keys/vagrant.pub)
+into the `~/.ssh/authorized_keys` file for the "vagrant" user. Note
 that OpenSSH is very picky about file permissions. Therefore, make sure
 that `~/.ssh` has `0700` permissions and the authorized keys file has
 `0600` permissions.

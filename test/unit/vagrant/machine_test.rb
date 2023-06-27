@@ -729,7 +729,9 @@ describe Vagrant::Machine do
         provider_ssh_info[:private_key_path] = nil
         instance.config.ssh.private_key_path = nil
 
-        expect(ssh_klass).to receive(:check_key_permissions).once.with(Pathname.new(instance.env.default_private_key_path.to_s))
+        instance.env.default_private_key_paths.each do |key_path|
+          expect(ssh_klass).to receive(:check_key_permissions).once.with(Pathname.new(key_path.to_s))
+        end
         instance.ssh_info
       end
 
@@ -773,7 +775,7 @@ describe Vagrant::Machine do
         instance.config.ssh.private_key_path = nil
 
         expect(instance.ssh_info[:private_key_path]).to eq(
-          [instance.env.default_private_key_path.to_s]
+          instance.env.default_private_key_paths
         )
       end
 
@@ -783,7 +785,7 @@ describe Vagrant::Machine do
         instance.config.ssh.keys_only = false
 
         expect(instance.ssh_info[:private_key_path]).to eq(
-          [instance.env.default_private_key_path.to_s]
+          instance.env.default_private_key_paths
         )
       end
 

@@ -242,6 +242,10 @@ describe VagrantPlugins::CommunicatorSSH::Communicator do
         let(:openssh){ :openssh }
         let(:private_key_file){ double("private_key_file") }
         let(:path_joiner){ double("path_joiner") }
+        let(:algorithms) { double(:algorithms) }
+        let(:transport) { double(:transport, algorithms: algorithms) }
+        let(:valid_key_types) { [] }
+        let(:server_data) { { host_key: valid_key_types} }
 
         before do
           allow(Vagrant::Util::Keypair).to receive(:create).
@@ -255,6 +259,8 @@ describe VagrantPlugins::CommunicatorSSH::Communicator do
           allow(path_joiner).to receive(:join).and_return(private_key_file)
           allow(guest).to receive(:capability).with(:insert_public_key)
           allow(guest).to receive(:capability).with(:remove_public_key)
+          allow(connection).to receive(:transport).and_return(transport)
+          allow(algorithms).to receive(:instance_variable_get).with(:@server_data).and_return(server_data)
         end
 
         after{ communicator.ready? }
@@ -279,6 +285,53 @@ describe VagrantPlugins::CommunicatorSSH::Communicator do
 
         it "should remove the default public key" do
           expect(guest).to receive(:capability).with(:remove_public_key, any_args)
+        end
+
+        context "with server algorithm support data" do
+          context "when no key type matches are found" do
+            it "should default to rsa type" do
+              expect(Vagrant::Util::Keypair).to receive(:create).
+                with(type: :rsa).and_call_original
+            end
+          end
+
+          context "when rsa is the only match" do
+            let(:valid_key_types) { ["ssh-edsca", "ssh-rsa"] }
+
+            it "should use rsa type" do
+              expect(Vagrant::Util::Keypair).to receive(:create).
+                with(type: :rsa).and_call_original
+            end
+          end
+
+          context "when ed25519 and rsa are both available" do
+            let(:valid_key_types) { ["ssh-ed25519", "ssh-rsa"] }
+
+            it "should use ed25519 type" do
+              expect(Vagrant::Util::Keypair).to receive(:create).
+                with(type: :ed25519).and_call_original
+            end
+          end
+
+          context "when ed25519 is the only match" do
+            let(:valid_key_types) { ["ssh-edsca", "ssh-ed25519"] }
+
+            it "should use ed25519 type" do
+              expect(Vagrant::Util::Keypair).to receive(:create).
+                with(type: :ed25519).and_call_original
+            end
+          end
+        end
+
+        context "when an error is encountered getting server data" do
+          before do
+            expect(connection).to receive(:transport).and_raise(StandardError)
+          end
+
+          it "should default to rsa key" do
+            expect(Vagrant::Util::Keypair).to receive(:create).
+              with(type: :rsa).and_call_original
+          end
         end
       end
     end
@@ -925,6 +978,45 @@ describe VagrantPlugins::CommunicatorSSH::Communicator do
           )
         ).and_return(true)
         communicator.send(:connect)
+      end
+    end
+  end
+
+  describe ".insecure_key?" do
+    let(:key_data) { "" }
+    let(:key_file) {
+      if !@key_file
+        f = Tempfile.new
+        f.write(key_data)
+        f.close
+        @key_file = f.path
+      end
+      @key_file
+    }
+
+    after { File.delete(key_file) }
+
+    context "when using rsa private key" do
+      let(:key_data) { File.read(Vagrant.source_root.join("keys", "vagrant.key.rsa")) }
+
+      it "should match as insecure key" do
+        expect(communicator.send(:insecure_key?, key_file)).to be_truthy
+      end
+    end
+
+    context "when using ed25519 private key" do
+      let(:key_data) { File.read(Vagrant.source_root.join("keys", "vagrant.key.ed25519")) }
+
+      it "should match as insecure key" do
+        expect(communicator.send(:insecure_key?, key_file)).to be_truthy
+      end
+    end
+
+    context "when using unknown private key" do
+      let(:key_data) { "invalid data" }
+
+      it "should not match as insecure key" do
+        expect(communicator.send(:insecure_key?, key_file)).to be_falsey
       end
     end
   end
