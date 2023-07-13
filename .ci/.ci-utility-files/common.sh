@@ -1578,7 +1578,7 @@ function slack() {
     ts="$(date '+%s')"
 
     # shellcheck disable=SC2016
-    attach_template='{text: $msg, fallback: $msg, color: $state, mrkdwn_in: ["text"], ts: $time'
+    attach_template='{text: $msg, color: $state, mrkdwn_in: ["text"], ts: $time'
     if [ -n "${title}" ]; then
         # shellcheck disable=SC2016
         attach_template+=', title: $title'
@@ -2991,13 +2991,18 @@ function github_request() {
 
     # If we are being rate limited, print a notice and then
     # wait until the rate limit will be reset
-    if [[ "${status}" = "429" ]]; then
-        debug "rate limiting has been detected on request"
+    if [[ "${status}" = "429" ]] || [[ "${status}" = "403" ]]; then
+        debug "request returned %d status, checking for rate limiting" "${status}"
 
         # If the ratelimit reset was not detected force an error
         if [ -z "${ratelimit_reset}" ]; then
+            if [ "${status}" = "403" ]; then
+                failure "Request failed with 403 status response"
+            fi
             failure "Failed to detect rate limit reset time for GitHub request"
         fi
+
+        debug "rate limiting has been detected on request"
 
         local reset_date
         reset_date="$(date --date="@${ratelimit_reset}")" ||
