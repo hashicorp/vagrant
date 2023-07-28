@@ -41,7 +41,7 @@ VAGRANT_TEST_CWD = Dir.mktmpdir("vagrant-test-cwd")
 
 # Configure RSpec
 RSpec.configure do |c|
-  #c.formatter = :progress
+  c.formatter = :progress
   c.color_mode = :on
 
   if Vagrant::Util::Platform.windows?
