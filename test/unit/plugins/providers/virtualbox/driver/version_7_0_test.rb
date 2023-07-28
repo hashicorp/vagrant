@@ -810,24 +810,6 @@ LowerIP:         192.168.22.0
 UpperIP:         192.168.22.0
 VBoxNetworkName: hostonly-vagrantnet-vbox2)
 
-VBOX_HOSTONLYNETS=%(Name:            vagrantnet-vbox1
-GUID:            10000000-0000-0000-0000-000000000000
-
-State:           Enabled
-NetworkMask:     255.255.255.0
-LowerIP:         192.168.61.0
-UpperIP:         192.168.61.0
-VBoxNetworkName: hostonly-vagrantnet-vbox1
-
-Name:            vagrantnet-vbox2
-GUID:            20000000-0000-0000-0000-000000000000
-
-State:           Enabled
-NetworkMask:     255.255.255.0
-LowerIP:         192.168.22.0
-UpperIP:         192.168.22.0
-VBoxNetworkName: hostonly-vagrantnet-vbox2)
-
 VBOX_RANGE_HOSTONLYNETS=%(Name:            vagrantnet-vbox1
 GUID:            10000000-0000-0000-0000-000000000000
 
