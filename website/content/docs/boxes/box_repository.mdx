@@ -50,7 +50,9 @@ It is a JSON document, structured in the following way:
           "name": "virtualbox",
           "url": "http://example.com/bionic64_010_virtualbox.box",
           "checksum_type": "sha1",
-          "checksum": "foo"
+          "checksum": "foo",
+          "architecture": "amd64",
+          "default_architecture": true
         }
       ]
     }
@@ -59,7 +61,8 @@ It is a JSON document, structured in the following way:
 ```
 
 As you can see, the JSON document can describe multiple versions of a box,
-multiple providers, and can add/remove providers in different versions.
+multiple providers, and can add/remove providers/architectures in different
+versions.
 
 This JSON file can be passed directly to `vagrant box add` from the
 local filesystem using a file path or via a URL, and Vagrant will
