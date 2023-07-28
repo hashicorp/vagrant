@@ -11,7 +11,10 @@ module VagrantPlugins
         include Util
 
         def execute
-          options = {direct_upload: true}
+          options = {
+            architecture: Vagrant::Util::Platform.architecture,
+            direct_upload: true,
+          }
 
           opts = OptionParser.new do |o|
             o.banner = "Usage: vagrant cloud publish [options] organization/box-name version provider-name [provider-file]"
@@ -21,8 +24,8 @@ module VagrantPlugins
             o.separator "Options:"
             o.separator ""
 
-            o.on("--box-version VERSION", String, "Version of box to create") do |v|
-              options[:box_version] = v
+            o.on("-a", "--architecture ARCH", String, "Architecture of guest box (defaults to current host architecture)") do |a|
+              options[:architecture] = a
             end
             o.on("--url URL", String, "Remote URL to download this provider (cannot be used with provider-file)") do |u|
               options[:url] = u
@@ -54,6 +57,9 @@ module VagrantPlugins
             o.on("--[no-]direct-upload", "Upload asset directly to backend storage") do |d|
               options[:direct_upload] = d
             end
+            o.on("--[no-]default-architecture", "Mark as default architecture for specific provider") do |d|
+              options[:default_architecture] = d
+            end
           end
 
           # Parse the options
@@ -63,7 +69,7 @@ module VagrantPlugins
           if argv.length < 3 || # missing required arguments
               argv.length > 4 || # too many arguments
               (argv.length < 4 && !options.key?(:url)) || # file argument required if url is not provided
-              (argv.length > 3 && options.key?(:url)) # cannot provider url and file argument
+              (argv.length > 3 && options.key?(:url)) # cannot provide url and file argument
             raise Vagrant::Errors::CLIInvalidUsage,
               help: opts.help.chomp
           end
@@ -78,7 +84,8 @@ module VagrantPlugins
 
           @client = client_login(@env)
           params = options.slice(:private, :release, :url, :short_description,
-            :description, :version_description, :checksum, :checksum_type)
+            :description, :version_description, :checksum, :checksum_type,
+            :architecture, :default_architecture)
 
           # Display output to user describing action to be taken
           display_preamble(org, box_name, version, provider_name, params)
@@ -91,12 +98,17 @@ module VagrantPlugins
           # Load up all the models we'll need to publish the asset
           box = load_box(org, box_name, @client.token)
           box_v = load_box_version(box, version)
-          box_p = load_version_provider(box_v, provider_name)
+          box_p = load_version_provider(box_v, provider_name, params[:architecture])
 
           # Update all the data
           set_box_info(box, params.slice(:private, :short_description, :description))
           set_version_info(box_v, params.slice(:version_description))
-          set_provider_info(box_p, params.slice(:checksum, :checksum_type, :url))
+          set_provider_info(box_p, params.slice(
+            :architecture,
+            :checksum,
+            :checksum_type,
+            :default_architecture,
+            :url))
 
           # Save any updated state
           @env.ui.warn(I18n.t("cloud_command.publish.box_save"))
@@ -114,7 +126,7 @@ module VagrantPlugins
 
           # And we're done!
           @env.ui.success(I18n.t("cloud_command.publish.complete", org: org, box_name: box_name))
-          format_box_results(box, @env)
+          format_box_results(box_p, @env)
           0
         rescue VagrantCloud::Error => err
           @env.ui.error(I18n.t("cloud_command.errors.publish.fail", org: org, box_name: box_name))
@@ -188,14 +200,18 @@ module VagrantPlugins
         #
         # @param [VagrantCloud::Box::Provider] provider Vagrant Cloud box version provider
         # @param [Hash] options
+        # @option options [String] architecture Guest architecture of box
         # @option options [String] :url Remote URL for self hosted
         # @option options [String] :checksum_type Type of checksum value provided
         # @option options [String] :checksum Checksum of the box asset
+        # @option options [Boolean] :default_architecture Default architecture for named provider
         # @return [VagrantCloud::Box::Provider]
         def set_provider_info(provider, options={})
           provider.url = options[:url] if options.key?(:url)
           provider.checksum_type = options[:checksum_type] if options.key?(:checksum_type)
           provider.checksum = options[:checksum] if options.key?(:checksum)
+          provider.architecture = options[:architecture] if options.key?(:architecture)
+          provider.default_architecture = options[:default_architecture] if options.key?(:default_architecture)
           provider
         end
 
@@ -204,10 +220,13 @@ module VagrantPlugins
         # @param [VagrantCloud::Box::Version] version The version of the Vagrant Cloud box
         # @param [String] provider_name Name of the provider
         # @return [VagrantCloud::Box::Provider]
-        def load_version_provider(version, provider_name)
-          provider = version.providers.detect { |pv| pv.name == provider_name }
+        def load_version_provider(version, provider_name, architecture)
+          provider = version.providers.detect { |pv|
+            pv.name == provider_name &&
+              pv.architecture == architecture
+          }
           return provider if provider
-          version.add_provider(provider_name)
+          version.add_provider(provider_name, architecture)
         end
 
         # Load the requested box version
@@ -244,9 +263,11 @@ module VagrantPlugins
         # @param [String] version Version of the box to publish
         # @param [String] provider_name Name of the provider being published
         # @param [Hash] options
+        # @option options [String] :architecture Name of architecture of provider being published#
         # @option options [Boolean] :private Box is private
         # @option options [Boolean] :release Box should be released
         # @option options [String] :url Remote URL for self-hosted boxes
+        # @option options [Boolean] :default_architecture Architecture is default for provider name
         # @option options [String] :description Description of the box
         # @option options [String] :short_description Short description of the box
         # @option options [String] :version_description Description of the box version
@@ -257,6 +278,9 @@ module VagrantPlugins
             box_name: box_name, version: version, provider_name: provider_name))
           @env.ui.info(I18n.t("cloud_command.publish.confirm.private")) if options[:private]
           @env.ui.info(I18n.t("cloud_command.publish.confirm.release")) if options[:release]
+          @env.ui.info(I18n.t("cloud_command.publish.confirm.architecture",
+            architecture: options[:architecture]))
+          @env.ui.info(I18n.t("cloud_command.publish.confirm.default_architecture")) if options[:default_architecture]
           @env.ui.info(I18n.t("cloud_command.publish.confirm.box_url",
             url: options[:url])) if options[:url]
           @env.ui.info(I18n.t("cloud_command.publish.confirm.box_description",

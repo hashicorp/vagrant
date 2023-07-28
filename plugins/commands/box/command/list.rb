@@ -44,26 +44,33 @@ module VagrantPlugins
           longest_box = boxes.max_by { |x| x[0].length }
           longest_box_length = longest_box[0].length
 
-          # Go through each box and output the information about it. We
-          # ignore the "v1" param for now since I'm not yet sure if its
-          # important for the user to know what boxes need to be upgraded
-          # and which don't, since we plan on doing that transparently.
-          boxes.each do |name, version, provider|
-            @env.ui.info("#{name.ljust(longest_box_length)} (#{provider}, #{version})")
+          # Group boxes by name and version and start iterating
+          boxes.group_by { |b| [b[0], b[1]] }.each do |box_info, box_data|
+            name, version = box_info
+            # Now group by provider so we can collect common architectures
+            box_data.group_by { |b| b[2] }.each do |provider, data|
+              architectures = data.map { |d| d.last }.compact.sort.uniq
+              meta_info = [provider, version]
+              if !architectures.empty?
+                meta_info << "(#{architectures.join(", ")})"
+              end
+              @env.ui.info("#{name.ljust(longest_box_length)} (#{meta_info.join(", ")})")
+              data.each do |arch_info|
+                @env.ui.machine("box-name", name)
+                @env.ui.machine("box-provider", provider)
+                @env.ui.machine("box-version", version)
+                @env.ui.machine("box-architecture", arch_info.last || "n/a")
+                info_file = @env.boxes.find(name, provider, version, arch_info.last).
+                              directory.join("info.json")
+                if info_file.file?
+                  info = JSON.parse(info_file.read)
+                  info.each do |k, v|
+                    @env.ui.machine("box-info", k, v)
 
-            @env.ui.machine("box-name", name)
-            @env.ui.machine("box-provider", provider)
-            @env.ui.machine("box-version", version)
-
-            info_file = @env.boxes.find(name, provider, version).
-              directory.join("info.json")
-            if info_file.file?
-              info = JSON.parse(info_file.read)
-              info.each do |k, v|
-                @env.ui.machine("box-info", k, v)
-
-                if extra_info
-                  @env.ui.info("  - #{k}: #{v}", prefix: false)
+                    if extra_info
+                      @env.ui.info("  - #{k}: #{v}", prefix: false)
+                    end
+                  end
                 end
               end
             end

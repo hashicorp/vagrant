@@ -21,6 +21,9 @@ module VagrantPlugins
               options[:force] = f
             end
 
+            o.on("-a", "--architecture ARCH", String, "The specific architecture for the box to remove") do |a|
+              options[:architecture] = a
+            end
             o.on("--provider PROVIDER", String,
                  "The specific provider type for the box to remove") do |p|
               options[:provider] = p
@@ -33,6 +36,14 @@ module VagrantPlugins
 
             o.on("--all", "Remove all available versions of the box") do |a|
               options[:all] = a
+            end
+
+            o.on("--all-providers", "Remove all providers within a version of the box") do |a|
+              options[:all_providers] = a
+            end
+
+            o.on("--all-architectures", "Remove all architectures within a provider a version of the box") do |a|
+              options[:all_architectures] = a
             end
           end
 
@@ -54,10 +65,13 @@ module VagrantPlugins
 
           @env.action_runner.run(Vagrant::Action.action_box_remove, {
             box_name:     argv[0],
+            box_architecture: options[:architecture],
             box_provider: options[:provider],
             box_version:  options[:version],
             force_confirm_box_remove: options[:force],
             box_remove_all_versions: options[:all],
+            box_remove_all_providers: options[:all_providers],
+            box_remove_all_architectures: options[:all_architectures]
           })
 
           # Success, exit status 0

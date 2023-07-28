@@ -11,7 +11,9 @@ module VagrantPlugins
           include Util
 
           def execute
-            options = {}
+            options = {
+              architecture: Vagrant::Util::Platform.architecture,
+            }
 
             opts = OptionParser.new do |o|
               o.banner = "Usage: vagrant cloud provider create [options] organization/box-name provider-name version [url]"
@@ -21,11 +23,17 @@ module VagrantPlugins
               o.separator "Options:"
               o.separator ""
 
+              o.on("-a", "--architecture ARCH", String, "Architecture of guest box (defaults to current host architecture)") do |a|
+                options[:architecture] = a
+              end
               o.on("-c", "--checksum CHECKSUM_VALUE", String, "Checksum of the box for this provider. --checksum-type option is required.") do |c|
                 options[:checksum] = c
               end
               o.on("-C", "--checksum-type TYPE", String, "Type of checksum used (md5, sha1, sha256, sha384, sha512). --checksum option is required.") do |c|
                 options[:checksum_type] = c
+              end
+              o.on("--[no-]default-architecture", "Mark as default architecture for specific provider") do |d|
+                options[:default_architecture] = d
               end
             end
 
@@ -56,8 +64,10 @@ module VagrantPlugins
           # @param [String] url Provider asset URL
           # @param [String] access_token User Vagrant Cloud access token
           # @param [Hash] options
+          # @option options [String] :architecture Architecture of guest box
           # @option options [String] :checksum Checksum of the box asset
           # @option options [String] :checksum_type Type of the checksum
+          # @option options [Boolean] :default_architecture Default architecture for named provider
           # @return [Integer]
           def create_provider(org, box, version, provider, url, access_token, options={})
             if !url
@@ -68,21 +78,23 @@ module VagrantPlugins
               access_token: access_token
             )
             with_version(account: account, org: org, box: box, version: version) do |version|
-              provider = version.add_provider(provider)
+              provider = version.add_provider(provider, options[:architecture])
               provider.checksum = options[:checksum] if options.key?(:checksum)
               provider.checksum_type = options[:checksum_type] if options.key?(:checksum_type)
+              provider.architecture = options[:architecture] if options.key?(:architecture)
+              provider.default_architecture = options[:default_architecture] if options.key?(:default_architecture)
               provider.url = url if url
 
               provider.save
 
               @env.ui.success(I18n.t("cloud_command.provider.create_success",
-                provider: provider.name, org: org, box_name: box, version: version.version))
+                architecture: options[:architecture], provider: provider.name, org: org, box_name: box, version: version.version))
               format_box_results(provider, @env)
               0
             end
           rescue VagrantCloud::Error => e
             @env.ui.error(I18n.t("cloud_command.errors.provider.create_fail",
-              provider: provider, org: org, box_name: box, version: version))
+              architecture: options[:architecture], provider: provider.name, org: org, box_name: box, version: version))
             @env.ui.error(e.message)
             1
           end

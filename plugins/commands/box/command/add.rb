@@ -12,7 +12,9 @@ module VagrantPlugins
         include DownloadMixins
 
         def execute
-          options = {}
+          options = {
+            architecture: :auto,
+          }
 
           opts = OptionParser.new do |o|
             o.banner = "Usage: vagrant box add [options] <name, url, or path>"
@@ -32,6 +34,10 @@ module VagrantPlugins
 
             o.on("--location-trusted", "Trust 'Location' header from HTTP redirects and use the same credentials for subsequent urls as for the initial one") do |l|
                 options[:location_trusted] = l
+            end
+
+            o.on("-a", "--architecture ARCH", String, "Architecture the box should satisfy") do |a|
+              options[:architecture] = a
             end
 
             o.on("--provider PROVIDER", String, "Provider the box should satisfy") do |p|
@@ -82,6 +88,7 @@ module VagrantPlugins
             box_url: url,
             box_name: options[:name],
             box_provider: options[:provider],
+            box_architecture: options[:architecture],
             box_version: options[:version],
             box_checksum_type: options[:checksum_type],
             box_checksum: options[:checksum],

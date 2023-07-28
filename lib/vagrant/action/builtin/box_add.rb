@@ -165,6 +165,7 @@ module Vagrant
             env,
             checksum: env[:box_checksum],
             checksum_type: env[:box_checksum_type],
+            architecture: env[:architecture]
           )
         end
 
@@ -179,6 +180,9 @@ module Vagrant
         #   a Atlas server URL.
         def add_from_metadata(url, env, expanded)
           original_url = env[:box_url]
+          architecture = env[:box_architecture]
+          display_architecture = architecture == :auto ?
+                                   Util::Platform.architecture : architecture
           provider = env[:box_provider]
           provider = Array(provider) if provider
           version = env[:box_version]
@@ -228,12 +232,17 @@ module Vagrant
           end
 
           metadata_version  = metadata.version(
-            version || ">= 0", provider: provider)
+            version || ">= 0",
+            provider: provider,
+            architecture: architecture,
+          )
           if !metadata_version
-            if provider && !metadata.version(">= 0", provider: provider)
+            if provider && !metadata.version(">= 0", provider: provider, architecture: architecture)
               raise Errors::BoxAddNoMatchingProvider,
                 name: metadata.name,
-                requested: provider,
+                requested: [provider,
+                  display_architecture ? "(#{display_architecture})" : nil
+                ].compact.join(" "),
                 url: display_url
             else
               raise Errors::BoxAddNoMatchingVersion,
@@ -249,16 +258,16 @@ module Vagrant
             # If a provider was specified, make sure we get that specific
             # version.
             provider.each do |p|
-              metadata_provider = metadata_version.provider(p)
+              metadata_provider = metadata_version.provider(p, architecture)
               break if metadata_provider
             end
-          elsif metadata_version.providers.length == 1
+          elsif metadata_version.providers(architecture).length == 1
             # If we have only one provider in the metadata, just use that
             # provider.
             metadata_provider = metadata_version.provider(
-              metadata_version.providers.first)
+              metadata_version.providers.first, architecture)
           else
-            providers = metadata_version.providers.sort
+            providers = metadata_version.providers(architecture).sort
 
             choice = 0
             options = providers.map do |p|
@@ -279,7 +288,7 @@ module Vagrant
             end
 
             metadata_provider = metadata_version.provider(
-              providers[choice-1])
+              providers[choice-1], architecture)
           end
 
           provider_url = metadata_provider.url
@@ -302,6 +311,7 @@ module Vagrant
             env,
             checksum: metadata_provider.checksum,
             checksum_type: metadata_provider.checksum_type,
+            architecture: architecture,
           )
         end
 
@@ -317,16 +327,21 @@ module Vagrant
         # @param [Hash] env
         # @return [Box]
         def box_add(urls, name, version, provider, md_url, env, **opts)
+          display_architecture = opts[:architecture] == :auto ?
+                                   Util::Platform.architecture : opts[:architecture]
           env[:ui].output(I18n.t(
             "vagrant.box_add_with_version",
             name: name,
             version: version,
-            providers: Array(provider).join(", ")))
+            providers: [
+              provider,
+              display_architecture ? "(#{display_architecture})" : nil
+            ].compact.join(" ")))
 
           # Verify the box we're adding doesn't already exist
           if provider && !env[:box_force]
             box = env[:box_collection].find(
-              name, provider, version)
+              name, provider, version, opts[:architecture])
             if box
               raise Errors::BoxAlreadyExists,
                 name: name,
@@ -377,7 +392,9 @@ module Vagrant
               box_url, name, version,
               force: env[:box_force],
               metadata_url: md_url,
-              providers: provider)
+              providers: provider,
+              architecture: env[:box_architecture]
+            )
           ensure
             # Make sure we delete the temporary file after we add it,
             # unless we were interrupted, in which case we keep it around
@@ -396,7 +413,10 @@ module Vagrant
             "vagrant.box_added",
             name: box.name,
             version: box.version,
-            provider: box.provider))
+            provider: [
+              provider,
+              display_architecture ? "(#{display_architecture})" : nil
+            ].compact.join(" ")))
 
           # Store the added box in the env for future middleware
           env[:box_added] = box

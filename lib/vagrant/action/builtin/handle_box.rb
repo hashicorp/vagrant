@@ -87,6 +87,7 @@ module Vagrant
             env[:action_runner].run(Vagrant::Action.action_box_add, env.merge({
               box_name: machine.config.vm.box,
               box_url: machine.config.vm.box_url || machine.config.vm.box,
+              box_architecture: machine.config.vm.box_architecture,
               box_server_url: machine.config.vm.box_server_url,
               box_provider: box_formats,
               box_version: machine.config.vm.box_version,

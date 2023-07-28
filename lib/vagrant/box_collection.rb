@@ -28,7 +28,7 @@ module Vagrant
     # expects in order to easily manage and modify boxes. The folder structure
     # is the following:
     #
-    #     COLLECTION_ROOT/BOX_NAME/PROVIDER/metadata.json
+    #     COLLECTION_ROOT/BOX_NAME/PROVIDER/[ARCHITECTURE]/metadata.json
     #
     # Where:
     #
@@ -38,6 +38,8 @@ module Vagrant
     #     the user of Vagrant.
     #   * PROVIDER - The provider that the box was built for (VirtualBox,
     #     VMware, etc.).
+    #   * ARCHITECTURE - Optional. The architecture that the box was built
+    #     for (amd64, arm64, 386, etc.).
     #   * metadata.json - A simple JSON file that at the bare minimum
     #     contains a "provider" key that matches the provider for the
     #     box. This metadata JSON, however, can contain anything.
@@ -80,14 +82,15 @@ module Vagrant
     # @param [Boolean] force If true, any existing box with the same name
     #   and provider will be replaced.
     def add(path, name, version, **opts)
+      architecture = opts[:architecture]
       providers = opts[:providers]
       providers = Array(providers) if providers
       provider = nil
 
       # A helper to check if a box exists. We store this in a variable
       # since we call it multiple times.
-      check_box_exists = lambda do |box_formats|
-        box = find(name, box_formats, version)
+      check_box_exists = lambda do |box_formats, box_architecture|
+        box = find(name, box_formats, version, box_architecture)
         next if !box
 
         if !opts[:force]
@@ -108,12 +111,12 @@ module Vagrant
 
       with_collection_lock do
         log_provider = providers ? providers.join(", ") : "any provider"
-        @logger.debug("Adding box: #{name} (#{log_provider}) from #{path}")
+        @logger.debug("Adding box: #{name} (#{log_provider} - #{architecture.inspect}) from #{path}")
 
         # Verify the box doesn't exist early if we're given a provider. This
         # can potentially speed things up considerably since we don't need
         # to unpack any files.
-        check_box_exists.call(providers) if providers
+        check_box_exists.call(providers, architecture) if providers
 
         # Create a temporary directory since we're not sure at this point if
         # the box we're unpackaging already exists (if no provider was given)
@@ -154,7 +157,7 @@ module Vagrant
               end
             else
               # Verify the box doesn't already exist
-              check_box_exists.call([box_provider])
+              check_box_exists.call([box_provider], architecture)
             end
 
             # We weren't given a provider, so store this one.
@@ -167,7 +170,16 @@ module Vagrant
             @logger.debug("Box directory: #{box_dir}")
 
             # This is the final directory we'll move it to
-            final_dir = box_dir.join(provider.to_s)
+            provider_dir = box_dir.join(provider.to_s)
+            final_dir = provider_dir
+            @logger.debug("Provider directory: #{provider_dir}")
+            # If architecture is set, unpack into architecture specific directory
+            if architecture
+              arch = architecture
+              arch = Util::Platform.architecture if architecture == :auto
+              final_dir = provider_dir.join(arch)
+            end
+
             if final_dir.exist?
               @logger.debug("Removing existing provider directory...")
               final_dir.rmtree
@@ -209,13 +221,13 @@ module Vagrant
       end
 
       # Return the box
-      find(name, provider, version)
+      find(name, provider, version, architecture)
     end
 
     # This returns an array of all the boxes on the system, given by
     # their name and their provider.
     #
-    # @return [Array] Array of `[name, version, provider]` of the boxes
+    # @return [Array] Array of `[name, version, provider, architecture]` of the boxes
     #   installed on this system.
     def all
       results = []
@@ -252,7 +264,16 @@ module Vagrant
               if provider.directory? && provider.join("metadata.json").file?
                 provider_name = provider.basename.to_s.to_sym
                 @logger.debug("Box: #{box_name} (#{provider_name}, #{version})")
-                results << [box_name, version, provider_name]
+                results << [box_name, version, provider_name, nil]
+              elsif provider.directory?
+                provider.children(true).each do |architecture|
+                  provider_name = provider.basename.to_s.to_sym
+                  if architecture.directory? && architecture.join("metadata.json").file?
+                    architecture_name = architecture.basename.to_s.to_sym
+                    @logger.debug("Box: #{box_name} (#{provider_name} (#{architecture_name}), #{version})")
+                    results << [box_name, version, provider_name, architecture_name]
+                  end
+                end
               else
                 @logger.debug("Invalid box #{box_name}, ignoring: #{provider}")
               end
@@ -262,7 +283,7 @@ module Vagrant
       end
       # Sort the list to group like providers and properly ordered versions
       results.sort_by! do |box_result|
-        [box_result[0], box_result[2], Gem::Version.new(box_result[1])]
+        [box_result[0], box_result[2], Gem::Version.new(box_result[1]), box_result[3]]
       end
       results
     end
@@ -274,8 +295,10 @@ module Vagrant
     # @param [String] version Version constraints to adhere to. Example:
     #   "~> 1.0" or "= 1.0, ~> 1.1"
     # @return [Box] The box found, or `nil` if not found.
-    def find(name, providers, version)
+    def find(name, providers, version, box_architecture=:auto)
       providers = Array(providers)
+      architecture = box_architecture
+      architecture = Util::Platform.architecture if architecture == :auto
 
       # Build up the requirements we have
       requirements = version.to_s.split(",").map do |v|
@@ -321,6 +344,19 @@ module Vagrant
           providers.each do |provider|
             provider_dir = versiondir.join(provider.to_s)
             next if !provider_dir.directory?
+            # If architecture is defined then the box should be within
+            # a subdirectory. However, if box_architecture value is :auto
+            # and the box provider directory exists but the architecture
+            # directory does not, we will use the box provider directory. This
+            # allows Vagrant to work correctly with boxes which were added
+            # prior to the addition of architecture support
+            final_dir = provider_dir
+            if architecture
+              arch_dir = provider_dir.join(architecture.to_s)
+              next if !arch_dir.directory? && box_architecture != :auto
+            end
+            final_dir = arch_dir if arch_dir && arch_dir.directory?
+
             @logger.info("Box found: #{name} (#{provider})")
 
             metadata_url = nil
@@ -334,8 +370,8 @@ module Vagrant
             end
 
             return Box.new(
-              name, provider, version_dir_map[v.to_s], provider_dir,
-              metadata_url: metadata_url, hook: @hook
+              name, provider, version_dir_map[v.to_s], final_dir,
+              architecture: architecture, metadata_url: metadata_url, hook: @hook
             )
           end
         end

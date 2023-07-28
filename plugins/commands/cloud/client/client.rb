@@ -168,6 +168,11 @@ EOH
 
       def with_error_handling(&block)
         yield
+      rescue VagrantCloud::Error::ClientError => e
+        @logger.debug("vagrantcloud request error:")
+        @logger.debug(e.message)
+        @logger.debug(e.backtrace.join("\n"))
+        raise Errors::Unexpected, error: e.message
       rescue Excon::Error::Unauthorized
         @logger.debug("Unauthorized!")
         raise Errors::Unauthorized

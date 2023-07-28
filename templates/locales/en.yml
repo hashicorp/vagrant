@@ -659,6 +659,13 @@ en:
         the box are shown below:
 
         %{providers}
+      box_not_found_with_provider_architecture: |-
+        The box '%{name}' for the provider '%{provider}' isn't installed
+        for the architecture '%{architecture}'. Please double-check and
+        try again. The installed architectures for the box are shown
+        below:
+
+        %{architectures}
       box_not_found_with_provider_and_version: |-
         The box '%{name}' (v%{version}) with provider '%{provider}'
         could not be found. Please double check and try again. You
@@ -669,35 +676,51 @@ en:
         Provider expected: %{expected}
         Provider of box: %{actual}
       box_remove_multi_provider: |-
-        You requested to remove the box '%{name}'. This box has
-        multiple providers. You must explicitly select a single
-        provider to remove with `--provider`.
+        You requested to remove the box '%{name}' version '%{version}'. This
+        box has multiple providers. You must explicitly select a single provider to
+        remove with `--provider` or specify the `--all-providers` flag to remove
+        all providers.
 
         Available providers: %{providers}
       box_remove_multi_version: |-
-        You requested to remove the box '%{name}' with provider
-        '%{provider}'. This box has multiple versions. You must
-        explicitly specify which version you want to remove with
-        the `--box-version` flag or specify the `--all` flag to remove all
-        versions. The available versions for this box are:
+        You requested to remove the box '%{name}'. This box has multiple
+        versions. You must explicitly specify which version you want to
+        remove with the `--box-version` flag or specify the `--all` flag
+        to remove all versions. The available versions for this box are:
 
         %{versions}
       box_remove_not_found: |-
         The box you requested to be removed could not be found. No
         boxes named '%{name}' could be found.
       box_remove_provider_not_found: |-
-        You requested to remove the box '%{name}' with provider
-        '%{provider}'. The box '%{name}' exists but not with
-        the provider specified. Please double-check and try again.
+        You requested to remove the box '%{name}' version '%{version}'
+        with provider '%{provider}'. The box '%{name}' exists but not
+        with the provider specified. Please double-check and try again.
 
         The providers for this are: %{providers}
       box_remove_version_not_found: |-
-        You requested to remove the box '%{name}' version '%{version}' with
-        provider '%{provider}', but that specific version of the box is
-        not installed. Please double-check and try again. The available versions
-        for this box are:
+        You requested to remove the box '%{name}' version '%{version}',
+        but that specific version of the box is not installed. Please
+        double-check and try again. The available versions for this box
+        are:
 
         %{versions}
+      box_remove_multi_architecture: |-
+        You requested to remove the box '%{name}' version '%{version}'
+        with provider '%{provider}'. This box has multiple architectures.
+        You must explicitly select a single architecture to remove with
+        `--architecture` or specify the `--all-architectures` flag to
+        remove all architectures. The available architectures for this
+        box are:
+
+        %{architectures}
+      box_remove_architecture_not_found: |-
+        You requested to remove the box '%{name}' version '%{version}'
+        with provider '%{provider}' and architecture '%{architecture}' but
+        that specific architecture is not installed. Please double-check
+        and try again. The available architectures are:
+
+        %{architectures}
       box_server_not_set: |-
         A URL to a Vagrant Cloud server is not set, so boxes cannot be added with a
         shorthand ("mitchellh/precise64") format. You may also be seeing this
@@ -710,9 +733,15 @@ en:
       box_update_multi_provider: |-
         You requested to update the box '%{name}'. This box has
         multiple providers. You must explicitly select a single
-        provider to remove with `--provider`.
+        provider to update with `--provider`.
 
         Available providers: %{providers}
+      box_update_multi_architecture: |-
+        You requested to update the box '%{name}' (v%{version}) with provider
+        '%{provider}'. This box has multiple architectures. You must explicitly
+        select a single architecture to update with `--architecture`.
+
+        Available architectures: %{architectures}
       box_update_no_box: |-
         Box '%{name}' not installed, can't check for updates.
       box_update_no_metadata: |-
@@ -2188,10 +2217,10 @@ en:
       box:
         no_installed_boxes: "There are no installed boxes! Use `vagrant box add` to add some."
         remove_in_use_query: |-
-          Box '%{name}' (v%{version}) with provider '%{provider}' appears
-          to still be in use by at least one Vagrant environment. Removing
-          the box could corrupt the environment. We recommend destroying
-          these environments first:
+          Box '%{name}' (v%{version}) with provider '%{provider}' and
+          architectures '%{architecture}' appears to still be in use by
+          at least one Vagrant environment. Removing the box could corrupt
+          the environment. We recommend destroying these environments first:
 
           %{users}
 
