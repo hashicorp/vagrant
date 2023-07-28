@@ -36,11 +36,11 @@ describe Vagrant::BoxCollection, :skip_windows, :bsdtar do
       # Verify some output
       results = subject.all
       expect(results.length).to eq(5)
-      expect(results.include?(["foo", "1.0", :virtualbox])).to be
-      expect(results.include?(["foo", "1.0", :vmware])).to be
-      expect(results.include?(["bar", "0", :ec2])).to be
-      expect(results.include?(["foo/bar", "1.0", :virtualbox])).to be
-      expect(results.include?(["foo:colon", "1.0", :virtualbox])).to be
+      expect(results).to include(["foo", "1.0", :virtualbox, nil])
+      expect(results).to include(["foo", "1.0", :vmware, nil])
+      expect(results).to include(["bar", "0", :ec2, nil])
+      expect(results).to include(["foo/bar", "1.0", :virtualbox, nil])
+      expect(results).to include(["foo:colon", "1.0", :virtualbox, nil])
     end
 
     it "should return the boxes and their providers even if box has wrong version" do
@@ -57,11 +57,11 @@ describe Vagrant::BoxCollection, :skip_windows, :bsdtar do
       # Verify some output
       results = subject.all
       expect(results.length).to eq(4)
-      expect(results.include?(["foo", "1.0", :virtualbox])).not_to be
-      expect(results.include?(["foo", "1.0", :vmware])).to be
-      expect(results.include?(["bar", "0", :ec2])).to be
-      expect(results.include?(["foo/bar", "1.0", :virtualbox])).to be
-      expect(results.include?(["foo:colon", "1.0", :virtualbox])).to be
+      expect(results).not_to include(["foo", "1.0", :virtualbox, nil])
+      expect(results).to include(["foo", "1.0", :vmware, nil])
+      expect(results).to include(["bar", "0", :ec2, nil])
+      expect(results).to include(["foo/bar", "1.0", :virtualbox, nil])
+      expect(results).to include(["foo:colon", "1.0", :virtualbox, nil])
     end
 
     it 'does not raise an exception when a file appears in the boxes dir' do
@@ -175,7 +175,7 @@ describe Vagrant::BoxCollection, :skip_windows, :bsdtar do
       # Make sure the results still exist
       results = subject.all
       expect(results.length).to eq(1)
-      expect(results.include?(["foo", "1.0", :vmware])).to be
+      expect(results).to include(["foo", "1.0", :vmware, nil])
     end
 
     it "doesn't remove the directory if a version exists" do
@@ -195,7 +195,7 @@ describe Vagrant::BoxCollection, :skip_windows, :bsdtar do
       # Make sure the results still exist
       results = subject.all
       expect(results.length).to eq(1)
-      expect(results.include?(["foo", "1.0", :virtualbox])).to be
+      expect(results).to include(["foo", "1.0", :virtualbox, nil])
     end
   end
 

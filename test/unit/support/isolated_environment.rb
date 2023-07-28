@@ -100,8 +100,11 @@ module Unit
     # @param [String] provider
     # @return [Pathname]
     def box3(name, version, provider, **opts)
+      args = [name, version, provider.to_s]
+      args << opts[:architecture].to_s if opts[:architecture]
+
       # Create the directory for the box
-      box_dir = boxes_dir.join(name, version, provider.to_s)
+      box_dir = boxes_dir.join(*args)
       box_dir.mkpath
 
       # Create the metadata.json for it

@@ -43,7 +43,7 @@ describe VagrantPlugins::CloudCommand::ProviderCommand::Command::Create do
     subject { described_class.new(argv, env) }
 
     it "should add a new provider to the box version" do
-      expect(version).to receive(:add_provider).with(provider_name)
+      expect(version).to receive(:add_provider).with(provider_name, nil)
       subject.create_provider(org_name, box_name, box_version, provider_name, provider_url, access_token, options)
     end
 
@@ -164,6 +164,59 @@ describe VagrantPlugins::CloudCommand::ProviderCommand::Command::Create do
               expect(subject).to receive(:create_provider).
                 with(org_name, box_name, version_arg, provider_arg, any_args, hash_including(checksum: checksum_arg, checksum_type: checksum_type_arg))
               subject.execute
+            end
+          end
+
+          it "should include detected host architecture by default" do
+            host_arch = double("host-arch")
+            expect(Vagrant::Util::Platform).to receive(:architecture).and_return(host_arch)
+
+            expect(subject).to receive(:create_provider) do |*_, opts|
+              expect(opts[:architecture]).to eq(host_arch)
+            end
+
+            subject.execute
+          end
+
+          context "with architecture flag" do
+            let(:arch_option) { "test-arch" }
+
+            before { argv.push("--architecture").push(arch_option) }
+
+            it "should include the architecture option" do
+              expect(subject).to receive(:create_provider) do |*args, opts|
+                expect(opts[:architecture]).to eq(arch_option)
+              end
+
+              subject.execute
+            end
+          end
+
+          context "with default architecture flag" do
+            before { argv.push(default_arch_flag) }
+
+            context "when flag is enabled" do
+              let(:default_arch_flag) { "--default-architecture" }
+
+              it "should include default architecture with true value" do
+                expect(subject).to receive(:create_provider) do |*args, opts|
+                  expect(opts[:default_architecture]).to be(true)
+                end
+
+                subject.execute
+              end
+            end
+
+            context "when flag is disabled" do
+              let(:default_arch_flag) { "--no-default-architecture" }
+
+              it "should include default architecture with false value" do
+                expect(subject).to receive(:create_provider) do |*args, opts|
+                  expect(opts[:default_architecture]).to be(false)
+                end
+
+                subject.execute
+              end
             end
           end
         end

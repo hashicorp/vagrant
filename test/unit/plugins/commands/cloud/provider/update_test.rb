@@ -12,6 +12,7 @@ describe VagrantPlugins::CloudCommand::ProviderCommand::Command::Update do
   let(:box_name) { "my-box" }
   let(:box_version) { "1.0.0" }
   let(:box_version_provider) { "my-provider" }
+  let(:box_architecture) { "box-architecture" }
   let(:account) { double("account") }
   let(:organization) { double("organization") }
   let(:box) { double("box", versions: [version]) }
@@ -31,7 +32,14 @@ describe VagrantPlugins::CloudCommand::ProviderCommand::Command::Update do
         with(custom_server: anything, access_token: access_token).
         and_return(account)
       allow(subject).to receive(:with_provider).
-        with(account: account, org: org_name, box: box_name, version: box_version, provider: box_version_provider).
+        with(
+          account: account,
+          org: org_name,
+          box: box_name,
+          version: box_version,
+          provider: box_version_provider,
+          architecture: box_architecture
+        ).
         and_yield(provider)
       allow(provider).to receive(:save)
       allow(subject).to receive(:format_box_results)
@@ -41,24 +49,60 @@ describe VagrantPlugins::CloudCommand::ProviderCommand::Command::Update do
 
     it "should update the provider" do
       expect(provider).to receive(:save)
-      subject.update_provider(org_name, box_name, box_version, box_version_provider, provider_url, access_token, options)
+      subject.update_provider(
+        org_name,
+        box_name,
+        box_version,
+        box_version_provider,
+        box_architecture,
+        provider_url,
+        access_token,
+        options
+      )
     end
 
     it "should return 0 on success" do
-      result = subject.update_provider(org_name, box_name, box_version, box_version_provider, provider_url, access_token, options)
+      result = subject.update_provider(
+        org_name,
+        box_name,
+        box_version,
+        box_version_provider,
+        box_architecture,
+        provider_url,
+        access_token,
+        options
+      )
       expect(result).to eq(0)
     end
 
     it "should return non-zero result on error" do
       expect(provider).to receive(:save).and_raise(VagrantCloud::Error)
-      result = subject.update_provider(org_name, box_name, box_version, box_version_provider, provider_url, access_token, options)
+      result = subject.update_provider(
+        org_name,
+        box_name,
+        box_version,
+        box_version_provider,
+        box_architecture,
+        provider_url,
+        access_token,
+        options
+      )
       expect(result).not_to eq(0)
       expect(result).to be_a(Integer)
     end
 
     it "should not update the URL when unset" do
       expect(provider).not_to receive(:url=)
-      subject.update_provider(org_name, box_name, box_version, box_version_provider, provider_url, access_token, options)
+      subject.update_provider(
+        org_name,
+        box_name,
+        box_version,
+        box_version_provider,
+        box_architecture,
+        provider_url,
+        access_token,
+        options
+      )
     end
 
     context "when URL is set" do
@@ -66,19 +110,78 @@ describe VagrantPlugins::CloudCommand::ProviderCommand::Command::Update do
 
       it "should update the URL" do
         expect(provider).to receive(:url=).with(provider_url)
-        subject.update_provider(org_name, box_name, box_version, box_version_provider, provider_url, access_token, options)
+        subject.update_provider(
+          org_name,
+          box_name,
+          box_version,
+          box_version_provider,
+          box_architecture,
+          provider_url,
+          access_token,
+          options
+        )
       end
     end
 
     context "with options set" do
       let(:checksum) { double("checksum") }
       let(:checksum_type) { double("checksum_type") }
-      let(:options) { {checksum: checksum, checksum_type: checksum_type} }
+      let(:options) { {} }
 
-      it "should set checksum options before saving" do
-        expect(provider).to receive(:checksum=).with(checksum)
-        expect(provider).to receive(:checksum_type=).with(checksum_type)
-        subject.update_provider(org_name, box_name, box_version, box_version_provider, provider_url, access_token, options)
+      after do
+        subject.update_provider(
+          org_name,
+          box_name,
+          box_version,
+          box_version_provider,
+          box_architecture,
+          provider_url,
+          access_token,
+          options
+        )
+      end
+
+      it "should not modify option controlled values when unset" do
+        expect(provider).not_to receive(:checksum=)
+        expect(provider).not_to receive(:checksum_type=)
+        expect(provider).not_to receive(:architecture=)
+        expect(provider).not_to receive(:default_architecture=)
+      end
+
+      context "with checksum options set" do
+        let(:options) { {checksum: checksum, checksum_type: checksum_type} }
+
+        it "should set checksum options before saving" do
+          expect(provider).to receive(:checksum=).with(checksum)
+          expect(provider).to receive(:checksum_type=).with(checksum_type)
+        end
+      end
+
+      context "with architecture option set" do
+        let(:architecture) { double("architecture") }
+        let(:options) { {architecture: architecture} }
+
+        it "should set architecture before saving" do
+          expect(provider).to receive(:architecture=).with(architecture)
+        end
+      end
+
+      context "with default architecture option set" do
+        context "with true value" do
+          let(:options) { {default_architecture: true} }
+
+          it "should set default architecture to true" do
+            expect(provider).to receive(:default_architecture=).with(true)
+          end
+        end
+
+        context "with false value" do
+          let(:options) { {default_architecture: false} }
+
+          it "should set default architecture to false" do
+            expect(provider).to receive(:default_architecture=).with(false)
+          end
+        end
       end
     end
   end
@@ -134,37 +237,126 @@ describe VagrantPlugins::CloudCommand::ProviderCommand::Command::Update do
 
           before { argv << version_arg }
 
-          it "should create the provider" do
-            expect(subject).to receive(:update_provider).with(org_name, box_name, version_arg, provider_arg, any_args)
-            subject.execute
+          it "shows help" do
+            expect { subject.execute }.
+              to raise_error(Vagrant::Errors::CLIInvalidUsage)
           end
 
-          it "should not provide URL value" do
-            expect(subject).to receive(:update_provider).with(org_name, box_name, version_arg, provider_arg, nil, any_args)
-            subject.execute
-          end
+          context "with architecture argument" do
+            let(:architecture_arg) { "box-architecture" }
 
-          context "with URL argument" do
-            let(:url_arg) { "provider-url" }
+            before { argv << architecture_arg }
 
-            before { argv << url_arg }
-
-            it "should provide the URL value" do
-              expect(subject).to receive(:update_provider).with(org_name, box_name, version_arg, provider_arg, url_arg, any_args)
+            it "should create the provider" do
+              expect(subject).
+                to receive(:update_provider).
+                     with(
+                       org_name,
+                       box_name,
+                       version_arg,
+                       provider_arg,
+                       architecture_arg,
+                       any_args
+                     )
               subject.execute
             end
-          end
 
-          context "with checksum and checksum type flags" do
-            let(:checksum_arg) { "checksum" }
-            let(:checksum_type_arg) { "checksum_type" }
-
-            before { argv.push("--checksum").push(checksum_arg).push("--checksum-type").push(checksum_type_arg) }
-
-            it "should include the checksum options" do
-              expect(subject).to receive(:update_provider).
-                with(org_name, box_name, version_arg, provider_arg, any_args, hash_including(checksum: checksum_arg, checksum_type: checksum_type_arg))
+            it "should not provide URL value" do
+              expect(subject).
+                to receive(:update_provider).
+                     with(
+                       org_name,
+                       box_name,
+                       version_arg,
+                       provider_arg,
+                       architecture_arg,
+                       nil,
+                       any_args
+                     )
               subject.execute
+            end
+
+            context "with URL argument" do
+              let(:url_arg) { "provider-url" }
+
+              before { argv << url_arg }
+
+              it "should provide the URL value" do
+                expect(subject).
+                  to receive(:update_provider).
+                       with(
+                         org_name,
+                         box_name,
+                         version_arg,
+                         provider_arg,
+                         architecture_arg,
+                         url_arg,
+                         any_args
+                       )
+                subject.execute
+              end
+            end
+
+            context "with checksum and checksum type flags" do
+              let(:checksum_arg) { "checksum" }
+              let(:checksum_type_arg) { "checksum_type" }
+
+              before { argv.push("--checksum").push(checksum_arg).push("--checksum-type").push(checksum_type_arg) }
+
+              it "should include the checksum options" do
+                expect(subject).
+                  to receive(:update_provider).
+                       with(
+                         org_name,
+                         box_name,
+                         version_arg,
+                         provider_arg,
+                         architecture_arg,
+                         any_args,
+                         hash_including(
+                           checksum: checksum_arg,
+                           checksum_type: checksum_type_arg
+                         )
+                       )
+                subject.execute
+              end
+            end
+
+            context "with architecture flag" do
+              let(:architecture_flag) { "test-arch" }
+
+              before { argv.push("--architecture").push(architecture_flag) }
+
+              it "should include the architecture flag" do
+                expect(subject).to receive(:update_provider) do |*_, opts|
+                  expect(opts[:architecture]).to eq(architecture_flag)
+                end
+                subject.execute
+              end
+            end
+
+            context "with default architecture flag" do
+              context "enabled" do
+                before { argv.push("--default-architecture") }
+
+                it "should include default architecture set to true" do
+                  expect(subject).to receive(:update_provider) do |*_, opts|
+                    expect(opts[:default_architecture]).to be(true)
+                  end
+                  subject.execute
+                end
+              end
+
+              context "disabled" do
+                before { argv.push("--no-default-architecture") }
+
+                it "should include default architecture set to false" do
+                  expect(subject).to receive(:update_provider) do |*_, opts|
+                    expect(opts[:default_architecture]).to be(false)
+                  end
+                  subject.execute
+                end
+              end
             end
           end
         end

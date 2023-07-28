@@ -19,6 +19,7 @@ describe Vagrant::Box, :skip_windows do
   let(:name)          { "foo" }
   let(:provider)      { :virtualbox }
   let(:version)       { "1.0" }
+  let(:architecture)  { "test-architecture" }
   let(:directory)     { environment.box3("foo", "1.0", :virtualbox) }
   subject             { described_class.new(name, provider, version, directory) }
 
@@ -209,6 +210,154 @@ describe Vagrant::Box, :skip_windows do
       expect(result[1].version).to eq("1.1")
       expect(result[2].url).to eq("bar")
     end
+
+    context "with architecture" do
+      subject do
+        described_class.new(
+          name, provider, version, directory,
+          architecture: architecture,
+          metadata_url: "foo"
+        )
+      end
+
+      it "raises an exception if no metadata_url is set" do
+        subject = described_class.new(
+          name, provider, version, directory,
+          architecture: architecture,
+        )
+
+        expect { subject.has_update?("> 0") }.
+          to raise_error(Vagrant::Errors::BoxUpdateNoMetadata)
+      end
+
+      it "returns nil if there is no update" do
+        metadata = Vagrant::BoxMetadata.new(
+          {
+            name: "foo",
+            versions: [ { version: "1.0" } ]
+          }.to_json
+        )
+        allow(subject).to receive(:load_metadata).and_return(metadata)
+
+        expect(subject.has_update?).to be_nil
+      end
+
+      it "returns the updated box info if there is an update available" do
+        metadata = Vagrant::BoxMetadata.new(
+          {
+            name: "foo",
+            versions: [
+              {version: "1.0"},
+              {
+                version: "1.1",
+                providers: [
+                  {
+                    name: "virtualbox",
+                    url: "bar",
+                    architecture: architecture,
+                  }
+                ]
+              }
+            ]
+          }.to_json
+        )
+
+        allow(subject).to receive(:load_metadata).and_return(metadata)
+
+        result = subject.has_update?
+        expect(result).to_not be_nil
+
+        expect(result[0]).to be_kind_of(Vagrant::BoxMetadata)
+        expect(result[1]).to be_kind_of(Vagrant::BoxMetadata::Version)
+        expect(result[2]).to be_kind_of(Vagrant::BoxMetadata::Provider)
+
+        expect(result[0].name).to eq("foo")
+        expect(result[1].version).to eq("1.1")
+        expect(result[2].url).to eq("bar")
+      end
+
+      it "returns nil if update does not support architecture" do
+        metadata = Vagrant::BoxMetadata.new(
+          {
+            name: "foo",
+            versions: [
+              {version: "1.0"},
+              {
+                version: "1.1",
+                providers: [
+                  {
+                    name: "virtualbox",
+                    url: "bar",
+                    architecture: "other-architecture",
+                  }
+                ]
+              }
+            ]
+          }.to_json
+        )
+
+        allow(subject).to receive(:load_metadata).and_return(metadata)
+
+        result = subject.has_update?
+        expect(result).to be_nil
+      end
+
+      it "returns the updated box info within constraints" do
+        metadata = Vagrant::BoxMetadata.new(
+          {
+            name: "foo",
+            versions: [
+              {
+                version: "1.0",
+              },
+              {
+                version: "1.1",
+                providers: [
+                  {
+                    name: "virtualbox",
+                    url: "bar",
+                    architecture: architecture
+                  },
+                ]
+              },
+              {
+                version: "1.2",
+                providers: [
+                  {
+                    name: "virtualbox",
+                    url: "bar",
+                    architecture: "other-architecture",
+                  },
+                ]
+              },
+              {
+                version: "1.4",
+                providers: [
+                  {
+                    name: "virtualbox",
+                    url: "bar",
+                    architecture: architecture
+                  }
+                ]
+              }
+            ]
+          }.to_json
+        )
+
+        allow(subject).to receive(:load_metadata).and_return(metadata)
+
+        result = subject.has_update?(">= 1.1, < 1.4")
+        expect(result).to_not be_nil
+
+        expect(result[0]).to be_kind_of(Vagrant::BoxMetadata)
+        expect(result[1]).to be_kind_of(Vagrant::BoxMetadata::Version)
+        expect(result[2]).to be_kind_of(Vagrant::BoxMetadata::Provider)
+
+        expect(result[0].name).to eq("foo")
+        expect(result[1].version).to eq("1.1")
+        expect(result[2].url).to eq("bar")
+      end
+    end
   end
 
   context "#automatic_update_check_allowed?" do
@@ -236,12 +385,13 @@ describe Vagrant::Box, :skip_windows do
   context "#in_use?" do
     let(:index) { [] }
 
-    def new_entry(name, provider, version)
+    def new_entry(name, provider, version, architecture=nil)
       Vagrant::MachineIndex::Entry.new.tap do |entry|
         entry.extra_data["box"] = {
           "name" => name,
           "provider" => provider,
           "version" => version,
+          "architecture" => architecture,
         }
       end
     end
@@ -260,6 +410,27 @@ describe Vagrant::Box, :skip_windows do
       index << new_entry("foo", "baz", "1.2")
 
       expect(subject.in_use?(index)).to eq([matching])
+    end
+
+    context "with architecture information" do
+      subject { described_class.new(name, provider, version, directory, architecture: architecture) }
+
+      it "returns nil if the index has no matching entries" do
+        index << new_entry("foo", "bar", "1.0", "amd64")
+        index << new_entry("foo", "baz", "1.2", "arm64")
+        index << new_entry(name, provider.to_s, version, "random-arch")
+
+        expect(subject).to_not be_in_use(index)
+      end
+
+      it "returns matching entries if they exist" do
+        matching = new_entry(name, provider.to_s, version, architecture)
+        index << new_entry("foo", "bar", "1.0", "amd64")
+        index << matching
+        index << new_entry("foo", "baz", "1.2")
+
+        expect(subject.in_use?(index)).to eq([matching])
+      end
     end
   end
 

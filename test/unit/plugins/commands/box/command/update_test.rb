@@ -37,18 +37,16 @@ describe VagrantPlugins::CommandBox::Command::Update do
   describe "execute" do
     context "updating specific box" do
       let(:argv) { ["--box", "foo"] }
-
       let(:scratch) { Dir.mktmpdir("vagrant-test-command-box-update-execute") }
-
       let(:metadata_url) { Pathname.new(scratch).join("metadata.json") }
-
+      let(:box_args) { ["foo", "1.0", :virtualbox] }
+      let(:box_opts) { {metadata_url: metadata_url.to_s} }
       before do
         metadata_url.open("w") do |f|
           f.write("")
         end
 
-        test_iso_env.box3(
-          "foo", "1.0", :virtualbox, metadata_url: metadata_url.to_s)
+        test_iso_env.box3(*box_args, **box_opts)
       end
 
       after do
@@ -72,43 +70,43 @@ describe VagrantPlugins::CommandBox::Command::Update do
 
       it "does the correct update if there is an update" do
         metadata_url.open("w") do |f|
-          f.write(<<-RAW)
-      {
-        "name": "foo",
-        "versions": [
-          {
-            "version": "1.0"
-          },
-          {
-            "version": "1.8",
-            "providers": [
+          f.write(
+           {
+             name: "foo",
+             versions: [
               {
-                "name": "virtualbox",
-                "url": "bar"
-              }
-            ]
-          },
-          {
-            "version": "1.10",
-            "providers": [
+                version: "1.0"
+              },
               {
-                "name": "virtualbox",
-                "url": "bar"
-              }
-            ]
-          },
-          {
-            "version": "1.11",
-            "providers": [
+                version: "1.8",
+                providers: [
+                 {
+                   name: "virtualbox",
+                   url: "bar"
+                 }
+                ]
+              },
               {
-                "name": "virtualbox",
-                "url": "bar"
+                version: "1.10",
+                providers: [
+                 {
+                   name: "virtualbox",
+                   url: "bar"
+                 }
+                ]
+              },
+              {
+                version: "1.11",
+                providers: [
+                 {
+                   name: "virtualbox",
+                   url: "bar"
+                 }
+                ]
               }
-            ]
-          }
-        ]
-      }
-          RAW
+             ]
+           }.to_json
+          )
         end
 
         action_called = false
@@ -147,25 +145,25 @@ describe VagrantPlugins::CommandBox::Command::Update do
 
         it "updates the proper box" do
           metadata_url.open("w") do |f|
-            f.write(<<-RAW)
-      {
-        "name": "foo",
-        "versions": [
-          {
-            "version": "1.0"
-          },
-          {
-            "version": "1.1",
-            "providers": [
-              {
-                "name": "vmware",
-                "url": "bar"
-              }
-            ]
-          }
-        ]
-      }
-            RAW
+            f.write(
+             {
+               name: "foo",
+               versions: [
+                {
+                  version: "1.0"
+                },
+                {
+                  version: "1.1",
+                  providers: [
+                   {
+                     name: "vmware",
+                     url: "bar"
+                   }
+                  ]
+                }
+               ]
+             }.to_json
+            )
           end
 
           test_iso_env.box3("foo", "1.0", :vmware)
@@ -200,25 +198,25 @@ describe VagrantPlugins::CommandBox::Command::Update do
 
         it "passes down download options" do
           metadata_url.open("w") do |f|
-            f.write(<<-RAW)
-        {
-          "name": "foo",
-          "versions": [
-            {
-              "version": "1.0"
-            },
-            {
-              "version": "1.1",
-              "providers": [
+            f.write(
+             {
+               name: "foo",
+               versions: [
                 {
-                  "name": "virtualbox",
-                  "url": "bar"
+                  version: "1.0"
+                },
+                {
+                  version: "1.1",
+                  providers: [
+                   {
+                     name: "virtualbox",
+                     url: "bar"
+                   }
+                  ]
                 }
-              ]
-            }
-          ]
-        }
-            RAW
+               ]
+             }.to_json
+            )
           end
 
           action_called = false
@@ -248,6 +246,174 @@ describe VagrantPlugins::CommandBox::Command::Update do
           expect { subject.execute }.
             to raise_error(Vagrant::Errors::BoxNotFound)
         end
+      end
+
+      context "with architecture" do
+        let(:box_opts) { {metadata_url: metadata_url.to_s, architecture: "test-arch"} }
+
+        it "doesn't update if they're up to date" do
+          called = false
+          allow(action_runner).to receive(:run) do |callable, opts|
+            if opts[:box_provider]
+              called = true
+            end
+
+            opts
+          end
+
+          subject.execute
+
+          expect(called).to be(false)
+        end
+
+        it "does the correct update if there is an update" do
+          metadata_url.open("w") do |f|
+            f.write(
+             {
+               name: "foo",
+               versions: [
+                {
+                  version: "1.0"
+                },
+                {
+                  version: "1.8",
+                  providers: [
+                   {
+                     name: "virtualbox",
+                     url: "bar",
+                     architecture: "test-arch",
+                     default_architecture: true
+                   }
+                  ]
+                },
+                {
+                  version: "1.10",
+                  providers: [
+                   {
+                     name: "virtualbox",
+                     url: "bar",
+                     architecture: "test-arch",
+                     default_architecture: true
+                   }
+                  ]
+                },
+                {
+                  version: "1.11",
+                  providers: [
+                   {
+                     name: "virtualbox",
+                     url: "bar",
+                     architecture: "test-arch",
+                     default_architecture: true
+                   }
+                  ]
+                }
+               ]
+             }.to_json
+            )
+          end
+
+          action_called = false
+          allow(action_runner).to receive(:run) do |action, opts|
+            if opts[:box_provider]
+              action_called = true
+              expect(opts[:box_force]).to eq(nil)
+              expect(opts[:box_url]).to eq(metadata_url.to_s)
+              expect(opts[:box_provider]).to eq("virtualbox")
+              expect(opts[:box_version]).to eq("1.11")
+              expect(opts[:box_architecture]).to eq("test-arch")
+              expect(opts[:box_download_ca_path]).to be_nil
+              expect(opts[:box_download_ca_cert]).to be_nil
+              expect(opts[:box_download_client_cert]).to be_nil
+              expect(opts[:box_download_insecure]).to be_nil
+            end
+
+            opts
+          end
+
+          subject.execute
+
+          expect(action_called).to be(true)
+        end
+
+        it "raises an error if there are multiple providers" do
+          test_iso_env.box3("foo", "1.0", :vmware)
+
+          expect(action_runner).to receive(:run).never
+
+          expect { subject.execute }.
+            to raise_error(Vagrant::Errors::BoxUpdateMultiProvider)
+        end
+
+        it "raises an error if there are multiple architectures" do
+          test_iso_env.box3("foo", "1.0", :virtualbox, architecture: "other-arch")
+
+          expect(action_runner).to receive(:run).never
+
+          expect { subject.execute }.
+            to raise_error(Vagrant::Errors::BoxUpdateMultiArchitecture)
+        end
+
+        context "with multiple architectures and specifying the architecture" do
+          let(:argv) { ["--box", "foo", "--architecture", "other-arch"] }
+
+          it "updates the proper box" do
+            metadata_url.open("w") do |f|
+              f.write(
+                {
+                  name: "foo",
+                  versions: [
+                   {
+                     version: "1.0"
+                   },
+                   {
+                     version: "1.1",
+                     providers: [
+                      {
+                        name: "virtualbox",
+                        url: "bar",
+                        architecture: "test-arch",
+                      },
+                      {
+                        name: "virtualbox",
+                        url: "bar",
+                        architecture: "other-arch",
+                      }
+                     ]
+                   }
+                  ]
+                }.to_json
+               )
+            end
+
+            test_iso_env.box3("foo", "1.0", :virtualbox, architecture: "other-arch")
+
+            action_called = false
+            allow(action_runner).to receive(:run) do |action, opts|
+              if opts[:box_provider]
+                action_called = true
+                expect(opts[:box_url]).to eq(metadata_url.to_s)
+                expect(opts[:box_provider]).to eq("virtualbox")
+                expect(opts[:box_version]).to eq("1.1")
+                expect(opts[:box_architecture]).to eq("other-arch")
+              end
+
+              opts
+            end
+
+            subject.execute
+
+            expect(action_called).to be(true)
+          end
+
+          it "raises an error if that provider doesn't exist" do
+            expect(action_runner).to receive(:run).never
+
+            expect { subject.execute }.
+              to raise_error(Vagrant::Errors::BoxNotFoundWithProviderArchitecture)
+          end
+        end
+
       end
     end
 
@@ -286,25 +452,27 @@ describe VagrantPlugins::CommandBox::Command::Update do
 
       context "boxes have an update" do
         let(:md) {
-          md = Vagrant::BoxMetadata.new(StringIO.new(<<-RAW))
-        {
-          "name": "foo",
-          "versions": [
+          Vagrant::BoxMetadata.new(
+           StringIO.new(
             {
-              "version": "1.0"
-            },
-            {
-              "version": "1.1",
-              "providers": [
-                {
-                  "name": "virtualbox",
-                  "url": "bar"
-                }
+              name: "foo",
+              versions: [
+               {
+                 version: "1.0"
+               },
+               {
+                 version: "1.1",
+                 providers: [
+                  {
+                    name: "virtualbox",
+                    url: "bar"
+                  }
+                 ]
+               }
               ]
-            }
-          ]
-        }
-          RAW
+            }.to_json
+           )
+          )
         }
 
         before { allow(machine).to receive(:box).and_return(box) }

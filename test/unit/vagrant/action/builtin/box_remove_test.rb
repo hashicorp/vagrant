@@ -17,7 +17,7 @@ describe Vagrant::Action::Builtin::BoxRemove do
   subject { described_class.new(app, env) }
 
   let(:box_collection) { double("box_collection") }
-  let(:home_path) { "foo" }
+  let(:home_path) { double("home-path") }
   let(:machine_index) { [] }
   let(:iso_env) { isolated_environment }
 
@@ -27,12 +27,12 @@ describe Vagrant::Action::Builtin::BoxRemove do
   end
 
   it "deletes the box if it is the only option" do
-    allow(box_collection).to receive(:all).and_return([["foo", "1.0", :virtualbox]])
+    allow(box_collection).to receive(:all).and_return([["foo", "1.0", :virtualbox, nil]])
 
     env[:box_name] = "foo"
 
     expect(box_collection).to receive(:find).with(
-      "foo", :virtualbox, "1.0").and_return(box)
+      "foo", :virtualbox, "1.0", nil).and_return(box)
     expect(box_collection).to receive(:clean).with(box.name)
       .and_return(true)
     expect(box).to receive(:destroy!).once
@@ -54,7 +54,7 @@ describe Vagrant::Action::Builtin::BoxRemove do
     env[:box_provider] = "virtualbox"
 
     expect(box_collection).to receive(:find).with(
-      "foo", :virtualbox, "1.0").and_return(box)
+      "foo", :virtualbox, "1.0", nil).and_return(box)
     expect(box_collection).to receive(:clean).with(box.name)
       .and_return(false)
     expect(box).to receive(:destroy!).once
@@ -76,7 +76,7 @@ describe Vagrant::Action::Builtin::BoxRemove do
     env[:box_version] = "1.0"
 
     expect(box_collection).to receive(:find).with(
-      "foo", :virtualbox, "1.0").and_return(box)
+      "foo", :virtualbox, "1.0", nil).and_return(box)
     expect(box_collection).to receive(:clean).with(box.name)
       .and_return(false)
     expect(box).to receive(:destroy!).once
@@ -85,6 +85,131 @@ describe Vagrant::Action::Builtin::BoxRemove do
     subject.call(env)
 
     expect(env[:box_removed]).to equal(box)
+  end
+
+  context "with architecture" do
+    let(:architecture) { "test-arch" }
+    let(:box) do
+      box_dir = iso_env.box3("foo", "1.0", :virtualbox, architecture: architecture)
+      Vagrant::Box.new("foo", :virtualbox, "1.0", box_dir, architecture: architecture)
+    end
+
+    it "deletes the box if it is the only option" do
+      allow(box_collection).to receive(:all).and_return([["foo", "1.0", :virtualbox, architecture]])
+
+      env[:box_name] = "foo"
+
+      expect(box_collection).to receive(:find).
+        with("foo", :virtualbox, "1.0", architecture).
+        and_return(box)
+      expect(box_collection).to receive(:clean).
+        with(box.name).
+        and_return(true)
+      expect(box).to receive(:destroy!).once
+      expect(app).to receive(:call).with(env).once
+
+      subject.call(env)
+
+      expect(env[:box_removed]).to equal(box)
+    end
+
+    it "deletes the box with the specified provider if given" do
+      allow(box_collection).to receive(:all)
+        .and_return([
+          ["foo", "1.0", :virtualbox, architecture],
+          ["foo", "1.0", :vmware, architecture],
+        ])
+
+      env[:box_name] = "foo"
+      env[:box_provider] = "virtualbox"
+
+      expect(box_collection).to receive(:find).with(
+        "foo", :virtualbox, "1.0", architecture).and_return(box)
+      expect(box_collection).to receive(:clean).with(box.name)
+        .and_return(false)
+      expect(box).to receive(:destroy!).once
+      expect(app).to receive(:call).with(env).once
+
+      subject.call(env)
+
+      expect(env[:box_removed]).to equal(box)
+    end
+
+    it "deletes the box with the specified version if given" do
+      allow(box_collection).to receive(:all)
+        .and_return([
+          ["foo", "1.0", :virtualbox, architecture],
+          ["foo", "1.1", :virtualbox, architecture],
+        ])
+
+      env[:box_name] = "foo"
+      env[:box_version] = "1.0"
+
+      expect(box_collection).to receive(:find).with(
+        "foo", :virtualbox, "1.0", architecture).and_return(box)
+      expect(box_collection).to receive(:clean).with(box.name)
+        .and_return(false)
+      expect(box).to receive(:destroy!).once
+      expect(app).to receive(:call).with(env).once
+
+      subject.call(env)
+
+      expect(env[:box_removed]).to equal(box)
+    end
+
+    it "deletes the box with the specificed version and architecture" do
+      allow(box_collection).to receive(:all)
+        .and_return([
+          ["foo", "1.0", :virtualbox, architecture],
+          ["foo", "1.0", :virtualbox, "other-arch"],
+        ])
+
+      env[:box_name] = "foo"
+      env[:box_version] = "1.0"
+      env[:box_architecture] = architecture
+
+      expect(box_collection).to receive(:find).with(
+        "foo", :virtualbox, "1.0", architecture).and_return(box)
+      expect(box_collection).to receive(:clean).with(box.name)
+        .and_return(false)
+      expect(box).to receive(:destroy!).once
+      expect(app).to receive(:call).with(env).once
+
+      subject.call(env)
+
+      expect(env[:box_removed]).to equal(box)
+    end
+
+    it "errors when box with specified version does not included specified architecture" do
+      allow(box_collection).to receive(:all)
+        .and_return([
+          ["foo", "1.0", :virtualbox, architecture],
+          ["foo", "1.0", :virtualbox, "other-arch"],
+        ])
+
+      env[:box_name] = "foo"
+      env[:box_version] = "1.0"
+      env[:box_architecture] = "unknown-arch"
+
+      expect {
+        subject.call(env)
+      }.to raise_error(Vagrant::Errors::BoxRemoveArchitectureNotFound)
+    end
+
+    it "errors when box with specified version has multiple architectures" do
+      allow(box_collection).to receive(:all)
+        .and_return([
+          ["foo", "1.0", :virtualbox, architecture],
+          ["foo", "1.0", :virtualbox, "other-arch"],
+        ])
+
+      env[:box_name] = "foo"
+      env[:box_version] = "1.0"
+
+      expect {
+        subject.call(env)
+      }.to raise_error(Vagrant::Errors::BoxRemoveMultiArchitecture)
+    end
   end
 
   context "checking if a box is in use" do
@@ -117,7 +242,7 @@ describe Vagrant::Action::Builtin::BoxRemove do
 
     it "does delete if the box is not in use" do
       expect(box_collection).to receive(:find).with(
-        "foo", :virtualbox, "1.0").and_return(box)
+        "foo", :virtualbox, "1.0", nil).and_return(box)
       expect(box).to receive(:destroy!).once
       expect(box_collection).to receive(:clean).with(box.name)
         .and_return(true)
@@ -133,7 +258,7 @@ describe Vagrant::Action::Builtin::BoxRemove do
         with(anything, env).and_return(result)
 
       expect(box_collection).to receive(:find).with(
-        "foo", :virtualbox, "1.0").and_return(box)
+        "foo", :virtualbox, "1.0", nil).and_return(box)
       expect(box_collection).to receive(:clean).with(box.name)
         .and_return(true)
       expect(box).to receive(:destroy!).once
@@ -149,7 +274,7 @@ describe Vagrant::Action::Builtin::BoxRemove do
         with(anything, env).and_return(result)
 
       expect(box_collection).to receive(:find).with(
-        "foo", :virtualbox, "1.0").and_return(box)
+        "foo", :virtualbox, "1.0", nil).and_return(box)
       expect(box).to receive(:destroy!).never
 
       subject.call(env)
@@ -164,7 +289,7 @@ describe Vagrant::Action::Builtin::BoxRemove do
         with(anything, env).and_return(result)
 
       expect(box_collection).to receive(:find).with(
-        "foo", :virtualbox, "1.0").and_return(box)
+        "foo", :virtualbox, "1.0", nil).and_return(box)
       expect(box).to receive(:destroy!).never
 
       subject.call(env)
@@ -178,7 +303,7 @@ describe Vagrant::Action::Builtin::BoxRemove do
         with(anything, env).and_return(result)
 
       expect(box_collection).to receive(:find).with(
-        "foo", :virtualbox, "1.0").and_return(box)
+        "foo", :virtualbox, "1.0", nil).and_return(box)
       expect(box_collection).to receive(:clean).with(box.name)
         .and_return(true)
       expect(box).to receive(:destroy!)

@@ -67,4 +67,16 @@ describe VagrantPlugins::CommandBox::Command::Add do
         to raise_error(Vagrant::Errors::CLIInvalidUsage)
     end
   end
+
+  context "with architecture flag" do
+    let(:argv) { ["foo", "--architecture", "test-arch"] }
+
+    it "executes the runner with box architecture set" do
+      expect(action_runner).to receive(:run) do |_, opts|
+        expect(opts[:box_architecture]).to eq("test-arch")
+      end
+
+      subject.execute
+    end
+  end
 end

@@ -26,6 +26,7 @@ describe Vagrant::Machine do
     double("box").tap do |b|
       allow(b).to receive(:name).and_return("foo")
       allow(b).to receive(:provider).and_return(:dummy)
+      allow(b).to receive(:architecture)
       allow(b).to receive(:version).and_return("1.0")
     end
   end
@@ -580,6 +581,7 @@ describe Vagrant::Machine do
       box = double("box")
       allow(box).to receive(:name).and_return("foo")
       allow(box).to receive(:provider).and_return(:bar)
+      allow(box).to receive(:architecture)
       allow(box).to receive(:version).and_return("1.2.3")
       subject.box = box
 
@@ -599,6 +601,7 @@ describe Vagrant::Machine do
       expect(entry.extra_data["box"]).to eq({
         "name"     => box.name,
         "provider" => box.provider.to_s,
+        "architecture" => nil,
         "version"  => box.version,
       })
       env.machine_index.release(entry)
