@@ -1,3 +1,6 @@
+# Copyright (c) HashiCorp, Inc.
+# SPDX-License-Identifier: MIT
+
 module VagrantPlugins
   module GuestSolaris
     class Config < Vagrant.plugin("2", :config)

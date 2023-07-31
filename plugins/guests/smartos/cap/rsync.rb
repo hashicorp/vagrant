@@ -1,3 +1,6 @@
+# Copyright (c) HashiCorp, Inc.
+# SPDX-License-Identifier: MIT
+
 require_relative "../../../synced_folders/rsync/default_unix_cap"
 
 module VagrantPlugins

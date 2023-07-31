@@ -1,3 +1,6 @@
+# Copyright (c) HashiCorp, Inc.
+# SPDX-License-Identifier: MIT
+
 module Vagrant
   module Action
     # A PrimaryRunner is a special kind of "top-level" Action::Runner - it

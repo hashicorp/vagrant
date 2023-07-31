@@ -1,3 +1,6 @@
+# Copyright (c) HashiCorp, Inc.
+# SPDX-License-Identifier: MIT
+
 contact_links:
   - name: Ask a Question
     url: https://discuss.hashicorp.com/c/vagrant

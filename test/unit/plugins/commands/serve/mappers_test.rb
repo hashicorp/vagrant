@@ -1,3 +1,6 @@
+# Copyright (c) HashiCorp, Inc.
+# SPDX-License-Identifier: MIT
+
 require File.expand_path("../../../base", __dir__)
 
 require Vagrant.source_root.join("plugins/commands/serve/command")

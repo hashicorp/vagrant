@@ -1,3 +1,6 @@
+# Copyright (c) HashiCorp, Inc.
+# SPDX-License-Identifier: MIT
+
 # This tests the basic functionality of a provider: that it can run
 # a machine, provide SSH access, and destroy that machine.
 shared_examples "provider/docker/lifecycle" do |provider, options|

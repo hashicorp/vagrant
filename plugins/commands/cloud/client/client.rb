@@ -1,3 +1,6 @@
+# Copyright (c) HashiCorp, Inc.
+# SPDX-License-Identifier: MIT
+
 require "vagrant_cloud"
 require "vagrant/util/downloader"
 require "vagrant/util/presence"

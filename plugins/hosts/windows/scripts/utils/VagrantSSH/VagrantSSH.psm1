@@ -1,3 +1,6 @@
+# Copyright (c) HashiCorp, Inc.
+# SPDX-License-Identifier: MIT
+
 # Vagrant SSH capability functions
 
 function Set-SSHKeyPermissions {

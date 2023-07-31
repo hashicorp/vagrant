@@ -1,3 +1,6 @@
+# Copyright (c) HashiCorp, Inc.
+# SPDX-License-Identifier: MIT
+
 require 'optparse'
 
 require Vagrant.source_root.join("plugins/commands/up/start_mixins")

@@ -1,3 +1,6 @@
+# Copyright (c) HashiCorp, Inc.
+# SPDX-License-Identifier: MIT
+
 # Function to check whether machine is currently shutting down
 function ShuttingDown {
     [string]$sourceCode = @"

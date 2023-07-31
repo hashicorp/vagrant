@@ -1,3 +1,6 @@
+# Copyright (c) HashiCorp, Inc.
+# SPDX-License-Identifier: MIT
+
 module VagrantTests
   module DummyCommunicator
     class Communicator < Vagrant.plugin("2", :communicator)

@@ -1,3 +1,6 @@
+# Copyright (c) HashiCorp, Inc.
+# SPDX-License-Identifier: MIT
+
 # This file contains all of the internal errors in Vagrant's core
 # commands, actions, etc.
 

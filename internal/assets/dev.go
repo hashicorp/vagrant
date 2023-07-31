@@ -1,3 +1,6 @@
+// Copyright (c) HashiCorp, Inc.
+// SPDX-License-Identifier: MIT
+
 //go:generate go-bindata -dev -pkg assets -o dev_assets.go -tags !assetsembedded ceb
 
 package assets

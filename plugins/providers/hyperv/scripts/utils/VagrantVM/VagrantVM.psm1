@@ -1,3 +1,6 @@
+# Copyright (c) HashiCorp, Inc.
+# SPDX-License-Identifier: MIT
+
 # Always stop when errors are encountered unless instructed not to
 $ErrorActionPreference = "Stop"
 

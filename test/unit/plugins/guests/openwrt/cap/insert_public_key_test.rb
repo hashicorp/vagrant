@@ -1,3 +1,6 @@
+# Copyright (c) HashiCorp, Inc.
+# SPDX-License-Identifier: MIT
+
 require_relative "../../../../base"
 
 describe "VagrantPlugins::GuestOpenWrt::Cap::InsertPublicKey" do

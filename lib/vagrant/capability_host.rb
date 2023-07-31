@@ -1,3 +1,6 @@
+# Copyright (c) HashiCorp, Inc.
+# SPDX-License-Identifier: MIT
+
 module Vagrant
   # This module enables a class to host capabilities. Prior to being able
   # to use any capabilities, the `initialize_capabilities!` method must be

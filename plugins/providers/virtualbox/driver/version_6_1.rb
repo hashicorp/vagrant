@@ -1,3 +1,6 @@
+# Copyright (c) HashiCorp, Inc.
+# SPDX-License-Identifier: MIT
+
 require File.expand_path("../version_6_0", __FILE__)
 
 module VagrantPlugins

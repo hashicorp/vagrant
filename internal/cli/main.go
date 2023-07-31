@@ -1,3 +1,6 @@
+// Copyright (c) HashiCorp, Inc.
+// SPDX-License-Identifier: MIT
+
 package cli
 
 //go:generate go-bindata -nomemcopy -nometadata -pkg datagen -o datagen/datagen.go -prefix data/ data/...

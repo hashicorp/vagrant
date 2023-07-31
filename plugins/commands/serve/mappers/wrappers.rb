@@ -1,3 +1,6 @@
+# Copyright (c) HashiCorp, Inc.
+# SPDX-License-Identifier: MIT
+
 require "google/protobuf/wrappers_pb"
 
 module VagrantPlugins

@@ -1,3 +1,6 @@
+// Copyright (c) HashiCorp, Inc.
+// SPDX-License-Identifier: MIT
+
 // Package client contains the Vagrant client implementation.
 //
 // The Vagrant client exposes a slightly higher level of abstraction

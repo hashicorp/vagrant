@@ -1,3 +1,6 @@
+# Copyright (c) HashiCorp, Inc.
+# SPDX-License-Identifier: MIT
+
 module VagrantPlugins
   module CommunicatorWinRM
     # Handles loading and applying all available WinRM command filters

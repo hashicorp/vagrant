@@ -1,3 +1,6 @@
+# Copyright (c) HashiCorp, Inc.
+# SPDX-License-Identifier: MIT
+
 require File.expand_path("../../ssh/communicator", __FILE__)
 
 require 'net/sftp'

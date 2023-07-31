@@ -1,3 +1,6 @@
+# Copyright (c) HashiCorp, Inc.
+# SPDX-License-Identifier: MIT
+
 require "vagrant"
 require 'vagrant_cloud'
 require Vagrant.source_root.join("plugins/commands/cloud/util")

@@ -1,3 +1,6 @@
+# Copyright (c) HashiCorp, Inc.
+# SPDX-License-Identifier: MIT
+
 require_relative "test/acceptance/base"
 
 Vagrant::Spec::Acceptance.configure do |c|

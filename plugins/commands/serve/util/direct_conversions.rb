@@ -1,3 +1,6 @@
+# Copyright (c) HashiCorp, Inc.
+# SPDX-License-Identifier: MIT
+
 # Patch things to produce proto messages
 require "pathname"
 require "securerandom"

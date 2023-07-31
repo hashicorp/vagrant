@@ -1,3 +1,6 @@
+# Copyright (c) HashiCorp, Inc.
+# SPDX-License-Identifier: MIT
+
 module Vagrant
   # This represents the state of a given machine. This is a very basic
   # class that simply stores a short and long description of the state

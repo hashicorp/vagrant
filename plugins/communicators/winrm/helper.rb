@@ -1,3 +1,6 @@
+# Copyright (c) HashiCorp, Inc.
+# SPDX-License-Identifier: MIT
+
 module VagrantPlugins
   module CommunicatorWinRM
     # This is a helper module that provides some functions to the

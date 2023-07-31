@@ -1,3 +1,6 @@
+# Copyright (c) HashiCorp, Inc.
+# SPDX-License-Identifier: MIT
+
 module VagrantPlugins
   module DockerProvider
     class SyncedFolder < Vagrant.plugin("2", :synced_folder)

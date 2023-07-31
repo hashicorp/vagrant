@@ -1,3 +1,6 @@
+// Copyright (c) HashiCorp, Inc.
+// SPDX-License-Identifier: MIT
+
 // Package datasource has the packages and logic that Vagrant uses
 // for sourcing data for remote runs.
 package datasource

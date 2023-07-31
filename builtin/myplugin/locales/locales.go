@@ -1,3 +1,6 @@
+// Copyright (c) HashiCorp, Inc.
+// SPDX-License-Identifier: MIT
+
 // Code generated for package locales by go-bindata DO NOT EDIT. (@generated)
 // sources:
 // locales/assets/en.json

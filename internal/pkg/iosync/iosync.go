@@ -1,3 +1,6 @@
+// Copyright (c) HashiCorp, Inc.
+// SPDX-License-Identifier: MIT
+
 // Package iosync provides reader/writer implementations that wrap
 // operations in a mutex so that concurrent reads and writes are safe.
 package iosync

@@ -1,3 +1,6 @@
+# Copyright (c) HashiCorp, Inc.
+# SPDX-License-Identifier: MIT
+
 require "ipaddr"
 require "vagrant/action/builtin/mixin_synced_folders"
 

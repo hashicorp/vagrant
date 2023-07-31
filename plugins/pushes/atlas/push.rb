@@ -1,3 +1,6 @@
+# Copyright (c) HashiCorp, Inc.
+# SPDX-License-Identifier: MIT
+
 require "vagrant/util/safe_exec"
 require "vagrant/util/subprocess"
 require "vagrant/util/which"

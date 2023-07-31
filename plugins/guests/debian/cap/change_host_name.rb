@@ -1,3 +1,6 @@
+# Copyright (c) HashiCorp, Inc.
+# SPDX-License-Identifier: MIT
+
 require "log4r"
 require 'vagrant/util/guest_hosts'
 require 'vagrant/util/guest_inspection'

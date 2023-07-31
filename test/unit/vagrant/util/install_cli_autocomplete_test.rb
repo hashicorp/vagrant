@@ -1,3 +1,6 @@
+# Copyright (c) HashiCorp, Inc.
+# SPDX-License-Identifier: MIT
+
 require File.expand_path("../../../base", __FILE__)
 
 require 'vagrant/util/install_cli_autocomplete'

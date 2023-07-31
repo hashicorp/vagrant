@@ -1,3 +1,6 @@
+// Copyright (c) HashiCorp, Inc.
+// SPDX-License-Identifier: MIT
+
 // Package core exposes a high-level API for the expected operations of
 // the project. This can be consumed by the CLI, web APIs, etc. This is the
 // safest set of APIs to use.

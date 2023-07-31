@@ -1,3 +1,6 @@
+# Copyright (c) HashiCorp, Inc.
+# SPDX-License-Identifier: MIT
+
 $ErrorAction = "Stop"
 
 # Find all of the NICsq

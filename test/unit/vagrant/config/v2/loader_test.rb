@@ -1,3 +1,6 @@
+# Copyright (c) HashiCorp, Inc.
+# SPDX-License-Identifier: MIT
+
 require "ostruct"
 
 require File.expand_path("../../../../base", __FILE__)

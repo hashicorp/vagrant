@@ -1,3 +1,6 @@
+# Copyright (c) HashiCorp, Inc.
+# SPDX-License-Identifier: MIT
+
 # A general Vagrant system implementation for "solaris 11".
 #
 # Contributed by Jan Thomas Moldung <janth@moldung.no>

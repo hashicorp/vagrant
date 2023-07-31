@@ -1,3 +1,6 @@
+# Copyright (c) HashiCorp, Inc.
+# SPDX-License-Identifier: MIT
+
 shared_examples_for 'options shared by both Ansible provisioners' do
 
   it "assigns default values to unset common options" do

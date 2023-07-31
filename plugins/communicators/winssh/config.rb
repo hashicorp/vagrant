@@ -1,3 +1,6 @@
+# Copyright (c) HashiCorp, Inc.
+# SPDX-License-Identifier: MIT
+
 require File.expand_path("../../../kernel_v2/config/ssh", __FILE__)
 
 module VagrantPlugins
