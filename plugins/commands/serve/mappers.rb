@@ -1,3 +1,6 @@
+# Copyright (c) HashiCorp, Inc.
+# SPDX-License-Identifier: MIT
+
 require "digest/sha2"
 require "google/protobuf/wrappers_pb"
 require "google/protobuf/well_known_types"

@@ -1,3 +1,6 @@
+# Copyright (c) HashiCorp, Inc.
+# SPDX-License-Identifier: MIT
+
 module Vagrant
   module UI
     module Reformatter

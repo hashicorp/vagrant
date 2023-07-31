@@ -1,3 +1,6 @@
+// Copyright (c) HashiCorp, Inc.
+// SPDX-License-Identifier: MIT
+
 package state
 
 // TODO(spox): When dealing with the scopes on the configvar protos,

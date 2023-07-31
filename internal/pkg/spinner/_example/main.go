@@ -1,3 +1,6 @@
+// Copyright (c) HashiCorp, Inc.
+// SPDX-License-Identifier: MIT
+
 // Example application that uses all of the available API options.
 package main
 

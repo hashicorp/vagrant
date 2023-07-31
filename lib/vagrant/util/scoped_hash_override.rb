@@ -1,3 +1,6 @@
+# Copyright (c) HashiCorp, Inc.
+# SPDX-License-Identifier: MIT
+
 module Vagrant
   module Util
     # This allows for hash options to be overridden by a scope key

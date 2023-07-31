@@ -1,3 +1,6 @@
+# Copyright (c) HashiCorp, Inc.
+# SPDX-License-Identifier: MIT
+
 require "rubygems"
 require "rubygems/config_file"
 require "rubygems/gem_runner"

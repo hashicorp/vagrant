@@ -1,3 +1,6 @@
+# Copyright (c) HashiCorp, Inc.
+# SPDX-License-Identifier: MIT
+
 module Vagrant
   module Util
     # Helper methods for modfiying guests /etc/hosts file

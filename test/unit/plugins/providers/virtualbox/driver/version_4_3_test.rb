@@ -1,3 +1,6 @@
+# Copyright (c) HashiCorp, Inc.
+# SPDX-License-Identifier: MIT
+
 require_relative "../base"
 
 describe VagrantPlugins::ProviderVirtualBox::Driver::Version_4_3 do

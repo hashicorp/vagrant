@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) HashiCorp, Inc.
+ * SPDX-License-Identifier: MIT
+ */
+
 #if !defined(_VAGRANT_SSL_H_)
 #define _VAGRANT_SSL_H_
 

@@ -1,3 +1,6 @@
+# Copyright (c) HashiCorp, Inc.
+# SPDX-License-Identifier: MIT
+
 Write-Output "Downloading virtualbox guest additions"
 $vboxadd_url = "http://download.virtualbox.org/virtualbox/5.2.2/VBoxGuestAdditions_5.2.2.iso"
 $vboxadd_output = "C:/Windows/Temp/vboxguestadditions.iso"

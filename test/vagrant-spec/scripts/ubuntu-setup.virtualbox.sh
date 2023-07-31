@@ -1,4 +1,7 @@
 #!/bin/bash
+# Copyright (c) HashiCorp, Inc.
+# SPDX-License-Identifier: MIT
+
 set -e
 
 export DEBIAN_FRONTEND=noninteractive

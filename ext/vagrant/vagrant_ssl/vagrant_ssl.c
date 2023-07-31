@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) HashiCorp, Inc.
+ * SPDX-License-Identifier: MIT
+ */
+
 #include "vagrant_ssl.h"
 
 #if defined(_VAGRANT_SSL_PROVIDER_)

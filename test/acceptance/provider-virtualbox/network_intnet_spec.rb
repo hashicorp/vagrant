@@ -1,3 +1,6 @@
+# Copyright (c) HashiCorp, Inc.
+# SPDX-License-Identifier: MIT
+
 shared_examples "provider/network/intnet" do |provider, options|
   if !options[:box]
     raise ArgumentError,

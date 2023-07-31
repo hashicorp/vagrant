@@ -1,3 +1,6 @@
+// Copyright (c) HashiCorp, Inc.
+// SPDX-License-Identifier: MIT
+
 package config
 
 // Hook is the configuration for a hook that runs at specified times.

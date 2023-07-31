@@ -1,4 +1,7 @@
 #!/usr/bin/env bash
+# Copyright (c) HashiCorp, Inc.
+# SPDX-License-Identifier: MIT
+
 
 export PACKET_EXEC_PREFER_FACILITIES="${PACKET_EXEC_PREFER_FACILITIES:-iad2,dfw2,dfw1,ny5,ny7,ewr1,la4,lax1,lax2,tr2,ch3,ord1,ord4}"
 

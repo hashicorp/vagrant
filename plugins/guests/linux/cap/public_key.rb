@@ -1,3 +1,6 @@
+# Copyright (c) HashiCorp, Inc.
+# SPDX-License-Identifier: MIT
+
 require "tempfile"
 
 require "vagrant/util/shell_quote"

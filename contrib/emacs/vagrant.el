@@ -1,3 +1,6 @@
+;; Copyright (c) HashiCorp, Inc.
+;; SPDX-License-Identifier: MIT
+
 ;;--------------------------------------------------------------------
 ;; Teach emacs to syntax highlight Vagrantfile as Ruby.
 ;;

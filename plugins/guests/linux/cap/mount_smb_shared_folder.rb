@@ -1,3 +1,6 @@
+# Copyright (c) HashiCorp, Inc.
+# SPDX-License-Identifier: MIT
+
 require "fileutils"
 require "shellwords"
 require_relative "../../../synced_folders/unix_mount_helpers"

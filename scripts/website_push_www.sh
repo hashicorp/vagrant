@@ -1,4 +1,7 @@
 #!/bin/bash
+# Copyright (c) HashiCorp, Inc.
+# SPDX-License-Identifier: MIT
+
 
 # Set the tmpdir
 if [ -z "$TMPDIR" ]; then

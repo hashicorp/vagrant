@@ -1,3 +1,6 @@
+# Copyright (c) HashiCorp, Inc.
+# SPDX-License-Identifier: MIT
+
 require_relative "../../../../base"
 
 require_relative "../../../../../../plugins/hosts/darwin/cap/smb"

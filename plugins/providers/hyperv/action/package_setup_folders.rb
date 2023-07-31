@@ -1,3 +1,6 @@
+# Copyright (c) HashiCorp, Inc.
+# SPDX-License-Identifier: MIT
+
 require "fileutils"
 
 require_relative "../../../../lib/vagrant/action/general/package_setup_folders"

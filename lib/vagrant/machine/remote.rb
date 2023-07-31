@@ -1,3 +1,6 @@
+# Copyright (c) HashiCorp, Inc.
+# SPDX-License-Identifier: MIT
+
 require 'ostruct'
 require "vagrant/util/scoped_hash_override"
 

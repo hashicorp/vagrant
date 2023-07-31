@@ -1,3 +1,6 @@
+# Copyright (c) HashiCorp, Inc.
+# SPDX-License-Identifier: MIT
+
 module Vagrant
   module Util
     # A hash with indifferent access. Mostly taken from Thor/Rails (thanks).

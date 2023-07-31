@@ -1,3 +1,6 @@
+# Copyright (c) HashiCorp, Inc.
+# SPDX-License-Identifier: MIT
+
 # This file contains all the errors that the V2 plugin interface
 # may throw.
 

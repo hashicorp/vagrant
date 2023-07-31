@@ -1,3 +1,6 @@
+# Copyright (c) HashiCorp, Inc.
+# SPDX-License-Identifier: MIT
+
 # rubocop:disable Metrics/MethodLength
 # rubocop:disable Metrics/AbcSize
 # rubocop:disable Style/BracesAroundHashParameters

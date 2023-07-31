@@ -1,3 +1,6 @@
+# Copyright (c) HashiCorp, Inc.
+# SPDX-License-Identifier: MIT
+
 require "vagrant"
 require Vagrant.source_root.join("test/unit/base")
 

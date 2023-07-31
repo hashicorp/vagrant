@@ -1,3 +1,6 @@
+# Copyright (c) HashiCorp, Inc.
+# SPDX-License-Identifier: MIT
+
 require 'google/protobuf/well_known_types'
 require 'google/rpc/error_details_pb'
 

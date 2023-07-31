@@ -1,3 +1,6 @@
+# Copyright (c) HashiCorp, Inc.
+# SPDX-License-Identifier: MIT
+
 require "fileutils"
 require "tempfile"
 require "vagrant/util/safe_exec"

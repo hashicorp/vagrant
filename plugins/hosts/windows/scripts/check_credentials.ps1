@@ -1,3 +1,6 @@
+# Copyright (c) HashiCorp, Inc.
+# SPDX-License-Identifier: MIT
+
 Param(
     [Parameter(Mandatory=$true)]
     [string]$username,

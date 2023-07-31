@@ -1,3 +1,6 @@
+// Copyright (c) HashiCorp, Inc.
+// SPDX-License-Identifier: MIT
+
 package config
 
 // TODO: renable these tests when vagrantfile's can be parsed in hcl

@@ -1,3 +1,6 @@
+// Copyright (c) HashiCorp, Inc.
+// SPDX-License-Identifier: MIT
+
 package main
 
 // NOTE: This file is here as a nicety for being able to run `go generate` at

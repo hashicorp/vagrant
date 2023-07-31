@@ -1,3 +1,6 @@
+# Copyright (c) HashiCorp, Inc.
+# SPDX-License-Identifier: MIT
+
 require_relative "../../../../base"
 
 require Vagrant.source_root.join("plugins/providers/hyperv/action/set_name")

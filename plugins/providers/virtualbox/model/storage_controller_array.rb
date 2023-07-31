@@ -1,3 +1,6 @@
+# Copyright (c) HashiCorp, Inc.
+# SPDX-License-Identifier: MIT
+
 require_relative "../cap/validate_disk_ext"
 
 module VagrantPlugins

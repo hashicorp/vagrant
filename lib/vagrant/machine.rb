@@ -1,3 +1,6 @@
+# Copyright (c) HashiCorp, Inc.
+# SPDX-License-Identifier: MIT
+
 require_relative "./util/ssh"
 require_relative "./action/builtin/mixin_synced_folders"
 

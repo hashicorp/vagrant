@@ -1,3 +1,6 @@
+# Copyright (c) HashiCorp, Inc.
+# SPDX-License-Identifier: MIT
+
 module VagrantPlugins
   module HyperV
     autoload :Action, File.expand_path("../action", __FILE__)

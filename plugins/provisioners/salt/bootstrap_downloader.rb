@@ -1,3 +1,6 @@
+# Copyright (c) HashiCorp, Inc.
+# SPDX-License-Identifier: MIT
+
 require 'open-uri'
 require 'digest'
 require_relative "./errors"

@@ -1,3 +1,6 @@
+# Copyright (c) HashiCorp, Inc.
+# SPDX-License-Identifier: MIT
+
 require "vagrant/plugin/v2/plugin"
 require "vagrant/vagrantfile"
 require "vagrant/box_collection"

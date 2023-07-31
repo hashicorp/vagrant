@@ -1,3 +1,6 @@
+# Copyright (c) HashiCorp, Inc.
+# SPDX-License-Identifier: MIT
+
 # rubocop:disable Style/RedundantBegin
 # rubocop:disable Lint/HandleExceptions
 #

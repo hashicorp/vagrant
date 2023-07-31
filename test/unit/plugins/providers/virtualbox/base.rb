@@ -1,3 +1,6 @@
+# Copyright (c) HashiCorp, Inc.
+# SPDX-License-Identifier: MIT
+
 # base test helper for virtualbox unit tests
 
 require_relative "../../../base"

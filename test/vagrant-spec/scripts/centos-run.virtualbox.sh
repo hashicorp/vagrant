@@ -1,4 +1,7 @@
 #!/bin/bash
+# Copyright (c) HashiCorp, Inc.
+# SPDX-License-Identifier: MIT
+
 set -x
 
 export VAGRANT_EXPERIMENTAL="${VAGRANT_EXPERIMENTAL:-1}"

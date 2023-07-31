@@ -1,3 +1,6 @@
+# Copyright (c) HashiCorp, Inc.
+# SPDX-License-Identifier: MIT
+
 # This is an "interface" that should be implemented by any digest class
 # passed into FileChecksum. Note that this isn't strictly enforced at
 # the moment, and this class isn't directly used. It is merely here for
