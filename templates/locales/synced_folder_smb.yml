@@ -13,13 +13,6 @@ en:
     incorrect_credentials: |-
       Credentials incorrect. Please try again.
 
-    uac:
-      prune_warning: |-
-        Vagrant requires administrator access for pruning SMB shares and
-        may request access to complete removal of stale shares.
-      create_warning: |-
-        Vagrant requires administrator access to create SMB shares and
-        may request access to complete setup of configured shares.
     errors:
       not_supported: |-
         It appears your machine doesn't support SMB, has not been

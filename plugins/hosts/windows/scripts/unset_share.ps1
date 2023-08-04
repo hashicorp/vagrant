@@ -1,10 +1,10 @@
+Set-StrictMode -Version Latest
+$ErrorActionPreference = 'Stop'
+
 ForEach ($share_name in $args) {
-    $result = net share $share_name /DELETE /YES
-    if ($LastExitCode -ne 0) {
-        Write-Output "share name: ${share_name}"
-        Write-Error "error - ${result}"
-        exit 1
-    }
+    Remove-SmbShare `
+        -Name $share_name `
+        -Force
 }
 Write-Output "share removal completed"
 exit 0
