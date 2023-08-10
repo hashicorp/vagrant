@@ -1,3 +1,6 @@
+// Copyright (c) HashiCorp, Inc.
+// SPDX-License-Identifier: BUSL-1.1
+
 // Package circbufsync wraps armon/circbuf to be safe for concurrent
 // read/write operations.
 package circbufsync

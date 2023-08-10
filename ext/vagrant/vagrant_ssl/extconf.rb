@@ -1,4 +1,7 @@
 #!/usr/bin/env ruby
+# Copyright (c) HashiCorp, Inc.
+# SPDX-License-Identifier: BUSL-1.1
+
 
 require "mkmf"
 require "shellwords"

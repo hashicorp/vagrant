@@ -1,3 +1,6 @@
+# Copyright (c) HashiCorp, Inc.
+# SPDX-License-Identifier: BUSL-1.1
+
 require "tmpdir"
 
 require File.expand_path("../../../../base", __FILE__)

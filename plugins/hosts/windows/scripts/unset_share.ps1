@@ -1,3 +1,6 @@
+# Copyright (c) HashiCorp, Inc.
+# SPDX-License-Identifier: BUSL-1.1
+
 ForEach ($share_name in $args) {
     $result = net share $share_name /DELETE /YES
     if ($LastExitCode -ne 0) {

@@ -1,3 +1,6 @@
+# Copyright (c) HashiCorp, Inc.
+# SPDX-License-Identifier: BUSL-1.1
+
 require "pathname"
 require_relative "../../../../base"
 require_relative "../../../../../../plugins/hosts/linux/cap/fs_iso"

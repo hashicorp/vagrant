@@ -1,3 +1,6 @@
+# Copyright (c) HashiCorp, Inc.
+# SPDX-License-Identifier: BUSL-1.1
+
 # -*- coding: utf-8 -*-
 require File.expand_path("../../../base", __FILE__)
 

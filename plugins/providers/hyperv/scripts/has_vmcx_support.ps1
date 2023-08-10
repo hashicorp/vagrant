@@ -1,3 +1,6 @@
+# Copyright (c) HashiCorp, Inc.
+# SPDX-License-Identifier: BUSL-1.1
+
 #Requires -Modules VagrantMessages
 
 # Windows version 10 and up have support for binary format
