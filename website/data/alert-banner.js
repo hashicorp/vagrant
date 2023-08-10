@@ -1,3 +1,8 @@
+/**
+ * Copyright (c) HashiCorp, Inc.
+ * SPDX-License-Identifier: BUSL-1.1
+ */
+
 export const ALERT_BANNER_ACTIVE = false
 
 // https://github.com/hashicorp/web-components/tree/master/packages/alert-banner

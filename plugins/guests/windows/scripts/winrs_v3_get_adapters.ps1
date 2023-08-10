@@ -1,3 +1,6 @@
+# Copyright (c) HashiCorp, Inc.
+# SPDX-License-Identifier: BUSL-1.1
+
 $adapters = get-ciminstance win32_networkadapter -filter "macaddress is not null"
 $processed = @()
 foreach ($adapter in $adapters) {

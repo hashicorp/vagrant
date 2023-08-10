@@ -1,3 +1,6 @@
+# Copyright (c) HashiCorp, Inc.
+# SPDX-License-Identifier: BUSL-1.1
+
 require 'optparse'
 require "vagrant/util/safe_puts"
 require_relative "../../communicators/winrm/helper"

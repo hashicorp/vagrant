@@ -1,3 +1,6 @@
+# Copyright (c) HashiCorp, Inc.
+# SPDX-License-Identifier: BUSL-1.1
+
 # base test helper for virtualbox unit tests
 
 require_relative "../../../base"

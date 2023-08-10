@@ -1,3 +1,6 @@
+# Copyright (c) HashiCorp, Inc.
+# SPDX-License-Identifier: BUSL-1.1
+
 require_relative "../../../../base"
 
 require Vagrant.source_root.join("plugins/guests/windows/cap/change_host_name")

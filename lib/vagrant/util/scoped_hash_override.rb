@@ -1,3 +1,6 @@
+# Copyright (c) HashiCorp, Inc.
+# SPDX-License-Identifier: BUSL-1.1
+
 module Vagrant
   module Util
     # This allows for hash options to be overridden by a scope key

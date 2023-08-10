@@ -1,3 +1,6 @@
+# Copyright (c) HashiCorp, Inc.
+# SPDX-License-Identifier: BUSL-1.1
+
 module Vagrant
   # This represents the state of a given machine. This is a very basic
   # class that simply stores a short and long description of the state

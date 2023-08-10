@@ -1,3 +1,6 @@
+# Copyright (c) HashiCorp, Inc.
+# SPDX-License-Identifier: BUSL-1.1
+
 module Vagrant
   module Util
     # This module provides a `safe_exec` method which is a drop-in

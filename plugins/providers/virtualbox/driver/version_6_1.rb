@@ -1,3 +1,6 @@
+# Copyright (c) HashiCorp, Inc.
+# SPDX-License-Identifier: BUSL-1.1
+
 require File.expand_path("../version_6_0", __FILE__)
 
 module VagrantPlugins

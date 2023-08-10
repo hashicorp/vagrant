@@ -1,3 +1,6 @@
+# Copyright (c) HashiCorp, Inc.
+# SPDX-License-Identifier: BUSL-1.1
+
 require 'open3'
 
 HEAD = """#compdef _vagrant vagrant

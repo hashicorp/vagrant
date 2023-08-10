@@ -1,3 +1,6 @@
+# Copyright (c) HashiCorp, Inc.
+# SPDX-License-Identifier: BUSL-1.1
+
 module VagrantPlugins
   module GuestOmniOS
     class Guest < Vagrant.plugin("2", :guest)

@@ -1,3 +1,6 @@
+# Copyright (c) HashiCorp, Inc.
+# SPDX-License-Identifier: BUSL-1.1
+
 require_relative "../base"
 
 describe VagrantPlugins::ProviderVirtualBox::Driver::Version_4_2 do

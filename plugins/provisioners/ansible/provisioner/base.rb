@@ -1,3 +1,6 @@
+# Copyright (c) HashiCorp, Inc.
+# SPDX-License-Identifier: BUSL-1.1
+
 require_relative "../constants"
 require_relative "../errors"
 require_relative "../helpers"

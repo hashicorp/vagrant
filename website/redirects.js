@@ -1,4 +1,9 @@
 /**
+ * Copyright (c) HashiCorp, Inc.
+ * SPDX-License-Identifier: BUSL-1.1
+ */
+
+/**
  * Define your custom redirects within this file.
  *
  * See the README file in this directory for documentation. Please do not

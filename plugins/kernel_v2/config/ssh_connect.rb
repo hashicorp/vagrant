@@ -1,3 +1,6 @@
+# Copyright (c) HashiCorp, Inc.
+# SPDX-License-Identifier: BUSL-1.1
+
 module VagrantPlugins
   module Kernel_V2
     class SSHConnectConfig < Vagrant.plugin("2", :config)

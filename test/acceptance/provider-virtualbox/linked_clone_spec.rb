@@ -1,3 +1,6 @@
+# Copyright (c) HashiCorp, Inc.
+# SPDX-License-Identifier: BUSL-1.1
+
 # This tests that VM is up as a linked clone
 shared_examples 'provider/linked_clone' do |provider, options|
   if !options[:box]

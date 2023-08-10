@@ -1,3 +1,6 @@
+# Copyright (c) HashiCorp, Inc.
+# SPDX-License-Identifier: BUSL-1.1
+
 require "vagrant/plugin/v2/plugin"
 require "vagrant/vagrantfile"
 require "vagrant/box_collection"

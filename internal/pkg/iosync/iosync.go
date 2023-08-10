@@ -1,3 +1,6 @@
+// Copyright (c) HashiCorp, Inc.
+// SPDX-License-Identifier: BUSL-1.1
+
 // Package iosync provides reader/writer implementations that wrap
 // operations in a mutex so that concurrent reads and writes are safe.
 package iosync
