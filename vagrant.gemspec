@@ -8,7 +8,7 @@ Gem::Specification.new do |s|
   s.authors       = ["Mitchell Hashimoto", "John Bender"]
   s.email         = ["mitchell.hashimoto@gmail.com", "john.m.bender@gmail.com"]
   s.homepage      = "https://www.vagrantup.com"
-  s.license       = 'MIT'
+  s.license       = 'BUSL-1.1'
   s.summary       = "Build and distribute virtualized development environments."
   s.description   = "Vagrant is a tool for building and distributing virtualized development environments."
 
