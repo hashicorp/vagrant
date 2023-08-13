@@ -17,6 +17,11 @@ module Vagrant
           @registered = []
         end
 
+        def initialize_clone(org)
+          super
+          @registered = org.registered.dup
+        end
+
         # This returns all the action hooks.
         #
         # @return [Array]

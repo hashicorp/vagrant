@@ -25,6 +25,7 @@ import (
 	"github.com/hashicorp/vagrant-plugin-sdk/internal-shared/cacher"
 	"github.com/hashicorp/vagrant-plugin-sdk/internal-shared/cleanup"
 	"github.com/hashicorp/vagrant-plugin-sdk/internal-shared/protomappers"
+	"github.com/hashicorp/vagrant/internal/server/proto/ruby_vagrant"
 	"github.com/hashicorp/vagrant/internal/serverclient"
 )
 
@@ -140,7 +141,32 @@ func (m *Manager) LegacyEnabled() bool {
 
 // Load legacy Ruby based Vagrant plugins using a
 // running Vagrant runtime
-func (m *Manager) LoadLegacyPlugins(
+func (m *Manager) LoadLocalLegacyPlugins(
+	c *serverclient.RubyVagrantClient, // Client connection to the Legacy Ruby Vagrant server
+	r plugin.ClientProtocol, // go-plugin client connection to Ruby plugin server
+	path string, // project plugin path
+) (err error) {
+	m.m.Lock()
+	defer m.m.Unlock()
+
+	m.logger.Trace("loading ruby based legacy vagrant plugins")
+
+	plugins, err := c.GetLocalPlugins(path)
+	if err != nil {
+		m.logger.Trace("failed to fetch ruby based legacy vagrant plugin information",
+			"error", err,
+		)
+
+		return
+	}
+
+	err = m.RegisterLegacyPlugins(c, r, plugins)
+	return
+}
+
+// Load legacy Ruby based Vagrant plugins using a
+// running Vagrant runtime
+func (m *Manager) LoadGlobalLegacyPlugins(
 	c *serverclient.RubyVagrantClient, // Client connection to the Legacy Ruby Vagrant server
 	r plugin.ClientProtocol, // go-plugin client connection to Ruby plugin server
 ) (err error) {
@@ -154,7 +180,7 @@ func (m *Manager) LoadLegacyPlugins(
 
 	m.logger.Trace("loading ruby based legacy vagrant plugins")
 
-	plugins, err := c.GetPlugins()
+	plugins, err := c.GetGlobalPlugins()
 	if err != nil {
 		m.logger.Trace("failed to fetch ruby based legacy vagrant plugin information",
 			"error", err,
@@ -162,7 +188,15 @@ func (m *Manager) LoadLegacyPlugins(
 
 		return
 	}
+	err = m.RegisterLegacyPlugins(c, r, plugins)
+	return
+}
 
+func (m *Manager) RegisterLegacyPlugins(
+	c *serverclient.RubyVagrantClient,
+	r plugin.ClientProtocol,
+	plugins []*ruby_vagrant.Plugin,
+) (err error) {
 	for _, p := range plugins {
 		m.logger.Info("loading ruby based legacy vagrant plugin",
 			"name", p.Name,

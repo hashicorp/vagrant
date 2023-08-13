@@ -7,6 +7,7 @@ import (
 	"context"
 	"errors"
 
+	"github.com/golang/protobuf/ptypes/empty"
 	"github.com/hashicorp/go-hclog"
 	"github.com/hashicorp/go-plugin"
 	"google.golang.org/grpc"
@@ -60,8 +61,16 @@ func (r *RubyVagrantClient) GRPCBroker() *plugin.GRPCBroker {
 	return r.broker
 }
 
-func (r *RubyVagrantClient) GetPlugins() ([]*ruby_vagrant.Plugin, error) {
-	plugins, err := r.client.GetPlugins(context.Background(), &ruby_vagrant.GetPluginsRequest{})
+func (r *RubyVagrantClient) GetGlobalPlugins() ([]*ruby_vagrant.Plugin, error) {
+	plugins, err := r.client.GetGlobalPlugins(context.Background(), &empty.Empty{})
+	if err != nil {
+		return nil, err
+	}
+	return plugins.Plugins, nil
+}
+
+func (r *RubyVagrantClient) GetLocalPlugins(path string) ([]*ruby_vagrant.Plugin, error) {
+	plugins, err := r.client.GetLocalPlugins(context.Background(), &ruby_vagrant.GetPluginsRequest{ProjectPath: path})
 	if err != nil {
 		return nil, err
 	}

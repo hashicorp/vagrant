@@ -207,6 +207,10 @@ func (c *Client) UI() terminal.UI {
 	return c.ui
 }
 
+func (c *Client) LoadLocalProjectPlugins(path string) error {
+	return c.runner.LoadLocalProjectPlugins(path)
+}
+
 type clientConfig struct {
 	connectOpts []serverclient.ConnectOption
 }

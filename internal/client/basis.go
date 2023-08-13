@@ -15,6 +15,7 @@ import (
 
 	"github.com/hashicorp/vagrant-plugin-sdk/config"
 	"github.com/hashicorp/vagrant-plugin-sdk/helper/path"
+	"github.com/hashicorp/vagrant-plugin-sdk/helper/paths"
 	"github.com/hashicorp/vagrant-plugin-sdk/proto/vagrant_plugin_sdk"
 	"github.com/hashicorp/vagrant-plugin-sdk/terminal"
 	"github.com/hashicorp/vagrant/internal/server/proto/vagrant_server"
@@ -47,9 +48,14 @@ func (b *Basis) DetectProject() (p *Project, err error) {
 	if err != nil && status.Code(err) != codes.NotFound {
 		return
 	}
+	dataPath, err := paths.VagrantData()
+	if err != nil {
+		return
+	}
 
 	if err == nil {
 		p.vagrantfile = v
+		b.client.LoadLocalProjectPlugins(dataPath.Join(b.basis.Name, "project", p.project.Name).String())
 		return
 	}
 
@@ -71,7 +77,7 @@ func (b *Basis) DetectProject() (p *Project, err error) {
 		return
 	}
 
-	return &Project{
+	projectClient := &Project{
 		basis:       b,
 		client:      b.client,
 		ctx:         b.ctx,
@@ -80,7 +86,10 @@ func (b *Basis) DetectProject() (p *Project, err error) {
 		ui:          b.ui,
 		vagrant:     b.vagrant,
 		vagrantfile: v,
-	}, nil
+	}
+	b.client.LoadLocalProjectPlugins(dataPath.Join(b.basis.Name, "project", projectClient.project.Name).String())
+
+	return projectClient, nil
 }
 
 func (b *Basis) LoadProject(n string) (*Project, error) {

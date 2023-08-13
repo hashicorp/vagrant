@@ -17,7 +17,8 @@ module Hashicorp
         self.service_name = 'hashicorp.vagrant.RubyVagrant'
 
         # Gets available ruby plugins
-        rpc :GetPlugins, ::Hashicorp::Vagrant::GetPluginsRequest, ::Hashicorp::Vagrant::GetPluginsResponse
+        rpc :GetLocalPlugins, ::Hashicorp::Vagrant::GetPluginsRequest, ::Hashicorp::Vagrant::GetPluginsResponse
+        rpc :GetGlobalPlugins, ::Google::Protobuf::Empty, ::Hashicorp::Vagrant::GetPluginsResponse
         rpc :ParseVagrantfile, ::Hashicorp::Vagrant::ParseVagrantfileRequest, ::Hashicorp::Vagrant::ParseVagrantfileResponse
         rpc :ParseVagrantfileProc, ::Hashicorp::Vagrant::ParseVagrantfileProcRequest, ::Hashicorp::Vagrant::ParseVagrantfileResponse
         rpc :ParseVagrantfileSubvm, ::Hashicorp::Vagrant::ParseVagrantfileSubvmRequest, ::Hashicorp::Vagrant::ParseVagrantfileResponse
