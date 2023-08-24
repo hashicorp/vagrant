@@ -10,12 +10,10 @@ package state
 import (
 	"errors"
 	"fmt"
-	"sort"
 
 	"github.com/hashicorp/go-memdb"
 	"github.com/hashicorp/vagrant-plugin-sdk/proto/vagrant_plugin_sdk"
 	"github.com/hashicorp/vagrant/internal/server/proto/vagrant_server"
-	serversort "github.com/hashicorp/vagrant/internal/server/sort"
 	"gorm.io/gorm"
 )
 
@@ -187,8 +185,6 @@ func (s *State) configGetMerged(
 	for _, v := range merged {
 		result = append(result, v)
 	}
-
-	sort.Sort(serversort.ConfigName(result))
 
 	return result, nil
 }

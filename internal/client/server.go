@@ -12,8 +12,10 @@ import (
 	"os/exec"
 	"path/filepath"
 	"strings"
+	//	"time"
 
 	"github.com/glebarez/sqlite"
+	//	"github.com/hashicorp/go-hclog"
 	"github.com/hashicorp/go-plugin"
 	"github.com/hashicorp/vagrant-plugin-sdk/helper/paths"
 	"google.golang.org/grpc"
@@ -35,12 +37,11 @@ import (
 //
 // This function will do one of two things:
 //
-//   1. If connection options were given, it'll attempt to connect to
-//      an existing Vagrant server.
+//  1. If connection options were given, it'll attempt to connect to
+//     an existing Vagrant server.
 //
-//   2. If WithLocal was specified and no connection addresses can be
-//      found, this will spin up an in-memory server.
-//
+//  2. If WithLocal was specified and no connection addresses can be
+//     found, this will spin up an in-memory server.
 func (c *Client) initServerClient(ctx context.Context, cfg *clientConfig) (*grpc.ClientConn, error) {
 	log := c.logger.ResetNamed("vagrant.server")
 
@@ -108,6 +109,15 @@ func (c *Client) initLocalServer(ctx context.Context) (_ *grpc.ClientConn, err e
 	// Open our database
 	db, err := gorm.Open(sqlite.Open(path), &gorm.Config{
 		Logger: logger.Default.LogMode(logger.Silent),
+		// Logger: logger.New(
+		// 	log.StandardLogger(&hclog.StandardLoggerOptions{InferLevels: true}),
+		// 	logger.Config{
+		// 		SlowThreshold:             200 * time.Millisecond,
+		// 		LogLevel:                  logger.Info,
+		// 		IgnoreRecordNotFoundError: false,
+		// 		Colorful:                  true,
+		// 	},
+		// ),
 	})
 	db.Exec("PRAGMA foreign_keys = ON")
 	if err != nil {

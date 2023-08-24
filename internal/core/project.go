@@ -221,6 +221,20 @@ func (p *Project) Init() error {
 		return p.Save()
 	})
 
+	// TODO(spox): this was just added for testing. make cleaner
+	_, err = p.Client().UpsertProject(p.ctx,
+		&vagrant_server.UpsertProjectRequest{
+			Project: p.project,
+		},
+	)
+	if err != nil {
+		p.logger.Trace("failed to save project",
+			"error", err,
+		)
+
+		return err
+	}
+
 	// Set flag that this instance is setup
 	p.ready = true
 
@@ -712,6 +726,9 @@ func (p *Project) Save() error {
 				"error", err,
 			)
 		} else {
+			if p.project.Configuration == nil {
+				p.project.Configuration = &vagrant_server.Vagrantfile{}
+			}
 			p.project.Configuration.Finalized = val.Data
 		}
 	}

@@ -35,7 +35,12 @@ func TestMachineSetValidId(t *testing.T) {
 	if err != nil {
 		t.Errorf("Failed to get target")
 	}
-	require.Equal(t, dbTarget.Target.Uuid, "something")
+
+	var dbMachine vagrant_server.Target_Machine
+	err = dbTarget.Target.Record.UnmarshalTo(&dbMachine)
+	require.NoError(t, err)
+
+	require.Equal(t, dbMachine.Id, "something")
 }
 
 func TestMachineSetEmptyId(t *testing.T) {

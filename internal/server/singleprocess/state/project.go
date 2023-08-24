@@ -29,10 +29,10 @@ type Project struct {
 	DataSource    *ProtoValue
 	Jobs          []*InternalJob `gorm:"polymorphic:Scope"`
 	Metadata      MetadataSet
-	Name          string `gorm:"uniqueIndex:idx_bname,not null"`
-	Path          string `gorm:"uniqueIndex,not null"`
+	Name          string `gorm:"uniqueIndex:idx_bname;not null"`
+	Path          string `gorm:"uniqueIndex:idx_bname;not null"`
 	RemoteEnabled bool
-	ResourceId    string `gorm:"<-:create,uniqueIndex,not null"`
+	ResourceId    string `gorm:"<-:create;uniqueIndex;not null"`
 	Targets       []*Target
 }
 
@@ -125,21 +125,12 @@ func (p *Project) BeforeUpdate(tx *gorm.DB) error {
 }
 
 func (p *Project) Validate(tx *gorm.DB) error {
-	existing, err := p.find(tx)
-	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
-		return err
-	}
-
-	if existing == nil {
-		existing = &Project{}
-	}
-
 	basisID := p.BasisID
 	if p.Basis != nil {
 		basisID = p.Basis.ID
 	}
 
-	err = validation.ValidateStruct(p,
+	err := validation.ValidateStruct(p,
 		validation.Field(&p.BasisID,
 			validation.Required.When(p.Basis == nil),
 		),
@@ -148,38 +139,64 @@ func (p *Project) Validate(tx *gorm.DB) error {
 		),
 		validation.Field(&p.Name,
 			validation.Required,
-			validation.By(
-				checkUnique(
-					tx.Model(&Project{}).
-						Where(&Project{Name: p.Name, BasisID: basisID}).
-						Not(&Project{Model: Model{ID: p.ID}}),
+			validation.When(
+				p.ID != 0,
+				validation.By(
+					checkUnique(
+						tx.Model(&Project{}).
+							Where(&Project{Name: p.Name, BasisID: basisID}).
+							Not(&Project{Model: Model{ID: p.ID}}),
+					),
+				),
+			),
+			validation.When(
+				p.ID == 0,
+				validation.By(
+					checkUnique(
+						tx.Model(&Project{}).
+							Where(&Project{Name: p.Name, BasisID: basisID}),
+					),
 				),
 			),
 		),
 		validation.Field(&p.Path,
 			validation.Required,
-			validation.By(
-				checkUnique(
-					tx.Model(&Project{}).
-						Where(&Project{Path: p.Path, BasisID: basisID}).
-						Not(&Project{Model: Model{ID: p.ID}}),
+			validation.When(
+				p.ID != 0,
+				validation.By(
+					checkUnique(
+						tx.Model(&Project{}).
+							Where(&Project{Path: p.Path, BasisID: basisID}).
+							Not(&Project{Model: Model{ID: p.ID}}),
+					),
+				),
+			),
+			validation.When(
+				p.ID == 0,
+				validation.By(
+					checkUnique(
+						tx.Model(&Project{}).
+							Where(&Project{Path: p.Path, BasisID: basisID}),
+					),
 				),
 			),
 		),
 		validation.Field(&p.ResourceId,
 			validation.Required,
-			validation.By(
-				checkUnique(
-					tx.Model(&Project{}).
-						Where(&Project{ResourceId: p.ResourceId}).
-						Not(&Project{Model: Model{ID: p.ID}}),
+			validation.When(
+				p.ID == 0,
+				validation.By(
+					checkUnique(
+						tx.Model(&Project{}).
+							Where(&Project{ResourceId: p.ResourceId}),
+					),
 				),
 			),
 			validation.When(
 				p.ID != 0,
 				validation.By(
 					checkNotModified(
-						existing.ResourceId,
+						tx.Statement.Changed("ResourceId"),
 					),
 				),
 			),
@@ -373,6 +390,10 @@ func (s *State) ProjectPut(
 	err = s.softDecode(p, project)
 	if err != nil {
 		return nil, saveErrorToStatus("project", err)
+	}
+
+	if p.Configuration != nil && p.Configuration.Finalized == nil {
+		project.Vagrantfile.Finalized = nil
 	}
 
 	if err := s.upsertFull(project); err != nil {

@@ -495,7 +495,8 @@ func (m *Machine) AsTarget() (core.Target, error) {
 func (m *Machine) SaveMachine() (err error) {
 	m.logger.Debug("saving machine to db", "machine", m.machine.Id)
 	// Update the target record and uuid to match the machine's new state
-	m.target.Uuid = m.machine.Id
+	// TODO(spox): the uuid shouldn't be getting set to the Id, was there any reason for this?
+	// m.target.Uuid = m.machine.Id
 	m.target.Record, err = anypb.New(m.machine)
 	if err != nil {
 		m.logger.Warn("failed to convert machine data to any value",

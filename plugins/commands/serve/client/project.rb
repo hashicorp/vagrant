@@ -88,12 +88,9 @@ module VagrantPlugins
 
         # return [Vagrant::Machine]
         def machine(name, provider)
-          t = client.target(SDK::Project::TargetRequest.new(
-            name: name,
-            provider: provider,
-          ))
-          machine = mapper.map(t, to: Vagrant::Machine)
-          return machine
+          logger.info("getting machine from vagrant-go name: #{name} provider: #{provider}")
+          t = target(name, provider)
+          Vagrant::Machine.new(client: t)
         end
 
         # return [String]

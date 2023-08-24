@@ -6,9 +6,6 @@ package client
 import (
 	"context"
 	"errors"
-	"io"
-	"os"
-	"path/filepath"
 
 	"github.com/hashicorp/go-hclog"
 	"github.com/hashicorp/go-multierror"
@@ -16,8 +13,7 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
-	vconfig "github.com/hashicorp/vagrant-plugin-sdk/config"
-	"github.com/hashicorp/vagrant-plugin-sdk/helper/path"
+	sdkconfig "github.com/hashicorp/vagrant-plugin-sdk/config"
 	"github.com/hashicorp/vagrant-plugin-sdk/helper/paths"
 	"github.com/hashicorp/vagrant-plugin-sdk/internal-shared/cleanup"
 	"github.com/hashicorp/vagrant-plugin-sdk/proto/vagrant_plugin_sdk"
@@ -144,9 +140,14 @@ func New(ctx context.Context, opts ...Option) (c *Client, err error) {
 	return
 }
 
-func (c *Client) LoadBasis(n string) (*Basis, error) {
+func (c *Client) LoadBasis(n string) (*vagrant_server.Basis, error) {
 	var basis *vagrant_server.Basis
 	p, err := paths.NamedVagrantConfig(n)
+	if err != nil {
+		return nil, err
+	}
+
+	basisVagrantfile, err := sdkconfig.FindPath(p, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -161,36 +162,110 @@ func (c *Client) LoadBasis(n string) (*Basis, error) {
 		},
 	)
 
-	if err != nil {
-		if status.Code(err) != codes.NotFound {
-			return nil, err
-		}
-		uresult, err := c.client.UpsertBasis(
-			c.ctx,
-			&vagrant_server.UpsertBasisRequest{
-				Basis: &vagrant_server.Basis{
-					Name: n,
-					Path: p.String(),
-				},
-			},
-		)
-		if err != nil {
-			return nil, err
-		}
-		basis = uresult.Basis
-	} else {
-		basis = result.Basis
+	if err != nil && status.Code(err) != codes.NotFound {
+		return nil, err
 	}
 
-	return &Basis{
-		basis:   basis,
-		client:  c,
-		ctx:     c.ctx,
-		logger:  c.logger.Named("basis"),
-		path:    p,
-		ui:      c.ui,
-		vagrant: c.client,
-	}, nil
+	if err == nil {
+		basis = result.Basis
+	} else {
+		basis = &vagrant_server.Basis{
+			Name: n,
+			Path: p.String(),
+		}
+	}
+
+	if err == nil {
+		basis = result.Basis
+	} else {
+		basis = &vagrant_server.Basis{
+			Name: n,
+			Path: p.String(),
+		}
+	}
+
+	basis.Configuration = &vagrant_server.Vagrantfile{
+		Path: &vagrant_plugin_sdk.Args_Path{
+			Path: basisVagrantfile.String(),
+		},
+	}
+
+	uresult, err := c.client.UpsertBasis(
+		c.ctx,
+		&vagrant_server.UpsertBasisRequest{
+			Basis: basis,
+		},
+	)
+
+	if err != nil {
+		return nil, err
+	}
+	basis = uresult.Basis
+
+	return basis, nil
+}
+
+func (c *Client) LoadProject(n string, b *vagrant_plugin_sdk.Ref_Basis) (*vagrant_server.Project, error) {
+	var project *vagrant_server.Project
+	projectVagrantfile, err := sdkconfig.FindPath(nil, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	// No project was found, so return
+	if projectVagrantfile == nil {
+		return nil, nil
+	}
+
+	projectDir := projectVagrantfile.Dir()
+
+	if n == "" {
+		n = projectDir.String()
+	}
+
+	result, err := c.client.FindProject(
+		c.ctx,
+		&vagrant_server.FindProjectRequest{
+			Project: &vagrant_server.Project{
+				Name:  n,
+				Path:  projectDir.String(),
+				Basis: b,
+			},
+		},
+	)
+
+	if err != nil && status.Code(err) != codes.NotFound {
+		return nil, err
+	}
+
+	if err == nil {
+		project = result.Project
+	} else {
+		project = &vagrant_server.Project{
+			Name:  n,
+			Path:  projectDir.String(),
+			Basis: b,
+		}
+	}
+
+	project.Configuration = &vagrant_server.Vagrantfile{
+		Path: &vagrant_plugin_sdk.Args_Path{
+			Path: projectVagrantfile.String(),
+		},
+	}
+
+	uresult, err := c.client.UpsertProject(
+		c.ctx,
+		&vagrant_server.UpsertProjectRequest{
+			Project: project,
+		},
+	)
+	if err != nil {
+		return nil, err
+	}
+	project = uresult.Project
+
+	return project, nil
 }
 
 // Close the client and call any cleanup functions
@@ -276,64 +351,4 @@ func WithConfig(cfg *config.Config) Option {
 		c.config = cfg
 		return nil
 	}
-}
-
-// Load a Vagrantfile
-func LoadVagrantfile(
-	file path.Path, // path to the Vagrantfile
-	l hclog.Logger, // logger
-	c serverclient.RubyVagrantClient, // vagrant ruby runtime for ruby based Vagrantfiles
-) (p *vagrant_server.Vagrantfile, err error) {
-	var v *vconfig.Vagrantfile
-
-	p = &vagrant_server.Vagrantfile{}
-	format := vconfig.JSON
-	protoFormat := vagrant_server.Vagrantfile_JSON
-
-	// We support three types of Vagrantfiles:
-	//   * Ruby (original)
-	//   * HCL
-	//   * JSON (which is HCL in JSON form)
-	ext := filepath.Ext(file.String())
-	if ext == ".hcl" {
-		format = vconfig.HCL
-		protoFormat = vagrant_server.Vagrantfile_HCL
-	}
-
-	switch ext {
-	case ".hcl", ".json":
-		f, err := os.Open(file.String())
-		if err != nil {
-			return nil, err
-		}
-		p.Raw, err = io.ReadAll(f)
-		if err != nil {
-			return nil, err
-		}
-
-		v, err = vconfig.LoadVagrantfile(p.Raw, file.String(), format)
-		if err != nil {
-			return nil, err
-		}
-		if p.Unfinalized, err = vconfig.EncodeVagrantfile(v); err != nil {
-			return nil, err
-		}
-	default:
-		p.Unfinalized, err = c.ParseVagrantfile(file.String())
-		if err != nil {
-			l.Error("failed to parse vagrantfile",
-				"error", err,
-			)
-			return nil, err
-		}
-		l.Info("initial vagrantfile value set",
-			"path", file.String(),
-			"value", p.Unfinalized,
-		)
-		protoFormat = vagrant_server.Vagrantfile_RUBY
-	}
-	p.Path = &vagrant_plugin_sdk.Args_Path{Path: file.String()}
-	p.Format = protoFormat
-
-	return
 }

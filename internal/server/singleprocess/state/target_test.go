@@ -240,14 +240,18 @@ func TestTarget_Update(t *testing.T) {
 		require.NoError(result.Error)
 		require.NotEmpty(target.ResourceId)
 
-		var reloadTarget Basis
+		var reloadTarget Target
 		result = db.First(&reloadTarget, &Target{Model: Model{ID: target.ID}})
 		require.NoError(result.Error)
 
+		originalResourceId := reloadTarget.ResourceId
 		reloadTarget.ResourceId = "NEW VALUE"
 		result = db.Save(&reloadTarget)
-		require.Error(result.Error)
-		require.ErrorContains(result.Error, "ResourceId:")
+		require.NoError(result.Error)
+		result = db.First(&reloadTarget, &Target{Model: Model{ID: target.ID}})
+		require.NoError(result.Error)
+
+		require.Equal(originalResourceId, reloadTarget.ResourceId)
 	})
 
 	t.Run("Updates the state", func(t *testing.T) {

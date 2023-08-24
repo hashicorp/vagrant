@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"path/filepath"
 
+	"github.com/hashicorp/vagrant-plugin-sdk/helper/path"
 	clientpkg "github.com/hashicorp/vagrant/internal/client"
 	configpkg "github.com/hashicorp/vagrant/internal/config"
 )
@@ -34,7 +35,7 @@ func (c *baseCommand) initConfig(optional bool) (*configpkg.Config, error) {
 // initConfigPath returns the configuration path to load.
 func (c *baseCommand) initConfigPath() (string, error) {
 	// This configuarion is for the Vagrant process, not the same as a Vagrantfile
-	path, err := configpkg.FindPath(c.basis.Path(), "vagrant-config.hcl")
+	path, err := configpkg.FindPath(path.NewPath(c.basis.GetPath()), "vagrant-config.hcl")
 	if err != nil {
 		return "", fmt.Errorf("error looking for a Vagrant configuration: %s", err)
 	}

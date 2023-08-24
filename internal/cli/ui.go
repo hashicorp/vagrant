@@ -6,14 +6,14 @@ package cli
 import (
 	"fmt"
 	"strings"
-	"time"
+	//	"time"
 
 	"github.com/skratchdot/open-golang/open"
 
 	"github.com/hashicorp/vagrant-plugin-sdk/component"
 	"github.com/hashicorp/vagrant-plugin-sdk/terminal"
 	"github.com/hashicorp/vagrant/internal/clierrors"
-	"github.com/hashicorp/vagrant/internal/server/proto/vagrant_server"
+	//	"github.com/hashicorp/vagrant/internal/server/proto/vagrant_server"
 )
 
 type UICommand struct {
@@ -37,35 +37,35 @@ func (c *UICommand) Run(args []string) int {
 	// 	c.client.UI().Output("Vagrant must be configured in server mode to access the UI", terminal.WithWarningStyle())
 	// }
 
-	// Get our API client
-	client := c.basis.Client()
+	// // Get our API client
+	// client := c.basis.Client()
 
-	var inviteToken string
-	if c.flagAuthenticate {
-		c.ui.Output("Creating invite token", terminal.WithStyle(terminal.HeaderStyle))
-		c.ui.Output("This invite token will be exchanged for an authentication \ntoken that your browser stores.")
+	// var inviteToken string
+	// if c.flagAuthenticate {
+	// 	c.ui.Output("Creating invite token", terminal.WithStyle(terminal.HeaderStyle))
+	// 	c.ui.Output("This invite token will be exchanged for an authentication \ntoken that your browser stores.")
 
-		resp, err := client.GenerateInviteToken(c.Ctx, &vagrant_server.InviteTokenRequest{
-			Duration: (2 * time.Minute).String(),
-		})
-		if err != nil {
-			c.basis.UI().Output(clierrors.Humanize(err), terminal.WithErrorStyle())
-			return 1
-		}
+	// 	resp, err := client.GenerateInviteToken(c.Ctx, &vagrant_server.InviteTokenRequest{
+	// 		Duration: (2 * time.Minute).String(),
+	// 	})
+	// 	if err != nil {
+	// 		c.client.UI().Output(clierrors.Humanize(err), terminal.WithErrorStyle())
+	// 		return 1
+	// 	}
 
-		inviteToken = resp.Token
-	}
+	// 	inviteToken = resp.Token
+	// }
 
 	// Get our default context (used context)
 	name, err := c.contextStorage.Default()
 	if err != nil {
-		c.basis.UI().Output(clierrors.Humanize(err), terminal.WithErrorStyle())
+		c.client.UI().Output(clierrors.Humanize(err), terminal.WithErrorStyle())
 		return 1
 	}
 
 	ctxConfig, err := c.contextStorage.Load(name)
 	if err != nil {
-		c.basis.UI().Output(clierrors.Humanize(err), terminal.WithErrorStyle())
+		c.client.UI().Output(clierrors.Humanize(err), terminal.WithErrorStyle())
 		return 1
 	}
 
@@ -74,16 +74,16 @@ func (c *UICommand) Run(args []string) int {
 	// Default Docker platform HTTP port, for now
 	port := 9702
 	if err != nil {
-		c.basis.UI().Output(clierrors.Humanize(err), terminal.WithErrorStyle())
+		c.client.UI().Output(clierrors.Humanize(err), terminal.WithErrorStyle())
 		return 1
 	}
 
 	c.ui.Output("Opening browser", terminal.WithStyle(terminal.HeaderStyle))
 
 	uiAddr := fmt.Sprintf("https://%s:%d", addr, port)
-	if c.flagAuthenticate {
-		uiAddr = fmt.Sprintf("%s/auth/invite?token=%s&cli=true", uiAddr, inviteToken)
-	}
+	// if c.flagAuthenticate {
+	// 	uiAddr = fmt.Sprintf("%s/auth/invite?token=%s&cli=true", uiAddr, inviteToken)
+	// }
 
 	open.Run(uiAddr)
 

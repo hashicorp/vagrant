@@ -186,7 +186,7 @@ message Vagrantfile {
   // Format of this Vagrantfile
   Format format = 4;
 
-  // Original path of the Vagrantfileo
+  // Original path of the Vagrantfile
   sdk.Args.Path path = 5;
 }
 
@@ -325,7 +325,7 @@ message Target {
   // Custom metadata
   sdk.Args.MetadataSet metadata = 9;
 
-  // Serialized configuration of the target
+  // Serialized configuration of the target (Vagrantfile)
   sdk.Args.ConfigData configuration = 10;
 
   // Specialized target information (from provider)
@@ -583,7 +583,7 @@ message ValidateJobResponse {
 
 // A Job is a job that executes on a runner and is queued by QueueOperation.
 message Job {
-  reserved 56 to 79; // future operation range
+  reserved 58 to 79; // future operation range
 
   // id of the job. This is generated on the server side when queued. If
   // you are queueing a job, this must be empty or unset.
@@ -625,6 +625,8 @@ message Job {
     ValidateOp validate = 53;
     CommandOp command = 54;
     InitOp init = 55;
+    InitBasisOp init_basis = 56;
+    InitProjectOp init_project = 57;
   }
 
   //-----------------------------------------------------------------
@@ -679,6 +681,8 @@ message Job {
     ValidateResult validate = 3;
     InitResult init = 4;
     CommandResult run = 5;
+    InitBasisResult basis = 6;
+    InitProjectResult project = 7;
   }
 
   message DataSource {
@@ -729,6 +733,18 @@ message Job {
     repeated Action actions = 1;
     repeated sdk.Command.CommandInfo commands = 2;
     repeated Hook hooks = 3;
+  }
+
+  message InitBasisOp { }
+
+  message InitBasisResult {
+    sdk.Ref.Basis basis = 1;
+  }
+
+  message InitProjectOp { }
+
+  message InitProjectResult {
+    sdk.Ref.Project project = 1;
   }
 
   message Action {

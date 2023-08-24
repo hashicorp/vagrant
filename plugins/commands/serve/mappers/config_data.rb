@@ -62,6 +62,22 @@ module VagrantPlugins
         end
       end
 
+      class ConfigFinalizeResponseProtoFromConfigDataProto < Mapper
+        def initialize
+          super(
+            inputs: [
+              Input.new(type: SDK::Args::ConfigData),
+            ],
+            output: SDK::Config::FinalizeResponse,
+            func: method(:converter),
+          )
+        end
+
+        def converter(c)
+          SDK::Config::FinalizeResponse.new(data: c)
+        end
+      end
+
       class ConfigFromConfigDataProto < Mapper
         include Util::HasLogger
 

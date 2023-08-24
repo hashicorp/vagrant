@@ -6,6 +6,8 @@ require (
 	github.com/armon/circbuf v0.0.0-20190214190532-5111143e8da2
 	github.com/bmatcuk/doublestar v1.3.4
 	github.com/fatih/color v1.15.0
+	github.com/fatih/structs v1.1.0
+	github.com/fatih/structtag v1.2.0
 	github.com/glebarez/sqlite v1.8.0
 	github.com/go-git/go-git/v5 v5.7.0
 	github.com/go-ozzo/ozzo-validation/v4 v4.3.0
@@ -20,7 +22,7 @@ require (
 	github.com/hashicorp/go-retryablehttp v0.7.4
 	github.com/hashicorp/go-version v1.6.0
 	github.com/hashicorp/hcl/v2 v2.17.0
-	github.com/hashicorp/vagrant-plugin-sdk v0.0.0-20230304003807-c1e77438a1ef
+	github.com/hashicorp/vagrant-plugin-sdk v0.0.0-20230908002302-5b51f0768f72
 	github.com/imdario/mergo v0.3.16
 	github.com/improbable-eng/grpc-web v0.15.0
 	github.com/kr/text v0.2.0
@@ -43,10 +45,10 @@ require (
 	golang.org/x/sys v0.8.0
 	golang.org/x/text v0.9.0
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20230530153820-e85fd2cbaebc
-	google.golang.org/grpc v1.55.0
+	google.golang.org/grpc v1.56.2
 	google.golang.org/protobuf v1.30.0
 	gorm.io/datatypes v1.2.0
-	gorm.io/gorm v1.25.1
+	gorm.io/gorm v1.25.3
 )
 
 require (
@@ -80,7 +82,6 @@ require (
 	github.com/desertbit/timer v0.0.0-20180107155436-c41aec40b27f // indirect
 	github.com/dustin/go-humanize v1.0.1 // indirect
 	github.com/emirpasic/gods v1.18.1 // indirect
-	github.com/fatih/structs v1.1.0 // indirect
 	github.com/felixge/httpsnoop v1.0.3 // indirect
 	github.com/glebarez/go-sqlite v1.21.1 // indirect
 	github.com/go-git/gcfg v1.5.1-0.20230307220236-3a3c6141e376 // indirect
@@ -159,5 +160,6 @@ require (
 	nhooyr.io/websocket v1.8.7 // indirect
 )
 
-//replace github.com/hashicorp/go-argmapper => ../go-argmapper
-//replace github.com/hashicorp/vagrant-plugin-sdk => ../vagrant-plugin-sdk
+// replace github.com/hashicorp/go-argmapper => ../go-argmapper
+
+// replace github.com/hashicorp/vagrant-plugin-sdk => ../vagrant-plugin-sdk

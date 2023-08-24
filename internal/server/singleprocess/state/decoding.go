@@ -501,6 +501,10 @@ func protobufToProtoValueHookFunc(
 	}
 
 	switch v := data.(type) {
+	case *vagrant_server.Job_InitProject:
+		return &ProtoValue{Message: v.InitProject}, nil
+	case *vagrant_server.Job_InitBasis:
+		return &ProtoValue{Message: v.InitBasis}, nil
 	case *vagrant_server.Job_Init:
 		return &ProtoValue{Message: v.Init}, nil
 	case *vagrant_server.Job_Command:
@@ -653,7 +657,7 @@ func protoValueToProtoHookFunc(
 	}
 
 	if p.Message == nil {
-		return nil, fmt.Errorf("proto value contents is nil (destination: %s)", to)
+		return nil, fmt.Errorf("proto value contents is nil (destination: %s -> %s) V: %#v", from, to, data)
 	}
 
 	if reflect.ValueOf(p.Message).Type().AssignableTo(to) {
@@ -673,6 +677,14 @@ func protoValueToProtoHookFunc(
 	case *vagrant_server.Job_Noop:
 		if reflect.TypeOf((*vagrant_server.Job_Noop_)(nil)).AssignableTo(to) {
 			return &vagrant_server.Job_Noop_{Noop: v}, nil
+		}
+	case *vagrant_server.Job_InitBasisOp:
+		if reflect.TypeOf((*vagrant_server.Job_InitBasis)(nil)).AssignableTo(to) {
+			return &vagrant_server.Job_InitBasis{InitBasis: v}, nil
+		}
+	case *vagrant_server.Job_InitProjectOp:
+		if reflect.TypeOf((*vagrant_server.Job_InitProject)(nil)).AssignableTo(to) {
+			return &vagrant_server.Job_InitProject{InitProject: v}, nil
 		}
 	}
 

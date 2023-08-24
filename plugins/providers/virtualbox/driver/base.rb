@@ -493,6 +493,10 @@ module VagrantPlugins
           # If the locale command is not available, return default
           return @env_lang if !Vagrant::Util::Which.which("locale")
 
+          if defined?(@@env_lang)
+            return @env_lang = @@env_lang
+          end
+
           @logger.debug("validating LANG value for virtualbox cli commands")
           # Get list of available locales on the system
           result = Vagrant::Util::Subprocess.execute("locale", "-a")
@@ -514,10 +518,10 @@ module VagrantPlugins
           if lang
             @logger.debug("valid variation found for LANG value: #{lang}")
             @env_lang[:LANG] = lang
+            @@env_lang = @env_lang
           end
 
           @logger.debug("LANG value set: #{@env_lang[:LANG].inspect}")
-
           @env_lang
         end
       end
