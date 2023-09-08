@@ -32,7 +32,7 @@ type Target struct {
 	ProjectID     uint `gorm:"uniqueIndex:idx_pname" mapstructure:"-"`
 	Provider      *string
 	Record        *ProtoValue
-	ResourceId    string `gorm:"uniqueIndex"`
+	ResourceId    string `gorm:"<-:create;uniqueIndex;not null"`
 	State         vagrant_server.Operation_PhysicalState
 	Subtargets    []*Target `gorm:"foreignkey:ParentID;constraint:OnDelete:SET NULL"`
 	Uuid          *string   `gorm:"uniqueIndex"`
@@ -92,15 +92,6 @@ func (t *Target) BeforeSave(tx *gorm.DB) error {
 // project matching. It currently does basic check but
 // will miss edge cases easily.
 func (t *Target) validate(tx *gorm.DB) error {
-	existing, err := t.find(tx)
-	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
-		return err
-	}
-
-	if existing == nil {
-		existing = &Target{}
-	}
-
 	projectID := t.ProjectID
 	if t.Project != nil {
 		projectID = t.Project.ID
@@ -123,34 +114,64 @@ func (t *Target) validate(tx *gorm.DB) error {
 		}
 	}
 
-	err = validation.ValidateStruct(t,
+	err := validation.ValidateStruct(t,
 		validation.Field(&t.Name,
 			validation.Required,
-			validation.By(
-				checkUnique(
-					tx.Model(&Target{}).
-						Where(&Target{Name: t.Name, ProjectID: projectID}).
-						Not(&Target{Model: Model{ID: t.ID}}),
+			validation.When(
+				t.ID != 0,
+				validation.By(
+					checkUnique(
+						tx.Model(&Target{}).
+							Where(&Target{Name: t.Name, ProjectID: projectID}).
+							Not(&Target{Model: Model{ID: t.ID}}),
+					),
+				),
+			),
+			validation.When(
+				t.ID == 0,
+				validation.By(
+					checkUnique(
+						tx.Model(&Target{}).
+							Where(&Target{Name: t.Name, ProjectID: projectID}),
+					),
 				),
 			),
 		),
 		validation.Field(&t.ResourceId,
 			validation.Required,
-			validation.By(
-				checkUnique(
-					tx.Model(&Target{}).
-						Where(&Target{ResourceId: t.ResourceId}).
-						Not(&Target{Model: Model{ID: t.ID}}),
+			validation.When(
+				t.ID == 0,
+				validation.By(
+					checkUnique(
+						tx.Model(&Target{}).
+							Where(&Target{ResourceId: t.ResourceId}),
+					),
+				),
+			),
+			validation.When(
+				t.ID != 0,
+				validation.By(
+					checkNotModified(
+						tx.Statement.Changed("ResourceId"),
+					),
 				),
 			),
 		),
 		validation.Field(&t.Uuid,
-			validation.When(t.Uuid != nil,
+			validation.When(t.Uuid != nil && t.ID != 0,
 				validation.By(
 					checkUnique(
 						tx.Model(&Target{}).
 							Where(&Target{Uuid: t.Uuid}).
 							Not(&Target{Model: Model{ID: t.ID}}),
+					),
+				),
+			),
+			validation.When(t.Uuid != nil && t.ID == 0,
+				validation.By(
+					checkUnique(
+						tx.Model(&Target{}).
+							Where(&Target{Uuid: t.Uuid}),
 					),
 				),
 			),
@@ -406,6 +427,12 @@ func (s *State) TargetPut(
 		target = &Target{}
 	}
 
+	// TODO(spox): forcing the record to be updated here
+	// but the soft decoding should be handling it properly
+	if t.Record != nil {
+		target.Record = nil
+	}
+
 	err = s.softDecode(t, target)
 	if err != nil {
 		return nil, saveErrorToStatus("target", err)
@@ -423,6 +450,8 @@ func (s *State) TargetPut(
 	if err := s.upsertFull(target); err != nil {
 		return nil, saveErrorToStatus("target", err)
 	}
+
+	s.log.Info("target has been upserted", "record", target.Record, "original-record", t.Record)
 
 	return target.ToProto(), nil
 }

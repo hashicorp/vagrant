@@ -205,13 +205,15 @@ module VagrantPlugins
       # @param to [Class] Resultant type (optional)
       # @return [Object]
       def direct_convert(value, to:)
+        logger.debug { "direct conversion on #{value.class} to destination type #{to}" }
+
         # If we don't have a destination, attempt to do direct conversion
         if to.nil?
           begin
-            logger.trace { "running direct blind pre-map on #{value.class}" }
+            logger.debug { "running direct blind pre-map on #{value.class}" }
             return value.is_a?(Google::Protobuf::MessageExts) ? value.to_ruby : value.to_proto
           rescue => err
-            logger.trace { "direct blind conversion failed in pre-map stage, reason: #{err}" }
+            logger.debug { "direct blind conversion failed in pre-map stage, reason: #{err}" }
           end
         end
 
@@ -221,7 +223,7 @@ module VagrantPlugins
             begin
               return value.to_any
             rescue => err
-              logger.trace { "direct any conversion failed in pre-map stage, reason: #{err}"}
+              logger.debug { "direct any conversion failed in pre-map stage, reason: #{err}"}
             end
           end
 
@@ -231,7 +233,7 @@ module VagrantPlugins
               proto = value.to_proto
               return proto if proto.is_a?(to)
             rescue => err
-              logger.trace { "direct proto conversion failed in pre-map stage, reason: #{err}" }
+              logger.debug { "direct proto conversion failed in pre-map stage, reason: #{err}" }
             end
           end
 
@@ -241,7 +243,7 @@ module VagrantPlugins
               val = value.to_ruby
               return val if val.is_a?(to)
             rescue => err
-              logger.trace { "direct ruby conversion failed in pre-map stage, reason: #{err}" }
+              logger.debug { "direct ruby conversion failed in pre-map stage, reason: #{err}" }
             end
           end
         end

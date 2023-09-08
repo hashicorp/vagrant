@@ -51,6 +51,17 @@ require "vagrant/plugin/manager"
 # Enable logging if it is requested. We do this before
 # anything else so that we can setup the output before
 # any logging occurs.
+
+# NOTE: We must do this little hack to allow
+# rest-client to write using the `<<` operator.
+# See https://github.com/rest-client/rest-client/issues/34#issuecomment-290858
+# for more information
+class VagrantLogger < Log4r::Logger
+  def << msg
+    debug(msg.strip)
+  end
+end
+
 if ENV["VAGRANT_LOG"] && ENV["VAGRANT_LOG"] != ""
   level = Log4r::LNAMES.index(ENV["VAGRANT_LOG"].upcase)
   if level.nil?
@@ -69,16 +80,6 @@ if ENV["VAGRANT_LOG"] && ENV["VAGRANT_LOG"] != ""
   # Set the logging level on all "vagrant" namespaced
   # logs as long as we have a valid level.
   if level
-    # NOTE: We must do this little hack to allow
-    # rest-client to write using the `<<` operator.
-    # See https://github.com/rest-client/rest-client/issues/34#issuecomment-290858
-    # for more information
-    class VagrantLogger < Log4r::Logger
-      def << msg
-        debug(msg.strip)
-      end
-    end
-
     ["vagrant", "vagrantplugins"].each do |lname|
       logger = VagrantLogger.new(lname)
       if ENV["VAGRANT_LOG_FILE"] && ENV["VAGRANT_LOG_FILE"] != ""
@@ -88,6 +89,7 @@ if ENV["VAGRANT_LOG"] && ENV["VAGRANT_LOG"] != ""
       end
       logger.level = level
     end
+    Log4r::RootLogger.instance.level = level
 
     base_formatter = Log4r::BasicFormatter.new
     if ENV["VAGRANT_LOG_TIMESTAMP"]

@@ -39,4 +39,16 @@ if !Log4r::Logger::LoggerFactory.respond_to?(:fake_define_methods)
       alias_method :set_log, :fake_set_log
     end
   end
+
+  class Log4r::Logger
+    # The factory allows using a previously created logger
+    # instance if it exists. Doing this prevents knocking
+    # out configuration that may have already been applied
+    # to the logger instance (like log level)
+    def self.factory(name, *args)
+      l = Log4r::Logger::Repository[name]
+      return l unless l.nil?
+      Log4r::Logger.new(name, *args)
+    end
+  end
 end

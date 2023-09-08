@@ -307,10 +307,14 @@ func TestProject_Update(t *testing.T) {
 		result = db.First(&reloadProject, &Project{Model: Model{ID: project.ID}})
 		require.NoError(result.Error)
 
+		originalResourceId := reloadProject.ResourceId
 		reloadProject.ResourceId = "NEW VALUE"
 		result = db.Save(&reloadProject)
-		require.Error(result.Error)
-		require.ErrorContains(result.Error, "ResourceId:")
+		require.NoError(result.Error)
+		result = db.First(&reloadProject, &Project{Model: Model{ID: project.ID}})
+		require.NoError(result.Error)
+
+		require.Equal(originalResourceId, reloadProject.ResourceId)
 	})
 
 	t.Run("Adds Vagrantfile", func(t *testing.T) {

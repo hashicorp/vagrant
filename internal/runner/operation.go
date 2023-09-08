@@ -123,6 +123,12 @@ func (r *Runner) executeJob(
 	case *vagrant_server.Job_Init:
 		return r.executeInitOp(ctx, job, b)
 
+	case *vagrant_server.Job_InitProject:
+		return r.executeInitProjectOp(ctx, job, p)
+
+	case *vagrant_server.Job_InitBasis:
+		return r.executeInitBasisOp(ctx, job, b)
+
 	case *vagrant_server.Job_Command:
 		log.Warn("running a run operation", "scope", scope, "job", job)
 		return r.executeRunOp(ctx, job, scope)

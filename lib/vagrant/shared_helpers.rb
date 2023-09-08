@@ -238,26 +238,36 @@ module Vagrant
   # @return [true]
   def self.enable_server_mode!
     if !server_mode?
-      load_vagrant_proto!
-      SERVER_MODE_CALLBACKS.each(&:call)
       Util::HCLogOutputter.new("hclog")
       Log4r::Outputter["hclog"].formatter = Util::HCLogFormatter.new
+      Log4r::Outputter.stderr.formatter = Log4r::Outputter["hclog"].formatter
+      Log4r::RootLogger.instance.outputters = Log4r::Outputter["hclog"]
       Log4r::Logger.each_logger do |l|
-        l.outputters = Log4r::Outputter["hclog"] if l.parent == Log4r::RootLogger.instance
+        l.outputters = Log4r::Outputter["hclog"] #if l.parent&.is_root?
       end
+
       Log4r::Logger::Repository.class_eval do
         def self.[]=(n, l)
           self.synchronize do
-            l.outputters = Log4r::Outputter["hclog"] if l.parent == Log4r::RootLogger.instance
+            l.outputters = Log4r::Outputter["hclog"] # if l.parent&.is_root?
             instance.loggers[n] = l
           end
         end
       end
+
+      # By default only display error logs from the mappers unless explicitly
+      # requested due to their verbosity
+      if ENV["VAGRANT_LOG_MAPPER"].to_s == ""
+        l = Log4r::Logger.factory("vagrantplugins::commandserve::mappers")
+        l.level = Log4r::ERROR
+      end
     end
-    if ENV["VAGRANT_LOG_MAPPER"].to_s == ""
-      l = Log4r::Logger.new("vagrantplugins::commandserve::mappers::internal")
-      l.level = Log4r::ERROR
-    end
+    Log4r::Logger.factory("vagrant").trace("service logger initialization")
+    Log4r::Logger.factory("vagrantplugins").trace("service logger initialization")
+
+    load_vagrant_proto!
+    SERVER_MODE_CALLBACKS.each(&:call)
+
     @_server_mode = true
   end
 

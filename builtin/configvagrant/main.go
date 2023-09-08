@@ -4,8 +4,7 @@
 package configvagrant
 
 import (
-	"fmt"
-
+	"github.com/hashicorp/go-argmapper"
 	"github.com/hashicorp/go-hclog"
 	sdk "github.com/hashicorp/vagrant-plugin-sdk"
 	"github.com/hashicorp/vagrant-plugin-sdk/component"
@@ -22,9 +21,10 @@ var CommandOptions = []sdk.Option{
 }
 
 type Vagrant struct {
-	Sensitive []string `hcl:"sensitive,optional" json:",omitempty"`
-	Host      *string  `hcl:"host,optional" json:"host,omitempty"`
-	Plugins   []Plugin `hcl:"plugins,block" json:"plugins,omitempty"`
+	Sensitive     []string `hcl:"sensitive,optional" json:",omitempty"`
+	Host          *string  `hcl:"host,optional" json:"host,omitempty"`
+	FinalizedInfo *string  `hcl:"finalized_info,optional" json:"finalized_info,omitempty"`
+	Plugins       []Plugin `hcl:"plugins,block" json:"plugins,omitempty"`
 }
 
 type Plugin struct {
@@ -43,6 +43,14 @@ func (c *Config) Register() (*component.ConfigRegistration, error) {
 	}, nil
 }
 
+func (c *Config) InitFunc() any {
+	return c.Init
+}
+
+func (c *Config) Init(in *component.ConfigData) (*component.ConfigData, error) {
+	return in, nil
+}
+
 func (c *Config) StructFunc() interface{} {
 	return c.Struct
 }
@@ -56,28 +64,27 @@ func (c *Config) MergeFunc() interface{} {
 }
 
 func (c *Config) Merge(
-	input *component.ConfigMerge,
-	log hclog.Logger,
-) (*component.ConfigData, error) {
-	log.Info("merging config values for the vagrants namespace")
-	result := &component.ConfigData{
-		Data: map[string]interface{}{},
+	input struct {
+		argmapper.Struct
+		Base    *Vagrant
+		Overlay *Vagrant
+		Log     hclog.Logger
+	},
+) (*Vagrant, error) {
+	log := input.Log
+	log.Info("merging config values in vagrants namespace",
+		"base", input.Base, "overlay", input.Overlay)
+
+	result := input.Base
+	if input.Overlay.Host != nil {
+		result.Host = input.Overlay.Host
 	}
 
-	for k, v := range input.Base.Data {
-		log.Info("Base value", "key", k, "value", v)
-		result.Data[k] = v
+	for _, s := range input.Overlay.Sensitive {
+		result.Sensitive = append(result.Sensitive, s)
 	}
 
-	for k, v := range input.Overlay.Data {
-		log.Info("Merged value", "key", k, "value", v, "pre-existing", result.Data[k])
-		if v == result.Data[k] {
-			return nil, fmt.Errorf("values for merge should not match (%#v == %#v)", v, result.Data[k])
-		}
-		result.Data[k] = v
-	}
-
-	result.Data["merged"] = "omg"
+	log.Info("merged config value for vagrants namespace", "config", result)
 
 	return result, nil
 }
@@ -86,13 +93,14 @@ func (c *Config) FinalizeFunc() interface{} {
 	return c.Finalize
 }
 
-func (c *Config) Finalize(l hclog.Logger, f *component.ConfigFinalize) (*component.ConfigData, error) {
-	d := f.Config
-	d.Data["finalized"] = "yep, it's finalzied"
-	l.Info("config data that is finalized and going back",
-		"config", hclog.Fmt("%#v", d),
-	)
-	return d, nil
+func (c *Config) Finalize(l hclog.Logger, conf *Vagrant) (*Vagrant, error) {
+	l.Warn("checking current content", "host", conf.Host)
+	if conf.Host != nil {
+		l.Warn("checking current value", "host", *conf.Host)
+	}
+	info := "go plugin finalization test content"
+	conf.FinalizedInfo = &info
+	return conf, nil
 }
 
 type Command struct{}

@@ -18,6 +18,7 @@ import (
 	"github.com/hashicorp/vagrant-plugin-sdk/component"
 	"github.com/hashicorp/vagrant-plugin-sdk/helper/paths"
 	"github.com/hashicorp/vagrant-plugin-sdk/internal-shared/cleanup"
+	"github.com/hashicorp/vagrant-plugin-sdk/proto/vagrant_plugin_sdk"
 	"github.com/hashicorp/vagrant-plugin-sdk/terminal"
 	"github.com/hashicorp/vagrant/internal/clicontext"
 	"github.com/hashicorp/vagrant/internal/client"
@@ -59,11 +60,11 @@ type baseCommand struct {
 	// client for performing operations
 	client *clientpkg.Client
 	// basis to root these operations within
-	basis *clientpkg.Basis
+	basis *vagrant_plugin_sdk.Ref_Basis
 	// optional project to run operations within
-	project *clientpkg.Project
+	project *vagrant_plugin_sdk.Ref_Project
 	// optional target to run operations against
-	target *clientpkg.Target
+	target *vagrant_plugin_sdk.Ref_Target
 
 	// clientContext is set to the context information for the current
 	// connection. This might not exist in the contextStorage yet if this
@@ -263,37 +264,40 @@ warning set the environment variable 'VAGRANT_SUPPRESS_GO_EXPERIMENTAL_WARNING'.
 		return nil, err
 	}
 
-	// We always have a basis, so load that
-	if bc.basis, err = bc.client.LoadBasis(bc.flagBasis); err != nil {
+	bc.Log.Info("basis seeding", "name", bc.flagBasis, "path", bc.flagBasis)
+
+	b, err := bc.client.LoadBasis(bc.flagBasis)
+	if err != nil {
+		return nil, err
+	}
+	// We always have a basis, so seed the basis
+	// ref and initialize it
+	bc.basis = &vagrant_plugin_sdk.Ref_Basis{
+		Name:       b.Name,
+		Path:       b.Path,
+		ResourceId: b.ResourceId,
+	}
+	if bc.basis, err = bc.client.BasisInit(ctx, bc.Modifier()); err != nil {
 		return nil, err
 	}
 
-	log.Warn("created basis client",
+	log.Info("vagrant basis has been initialized",
 		"basis", bc.basis,
 	)
 
-	// A project is optional (though generally needed) and there are
-	// two possibilites for how we load the project.
-	if bc.flagProject != "" {
-		// The first is that we are given a specific project that should be
-		// used within the defined basis. So lets load that.
-		if bc.project, err = bc.basis.LoadProject(bc.flagProject); err != nil {
-			return nil, err
-		}
-	} else {
-		if bc.project, err = bc.basis.DetectProject(); err != nil {
-			return nil, err
-		}
-	}
-
-	// Load in basis vagrantfile if there is one
-	if err = bc.basis.LoadVagrantfile(); err != nil {
+	project, err := bc.client.LoadProject(bc.flagProject, bc.basis)
+	if err != nil {
 		return nil, err
 	}
 
-	// And if we have a project, load that vagrantfile too
-	if bc.project != nil {
-		if err = bc.project.LoadVagrantfile(); err != nil {
+	if project != nil {
+		bc.project = &vagrant_plugin_sdk.Ref_Project{
+			Name:       project.Name,
+			Path:       project.Path,
+			ResourceId: project.ResourceId,
+			Basis:      project.Basis,
+		}
+		if bc.project, err = bc.client.ProjectInit(ctx, bc.Modifier()); err != nil {
 			return nil, err
 		}
 	}
@@ -305,9 +309,9 @@ warning set the environment variable 'VAGRANT_SUPPRESS_GO_EXPERIMENTAL_WARNING'.
 			return nil, fmt.Errorf("cannot load target without valid project")
 		}
 
-		if bc.target, err = bc.project.LoadTarget(bc.flagTarget); err != nil {
-			return nil, err
-		}
+		// if bc.target, err = bc.project.LoadTarget(bc.flagTarget); err != nil {
+		// 	return nil, err
+		// }
 	}
 
 	return bc, err
@@ -408,21 +412,15 @@ func (c *baseCommand) Do(ctx context.Context, f func(context.Context, *client.Cl
 
 func (c *baseCommand) Modifier() client.JobModifier {
 	return func(j *vagrant_server.Job) {
-		if c.target != nil {
-			j.Scope = &vagrant_server.Job_Target{
-				Target: c.target.Ref(),
-			}
-			return
-		}
 		if c.project != nil {
 			j.Scope = &vagrant_server.Job_Project{
-				Project: c.project.Ref(),
+				Project: c.project,
 			}
 			return
 		}
 		if c.basis != nil {
 			j.Scope = &vagrant_server.Job_Basis{
-				Basis: c.basis.Ref(),
+				Basis: c.basis,
 			}
 			return
 		}

@@ -41,7 +41,19 @@ func checkUnique(tx *gorm.DB) validation.RuleFunc {
 	}
 }
 
-func checkNotModified(original interface{}) validation.RuleFunc {
+func checkNotModified(changed bool) validation.RuleFunc {
+	return func(_ any) error {
+		if changed {
+			return validation.NewError(
+				string(VALIDATION_MODIFIED),
+				"cannot be modified",
+			)
+		}
+		return nil
+	}
+}
+
+func checkNotModified2(original interface{}) validation.RuleFunc {
 	return func(value interface{}) error {
 		if !reflect.DeepEqual(original, value) {
 			return validation.NewError(

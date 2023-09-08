@@ -49,7 +49,8 @@ module Vagrant
           d = {
             "@timestamp" => Time.now.strftime("%Y-%m-%dT%H:%M:%S.%6N%:z"),
             "@level" => Log4r::LNAMES[event.level].downcase,
-            "@module" => event.fullname.gsub("::", "."),
+            "@module" => event.fullname,
+            "@name" => event.name,
             "@message" => msg,
           }
           d["@caller"] = event.tracer[0] if event.tracer

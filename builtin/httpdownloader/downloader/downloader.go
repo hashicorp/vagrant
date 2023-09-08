@@ -38,9 +38,42 @@ type DownloaderConfig struct {
 	UrlQueryParams map[string]string
 }
 
-// Config implements Configurable
-func (d *Downloader) Config() (interface{}, error) {
-	return &d.config, nil
+func (d *Downloader) InitFunc() any {
+	return d.Init
+}
+
+func (d *Downloader) Init(in *component.ConfigData) (*component.ConfigData, error) {
+	return in, nil
+}
+
+func (d *Downloader) StructFunc() any {
+	return d.Struct
+}
+
+func (d *Downloader) MergeFunc() any {
+	return d.Merge
+}
+
+func (d *Downloader) FinalizeFunc() any {
+	return d.Finalize
+}
+
+func (d *Downloader) Struct() *DownloaderConfig {
+	return &DownloaderConfig{}
+}
+
+func (d *Downloader) Merge(val *component.ConfigMerge) *component.ConfigData {
+	return val.Base
+}
+
+func (d *Downloader) Finalize(val *component.ConfigData) *component.ConfigData {
+	return val
+}
+
+func (d *Downloader) Register() (*component.ConfigRegistration, error) {
+	return &component.ConfigRegistration{
+		Identifier: "downloader",
+	}, nil
 }
 
 func (d *Downloader) DownloadFunc() interface{} {
@@ -100,6 +133,6 @@ func (d *Downloader) Download() (err error) {
 }
 
 var (
-	_ component.Downloader   = (*Downloader)(nil)
-	_ component.Configurable = (*Downloader)(nil)
+	_ component.Downloader = (*Downloader)(nil)
+	_ component.Config     = (*Downloader)(nil)
 )

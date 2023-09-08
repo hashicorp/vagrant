@@ -1,7 +1,7 @@
 { lib, stdenv, autoconf, autogen, automake, go, go-bindata, go-changelog
-, go-mockery, go-protobuf, go-protobuf-json, go-tools, grpc-tools, grpcurl
-, libarchive, libpng, libtool, mkShell, nasm, nodejs-16_x, pkg-config
-, protobufPin, protoc-gen-doc, protoc-gen-go-grpc, ruby, sqlite, zlib }:
+, go-mockery, go-protobuf, go-protobuf-json, gotools, grpc-tools, grpcurl
+, libarchive, libpng, libtool, mkShell, nasm, nodejs_20, pkg-config, protobuf
+, protoc-gen-doc, protoc-gen-go-grpc, ruby, sqlite, zlib }:
 
 mkShell rec {
   name = "vagrant";
@@ -10,22 +10,23 @@ mkShell rec {
     go
     go-bindata
     grpcurl
-    nodejs-16_x
+    nodejs_20
     protoc-gen-doc
     ruby
+
+    protobuf
+    protoc-gen-go-grpc
+    go-protobuf
+    go-protobuf-json
+    gotools
+    go-mockery
+    grpc-tools
 
     # Need bsdtar to run ruby tests
     libarchive
 
     # Custom packages, added to overlay
-    protobufPin
-    protoc-gen-go-grpc
-    go-protobuf
-    go-protobuf-json
-    go-tools
-    go-mockery
     go-changelog
-    grpc-tools
 
     # Needed for website/
     autoconf

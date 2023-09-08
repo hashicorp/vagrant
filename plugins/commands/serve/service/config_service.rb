@@ -31,8 +31,49 @@ module VagrantPlugins
           end
         end
 
+        def init_spec(*_)
+          funcspec(
+            args: [
+              SDK::Args::ConfigData,
+            ],
+            result: SDK::Config::InitResponse
+          )
+        end
+
+        def init(req, ctx)
+          with_plugin(ctx, :config, broker: broker) do |plugin|
+            config_data_p = mapper.unfuncspec(req.args.first)
+            config_data = mapper.map(config_data_p.data)
+            instance = plugin.new
+
+            config_data.each do |key, value|
+              key = key.downcase.to_sym
+              if instance.respond_to?("#{key}=".to_sym)
+                instance.send("#{key}=".to_sym, value)
+              elsif instance.respond_to?(key)
+                instance.send(key, value)
+              else
+                logger.warn("unknown config key to apply: class: #{plugin} key: #{key}")
+              end
+            end
+
+            SDK::Config::InitResponse.new(data: mapper.map(instance, to: SDK::Args::ConfigData))
+          end
+        end
+
+        def struct_spec(*_)
+          funcspec(
+            args: [
+            ],
+            result: SDK::Config::StructResponse
+          )
+        end
+
+        def struct(req, ctx)
+          SDK::Config::StructResponse.new(raw: true)
+        end
+
         def merge_spec(*_)
-          logger.debug("generating merge spec")
           funcspec(
             args: [
               SDK::Config::Merge,
@@ -62,8 +103,6 @@ module VagrantPlugins
 
         def finalize(req, ctx)
           with_plugin(ctx, CONFIG_LOCATIONS, broker: broker) do |plugin|
-            logger.debug("finalizing configuration for plugin #{plugin}")
-
             # Extract the proto from the funcspec
             f = mapper.unfuncspec(req.args.first)
             cproto = f.config
@@ -81,7 +120,7 @@ module VagrantPlugins
             # responsible for the finalization
             config.instance_variable_set("@__service_finalized", true)
 
-            mapper.map(config, to: SDK::Args::ConfigData)
+            SDK::Config::FinalizeResponse.new(data: mapper.map(config, to: SDK::Args::ConfigData))
           end
         end
       end

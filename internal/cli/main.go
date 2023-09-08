@@ -259,8 +259,10 @@ func logger(args []string) ([]string, hclog.Logger, io.Writer, error) {
 		}
 	}
 
-	// Set default log level
-	_ = os.Setenv("VAGRANT_LOG", "fatal")
+	// Set default log level it not already set
+	if os.Getenv("VAGRANT_LOG") == "" {
+		_ = os.Setenv("VAGRANT_LOG", "fatal")
+	}
 
 	// Process arguments looking for `-v` flags to control the log level.
 	// This overrides whatever the env var set.

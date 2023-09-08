@@ -21,6 +21,7 @@ import (
 	"google.golang.org/protobuf/proto"
 
 	"github.com/hashicorp/vagrant-plugin-sdk/component"
+	vconfig "github.com/hashicorp/vagrant-plugin-sdk/config"
 	"github.com/hashicorp/vagrant-plugin-sdk/core"
 	"github.com/hashicorp/vagrant-plugin-sdk/datadir"
 	"github.com/hashicorp/vagrant-plugin-sdk/helper/path"
@@ -193,9 +194,6 @@ func (b *Basis) Init() error {
 	// Create our vagrantfile
 	b.vagrantfile = NewVagrantfile(b.factory, b.boxCollection, b.mappers, b.logger)
 
-	// Register the basis as a Vagrantfile source
-	b.vagrantfile.Source(b.basis.Configuration, VAGRANTFILE_BASIS)
-
 	// Register configuration plugins when they are loaded
 	b.plugins.Initializer(b.configRegistration)
 
@@ -248,6 +246,11 @@ func (b *Basis) Init() error {
 
 	// Set seeds for any plugins that may be used
 	b.seed(nil)
+
+	// Register the basis as a Vagrantfile source
+	if err = b.vagrantfile.Source(b.basis.Configuration, VAGRANTFILE_BASIS); err != nil {
+		return err
+	}
 
 	// Initialize the Vagrantfile for the basis
 	if err = b.vagrantfile.Init(); err != nil {
@@ -306,8 +309,9 @@ func (b *Basis) String() string {
 }
 
 // Config implements core.Basis
-func (b *Basis) Config() (core.Vagrantfile, error) {
-	return b.vagrantfile, nil
+func (b *Basis) Config() (*vconfig.Vagrantfile, error) {
+	return nil, fmt.Errorf("not implemented")
+	//return vconfig.DecodeVagrantfile(b.basis.Configuration.Finalized)
 }
 
 // CWD implements core.Basis
@@ -503,24 +507,29 @@ func (b *Basis) Host() (host core.Host, err error) {
 		return h.(core.Host), nil
 	}
 
-	rawHostName, err := b.vagrantfile.GetValue("vagrant", "host")
-	if err == nil {
-		b.logger.Debug("extracted host information from config",
-			"host", rawHostName,
-		)
+	// TODO(spox): this is for when we have implemented vagrantfile conversions
+	// bConfig, err := b.Config()
+	// if err != nil {
+	// 	b.logger.Error("failed to get configuration for basis")
+	// 	return
+	// }
 
-		hostName, ok := rawHostName.(string)
-		if ok && hostName != "" {
-			// If a host is set, then just try to detect that
-			hostComponent, err := b.component(b.ctx, component.HostType, hostName)
-			if err != nil {
-				return nil, fmt.Errorf("failed to find requested host plugin")
-			}
-			b.cache.Register("host", hostComponent.Value.(core.Host))
-			b.logger.Info("host detection overridden by local configuration")
-			return hostComponent.Value.(core.Host), nil
-		}
-	}
+	// if bConfig != nil {
+	// 	var hostName string
+	// 	if bConfig.Vagrant.Host != nil {
+	// 		hostName = *bConfig.Vagrant.Host
+	// 	}
+	// 	if hostName != "" {
+	// 		// If a host is set, then just try to detect that
+	// 		hostComponent, err := b.component(b.ctx, component.HostType, hostName)
+	// 		if err != nil {
+	// 			return nil, fmt.Errorf("failed to find requested host plugin")
+	// 		}
+	// 		b.cache.Register("host", hostComponent.Value.(core.Host))
+	// 		b.logger.Info("host detection overridden by local configuration")
+	// 		return hostComponent.Value.(core.Host), nil
+	// 	}
+	// }
 
 	// If a host is not defined in the Vagrantfile, try to detect it
 	hosts, err := b.typeComponents(b.ctx, component.HostType)

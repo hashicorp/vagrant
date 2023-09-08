@@ -82,16 +82,7 @@ func (b *Box) setId() error {
 }
 
 func (b *Box) Validate(tx *gorm.DB) error {
-	existing, err := b.find(tx)
-	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
-		return err
-	}
-
-	if existing == nil {
-		existing = &Box{}
-	}
-
-	err = validation.ValidateStruct(b,
+	err := validation.ValidateStruct(b,
 		validation.Field(&b.Directory,
 			validation.Required,
 			validation.By(
@@ -117,7 +108,7 @@ func (b *Box) Validate(tx *gorm.DB) error {
 				b.ID != 0,
 				validation.By(
 					checkNotModified(
-						existing.ResourceId,
+						tx.Statement.Changed("ResourceId"),
 					),
 				),
 			),

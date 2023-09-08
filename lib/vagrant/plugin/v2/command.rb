@@ -110,6 +110,7 @@ module Vagrant
           }
           raise Errors::NoEnvironmentError if requires_local_env && !@env.root_path
 
+          @logger.info("getting active machines")
           # Cache the active machines outside the loop
           active_machines = @env.active_machines
 
@@ -216,6 +217,8 @@ module Vagrant
               get_machine.call(machine_name)
             end
           end
+
+          @logger.debug("have machine list to process")
 
           # Make sure we're only working with one VM if single target
           if options[:single_target] && machines.length != 1

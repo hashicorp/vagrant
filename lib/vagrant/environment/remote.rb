@@ -50,7 +50,13 @@ module Vagrant
         @aliases_path ||= @home_path && @home_path.join("aliases")
 
         @default_private_key_path = Pathname.new(@client.default_private_key)
-        copy_insecure_private_key
+        @default_private_keys_directory = @home_path.join("insecure_private_keys")
+        if !@default_private_keys_directory.directory?
+          @default_private_keys_directory.mkdir
+        end
+        @default_private_key_paths = []
+
+        copy_insecure_private_keys
 
         # Initialize localized plugins
         plugins = Vagrant::Plugin::Manager.instance.localize!(self)

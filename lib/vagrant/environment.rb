@@ -1014,11 +1014,12 @@ module Vagrant
     def process_configured_plugins
       return if !Vagrant.plugins_enabled?
       errors = vagrantfile.config.vagrant.validate(nil)
-      if !errors["vagrant"].empty?
+      if !Array(errors["vagrant"]).empty?
         raise Errors::ConfigInvalid,
           errors: Util::TemplateRenderer.render(
             "config/validation_failed",
-            errors: errors)
+            errors: {vagrant: errors["vagrant"]}
+          )
       end
       # Check if defined plugins are installed
       installed = Plugin::Manager.instance.installed_plugins

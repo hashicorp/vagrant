@@ -151,8 +151,8 @@ module VagrantPlugins
 
             SDK::Communicator::ExecuteResp.new(
               exit_code: exit_code,
-              stdout: output[:stdout],
-              stderr: output[:stderr]
+              stdout: output[:stdout].force_encoding("UTF-8"),
+              stderr: output[:stderr].force_encoding("UTF-8")
             )
           end
         end

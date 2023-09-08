@@ -9,7 +9,7 @@ module VagrantPlugins
       module HasLogger
         def logger
           if !@logger
-            @logger = Log4r::Logger.new(self.class.name.to_s.downcase)
+            @logger = Log4r::Logger.factory(self.class.name.to_s.downcase)
           end
           @logger
         end

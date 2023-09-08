@@ -6,16 +6,25 @@ package core
 import (
 	"context"
 	"fmt"
+	"path/filepath"
+	"reflect"
+	"strings"
 	"sync"
 
+	"github.com/fatih/structs"
+	"github.com/fatih/structtag"
 	"github.com/hashicorp/go-argmapper"
 	"github.com/hashicorp/go-hclog"
+	"github.com/hashicorp/hcl/v2"
+	"github.com/hashicorp/hcl/v2/gohcl"
+	"github.com/hashicorp/hcl/v2/hclsimple"
+	"github.com/mitchellh/protostructure"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
-
 	"google.golang.org/protobuf/proto"
 
 	"github.com/hashicorp/vagrant-plugin-sdk/component"
+	"github.com/hashicorp/vagrant-plugin-sdk/config"
 	"github.com/hashicorp/vagrant-plugin-sdk/core"
 	"github.com/hashicorp/vagrant-plugin-sdk/helper/types"
 	"github.com/hashicorp/vagrant-plugin-sdk/internal-shared/cacher"
@@ -64,6 +73,10 @@ type registration struct {
 func (r *registration) String() string {
 	return fmt.Sprintf("core.Vagrantfile.registration[identifier: %s, plugin %v, set: %v, subregistrations: %s]",
 		r.identifier, r.plugin, r.set, r.subregistrations)
+}
+
+func (r *registration) hasSubs() bool {
+	return len(r.subregistrations) > 0
 }
 
 // Register a config component as a subconfig
@@ -128,9 +141,10 @@ func (r registrations) register(n string, p *plugin.Plugin) error {
 
 // Represents an individual Vagrantfile source
 type source struct {
-	base        *vagrant_server.Vagrantfile
-	finalized   *component.ConfigData
-	unfinalized *component.ConfigData
+	base        *vagrant_server.Vagrantfile // proto representing the Vagrantfile
+	finalized   *component.ConfigData       // raw configuration data after finalization
+	unfinalized *component.ConfigData       // raw configuration data prior to finalization
+	vagrantfile *config.Vagrantfile         // vagrantfile as processed
 }
 
 // And here's our Vagrantfile!
@@ -205,10 +219,7 @@ func (v *Vagrantfile) GetSource(
 ) (*vagrant_server.Vagrantfile, error) {
 	s, ok := v.sources[l]
 	if !ok {
-		return nil, fmt.Errorf(
-			"no vagrantfile source for given location (%s)",
-			l.String(),
-		)
+		return nil, fmt.Errorf("no vagrantfile source for given location (%s)", l)
 	}
 
 	return s.base, nil
@@ -372,10 +383,20 @@ func (v *Vagrantfile) GetConfig(
 	return c, nil
 }
 
+// Get the configuration for the given namespace and load
+// it into the provided configuration struct
+func (v *Vagrantfile) Get(
+	namespace string, // top level key in vagrantfile
+	config any, // pointer to configuration struct to populate
+) error {
+	return nil
+}
+
 // Get the primary target name
 // TODO(spox): VM options support is not implemented yet, so this
-//             will not return the correct value when default option
-//             has been specified in the Vagrantfile
+//
+//	will not return the correct value when default option
+//	has been specified in the Vagrantfile
 func (v *Vagrantfile) PrimaryTargetName() (n string, err error) {
 	list, err := v.TargetNames()
 	if err != nil {
@@ -437,7 +458,8 @@ func (v *Vagrantfile) TargetNames() (list []string, err error) {
 
 // Load a new target instance
 // TODO(spox): Probably add a name check against TargetNames
-//             before doing the config load
+//
+//	before doing the config load
 func (v *Vagrantfile) Target(
 	name, // Name of the target
 	provider string, // Provider backing the target
@@ -835,12 +857,23 @@ func (v *Vagrantfile) newSource(
 	f *vagrant_server.Vagrantfile, // backing Vagrantfile proto for source
 ) (s *source, err error) {
 	s = &source{
-		base: f,
+		base:        f,
+		unfinalized: &component.ConfigData{},
 	}
 
-	// First we need to unpack the unfinalized data.
-	if s.unfinalized, err = v.generateConfig(f.Unfinalized); err != nil {
-		return
+	// Start with loading the Vagrantfile if it hasn't
+	// yet been loaded
+	if s.base.Unfinalized == nil {
+		if err := v.loadVagrantfile(s); err != nil {
+			return nil, err
+		}
+	}
+
+	if s.unfinalized == nil {
+		// First we need to unpack the unfinalized data.
+		if s.unfinalized, err = v.generateConfig(f.Unfinalized); err != nil {
+			return
+		}
 	}
 
 	// Next, if we have finalized data already set, just restore it
@@ -851,6 +884,250 @@ func (v *Vagrantfile) newSource(
 	}
 
 	return s, nil
+}
+
+func (v *Vagrantfile) loadVagrantfile(
+	source *source,
+) error {
+	var err error
+
+	if source.base.Path == nil {
+		return nil
+	}
+
+	// Set the format and load the file based on extension
+	switch filepath.Ext(source.base.Path.Path) {
+	case ".hcl":
+		source.base.Format = vagrant_server.Vagrantfile_HCL
+		if err = v.parseHCL(source); err != nil {
+			return err
+		}
+		// Need to load and encode from here. Thoughts about protostructure and
+		// if we should be treating hcl processed config differently
+	case ".json":
+		source.base.Format = vagrant_server.Vagrantfile_JSON
+		if err = v.parseHCL(source); err != nil {
+			return err
+		}
+	default:
+		source.base.Format = vagrant_server.Vagrantfile_RUBY
+		source.base.Unfinalized, err = v.rubyClient.ParseVagrantfile(source.base.Path.Path)
+		source.unfinalized, err = v.generateConfig(source.base.Unfinalized)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (v *Vagrantfile) parseHCL(source *source) error {
+	if source == nil {
+		panic("vagrantfile source is nil")
+	}
+	target := &config.Vagrantfile{}
+
+	// This handles loading native configuration
+	err := hclsimple.DecodeFile(source.base.Path.Path, nil, target)
+	if err != nil {
+		v.logger.Error("failed to decode vagrantfile", "path", source.base.Path.Path, "error", err)
+		return err
+	}
+
+	if source.unfinalized == nil {
+		source.unfinalized = &component.ConfigData{}
+	}
+	source.unfinalized.Source = structs.Name(target)
+	source.unfinalized.Data = map[string]interface{}{}
+	// Serialize all non-plugin configuration values/namespaces
+	fields := structs.Fields(target)
+	for _, field := range fields {
+		// TODO(spox): This is just implemented enough to get things
+		// working. It needs to be reimplemented with helpers and all
+		// that stuff.
+
+		// if the field is the body content or remaining content after
+		// being parsed, ignore it
+		tags, err := structtag.Parse(`hcl:"` + field.Tag("hcl") + `"`)
+		if err != nil {
+			return err
+		}
+		tag, err := tags.Get("hcl")
+		if err != nil {
+			return err
+		}
+		skip := false
+		for _, opt := range tag.Options {
+			if opt == "remain" || opt == "body" {
+				skip = true
+			}
+		}
+		if skip {
+			continue
+		}
+
+		// If there is no field name, or if the value is empty
+		// just ignore it
+		n := field.Name()
+		np := strings.Split(field.Tag("hcl"), ",")
+		if len(np) > 0 {
+			n = np[0]
+		}
+		if n == "" {
+			continue
+		}
+
+		val := field.Value()
+		if field.IsZero() {
+			val = &component.ConfigData{Data: map[string]any{}}
+		}
+		rval := reflect.ValueOf(val)
+
+		// If the value is a struct, convert it to a map before storing
+		if rval.Kind() == reflect.Struct || (rval.Kind() == reflect.Pointer && rval.Elem().Kind() == reflect.Struct) {
+			val = &component.ConfigData{
+				Source: structs.Name(val),
+				Data:   structs.Map(val),
+			}
+		}
+		source.unfinalized.Data[n] = val
+	}
+
+	// Now load all configuration which has registrations
+	for namespace, registration := range v.registrations {
+		// If no plugin is attached to registration, skip
+		if registration.plugin == nil {
+			continue
+		}
+
+		// Not handling subregistrations yet
+		if registration.hasSubs() {
+			continue
+		}
+
+		config, err := v.componentForKey(namespace)
+		if err != nil {
+			v.logger.Error("failed to dispense config plugin", "namespace", namespace, "error", err)
+			return err
+		}
+
+		configTarget, err := config.Struct()
+		if err != nil {
+			v.logger.Error("failed to receive config structure", "namespace", namespace)
+			return err
+		}
+
+		// If the struct value is a boolean, then the plugin is Ruby based. Take any configuration
+		// that is currently defined (would have been populated via HCL file) and ship it to the
+		// plugin to attempt to initialize itself with the existing data.
+		//
+		// TODO(spox): the data structure generated should use the hcl tag name as the key which
+		// should match up better with the expected ruby configs
+		if _, ok := configTarget.(bool); ok {
+			vc := structs.New(target)
+
+			// Find the configuration data for the current namespace
+			var field *structs.Field
+			for _, f := range vc.Fields() {
+				t := f.Tag("hcl")
+				np := strings.Split(t, ",")
+				if len(np) < 1 {
+					break
+				}
+				n := np[0]
+				if n == namespace {
+					field = f
+					break
+				}
+			}
+
+			var data map[string]any
+
+			// If no field was found for namespace, or the value is empty, skip
+			if field == nil || field.IsZero() {
+				data = map[string]any{}
+			} else {
+				data = structs.Map(field.Value())
+			}
+
+			cd, err := config.Init(&component.ConfigData{Data: data})
+			if err != nil {
+				v.logger.Error("ruby config init failed", "error", err)
+				return err
+			}
+			source.unfinalized.Data[namespace] = cd
+
+			v.logger.Trace("stored unfinalized configuration data", "namespace", namespace, "value", cd)
+			continue
+		}
+
+		v.logger.Trace("config structure received", "namespace", namespace, "struct", hclog.Fmt("%#v", configTarget))
+
+		// A protostructure.Struct value is expected to build the configuration structure
+		cs, ok := configTarget.(*protostructure.Struct)
+		if !ok {
+			v.logger.Error("config value is not protostructure.Struct", "namespace", namespace,
+				"type", hclog.Fmt("%T", configTarget))
+			return fmt.Errorf("invalid configuration type received %T", configTarget)
+		}
+
+		// Create the configuration structure
+		configStruct, err := protostructure.New(cs)
+		if err != nil {
+			return err
+		}
+
+		// Build a struct which contains the configuration structure
+		// so the Vagrantfile contents can be decoded into it
+		wrapStructType := reflect.StructOf(
+			[]reflect.StructField{
+				{
+					Name: "Remain",
+					Type: reflect.TypeOf((*hcl.Body)(nil)).Elem(),
+					Tag:  reflect.StructTag(`hcl:",remain"`),
+				},
+				{
+					Name: "Content",
+					Type: reflect.TypeOf(configStruct),
+					Tag:  reflect.StructTag(fmt.Sprintf(`hcl:"%s,block"`, namespace)),
+				},
+			},
+		)
+		wrapStruct := reflect.New(wrapStructType)
+
+		// Decode the Vagrantfile into the new wrapper
+		diag := gohcl.DecodeBody(target.Remain, nil, wrapStruct.Interface())
+		if diag.HasErrors() {
+			return fmt.Errorf("failed to load config namespace %s: %s", namespace, diag.Error())
+		}
+
+		// Extract the decoded configuration
+		str := structs.New(wrapStruct.Interface())
+		f, ok := str.FieldOk("Content")
+		if !ok {
+			v.logger.Debug("missing 'Content' field in wrapper struct", "wrapper", wrapStruct.Interface())
+			return fmt.Errorf("unexpected missing data during Vagrantfile decoding")
+		}
+
+		decodedConfig := f.Value()
+		v.logger.Trace("configuration value decoded", "namespace", namespace, "config", decodedConfig)
+
+		// Use reflect to do a proper nil check since interface
+		// will be typed
+		if reflect.ValueOf(decodedConfig).IsNil() {
+			v.logger.Debug("decoded configuration was nil, continuing...", "namespace", namespace)
+			continue
+		}
+
+		// Convert the configuration value into a map and store in the unfinalized
+		// data for the plugin's namespace
+		decodedMap := structs.Map(decodedConfig)
+		source.unfinalized.Data[namespace] = &component.ConfigData{Data: decodedMap}
+
+		v.logger.Trace("stored unfinalized configuration data", "namespace", namespace, "value", decodedMap)
+	}
+
+	return nil
 }
 
 // Finalize all configuration held within the provided
@@ -865,60 +1142,56 @@ func (v *Vagrantfile) finalize(
 	}
 	var c core.Config
 	var r *component.ConfigData
-	for k, val := range conf.Data {
-		v.logger.Trace("starting configuration finalization",
-			"namespace", k,
-		)
-		if c, err = v.componentForKey(k); err != nil {
-			return
-		}
-
-		data, ok := val.(*component.ConfigData)
+	seen := map[string]struct{}{}
+	for n, val := range conf.Data {
+		seen[n] = struct{}{}
+		reg, ok := v.registrations[n]
 		if !ok {
-			v.logger.Error("invalid config type",
-				"key", k,
-				"type", hclog.Fmt("%T", val),
-				"value", hclog.Fmt("%#v", val),
-			)
-			return nil, fmt.Errorf("config for %s is invalid type %T", k, val)
-		}
-		v.logger.Trace("finalizing configuration data",
-			"namespace", k,
-			"data", data,
-		)
-		if r, err = c.Finalize(data); err != nil {
-			return
-		}
-		v.logger.Trace("finalized configuration data",
-			"namespace", k,
-		)
-		result.Data[k] = r
-		v.logger.Trace("finalized data has been stored in result",
-			"namespace", k,
-		)
-	}
-
-	// Now we need to run through all our registered config components
-	// and for any we don't have a value for, and automatically finalize
-	for n, reg := range v.registrations {
-		// If no plugin is attached, skip
-		if reg.plugin == nil {
+			v.logger.Warn("no plugin registered", "namespace", n)
 			continue
 		}
-		// If we have data already, skip
+		v.logger.Trace("starting finalization", "namespace", n)
+		// if no plugin attached, skip
+		if reg.plugin == nil {
+			v.logger.Warn("missing plugin registration", "namespace", n)
+			continue
+		}
+		var data *component.ConfigData
+		data, ok = val.(*component.ConfigData)
+		if !ok {
+			v.logger.Error("invalid data for namespace", "type", hclog.Fmt("%T", val))
+			return nil, fmt.Errorf("invalid data encountered in '%s' namespace", n)
+		}
+
+		v.logger.Trace("finalizing", "namespace", n, "data", data)
+
+		if c, err = v.componentForKey(n); err != nil {
+			return nil, err
+		}
+
+		if r, err = c.Finalize(data); err != nil {
+			return nil, err
+		}
+
+		v.logger.Trace("finalized", "namespace", n, "data", r)
+
+		result.Data[n] = r
+	}
+
+	for n, reg := range v.registrations {
 		if _, ok := result.Data[n]; ok {
 			continue
 		}
-
-		// Get the config component and send an empty request
-		// so we can store the default finalized config
+		if reg.plugin == nil {
+			v.logger.Warn("missing plugin registration", "namespace", n)
+			continue
+		}
 		if c, err = v.componentForKey(n); err != nil {
-			return
+			return nil, err
 		}
-		if r, err = c.Finalize(&component.ConfigData{}); err != nil {
-			return
+		if result.Data[n], err = c.Finalize(&component.ConfigData{}); err != nil {
+			return nil, err
 		}
-		result.Data[n] = r
 	}
 
 	v.logger.Trace("configuration data finalization is now complete")
@@ -946,8 +1219,10 @@ func (v *Vagrantfile) setFinalized(
 		),
 	)
 	if err != nil {
+		v.logger.Error("failed to convert data into finalized proto value")
 		return err
 	}
+
 	s.base.Finalized = raw.(*vagrant_plugin_sdk.Args_Hash)
 
 	return nil
@@ -1038,7 +1313,7 @@ func (v *Vagrantfile) componentForKey(
 // Merge two config data instances
 func (v *Vagrantfile) merge(
 	base, // initial config data
-	toMerge *component.ConfigData, // config data to merge into base
+	overlay *component.ConfigData, // config data to merge into base
 ) (*component.ConfigData, error) {
 	result := &component.ConfigData{
 		Data: make(map[string]interface{}),
@@ -1049,52 +1324,60 @@ func (v *Vagrantfile) merge(
 	for k, _ := range base.Data {
 		keys[k] = struct{}{}
 	}
-	for k, _ := range toMerge.Data {
+	for k, _ := range overlay.Data {
 		keys[k] = struct{}{}
 	}
 
 	for k, _ := range keys {
 		c, err := v.componentForKey(k)
 		if err != nil {
-			return nil, err
+			v.logger.Debug("no config component for namespace, skipping", "namespace", k)
 		}
-		rawBase, ok1 := base.Data[k]
-		rawToMerge, ok2 := toMerge.Data[k]
+		rawBase, okBase := base.Data[k]
+		rawOverlay, okOverlay := overlay.Data[k]
 
-		if ok1 && !ok2 {
+		if okBase && !okOverlay {
 			result.Data[k] = rawBase
 			v.logger.Debug("only base value available, no merge performed",
-				"namespace", k,
+				"namespace", k, "config", rawBase,
 			)
 			continue
 		}
 
-		if !ok1 && ok2 {
-			result.Data[k] = rawToMerge
-			v.logger.Debug("only toMerge value available, no merge performed",
-				"namespace", k,
+		if !okBase && okOverlay {
+			result.Data[k] = rawOverlay
+			v.logger.Debug("only overlay value available, no merge performed",
+				"namespace", k, "config", rawOverlay,
+			)
+			continue
+		}
+
+		if c == nil {
+			result.Data[k] = rawOverlay
+			v.logger.Debug("no component for namespace, applying overlay directly",
+				"namespace", k, "config", rawOverlay,
 			)
 			continue
 		}
 
 		var ok bool
-		var valBase, valToMerge *component.ConfigData
+		var valBase, valOverlay *component.ConfigData
 		valBase, ok = rawBase.(*component.ConfigData)
 		if !ok {
 			return nil, fmt.Errorf("bad value type for merge %T", rawBase)
 		}
-		valToMerge, ok = rawToMerge.(*component.ConfigData)
+		valOverlay, ok = rawOverlay.(*component.ConfigData)
 		if !ok {
-			return nil, fmt.Errorf("bad value type for merge %T", rawToMerge)
+			return nil, fmt.Errorf("bad value type for merge %T", rawOverlay)
 		}
 
 		v.logger.Debug("merging values",
 			"namespace", k,
 			"base", valBase,
-			"overlay", valToMerge,
+			"overlay", valOverlay,
 		)
 
-		r, err := c.Merge(valBase, valToMerge)
+		r, err := c.Merge(valBase, valOverlay)
 		if err != nil {
 			return nil, err
 		}
@@ -1273,6 +1556,19 @@ func optionToString(
 	result = string(sym)
 
 	return
+}
+
+func structToMap(in any) map[string]any {
+	new := structs.Map(in)
+	for key, _ := range new {
+		val := new[key]
+		rval := reflect.ValueOf(val)
+		if rval.Kind() == reflect.Struct || (rval.Kind() == reflect.Pointer && rval.Elem().Kind() == reflect.Struct) {
+			new[key] = structToMap(val)
+		}
+	}
+
+	return new
 }
 
 var _ core.Vagrantfile = (*Vagrantfile)(nil)

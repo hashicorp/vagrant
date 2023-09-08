@@ -7,6 +7,7 @@ import (
 	"errors"
 
 	"github.com/go-ozzo/ozzo-validation/v4"
+	//	"github.com/hashicorp/go-hclog"
 	"github.com/hashicorp/vagrant-plugin-sdk/proto/vagrant_plugin_sdk"
 	"github.com/hashicorp/vagrant/internal/server"
 	"github.com/hashicorp/vagrant/internal/server/proto/vagrant_server"
@@ -32,11 +33,11 @@ type Basis struct {
 	DataSource    *ProtoValue
 	Jobs          []*InternalJob `gorm:"polymorphic:Scope" mapstructure:"-"`
 	Metadata      MetadataSet
-	Name          string     `gorm:"uniqueIndex,not null"`
-	Path          string     `gorm:"uniqueIndex,not null"`
+	Name          string     `gorm:"uniqueIndex;not null"`
+	Path          string     `gorm:"uniqueIndex;not null"`
 	Projects      []*Project `gorm:"constraint:OnDelete:SET NULL"`
 	RemoteEnabled bool
-	ResourceId    string `gorm:"uniqueIndex,not null"` // TODO(spox): readonly permission not working as expected
+	ResourceId    string `gorm:"<-:create;uniqueIndex;not null"`
 }
 
 // Returns a fully populated instance of the current basis
@@ -134,64 +135,67 @@ func (b *Basis) BeforeUpdate(tx *gorm.DB) error {
 }
 
 func (b *Basis) Validate(tx *gorm.DB) error {
-	// NOTE: We should be able to use `tx.Statement.Changed("ResourceId")`
-	//       for change detection but it doesn't appear to be set correctly
-	//       so we don't get any notice of change (maybe because it's a pointer?)
-	existing, err := b.find(tx)
-	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
-		return err
-	}
-
-	if existing == nil {
-		existing = &Basis{}
-	}
-
-	err = validation.ValidateStruct(b,
+	return validation.ValidateStruct(b,
 		validation.Field(&b.Name,
 			validation.Required,
-			validation.By(
-				checkUnique(
-					tx.Model(&Basis{}).
-						Where(&Basis{Name: b.Name}).
-						Not(&Basis{Model: Model{ID: b.ID}}),
+			validation.When(
+				b.ID == 0,
+				validation.By(
+					checkUnique(
+						tx.Model(&Basis{}).Where(&Basis{Name: b.Name}),
+					),
+				),
+			),
+			validation.When(
+				b.ID != 0,
+				validation.By(
+					checkUnique(
+						tx.Model(&Basis{}).Where(&Basis{Name: b.Name}).
+							Not(&Basis{Model: Model{ID: b.ID}}),
+					),
 				),
 			),
 		),
 		validation.Field(&b.Path,
 			validation.Required,
-			validation.By(
-				checkUnique(
-					tx.Model(&Basis{}).
-						Where(&Basis{Path: b.Path}).
-						Not(&Basis{Model: Model{ID: b.ID}}),
+			validation.When(
+				b.ID == 0,
+				validation.By(
+					checkUnique(
+						tx.Model(&Basis{}).Where(&Basis{Path: b.Path}),
+					),
+				),
+			),
+			validation.When(
+				b.ID != 0,
+				validation.By(
+					checkUnique(
+						tx.Model(&Basis{}).Where(&Basis{Path: b.Path}).
+							Not(&Basis{Model: Model{ID: b.ID}}),
+					),
 				),
 			),
 		),
 		validation.Field(&b.ResourceId,
 			validation.Required,
-			validation.By(
-				checkUnique(
-					tx.Model(&Basis{}).
-						Where(&Basis{ResourceId: b.ResourceId}).
-						Not(&Basis{Model: Model{ID: b.ID}}),
+			validation.When(
+				b.ID == 0,
+				validation.By(
+					checkUnique(
+						tx.Model(&Basis{}).Where(&Basis{ResourceId: b.ResourceId}),
+					),
 				),
 			),
 			validation.When(
 				b.ID != 0,
 				validation.By(
 					checkNotModified(
-						existing.ResourceId,
+						tx.Statement.Changed("ResourceId"),
 					),
 				),
 			),
 		),
 	)
-
-	if err != nil {
-		return err
-	}
-
-	return nil
 }
 
 func (b *Basis) setId() error {
