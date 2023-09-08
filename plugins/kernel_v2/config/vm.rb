@@ -408,12 +408,8 @@ module VagrantPlugins
             after = options.delete(:after)
           end
 
-          if Vagrant::Util::Experimental.feature_enabled?("dependency_provisioners")
-            opts = {before: before, after: after}
-            prov = VagrantConfigProvisioner.new(name, type.to_sym, **opts)
-          else
-            prov = VagrantConfigProvisioner.new(name, type.to_sym)
-          end
+          opts = {before: before, after: after}
+          prov = VagrantConfigProvisioner.new(name, type.to_sym, **opts)
           @provisioners << prov
         end
 
@@ -479,11 +475,6 @@ module VagrantPlugins
         # Add provider config
         disk_config.add_provider_config(**provider_options, &block)
 
-        if !Vagrant::Util::Experimental.feature_enabled?("disks")
-          @logger.warn("Disk config defined, but experimental feature is not enabled. To use this feature, enable it with the experimental flag `disks`. Disk will not be added to internal config, and will be ignored.")
-          return
-        end
-
         @disks << disk_config
       end
 
@@ -502,11 +493,6 @@ module VagrantPlugins
         else
           # config is hash
           cloud_init_config.set_options(options)
-        end
-
-        if !Vagrant::Util::Experimental.feature_enabled?("cloud_init")
-          @logger.warn("cloud_init config defined, but experimental feature is not enabled. To use this feature, enable it with the experimental flag `cloud_init`. cloud_init config will not be added to internal config, and will be ignored.")
-          return
         end
 
         @cloud_init_configs << cloud_init_config

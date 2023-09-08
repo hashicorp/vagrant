@@ -230,9 +230,7 @@ module Vagrant
       # @param [Hash] env Call environment
       # @return [Builder] self
       def apply_dynamic_updates(env)
-        if Vagrant::Util::Experimental.feature_enabled?("typed_triggers")
-          triggers = env[:triggers]
-        end
+        triggers = env[:triggers]
 
         # Use a Hook as a convenient interface for injecting
         # any applicable trigger actions within the stack
@@ -299,7 +297,7 @@ module Vagrant
         machine_name = env[:machine].name if env[:machine]
 
         # Start with loading any hook triggers if applicable
-        if Vagrant::Util::Experimental.feature_enabled?("typed_triggers") && env[:triggers]
+        if env[:triggers]
           if !env[:triggers].find(env[:action_name], :before, machine_name, :hook).empty?
             hook.prepend(Vagrant::Action::Builtin::Trigger,
               env[:action_name], env[:triggers], :before, :hook)
