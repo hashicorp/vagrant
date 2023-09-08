@@ -15,6 +15,8 @@ BUG FIXES:
 
 VAGRANT-GO:
 
+- Add basic support for HCL based config [GH-13257]
+
 ## 2.3.7 (June 15, 2023)
 
 IMPROVEMENTS:
