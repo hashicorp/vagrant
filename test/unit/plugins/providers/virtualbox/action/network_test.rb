@@ -62,6 +62,28 @@ describe VagrantPlugins::ProviderVirtualBox::Action::Network do
       expect(subject).to receive(:validate_hostonly_ip!)
       subject.hostonly_config(options)
     end
+
+    context "when address is ipv6" do
+      let(:address) { "::1" }
+
+      context "when type is static6" do
+        let(:type) { :static6 }
+
+        it "should have a static6 type" do
+          result = subject.hostonly_config(options)
+          expect(result[:type]).to eq(:static6)
+        end
+      end
+
+      context "when type is static" do
+        let(:type) { :static }
+
+        it "should have static6 type" do
+          result = subject.hostonly_config(options)
+          expect(result[:type]).to eq(:static6)
+        end
+      end
+    end
   end
 
   describe "#validate_hostonly_ip!" do
