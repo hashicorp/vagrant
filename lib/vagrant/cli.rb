@@ -16,10 +16,8 @@ module Vagrant
       @logger = Log4r::Logger.new("vagrant::cli")
       @main_args, @sub_command, @sub_args = split_main_and_subcommand(argv)
 
-      if Vagrant::Util::Experimental.feature_enabled?("typed_triggers")
-        ui = Vagrant::UI::Prefixed.new(env.ui, "vagrant")
-        @triggers = Vagrant::Plugin::V2::Trigger.new(env, env.vagrantfile.config.trigger, nil, ui)
-      end
+      ui = Vagrant::UI::Prefixed.new(env.ui, "vagrant")
+      @triggers = Vagrant::Plugin::V2::Trigger.new(env, env.vagrantfile.config.trigger, nil, ui)
 
       Util::CheckpointClient.instance.setup(env).check
       @logger.info("CLI: #{@main_args.inspect} #{@sub_command.inspect} #{@sub_args.inspect}")
@@ -65,11 +63,9 @@ module Vagrant
       # Initialize and execute the command class, returning the exit status.
       result = 0
       begin
-        @triggers.fire(@sub_command, :before, nil, :command) if
-          Vagrant::Util::Experimental.feature_enabled?("typed_triggers")
+        @triggers.fire(@sub_command, :before, nil, :command)
         result = command_class.new(@sub_args, @env).execute
-        @triggers.fire(@sub_command, :after, nil, :command) if
-          Vagrant::Util::Experimental.feature_enabled?("typed_triggers")
+        @triggers.fire(@sub_command, :after, nil, :command)
       rescue Interrupt
         @env.ui.info(I18n.t("vagrant.cli_interrupt"))
         result = 1

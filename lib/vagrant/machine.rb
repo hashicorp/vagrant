@@ -183,10 +183,6 @@ module Vagrant
 
       # Extra env keys are the remaining opts
       extra_env = opts.dup
-      # An environment is required for triggers to function properly. This is
-      # passed in specifically for the `#Action::Warden` class triggers. We call it
-      # `:trigger_env` instead of `env` in case it collides with an existing environment
-      extra_env[:trigger_env] = @env
 
       check_cwd # Warns the UI if the machine was last used on a different dir
 

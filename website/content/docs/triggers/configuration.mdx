@@ -96,20 +96,6 @@ The trigger class takes various options.
 Optionally, it is possible to define a trigger that executes around Vagrant commands,
 hooks, and actions.
 
-~> **Warning!** This feature is still experimental and may break or
-change in between releases. Use at your own risk.
-
-This feature currently requires the experimental flag to be used. To explicitly enable this feature, you can set the experimental flag to:
-
-```
-VAGRANT_EXPERIMENTAL="typed_triggers"
-```
-
-Please note that `VAGRANT_EXPERIMENTAL` is an environment variable. For more
-information about this flag visit the [Experimental docs page](/vagrant/docs/experimental/)
-for more info. Without this flag enabled, triggers with the `:type` option
-will be ignored.
-
 A trigger can be one of three types:
 
 - `type` (symbol) - Optional
