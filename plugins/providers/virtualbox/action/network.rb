@@ -302,8 +302,6 @@ module VagrantPlugins
             elsif ip.ipv6?
               options[:netmask] ||= 64
 
-              # Append a 6 to the end of the type
-              options[:type] = "#{options[:type]}6".to_sym
             else
               raise IPAddr::AddressFamilyError, 'unknown address family'
             end
