@@ -13,6 +13,7 @@ IMPROVEMENTS:
 BUG FIXES:
 
 - core: Fix extension installation path [GH-13215]
+- provider/virtualbox: Fix ipv6 static network configuration [GH-13241]
 
 VAGRANT-GO:
 
