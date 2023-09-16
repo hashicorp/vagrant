@@ -68,17 +68,29 @@ module Vagrant
           # If we received a shorthand URL ("mitchellh/precise64"),
           # then expand it properly.
           expanded = false
-          url.each_index do |i|
-            next if url[i] !~ /^[^\/]+\/[^\/]+$/
+          # Mark if only a single url entry was provided
+          single_entry = url.size == 1
 
-            if !File.file?(url[i])
+          url = url.map do |url_entry|
+            if url_entry =~ /^[^\/]+\/[^\/]+$/ && !File.file?(url_entry)
               server = Vagrant.server_url env[:box_server_url]
               raise Errors::BoxServerNotSet if !server
 
               expanded = true
-              url[i] = "#{server}/#{url[i]}"
+              # If only a single entry, expand to both the API endpoint and
+              # the direct shorthand endpoint.
+              if single_entry
+                url_entry = [
+                  "#{server}/api/v2/vagrant/#{url_entry}",
+                  "#{server}/#{url_entry}"
+                ]
+              else
+                url_entry = "#{server}/#{url_entry}"
+              end
             end
-          end
+
+            url_entry
+          end.flatten
 
           # Call the hook to transform URLs into authenticated URLs.
           # In the case we don't have a plugin that does this, then it
@@ -97,6 +109,21 @@ module Vagrant
             rescue Errors::DownloaderError => e
               e
             end
+          end
+
+          # If only a single entry was provided, and it was expanded,
+          # inspect the metadata check results and extract the one that
+          # was successful, with preference to the API endpoint
+          if single_entry && expanded
+            idx = is_metadata_results.index { |v| v === true }
+            # If none of the urls were successful, set the index
+            # as the last entry
+            idx = is_metadata_results.size - 1 if idx.nil?
+
+            # Now reset collections with single value
+            is_metadata_results = [is_metadata_results[idx]]
+            authed_urls = [authed_urls[idx]]
+            url = [url[idx]]
           end
 
           if expanded && url.length == 1

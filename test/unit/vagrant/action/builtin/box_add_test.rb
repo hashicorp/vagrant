@@ -557,6 +557,78 @@ describe Vagrant::Action::Builtin::BoxAdd, :skip_windows, :bsdtar do
       FileUtils.rm_rf(td)
     end
 
+    it "adds from API endpoint when available" do
+      box_path = iso_env.box2_file(:virtualbox)
+      td = Pathname.new(Dir.mktmpdir("vagrant-test-box-api-endpoint"))
+      tf = td.join("mitchellh", "precise64.json")
+      tf.dirname.mkpath
+      tf.open("w") do |f|
+        f.write(<<-RAW)
+        {
+          "name": "mitchellh/precise64",
+          "versions": [
+            {
+              "version": "0.5"
+            },
+            {
+              "version": "0.7",
+              "providers": [
+                {
+                  "name": "virtualbox",
+                  "url":  "#{box_path}"
+                }
+              ]
+            }
+          ]
+        }
+        RAW
+      end
+      apif = td.join("api", "v2", "vagrant", "mitchellh", "precise64.json")
+      apif.dirname.mkpath
+      apif.open("w") do |f|
+        f.write(<<-RAW)
+        {
+          "name": "mitchellh/precise64",
+          "versions": [
+            {
+              "version": "0.5"
+            },
+            {
+              "version": "0.8",
+              "providers": [
+                {
+                  "name": "virtualbox",
+                  "url":  "#{box_path}"
+                }
+              ]
+            }
+          ]
+        }
+        RAW
+      end
+
+      with_web_server(tf.dirname) do |port|
+        url = "http://127.0.0.1:#{port}"
+        env[:box_url] = "mitchellh/precise64.json"
+        env[:box_server_url] = url
+
+        expect(box_collection).to receive(:add).with(any_args) { |path, name, version, opts|
+          expect(name).to eq("mitchellh/precise64")
+          expect(version).to eq("0.8")
+          expect(checksum(path)).to eq(checksum(box_path))
+          expect(opts[:metadata_url]).to eq(
+            "#{url}/api/v2/vagrant/#{env[:box_url]}")
+          true
+        }.and_return(box)
+
+        expect(app).to receive(:call).with(env)
+
+        subject.call(env)
+      end
+
+      FileUtils.rm_rf(td)
+    end
+
     it "add from shorthand path with configured server url" do
       box_path = iso_env.box2_file(:virtualbox)
       td = Pathname.new(Dir.mktmpdir("vagrant-test-box-add-server-url"))
