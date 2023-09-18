@@ -357,6 +357,10 @@ module Vagrant
             end
             final_dir = arch_dir if arch_dir && arch_dir.directory?
 
+            # If the final directory does not contain a `metadata.json` file, then
+            # skip this directory
+            next if !final_dir.join("metadata.json").exist?
+
             @logger.info("Box found: #{name} (#{provider})")
 
             metadata_url = nil
