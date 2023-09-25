@@ -338,7 +338,7 @@ module Vagrant
             env,
             checksum: metadata_provider.checksum,
             checksum_type: metadata_provider.checksum_type,
-            architecture: architecture,
+            architecture: metadata_provider.architecture,
           )
         end
 
@@ -420,7 +420,7 @@ module Vagrant
               force: env[:box_force],
               metadata_url: md_url,
               providers: provider,
-              architecture: env[:box_architecture]
+              architecture: opts[:architecture]
             )
           ensure
             # Make sure we delete the temporary file after we add it,

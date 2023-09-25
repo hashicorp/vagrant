@@ -100,8 +100,9 @@ module Unit
     # @param [String] provider
     # @return [Pathname]
     def box3(name, version, provider, **opts)
-      args = [name, version, provider.to_s]
+      args = [name, version]
       args << opts[:architecture].to_s if opts[:architecture]
+      args << provider.to_s
 
       # Create the directory for the box
       box_dir = boxes_dir.join(*args)

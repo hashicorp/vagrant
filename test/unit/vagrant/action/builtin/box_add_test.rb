@@ -1024,7 +1024,7 @@ describe Vagrant::Action::Builtin::BoxAdd, :skip_windows, :bsdtar do
             expect(name).to eq("foo/bar")
             expect(version).to eq("0.7")
             expect(opts[:metadata_url]).to eq("file://#{tf.path}")
-            expect(opts[:architecture]).to eq(:auto)
+            expect(opts[:architecture]).to eq("test-arch")
             true
           }.and_return(box)
 
@@ -1072,7 +1072,7 @@ describe Vagrant::Action::Builtin::BoxAdd, :skip_windows, :bsdtar do
             expect(name).to eq("foo/bar")
             expect(version).to eq("0.7")
             expect(opts[:metadata_url]).to eq("file://#{tf.path}")
-            expect(opts[:architecture]).to eq(:auto)
+            expect(opts[:architecture]).to eq("unknown")
             true
           }.and_return(box)
 
@@ -1130,6 +1130,7 @@ describe Vagrant::Action::Builtin::BoxAdd, :skip_windows, :bsdtar do
         end
 
         it "adds the latest version of a box with only one provider and default architecture" do
+          allow(Vagrant::Util::Platform).to receive(:architecture).and_return("default-arch")
           box_path = iso_env.box2_file(:virtualbox)
           tf = Tempfile.new(["vagrant-box-latest-version", ".json"]).tap do |f|
             f.write(
@@ -1145,7 +1146,7 @@ describe Vagrant::Action::Builtin::BoxAdd, :skip_windows, :bsdtar do
                       {
                         name: "virtualbox",
                         url: "#{box_path}",
-                        architecture: "amd64",
+                        architecture: "default-arch",
                         default_architecture: true,
                       },
                       {
@@ -1168,7 +1169,7 @@ describe Vagrant::Action::Builtin::BoxAdd, :skip_windows, :bsdtar do
             expect(name).to eq("foo/bar")
             expect(version).to eq("0.7")
             expect(opts[:metadata_url]).to eq("file://#{tf.path}")
-            expect(opts[:architecture]).to be_nil
+            expect(opts[:architecture]).to eq("default-arch")
             true
           }.and_return(box)
 

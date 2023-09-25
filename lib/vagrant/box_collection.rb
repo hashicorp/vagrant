@@ -170,28 +170,26 @@ module Vagrant
             @logger.debug("Box directory: #{box_dir}")
 
             # This is the final directory we'll move it to
-            provider_dir = box_dir.join(provider.to_s)
-            final_dir = provider_dir
-            @logger.debug("Provider directory: #{provider_dir}")
-            # If architecture is set, unpack into architecture specific directory
             if architecture
               arch = architecture
               arch = Util::Platform.architecture if architecture == :auto
-              final_dir = provider_dir.join(arch)
+              box_dir = box_dir.join(arch)
             end
+            provider_dir = box_dir.join(provider.to_s)
+            @logger.debug("Provider directory: #{provider_dir}")
 
-            if final_dir.exist?
+            if provider_dir.exist?
               @logger.debug("Removing existing provider directory...")
-              final_dir.rmtree
+              provider_dir.rmtree
             end
 
             # Move to final destination
-            final_dir.mkpath
+            provider_dir.mkpath
 
             # Recursively move individual files from the temporary directory
             # to the final location. We do this instead of moving the entire
             # directory to avoid issues on Windows. [GH-1424]
-            copy_pairs = [[final_temp_dir, final_dir]]
+            copy_pairs = [[final_temp_dir, provider_dir]]
             while !copy_pairs.empty?
               from, to = copy_pairs.shift
               from.children(true).each do |f|
@@ -248,34 +246,52 @@ module Vagrant
             next if versiondir.basename.to_s.start_with?(".")
 
             version = versiondir.basename.to_s
+            # Ensure version of box is correct before continuing
+            if !Gem::Version.correct?(version)
+              ui = Vagrant::UI::Prefixed.new(Vagrant::UI::Colored.new, "vagrant")
+              ui.warn(I18n.t("vagrant.box_version_malformed",
+                             version: version, box_name: box_name))
+              @logger.debug("Invalid version #{version} for box #{box_name}")
+              next
+            end
 
-            versiondir.children(true).each do |provider|
-              # Ensure version of box is correct before continuing
-              if !Gem::Version.correct?(version)
-                ui = Vagrant::UI::Prefixed.new(Vagrant::UI::Colored.new, "vagrant")
-                ui.warn(I18n.t("vagrant.box_version_malformed",
-                              version: version, box_name: box_name))
-                @logger.debug("Invalid version #{version} for box #{box_name}")
+            versiondir.children(true).each do |architecture_or_provider|
+              # If the entry is not a directory, it is invalid and should be ignored
+              if !architecture_or_provider.directory?
+                @logger.debug("Invalid box #{box_name} (v#{version}) - invalid item: #{architecture_or_provider}")
                 next
               end
 
-              # Verify this is a potentially valid box. If it looks
-              # correct enough then include it.
-              if provider.directory? && provider.join("metadata.json").file?
-                provider_name = provider.basename.to_s.to_sym
+              # Now the directory can be assumed to be the architecture
+              architecture_name = architecture_or_provider.basename.to_s.to_sym
+
+              # Cycle through directories to find providers
+              architecture_or_provider.children(true).each do |provider|
+                if !provider.directory?
+                  @logger.debug("Invalid box #{box_name} (v#{version}, #{architecture_name}) - invalid item: #{provider}")
+                  next
+                end
+
+                # If the entry contains a metadata file, add it
+                if provider.join("metadata.json").file?
+                  provider_name = provider.basename.to_s.to_sym
+                  @logger.debug("Box: #{box_name} (#{provider_name} (#{architecture_name}), #{version})")
+                  results << [box_name, version, provider_name, architecture_name]
+                end
+              end
+
+              # If the base entry contains a metadata file, then it was
+              # added prior to architecture support and is a provider directory.
+              # If it contains a metadata file, include it with the results only
+              # if an entry hasn't already been included for the local system's
+              # architecture
+              if architecture_or_provider.join("metadata.json").file?
+                provider_name = architecture_or_provider.basename.to_s.to_sym
+                if results.include?([box_name, version, provider_name, Util::Platform.architecture.to_sym])
+                  next
+                end
                 @logger.debug("Box: #{box_name} (#{provider_name}, #{version})")
                 results << [box_name, version, provider_name, nil]
-              elsif provider.directory?
-                provider.children(true).each do |architecture|
-                  provider_name = provider.basename.to_s.to_sym
-                  if architecture.directory? && architecture.join("metadata.json").file?
-                    architecture_name = architecture.basename.to_s.to_sym
-                    @logger.debug("Box: #{box_name} (#{provider_name} (#{architecture_name}), #{version})")
-                    results << [box_name, version, provider_name, architecture_name]
-                  end
-                end
-              else
-                @logger.debug("Invalid box #{box_name}, ignoring: #{provider}")
               end
             end
           end
@@ -341,25 +357,41 @@ module Vagrant
           end
 
           versiondir = box_directory.join(version_dir_map[v.to_s])
-          providers.each do |provider|
-            provider_dir = versiondir.join(provider.to_s)
-            next if !provider_dir.directory?
-            # If architecture is defined then the box should be within
-            # a subdirectory. However, if box_architecture value is :auto
-            # and the box provider directory exists but the architecture
-            # directory does not, we will use the box provider directory. This
-            # allows Vagrant to work correctly with boxes which were added
-            # prior to the addition of architecture support
-            final_dir = provider_dir
-            if architecture
-              arch_dir = provider_dir.join(architecture.to_s)
-              next if !arch_dir.directory? && box_architecture != :auto
-            end
-            final_dir = arch_dir if arch_dir && arch_dir.directory?
 
-            # If the final directory does not contain a `metadata.json` file, then
-            # skip this directory
-            next if !final_dir.join("metadata.json").exist?
+          providers.each do |provider|
+            providerdir = versiondir.join(architecture.to_s).join(provider.to_s)
+
+            # If the architecture was automatically set to the host
+            # architecture, then a match on the architecture subdirectory
+            # or the provider directory (which is a box install prior to
+            # architecture support) is valid
+            if box_architecture == :auto
+              if !providerdir.directory?
+                providerdir = versiondir.join(provider.to_s)
+              end
+
+              if providerdir.join("metadata.json").file?
+                @logger.info("Box found: #{name} (#{provider})")
+
+                metadata_url = nil
+                metadata_url_file = box_directory.join("metadata_url")
+                metadata_url = metadata_url_file.read if metadata_url_file.file?
+
+                if metadata_url && @hook
+                  hook_env     = @hook.call(
+                    :authenticate_box_url, box_urls: [metadata_url])
+                  metadata_url = hook_env[:box_urls].first
+                end
+
+                return Box.new(
+                  name, provider, version_dir_map[v.to_s], providerdir,
+                  architecture: architecture, metadata_url: metadata_url, hook: @hook
+                )
+              end
+            end
+
+            # If there is no metadata file found, skip
+            next if !providerdir.join("metadata.json").file?
 
             @logger.info("Box found: #{name} (#{provider})")
 
@@ -374,7 +406,7 @@ module Vagrant
             end
 
             return Box.new(
-              name, provider, version_dir_map[v.to_s], final_dir,
+              name, provider, version_dir_map[v.to_s], providerdir,
               architecture: architecture, metadata_url: metadata_url, hook: @hook
             )
           end
