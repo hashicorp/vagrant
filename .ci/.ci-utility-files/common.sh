@@ -223,9 +223,9 @@ function failure() {
 
     if [ -n "${SLACK_WEBHOOK}" ]; then
         if [ -f "$(output_file)" ]; then
-            slack -s error -m "ERROR: ${1}" -f "$(output_file)" -T 5
+            slack -s error -m "ERROR: ${msg}" -f "$(output_file)" -T 5
         else
-            slack -s error -m "ERROR: ${1}"
+            slack -s error -m "ERROR: ${msg}"
         fi
     fi
     exit 1
@@ -247,9 +247,9 @@ function warn() {
 
     if [ -n "${SLACK_WEBHOOK}" ]; then
         if [ -f "$(output_file)" ]; then
-            slack -s warn -m "WARNING: ${1}" -f "$(output_file)"
+            slack -s warn -m "WARNING: ${msg}" -f "$(output_file)"
         else
-            slack -s warn -m "WARNING: ${1}"
+            slack -s warn -m "WARNING: ${msg}"
         fi
     fi
 }
