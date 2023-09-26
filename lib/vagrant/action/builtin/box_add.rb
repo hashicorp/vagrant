@@ -329,6 +329,17 @@ module Vagrant
             provider_url = authed_urls[0]
           end
 
+          # The architecture name used when adding the box should be
+          # the value extracted from the metadata provider
+          arch_name = metadata_provider.architecture
+
+          # In the special case where the architecture name is "unknown" and
+          # it is listed as the default architecture, unset the architecture
+          # name so it is installed without architecture information
+          if arch_name == "unknown" && metadata_provider.default_architecture
+            arch_name = nil
+          end
+
           box_add(
             [[provider_url, metadata_provider.url]],
             metadata.name,
@@ -338,7 +349,7 @@ module Vagrant
             env,
             checksum: metadata_provider.checksum,
             checksum_type: metadata_provider.checksum_type,
-            architecture: metadata_provider.architecture,
+            architecture: arch_name,
           )
         end
 

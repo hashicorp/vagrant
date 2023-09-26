@@ -1033,7 +1033,7 @@ describe Vagrant::Action::Builtin::BoxAdd, :skip_windows, :bsdtar do
           subject.call(env)
         end
 
-        it "adds the latest version of a box with only one provider and no unknown architecture set as default" do
+        it "adds the latest version of a box with only one provider and unknown architecture set as default" do
           box_path = iso_env.box2_file(:virtualbox)
           tf = Tempfile.new(["vagrant-box-latest-version", ".json"]).tap do |f|
             f.write(
@@ -1072,7 +1072,7 @@ describe Vagrant::Action::Builtin::BoxAdd, :skip_windows, :bsdtar do
             expect(name).to eq("foo/bar")
             expect(version).to eq("0.7")
             expect(opts[:metadata_url]).to eq("file://#{tf.path}")
-            expect(opts[:architecture]).to eq("unknown")
+            expect(opts[:architecture]).to be_nil
             true
           }.and_return(box)
 
