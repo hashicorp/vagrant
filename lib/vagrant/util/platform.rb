@@ -17,6 +17,29 @@ module Vagrant
     class Platform
       class << self
 
+        # Detect architecture of host system
+        #
+        # @return [String]
+        def architecture
+          if !defined?(@_host_architecture)
+            if ENV["VAGRANT_HOST_ARCHITECTURE"].to_s != ""
+              return @_host_architecture = ENV["VAGRANT_HOST_ARCHITECTURE"]
+            end
+
+            @_host_architecture = case RbConfig::CONFIG["target_cpu"]
+              when "x86_64"
+                "amd64"
+              when "i386"
+                "386"
+              when "arm64", "aarch64"
+                "arm64"
+              else
+                RbConfig::CONFIG["target_cpu"]
+              end
+          end
+          @_host_architecture
+        end
+
         def logger
           if !defined?(@_logger)
             @_logger = Log4r::Logger.new("vagrant::util::platform")

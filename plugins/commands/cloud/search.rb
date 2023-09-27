@@ -21,6 +21,9 @@ module VagrantPlugins
             o.separator "Options:"
             o.separator ""
 
+            o.on("-a", "--architecture ARCH", "Filter search results to a single architecture. Defaults to all.") do |a|
+              options[:architecture] = a
+            end
             o.on("-j", "--json", "Formats results in JSON") do |j|
               options[:json] = j
             end
@@ -78,7 +81,7 @@ module VagrantPlugins
             custom_server: api_server_url,
             access_token: access_token
           )
-          params = {query: query}.merge(options.slice(:provider, :sort, :order, :limit, :page))
+          params = {query: query}.merge(options.slice(:architecture, :provider, :sort, :order, :limit, :page))
           result = account.searcher.search(**params)
 
           if result.boxes.empty?

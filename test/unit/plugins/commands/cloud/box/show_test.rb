@@ -40,7 +40,7 @@ describe VagrantPlugins::CloudCommand::BoxCommand::Command::Show do
     end
 
     it "should display the box results" do
-      expect(subject).to receive(:format_box_results).with(box, env)
+      expect(subject).to receive(:format_box_results).with(box, env, {})
       subject.show_box(org_name, box_name, access_token, options)
     end
 
@@ -62,7 +62,7 @@ describe VagrantPlugins::CloudCommand::BoxCommand::Command::Show do
       end
 
       it "should print the version details" do
-        expect(subject).to receive(:format_box_results).with(box_version, env)
+        expect(subject).to receive(:format_box_results).with(box_version, env, {})
         subject.show_box(org_name, box_name, access_token, options)
       end
 
@@ -141,6 +141,34 @@ describe VagrantPlugins::CloudCommand::BoxCommand::Command::Show do
         it "should show box with version option set" do
           expect(subject).to receive(:show_box).
             with(org_name, box_name, access_token, hash_including(versions: [version_option]))
+          subject.execute
+        end
+      end
+
+      context "with architectures flag set" do
+        let(:arch_option) { "test-arch" }
+
+        before { argv.push("--architectures").push(arch_option) }
+
+        it "shouild show box with architectures option set" do
+          expect(subject).to receive(:show_box) do |*_, opts|
+            expect(opts[:architectures]).to eq([arch_option])
+          end
+
+          subject.execute
+        end
+      end
+
+      context "with providers flag set" do
+        let(:provider_option) { "test-provider" }
+
+        before { argv.push("--providers").push(provider_option) }
+
+        it "shilud show box with providers option set" do
+          expect(subject).to receive(:show_box) do |*_, opts|
+            expect(opts[:providers]).to eq([provider_option])
+          end
+
           subject.execute
         end
       end

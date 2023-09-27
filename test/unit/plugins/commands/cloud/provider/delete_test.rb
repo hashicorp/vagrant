@@ -16,7 +16,8 @@ describe VagrantPlugins::CloudCommand::ProviderCommand::Command::Delete do
   let(:organization) { double("organization") }
   let(:box) { double("box", versions: [version]) }
   let(:version) { double("version", version: box_version, providers: [provider]) }
-  let(:provider) { double("provider", name: box_version_provider) }
+  let(:provider) { double("provider", name: box_version_provider, architecture: architecture) }
+  let(:architecture) { double("test-architecture") }
 
   describe "#delete_provider" do
     let(:options) { {} }
@@ -30,8 +31,14 @@ describe VagrantPlugins::CloudCommand::ProviderCommand::Command::Delete do
         with(custom_server: anything, access_token: access_token).
         and_return(account)
       allow(subject).to receive(:with_provider).
-        with(account: account, org: org_name, box: box_name, version: box_version, provider: box_version_provider).
-        and_yield(provider)
+        with(
+          account: account,
+          org: org_name,
+          box: box_name,
+          version: box_version,
+          provider: box_version_provider,
+          architecture: architecture
+        ).and_yield(provider)
       allow(provider).to receive(:delete)
     end
 
@@ -39,11 +46,11 @@ describe VagrantPlugins::CloudCommand::ProviderCommand::Command::Delete do
 
     it "should delete the provider" do
       expect(provider).to receive(:delete)
-      subject.delete_provider(org_name, box_name, box_version, box_version_provider, access_token, options)
+      subject.delete_provider(org_name, box_name, box_version, box_version_provider, architecture, account, options)
     end
 
     it "should return zero on success" do
-      r = subject.delete_provider(org_name, box_name, box_version, box_version_provider, access_token, options)
+      r = subject.delete_provider(org_name, box_name, box_version, box_version_provider, architecture, account, options)
       expect(r).to eq(0)
     end
 
@@ -53,7 +60,7 @@ describe VagrantPlugins::CloudCommand::ProviderCommand::Command::Delete do
       end
 
       it "should return non-zero" do
-        r = subject.delete_provider(org_name, box_name, box_version, box_version_provider, access_token, options)
+        r = subject.delete_provider(org_name, box_name, box_version, box_version_provider, architecture, account, options)
         expect(r).to be_a(Integer)
         expect(r).not_to eq(0)
       end
@@ -75,11 +82,16 @@ describe VagrantPlugins::CloudCommand::ProviderCommand::Command::Delete do
     let(:client) { double("client", token: access_token) }
 
     before do
+      allow(VagrantCloud::Account).to receive(:new).and_return(account)
+      allow(account).to receive(:organization).with(name: org_name).
+        and_return(organization)
       allow(iso_env).to receive(:action_runner).and_return(action_runner)
       allow(subject).to receive(:client_login).
         and_return(client)
       allow(iso_env.ui).to receive(:ask).
         and_return("y")
+      allow(subject).to receive(:select_provider_architecture).
+        and_return(architecture)
       allow(subject).to receive(:delete_provider)
     end
 
@@ -115,13 +127,50 @@ describe VagrantPlugins::CloudCommand::ProviderCommand::Command::Delete do
 
           it "should delete the provider" do
             expect(subject).to receive(:delete_provider).
-              with(org_name, box_name, version_arg, provider_arg, access_token, anything)
+              with(org_name, box_name, version_arg, provider_arg, architecture, account, anything)
             subject.execute
           end
 
           it "should prompt for confirmation" do
             expect(iso_env.ui).to receive(:ask).and_return("y")
             subject.execute
+          end
+
+          context "with architecture argument" do
+            let(:architecture_argument) { "test-arch" }
+
+            before { argv << architecture_argument }
+
+            it "should delete the provider" do
+              expect(subject).to receive(:delete_provider).
+                with(org_name, box_name, version_arg, provider_arg, architecture_argument, account, anything)
+              subject.execute
+            end
+
+            it "should not attempt to select the architecture" do
+              expect(subject).not_to receive(:select_provider_architecture)
+              subject.execute
+            end
+          end
+
+          context "with multiple provider architectures" do
+            let(:box_version) { double("box-version", providers: providers) }
+            let(:providers) {
+              [
+                double("dummy-provider", architecture: "amd64"),
+                double("dummy-provider", architecture: "arm64")
+              ]
+            }
+
+            before do
+              expect(subject).to receive(:select_provider_architecture).and_call_original
+              expect(subject).to receive(:with_version).and_yield(box_version)
+            end
+
+            it "should prompt for architecture selection" do
+              expect(iso_env.ui).to receive(:ask).and_return("amd64")
+              subject.execute
+            end
           end
 
           context "with force flag" do

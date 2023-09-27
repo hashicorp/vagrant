@@ -116,6 +116,34 @@ describe VagrantPlugins::Kernel_V2::VMConfig do
     end
   end
 
+  describe "#box_architecture" do
+    it "is not required" do
+      subject.box_architecture = nil
+      subject.finalize!
+      assert_valid
+    end
+
+    it "is :auto by default" do
+      subject.finalize!
+      assert_valid
+      expect(subject.box_architecture).to eq(:auto)
+    end
+
+    it "can be set to custom value" do
+      subject.box_architecture = "test-arch"
+      subject.finalize!
+      assert_valid
+      expect(subject.box_architecture).to eq("test-arch")
+    end
+
+    it "is converted to string" do
+      subject.box_architecture = :test_arch
+      subject.finalize!
+      assert_valid
+      expect(subject.box_architecture).to eq("test_arch")
+    end
+  end
+
   context "#box_check_update" do
     it "defaults to true" do
       with_temp_env("VAGRANT_BOX_UPDATE_CHECK_DISABLE" => "") do

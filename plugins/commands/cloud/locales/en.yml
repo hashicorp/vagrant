@@ -39,13 +39,25 @@ en:
             Box Description:       %{description}
         box_short_desc: |-
             Box Short Description: %{short_description}
+        checksum_type: |-
+            Checksum Type:         %{checksum_type}
+        checksum_value: |-
+            Checksum Value:        %{checksum_value}
+        architecture: |-
+            Box Architecture:      %{architecture}
+        default_architecture: |-
+            Default Architecture:  true
         version_desc: |-
             Version Description:   %{version_description}
     continue: |-
       Do you wish to continue? [y/N]
     box:
       show_filter_empty: |-
-        No version matched %{version} for %{org}/%{box_name}
+        No matches found for %{org}/%{box_name}
+        Filters applied:
+          Architectures: %{architectures}
+          Providers:     %{providers}
+          Versions:      %{versions}
       create_success: |-
         Created box %{org}/%{box_name}
       delete_success: |-
@@ -68,12 +80,19 @@ en:
         Uploading box file for '%{org}/%{box_name}' (v%{version}) for provider: '%{provider}'
       upload_success: |-
         Uploaded provider %{provider} on %{org}/%{box_name} for version %{version}
+      delete_multiple_architectures: |-
+        Multiple architectures detected for %{provider} on %{org}/%{box_name}:
+
+      delete_architectures_prompt: |-
+        Please enter the architecture name to delete:
       delete_warn: |-
-        This will completely remove provider %{provider} on version %{version} from %{box} on Vagrant Cloud. This cannot be undone.
+        This will completely remove provider %{provider} with architecture %{architecture}
+        on version %{version} from %{box} on Vagrant Cloud. This cannot be undone.
       create_success: |-
-        Created provider %{provider} on %{org}/%{box_name} for version %{version}
+        Created provider %{provider} with %{architecture} architecture on %{org}/%{box_name} for version %{version}
       delete_success: |-
-        Deleted provider %{provider} on %{org}/%{box_name} for version %{version}
+        Deleted provider %{provider} with %{architecture} architecture on %{org}/%{box_name}
+        for version %{version}
       update_success: |-
         Updated provider %{provider} on %{org}/%{box_name} for version %{version}
       not_found: |-
@@ -122,13 +141,13 @@ en:
           Failed to locate account information
       provider:
         create_fail: |-
-          Failed to create provider %{provider} on box %{org}/%{box_name} for version %{version}
+          Failed to create '%{architecture}' variant of %{provider} provider for version %{version} of the %{org}/%{box_name} box
         update_fail: |-
-          Failed to update provider %{provider} on box %{org}/%{box_name} for version %{version}
+          Failed to update '%{architecture}' variant of %{provider} provider for version %{version} of the %{org}/%{box_name} box
         delete_fail: |-
-          Failed to delete provider %{provider} on box %{org}/%{box_name} for version %{version}
+          Failed to delete '%{architecture}' variant of %{provider} provider for version %{version} of the %{org}/%{box_name} box
         upload_fail: |-
-          Failed to upload provider %{provider} on box %{org}/%{box_name} for version %{version}
+          Failed to upload '%{architecture}' variant of %{provider} provider for version %{version} of the %{org}/%{box_name} box
       version:
         create_fail: |-
           Failed to create version %{version} on box %{org}/%{box_name}

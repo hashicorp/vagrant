@@ -326,6 +326,7 @@ module Vagrant
           entry.local_data_path = @env.local_data_path
           entry.name = @name.to_s
           entry.provider = @provider_name.to_s
+          entry.architecture = @architecture
           entry.state = "preparing"
           entry.vagrantfile_path = @env.root_path
           entry.vagrantfile_name = @env.vagrantfile_name
@@ -334,6 +335,7 @@ module Vagrant
             entry.extra_data["box"] = {
               "name"     => @box.name,
               "provider" => @box.provider.to_s,
+              "architecture" => @box.architecture,
               "version"  => @box.version.to_s,
             }
           end
@@ -587,6 +589,7 @@ module Vagrant
         entry.extra_data["box"] = {
           "name"     => @box.name,
           "provider" => @box.provider.to_s,
+          "architecture" => @box.architecture,
           "version"  => @box.version.to_s,
         }
       end

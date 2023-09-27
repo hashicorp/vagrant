@@ -42,6 +42,13 @@ the name of the synced folder plugin.
   of an installed box or a shorthand name of a box in
   [HashiCorp's Vagrant Cloud](/vagrant/vagrant-cloud).
 
+- `config.vm.box_architecture` (string) - The architecture of the box to be used.
+  Supported architecture values: "386", "amd64", "arm", "arm64", "ppc64le", "ppc64",
+  "mips64le", "mips64", "mipsle", "mips", and "s390x". The special value `:auto` will
+  detect the host architecture and fetch the appropriate box, if available. When the
+  value is set to `nil`, it will fetch the box flagged as the default architecture.
+  Defaults to `:auto`.
+
 - `config.vm.box_check_update` (boolean) - If true, Vagrant will check for updates to
   the configured box on every `vagrant up`. If an update is found, Vagrant
   will tell the user. By default this is true. Updates will only be checked

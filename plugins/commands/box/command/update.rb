@@ -32,6 +32,10 @@ module VagrantPlugins
               options[:box] = b
             end
 
+            o.on("--architecture ARCHITECTURE", String, "Update box with specific architecture") do |a|
+              options[:architecture] = a
+            end
+
             o.on("--provider PROVIDER", String, "Update box with specific provider") do |p|
               options[:provider] = p.to_sym
             end
@@ -47,7 +51,7 @@ module VagrantPlugins
           return if !argv
 
           if options[:box]
-            update_specific(options[:box], options[:provider], download_options, options[:force])
+            update_specific(options[:box], options[:provider], options[:architecture], download_options, options[:force])
           else
             update_vms(argv, options[:provider], download_options, options[:force])
           end
@@ -55,41 +59,62 @@ module VagrantPlugins
           0
         end
 
-        def update_specific(name, provider, download_options, force)
-          boxes = {}
-          @env.boxes.all.each do |n, v, p|
-            boxes[n] ||= {}
-            boxes[n][p] ||= []
-            boxes[n][p] << v
+        def update_specific(name, provider, architecture, download_options, force)
+          box_info = Vagrant::Util::HashWithIndifferentAccess.new
+          @env.boxes.all.each do |box_name, box_version, box_provider, box_architecture|
+            next if name != box_name
+            box_info[box_provider] ||= Vagrant::Util::HashWithIndifferentAccess.new
+            box_info[box_provider][box_version] ||= []
+            box_info[box_provider][box_version].push(box_architecture.to_s).uniq!
           end
 
-          if !boxes[name]
+          if box_info.empty?
             raise Vagrant::Errors::BoxNotFound, name: name.to_s
           end
 
           if !provider
-            if boxes[name].length > 1
+            if box_info.size > 1
               raise Vagrant::Errors::BoxUpdateMultiProvider,
                 name: name.to_s,
-                providers: boxes[name].keys.map(&:to_s).sort.join(", ")
+                providers: box_info.keys.map(&:to_s).sort.join(", ")
             end
 
-            provider = boxes[name].keys.first
-          elsif !boxes[name][provider]
+            provider = box_info.keys.first
+          elsif !box_info[provider]
             raise Vagrant::Errors::BoxNotFoundWithProvider,
               name: name.to_s,
               provider: provider.to_s,
-              providers: boxes[name].keys.map(&:to_s).sort.join(", ")
+              providers: box_info.keys.map(&:to_s).sort.join(", ")
           end
 
-          to_update = [
-            [name, provider, boxes[name][provider].sort_by{|n| Gem::Version.new(n)}.last],
-          ]
+          version = box_info[provider].keys.sort_by{ |v| Gem::Version.new(v) }.last
+          architecture_list = box_info[provider][version]
 
-          to_update.each do |n, p, v|
-            box = @env.boxes.find(n, p, v)
-            box_update(box, "> #{v}", @env.ui, download_options, force)
+          if !architecture
+            if architecture_list.size > 1
+              raise Vagrant::Errors::BoxUpdateMultiArchitecture,
+                name: name.to_s,
+                provider: provider.to_s,
+                version: version.to_s,
+                architectures: architecture_list.sort.join(", ")
+            end
+
+            architecture = architecture_list.first
+          elsif !architecture_list.include?(architecture)
+            raise Vagrant::Errors::BoxNotFoundWithProviderArchitecture,
+              name: name.to_s,
+              provider: provider.to_s,
+              version: version.to_s,
+              architecture: architecture,
+              architectures: architecture_list.sort.join(", ")
           end
+
+          # Architecture gets cast to a string when collecting information
+          # above. Convert it back to a nil if it's empty
+          architecture = nil if architecture.to_s.empty?
+
+          box = @env.boxes.find(name, provider, version, architecture)
+          box_update(box, "> #{version}", @env.ui, download_options, force)
         end
 
         def update_vms(argv, provider, download_options, force)
@@ -146,6 +171,7 @@ module VagrantPlugins
           ui.detail("Latest installed version: #{box.version}")
           ui.detail("Version constraints: #{version}")
           ui.detail("Provider: #{box.provider}")
+          ui.detail("Architecture: #{box.architecture.inspect}") if box.architecture
 
           update = box.has_update?(version, download_options: download_options)
           if !update
@@ -165,6 +191,7 @@ module VagrantPlugins
             box_url: box.metadata_url,
             box_provider: update[2].name,
             box_version: update[1].version,
+            box_architecture: update[2].architecture,
             ui: ui,
             box_force: force,
             box_download_client_cert: download_options[:client_cert],

@@ -81,4 +81,40 @@ describe VagrantPlugins::CommandBox::Command::Remove do
         to raise_error(Vagrant::Errors::CLIInvalidUsage)
     end
   end
+
+  context "with architecture flag" do
+    let(:argv) { ["foo", "--architecture", "test-arch"] }
+
+    it "should execute runner with box architecture set" do
+      expect(action_runner).to receive(:run) do |_, opts|
+        expect(opts[:box_architecture]).to eq("test-arch")
+      end
+
+      subject.execute
+    end
+  end
+
+  context "with all providers flag" do
+    let(:argv) { ["foo", "--all-providers"] }
+
+    it "should execute runner with all providers enabled" do
+      expect(action_runner).to receive(:run) do |_, opts|
+        expect(opts[:box_remove_all_providers]).to be(true)
+      end
+
+      subject.execute
+    end
+  end
+
+  context "with all architectures flag" do
+    let(:argv) { ["foo", "--all-architectures"] }
+
+    it "should execute runner with all architectures enabled" do
+      expect(action_runner).to receive(:run) do |_, opts|
+        expect(opts[:box_remove_all_architectures]).to be(true)
+      end
+
+      subject.execute
+    end
+  end
 end

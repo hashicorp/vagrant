@@ -210,7 +210,7 @@ describe Vagrant::Action::Builtin::BoxAdd, :skip_windows, :bsdtar do
       env[:box_provider] = "virtualbox"
 
       expect(box_collection).to receive(:find).with(
-        "foo", ["virtualbox"], "0").and_return(box)
+        "foo", ["virtualbox"], "0", nil).and_return(box)
       expect(box_collection).to receive(:add).never
       expect(app).to receive(:call).never
 
@@ -552,6 +552,78 @@ describe Vagrant::Action::Builtin::BoxAdd, :skip_windows, :bsdtar do
         with_temp_env("VAGRANT_SERVER_URL" => url) do
           subject.call(env)
         end
+      end
+
+      FileUtils.rm_rf(td)
+    end
+
+    it "adds from API endpoint when available" do
+      box_path = iso_env.box2_file(:virtualbox)
+      td = Pathname.new(Dir.mktmpdir("vagrant-test-box-api-endpoint"))
+      tf = td.join("mitchellh", "precise64.json")
+      tf.dirname.mkpath
+      tf.open("w") do |f|
+        f.write(<<-RAW)
+        {
+          "name": "mitchellh/precise64",
+          "versions": [
+            {
+              "version": "0.5"
+            },
+            {
+              "version": "0.7",
+              "providers": [
+                {
+                  "name": "virtualbox",
+                  "url":  "#{box_path}"
+                }
+              ]
+            }
+          ]
+        }
+        RAW
+      end
+      apif = td.join("api", "v2", "vagrant", "mitchellh", "precise64.json")
+      apif.dirname.mkpath
+      apif.open("w") do |f|
+        f.write(<<-RAW)
+        {
+          "name": "mitchellh/precise64",
+          "versions": [
+            {
+              "version": "0.5"
+            },
+            {
+              "version": "0.8",
+              "providers": [
+                {
+                  "name": "virtualbox",
+                  "url":  "#{box_path}"
+                }
+              ]
+            }
+          ]
+        }
+        RAW
+      end
+
+      with_web_server(tf.dirname) do |port|
+        url = "http://127.0.0.1:#{port}"
+        env[:box_url] = "mitchellh/precise64.json"
+        env[:box_server_url] = url
+
+        expect(box_collection).to receive(:add).with(any_args) { |path, name, version, opts|
+          expect(name).to eq("mitchellh/precise64")
+          expect(version).to eq("0.8")
+          expect(checksum(path)).to eq(checksum(box_path))
+          expect(opts[:metadata_url]).to eq(
+            "#{url}/api/v2/vagrant/#{env[:box_url]}")
+          true
+        }.and_return(box)
+
+        expect(app).to receive(:call).with(env)
+
+        subject.call(env)
       end
 
       FileUtils.rm_rf(td)
@@ -901,6 +973,305 @@ describe Vagrant::Action::Builtin::BoxAdd, :skip_windows, :bsdtar do
       expect(app).to receive(:call).with(env)
 
       subject.call(env)
+    end
+
+    context "with box architecture configured" do
+      before do
+        allow(Vagrant::Util::Platform).to receive(:architecture).and_return("test-arch")
+      end
+
+      context "set to :auto" do
+        before do
+          env[:box_architecture] = :auto
+        end
+
+        it "adds the latest version of a box with only one provider and matching architecture" do
+          box_path = iso_env.box2_file(:virtualbox)
+          tf = Tempfile.new(["vagrant-box-latest-version", ".json"]).tap do |f|
+            f.write(
+              {
+                name: "foo/bar",
+                versions: [
+                  {
+                    version: "0.5",
+                  },
+                  {
+                    version: "0.7",
+                    providers: [
+                      {
+                        name: "virtualbox",
+                        url: "/dev/null/invalid.path",
+                        architecture: "amd64",
+                        default_architecture: true,
+                      },
+                      {
+                        name: "virtualbox",
+                        url: "#{box_path}",
+                        architecture: "test-arch",
+                        default_architecture: false,
+                      }
+                    ]
+                  }
+                ]
+              }.to_json
+            )
+            f.close
+          end
+
+          env[:box_url] = tf.path
+          expect(box_collection).to receive(:add).with(any_args) { |path, name, version, opts|
+            expect(checksum(path)).to eq(checksum(box_path))
+            expect(name).to eq("foo/bar")
+            expect(version).to eq("0.7")
+            expect(opts[:metadata_url]).to eq("file://#{tf.path}")
+            expect(opts[:architecture]).to eq("test-arch")
+            true
+          }.and_return(box)
+
+          expect(app).to receive(:call).with(env)
+
+          subject.call(env)
+        end
+
+        it "adds the latest version of a box with only one provider and unknown architecture set as default" do
+          box_path = iso_env.box2_file(:virtualbox)
+          tf = Tempfile.new(["vagrant-box-latest-version", ".json"]).tap do |f|
+            f.write(
+              {
+                name: "foo/bar",
+                versions: [
+                  {
+                    version: "0.5",
+                  },
+                  {
+                    version: "0.7",
+                    providers: [
+                      {
+                        name: "virtualbox",
+                        url: "#{box_path}",
+                        architecture: "unknown",
+                        default_architecture: true,
+                      },
+                      {
+                        name: "virtualbox",
+                        url: "/dev/null/invalid.path",
+                        architecture: "amd64",
+                        default_architecture: false,
+                      }
+                    ]
+                  }
+                ]
+              }.to_json
+            )
+            f.close
+          end
+
+          env[:box_url] = tf.path
+          expect(box_collection).to receive(:add).with(any_args) { |path, name, version, opts|
+            expect(checksum(path)).to eq(checksum(box_path))
+            expect(name).to eq("foo/bar")
+            expect(version).to eq("0.7")
+            expect(opts[:metadata_url]).to eq("file://#{tf.path}")
+            expect(opts[:architecture]).to be_nil
+            true
+          }.and_return(box)
+
+          expect(app).to receive(:call).with(env)
+
+          subject.call(env)
+        end
+
+        it "errors adding latest version of a box with only one provider and no matching architecture" do
+          allow(Vagrant::Util::Platform).to receive(:architecture).and_return("test-arch")
+
+          box_path = iso_env.box2_file(:virtualbox)
+          tf = Tempfile.new(["vagrant-box-latest-version", ".json"]).tap do |f|
+            f.write(
+              {
+                name: "foo/bar",
+                versions: [
+                  {
+                    version: "0.5",
+                  },
+                  {
+                    version: "0.7",
+                    providers: [
+                      {
+                        name: "virtualbox",
+                        url: "#{box_path}",
+                        architecture: "amd64",
+                        default_architecture: true,
+                      },
+                      {
+                        name: "virtualbox",
+                        url: "/dev/null/invalid.path",
+                        architecture: "arm64",
+                        default_architecture: false,
+                      }
+                    ]
+                  }
+                ]
+              }.to_json
+            )
+            f.close
+          end
+
+          env[:box_url] = tf.path
+
+          expect {
+            subject.call(env)
+          }.to raise_error(Vagrant::Errors::BoxAddNoMatchingVersion)
+        end
+      end
+
+      context "set to nil" do
+        before do
+          env[:box_architecture] = nil
+        end
+
+        it "adds the latest version of a box with only one provider and default architecture" do
+          allow(Vagrant::Util::Platform).to receive(:architecture).and_return("default-arch")
+          box_path = iso_env.box2_file(:virtualbox)
+          tf = Tempfile.new(["vagrant-box-latest-version", ".json"]).tap do |f|
+            f.write(
+              {
+                name: "foo/bar",
+                versions: [
+                  {
+                    version: "0.5",
+                  },
+                  {
+                    version: "0.7",
+                    providers: [
+                      {
+                        name: "virtualbox",
+                        url: "#{box_path}",
+                        architecture: "default-arch",
+                        default_architecture: true,
+                      },
+                      {
+                        name: "virtualbox",
+                        url: "/dev/null/invalid.path",
+                        architecture: "test-arch",
+                        default_architecture: false,
+                      }
+                    ]
+                  }
+                ]
+              }.to_json
+            )
+            f.close
+          end
+
+          env[:box_url] = tf.path
+          expect(box_collection).to receive(:add).with(any_args) { |path, name, version, opts|
+            expect(checksum(path)).to eq(checksum(box_path))
+            expect(name).to eq("foo/bar")
+            expect(version).to eq("0.7")
+            expect(opts[:metadata_url]).to eq("file://#{tf.path}")
+            expect(opts[:architecture]).to eq("default-arch")
+            true
+          }.and_return(box)
+
+          expect(app).to receive(:call).with(env)
+
+          subject.call(env)
+        end
+      end
+
+      context "set to explicit value" do
+        before do
+          env[:box_architecture] = "arm64"
+        end
+
+        it "adds the latest version of a box with only one provider and matching architecture" do
+          box_path = iso_env.box2_file(:virtualbox)
+          tf = Tempfile.new(["vagrant-box-latest-version", ".json"]).tap do |f|
+            f.write(
+              {
+                name: "foo/bar",
+                versions: [
+                  {
+                    version: "0.5",
+                  },
+                  {
+                    version: "0.7",
+                    providers: [
+                      {
+                        name: "virtualbox",
+                        url: "#{box_path}",
+                        architecture: "arm64",
+                        default_architecture: false,
+                      },
+                      {
+                        name: "virtualbox",
+                        url: "/dev/null/invalid.path",
+                        architecture: "test-arch",
+                        default_architecture: true,
+                      }
+                    ]
+                  }
+                ]
+              }.to_json
+            )
+            f.close
+          end
+
+          env[:box_url] = tf.path
+          expect(box_collection).to receive(:add).with(any_args) { |path, name, version, opts|
+            expect(checksum(path)).to eq(checksum(box_path))
+            expect(name).to eq("foo/bar")
+            expect(version).to eq("0.7")
+            expect(opts[:metadata_url]).to eq("file://#{tf.path}")
+            expect(opts[:architecture]).to eq("arm64")
+            true
+          }.and_return(box)
+
+          expect(app).to receive(:call).with(env)
+
+          subject.call(env)
+        end
+
+        it "errors adding the latest version of a box with only one provider and no matching architecture" do
+          box_path = iso_env.box2_file(:virtualbox)
+          tf = Tempfile.new(["vagrant-box-latest-version", ".json"]).tap do |f|
+            f.write(
+              {
+                name: "foo/bar",
+                versions: [
+                  {
+                    version: "0.5",
+                  },
+                  {
+                    version: "0.7",
+                    providers: [
+                      {
+                        name: "virtualbox",
+                        url: "#{box_path}",
+                        architecture: "amd64",
+                        default_architecture: true,
+                      },
+                      {
+                        name: "virtualbox",
+                        url: "/dev/null/invalid.path",
+                        architecture: "386",
+                        default_architecture: false,
+                      }
+                    ]
+                  }
+                ]
+              }.to_json
+            )
+            f.close
+          end
+
+          env[:box_url] = tf.path
+
+          expect {
+            subject.call(env)
+          }.to raise_error(Vagrant::Errors::BoxAddNoMatchingVersion)
+        end
+      end
     end
 
     it "adds the latest version of a box with the specified provider" do
@@ -1304,7 +1675,7 @@ describe Vagrant::Action::Builtin::BoxAdd, :skip_windows, :bsdtar do
 
       env[:box_url] = tf.path
       expect(box_collection).to receive(:find).
-        with("foo/bar", "virtualbox", "0.7").and_return(box)
+        with("foo/bar", "virtualbox", "0.7", nil).and_return(box)
       expect(box_collection).to receive(:add).never
       expect(app).to receive(:call).never
 

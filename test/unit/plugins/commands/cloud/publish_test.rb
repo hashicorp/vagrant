@@ -20,16 +20,20 @@ describe VagrantPlugins::CloudCommand::Command::Publish do
   let(:ui) { Vagrant::UI::Silent.new }
   let(:upload_url) { double("upload_url") }
   let(:access_token) { double("access_token") }
+  let(:default_architecture) { double("default-architecture") }
 
   subject { described_class.new(argv, iso_env) }
 
   before do
+    allow(Vagrant::Util::Platform).to receive(:architecture).
+      and_return(default_architecture)
     allow(iso_env).to receive(:ui).and_return(ui)
     allow(File).to receive(:stat).with(box).
       and_return(double("box_stat", size: box_size))
     allow(VagrantCloud::Account).to receive(:new).
       with(custom_server: anything, access_token: anything).
       and_return(account)
+    allow(provider).to receive(:architecture=).with(default_architecture)
   end
 
   describe "#upload_box_file" do
@@ -148,21 +152,69 @@ describe VagrantPlugins::CloudCommand::Command::Publish do
       let(:options) { {} }
 
       it "should not modify the provider" do
+        expect(provider).not_to receive(:url=)
+        expect(provider).not_to receive(:checksum=)
+        expect(provider).not_to receive(:checksum_type=)
+        expect(provider).not_to receive(:architecture=)
+        expect(provider).not_to receive(:default_architecture=)
+
         subject.set_provider_info(provider, options)
       end
     end
 
-    context "with options set" do
-      let(:options) { {url: url, checksum: checksum, checksum_type: checksum_type} }
+    context "with options" do
+      let(:options) { {} }
       let(:url) { double("url") }
       let(:checksum) { double("checksum") }
       let(:checksum_type) { double("checksum_type") }
+      let(:architecture) { double("architecture") }
 
-      it "should set info on provider" do
-        expect(provider).to receive(:url=).with(url)
-        expect(provider).to receive(:checksum=).with(checksum)
-        expect(provider).to receive(:checksum_type=).with(checksum_type)
-        subject.set_provider_info(provider, options)
+      after { subject.set_provider_info(provider, options) }
+
+      context "with url set" do
+        before { options[:url] = url }
+
+        it "should set url on provider" do
+          expect(provider).to receive(:url=).with(url)
+        end
+      end
+
+      context "with checksum set" do
+        before do
+          options[:checksum] = checksum
+          options[:checksum_type] = checksum_type
+        end
+
+        it "should set checksum on provider" do
+          expect(provider).to receive(:checksum=).with(checksum)
+          expect(provider).to receive(:checksum_type=).with(checksum_type)
+        end
+      end
+
+      context "with architecture set" do
+        before { options[:architecture] = architecture }
+
+        it "should set architecture on provider" do
+          expect(provider).to receive(:architecture=).with(architecture)
+        end
+      end
+
+      context "with default architecture set" do
+        context "with true value" do
+          before { options[:default_architecture] = true }
+
+          it "should set default architecture to true" do
+            expect(provider).to receive(:default_architecture=).with(true)
+          end
+        end
+
+        context "with false value" do
+          before { options[:default_architecture] = false }
+
+          it "should set default architecture to false" do
+            expect(provider).to receive(:default_architecture=).with(false)
+          end
+        end
       end
     end
   end

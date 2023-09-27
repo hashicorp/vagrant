@@ -46,7 +46,7 @@ module Vagrant
     autoload :Numeric,                   'vagrant/util/numeric'
     autoload :Platform,                  'vagrant/util/platform'
     autoload :Powershell,                'vagrant/util/powershell'
-    autoload :Presence,                   'vagrant/util/presence'
+    autoload :Presence,                  'vagrant/util/presence'
     autoload :Retryable,                 'vagrant/util/retryable'
     autoload :SafeChdir,                 'vagrant/util/safe_chdir'
     autoload :SafeEnv,                   'vagrant/util/safe_env'

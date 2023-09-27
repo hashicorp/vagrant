@@ -102,7 +102,8 @@ module VagrantPlugins
             name: b.tag,
             version: b.current_version.version,
             downloads: format_downloads(b.downloads.to_s),
-            providers: b.current_version.providers.map(&:name).join(", ")
+            providers: b.current_version.providers.map(&:name).uniq.join(", "),
+            architectures: b.current_version.providers.map(&:architecture).join(", ")
           }
         end
 
@@ -126,19 +127,26 @@ module VagrantPlugins
       # @param [VagrantCloud::Box, VagrantCloud::Box::Version] box Box or box version to display
       # @param [Vagrant::Environment] env Current Vagrant environment
       # @return [nil]
-      def format_box_results(box, env)
+      def format_box_results(box, env, options={})
         if box.is_a?(VagrantCloud::Box)
-          info = box_info(box)
-        elsif box.is_a?(VagrantCloud::Box::Provider)
-          info = version_info(box.version)
-        else
+          info = box_info(box, options)
+        elsif box.is_a?(VagrantCloud::Box::Version)
           info = version_info(box)
+        else
+          info = provider_info(box)
         end
 
         width = info.keys.map(&:size).max
         info.each do |k, v|
-          whitespace = width - k.size
-          env.ui.info "#{k}: #{"".ljust(whitespace)} #{v}"
+          v.to_s.split("\n").each_with_index do |line, idx|
+            whitespace = width - k.size + line.to_s.size
+            if idx == 0
+              env.ui.info "#{k}: #{line.rjust(whitespace)}"
+            else
+              whitespace += k.size + 2
+              env.ui.info line.rjust(whitespace)
+            end
+          end
         end
         nil
       end
@@ -193,9 +201,12 @@ module VagrantPlugins
       # @yieldparam [VagrantCloud::Box::Provider] provider Requested Vagrant Cloud box version provider
       # @yieldreturn [Integer]
       # @return [Integer]
-      def with_provider(account:, org:, box:, version:, provider:)
+      def with_provider(account:, org:, box:, version:, provider:, architecture:)
         with_version(account: account, org: org, box: box, version: version) do |v|
-          p = v.providers.detect { |p| p.name == provider }
+          p = v.providers.detect { |p|
+            p.name == provider &&
+              p.architecture == architecture
+          }
           if !p
             @env.ui.error(I18n.t("cloud_command.provider.not_found",
               org: org, box_name: box, version: version, provider_name: provider))
@@ -211,19 +222,42 @@ module VagrantPlugins
       #
       # @param [VagrantCloud::Box] box Box for extracting information
       # @return [Hash<String,String>]
-      def box_info(box)
+      def box_info(box, options={})
+        current_version = box.current_version
+        if current_version
+          current_version = nil if !Array(options[:providers]).empty? &&
+                                   current_version.providers.none? { |p| options[:providers].include?(p.name) }
+          current_version = nil if !Array(options[:architectures]).empty? &&
+                                   current_version.providers.none? { |p| options[:architectures].include?(p.architecture) }
+        end
+        versions = box.versions
+        # Apply provider filter if defined
+        versions = versions.find_all { |v|
+          v.providers.any? { |p|
+            options[:providers].include?(p.name)
+          }
+        } if !Array(options[:providers]).empty?
+        # Apply architecture filter if defined
+        versions = versions.find_all { |v|
+          v.providers.any? { |p|
+            options[:architectures].include?(p.architecture)
+          }
+        } if !Array(options[:architectures]).empty?
+
+        raise "no matches" if current_version.nil? && versions.empty?
+
         Hash.new.tap do |i|
           i["Box"] = box.tag
           i["Description"] = box.description
           i["Private"] = box.private ? "yes" : "no"
           i["Created"] = box.created_at
           i["Updated"] = box.updated_at
-          if !box.current_version.nil?
+          if !current_version.nil?
             i["Current Version"] = box.current_version.version
           else
             i["Current Version"] = "N/A"
           end
-          i["Versions"] = box.versions.slice(0, 5).map(&:version).join(", ")
+          i["Versions"] = versions.slice(0, 5).map(&:version).join(", ")
           if box.versions.size > 5
             i["Versions"] += " ..."
           end
@@ -236,15 +270,33 @@ module VagrantPlugins
       # @param [VagrantCloud::Box::Version] version Box version for extracting information
       # @return [Hash<String,String>]
       def version_info(version)
+        provider_arches = version.providers.group_by(&:name).map { |provider_name, info|
+          "#{provider_name} (#{info.map(&:architecture).sort.join(", ")})"
+        }.sort.join("\n")
         Hash.new.tap do |i|
           i["Box"] = version.box.tag
           i["Version"] = version.version
           i["Description"] = version.description
           i["Status"] = version.status
-          i["Providers"] = version.providers.map(&:name).sort.join(", ")
+          i["Providers"] = provider_arches
           i["Created"] = version.created_at
           i["Updated"] = version.updated_at
         end
+      end
+
+      # Extract provider information for display
+      #
+      # @param [VagrantCloud::Box::Provider] provider Box provider for extracting information
+      # @return [Hash<String,String>]
+      def provider_info(provider)
+        {
+          "Box" => provider.version.box.tag,
+          "Private" => provider.version.box.private ? "yes" : "no",
+          "Version" => provider.version.version,
+          "Provider" => provider.name,
+          "Architecture" => provider.architecture,
+          "Default Architecture" => provider.default_architecture ? "yes" : "no",
+        }
       end
 
       # Print table results from search request

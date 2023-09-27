@@ -140,6 +140,8 @@ if File.exist?(File.expand_path("vagrant/vagrant_ssl.so", __dir__))
   rescue => err
     global_logger.warn("unexpected failure loading ssl providers, attempting to continue (#{err})")
   end
+else
+  global_logger.warn("vagrant ssl helper was not found, continuing...")
 end
 
 # We need these components always so instead of an autoload we

@@ -202,7 +202,7 @@ module Vagrant
 
         # Load the box Vagrantfile, if there is one
         if !config.vm.box.to_s.empty? && boxes
-          box = boxes.find(config.vm.box, box_formats, config.vm.box_version)
+          box = boxes.find(config.vm.box, box_formats, config.vm.box_version, config.vm.box_architecture)
           if box
             box_vagrantfile = find_vagrantfile(box.directory)
             if box_vagrantfile && !config.vm.ignore_box_vagrantfile
