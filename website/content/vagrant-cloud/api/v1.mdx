@@ -1,10 +1,10 @@
 ---
 layout: vagrant-cloud
-page_title: Vagrant Cloud API
+page_title: Vagrant Cloud API (Version 1)
 description: "Vagrant Cloud provides an API for users to interact with Vagrant Cloud for experimentation, automation, or building new features and tools on top of our existing application."
 ---
 
-# Vagrant Cloud API
+# Vagrant Cloud API (Version 1)
 
 ## Using the API
 
@@ -18,7 +18,7 @@ Clients can authenticate using an authentication token.
 The token can be passed to Vagrant Cloud one of two ways:
 
 1. (Preferred) Set the `Authorization` header to `"Bearer "` and the value of the authentication token.
-2. Pass the authentication token as an `access_token` URL parameter.
+2. Pass the authentication token as an `access_token` URL parameter (_NOTE_: deprecated).
 
 Examples below will set the header, but feel free to use whichever method is easier for your implementation.
 
