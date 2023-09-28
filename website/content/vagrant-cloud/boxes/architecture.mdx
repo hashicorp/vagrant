@@ -1,0 +1,117 @@
+---
+layout: vagrant-cloud
+page_title: Vagrant Box Architecture
+description: "Vagrant box architecture and default architecture"
+---
+
+# Architecture For Vagrant Boxes
+
+This page provides information on the architecture option available when 
+creating a provider for a box on Vagrant Cloud. The architecture option 
+allows a box to provide multiple instances of a provider with a specific
+name. Each of these providers that share a common name can provide an 
+artifact for a different architecture.
+
+Using the `hashicorp/precise32` and `hashicorp/precise64` boxes as an example,
+each of these boxes include a provider for `virtualbox`. This looks like:
+
+```
+hashicorp/precise32
+  v1.0.0
+    provider: virtualbox
+    
+hashicorp/precise64
+  v1.0.0
+    provider: virtualbox
+```
+
+The addition of architecture now allows these to be combined into a single
+box. Instead of having a `hashicorp/precise32` box for a 32-bit guest, and 
+a `hashicorp/precise64` box for a 64-bit guest, a single `hashicorp/precise`
+box can provider both. The new box would look like:
+
+```
+hashicorp/precise
+  v1.0.0
+    provider: virtualbox, architecture: amd64
+    provider: virtualbox, architecture: i386
+```
+
+The Vagrant CLI (starting with version 2.4.0) will automatically match the
+provider architecture using the detected local host architecture. If the
+Vagrant CLI cannot find a matching architecture, it will attempt a
+[special case match](/vagrant/vagrant-cloud/boxes/architecture#special-case-unknown-architecture).
+
+# Default Architecture
+
+Vagrant Cloud allows a single architecture to be flagged as the "default 
+architecture" for a provider. The flag is used for backwards compatiblity
+with previous versions of the Vagrant CLI that do not support architecture
+filtering when matching an appropriate provider. Using this flag allows
+the box owner to control which architecture for a specific provider is 
+used by the Vagrant CLI when architecture filtering is not available.
+
+By default, the first provider for a specific name uploaded in a box version 
+will be flagged as the default architecture. For example, after creating 
+the `2.0.0` version of the `hashicorp/precise` box and creating a new 
+provider for `virtualbox` with `amd64` architecture it would look like:
+
+```
+hashicorp/precise
+  v2.0.0
+    provider: virtualbox, architecture: amd64, default_architecture: true
+```
+
+If another `virtualbox` provider is created with `i386` architecture it would
+then look like:
+
+```
+hashicorp/precise
+  v2.0.0
+    provider: virtualbox, architecture: amd64, default_architecture: true
+    provider: virtualbox, architecture: i386, default_architecture: false
+```
+
+When the Vagrant CLI prior to version 2.4.0 requests the `hashicorp/precise`
+box with the `virtualbox` provider, it will receive the information from 
+the `virtualbox` provider with the `amd64` architecture because it is flagged 
+as being the default architecture. If, instead, the provider with `i386`
+architecture should be returned, the provider can be updated to look like:
+
+```
+hashicorp/precise
+  v2.0.0
+    provider: virtualbox, architecture: amd64, default_architecture: false
+    provider: virtualbox, architecture: i386, default_architecture: true
+```
+
+Now the provider with the `i386` architecture will be returned.
+
+## Special Cases
+
+There are two cases where Vagrant CLI versions with architecture support
+will use the default architecture flag.
+
+### User Requested
+
+If the user sets the [config.vm.box_architecture](/vagrant/docs/vagrantfile/machine_settings#box_architecture)
+option in their Vagrantfile to `nil`, the Vagrant CLI will use the 
+provider which has been flagged as the default architecture.
+
+### Unknown Architecture
+
+The architecture value `unknown` combined with the default architecture
+flag provides a special matching case for the Vagrant CLI. If the 
+[config.vm.box_architecture](/vagrant/docs/vagrantfile/machine_settings#box_architecture)
+option in the local Vagrantfile is configured with the default `:auto`
+value, and no architecture matching the host platform can be found 
+for the desired provider, the Vagrant CLI will check for a matching 
+provider that is flagged as the default architecture and has an
+architecture value of `unknown`. If that match is found, the Vagrant
+CLI will use that provider.
+
+This special case matching was included so the Vagrant CLI would be
+able to use boxes published to Vagrant Cloud prior to the introduction 
+of architecture metadata. All previously existing providers have a 
+default architecture value of `unknown` and are flagged as the default 
+architecture since they are the only provider to exist for a given name.
