@@ -1,0 +1,1437 @@
+---
+layout: vagrant-cloud
+page_title: Vagrant Cloud API (Version 2)
+description: "Vagrant Cloud provides an API for users to interact with Vagrant Cloud for experimentation, automation, or building new features and tools on top of our existing application."
+---
+
+# Vagrant Cloud API (Version 2)
+
+## Using the API
+
+Vagrant Cloud provides an API for users to interact with Vagrant Cloud for experimentation, automation, or building new features and tools on top of our existing application.
+
+### Authentication
+
+Some API endpoints require authentication to create new resources, update or delete existing resources, or to read a private resource.
+
+Clients can authenticate using an authentication token.
+The token can be passed to Vagrant Cloud one of two ways:
+
+1. (Preferred) Set the `Authorization` header to `"Bearer "` and the value of the authentication token.
+2. Pass the authentication token as an `access_token` URL parameter (_NOTE_: deprecated).
+
+Examples below will set the header, but feel free to use whichever method is easier for your implementation.
+
+-> The `X-Atlas-Token` header is also supported for backwards-compatibility.
+
+### Request and Response Format
+
+Requests to Vagrant Cloud which include data attributes (`POST` or `PUT`/`PATCH`) should set the `Content-Type` header to `"application/json"`, and include a valid JSON body with the request.
+
+JSON responses may include an `errors` key, which will contain an array of error strings, as well as a `success` key.
+For example:
+
+```json
+{
+  "errors": ["Resource not found!"],
+  "success": false
+}
+```
+
+### Response Codes
+
+Vagrant Cloud may respond with the following response codes, depending on the status of the request and context:
+
+#### Success
+
+##### **200** OK
+
+##### **201** Created
+
+##### **204** No Content
+
+#### Client Errors
+
+##### **401** Unauthorized
+
+You do not have authorization to access the requested resource.
+
+##### **402** Payment Required
+
+You are trying to access a resource which is delinquent on billing.
+Please contact the owner of the resource so that they can update their billing information.
+
+##### **403** Forbidden
+
+You are attempting to use the system in a way which is not allowed.
+There could be required request parameters that are missing, or one of the parameters is invalid.
+Please check the response `errors` key, and double-check the examples below for any discrepancies.
+
+##### **404** Not Found
+
+The resource you are trying to access does not exist. This may also be returned if you attempt to access a private resource that you don't have authorization to view.
+
+##### **422** Unprocessable Entity
+
+##### **429** Too Many Requests
+
+You are currently being rate-limited. Please decrease your frequency of usage, or contact us at [support+vagrantcloud@hashicorp.com](mailto:support+vagrantcloud@hashicorp.com) with a description of your use case so that we can consider creating an exception.
+
+#### Server Errors
+
+##### **500** Internal Server Error
+
+The server failed to respond to the request for an unknown reason.
+Please contact [support+vagrantcloud@hashicorp.com](mailto:support+vagrantcloud@hashicorp.com) with a description of the problem so that we can investigate.
+
+##### **503** Service Unavailable
+
+Vagrant Cloud is temporarily in maintenance mode.
+Please check the [HashiCorp Status Site](http://status.hashicorp.com) for more information.
+
+## Creating a usable box from scratch
+
+-> This assumes that you have a valid Vagrant Cloud authentication token. You can [create one via the API](#create-a-token), or [create one on the Vagrant Cloud website](https://app.vagrantup.com/settings/security).
+
+In order to create a usable box on Vagrant Cloud, perform the following steps:
+
+1. [Create a new box](#create-a-box)
+1. [Create a new version](#create-a-version)
+1. [Create a new provider](#create-a-provider)
+1. [Upload a box image for that provider](#upload-a-provider)
+1. [Release the version](#release-a-version)
+
+#### Example Requests
+
+<Tabs>
+<Tab heading="cURL">
+
+```shell
+# Create a new box
+curl \
+  --request POST \
+  --header "Content-Type: application/json" \
+  --header "Authorization: Bearer $VAGRANT_CLOUD_TOKEN" \
+  https://app.vagrantup.com/api/v2/boxes \
+  --data '{ "box": { "username": "myuser", "name": "test" } }'
+
+# Create a new version
+
+curl \
+  --request POST \
+  --header "Content-Type: application/json" \
+  --header "Authorization: Bearer $VAGRANT_CLOUD_TOKEN" \
+  https://app.vagrantup.com/api/v2/box/myuser/test/versions \
+  --data '{ "version": { "version": "1.2.3" } }'
+
+# Create a new provider
+
+curl \
+  --request POST \
+  --header "Content-Type: application/json" \
+  --header "Authorization: Bearer $VAGRANT_CLOUD_TOKEN" \
+  https://app.vagrantup.com/api/v2/box/myuser/test/version/1.2.3/providers \
+  --data '{ "provider": { "name": "virtualbox" } }'
+
+# Prepare the provider for upload/get an upload URL
+
+response=$(curl \
+    --request GET \
+    --header "Authorization: Bearer $VAGRANT_CLOUD_TOKEN" \
+    https://app.vagrantup.com/api/v2/box/myuser/test/version/1.2.3/provider/virtualbox/upload)
+
+# Extract the upload URL from the response (requires the jq command)
+
+upload_path=$(echo "$response" | jq .upload_path)
+
+# Perform the upload
+
+curl --request PUT "${upload_path}" --upload-file virtualbox-1.2.3.box
+
+# Release the version
+
+curl \
+  --request PUT \
+  --header "Authorization: Bearer $VAGRANT_CLOUD_TOKEN" \
+  https://app.vagrantup.com/api/v2/box/myuser/test/version/1.2.3/release
+
+```
+
+</Tab>
+<Tab heading="Ruby">
+
+```ruby
+# gem install http, or add `gem "http"` to your Gemfile
+require "http"
+
+api = HTTP.persistent("https://app.vagrantup.com").headers(
+  "Content-Type" => "application/json",
+  "Authorization" => "Bearer #{ENV['VAGRANT_CLOUD_TOKEN']}"
+)
+
+# Create a new box
+
+api.post "/api/v2/boxes",
+json: { box: { username: "myuser", name: "test" } }
+
+# Create a new version
+
+api.post "/api/v2/box/myuser/test/versions",
+json: { version: { version: "1.2.3" } }
+
+# Create a new provider
+
+api.post "/api/v2/box/myuser/test/version/1.2.3/providers",
+json: { provider: { name: "virtualbox" } }
+
+# Prepare the provider for upload
+
+response = api.get("/api/v2/box/myuser/test/version/1.2.3/provider/virtualbox/upload")
+
+# Extract the upload URL
+
+upload_path = response.parse['upload_path']
+
+# Upload the box image
+
+HTTP.put upload_path, body: File.open("virtualbox-1.2.3.box")
+
+# Release the version
+
+api.put("/api/v2/box/myuser/test/version/1.2.3/release")
+```
+
+</Tab>
+</Tabs>
+
+## Authentication
+
+### Validate a token
+
+`GET /api/v2/authenticate`
+
+Responds [`200 OK`](#200-ok) if the authentication request was successful, otherwise responds [`401 Unauthorized`](#401-unauthorized).
+
+#### Example Request
+
+<Tabs>
+<Tab heading="cURL">
+
+```shell
+curl \
+  --request GET \
+  --header "Authorization: Bearer $VAGRANT_CLOUD_TOKEN" \
+  https://app.vagrantup.com/api/v2/authenticate
+```
+
+</Tab>
+<Tab heading="Ruby">
+
+```ruby
+# gem install http, or add `gem "http"` to your Gemfile
+require "http"
+
+api = HTTP.persistent("https://app.vagrantup.com").headers(
+  "Authorization" => "Bearer #{ENV['VAGRANT_CLOUD_TOKEN']}"
+)
+
+response = api.get("/api/v2/authenticate")
+
+if response.status.success? # Success, the response attributes are available here.
+  p response.parse
+else # Error, inspect the `errors` key for more information.
+  p response.code, response.body
+end
+```
+
+</Tab>
+</Tabs>
+
+## Organizations
+
+### Read an organization
+
+`GET /api/v2/user/:username`
+
+#### Example Request
+
+<Tabs>
+<Tab heading="cURL">
+
+```shell
+curl \
+  --request GET \
+  --header "Authorization: Bearer $VAGRANT_CLOUD_TOKEN" \
+  https://app.vagrantup.com/api/v2/user/myuser
+```
+
+</Tab>
+<Tab heading="Ruby">
+
+```ruby
+# gem install http, or add `gem "http"` to your Gemfile
+require "http"
+
+api = HTTP.persistent("https://app.vagrantup.com").headers(
+  "Authorization" => "Bearer #{ENV['VAGRANT_CLOUD_TOKEN']}"
+)
+
+response = api.get("/api/v2/user/myuser")
+
+if response.status.success?
+  # Success, the response attributes are available here.
+  p response.parse
+else
+  # Error, inspect the `errors` key for more information.
+  p response.code, response.body
+end
+```
+
+</Tab>
+</Tabs>
+
+#### Example Response
+
+```json
+{
+  "username": "myuser",
+  "avatar_url": "https://www.gravatar.com/avatar/130a640278870c3dada38b3d912ee022?s=460&d=mm",
+  "profile_html": "<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>\n",
+  "profile_markdown": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
+  "boxes": []
+}
+```
+
+## Search
+
+### Search for boxes
+
+`GET /api/v2/search`
+
+#### Arguments
+
+- `q` - (Optional) The search query. Results will match the `username`, `name`, or `short_description` fields for a box. If omitted, the top boxes based on `sort` and `order` will be returned (defaults to "downloads desc").
+- `architcture` (Optional)  Filter results to boxes supporting a specific architecture.
+- `provider` - (Optional) Filter results to boxes supporting for a specific provider.
+- `sort` - (Optional, default: `"downloads"`) The field to sort results on. Can be one of `"downloads"`, `"created"`, or `"updated"`.
+- `order` - (Optional, default: `"desc"`) The order to return the sorted field in. Can be `"desc"` os `"asc"`.
+- `limit` - (Optional, default: `10`) The number of results to return (max of 100).
+- `page` - (Optional, default: `1`)
+
+#### Example Request
+
+<Tabs>
+<Tab heading="cURL">
+
+```shell
+curl \
+  --request GET \
+  --header "Authorization: Bearer $VAGRANT_CLOUD_TOKEN" \
+  "https://app.vagrantup.com/api/v2/search?q=test&provider=virtualbox"
+```
+
+</Tab>
+<Tab heading="Ruby">
+
+```ruby
+# gem install http, or add `gem "http"` to your Gemfile
+require "http"
+
+api = HTTP.persistent("https://app.vagrantup.com").headers(
+  "Authorization" => "Bearer #{ENV['VAGRANT_CLOUD_TOKEN']}"
+)
+
+response = api.get("/api/v2/search", params: {
+  q: "test",
+  provider: "virtualbox"
+})
+
+if response.status.success?
+  # Success, the response attributes are available here.
+  p response.parse
+else
+  # Error, inspect the `errors` key for more information.
+  p response.code, response.body
+end
+```
+
+</Tab>
+</Tabs>
+
+#### Example Response
+
+```json
+{
+  "boxes": [
+    {
+      "created_at": "2017-10-20T14:19:59.842Z",
+      "updated_at": "2017-10-20T15:23:53.363Z",
+      "tag": "myuser/test",
+      "name": "test",
+      "short_description": "My dev box",
+      "description_html": "<p>My development Vagrant box</p>\n",
+      "username": "myuser",
+      "description_markdown": "My development Vagrant box",
+      "private": true,
+      "downloads": 123,
+      "current_version": {
+        "version": "1.2.3",
+        "status": "active",
+        "description_html": "<p>A new version</p>\n",
+        "description_markdown": "A new version",
+        "created_at": "2017-10-20T15:23:17.184Z",
+        "updated_at": "2017-10-20T15:23:53.355Z",
+        "number": "1.2.3",
+        "release_url": "https://app.vagrantup.com/api/v2/box/myuser/test/version/1.2.3/release",
+        "revoke_url": "https://app.vagrantup.com/api/v2/box/myuser/test/version/1.2.3/revoke",
+        "providers": [
+          {
+            "name": "virtualbox",
+            "hosted": false,
+            "hosted_token": null,
+            "original_url": "https://example.com/virtualbox-1.2.3.box",
+            "created_at": "2017-10-20T15:23:35.718Z",
+            "updated_at": "2017-10-20T15:23:35.718Z",
+            "download_url": "https://vagrantcloud.com/myuser/boxes/test/versions/1.2.3/providers/virtualbox.box"
+          }
+        ]
+      }
+    }
+  ]
+}
+```
+
+## Boxes
+
+### Read a box
+
+`GET /api/v2/box/:username/:name`
+
+#### Example Request
+
+<Tabs>
+<Tab heading="cURL">
+
+```shell
+curl \
+  --request GET \
+  --header "Authorization: Bearer $VAGRANT_CLOUD_TOKEN" \
+  https://app.vagrantup.com/api/v2/box/myuser/test
+```
+
+</Tab>
+<Tab heading="Ruby">
+
+```ruby
+# gem install http, or add `gem "http"` to your Gemfile
+require "http"
+
+api = HTTP.persistent("https://app.vagrantup.com").headers(
+  "Authorization" => "Bearer #{ENV['VAGRANT_CLOUD_TOKEN']}"
+)
+
+response = api.get("/api/v2/box/myuser/test")
+
+if response.status.success? # Success, the response attributes are available here.
+  p response.parse
+else # Error, inspect the `errors` key for more information.
+  p response.code, response.body
+end
+```
+
+</Tab>
+</Tabs>
+
+#### Example Response
+
+```json
+{
+  "created_at": "2017-10-20T14:19:59.842Z",
+  "updated_at": "2017-10-20T15:23:53.363Z",
+  "tag": "myuser/test",
+  "name": "test",
+  "short_description": "My dev box",
+  "description_html": "<p>My development Vagrant box</p>\n",
+  "username": "myuser",
+  "description_markdown": "My development Vagrant box",
+  "private": true,
+  "downloads": 123,
+  "current_version": {
+    "version": "1.2.3",
+    "status": "active",
+    "description_html": "<p>A new version</p>\n",
+    "description_markdown": "A new version",
+    "created_at": "2017-10-20T15:23:17.184Z",
+    "updated_at": "2017-10-20T15:23:53.355Z",
+    "number": "1.2.3",
+    "release_url": "https://app.vagrantup.com/api/v2/box/myuser/test/version/1.2.3/release",
+    "revoke_url": "https://app.vagrantup.com/api/v2/box/myuser/test/version/1.2.3/revoke",
+    "providers": [
+      {
+        "name": "virtualbox",
+        "hosted": false,
+        "hosted_token": null,
+        "original_url": "https://example.com/virtualbox-1.2.3.box",
+        "created_at": "2017-10-20T15:23:35.718Z",
+        "updated_at": "2017-10-20T15:23:35.718Z",
+        "download_url": "https://vagrantcloud.com/myuser/boxes/test/versions/1.2.3/providers/virtualbox.box"
+      }
+    ]
+  },
+  "versions": [
+    {
+      "version": "1.2.3",
+      "status": "active",
+      "description_html": "<p>A new version</p>\n",
+      "description_markdown": "A new version",
+      "created_at": "2017-10-20T15:23:17.184Z",
+      "updated_at": "2017-10-20T15:23:53.355Z",
+      "number": "1.2.3",
+      "release_url": "https://app.vagrantup.com/api/v2/box/myuser/test/version/1.2.3/release",
+      "revoke_url": "https://app.vagrantup.com/api/v2/box/myuser/test/version/1.2.3/revoke",
+      "providers": [
+        {
+          "name": "virtualbox",
+          "hosted": false,
+          "hosted_token": null,
+          "original_url": "https://example.com/virtualbox-1.2.3.box",
+          "created_at": "2017-10-20T15:23:35.718Z",
+          "updated_at": "2017-10-20T15:23:35.718Z",
+          "download_url": "https://vagrantcloud.com/myuser/boxes/test/versions/1.2.3/providers/virtualbox.box"
+        }
+      ]
+    }
+  ]
+}
+```
+
+### Create a box
+
+`POST /api/v2/boxes`
+
+#### Arguments
+
+- `box`
+  - `username` - The username of the organization that will own this box.
+  - `name` - The name of the box.
+  - `short_description` - A short summary of the box.
+  - `description` - A longer description of the box. Can be formatted with [Markdown][markdown].
+  - `is_private` (Optional, default: `true`) - Whether or not this box is private.
+
+#### Example Request
+
+<Tabs>
+<Tab heading="cURL">
+
+```shell
+curl \
+  --request POST \
+  --header "Content-Type: application/json" \
+  --header "Authorization: Bearer $VAGRANT_CLOUD_TOKEN" \
+  https://app.vagrantup.com/api/v2/boxes \
+  --data '
+    {
+      "box": {
+        "username": "myuser",
+        "name": "test",
+        "short_description": "My dev box",
+        "description": "My development Vagrant box",
+        "is_private": true
+      }
+    }
+  '
+```
+
+</Tab>
+<Tab heading="Ruby">
+
+```ruby
+# gem install http, or add `gem "http"` to your Gemfile
+require "http"
+
+api = HTTP.persistent("https://app.vagrantup.com").headers(
+  "Content-Type" => "application/json",
+  "Authorization" => "Bearer #{ENV['VAGRANT_CLOUD_TOKEN']}"
+)
+
+response = api.post("/api/v2/boxes", json: {
+  box: {
+    username: "myuser",
+    name: "test",
+    short_description: "My dev box",
+    description: "My development Vagrant box",
+    is_private: true
+  }
+})
+
+if response.status.success?
+  # Success, the response attributes are available here.
+  p response.parse
+else
+  # Error, inspect the `errors` key for more information.
+  p response.code, response.body
+end
+```
+
+</Tab>
+</Tabs>
+
+#### Example Response
+
+Response body is identical to [Reading a box](#read-a-box).
+
+### Update a box
+
+`PUT /api/v2/box/:username/:name`
+
+#### Arguments
+
+- `box`
+  - `name` - The name of the box.
+  - `short_description` - A short summary of the box.
+  - `description` - A longer description of the box. Can be formatted with [Markdown](https://daringfireball.net/projects/markdown/syntax).
+  - `is_private` (Optional, default: `true`) - Whether or not this box is private.
+
+#### Example Request
+
+<Tabs>
+<Tab heading="cURL">
+
+```shell
+curl \
+  --request PUT \
+  --header "Content-Type: application/json" \
+  --header "Authorization: Bearer $VAGRANT_CLOUD_TOKEN" \
+  https://app.vagrantup.com/api/v2/box/myuser/test \
+  --data '
+    {
+      "box": {
+        "name": "test",
+        "short_description": "My dev box",
+        "description": "My development Vagrant box",
+        "is_private": true
+      }
+    }
+  '
+```
+
+</Tab>
+<Tab heading="Ruby">
+
+```ruby
+# gem install http, or add `gem "http"` to your Gemfile
+require "http"
+
+api = HTTP.persistent("https://app.vagrantup.com").headers(
+  "Content-Type" => "application/json",
+  "Authorization" => "Bearer #{ENV['VAGRANT_CLOUD_TOKEN']}"
+)
+
+response = api.put("/api/v2/box/myuser/test", json: {
+  box: {
+    name: "test",
+    short_description: "My dev box",
+    description: "My development Vagrant box",
+    is_private: true
+  }
+})
+
+if response.status.success?
+  # Success, the response attributes are available here.
+  p response.parse
+else
+  # Error, inspect the `errors` key for more information.
+  p response.code, response.body
+end
+```
+
+</Tab>
+</Tabs>
+
+### Delete a box
+
+`DELETE /api/v2/box/:username/:name`
+
+#### Example Request
+
+<Tabs>
+<Tab heading="cURL">
+
+```shell
+curl \
+  --request DELETE \
+  --header "Authorization: Bearer $VAGRANT_CLOUD_TOKEN" \
+  https://app.vagrantup.com/api/v2/box/myuser/test
+```
+
+</Tab>
+<Tab heading="Ruby">
+
+```ruby
+# gem install http, or add `gem "http"` to your Gemfile
+require "http"
+
+api = HTTP.persistent("https://app.vagrantup.com").headers(
+  "Authorization" => "Bearer #{ENV['VAGRANT_CLOUD_TOKEN']}"
+)
+
+response = api.delete("/api/v2/box/myuser/test")
+
+if response.status.success?
+  # Success, the response attributes are available here.
+  p response.parse
+else
+  # Error, inspect the `errors` key for more information.
+  p response.code, response.body
+end
+```
+
+</Tab>
+</Tabs>
+
+#### Example Response
+
+Response body is identical to [Reading a box](#read-a-box).
+
+## Versions
+
+### Read a version
+
+`GET /api/v2/box/:username/:name/version/:version`
+
+#### Example Request
+
+<Tabs>
+<Tab heading="cURL">
+
+```shell
+curl \
+  --request GET \
+  --header "Authorization: Bearer $VAGRANT_CLOUD_TOKEN" \
+  https://app.vagrantup.com/api/v2/box/myuser/test/version/1.2.3
+```
+
+</Tab>
+<Tab heading="Ruby">
+
+```ruby
+# gem install http, or add `gem "http"` to your Gemfile
+require "http"
+
+api = HTTP.persistent("https://app.vagrantup.com").headers(
+  "Authorization" => "Bearer #{ENV['VAGRANT_CLOUD_TOKEN']}"
+)
+
+response = api.get("/api/v2/box/myuser/test/version/1.2.3")
+
+if response.status.success?
+  # Success, the response attributes are available here.
+  p response.parse
+else
+  # Error, inspect the `errors` key for more information.
+  p response.code, response.body
+end
+```
+
+</Tab>
+</Tabs>
+
+#### Example Response
+
+```json
+{
+  "version": "1.2.3",
+  "status": "active",
+  "description_html": "<p>A new version</p>\n",
+  "description_markdown": "A new version",
+  "created_at": "2017-10-20T15:23:17.184Z",
+  "updated_at": "2017-10-20T15:23:53.355Z",
+  "number": "1.2.3",
+  "release_url": "https://app.vagrantup.com/api/v2/box/myuser/test/version/1.2.3/release",
+  "revoke_url": "https://app.vagrantup.com/api/v2/box/myuser/test/version/1.2.3/revoke",
+  "providers": [
+    {
+      "name": "virtualbox",
+      "hosted": false,
+      "hosted_token": null,
+      "original_url": "https://example.com/virtualbox-1.2.3.box",
+      "created_at": "2017-10-20T15:23:35.718Z",
+      "updated_at": "2017-10-20T15:23:35.718Z",
+      "download_url": "https://vagrantcloud.com/myuser/boxes/test/versions/1.2.3/providers/virtualbox.box",
+      "architecture": "amd64",
+      "default_architecture": true
+    }
+  ]
+}
+```
+
+### Create a version
+
+`POST /api/v2/box/:username/:name/versions`
+
+-> New versions start as `unreleased`. You must create a valid provider before releasing a new version.
+
+#### Arguments
+
+- `version`
+  - `version` - The version number of this version.
+  - `description` - A description for this version. Can be formatted with [Markdown](https://daringfireball.net/projects/markdown/syntax).
+
+#### Example Request
+
+<Tabs>
+<Tab heading="cURL">
+
+```shell
+curl \
+  --request POST \
+  --header "Content-Type: application/json" \
+  --header "Authorization: Bearer $VAGRANT_CLOUD_TOKEN" \
+  https://app.vagrantup.com/api/v2/box/myuser/test/versions \
+  --data '
+    {
+      "version": {
+        "version": "1.2.3",
+        "description": "A new version"
+      }
+    }
+  '
+```
+
+</Tab>
+<Tab heading="Ruby">
+
+```ruby
+# gem install http, or add `gem "http"` to your Gemfile
+require "http"
+
+api = HTTP.persistent("https://app.vagrantup.com").headers(
+  "Content-Type" => "application/json",
+  "Authorization" => "Bearer #{ENV['VAGRANT_CLOUD_TOKEN']}"
+)
+
+response = api.post("/api/v2/box/myuser/test/versions", json: {
+  version: {
+    version: "1.2.3",
+    description: "A new version"
+  }
+})
+
+if response.status.success?
+  # Success, the response attributes are available here.
+  p response.parse
+else
+  # Error, inspect the `errors` key for more information.
+  p response.code, response.body
+end
+```
+
+</Tab>
+</Tabs>
+
+#### Example Response
+
+Response body is identical to [Reading a version](#read-a-version).
+
+### Update a version
+
+`PUT /api/v2/box/:username/:name/version/1.2.3`
+
+#### Arguments
+
+- `version`
+  - `version` - The version number of this version.
+  - `description` - A description for this version. Can be formatted with [Markdown][markdown].
+
+#### Example Request
+
+<Tabs>
+<Tab heading="cURL">
+
+```shell
+curl \
+  --request PUT \
+  --header "Content-Type: application/json" \
+  --header "Authorization: Bearer $VAGRANT_CLOUD_TOKEN" \
+  https://app.vagrantup.com/api/v2/box/myuser/test/version/1.2.3 \
+  --data '
+    {
+      "version": {
+        "version": "1.2.3",
+        "description": "A new version"
+      }
+    }
+  '
+```
+
+</Tab>
+<Tab heading="Ruby">
+
+```ruby
+# gem install http, or add `gem "http"` to your Gemfile
+require "http"
+
+api = HTTP.persistent("https://app.vagrantup.com").headers(
+  "Content-Type" => "application/json",
+  "Authorization" => "Bearer #{ENV['VAGRANT_CLOUD_TOKEN']}"
+)
+
+response = api.put("/api/v2/box/myuser/test/version/1.2.3", json: {
+  version: {
+    name: "1.2.3",
+    description: "A new version"
+  }
+})
+
+if response.status.success?
+  # Success, the response attributes are available here.
+  p response.parse
+else
+  # Error, inspect the `errors` key for more information.
+  p response.code, response.body
+end
+```
+
+</Tab>
+</Tabs>
+
+#### Example Response
+
+Response body is identical to [Reading a version](#read-a-version).
+
+### Delete a version
+
+`DELETE /api/v2/box/:username/:name/version/:version`
+
+#### Example Request
+
+<Tabs>
+<Tab heading="cURL">
+
+```shell
+curl \
+  --request DELETE \
+  --header "Authorization: Bearer $VAGRANT_CLOUD_TOKEN" \
+  https://app.vagrantup.com/api/v2/box/myuser/test/version/1.2.3
+```
+
+</Tab>
+<Tab heading="Ruby">
+
+```ruby
+# gem install http, or add `gem "http"` to your Gemfile
+require "http"
+
+api = HTTP.persistent("https://app.vagrantup.com").headers(
+  "Authorization" => "Bearer #{ENV['VAGRANT_CLOUD_TOKEN']}"
+)
+
+response = api.delete("/api/v2/box/myuser/test/version/1.2.3")
+
+if response.status.success?
+  # Success, the response attributes are available here.
+  p response.parse
+else
+  # Error, inspect the `errors` key for more information.
+  p response.code, response.body
+end
+```
+
+</Tab>
+</Tabs>
+
+#### Example Response
+
+Response body is identical to [Reading a version](#read-a-version).
+
+### Release a version
+
+`PUT /api/v2/box/:username/:name/version/1.2.3/release`
+
+#### Example Request
+
+<Tabs>
+<Tab heading="cURL">
+
+```shell
+curl \
+  --request PUT \
+  --header "Authorization: Bearer $VAGRANT_CLOUD_TOKEN" \
+  https://app.vagrantup.com/api/v2/box/myuser/test/version/1.2.3/release
+```
+
+</Tab>
+<Tab heading="Ruby">
+
+```ruby
+# gem install http, or add `gem "http"` to your Gemfile
+require "http"
+
+api = HTTP.persistent("https://app.vagrantup.com").headers(
+  "Authorization" => "Bearer #{ENV['VAGRANT_CLOUD_TOKEN']}"
+)
+
+response = api.put("/api/v2/box/myuser/test/version/1.2.3/release")
+
+if response.status.success?
+  # Success, the response attributes are available here.
+  p response.parse
+else
+  # Error, inspect the `errors` key for more information.
+  p response.code, response.body
+end
+```
+
+</Tab>
+</Tabs>
+
+#### Example Response
+
+Response body is identical to [Reading a version](#read-a-version).
+
+### Revoke a version
+
+`PUT /api/v2/box/:username/:name/version/1.2.3/revoke`
+
+#### Example Request
+
+<Tabs>
+<Tab heading="cURL">
+
+```shell
+curl \
+  --request PUT \
+  --header "Authorization: Bearer $VAGRANT_CLOUD_TOKEN" \
+  https://app.vagrantup.com/api/v2/box/myuser/test/version/1.2.3/revoke
+```
+
+</Tab>
+<Tab heading="Ruby">
+
+```ruby
+# gem install http, or add `gem "http"` to your Gemfile
+require "http"
+
+api = HTTP.persistent("https://app.vagrantup.com").headers(
+  "Authorization" => "Bearer #{ENV['VAGRANT_CLOUD_TOKEN']}"
+)
+
+response = api.put("/api/v2/box/myuser/test/version/1.2.3/revoke")
+
+if response.status.success?
+  # Success, the response attributes are available here.
+  p response.parse
+else
+  # Error, inspect the `errors` key for more information.
+  p response.code, response.body
+end
+```
+
+</Tab>
+</Tabs>
+
+#### Example Response
+
+Response body is identical to [Reading a version](#read-a-version).
+
+## Providers
+
+### Read a provider
+
+`GET /api/v2/box/:username/:name/version/:version/provider/:provider/:architecture`
+
+#### Example Request
+
+<Tabs>
+<Tab heading="cURL">
+
+```shell
+curl \
+  --request GET \
+  --header "Authorization: Bearer $VAGRANT_CLOUD_TOKEN" \
+  https://app.vagrantup.com/api/v2/box/myuser/test/version/1.2.3/provider/virtualbox/amd64
+```
+
+</Tab>
+<Tab heading="Ruby">
+
+```ruby
+# gem install http, or add `gem "http"` to your Gemfile
+require "http"
+
+api = HTTP.persistent("https://app.vagrantup.com").headers(
+  "Authorization" => "Bearer #{ENV['VAGRANT_CLOUD_TOKEN']}"
+)
+
+response = api.get("/api/v2/box/myuser/test/version/1.2.3/provider/virtualbox/amd64")
+
+if response.status.success?
+  # Success, the response attributes are available here.
+  p response.parse
+else
+  # Error, inspect the `errors` key for more information.
+  p response.code, response.body
+end
+```
+
+</Tab>
+</Tabs>
+
+#### Example Response
+
+```json
+{
+  "name": "virtualbox",
+  "hosted": false,
+  "hosted_token": null,
+  "original_url": "https://example.com/virtualbox-1.2.3.box",
+  "created_at": "2017-10-20T15:23:35.718Z",
+  "updated_at": "2017-10-20T15:23:35.718Z",
+  "download_url": "https://vagrantcloud.com/myuser/boxes/test/versions/1.2.3/providers/virtualbox.box",
+  "checksum": "a59e7332e8bbe896f11f478fc61fa8a6",
+  "checksum_type": "md5",
+  "architecture": "amd64",
+  "default_architecture": true
+}
+```
+
+### Create a provider
+
+`POST /api/v2/box/:username/:name/version/:version/providers`
+
+#### Arguments
+
+- `provider`
+  - `name` - The name of the provider.
+  - `url` - A valid URL to download this provider. If omitted, you must [upload](#upload-a-provider) the Vagrant box image for this provider to Vagrant Cloud before the provider can be used.
+  - `checksum` - Computed checksum of the box assets. When set, Vagrant will compute the checksum of the downloaded box asset and validate it matches this value.
+  - `checksum_type` - Type of checksum used. Currently supported values: md5, sha1, sha256, sha384, and sha512
+  - `architecture` - Architecture of the Vagrant box image. Currently supported values: amd64, i386, arm, arm64, ppc64le, ppc64, mips64le, mips64, mipsle, mips, and s390x
+  - `default_architecture` - Set as the default architecture to be used when no architecture information is provided
+
+#### Example Request
+
+<Tabs>
+<Tab heading="cURL">
+
+```shell
+curl \
+  --request POST \
+  --header "Content-Type: application/json" \
+  --header "Authorization: Bearer $VAGRANT_CLOUD_TOKEN" \
+  https://app.vagrantup.com/api/v2/box/myuser/test/version/1.2.3/providers \
+  --data '
+    {
+      "provider": {
+        "checksum": "a59e7332e8bbe896f11f478fc61fa8a6",
+        "checksum_type": "md5",
+        "name": "virtualbox",
+        "url": "https://example.com/virtualbox-1.2.3.box",
+        "architecture": "amd64",
+        "default_architecture": true
+      }
+    }
+  '
+```
+
+</Tab>
+<Tab heading="Ruby">
+
+```ruby
+# gem install http, or add `gem "http"` to your Gemfile
+require "http"
+
+api = HTTP.persistent("https://app.vagrantup.com").headers(
+  "Content-Type" => "application/json",
+  "Authorization" => "Bearer #{ENV['VAGRANT_CLOUD_TOKEN']}"
+)
+
+response = api.post("/api/v2/box/myuser/test/version/1.2.3/providers", json: {
+  provider: {
+    name: "virtualbox",
+    url: "https://example.com/virtualbox-1.2.3.box",
+    architecture: "amd64",
+    default_architecture: true
+  }
+})
+
+if response.status.success?
+  # Success, the response attributes are available here.
+  p response.parse
+else
+  # Error, inspect the `errors` key for more information.
+  p response.code, response.body
+end
+```
+
+</Tab>
+</Tabs>
+
+#### Example Response
+
+Response body is identical to [Reading a provider](#read-a-provider).
+
+### Update a provider
+
+`PUT /api/v2/box/:username/:name/version/:version/provider/:provider/:architecture`
+
+#### Arguments
+
+- `provider`
+  - `name` - The name of the provider.
+  - `url` - A valid URL to download this provider. If omitted, you must [upload](#upload-a-provider) the Vagrant box image for this provider to Vagrant Cloud before the provider can be used.
+  - `checksum` - Computed checksum of the box assets. When set, Vagrant will compute the checksum of the downloaded box asset and validate it matches this value.
+  - `checksum_type` - Type of checksum used. Currently supported values: md5, sha1, sha256, sha384, and sha512
+  - `architecture` - Architecture of the Vagrant box image. Currently supported values: amd64, i386, arm, arm64, ppc64le, ppc64, mips64le, mips64, mipsle, mips, and s390x
+  - `default_architecture` - Set as the default architecture to be used when no architecture information is provided
+
+#### Example Request
+
+<Tabs>
+<Tab heading="cURL">
+
+```shell
+curl \
+  --request PUT \
+  --header "Content-Type: application/json" \
+  --header "Authorization: Bearer $VAGRANT_CLOUD_TOKEN" \
+  https://app.vagrantup.com/api/v2/box/myuser/test/version/1.2.3/provider/virtualbox/amd64 \
+  --data '
+    {
+      "provider": {
+        "checksum": "a59e7332e8bbe896f11f478fc61fa8a6",
+        "checksum_type": "md5",
+        "name": "virtualbox",
+        "url": "https://example.com/virtualbox-1.2.3.box"
+      }
+    }
+  '
+```
+
+</Tab>
+<Tab heading="Ruby">
+
+```ruby
+# gem install http, or add `gem "http"` to your Gemfile
+require "http"
+
+api = HTTP.persistent("https://app.vagrantup.com").headers(
+  "Content-Type" => "application/json",
+  "Authorization" => "Bearer #{ENV['VAGRANT_CLOUD_TOKEN']}"
+)
+
+response = api.put("/api/v2/box/myuser/test/version/1.2.3/provider/virtualbox/amd64", json: {
+  provider: {
+    name: "virtualbox",
+    url: "https://example.com/virtualbox-1.2.3.box"
+  }
+})
+
+if response.status.success?
+  # Success, the response attributes are available here.
+  p response.parse
+else
+  # Error, inspect the `errors` key for more information.
+  p response.code, response.body
+end
+```
+
+</Tab>
+</Tabs>
+
+#### Example Response
+
+Response body is identical to [Reading a provider](#read-a-provider).
+
+### Delete a provider
+
+`DELETE /api/v2/box/:username/:name/version/:version/provider/:provider/:architecture`
+
+#### Example Request
+
+<Tabs>
+<Tab heading="cURL">
+
+```shell
+curl \
+  --request DELETE \
+  --header "Authorization: Bearer $VAGRANT_CLOUD_TOKEN" \
+  https://app.vagrantup.com/api/v2/box/myuser/test/version/1.2.3/provider/virtualbox/amd64
+```
+
+</Tab>
+<Tab heading="Ruby">
+
+```ruby
+# gem install http, or add `gem "http"` to your Gemfile
+require "http"
+
+api = HTTP.persistent("https://app.vagrantup.com").headers(
+  "Authorization" => "Bearer #{ENV['VAGRANT_CLOUD_TOKEN']}"
+)
+
+response = api.delete("/api/v2/box/myuser/test/version/1.2.3/provider/virtualbox/amd64")
+
+if response.status.success?
+  # Success, the response attributes are available here.
+  p response.parse
+else
+  # Error, inspect the `errors` key for more information.
+  p response.code, response.body
+end
+```
+
+</Tab>
+</Tabs>
+
+#### Example Response
+
+Response body is identical to [Reading a provider](#read-a-provider).
+
+### Upload a provider
+
+`GET /api/v2/box/:username/:name/version/:version/provider/:provider/:architecture/upload`
+
+Prepares the provider for upload, and returns a JSON blob containing an `upload_path`.
+
+~> The upload must begin shortly after the response is returned, otherwise the URL will expire. If the URL expires, you can request this same API method again for a new upload URL.
+
+#### Example Request
+
+<Tabs>
+<Tab heading="cURL">
+
+```shell
+response=$(curl \
+  --request GET \
+  --header "Authorization: Bearer $VAGRANT_CLOUD_TOKEN" \
+  https://app.vagrantup.com/api/v2/box/myuser/test/version/1.2.3/provider/virtualbox/amd64/upload)
+
+# Requires the jq command
+upload_path=$(echo "$response" | jq .upload_path)
+
+curl \
+  --request PUT \
+  --upload-file virtualbox-1.2.3.box \
+  "${upload_path}"
+```
+
+</Tab>
+<Tab heading="Ruby">
+
+```ruby
+# gem install http, or add `gem "http"` to your Gemfile
+require "http"
+
+api = HTTP.persistent("https://app.vagrantup.com").headers(
+  "Authorization" => "Bearer #{ENV['VAGRANT_CLOUD_TOKEN']}"
+)
+
+response = api.get("/api/v2/box/myuser/test/version/1.2.3/provider/virtualbox/amd64/upload")
+
+if response.status.success?
+  # Success, you can now upload the box image to the returned URL
+  upload_path = response.parse['upload_path']
+  HTTP.post upload_path, body: File.open("virtualbox-1.2.3.box")
+else
+  # Error, inspect the `errors` key for more information.
+  p response.code, response.body
+end
+```
+
+</Tab>
+</Tabs>
+
+#### Example Response
+
+```json
+{
+  "upload_path": "https://archivist.hashicorp.com/v2/object/630e42d9-2364-2412-4121-18266770468e"
+}
+```
+
+### Upload a provider directly to backend storage
+
+`GET /api/v2/box/:username/:name/version/:version/provider/:provider/:architecture/upload/direct`
+
+Prepares the provider for upload. This version of the upload API allows uploading the box asset directly to the backend storage. It requires
+a two step process for uploading the box assets. First uploading the asset to storage and then finalizing the upload within Vagrant Cloud
+via a provided callback.
+
+The request returns a JSON blob containing two fields:
+
+- `upload_path` - URL to `PUT` the box asset
+- `callback` - Vagrant Cloud callback URL to finalize upload
+
+The box asset is uploaded directly to the URL provided by the `upload_path` via a `PUT` request. Once complete, a `PUT` request to the URL
+provided in the `callback` field (complete with authentication header) finalizes the upload.
+
+~> The upload must begin shortly after the response is returned, otherwise the URL will expire. If the URL expires, you can request this same API method again for a new upload URL.
+
+#### Example Request
+
+<Tabs>
+<Tab heading="cURL">
+
+```shell
+response=$(curl \
+  --request GET \
+  --header "Authorization: Bearer $VAGRANT_CLOUD_TOKEN" \
+  https://app.vagrantup.com/api/v2/box/myuser/test/version/1.2.3/provider/virtualbox/amd64/upload/direct)
+
+# Requires the jq command
+upload_path=$(echo "$response" | jq .upload_path)
+callback=$(echo "$response" | jq .callback)
+
+curl \
+  --request PUT \
+  --upload-file virtualbox-1.2.3.box \
+  "${upload_path}"
+
+curl
+  --request PUT \
+  --header "Authorization: Bearer $VAGRANT_CLOUD_TOKEN" \
+  "${callback}"
+```
+
+</Tab>
+<Tab heading="Ruby">
+
+```ruby
+# gem install http, or add `gem "http"` to your Gemfile
+require "http"
+require "uri"
+
+api = HTTP.persistent("https://app.vagrantup.com").headers(
+  "Authorization" => "Bearer #{ENV['VAGRANT_CLOUD_TOKEN']}"
+)
+
+response = api.get("/api/v2/box/myuser/test/version/1.2.3/provider/virtualbox/amd64/upload")
+
+if response.status.success?
+  # Success, you can now upload the box image to the returned URL
+  upload_path = response.parse['upload_path']
+  callback = response.parse['callback']
+  # Upload the box asset
+  HTTP.post upload_path, body: File.open("virtualbox-1.2.3.box")
+  # Finalize the upload
+  api.put(URI.parse(callback).path)
+else
+  # Error, inspect the `errors` key for more information.
+  p response.code, response.body
+end
+```
+
+</Tab>
+</Tabs>
+
+#### Example Response
+
+```json
+{
+  "upload_path": "https://remote-storage.example.com/bucket/630e42d9-2364-2412-4121-18266770468e?auth=9023wqfda",
+  "callback": "https://app.vagrantup.com/api/v2/box/myuser/test/version/1.2.3/provider/virtualbox/amd64/upload/direct/630e42d9-2364-2412-4121-18266770468e"
+}
+```
+
+[markdown]: https://daringfireball.net/projects/markdown/syntax

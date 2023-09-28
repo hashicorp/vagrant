@@ -88,6 +88,15 @@
   },
   {
     "title": "API",
-    "path": "api"
+    "routes": [
+      {
+        "title": "v2",
+        "path": "api/v2"
+      },
+      {
+        "title": "v1",
+        "path": "api/v1"
+      }
+    ]
   }
 ]
