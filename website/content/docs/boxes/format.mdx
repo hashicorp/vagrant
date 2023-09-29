@@ -60,5 +60,7 @@ because it cannot verify the provider.
 
 Other keys/values may be added to the metadata without issue. The value
 of the metadata file is passed opaquely into Vagrant and plugins can make
-use of it. At this point, Vagrant core does not use any other keys in this
-file.
+use of it. Values currently used by Vagrant core:
+
+* `provider` - (string) Provider for the box
+* `architecture` - (string) Architecture of the box
