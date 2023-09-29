@@ -40,7 +40,7 @@ hashicorp/precise
 The Vagrant CLI (starting with version 2.4.0) will automatically match the
 provider architecture using the detected local host architecture. If the
 Vagrant CLI cannot find a matching architecture, it will attempt a
-[special case match](/vagrant/vagrant-cloud/boxes/architecture#special-case-unknown-architecture).
+[special case match](/vagrant/vagrant-cloud/boxes/architecture#unknown-architecture).
 
 # Default Architecture
 
@@ -94,7 +94,7 @@ will use the default architecture flag.
 
 ### User Requested
 
-If the user sets the [config.vm.box_architecture](/vagrant/docs/vagrantfile/machine_settings#box_architecture)
+If the user sets the [config.vm.box_architecture](/vagrant/docs/vagrantfile/machine_settings#config-vm-box_architecture)
 option in their Vagrantfile to `nil`, the Vagrant CLI will use the 
 provider which has been flagged as the default architecture.
 
@@ -102,7 +102,7 @@ provider which has been flagged as the default architecture.
 
 The architecture value `unknown` combined with the default architecture
 flag provides a special matching case for the Vagrant CLI. If the 
-[config.vm.box_architecture](/vagrant/docs/vagrantfile/machine_settings#box_architecture)
+[config.vm.box_architecture](/vagrant/docs/vagrantfile/machine_settings#config-vm-box_architecture)
 option in the local Vagrantfile is configured with the default `:auto`
 value, and no architecture matching the host platform can be found 
 for the desired provider, the Vagrant CLI will check for a matching 
