@@ -43,15 +43,17 @@ Vagrant CLI cannot find a matching architecture, it will attempt a
 
 ## Default architecture
 
-Vagrant Cloud allows a single architecture to be flagged as the "default 
-architecture" for a provider. The flag enables backwards compatiblity
-with previous versions of the Vagrant CLI that do not support architecture
-filtering when matching an appropriate provider. Using this flag allows
-the box owner to control which architecture for a specific provider is 
-used by the Vagrant CLI when architecture filtering is not available.
+Vagrant Cloud allows you to optionally specify one architecture as the
+"default architecture" for a provider. This enables the box owner to 
+control which architecture for the provider the Vagrant CLI uses
+when architecture filtering is not available. By default, the first 
+provider in the configuration for a box version is the default architecture.
 
-By default, the first provider for a specific name uploaded in a box version 
-will be flagged as the default architecture. For example, after creating 
+Note, this functionality enables backwards compatiblity
+with previous versions of the Vagrant CLI that do not support architecture
+filtering when matching an appropriate provider.
+
+For example, after creating 
 the `2.0.0` version of the `hashicorp/precise` box and creating a new 
 provider for `virtualbox` with `amd64` architecture it would look like:
 
@@ -71,7 +73,7 @@ hashicorp/precise
     provider: virtualbox, architecture: i386, default_architecture: false
 ```
 
-When the Vagrant CLI prior to version 2.4.0 requests the `hashicorp/precise`
+When the Vagrant CLI, prior to version 2.4.0, requests the `hashicorp/precise`
 box with the `virtualbox` provider, it will receive the information from 
 the `virtualbox` provider with the `amd64` architecture because it is flagged 
 as being the default architecture. If, instead, the provider with `i386`
