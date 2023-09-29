@@ -19,6 +19,10 @@
         "path": "boxes/create-version"
       },
       {
+        "title": "Box Provider Architecture",
+        "path": "boxes/architecture"
+      },
+      {
         "title": "Distributing",
         "path": "boxes/distributing"
       },
