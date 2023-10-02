@@ -19,6 +19,10 @@
         "path": "boxes/create-version"
       },
       {
+        "title": "Box Provider Architecture",
+        "path": "boxes/architecture"
+      },
+      {
         "title": "Distributing",
         "path": "boxes/distributing"
       },
@@ -88,6 +92,15 @@
   },
   {
     "title": "API",
-    "path": "api"
+    "routes": [
+      {
+        "title": "v2",
+        "path": "api/v2"
+      },
+      {
+        "title": "v1",
+        "path": "api/v1"
+      }
+    ]
   }
 ]

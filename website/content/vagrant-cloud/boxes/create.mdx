@@ -62,7 +62,7 @@ need to get an [access token](https://vagrantcloud.com/settings/security).
 Then, prepare the upload:
 
 ```shell-session
-$ curl 'https://vagrantcloud.com/api/v1/box/USERNAME/BOX_NAME/version/VERSION/provider/PROVIDER_NAME/upload?access_token=ACCESS_TOKEN'
+$ curl 'https://vagrantcloud.com/api/v2/box/USERNAME/BOX_NAME/version/VERSION/provider/PROVIDER_NAME/ARCHITECTURE_NAME/upload?access_token=ACCESS_TOKEN'
 ```
 
 This should return something like this:
@@ -82,7 +82,7 @@ $ curl -X PUT --upload-file foo.box https://archivist.hashicorp.com/v1/object/63
 When the upload finishes, you can verify it worked by making this request and matching the `hosted_token` it returns to the previously retrieved upload token.
 
 ```shell-session
-$ curl 'https://vagrantcloud.com/api/v1/box/USERNAME/BOX_NAME/version/VERSION_NUMBER/provider/PROVIDER_NAME?access_token=ACCESS_TOKEN'
+$ curl 'https://vagrantcloud.com/api/v2/box/USERNAME/BOX_NAME/version/VERSION_NUMBER/provider/PROVIDER_NAME/ARCHITECTURE_NAME?access_token=ACCESS_TOKEN'
 ```
 
 Your box should then be available for download.
