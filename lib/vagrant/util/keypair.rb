@@ -18,7 +18,7 @@ module Vagrant
         # Header of private key file content
         PRIVATE_KEY_START = "-----BEGIN OPENSSH PRIVATE KEY-----\n".freeze
         # Footer of private key file content
-        PRIVATE_KEY_END = "-----END OPENSSH PRIVATE KEY-----".freeze
+        PRIVATE_KEY_END = "-----END OPENSSH PRIVATE KEY-----\n".freeze
 
         # Encodes given string
         #
