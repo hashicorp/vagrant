@@ -2,6 +2,8 @@
 
 FEATURES:
 
+- core: Add architecture support [GH-13239]
+
 IMPROVEMENTS:
 
 - communicator/ssh: Add key type detection on insecure key replacement [GH-13219] 
