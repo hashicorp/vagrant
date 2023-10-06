@@ -1,0 +1,140 @@
+#!/usr/bin/env bash
+
+csource="${BASH_SOURCE[0]}"
+while [ -h "$csource" ] ; do csource="$(readlink "$csource")"; done
+root="$( cd -P "$( dirname "$csource" )/../" && pwd )"
+
+. "${root}/.ci/load-ci.sh"
+
+if [ "${#}" -ne 1 ]; then
+  printf "Usage: %s VERSION\n" "${0}" >&2
+  exit 1
+fi
+
+version="${1}"
+
+info "Updating repository files for ${version} release"
+
+if [[ "${version}" = "v"* ]]; then
+    failure "Invalid version format, cannot start with 'v': %s" "${version}"
+fi
+
+if ! valid_release_version "${version}"; then
+    failure "Invalid version format provided: %s" "${version}"
+fi
+
+debug "Configuring git"
+hashibot_git
+
+debug "Updating version.txt with version value: %s" "${version}"
+if [ ! -f "version.txt" ]; then
+    failure "Unable to locate version.txt file"
+fi
+
+printf "%s" "${version}" > version.txt
+
+debug "Updating CHANGELOG.md"
+if [ ! -f "CHANGELOG.md" ]; then
+    failure "Unable to locate CHANGLOG.md file"
+fi
+
+datestamp="$(date "+%B %d, %Y")" ||
+    failure "Unable to generate date"
+
+printf "## %s (%s)\n" "${version}" "${datestamp}" > .CHANGELOG.md.new
+
+grep -v UNRELEASED < CHANGELOG.md >> .CHANGELOG.md.new ||
+    failure "Unable to update CHANGELOG contents"
+
+mv .CHANGELOG.md.new CHANGELOG.md ||
+    failure "Unable to overwrite CHANGELOG file"
+
+license_date="$(date "+%Y")" ||
+    failure "Unable to generate year for license"
+
+license_template="./templates/license/license.tmpl"
+license_destination="./LICENSE"
+
+debug "Updating license file: ${license_destination}"
+
+if [ ! -f "${license_template}" ]; then
+    failure "Unable to locate license template (${license_template})"
+fi
+if [ ! -f "${license_destination}" ]; then
+    failure "Unable to locate license destination (${license_destination})"
+fi
+
+sed "s/%VERSION%/${version}/" "${license_template}" > "${license_destination}" ||
+    failure "Unable to update version in ${license_destination}"
+sed -i "s/%YEAR%/${license_date}/" "${license_destination}" ||
+    failure "Unable to update year in ${license_destination}"
+
+debug "Updating download version in website source"
+
+version_file="./website/data/version.json"
+if [ ! -f "${version_file}" ]; then
+    failure "Unable to locate version data file (%s)" "${version_file}"
+fi
+
+sed -i "s/  \"VERSION\":.*,/  \"VERSION\": \"${version}\",/" "${version_file}" ||
+    failure "Unable to update version data file (%s)" "${version_file}"
+
+debug "Commit version updates"
+
+# display changes before commit
+git status
+
+git add version.txt CHANGELOG.md LICENSE "${version_file}" ||
+    failure "Unable to stage updated release files for commit"
+
+git commit -m "Release ${version}" ||
+    failure "Unable to commit updated files for release"
+
+release_tag="v${version}"
+
+debug "Creating new tag %s" "${release_tag}"
+
+git tag "${release_tag}"
+
+# Generate a new version for development
+version_prefix="${version%.*}"
+patch="${version##*.}"
+new_patch=$(( "${patch}" + 1 ))
+dev_version="${version_prefix}.${new_patch}.dev"
+
+debug "Updating files for new development - %s" "${dev_version}"
+
+debug "Updating version.txt with version value: %s" "${dev_version}"
+printf "%s\n" "${dev_version}" > version.txt
+
+debug "Updating CHANGELOG"
+
+printf "## %s (UNRELEASED)\n\nFEATURES:\n\nIMPROVEMENTS:\n\nBUG FIXES:\n\nVAGRANT-GO:\n\n" "${dev_version}" > .CHANGELOG.md.new
+cat CHANGELOG.md >> .CHANGELOG.md.new
+
+mv .CHANGELOG.md.new CHANGELOG.md ||
+    failure "Unable to overwrite CHANGELOG file"
+
+debug "Updating LICENSE"
+
+sed "s/%VERSION%/${dev_version}/" "${license_template}" > LICENSE ||
+    failure "Unable to update LICENSE"
+
+debug "Commit development version updates"
+
+# display changes before commit
+git status
+
+git add version.txt CHANGELOG.md LICENSE ||
+    failure "Unable to stage updated development files for commit"
+
+git commit -m "Release ${version}" ||
+    failure "Unable to commit updated files for development"
+
+# Now that all changes are complete, push
+debug "Pushing all changes to origin"
+
+git push origin main ||
+    failure "Unable to push changes to main"
+git push origin "${release_tag}" ||
+    failure "Unable to push tag to main"
