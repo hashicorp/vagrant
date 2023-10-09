@@ -2235,6 +2235,72 @@ function github_release_exists() {
     return "${result}"
 }
 
+# Check if a github release exists using fuzzy match
+#
+# $1: repository name
+# $2: release name
+function github_release_exists_fuzzy() {
+    local release_repo="${1}"
+    local release_name="${2}"
+
+    if [ -z "${release_repo}" ]; then
+        failure "Repository name required for draft release lookup"
+    fi
+    if [ -z "${release_name}" ]; then
+        failure "Release name required for draft release lookup"
+    fi
+
+    # Override repository value to get correct token automatically
+    local repository_bak="${repository}"
+    repository="${repo_owner}/${release_repo}"
+
+    local page=$((1))
+    local matched_name
+
+    while [ -z "${release_content}" ]; do
+        local release_list
+        release_list="$(github_request \
+            -H "Content-Type: application/json" \
+            "https://api.github.com/repos/${repository}/releases?per_page=100&page=${page}")" ||
+            failure "Failed to request releases list for ${repository}"
+
+        # If there's no more results, just bust out of the loop
+        if [ "$(jq 'length' <( printf "%s" "${release_list}" ))" -lt "1" ]; then
+            break
+        fi
+
+        local names name_list n matched_name
+        name_list="$(printf "%s" "${release_list}" | jq '.[] | .name')" ||
+            failure "Could not generate name list"
+
+        # shellcheck disable=SC2206
+        names=( $name_list )
+        for n in "${names[@]}"; do
+            if [[ "${n}" =~ $release_name ]]; then
+                matched_name="${n}"
+                break
+            fi
+        done
+
+        if [ -n "${matched_name}" ]; then
+            break
+        fi
+
+        ((page++))
+    done
+
+    # Restore the $repository value
+    repository="${repository_bak}"
+
+    if [ -z "${matched_name}" ]; then
+        debug "did not locate release named %s for %s" "${release_name}" "${repo_owner}/${release_repo}"
+        return 1
+    fi
+
+    debug "found release name %s in %s (pattern: %s)" "${matched_name}" "${repo_owner}/${release_repo}" "${release_name}"
+    return 0
+}
+
 # Check if a draft release exists by name
 #
 # $1: repository name
