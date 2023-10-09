@@ -1,0 +1,61 @@
+#!/usr/bin/env bash
+
+csource="${BASH_SOURCE[0]}"
+while [ -h "$csource" ] ; do csource="$(readlink "$csource")"; done
+root="$( cd -P "$( dirname "$csource" )/../" && pwd )"
+
+. "${root}/.ci/load-ci.sh"
+
+if [ "${#}" -ne 1 ]; then
+    printf "Usage: %s LICENSE_DIR\n" "${0}"
+    exit 1
+fi
+
+license_dir="${1}"
+if [ ! -d "${license_dir}" ]; then
+    mkdir -p "${license_dir}" ||
+        failure "Unable to create license directory"
+fi
+
+pushd "${license_dir}"
+license_dir="$(pwd)" || failure "Could not read license directory path"
+popd
+
+# Move to the root
+pushd "${root}"
+
+info "Generating Vagrant license files"
+
+version="$(< ./version.txt)" ||
+    failure "Unable to read version file"
+
+license_date="$(date "+%Y")" ||
+    failure "Unable to generate year for license"
+
+license_template="./templates/license/license.html.tmpl"
+license_destination="${license_dir}/LICENSE.html"
+
+debug "Updating license file: ${license_destination}"
+
+if [ ! -f "${license_template}" ]; then
+    failure "Unable to locate license template (${license_template})"
+fi
+
+sed "s/%VERSION%/${version}/" "${license_template}" > "${license_destination}" ||
+    failure "Unable to update version in ${license_destination}"
+sed -i "s/%YEAR%/${license_date}/" "${license_destination}" ||
+    failure "Unable to update year in ${license_destination}"
+
+license_template="./templates/license/license.rtf.tmpl"
+license_destination="${license_dir}/LICENSE.rtf"
+
+debug "Updating license file: ${license_destination}"
+
+if [ ! -f "${license_template}" ]; then
+    failure "Unable to locate license template (${license_template})"
+fi
+
+sed "s/%VERSION%/${version}/" "${license_template}" > "${license_destination}" ||
+    failure "Unable to update version in ${license_destination}"
+sed -i "s/%YEAR%/${license_date}/" "${license_destination}" ||
+    failure "Unable to update year in ${license_destination}"
