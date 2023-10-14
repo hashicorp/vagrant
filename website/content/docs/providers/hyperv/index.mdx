@@ -28,9 +28,3 @@ Enable-WindowsOptionalFeature -Online -FeatureName Microsoft-Hyper-V -All
 ```
 
 See official documentation [here](https://docs.microsoft.com/en-us/virtualization/hyper-v-on-windows/quick-start/enable-hyper-v).
-
-~> **Warning:** Enabling Hyper-V will cause VirtualBox, VMware,
-and any other virtualization technology to no longer work. See
-[this blog post](http://www.hanselman.com/blog/SwitchEasilyBetweenVirtualBoxAndHyperVWithABCDEditBootEntryInWindows81.aspx)
-for an easy way to create a boot entry to boot Windows without Hyper-V enabled, if
-there will be times you will need other hypervisors.
