@@ -128,7 +128,7 @@ git status
 git add version.txt CHANGELOG.md LICENSE ||
     failure "Unable to stage updated development files for commit"
 
-git commit -m "Release ${version}" ||
+git commit -m "Update files for new development ${dev_version}" ||
     failure "Unable to commit updated files for development"
 
 # Now that all changes are complete, push
