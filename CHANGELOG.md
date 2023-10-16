@@ -1,4 +1,4 @@
-## 2.3.8 (UNRELEASED) 
+## 2.4.0 (October 16, 2023)
 
 FEATURES:
 
