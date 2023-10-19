@@ -7,6 +7,7 @@ IMPROVEMENTS:
 BUG FIXES:
 
 - core: Fix Vagrant SSL helper detection on macOS [GH-13277]
+- util/platform: Fix architecture mapping for Windows [GH-13278]
 
 VAGRANT-GO:
 
