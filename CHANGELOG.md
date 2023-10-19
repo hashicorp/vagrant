@@ -6,6 +6,8 @@ IMPROVEMENTS:
 
 BUG FIXES:
 
+- core: Fix Vagrant SSL helper detection on macOS [GH-13277]
+
 VAGRANT-GO:
 
 ## 2.4.0 (October 16, 2023)
