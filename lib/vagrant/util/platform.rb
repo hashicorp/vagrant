@@ -27,10 +27,10 @@ module Vagrant
             end
 
             @_host_architecture = case RbConfig::CONFIG["target_cpu"]
-              when "x86_64"
+              when "amd64", "x86_64", "x64"
                 "amd64"
-              when "i386"
-                "386"
+              when "386", "i386", "x86"
+                "i386"
               when "arm64", "aarch64"
                 "arm64"
               else

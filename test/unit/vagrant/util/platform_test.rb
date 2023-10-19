@@ -28,11 +28,27 @@ describe Vagrant::Util::Platform do
       end
     end
 
+    context "when cpu is x64" do
+      let(:cpu_string) { "x64" }
+
+      it "should be mapped to amd64" do
+        expect(described_class.architecture).to eq("amd64")
+      end
+    end
+
     context "when cpu is i386" do
       let(:cpu_string) { "i386" }
 
+      it "should be mapped to i386" do
+        expect(described_class.architecture).to eq("i386")
+      end
+    end
+
+    context "when cpu is 386" do
+      let(:cpu_string) { "386" }
+
       it "should be mapped to 386" do
-        expect(described_class.architecture).to eq("386")
+        expect(described_class.architecture).to eq("i386")
       end
     end
 
