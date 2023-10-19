@@ -129,7 +129,11 @@ end
 # If the vagrant_ssl library exists, a recent version
 # of openssl is in use and its needed to load all the
 # providers needed
-if File.exist?(File.expand_path("vagrant/vagrant_ssl.so", __dir__))
+vagrant_ssl_locations = [
+  File.expand_path("vagrant/vagrant_ssl.so", __dir__),
+  File.expand_path("vagrant/vagrant_ssl.bundle", __dir__)
+]
+if vagrant_ssl_locations.any? { |f| File.exist?(f) }
   global_logger.debug("vagrant ssl helper found for loading ssl providers")
   begin
     require "vagrant/vagrant_ssl"
