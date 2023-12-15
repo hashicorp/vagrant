@@ -208,7 +208,7 @@ describe VagrantPlugins::DockerProvider::Driver do
     end
 
     context "using podman emulating docker CLI" do
-      let(:stdout) { "1a2b3c4d5e6f7g8h9i10j11k12l13m14n16o17p18q19r20s21t22u23v24w25x2" }
+      let(:stdout) { "1a2b3c4d5e6f7g8h9i10j11k12l13m14n16o17p18q19r20s21t22u23v24w25x2\nCopying config sha256:368a084ba17dcba88f5b23acfa47481131010219524fd9c41af87d709a04845b" }
 
       it "builds a container with podman emulating docker CLI" do
         allow(subject).to receive(:podman?).and_return(true)
