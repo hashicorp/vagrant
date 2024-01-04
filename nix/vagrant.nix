@@ -1,7 +1,7 @@
 { lib, stdenv, autoconf, autogen, automake, go, go-bindata, go-changelog
 , go-mockery, go-protobuf, go-protobuf-json, gotools, grpc-tools, grpcurl
 , libarchive, libpng, libtool, mkShell, nasm, nodejs_20, pkg-config, protobuf
-, protoc-gen-doc, protoc-gen-go-grpc, ruby, sqlite, zlib }:
+, protoc-gen-doc, protoc-gen-go-grpc, ruby_3_2, openssl_3_1, sqlite, zlib }:
 
 mkShell rec {
   name = "vagrant";
@@ -12,7 +12,8 @@ mkShell rec {
     grpcurl
     nodejs_20
     protoc-gen-doc
-    ruby
+    ruby_3_2
+    openssl_3_1
 
     protobuf
     protoc-gen-go-grpc
