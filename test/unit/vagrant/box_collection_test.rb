@@ -111,6 +111,17 @@ describe Vagrant::BoxCollection, :skip_windows, :bsdtar do
         end.not_to raise_error
       end
 
+      context "with architectures defined" do
+        before do
+          environment.box3("foo-VAGRANTSLASH-bar", "1.0", :virtualbox, architecture: :arm64)
+        end
+
+        it "should sort boxes by name" do
+          result = subject.all.map(&:first).uniq
+          expect(result).to eq(["bar", "foo", "foo/bar", "foo:colon"])
+        end
+      end
+
       it "should sort boxes by version" do
         box_list = subject.all.find_all do |box_info|
           box_info[0] == "foo" && box_info[2].to_s == "virtualbox"
