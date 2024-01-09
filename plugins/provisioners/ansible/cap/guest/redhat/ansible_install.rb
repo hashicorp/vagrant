@@ -39,8 +39,32 @@ module VagrantPlugins
             def self.pip_setup(machine, pip_install_cmd = "")
               rpm_package_manager = Facts::rpm_package_manager(machine)
 
-              machine.communicate.sudo("#{rpm_package_manager} -y install curl gcc libffi-devel openssl-devel python-crypto python-devel python-setuptools")
-              Pip::get_pip machine, pip_install_cmd
+              # Use other packages for RHEL > 7 and set alternatives for RHEL 8
+              machine.communicate.sudo """
+                source /etc/os-release
+                MAJOR=$(echo $VERSION_ID | cut -d. -f1)
+                if [ $MAJOR -ge 8 ]; then
+                  #{rpm_package_manager} -y install curl gcc libffi-devel openssl-devel python3-cryptography python3-devel python3-setuptools
+                else
+                  #{rpm_package_manager} -y install curl gcc libffi-devel openssl-devel python-crypto python-devel python-setuptools
+                fi
+                if [ $MAJOR -eq 8 ]; then
+                  alternatives --set python /usr/bin/python3
+                fi
+              """
+
+              # pip is already installed as dependency for RHEL > 7
+              if machine.communicate.test("test ! -f /usr/bin/pip3")
+                Pip::get_pip machine, pip_install_cmd
+              end
+              # Set pip-alternative for RHEL 8
+              machine.communicate.sudo """
+                source /etc/os-release
+                MAJOR=$(echo $VERSION_ID | cut -d. -f1)
+                if [ $MAJOR -eq 8 ]; then
+                  alternatives --install /usr/bin/pip pip /usr/local/bin/pip 1
+                fi
+              """
             end
 
           end
