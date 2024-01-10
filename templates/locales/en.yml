@@ -1621,6 +1621,14 @@ en:
         sometimes keys in your ssh-agent can interfere with this as well,
         so verify the keys are valid there in addition to standard
         file paths.
+      ssh_key_type_not_supported_by_server: |-
+        The private key you are attempting to generate is not supported by
+        the guest SSH server. Please use one of the available key types defined
+        below that is supported by the guest SSH server.
+
+        Requested: %{requested_key_type}
+        Available: %{available_key_types}
+
       ssh_not_ready: |-
         The provider for this Vagrant-managed machine is reporting that it
         is not yet ready for SSH. Depending on your provider this can carry

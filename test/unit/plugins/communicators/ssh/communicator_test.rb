@@ -13,6 +13,7 @@ describe VagrantPlugins::CommunicatorSSH::Communicator do
   # SSH configuration information mock
   let(:ssh) do
     double("ssh",
+      key_type: :auto,
       timeout: 1,
       host: nil,
       port: 5986,
@@ -264,46 +265,48 @@ describe VagrantPlugins::CommunicatorSSH::Communicator do
           allow(guest).to receive(:capability).with(:remove_public_key)
           allow(connection).to receive(:transport).and_return(transport)
           allow(algorithms).to receive(:instance_variable_get).with(:@server_data).and_return(server_data)
+          allow(communicator).to receive(:supported_key_types).and_raise(described_class.const_get(:ServerDataError))
         end
-
-        after{ communicator.ready? }
 
         it "should create a new key pair" do
           expect(Vagrant::Util::Keypair).to receive(:create).
             and_return([new_public_key, new_private_key, openssh])
+          communicator.ready?
         end
 
         it "should call the insert_public_key guest capability" do
           expect(guest).to receive(:capability).with(:insert_public_key, openssh)
+          communicator.ready?
         end
 
         it "should write the new private key" do
           expect(private_key_file).to receive(:write).with(new_private_key)
+          communicator.ready?
         end
 
         it "should call the set_ssh_key_permissions host capability" do
           expect(host).to receive(:capability?).with(:set_ssh_key_permissions).and_return(true)
           expect(host).to receive(:capability).with(:set_ssh_key_permissions, private_key_file)
+          communicator.ready?
         end
 
         it "should remove the default public key" do
           expect(guest).to receive(:capability).with(:remove_public_key, any_args)
+          communicator.ready?
         end
 
         context "with server algorithm support data" do
-          context "when no key type matches are found" do
-            it "should default to rsa type" do
-              expect(Vagrant::Util::Keypair).to receive(:create).
-                with(type: :rsa).and_call_original
-            end
+          before do
+            allow(communicator).to receive(:supported_key_types).and_call_original
           end
 
           context "when rsa is the only match" do
-            let(:valid_key_types) { ["ssh-edsca", "ssh-rsa"] }
+            let(:valid_key_types) { ["ssh-ecdsa", "ssh-rsa"] }
 
             it "should use rsa type" do
               expect(Vagrant::Util::Keypair).to receive(:create).
                 with(type: :rsa).and_call_original
+              communicator.ready?
             end
           end
 
@@ -313,27 +316,69 @@ describe VagrantPlugins::CommunicatorSSH::Communicator do
             it "should use ed25519 type" do
               expect(Vagrant::Util::Keypair).to receive(:create).
                 with(type: :ed25519).and_call_original
+              communicator.ready?
             end
           end
 
           context "when ed25519 is the only match" do
-            let(:valid_key_types) { ["ssh-edsca", "ssh-ed25519"] }
+            let(:valid_key_types) { ["ssh-ecdsa", "ssh-ed25519"] }
 
             it "should use ed25519 type" do
               expect(Vagrant::Util::Keypair).to receive(:create).
                 with(type: :ed25519).and_call_original
+              communicator.ready?
+            end
+          end
+
+          context "with key_type set as :auto in configuration" do
+            let(:valid_key_types) { ["ssh-ed25519", "ssh-rsa"] }
+            before { allow(ssh).to receive(:key_type).and_return(:auto) }
+
+            it "should use the preferred ed25519 key type" do
+              expect(Vagrant::Util::Keypair).to receive(:create).
+                with(type: :ed25519).and_call_original
+              communicator.ready?
+            end
+
+            context "when no supported key type is detected" do
+              let(:valid_key_types) { ["fake-type", "other-fake-type"] }
+
+              it "should raise an error" do
+                expect { communicator.ready? }.to raise_error(Vagrant::Errors::SSHKeyTypeNotSupportedByServer)
+              end
+            end
+          end
+
+          context "with key_type set as :ecdsa521 in configuration" do
+            let(:valid_key_types) { ["ssh-ed25519", "ssh-rsa", "ecdsa-sha2-nistp521", "ecdsa-sha2-nistp256"] }
+            before { allow(ssh).to receive(:key_type).and_return(:ecdsa521) }
+
+            it "should use the requested key type" do
+              expect(Vagrant::Util::Keypair).to receive(:create).
+                with(type: :ecdsa521).and_call_original
+              communicator.ready?
+            end
+
+            context "when requested key type is not supported" do
+              let(:valid_key_types) { ["ssh-ed25519", "ssh-rsa", "ecdsa-sha2-nistp256"] }
+
+              it "should raise an error" do
+                expect { communicator.ready? }.to raise_error(Vagrant::Errors::SSHKeyTypeNotSupportedByServer)
+              end
             end
           end
         end
 
         context "when an error is encountered getting server data" do
           before do
+            expect(communicator).to receive(:supported_key_types).and_call_original
             expect(connection).to receive(:transport).and_raise(StandardError)
           end
 
           it "should default to rsa key" do
             expect(Vagrant::Util::Keypair).to receive(:create).
               with(type: :rsa).and_call_original
+            communicator.ready?
           end
         end
       end
