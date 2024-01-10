@@ -36,7 +36,7 @@ module Vagrant
     autoload :IO,                        'vagrant/util/io'
     autoload :IPV4Interfaces,            'vagrant/util/ipv4_interfaces'
     autoload :IsPortOpen,                'vagrant/util/is_port_open'
-    autoload :KeyPair,                   'vagrant/util/key_pair'
+    autoload :Keypair,                   'vagrant/util/keypair'
     autoload :LineBuffer,                'vagrant/util/line_buffer'
     autoload :LineEndingHelpers,         'vagrant/util/line_ending_helpers'
     autoload :LoggingFormatter,          'vagrant/util/logging_formatter'
