@@ -2065,6 +2065,8 @@ en:
           `%{given}` type which cannot be converted to an Integer type.
         connect_timeout_invalid_value: |-
           The `connect_timeout` key only accepts values greater than 1 (received `%{given}`)
+        connect_invalid_key_type: |-
+          Invalid SSH key type set ('%{given}'). Supported types: %{supported}
       triggers:
         bad_trigger_type: |-
           The type '%{type}' defined for trigger '%{trigger}' is not valid. Must be one of the following types: '%{types}'

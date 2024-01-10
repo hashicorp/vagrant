@@ -90,6 +90,12 @@ defaults are typically fine, but you can fine tune whatever you would like.
 - `config.ssh.keys_only` (boolean) - Only use Vagrant-provided SSH private keys (do not use
   any keys stored in ssh-agent). The default value is `true`.
 
+- `config.ssh.key_type` (string, symbol) - The SSH key type that should be used when generating
+  a new key to replace the default insecure key. Supported values are: `:ed25519`, `:ecdsa256`,
+  `:ecdsa384`, `:ecdsa521`, `:rsa`, and `:auto`. When the value is set to `:auto`, Vagrant will
+  automatically pick a type based on what is supported by the guest SSH server. The default
+  value is `:auto`.
+
 - `config.ssh.paranoid` (boolean) - Perform strict host-key verification. The default value is
   `false`.
 
