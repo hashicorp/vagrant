@@ -5,6 +5,7 @@ require "log4r"
 
 # Add patches to log4r to support trace level
 require "vagrant/patches/log4r"
+require "vagrant/patches/net-ssh"
 # Set our log levels and include trace
 require 'log4r/configurator'
 Log4r::Configurator.custom_levels(*(["TRACE"] + Log4r::Log4rConfig::LogLevels))

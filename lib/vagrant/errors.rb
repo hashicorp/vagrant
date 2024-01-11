@@ -863,6 +863,10 @@ module Vagrant
       error_key(:ssh_key_type_not_supported)
     end
 
+    class SSHKeyTypeNotSupportedByServer < VagrantError
+      error_key(:ssh_key_type_not_supported_by_server)
+    end
+
     class SSHNoExitStatus < VagrantError
       error_key(:ssh_no_exit_status)
     end

@@ -15,6 +15,7 @@ module VagrantPlugins
       attr_accessor :password
       attr_accessor :insert_key
       attr_accessor :keys_only
+      attr_accessor :key_type
       attr_accessor :paranoid
       attr_accessor :verify_host_key
       attr_accessor :compression
@@ -33,6 +34,7 @@ module VagrantPlugins
         @password         = UNSET_VALUE
         @insert_key       = UNSET_VALUE
         @keys_only        = UNSET_VALUE
+        @key_type         = UNSET_VALUE
         @paranoid         = UNSET_VALUE
         @verify_host_key  = UNSET_VALUE
         @compression      = UNSET_VALUE
@@ -50,6 +52,7 @@ module VagrantPlugins
         @password         = nil if @password == UNSET_VALUE
         @insert_key       = true if @insert_key == UNSET_VALUE
         @keys_only        = true if @keys_only == UNSET_VALUE
+        @key_type         = :auto if @key_type == UNSET_VALUE
         @paranoid         = false if @paranoid == UNSET_VALUE
         @verify_host_key  = :never if @verify_host_key == UNSET_VALUE
         @compression      = true if @compression == UNSET_VALUE
@@ -96,6 +99,10 @@ module VagrantPlugins
         rescue
           # ignore
         end
+
+        if @key_type
+          @key_type = @key_type.to_sym
+        end
       end
 
       # NOTE: This is _not_ a valid config validation method, since it
@@ -138,6 +145,14 @@ module VagrantPlugins
           errors << I18n.t(
             "vagrant.config.ssh.connect_timeout_invalid_value",
             given: @connect_timeout.to_s)
+        end
+
+        if @key_type != :auto && !Vagrant::Util::Keypair.valid_type?(@key_type)
+          errors << I18n.t(
+            "vagrant.config.ssh.connect_invalid_key_type",
+            given: @key_type.to_s,
+            supported: Vagrant::Util::Keypair.available_types.join(", ")
+          )
         end
 
         errors

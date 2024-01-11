@@ -113,6 +113,8 @@ module VagrantPlugins
               raise
             rescue Vagrant::Errors::SSHKeyTypeNotSupported
               raise
+            rescue Vagrant::Errors::SSHKeyTypeNotSupportedByServer
+              raise
             rescue Vagrant::Errors::SSHKeyBadOwner
               raise
             rescue Vagrant::Errors::SSHKeyBadPermissions
@@ -188,25 +190,56 @@ module VagrantPlugins
             @machine.guest.capability?(:remove_public_key)
           raise Vagrant::Errors::SSHInsertKeyUnsupported if !cap
 
-          # Check for supported key type
-          key_type = catch(:key_type) do
-            begin
-              Vagrant::Util::Keypair::PREFER_KEY_TYPES.each do |type_name, type|
-                throw :key_type, type if supports_key_type?(type_name)
+          key_type = machine_config_ssh.key_type
+
+          begin
+            # If the key type is set to `:auto` check for supported type. Otherwise
+            # ensure that the key type is supported by the guest
+            if key_type == :auto
+              key_type = catch(:key_type) do
+                begin
+                  Vagrant::Util::Keypair::PREFER_KEY_TYPES.each do |type_name, type|
+                    throw :key_type, type if supports_key_type?(type_name)
+                  end
+                  nil
+                rescue => err
+                  @logger.warn("Failed to check key types server supports: #{err}")
+                  nil
+                end
               end
-              nil
-            rescue => err
-              @logger.warn("Failed to check key types server supports: #{err}")
-              nil
+
+              @logger.debug("Detected key type for new private key: #{key_type}")
+
+              # If no key type was discovered, default to rsa
+              if key_type.nil?
+                @logger.debug("Failed to detect supported key type in: #{supported_key_types.join(", ")}")
+                available_types = supported_key_types.map { |t|
+                  next if !Vagrant::Util::Keypair::PREFER_KEY_TYPES.key?(t)
+                  "#{t} (#{Vagrant::Util::Keypair::PREFER_KEY_TYPES[t]})"
+                }.compact.join(", ")
+
+                raise Vagrant::Errors::SSHKeyTypeNotSupportedByServer,
+                      requested_key_type: ":auto",
+                      available_key_types: available_types
+              end
+            else
+              type_name = Vagrant::Util::Keypair::PREFER_KEY_TYPES.key(key_type)
+              if !supports_key_type?(type_name)
+                available_types = supported_key_types.map { |t|
+                  next if !Vagrant::Util::Keypair::PREFER_KEY_TYPES.key?(t)
+                  "#{t} (#{Vagrant::Util::Keypair::PREFER_KEY_TYPES[t]})"
+                }.compact.join(", ")
+                raise Vagrant::Errors::SSHKeyTypeNotSupportedByServer,
+                      requested_key_type: "#{type_name} (#{key_type})",
+                      available_key_types: available_types
+              end
             end
-          end
-
-          @logger.debug("Detected key type for new private key: #{key_type}")
-
-          # If no key type was discovered, default to rsa
-          if key_type.nil?
-            @logger.debug("Failed to detect supported key type, defaulting to rsa")
-            key_type = :rsa
+          rescue ServerDataError
+            @logger.warn("failed to load server data for key type check")
+            if key_type.nil? || key_type == :auto
+              @logger.warn("defaulting key type to :rsa due to failed server data loading")
+              key_type = :rsa
+            end
           end
 
           @logger.info("Creating new ssh keypair (type: #{key_type.inspect})")
@@ -788,6 +821,8 @@ module VagrantPlugins
 
       protected
 
+      class ServerDataError < StandardError; end
+
       # Check if server supports given key type
       #
       # @param [String, Symbol] type Key type
@@ -798,21 +833,31 @@ module VagrantPlugins
         if @connection.nil?
           raise Vagrant::Errors::SSHNotReady
         end
+
+        supported_key_types.include?(type.to_s)
+      end
+
+      def supported_key_types
+        if @connection.nil?
+          raise Vagrant::Errors::SSHNotReady
+        end
+
         server_data = @connection.
           transport&.
           algorithms&.
           instance_variable_get(:@server_data)
         if server_data.nil?
           @logger.warn("No server data available for key type support check")
-          return false
+          raise ServerDataError, "no data available"
         end
         if !server_data.is_a?(Hash)
           @logger.warn("Server data is not expected type (expecting Hash, got #{server_data.class})")
-          return false
+          raise ServerDataError, "unexpected type encountered (expecting Hash, got #{server_data.class})"
         end
 
-        @logger.debug("server data used for host key support check: #{server_data.inspect}")
-        server_data[:host_key].include?(type.to_s)
+        @logger.debug("server supported key type list: #{server_data[:host_key]}")
+
+        server_data[:host_key]
       end
     end
   end

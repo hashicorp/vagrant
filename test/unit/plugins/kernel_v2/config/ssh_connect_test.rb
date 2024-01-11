@@ -44,6 +44,33 @@ describe VagrantPlugins::Kernel_V2::SSHConnectConfig do
     end
   end
 
+  describe "#key_type" do
+    it "defaults to :auto" do
+      subject.finalize!
+      expect(subject.key_type).to eq(:auto)
+    end
+
+    it "should allow supported key type" do
+      subject.key_type = :ed25519
+      subject.finalize!
+      errors = subject.validate(machine)
+      expect(errors).to be_empty
+    end
+
+    it "should not allow unsupported key type" do
+      subject.key_type = :unknown_type
+      subject.finalize!
+      errors = subject.validate(machine)
+      expect(errors).not_to be_empty
+    end
+
+    it "should convert string values to symbol" do
+      subject.key_type = "ecdsa521"
+      subject.finalize!
+      expect(subject.key_type).to eq(:ecdsa521)
+    end
+  end
+
   describe "#config" do
     let(:config_file) { "/path/to/config" }
 
