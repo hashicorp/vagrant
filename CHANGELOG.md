@@ -4,6 +4,9 @@ FEATURES:
 
 IMPROVEMENTS:
 
+- communicator/ssh: Support ECDSA type keys for insecure key replacement [GH-13327] 
+- util/keypair: Add support for ECDSA keys [GH-13327]
+
 BUG FIXES:
 
 - core: Fix Vagrant SSL helper detection on macOS [GH-13277]
