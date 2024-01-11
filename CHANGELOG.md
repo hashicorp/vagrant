@@ -4,7 +4,8 @@ FEATURES:
 
 IMPROVEMENTS:
 
-- communicator/ssh: Support ECDSA type keys for insecure key replacement [GH-13327] 
+- communicator/ssh: Support ECDSA type keys for insecure key replacement [GH-13327]
+- provisioner/ansible: Support pip installation for RHEL >= 8 [GH-13326]
 - util/keypair: Add support for ECDSA keys [GH-13327]
 
 BUG FIXES:
