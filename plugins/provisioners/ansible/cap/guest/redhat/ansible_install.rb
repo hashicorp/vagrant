@@ -40,7 +40,7 @@ module VagrantPlugins
               rpm_package_manager = Facts::rpm_package_manager(machine)
 
               # Use other packages for RHEL > 7 and set alternatives for RHEL 8
-              machine.communicate.sudo """
+              machine.communicate.sudo(%Q{
                 source /etc/os-release
                 MAJOR=$(echo $VERSION_ID | cut -d. -f1)
                 if [ $MAJOR -ge 8 ]; then
@@ -51,20 +51,20 @@ module VagrantPlugins
                 if [ $MAJOR -eq 8 ]; then
                   alternatives --set python /usr/bin/python3
                 fi
-              """
+              })
 
               # pip is already installed as dependency for RHEL > 7
               if machine.communicate.test("test ! -f /usr/bin/pip3")
                 Pip::get_pip machine, pip_install_cmd
               end
               # Set pip-alternative for RHEL 8
-              machine.communicate.sudo """
+              machine.communicate.sudo(%Q{
                 source /etc/os-release
                 MAJOR=$(echo $VERSION_ID | cut -d. -f1)
                 if [ $MAJOR -eq 8 ]; then
                   alternatives --install /usr/bin/pip pip /usr/local/bin/pip 1
                 fi
-              """
+              })
             end
 
           end
