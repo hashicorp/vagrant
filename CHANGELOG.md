@@ -10,6 +10,8 @@ IMPROVEMENTS:
 
 BUG FIXES:
 
+- command/plugin: Fix plugin extension installation on Windows [GH-13328]
+- communicator/ssh: Fix private key writing on Windows [GH-13329]
 - core: Fix Vagrant SSL helper detection on macOS [GH-13277]
 - core: Fix box collection sorting [GH-#13320]
 - util/platform: Fix architecture mapping for Windows [GH-13278]
