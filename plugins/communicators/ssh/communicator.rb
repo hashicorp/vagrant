@@ -251,7 +251,7 @@ module VagrantPlugins
 
           # Write out the private key in the data dir so that the
           # machine automatically picks it up.
-          @machine.data_dir.join("private_key").open("w+") do |f|
+          @machine.data_dir.join("private_key").open("wb+") do |f|
             f.write(priv)
           end
 
