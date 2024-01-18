@@ -4,7 +4,9 @@ FEATURES:
 
 IMPROVEMENTS:
 
+- core: Update Ruby constraint to allow Ruby 3.3 [GH-13335] 
 - communicator/ssh: Support ECDSA type keys for insecure key replacement [GH-13327]
+- communicator/ssh: Inspect guest for supported key types [GH-13334]
 - provisioner/ansible: Support pip installation for RHEL >= 8 [GH-13326]
 - util/keypair: Add support for ECDSA keys [GH-13327]
 
