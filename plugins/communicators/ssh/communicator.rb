@@ -838,26 +838,59 @@ module VagrantPlugins
       end
 
       def supported_key_types
+        return @supported_key_types if @supported_key_types
+
         if @connection.nil?
           raise Vagrant::Errors::SSHNotReady
         end
 
-        server_data = @connection.
-          transport&.
-          algorithms&.
-          instance_variable_get(:@server_data)
-        if server_data.nil?
-          @logger.warn("No server data available for key type support check")
-          raise ServerDataError, "no data available"
-        end
-        if !server_data.is_a?(Hash)
-          @logger.warn("Server data is not expected type (expecting Hash, got #{server_data.class})")
-          raise ServerDataError, "unexpected type encountered (expecting Hash, got #{server_data.class})"
+        list = ""
+        result = sudo("sshd -T | grep key", {error_check: false}) do |type, data|
+          list << data
         end
 
-        @logger.debug("server supported key type list: #{server_data[:host_key]}")
+        # If the command failed, attempt to extract some supported
+        # key information from within net-ssh
+        if result != 0
+          server_data = @connection.
+            transport&.
+            algorithms&.
+            instance_variable_get(:@server_data)
+          if server_data.nil?
+            @logger.warn("No server data available for key type support check")
+            raise ServerDataError, "no data available"
+          end
+          if !server_data.is_a?(Hash)
+            @logger.warn("Server data is not expected type (expecting Hash, got #{server_data.class})")
+            raise ServerDataError, "unexpected type encountered (expecting Hash, got #{server_data.class})"
+          end
 
-        server_data[:host_key]
+          @logger.debug("server supported key type list (extracted from connection server info using host key): #{server_data[:host_key]}")
+          return @supported_key_types = server_data[:host_key]
+        end
+
+        # Convert the options into a Hash for easy access
+        opts = Hash[*list.split("\n").map{|line| line.split(" ", 2)}.flatten]
+
+        # Define the option names to check for in preferred order
+        # NOTE: pubkeyacceptedkeytypes has been renamed to pubkeyacceptedalgorithms
+        #   ref: https://github.com/openssh/openssh-portable/commit/ee9c0da8035b3168e8e57c1dedc2d1b0daf00eec
+        ["pubkeyacceptedalgorithms", "pubkeyacceptedkeytypes", "hostkeyalgorithms"].each do |opt_name|
+          next if !opts.key?(opt_name)
+
+          @supported_key_types = opts[opt_name].split(",")
+          @logger.debug("server supported key type list (using #{opt_name}): #{@supported_key_types}")
+
+          return @supported_key_types
+        end
+
+        # Still here means unable to determine key types
+        # so log what information was returned and toss
+        # and error
+        @logger.warn("failed to determine supported key types from remote inspection")
+        @logger.debug("data returned for supported key types remote inspection: #{list.inspect}")
+
+        raise ServerDataError, "no data available"
       end
     end
   end
