@@ -1,3 +1,13 @@
+## 2.4.2.dev (UNRELEASED)
+
+FEATURES:
+
+IMPROVEMENTS:
+
+BUG FIXES:
+
+VAGRANT-GO:
+
 ## 2.4.1 (January 19, 2024)
 
 FEATURES:
