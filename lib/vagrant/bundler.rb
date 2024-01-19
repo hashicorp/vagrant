@@ -523,10 +523,20 @@ module Vagrant
       if Vagrant.strict_dependency_enforcement
         @logger.debug("Enabling strict dependency enforcement")
         plugin_deps += vagrant_internal_specs.map do |spec|
-          next if system_plugins.include?(spec.name)
-          # If this spec is for a default plugin included in
-          # the ruby stdlib, ignore it
-          next if spec.default_gem?
+          # NOTE: When working within bundler, skip any system plugins and
+          # default gems. However, when not within bundler (in the installer)
+          # include them as strict dependencies to prevent the resolver from
+          # attempting to create a solution with a newer version. The request
+          # set does allow for resolving conservatively but it can't be set
+          # from the public API (requires an instance variable set on the resolver
+          # instance) so strict dependencies are used instead.
+          if Vagrant.in_bundler?
+            next if system_plugins.include?(spec.name)
+            # # If this spec is for a default plugin included in
+            # # the ruby stdlib, ignore it
+            next if spec.default_gem?
+          end
+
           # If we are not running within the installer and
           # we are not within a bundler environment then we
           # only want activated specs
