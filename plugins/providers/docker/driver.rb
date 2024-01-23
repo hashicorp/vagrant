@@ -349,7 +349,8 @@ module VagrantPlugins
         network_info = inspect_network(all_networks)
         network_info.each do |network|
           config = network["IPAM"]["Config"]
-          if (config.size > 0 &&
+          if (defined?(config.size) &&
+            config.size > 0 &&
             config.first["Subnet"] == subnet_string)
             @logger.debug("Found existing network #{network["Name"]} already configured with #{subnet_string}")
             return network["Name"]
