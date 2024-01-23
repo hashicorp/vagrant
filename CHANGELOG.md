@@ -6,6 +6,8 @@ IMPROVEMENTS:
 
 BUG FIXES:
 
+- provider/docker: Prevent error if network configuration data is missing [GH-13337]
+
 VAGRANT-GO:
 
 ## 2.4.1 (January 19, 2024)
