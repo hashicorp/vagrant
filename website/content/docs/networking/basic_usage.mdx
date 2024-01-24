@@ -46,6 +46,18 @@ the order in which the networks are enabled.
 Networks are automatically configured and enabled after they've been defined
 in the Vagrantfile as part of the `vagrant up` or `vagrant reload` process.
 
+## Forcing adapters
+
+Adapters are automatically configured but you can force a network to an interface
+by using:
+
+```ruby
+Vagrant.configure("2") do |config|
+  # ...
+  cli.vm.network :public_network, :adapter => 1
+end
+```
+
 ## Setting Hostname
 
 A hostname may be defined for a Vagrant VM using the `config.vm.hostname`
