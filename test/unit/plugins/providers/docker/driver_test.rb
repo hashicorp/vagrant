@@ -207,6 +207,16 @@ describe VagrantPlugins::DockerProvider::Driver do
       end
     end
 
+    context "using buildkit with containerd backend output" do
+      let(:stdout) { "exporting manifest list sha256:1a2b3c4d done" }
+
+      it "builds a container with buildkit docker (containerd)" do
+        container_id = subject.build("/tmp/fakedir")
+
+        expect(container_id).to eq(cid)
+      end
+    end
+
     context "using podman emulating docker CLI" do
       let(:stdout) { "1a2b3c4d5e6f7g8h9i10j11k12l13m14n16o17p18q19r20s21t22u23v24w25x2" }
 
