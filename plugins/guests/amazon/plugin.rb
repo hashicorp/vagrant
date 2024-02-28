@@ -14,6 +14,11 @@ module VagrantPlugins
         Guest
       end
 
+      guest_capability(:amazon, :configure_networks) do
+        require_relative "cap/configure_networks"
+        Cap::ConfigureNetworks
+      end
+
       guest_capability(:amazon, :flavor) do
         require_relative "cap/flavor"
         Cap::Flavor
