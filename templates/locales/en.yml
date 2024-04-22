@@ -2661,6 +2661,7 @@ en:
           exporting: Exporting NFS shared folders...
           installing: "Installing NFS client..."
           mounting: Mounting NFS shared folders...
+          mounting_entry: "%{guestpath} => %{hostpath}"
           v4_with_udp_warning: |-
 
             WARNING: Invalid NFS settings detected!
