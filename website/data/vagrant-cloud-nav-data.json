@@ -1,5 +1,18 @@
 [
   {
+    "title": "HCP Vagrant",
+    "routes": [
+      {
+        "title": "HCP Vagrant Migration Guide",
+        "path": "hcp-vagrant/migration-guide"
+      },
+      {
+        "title": "Troubleshooting",
+        "path": "hcp-vagrant/troubleshooting"
+      }
+    ]
+  },
+  {
     "title": "Boxes",
     "routes": [
       {
