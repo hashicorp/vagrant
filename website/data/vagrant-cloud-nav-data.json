@@ -3,11 +3,11 @@
     "title": "HCP Vagrant",
     "routes": [
       {
-        "title": "HCP Vagrant Migration Guide",
+        "title": "HCP Vagrant Registry Migration Guide",
         "path": "hcp-vagrant/migration-guide"
       },
       {
-        "title": "Troubleshooting",
+        "title": "Migration Troubleshooting",
         "path": "hcp-vagrant/troubleshooting"
       }
     ]
