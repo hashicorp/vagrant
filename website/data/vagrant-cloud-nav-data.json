@@ -1,5 +1,18 @@
 [
   {
+    "title": "HCP Vagrant",
+    "routes": [
+      {
+        "title": "HCP Vagrant Registry Migration Guide",
+        "path": "hcp-vagrant/migration-guide"
+      },
+      {
+        "title": "Migration Troubleshooting",
+        "path": "hcp-vagrant/troubleshooting"
+      }
+    ]
+  },
+  {
     "title": "Boxes",
     "routes": [
       {
