@@ -12,11 +12,12 @@ describe VagrantPlugins::CloudCommand::ProviderCommand::Command::Upload do
   let(:box_name) { "my-box" }
   let(:box_version) { "1.0.0" }
   let(:box_version_provider) { "my-provider" }
+  let(:box_version_provider_arch) { "amd64" }
   let(:account) { double("account") }
   let(:organization) { double("organization") }
   let(:box) { double("box", versions: [version]) }
-  let(:version) { double("version", version: box_version, provdiers: [provider]) }
-  let(:provider) { double("provider", name: box_version_provider) }
+  let(:version) { double("version", version: box_version, providers: [provider]) }
+  let(:provider) { double("provider", name: box_version_provider, architecture: box_version_provider_arch) }
   let(:provider_file) { double("provider-file") }
   let(:provider_file_size) { 1 }
 
@@ -34,9 +35,9 @@ describe VagrantPlugins::CloudCommand::ProviderCommand::Command::Upload do
       allow(VagrantCloud::Account).to receive(:new).
         with(custom_server: anything, access_token: access_token).
         and_return(account)
-      allow(subject).to receive(:with_provider).
-        with(account: account, org: org_name, box: box_name, version: box_version, provider: box_version_provider).
-        and_yield(provider)
+      allow(subject).to receive(:with_version).
+        with(account: account, org: org_name, box: box_name, version: box_version).
+        and_yield(version)
       allow(provider).to receive(:upload).and_yield(upload_url)
       allow(uploader).to receive(:upload!)
       allow(Vagrant::UI::Prefixed).to receive(:new).with(ui, "cloud").and_return(ui)
@@ -49,38 +50,38 @@ describe VagrantPlugins::CloudCommand::ProviderCommand::Command::Upload do
 
     it "should upload the provider file" do
       expect(provider).to receive(:upload)
-      subject.upload_provider(org_name, box_name, box_version, box_version_provider, provider_file, access_token, options)
+      subject.upload_provider(org_name, box_name, box_version, box_version_provider, box_version_provider_arch, provider_file, access_token, options)
     end
 
     it "should return zero on success" do
-      r = subject.upload_provider(org_name, box_name, box_version, box_version_provider, provider_file, access_token, options)
+      r = subject.upload_provider(org_name, box_name, box_version, box_version_provider, box_version_provider_arch, provider_file, access_token, options)
       expect(r).to eq(0)
     end
 
     it "should return non-zero on API error" do
       expect(provider).to receive(:upload).and_raise(VagrantCloud::Error)
-      r = subject.upload_provider(org_name, box_name, box_version, box_version_provider, provider_file, access_token, options)
+      r = subject.upload_provider(org_name, box_name, box_version, box_version_provider, box_version_provider_arch, provider_file, access_token, options)
       expect(r).not_to eq(0)
       expect(r).to be_a(Integer)
     end
 
     it "should return non-zero on upload error" do
       expect(provider).to receive(:upload).and_raise(Vagrant::Errors::UploaderError)
-      r = subject.upload_provider(org_name, box_name, box_version, box_version_provider, provider_file, access_token, options)
+      r = subject.upload_provider(org_name, box_name, box_version, box_version_provider, box_version_provider_arch, provider_file, access_token, options)
       expect(r).not_to eq(0)
       expect(r).to be_a(Integer)
     end
 
     it "should should upload via uploader" do
       expect(uploader).to receive(:upload!)
-      subject.upload_provider(org_name, box_name, box_version, box_version_provider, provider_file, access_token, options)
+      subject.upload_provider(org_name, box_name, box_version, box_version_provider, box_version_provider_arch, provider_file, access_token, options)
     end
 
     it "should not use direct upload by default" do
       expect(provider).to receive(:upload) do |**args|
         expect(args[:direct]).to be_falsey
       end
-      subject.upload_provider(org_name, box_name, box_version, box_version_provider, provider_file, access_token, options)
+      subject.upload_provider(org_name, box_name, box_version, box_version_provider, box_version_provider_arch, provider_file, access_token, options)
     end
 
     context "with direct option" do
@@ -90,7 +91,7 @@ describe VagrantPlugins::CloudCommand::ProviderCommand::Command::Upload do
         expect(provider).to receive(:upload) do |**args|
           expect(args[:direct]).to be_truthy
         end
-        subject.upload_provider(org_name, box_name, box_version, box_version_provider, provider_file, access_token, options)
+        subject.upload_provider(org_name, box_name, box_version, box_version_provider, box_version_provider_arch, provider_file, access_token, options)
       end
 
       context "when file size is 5GB" do
@@ -100,7 +101,7 @@ describe VagrantPlugins::CloudCommand::ProviderCommand::Command::Upload do
           expect(provider).to receive(:upload) do |**args|
             expect(args[:direct]).to be_truthy
           end
-          subject.upload_provider(org_name, box_name, box_version, box_version_provider, provider_file, access_token, options)
+          subject.upload_provider(org_name, box_name, box_version, box_version_provider, box_version_provider_arch, provider_file, access_token, options)
         end
       end
 
@@ -111,7 +112,7 @@ describe VagrantPlugins::CloudCommand::ProviderCommand::Command::Upload do
           expect(provider).to receive(:upload) do |**args|
             expect(args[:direct]).to be_falsey
           end
-          subject.upload_provider(org_name, box_name, box_version, box_version_provider, provider_file, access_token, options)
+          subject.upload_provider(org_name, box_name, box_version, box_version_provider, box_version_provider_arch, provider_file, access_token, options)
         end
       end
     end
@@ -173,30 +174,41 @@ describe VagrantPlugins::CloudCommand::ProviderCommand::Command::Upload do
               to raise_error(Vagrant::Errors::CLIInvalidUsage)
           end
 
-          context "with file argument" do
-            let(:file_arg) { "/dev/null/file" }
+          context "with architecture argument" do
+            let(:arch_arg) { "amd64" }
 
-            before { argv << file_arg }
+            before { argv << arch_arg }
 
-            it "should upload the provider file" do
-              expect(subject).to receive(:upload_provider).
-                with(org_name, box_name, version_arg, provider_arg, file_arg, any_args)
-              subject.execute
+            it "shows help" do
+              expect { subject.execute }.
+                to raise_error(Vagrant::Errors::CLIInvalidUsage)
             end
 
-            it "should do direct upload by default" do
-              expect(subject).to receive(:upload_provider).
-                with(any_args, hash_including(direct: true))
-              subject.execute
-            end
+            context "with file argument" do
+              let(:file_arg) { "/dev/null/file" }
 
-            context "with --no-direct flag" do
-              before { argv << "--no-direct" }
+              before { argv << file_arg }
 
-              it "should not perform direct upload" do
+              it "should upload the provider file" do
                 expect(subject).to receive(:upload_provider).
-                  with(any_args, hash_including(direct: false))
+                                     with(org_name, box_name, version_arg, provider_arg, arch_arg, file_arg, any_args)
                 subject.execute
+              end
+
+              it "should do direct upload by default" do
+                expect(subject).to receive(:upload_provider).
+                                     with(any_args, hash_including(direct: true))
+                subject.execute
+              end
+
+              context "with --no-direct flag" do
+                before { argv << "--no-direct" }
+
+                it "should not perform direct upload" do
+                  expect(subject).to receive(:upload_provider).
+                                       with(any_args, hash_including(direct: false))
+                  subject.execute
+                end
               end
             end
           end
