@@ -6,11 +6,11 @@ description: "Learn about how Vagrant and Vagrant Cloud will behave after migrat
 
 # Migrating to HCP Vagrant Registry
 
-This document describes the behavior of Vagrant Cloud after an organization is migrated to HCP Vagrant Registry. For information on migrating to HCP Vagrant Registry please see the [migration guide](/vagrant-cloud/hcp-vagrant/migration-guide).
+This document describes the behavior of Vagrant Cloud after an organization is migrated to HCP Vagrant Registry. For information on migrating to HCP Vagrant Registry please see the [migration guide](/vagrant/vagrant-cloud/hcp-vagrant/migration-guide).
 
 # Vagrant Cloud Redirects
 
-After an ogranization has been migrated to HCP Vagrant Registry any requests Vagrant Cloud receives for that organization, or any boxes within that organization, will be automatically redirected to the proper location on HCP Vagrant Registry.
+After an organization has been migrated to HCP Vagrant Registry any requests Vagrant Cloud receives for that organization, or any boxes within that organization, will be automatically redirected to the proper location on HCP Vagrant Registry.
 
 # API 
 
@@ -26,7 +26,7 @@ The format of the composite access token is:
 <VAGRANT_CLOUD_TOKEN>;<HCP_TOKEN>
 ```
 
-If all organizations have been migrated to HCP Vagrant Registry the Vagrant Cloud access token will not be needed and the format of the access token is:
+If all organizations have been migrated to HCP Vagrant Registry the Vagrant Cloud access token will not be needed. The format of the access token is:
 
 ```
 ;<HCP_TOKEN>
@@ -36,8 +36,8 @@ If all organizations have been migrated to HCP Vagrant Registry the Vagrant Clou
 
 The following prerequisites are required for generating an HCP access token:
 
-* [HCP Service Principal](https://developer.hashicorp.com/hcp/docs/hcp/admin/iam/service-principals)
-* [HCP CLI](https://developer.hashicorp.com/hcp/docs/cli)
+* [HCP Service Principal](/hcp/docs/hcp/admin/iam/service-principals)
+* [HCP CLI](/hcp/docs/cli)
 
 Using the `CLIENT_ID` and `CLIENT_SECRET` from the HCP service principal login to HCP using the `hcp` command:
 
