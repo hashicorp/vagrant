@@ -9,6 +9,10 @@
       {
         "title": "Migration Troubleshooting",
         "path": "hcp-vagrant/troubleshooting"
+      },
+      {
+          "title": "Post Migration",
+          "path": "hcp-vagrant/post-migration-guide"
       }
     ]
   },
