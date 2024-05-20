@@ -197,7 +197,11 @@ module VagrantPlugins
             end
           end
 
-          parts = output.split("_")
+          version_line = output.each_line.find do |line|
+            !line.start_with?("WARNING:")
+          end
+
+          parts = version_line.split("_")
           return nil if parts.empty?
           parts[0].split("r")[0]
         end
