@@ -73,6 +73,6 @@ export VAGRANT_CLOUD_TOKEN=";$(hcp auth print-access-token)"
 
 # Packer
 
-After migrating to HCP box uploads may fail when using the [vagrant-cloud](/packer/integrations/hashicorp/vagrant/latest/components/post-processor/vagrant-cloud) post-processor. This is due to the HCP access token used in the composite token expiring prior to the post-processor being executed.
+After migrating to HCP, box uploads may fail when using the [vagrant-cloud](/packer/integrations/hashicorp/vagrant/latest/components/post-processor/vagrant-cloud) post-processor. This is due to the HCP access token used in the composite token expiring prior to the post-processor being executed.
 
 To resolve this issue, a new Packer post-processor has been introduced: [vagrant-registry](/packer/integrations/hashicorp/vagrant/latest/components/post-processor/vagrant-registry). This post-processor iteracts directly with the HCP Vagrant Box Registry and removes the requirement of a composite access token. The configuration of the `vagrant-registry` post-processor matches the configuration of the `vagrant-cloud` post-processor with the exception of the [authentication settings](/packer/integrations/hashicorp/vagrant/latest/components/post-processor/vagrant-registry#required) which requires a `client_id` and `client_secret` value instead of the `access_token` used by the `vagrant-cloud` post-processor.
