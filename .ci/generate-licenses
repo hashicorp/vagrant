@@ -59,3 +59,18 @@ sed "s/%VERSION%/${version}/" "${license_template}" > "${license_destination}" |
     failure "Unable to update version in ${license_destination}"
 sed -i "s/%YEAR%/${license_date}/" "${license_destination}" ||
     failure "Unable to update year in ${license_destination}"
+
+
+license_template="./templates/license/license.tmpl"
+license_destination="${license_dir}/LICENSE.txt"
+
+debug "Updating license file: ${license_destination}"
+
+if [ ! -f "${license_template}" ]; then
+    failure "Unable to locate license template (${license_template})"
+fi
+
+sed "s/%VERSION%/${version}/" "${license_template}" > "${license_destination}" ||
+    failure "Unable to update version in ${license_destination}"
+sed -i "s/%YEAR%/${license_date}/" "${license_destination}" ||
+    failure "Unable to update year in ${license_destination}"
