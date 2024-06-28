@@ -30,13 +30,13 @@ jobs:
     name: Vagrant unit tests on Go (Ruby ${{ matrix.ruby }})
     steps:
       - name: Code Checkout
-        uses: actions/checkout@c85c95e3d7251135ab7dc9ce3241c5835cc595a9 # v3.5.3
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
       - name: Setup Go
-        uses: actions/setup-go@fac708d6674e30b6ba41289acaab6d4b75aa0753 # v4.0.1
+        uses: actions/setup-go@cdcb36043654635271a94b9a6d1392de5bb323a7 # v5.0.1
         with:
           go-version-file: go.mod
       - name: Setup Ruby
-        uses: ruby/setup-ruby@250fcd6a742febb1123a77a841497ccaa8b9e939 # v1.152.0
+        uses: ruby/setup-ruby@3783f195e29b74ae398d7caca108814bbafde90e # v1.180.1
         with:
           ruby-version: ${{matrix.ruby}}
           bundler-cache: true
