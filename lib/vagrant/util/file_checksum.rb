@@ -66,7 +66,7 @@ class FileChecksum
   private
 
   def load_digest(type)
-    digest = CHECKSUM_MAP[type.to_s.to_sym]
+    digest = CHECKSUM_MAP[type.to_s.downcase.to_sym]
     if digest.nil?
       raise Vagrant::Errors::BoxChecksumInvalidType,
         type: type.to_s,
