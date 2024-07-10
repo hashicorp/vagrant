@@ -6,7 +6,9 @@ IMPROVEMENTS:
 
 - core: Always downcase type value when getting digest for checksum calculation [GH-13471]
 - kernel_v2/config: Add warning for IPv6 address ending with :1 [GH-13362]
-- provider/virtualbox: Handling warnings in output when detecting version [GH13394]
+- provider/virtualbox: Handling warnings in output when detecting version [GH-13394]
+- synced_folder/nfs: Output mounting entry [GH-13383]
+- synced_folder/smb: Adjust ordering in mount entry output [GH-13383]
 
 BUG FIXES:
 
