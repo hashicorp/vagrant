@@ -4,6 +4,7 @@ FEATURES:
 
 IMPROVEMENTS:
 
+- core: Always downcase type value when getting digest for checksum calculation [GH-13471]
 - kernel_v2/config: Add warning for IPv6 address ending with :1 [GH-13362]
 - provider/virtualbox: Handling warnings in output when detecting version [GH13394]
 
