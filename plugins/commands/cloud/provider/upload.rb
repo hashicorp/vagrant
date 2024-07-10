@@ -15,7 +15,7 @@ module VagrantPlugins
             options = {direct: true}
 
             opts = OptionParser.new do |o|
-              o.banner = "Usage: vagrant cloud provider upload [options] organization/box-name provider-name version box-file"
+              o.banner = "Usage: vagrant cloud provider upload [options] organization/box-name provider-name version architecture box-file"
               o.separator ""
               o.separator "Uploads a box file to Vagrant Cloud for a specific provider"
               o.separator ""
@@ -29,7 +29,7 @@ module VagrantPlugins
             # Parse the options
             argv = parse_options(opts)
             return if !argv
-            if argv.count != 4
+            if argv.count != 5
               raise Vagrant::Errors::CLIInvalidUsage,
                 help: opts.help.chomp
             end
@@ -39,9 +39,10 @@ module VagrantPlugins
             org, box_name = argv.first.split('/', 2)
             provider_name = argv[1]
             version = argv[2]
-            file = File.expand_path(argv[3])
+            architecture = argv[3]
+            file = File.expand_path(argv[4])
 
-            upload_provider(org, box_name, version, provider_name, file, @client.token, options)
+            upload_provider(org, box_name, version, provider_name, architecture, file, @client.token, options)
           end
 
           # Upload an asset for a box version provider
@@ -50,12 +51,13 @@ module VagrantPlugins
           # @param [String] box Box name
           # @param [String] version Box version
           # @param [String] provider Provider name
+          # @param [String] architecture Architecture name
           # @param [String] file Path to asset
           # @param [String] access_token User Vagrant Cloud access token
           # @param [Hash] options
           # @option options [Boolean] :direct Upload directly to backend storage
           # @return [Integer]
-          def upload_provider(org, box, version, provider, file, access_token, options)
+          def upload_provider(org, box, version, provider, architecture, file, access_token, options)
             account = VagrantCloud::Account.new(
               custom_server: api_server_url,
               access_token: access_token
@@ -71,7 +73,7 @@ module VagrantPlugins
               end
             end
 
-            with_provider(account: account, org: org, box: box, version: version, provider: provider) do |p|
+            with_provider(account: account, org: org, box: box, version: version, provider: provider, architecture: architecture) do |p|
               p.upload(direct: options[:direct]) do |upload_url|
                 m = options[:direct] ? :put : :put
                 uploader = Vagrant::Util::Uploader.new(upload_url, file, ui: @env.ui, method: m)

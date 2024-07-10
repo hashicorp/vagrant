@@ -244,8 +244,6 @@ module VagrantPlugins
           }
         } if !Array(options[:architectures]).empty?
 
-        raise "no matches" if current_version.nil? && versions.empty?
-
         Hash.new.tap do |i|
           i["Box"] = box.tag
           i["Description"] = box.description
