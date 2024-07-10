@@ -428,7 +428,7 @@ en:
           Please use with caution, as some of the features may not be fully
           functional yet.
         features: |-
-          You have requested to enabled the experimental flag with the following features:
+          You have requested to enable the experimental flag with the following features:
 
           Features:  %{features}
 
