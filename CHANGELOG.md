@@ -13,7 +13,7 @@ IMPROVEMENTS:
 BUG FIXES:
 
 - command/cloud: Fix provider upload [GH-13467]
-- provider/docker: Prevent error if network configuration data is missing [GH-13337]
+- provider/docker: Prevent error if network configuration data is missing [GH-13337, GH-13373]
 - provisioner/ansible: Fix version detection [GH-13375]
 - synced_folder/nfs: Fix upstart detection [GH-13409]
 
