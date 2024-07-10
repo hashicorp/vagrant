@@ -36,7 +36,7 @@ module VagrantPlugins
             # Check for podman format when it is emulating docker CLI.
             # Podman outputs the full hash of the container on
             # the last line after a successful build.
-            match = result.split.select { |str| str.match?(/[0-9a-z]{64}/) }.last
+            match = result.split.select { |str| str.match?(/^[0-9a-z]{64}/) }.last
             return match[0..7] unless match.nil?
           else
             matches = result.scan(/Successfully built (.+)$/i).last
