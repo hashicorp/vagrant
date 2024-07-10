@@ -6,6 +6,7 @@ IMPROVEMENTS:
 
 BUG FIXES:
 
+- command/cloud: Fix provider upload [GH-13467]
 - provider/docker: Prevent error if network configuration data is missing [GH-13337]
 
 VAGRANT-GO:
