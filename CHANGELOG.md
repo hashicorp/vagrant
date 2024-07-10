@@ -5,6 +5,7 @@ FEATURES:
 IMPROVEMENTS:
 
 - kernel_v2/config: Add warning for IPv6 address ending with :1 [GH-13362]
+- provider/virtualbox: Handling warnings in output when detecting version [GH13394]
 
 BUG FIXES:
 
