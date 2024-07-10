@@ -4,6 +4,8 @@ FEATURES:
 
 IMPROVEMENTS:
 
+- kernel_v2/config: Add warning for IPv6 address ending with :1 [GH-13362]
+
 BUG FIXES:
 
 - command/cloud: Fix provider upload [GH-13467]
