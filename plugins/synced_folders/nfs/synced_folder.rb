@@ -105,6 +105,11 @@ module VagrantPlugins
           mount_folders[id] = opts.dup if opts[:guestpath]
         end
 
+        machine.ui.detail(I18n.t("vagrant.actions.vm.nfs.mounting_entry",
+          guestpath: opts[:guestpath],
+          hostpath: opts[:hostpath]
+        ))
+
         # Mount them!
         if machine.guest.capability?(:nfs_pre)
           machine.guest.capability(:nfs_pre)
