@@ -23,6 +23,11 @@ module VagrantPlugins
         require_relative "cap/configure_networks"
         Cap::ConfigureNetworks
       end
+
+      guest_capability(:gentoo, :nfs_client_install) do
+        require_relative "cap/nfs"
+        Cap::NFS
+      end
     end
   end
 end
