@@ -210,10 +210,10 @@ describe VagrantPlugins::HyperV::Cap::ConfigureDisks do
 
     it "creates a disk and attaches it to a guest" do
       expect(machine).to receive(:data_dir).and_return(data_dir)
-      expect(driver).to receive(:create_disk).with(disk_file, disk_config.size, {})
+      expect(driver).to receive(:create_disk).with(disk_file, disk_config.size)
       expect(driver).to receive(:get_disk).with(disk_file).and_return(disk)
 
-      expect(driver).to receive(:attach_disk).with(disk_file, {})
+      expect(driver).to receive(:attach_disk).with(disk_file)
 
       subject.create_disk(machine, disk_config)
     end
