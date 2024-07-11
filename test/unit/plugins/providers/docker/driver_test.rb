@@ -217,6 +217,17 @@ describe VagrantPlugins::DockerProvider::Driver do
 
         expect(container_id).to eq(cid)
       end
+
+      context "if output contains extra trailing information" do
+        let(:stdout) { "1a2b3c4d5e6f7g8h9i10j11k12l13m14n16o17p18q19r20s21t22u23v24w25x2\nextra content\n" }
+        it "builds a container with podman emulating docker CLI" do
+          allow(subject).to receive(:podman?).and_return(true)
+
+          container_id = subject.build("/tmp/fakedir")
+
+          expect(container_id).to eq(cid)
+        end
+      end
     end
   end
 
