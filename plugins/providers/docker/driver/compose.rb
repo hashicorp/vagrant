@@ -173,7 +173,7 @@ module VagrantPlugins
           if created?(cid)
             destroy = false
             synchronized do
-              compose_execute("rm", "-f", machine.name.to_s)
+              compose_execute("rm", "--force", machine.name.to_s)
               update_composition do |composition|
                 if composition["services"] && composition["services"].key?(machine.name.to_s)
                   @logger.info("Removing container `#{machine.name}`")
@@ -216,14 +216,14 @@ module VagrantPlugins
         # @param [String] name Name of container
         # @return [String] Container ID
         def get_container_id(name)
-          compose_execute("ps", "-q", name).chomp
+          compose_execute("ps", "--quiet", name).chomp
         end
 
         # Execute a `docker-compose` command
         def compose_execute(*cmd, **opts, &block)
           synchronized do
-            execute("docker-compose", "-f", composition_path.to_s,
-              "-p", machine.env.cwd.basename.to_s, *cmd, **opts, &block)
+            execute("docker-compose", "--file", composition_path.to_s,
+              "--project-name", machine.env.cwd.basename.to_s, *cmd, **opts, &block)
           end
         end
 
@@ -232,7 +232,7 @@ module VagrantPlugins
           block = args.detect{|arg| arg.is_a?(Proc) }
           execute_args = ["up", "--remove-orphans"]
           if args.include?(:detach)
-            execute_args << "-d"
+            execute_args << "--detach"
           end
           machine.env.lock("compose", retry: true) do
             if block
