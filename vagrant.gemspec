@@ -15,6 +15,7 @@ Gem::Specification.new do |s|
   s.required_ruby_version     = ">= 3.0", "< 3.4"
   s.required_rubygems_version = ">= 1.3.6"
 
+  s.add_dependency "base64"
   s.add_dependency "bcrypt_pbkdf", "~> 1.1"
   s.add_dependency "childprocess", "~> 4.1.0"
   s.add_dependency "ed25519", "~> 1.3.0"
