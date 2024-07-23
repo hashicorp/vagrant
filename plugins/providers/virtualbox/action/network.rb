@@ -593,7 +593,11 @@ module VagrantPlugins
               # We have an invalid DHCP server that we're not able to
               # automatically clean up, so we need to give up and tell the user
               # to sort out their own vbox dhcpservers and hostonlyifs
-              raise Vagrant::Errors::NetworkDHCPAlreadyAttached
+              #raise Vagrant::Errors::NetworkDHCPAlreadyAttached
+              # MODIFICATION: the user wants to use its own DHCP server with virtuablbox
+              @logger.info("External DHCP server exists! Using it at your own risk!")
+              @logger.info("Warning: May break features! Use it at your own risk!")
+              return # do nothing
             end
           end
 
