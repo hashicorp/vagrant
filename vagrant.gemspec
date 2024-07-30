@@ -21,7 +21,7 @@ Gem::Specification.new do |s|
   s.add_dependency "ed25519", "~> 1.3.0"
   s.add_dependency "erubi"
   s.add_dependency 'googleapis-common-protos-types', '~> 1.3'
-  s.add_dependency "grpc", "~> 1.62.0"
+  s.add_dependency "grpc", "~> 1.62"
   s.add_dependency "hashicorp-checkpoint", "~> 0.1.5"
   s.add_dependency "i18n", "~> 1.12"
   s.add_dependency "listen", "~> 3.7"
