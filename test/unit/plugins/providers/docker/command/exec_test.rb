@@ -55,6 +55,17 @@ describe VagrantPlugins::DockerProvider::Command::Exec do
         subject.exec_command(machine, command, options)
       end
     end
+    describe "with options" do
+      let(:command) { ["ls"] }
+      let(:options) { {etc: "something"} }
+
+      it "passes the options successfully" do
+        driver = instance_double("Driver")
+        expect(driver).to receive(:execute).with("docker", "exec", nil, "ls", {etc: "something"})
+        allow(machine.provider).to receive(:driver) { driver }
+        subject.exec_command(machine, command, options)
+      end
+    end
     describe "without a command" do
       let(:argv) { [] }
 
