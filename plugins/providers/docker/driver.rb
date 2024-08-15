@@ -125,8 +125,8 @@ module VagrantPlugins
       end
 
       def image?(id)
-        result = execute('docker', 'images', '-q').to_s
-        result =~ /^#{Regexp.escape(id)}$/
+        result = execute('docker', 'images', '-q', '--no-trunc').to_s
+        result =~ /\b#{Regexp.escape(id)}\b/
       end
 
       # Reads all current docker containers and determines what ports
