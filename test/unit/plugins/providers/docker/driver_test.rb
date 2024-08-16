@@ -351,6 +351,34 @@ describe VagrantPlugins::DockerProvider::Driver do
     end
   end
 
+  describe '#image?' do
+    let(:result) { subject.image?(cid) }
+
+    it 'performs the check on all images list' do
+      subject.image?(cid)
+      expect(cmd_executed).to match(/docker images \-q \--no-trunc/)
+    end
+
+    context 'when image id exists' do
+      let(:stdout) { "foo\n#{cid}\nbar" }
+
+      it { expect(result).to be_truthy }
+    end
+
+    context 'when sha265 image id exists' do
+      let(:stdout) { "sha256:foo\nsha256:#{cid}\nsha256:bar" }
+
+      it { expect(result).to be_truthy }
+    end
+
+    context 'when image does not exist' do
+      let(:stdout) { "foo\n#{cid}extra\nbar" }
+
+      it { expect(result).to be_falsey }
+    end
+  end
+
+
   describe '#pull' do
     it 'should pull images' do
       subject.pull('foo')
