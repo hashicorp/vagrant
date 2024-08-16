@@ -17,6 +17,7 @@ BUG FIXES:
 - command/cloud: Fix provider upload [GH-13467]
 - provider/docker: Prevent error if network configuration data is missing [GH-13337, GH-13373]
 - provider/docker: Fix docker-exec commands to pass kwargs correctly [GH-13488]
+- provider/docker: Fix docker to not rebuild image if it already exists [GH-13489]
 - provider/hyperv: Fix configure disks capability [GH-13346]
 - provisioner/ansible: Fix version detection [GH-13375]
 - synced_folder/nfs: Fix upstart detection [GH-13409]
