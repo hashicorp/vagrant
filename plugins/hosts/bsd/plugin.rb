@@ -44,6 +44,11 @@ module VagrantPlugins
         Cap::NFS
       end
 
+      host_capability("bsd", "nfs_status_command") do
+        require_relative "cap/nfs"
+        Cap::NFS
+      end
+
       host_capability("bsd", "resolve_host_path") do
         require_relative "cap/path"
         Cap::Path
