@@ -13,7 +13,7 @@ module VagrantPlugins
       class NFS
         def self.nfs_export(environment, ui, id, ips, folders)
           nfs_exports_template = environment.host.capability(:nfs_exports_template)
-          nfs_restart_command  = environment.host.capability(:nfs_restart_command)
+          nfs_update_command  = environment.host.capability(:nfs_update_command)
           logger = Log4r::Logger.new("vagrant::hosts::bsd")
 
           nfs_checkexports! if File.file?("/etc/exports")
@@ -117,9 +117,8 @@ module VagrantPlugins
               "#{sudo_command}/usr/bin/tee -a /etc/exports >/dev/null")
           end
 
-          # We run restart here instead of "update" just in case nfsd
-          # is not starting
-          system(*nfs_restart_command)
+          # Attempt to update nfsd
+          system(*nfs_update_command)
         end
 
         def self.nfs_exports_template(environment)
@@ -161,6 +160,10 @@ module VagrantPlugins
 
         def self.nfs_restart_command(environment)
           ["sudo", "nfsd", "restart"]
+        end
+
+        def self.nfs_update_command(environment)
+          ["sudo", "nfsd", "update"]
         end
 
         protected
