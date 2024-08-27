@@ -22,6 +22,7 @@ describe VagrantPlugins::HostBSD::Cap::NFS do
       allow(described_class).to receive(:sleep)
       allow(described_class).to receive(:nfs_cleanup)
       allow(described_class).to receive(:system)
+      allow(described_class).to receive(:nfs_running?).and_return(true)
       allow(File).to receive(:writable?).with("/etc/exports")
 
       allow(Vagrant::Util::Subprocess).to receive(:execute).with("nfsd", "checkexports").
@@ -46,6 +47,28 @@ describe VagrantPlugins::HostBSD::Cap::NFS do
 
       it "should resolve the host path" do
         expect(host).to receive(:capability).with(:resolve_host_path, folders["/vagrant"][:hostpath]).and_return("")
+        described_class.nfs_export(environment, ui, id, ips, folders)
+      end
+    end
+
+    context "when nfsd is not running" do 
+      before {
+        allow(described_class).to receive(:nfs_running?).and_return(false)
+      }
+      it "should restart nfsd" do
+        expect(host).to receive(:capability).with(:nfs_restart_command).and_return(["restart"])
+        expect(described_class).to receive(:system).with("restart")
+        described_class.nfs_export(environment, ui, id, ips, folders)
+      end
+    end
+
+    context "when nfsd is running" do 
+      before {
+        allow(described_class).to receive(:nfs_running?).and_return(true)
+      }
+      it "should update nfsd" do
+        expect(host).to receive(:capability).with(:nfs_update_command).and_return(["update"])
+        expect(described_class).to receive(:system).with("update")
         described_class.nfs_export(environment, ui, id, ips, folders)
       end
     end
