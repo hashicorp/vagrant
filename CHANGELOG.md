@@ -15,6 +15,7 @@ IMPROVEMENTS:
 BUG FIXES:
 
 - command/cloud: Fix provider upload [GH-13467]
+- host/bsd: Use nfsd update command instead of restart [GH-13490]
 - provider/docker: Prevent error if network configuration data is missing [GH-13337, GH-13373]
 - provider/docker: Fix docker-exec commands to pass kwargs correctly [GH-13488]
 - provider/docker: Fix docker to not rebuild image if it already exists [GH-13489]
