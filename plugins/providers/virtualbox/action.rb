@@ -92,7 +92,7 @@ module VagrantPlugins
           b.use Customize, "pre-boot"
           b.use Boot
           b.use Customize, "post-boot"
-          b.use WaitForCommunicator, [:starting, :running]
+          b.use WaitForCommunicator, [:starting, :running, :paused]
           b.use Call, IsEnvSet, :cloud_init do |env, b2|
             if env[:result]
               b2.use CloudInitWait
