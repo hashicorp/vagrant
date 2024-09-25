@@ -32,6 +32,10 @@ module VagrantPlugins
         # from standard docker
         matches = result.scan(/writing image .+:([^\s]+)/i).last
         if !matches
+          # Check for outout of docker using containerd backend store
+          matches = result.scan(/exporting manifest list .+:([^\s]+)/i).last
+        end
+        if !matches
           if podman?
             # Check for podman format when it is emulating docker CLI.
             # Podman outputs the full hash of the container on
