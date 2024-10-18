@@ -1,0 +1,94 @@
+---
+layout: vagrant-cloud
+page_title: Reclaiming Auto Migrated Organizations
+description: "How to claim Vagrant Cloud organizations that have been auto migrated to HCP Vagrant Registry"
+---
+
+# Reclaiming Auto Migrated Organizations
+
+~> Note: During migration, your organization will be put into a read-only state and marked `Migrating` until the migration is complete. During this time boxes will be available in searches and to download, but write functionality like uploading new boxes, releasing versions, and managing settings for your Vagrant Cloud Organization will be unavailable. Your new HCP Registry will not be available in the HCP Vagrant Registry until the migration is complete.
+
+ f
+## Overview
+
+Vagrant Cloud began the transition to HCP Vagant in 2022.  Over the last two years we have moved box searches and new account creation to HCP Vagrant as the product moved closer to release.
+
+HCP Vagrant launched in Spring 2024 with a tool to enable users to migrate organizations to HCP. At that time we also announced that users who opted to take no action would have their boxes migrated as part of a site-wide migration in Q3 2024.
+
+Auto migration does not require users to take action. Auto migrated registries and boxes will be available at their current URLs to ensure that workflows operate as usual after migration.
+
+However, to continue managing and releasing boxes organization owners will need to claim their registries using the short process detailed below.
+
+### Reclamation Process Overview
+1. **Notification Email** all users with owner level access will receive a notification when an organization is migrated. 
+2. **Sign into HCP & View Unclaimed Registries** navigate to `Vagrant Registry` → `Unclaimed Registries` in the sidebar (or click [here](https://portal.cloud.hashicorp.com/services/vagrant/registries/reclaim)). 
+    *. If your HCP & Vagrant Cloud accounts were linked before you received your notification email, skip to step 4.
+3. **Link HCP & Vagrant Cloud accounts** if you were notified of an auto migration and have not yet linked your HCP & Vagrant Cloud accounts you first need to link your accounts by clicking the `Link & Reclaim` button which will take you to Vagrant Cloud to link your accounts. 
+4. **Claim Registries** if you have properly linked your Vagrant Cloud & HCP accounts and registries you own have been auto migrated, refresh the Unclaimed Registries and they will be displayed in a selectable list.  
+    *. Select the checkboxes for any registries you’d like to claim
+    *. Use the drop down at the bottom of the page to the registries to one of your existing HCP Projects. 
+    *. Hit the Reclaim button 
+5. **Visit your Registries** once your transfer is complete select Registries in the HCP Sidebar to interact with your reclaimed Vagrant Cloud Organizations.
+
+#### Prerequisites
+Before you continue with this guide, you should locate some important information about your Vagrant Cloud account and create an HCP account with the same email address associated with your Vagrant Cloud account.
+
+**Required Information**
+*  The email address associated with your Vagrant Cloud account
+    * This may not be the same as the email address you use to login to Vagrant Cloud. To be sure login to Vagrant Cloud and check under under `Settings`→ `Profile` .
+
+##### Create an HCP Vagrant Account
+Your HCP account must use the email address associated with your Vagrant Cloud account. Check under `Settings`→ `Profile` if you are unsure what email address you use for Vagrant Cloud.
+
+
+1. Sign up for a (free) [HCP account](https://portal.cloud.hashicorp.com/orgs/create), with your primary Vagrant Cloud organization email address. You must verify your account and sign into HCP.
+2. At first log-in, use the wizard to create an HCP organization.
+3. On creation of your organization, you will be directed to the dashboard for your `default-project`. You can create an additional project from the Projects page.
+4. Now that you have a project in an HCP Account that uses the same email address as your Vagrant Cloud account, you’re ready to start reclaiming your boxes!
+
+## Reclaim Auto Migrated Vagrant Cloud Organizations
+
+#### 1. Look out for a notification email
+All users with owner level access will receive a notification when an organization is migrated. If you have not received a notification, check your spam folders for a notification with instructions on how to reclaim your auto migrated registry.
+
+Migrated organizations are not available from [Settings](https://app.vagrantup.com/settings) in Vagrant Cloud. If one or more of your organizations are not available in the Vagrant Cloud Settings it is likely that they have been auto migrated.
+
+
+#### 2. Sign into HCP & View Unclaimed Registries 
+
+Navigate to `Vagrant Registry` → `Unclaimed Registries` in the sidebar (or click [here](https://portal.cloud.hashicorp.com/services/vagrant/registries/reclaim)) to view which auto migrated organizations are associated with your HCP Vagrant user.
+
+If your HCP & Vagrant Cloud accounts were not linked before you received your notification email you’ll need to follow the next step to link your accounts and populate the list of link registries. Otherwise you should see a list of claimable registries and can skip to step 4
+
+
+##### 3. Link HCP & Vagrant Cloud accounts 
+
+If you were notified of an auto migration and have not yet linked your HCP & Vagrant Cloud accounts you first need to link your accounts by clicking the `Link & reclaim` button which will take you to Vagrant Cloud to link your accounts.
+
+#### 4. Claim Registries
+
+ If you have properly linked your Vagrant Cloud & HCP accounts and registries you own have been auto migrated, refresh the `Unclaimed Registries` page and they will be displayed in a selectable list.
+
+* Select the checkboxes for any registries you’d like to claim
+* Use the drop down at the bottom of the page to the registries to one of your existing HCP Projects.
+* Hit the `Reclaim` button 
+
+
+#### 5. Visit your Registries in HCP
+
+Once your migration is complete you can go to your Registries page to interact with your migrated registries.
+
+To view your registries, click on [Vagrant Registry](https://portal.cloud.hashicorp.com/services/vagrant/registries) in the side panel or visit [https://portal.cloud.hashicorp.com/services/vagrant/registries](https://portal.cloud.hashicorp.com/services/vagrant/registries).
+
+It is important to note that while a migrated organization will no longer be available in Vagrant Cloud the status of the migration will be visible from the `Status` tab on the [Migration](https://app.vagrantup.com/migration) page.
+
+## Conclusion
+
+If for some reason you are unable to access your transferred registries or if you have linked your accounts and there are organizations missing from both Vagrant Cloud and your Unclaimed Registries page contact us at [support+vagrantcloud@hashicorp.com](mailto:support@hashicorp.com) with the subject `HCP Vagrant Auto Migration`. Our team will be happy to help you reclaim your registries.
+
+#### Troubleshooting
+
+##### No registries in Unclaimed Registries view?
+
+If you have linked your accounts and still have no claimable registries you may need to confirm that your Vagrant Cloud organization has been migrated.  Check your `Organizations` tab in Vagrant Cloud to be sure your organizations are not still in Vagrant Cloud
+

@@ -11,8 +11,12 @@
         "path": "hcp-vagrant/troubleshooting"
       },
       {
-          "title": "Post Migration",
-          "path": "hcp-vagrant/post-migration-guide"
+        "title": "Post Migration",
+        "path": "hcp-vagrant/post-migration-guide"
+      },
+      {
+        "title": "Reclamation Guide",
+        "path": "hcp-vagrant/reclamation-guide"
       }
     ]
   },
