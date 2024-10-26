@@ -8,9 +8,9 @@ require_relative "./errors"
 module VagrantPlugins
   module Salt
     class BootstrapDownloader
-      WINDOWS_URL = "https://winbootstrap.saltproject.io"
-      URL = "https://bootstrap.saltproject.io"
-      SHA256_SUFFIX = "sha256"
+      WINDOWS_URL = "https://winbootstrap.saltproject.io/bootstrap-salt.ps1"
+      URL = "https://bootstrap.saltproject.io/bootstrap-salt.sh"
+      SHA256_SUFFIX = ".sha256"
 
       def initialize(guest)
         @guest = guest
@@ -32,8 +32,8 @@ module VagrantPlugins
       end
 
       def verify_sha256(script)
-        @logger.debug "Downloading sha256 file from #{source_url}/#{SHA256_SUFFIX}"
-        sha256_file = download("#{source_url}/#{SHA256_SUFFIX}")
+        @logger.debug "Downloading sha256 file from #{source_url}#{SHA256_SUFFIX}"
+        sha256_file = download("#{source_url}#{SHA256_SUFFIX}")
         sha256 = extract_sha256(sha256_file.read)
         sha256_file.close
 
