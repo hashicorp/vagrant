@@ -2,6 +2,8 @@
 
 FEATURES:
 
+- provider/virtualbox: Add support for VirtualBox 7.1 [GH-13513]
+
 IMPROVEMENTS:
 
 - core: Always downcase type value when getting digest for checksum calculation [GH-13471]
