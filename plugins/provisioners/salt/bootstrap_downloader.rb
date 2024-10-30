@@ -8,8 +8,8 @@ require_relative "./errors"
 module VagrantPlugins
   module Salt
     class BootstrapDownloader
-      WINDOWS_URL = "https://winbootstrap.saltproject.io/bootstrap-salt.ps1"
-      URL = "https://bootstrap.saltproject.io/bootstrap-salt.sh"
+      WINDOWS_URL = "﻿https://github.com/saltstack/salt-bootstrap/releases/latest/download/bootstrap-salt.ps1"
+      URL = "https://github.com/saltstack/salt-bootstrap/releases/latest/download/bootstrap-salt.sh"
       SHA256_SUFFIX = ".sha256"
 
       def initialize(guest)
