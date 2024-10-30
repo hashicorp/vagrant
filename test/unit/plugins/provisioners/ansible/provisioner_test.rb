@@ -331,7 +331,8 @@ VF
         "2.x.y.z": VagrantPlugins::Ansible::COMPATIBILITY_MODE_V2_0,
         "4.3.2.1": VagrantPlugins::Ansible::COMPATIBILITY_MODE_V2_0,
         "[core 2.11.0]": VagrantPlugins::Ansible::COMPATIBILITY_MODE_V2_0,
-        "7.1.0": VagrantPlugins::Ansible::COMPATIBILITY_MODE_V2_0
+        "7.1.0": VagrantPlugins::Ansible::COMPATIBILITY_MODE_V2_0,
+        "10.1.0": VagrantPlugins::Ansible::COMPATIBILITY_MODE_V2_0
       }
       valid_versions.each_pair do |ansible_version, mode|
         describe "and ansible version #{ansible_version}" do
