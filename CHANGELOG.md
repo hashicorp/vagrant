@@ -25,6 +25,7 @@ BUG FIXES:
 - provider/docker: Fix docker to not rebuild image if it already exists [GH-13489]
 - provider/hyperv: Fix configure disks capability [GH-13346]
 - provisioner/ansible: Fix version detection [GH-13375]
+- provisioner/ansible: Support double digit versions [GH-13493]
 - synced_folder/nfs: Fix upstart detection [GH-13409]
 
 VAGRANT-GO:
