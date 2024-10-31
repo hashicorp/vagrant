@@ -5,7 +5,7 @@ require "net/ssh"
 require "net/ssh/buffer"
 
 # Set the version requirement for when net-ssh should be patched
-NET_SSH_PATCH_REQUIREMENT = Gem::Requirement.new(">= 7.0.0", "< 7.2.2")
+NET_SSH_PATCH_REQUIREMENT = Gem::Requirement.new(">= 7.0.0", "<= 7.3")
 
 # This patch provides support for properly loading ECDSA private keys
 if NET_SSH_PATCH_REQUIREMENT.satisfied_by?(Gem::Version.new(Net::SSH::Version::STRING))
