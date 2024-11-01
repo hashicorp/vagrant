@@ -10,6 +10,16 @@ if Thread.respond_to?(:report_on_exception=)
   Thread.report_on_exception = false
 end
 
+# Activate all the runtime dependencies before
+# moving on.
+begin
+  Gem::Specification.find_by_name("vagrant").runtime_dependencies.each do |dep|
+    gem(dep.name, dep.requirement.as_list)
+  end
+rescue Gem::MissingSpecError
+  $stderr.puts "WARN: Failed to locate vagrant specification for dependency loading"
+end
+
 # Split arguments by "--" if its there, we'll recombine them later
 argv = ARGV.dup
 argv_extra = []
