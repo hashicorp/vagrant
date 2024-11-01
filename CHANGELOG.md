@@ -10,6 +10,7 @@ IMPROVEMENTS:
 - guest/debian: Fix NFS install capability to prevent hang on install [GH-13411]
 - kernel_v2/config: Add warning for IPv6 address ending with :1 [GH-13362]
 - provider/docker: Properly match container ID when trailing output is present [GH-13475]
+- provider/docker: Support build with containerd storage [GH-13343]
 - provider/virtualbox: Allow paused state when booting vm [GH-13496]
 - provider/virtualbox: Handling warnings in output when detecting version [GH-13394]
 - synced_folder/nfs: Output mounting entry [GH-13383]
