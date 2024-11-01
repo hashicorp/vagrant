@@ -1,4 +1,4 @@
-## 2.4.2.dev (UNRELEASED)
+## 2.4.2 (November 01, 2024)
 
 FEATURES:
 
