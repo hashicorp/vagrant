@@ -7,6 +7,7 @@ FEATURES:
 IMPROVEMENTS:
 
 - core: Always downcase type value when getting digest for checksum calculation [GH-13471]
+- core: Activate all runtime dependencies at startup [GH-13526]
 - guest/debian: Fix NFS install capability to prevent hang on install [GH-13411]
 - kernel_v2/config: Add warning for IPv6 address ending with :1 [GH-13362]
 - provider/docker: Properly match container ID when trailing output is present [GH-13475]
