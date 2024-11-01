@@ -442,8 +442,8 @@ module VagrantPlugins
             if errored
               raise Vagrant::Errors::VBoxManageError,
                 command: command.inspect,
-                stderr:  r.stderr,
-                stdout:  r.stdout
+                stderr:  r.stderr.to_s.force_encoding("UTF-8"),
+                stdout:  r.stdout.to_s.force_encoding("UTF-8")
             end
           end
 
