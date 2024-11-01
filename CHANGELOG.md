@@ -1,3 +1,13 @@
+## 2.4.3.dev (UNRELEASED)
+
+FEATURES:
+
+IMPROVEMENTS:
+
+BUG FIXES:
+
+VAGRANT-GO:
+
 ## 2.4.2 (November 01, 2024)
 
 FEATURES:
