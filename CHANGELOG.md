@@ -26,6 +26,7 @@ BUG FIXES:
 - provider/hyperv: Fix configure disks capability [GH-13346]
 - provisioner/ansible: Fix version detection [GH-13375]
 - provisioner/ansible: Support double digit versions [GH-13493]
+- provisioner/salt: Fix bootstrap script URLs [GH-13517]
 - synced_folder/nfs: Fix upstart detection [GH-13409]
 
 VAGRANT-GO:
