@@ -26,7 +26,7 @@ Gem::Specification.new do |s|
   s.add_dependency "i18n", "~> 1.12"
   s.add_dependency "listen", "~> 3.7"
   s.add_dependency "log4r", "~> 1.1.9", "< 1.1.11"
-  s.add_dependency "logger", "~> 1.6.1"
+  s.add_dependency "logger", "~> 1.6.0"
   s.add_dependency "mime-types", "~> 3.3"
   s.add_dependency "net-ftp", "~> 0.2"
   s.add_dependency "net-ssh", "~> 7.0"
