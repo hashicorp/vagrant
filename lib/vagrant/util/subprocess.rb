@@ -1,15 +1,15 @@
 # Copyright (c) HashiCorp, Inc.
 # SPDX-License-Identifier: BUSL-1.1
 
-require 'thread'
+Vagrant.require 'thread'
 
-require 'childprocess'
-require 'log4r'
+Vagrant.require 'childprocess'
+Vagrant.require 'log4r'
 
-require 'vagrant/util/io'
-require 'vagrant/util/platform'
-require 'vagrant/util/safe_chdir'
-require 'vagrant/util/which'
+Vagrant.require 'vagrant/util/io'
+Vagrant.require 'vagrant/util/platform'
+Vagrant.require 'vagrant/util/safe_chdir'
+Vagrant.require 'vagrant/util/which'
 
 module Vagrant
   module Util

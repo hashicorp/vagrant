@@ -1,10 +1,10 @@
 # Copyright (c) HashiCorp, Inc.
 # SPDX-License-Identifier: BUSL-1.1
 
-require "pathname"
-require "tmpdir"
+Vagrant.require "pathname"
+Vagrant.require "tmpdir"
 
-require "vagrant/util/subprocess"
+Vagrant.require "vagrant/util/subprocess"
 
 module VagrantPlugins
   module HostWindows

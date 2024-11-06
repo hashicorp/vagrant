@@ -1,15 +1,15 @@
 # Copyright (c) HashiCorp, Inc.
 # SPDX-License-Identifier: BUSL-1.1
 
-require "rbconfig"
-require "shellwords"
-require "tempfile"
-require "tmpdir"
-require "log4r"
+Vagrant.require "rbconfig"
+Vagrant.require "shellwords"
+Vagrant.require "tempfile"
+Vagrant.require "tmpdir"
+Vagrant.require "log4r"
 
-require "vagrant/util/subprocess"
-require "vagrant/util/powershell"
-require "vagrant/util/which"
+Vagrant.require "vagrant/util/subprocess"
+Vagrant.require "vagrant/util/powershell"
+Vagrant.require "vagrant/util/which"
 
 module Vagrant
   module Util

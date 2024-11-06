@@ -1,8 +1,8 @@
 # Copyright (c) HashiCorp, Inc.
 # SPDX-License-Identifier: BUSL-1.1
 
-require "shellwords"
-require "vagrant/util/retryable"
+Vagrant.require "shellwords"
+Vagrant.require "vagrant/util/retryable"
 
 module VagrantPlugins
   module GuestBSD

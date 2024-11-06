@@ -1,7 +1,7 @@
 # Copyright (c) HashiCorp, Inc.
 # SPDX-License-Identifier: BUSL-1.1
 
-require "vagrant/util/which"
+Vagrant.require "vagrant/util/which"
 
 module VagrantPlugins
   module HostLinux

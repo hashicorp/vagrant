@@ -1,16 +1,16 @@
 # Copyright (c) HashiCorp, Inc.
 # SPDX-License-Identifier: BUSL-1.1
 
-require "monitor"
-require "pathname"
-require "set"
-require "tempfile"
-require "fileutils"
-require "uri"
+Vagrant.require "monitor"
+Vagrant.require "pathname"
+Vagrant.require "set"
+Vagrant.require "tempfile"
+Vagrant.require "fileutils"
+Vagrant.require "uri"
 
-require "rubygems/package"
-require "rubygems/uninstaller"
-require "rubygems/name_tuple"
+Vagrant.require "rubygems/package"
+Vagrant.require "rubygems/uninstaller"
+Vagrant.require "rubygems/name_tuple"
 
 require_relative "shared_helpers"
 require_relative "version"

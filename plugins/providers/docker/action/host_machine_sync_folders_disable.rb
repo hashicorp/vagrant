@@ -1,9 +1,9 @@
 # Copyright (c) HashiCorp, Inc.
 # SPDX-License-Identifier: BUSL-1.1
 
-require "log4r"
+Vagrant.require "log4r"
 
-require "vagrant/action/builtin/mixin_synced_folders"
+Vagrant.require "vagrant/action/builtin/mixin_synced_folders"
 
 module VagrantPlugins
   module DockerProvider

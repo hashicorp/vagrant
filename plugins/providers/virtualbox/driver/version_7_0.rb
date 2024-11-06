@@ -1,7 +1,8 @@
 # Copyright (c) HashiCorp, Inc.
 # SPDX-License-Identifier: BUSL-1.1
 
-require "rexml"
+Vagrant.require "rexml"
+
 require File.expand_path("../version_6_1", __FILE__)
 
 module VagrantPlugins

@@ -1,12 +1,12 @@
 # Copyright (c) HashiCorp, Inc.
 # SPDX-License-Identifier: BUSL-1.1
 
-require "pathname"
-require "tempfile"
+Vagrant.require "pathname"
+Vagrant.require "tempfile"
 
-require "vagrant/util/downloader"
-require "vagrant/util/line_buffer"
-require "vagrant/util/retryable"
+Vagrant.require "vagrant/util/downloader"
+Vagrant.require "vagrant/util/line_buffer"
+Vagrant.require "vagrant/util/retryable"
 
 module VagrantPlugins
   module Shell

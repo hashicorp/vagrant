@@ -1,14 +1,19 @@
 # Copyright (c) HashiCorp, Inc.
 # SPDX-License-Identifier: BUSL-1.1
-require "log4r"
+
+# Load the shared helpers first to make the custom
+# require helper available.
+require "vagrant/shared_helpers"
+
+Vagrant.require "log4r"
 
 # Add patches to log4r to support trace level
-require "vagrant/patches/log4r"
-require "vagrant/patches/net-ssh"
-require "vagrant/patches/rubygems"
+Vagrant.require "vagrant/patches/log4r"
+Vagrant.require "vagrant/patches/net-ssh"
+Vagrant.require "vagrant/patches/rubygems"
 
 # Set our log levels and include trace
-require 'log4r/configurator'
+Vagrant.require 'log4r/configurator'
 Log4r::Configurator.custom_levels(*(["TRACE"] + Log4r::Log4rConfig::LogLevels))
 
 # Update the default formatter within the log4r library to ensure
@@ -20,7 +25,7 @@ class Log4r::BasicFormatter
   end
 end
 
-require "optparse"
+Vagrant.require "optparse"
 
 module Vagrant
   # This is a customized OptionParser for Vagrant plugins. It
@@ -45,10 +50,9 @@ module VagrantPlugins
 end
 
 # Load in our helpers and utilities
-require "vagrant/shared_helpers"
-require "rubygems"
-require "vagrant/util"
-require "vagrant/plugin/manager"
+Vagrant.require "rubygems"
+Vagrant.require "vagrant/util"
+Vagrant.require "vagrant/plugin/manager"
 
 # Enable logging if it is requested. We do this before
 # anything else so that we can setup the output before
@@ -105,19 +109,19 @@ if ENV["VAGRANT_LOG"] && ENV["VAGRANT_LOG"] != ""
   end
 end
 
-require 'json'
-require 'pathname'
-require 'stringio'
+Vagrant.require 'json'
+Vagrant.require 'pathname'
+Vagrant.require 'stringio'
 
-require 'childprocess'
-require 'i18n'
+Vagrant.require 'childprocess'
+Vagrant.require 'i18n'
 
 # OpenSSL must be loaded here since when it is loaded via `autoload`
 # there are issues with ciphers not being properly loaded.
-require 'openssl'
+Vagrant.require 'openssl'
 
 # Always make the version available
-require 'vagrant/version'
+Vagrant.require 'vagrant/version'
 global_logger = Log4r::Logger.new("vagrant::global")
 Vagrant.global_logger = global_logger
 global_logger.info("Vagrant version: #{Vagrant::VERSION}")
@@ -138,7 +142,7 @@ vagrant_ssl_locations = [
 if vagrant_ssl_locations.any? { |f| File.exist?(f) }
   global_logger.debug("vagrant ssl helper found for loading ssl providers")
   begin
-    require "vagrant/vagrant_ssl"
+    Vagrant.require "vagrant/vagrant_ssl"
     Vagrant.vagrant_ssl_load
     global_logger.debug("ssl providers successfully loaded")
   rescue LoadError => err
@@ -152,8 +156,8 @@ end
 
 # We need these components always so instead of an autoload we
 # just require them explicitly here.
-require "vagrant/plugin"
-require "vagrant/registry"
+Vagrant.require "vagrant/plugin"
+Vagrant.require "vagrant/registry"
 
 module Vagrant
   autoload :Action,         'vagrant/action'
@@ -230,7 +234,7 @@ module Vagrant
     end
 
     # Now check the plugin gem names
-    require "vagrant/plugin/manager"
+    Vagrant.require "vagrant/plugin/manager"
     Plugin::Manager.instance.plugin_installed?(name, version)
   end
 

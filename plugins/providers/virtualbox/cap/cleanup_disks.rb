@@ -1,8 +1,8 @@
 # Copyright (c) HashiCorp, Inc.
 # SPDX-License-Identifier: BUSL-1.1
 
-require "log4r"
-require "vagrant/util/experimental"
+Vagrant.require "log4r"
+Vagrant.require "vagrant/util/experimental"
 
 module VagrantPlugins
   module ProviderVirtualBox

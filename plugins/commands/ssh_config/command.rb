@@ -1,10 +1,10 @@
 # Copyright (c) HashiCorp, Inc.
 # SPDX-License-Identifier: BUSL-1.1
 
-require 'optparse'
+Vagrant.require 'optparse'
 
-require "vagrant/util/safe_puts"
-require "vagrant/util/platform"
+Vagrant.require "vagrant/util/safe_puts"
+Vagrant.require "vagrant/util/platform"
 
 module VagrantPlugins
   module CommandSSHConfig

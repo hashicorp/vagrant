@@ -1,9 +1,8 @@
 # Copyright (c) HashiCorp, Inc.
 # SPDX-License-Identifier: BUSL-1.1
 
-require 'optparse'
-
-require "vagrant/util/safe_puts"
+Vagrant.require 'optparse'
+Vagrant.require "vagrant/util/safe_puts"
 
 module VagrantPlugins
   module CommandWinRM

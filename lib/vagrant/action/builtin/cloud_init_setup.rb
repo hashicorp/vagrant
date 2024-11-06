@@ -1,8 +1,8 @@
 # Copyright (c) HashiCorp, Inc.
 # SPDX-License-Identifier: BUSL-1.1
 
-require 'vagrant/util/mime'
-require 'tmpdir'
+Vagrant.require 'vagrant/util/mime'
+Vagrant.require 'tmpdir'
 
 module Vagrant
   module Action

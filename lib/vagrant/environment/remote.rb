@@ -1,7 +1,7 @@
 # Copyright (c) HashiCorp, Inc.
 # SPDX-License-Identifier: BUSL-1.1
 
-require 'vagrant/machine_index/remote'
+Vagrant.require 'vagrant/machine_index/remote'
 
 module Vagrant
   class Environment

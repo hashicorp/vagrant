@@ -1,12 +1,12 @@
 # Copyright (c) HashiCorp, Inc.
 # SPDX-License-Identifier: BUSL-1.1
 
-require "json"
-require "pathname"
-require "securerandom"
-require "thread"
+Vagrant.require "json"
+Vagrant.require "pathname"
+Vagrant.require "securerandom"
+Vagrant.require "thread"
 
-require "vagrant/util/silence_warnings"
+Vagrant.require "vagrant/util/silence_warnings"
 
 module Vagrant
   # MachineIndex is able to manage the index of created Vagrant environments

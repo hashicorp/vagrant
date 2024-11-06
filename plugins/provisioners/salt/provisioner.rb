@@ -1,7 +1,8 @@
 # Copyright (c) HashiCorp, Inc.
 # SPDX-License-Identifier: BUSL-1.1
 
-require 'json'
+Vagrant.require 'json'
+
 require_relative "bootstrap_downloader"
 
 module VagrantPlugins

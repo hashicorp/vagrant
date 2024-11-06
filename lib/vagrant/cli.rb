@@ -1,10 +1,10 @@
 # Copyright (c) HashiCorp, Inc.
 # SPDX-License-Identifier: BUSL-1.1
 
-require 'log4r'
-require 'optparse'
+Vagrant.require 'log4r'
+Vagrant.require 'optparse'
 
-require 'vagrant/util/experimental'
+Vagrant.require 'vagrant/util/experimental'
 
 module Vagrant
   # Manages the command line interface to Vagrant.

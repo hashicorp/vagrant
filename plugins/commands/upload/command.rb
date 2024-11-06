@@ -1,8 +1,8 @@
 # Copyright (c) HashiCorp, Inc.
 # SPDX-License-Identifier: BUSL-1.1
 
-require 'optparse'
-require "rubygems/package"
+Vagrant.require 'optparse'
+Vagrant.require "rubygems/package"
 
 module VagrantPlugins
   module CommandUpload

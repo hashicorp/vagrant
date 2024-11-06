@@ -1,9 +1,9 @@
 # Copyright (c) HashiCorp, Inc.
 # SPDX-License-Identifier: BUSL-1.1
 
-require "json"
-require "fileutils"
-require "tempfile"
+Vagrant.require "json"
+Vagrant.require "fileutils"
+Vagrant.require "tempfile"
 
 module Vagrant
   module Plugin

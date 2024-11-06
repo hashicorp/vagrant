@@ -1,7 +1,7 @@
 # Copyright (c) HashiCorp, Inc.
 # SPDX-License-Identifier: BUSL-1.1
 
-require "fake_ftp"
+Vagrant.require "fake_ftp"
 
 module FakeFtp
   class File

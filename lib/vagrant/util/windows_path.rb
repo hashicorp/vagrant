@@ -1,7 +1,7 @@
 # Copyright (c) HashiCorp, Inc.
 # SPDX-License-Identifier: BUSL-1.1
 
-require "fiddle/import"
+Vagrant.require "fiddle/import"
 
 module Vagrant
   module Util

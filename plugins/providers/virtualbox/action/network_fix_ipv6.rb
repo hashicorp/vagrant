@@ -1,13 +1,13 @@
 # Copyright (c) HashiCorp, Inc.
 # SPDX-License-Identifier: BUSL-1.1
 
-require "ipaddr"
-require "socket"
+Vagrant.require "ipaddr"
+Vagrant.require "socket"
 
-require "log4r"
+Vagrant.require "log4r"
 
-require "vagrant/util/presence"
-require "vagrant/util/scoped_hash_override"
+Vagrant.require "vagrant/util/presence"
+Vagrant.require "vagrant/util/scoped_hash_override"
 
 module VagrantPlugins
   module ProviderVirtualBox

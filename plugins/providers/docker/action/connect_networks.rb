@@ -1,10 +1,10 @@
 # Copyright (c) HashiCorp, Inc.
 # SPDX-License-Identifier: BUSL-1.1
 
-require 'ipaddr'
-require 'log4r'
+Vagrant.require 'ipaddr'
+Vagrant.require 'log4r'
 
-require 'vagrant/util/scoped_hash_override'
+Vagrant.require 'vagrant/util/scoped_hash_override'
 
 module VagrantPlugins
   module DockerProvider

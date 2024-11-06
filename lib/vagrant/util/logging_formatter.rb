@@ -1,8 +1,8 @@
 # Copyright (c) HashiCorp, Inc.
 # SPDX-License-Identifier: BUSL-1.1
 
-require "vagrant/util/credential_scrubber"
-require "log4r/formatter/formatter"
+Vagrant.require "vagrant/util/credential_scrubber"
+Vagrant.require "log4r/formatter/formatter"
 
 module Vagrant
   module Util

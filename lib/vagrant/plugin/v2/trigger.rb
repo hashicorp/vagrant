@@ -1,14 +1,14 @@
 # Copyright (c) HashiCorp, Inc.
 # SPDX-License-Identifier: BUSL-1.1
 
-require 'fileutils'
-require 'log4r'
-require 'shellwords'
+Vagrant.require 'fileutils'
+Vagrant.require 'log4r'
+Vagrant.require 'shellwords'
 
-require Vagrant.source_root.join("plugins/provisioners/shell/provisioner")
-require "vagrant/util/subprocess"
-require "vagrant/util/platform"
-require "vagrant/util/powershell"
+Vagrant.require Vagrant.source_root.join("plugins/provisioners/shell/provisioner")
+Vagrant.require "vagrant/util/subprocess"
+Vagrant.require "vagrant/util/platform"
+Vagrant.require "vagrant/util/powershell"
 
 module Vagrant
   module Plugin

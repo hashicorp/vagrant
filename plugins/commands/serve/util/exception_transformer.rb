@@ -1,8 +1,8 @@
 # Copyright (c) HashiCorp, Inc.
 # SPDX-License-Identifier: BUSL-1.1
 
-require 'google/protobuf/well_known_types'
-require 'google/rpc/error_details_pb'
+Vagrant.require 'google/protobuf/well_known_types'
+Vagrant.require 'google/rpc/error_details_pb'
 
 module VagrantPlugins
   module CommandServe

@@ -1,10 +1,10 @@
 # Copyright (c) HashiCorp, Inc.
 # SPDX-License-Identifier: BUSL-1.1
 
-require "shellwords"
-require "vagrant/util"
-require "vagrant/util/shell_quote"
-require "vagrant/util/retryable"
+Vagrant.require "shellwords"
+Vagrant.require "vagrant/util"
+Vagrant.require "vagrant/util/shell_quote"
+Vagrant.require "vagrant/util/retryable"
 
 module VagrantPlugins
   module HostLinux

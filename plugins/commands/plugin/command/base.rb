@@ -1,7 +1,7 @@
 # Copyright (c) HashiCorp, Inc.
 # SPDX-License-Identifier: BUSL-1.1
 
-require "vagrant/plugin/state_file"
+Vagrant.require "vagrant/plugin/state_file"
 
 module VagrantPlugins
   module CommandPlugin

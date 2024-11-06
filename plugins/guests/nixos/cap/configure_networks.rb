@@ -1,8 +1,8 @@
 # Copyright (c) HashiCorp, Inc.
 # SPDX-License-Identifier: BUSL-1.1
 
-require "ipaddr"
-require "tempfile"
+Vagrant.require "ipaddr"
+Vagrant.require "tempfile"
 
 require_relative "../../../../lib/vagrant/util/template_renderer"
 

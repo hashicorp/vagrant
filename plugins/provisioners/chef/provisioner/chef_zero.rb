@@ -1,13 +1,13 @@
 # Copyright (c) HashiCorp, Inc.
 # SPDX-License-Identifier: BUSL-1.1
 
-require "digest/md5"
-require "securerandom"
-require "set"
+Vagrant.require "digest/md5"
+Vagrant.require "securerandom"
+Vagrant.require "set"
 
-require "log4r"
+Vagrant.require "log4r"
 
-require "vagrant/util/counter"
+Vagrant.require "vagrant/util/counter"
 
 require_relative "chef_solo"
 

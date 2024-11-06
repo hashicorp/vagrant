@@ -2,10 +2,10 @@
 # SPDX-License-Identifier: BUSL-1.1
 
 # Patch things to produce proto messages
-require "pathname"
-require "securerandom"
-require "google/protobuf/wrappers_pb"
-require "google/protobuf/well_known_types"
+Vagrant.require "pathname"
+Vagrant.require "securerandom"
+Vagrant.require "google/protobuf/wrappers_pb"
+Vagrant.require "google/protobuf/well_known_types"
 
 PROTO_LOGGER = Log4r::Logger.new("vagrant::protologger")
 

@@ -1,8 +1,8 @@
 # Copyright (c) HashiCorp, Inc.
 # SPDX-License-Identifier: BUSL-1.1
 
-require "singleton"
-require "thread"
+Vagrant.require "singleton"
+Vagrant.require "thread"
 
 module VagrantPlugins
   module CommandServe

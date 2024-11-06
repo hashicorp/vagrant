@@ -1,8 +1,8 @@
 # Copyright (c) HashiCorp, Inc.
 # SPDX-License-Identifier: BUSL-1.1
 
-require "vagrant/util/template_renderer"
-require "log4r"
+Vagrant.require "vagrant/util/template_renderer"
+Vagrant.require "log4r"
 
 module Vagrant
   # This class provides a way to load and access the contents

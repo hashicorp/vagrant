@@ -1,7 +1,7 @@
 # Copyright (c) HashiCorp, Inc.
 # SPDX-License-Identifier: BUSL-1.1
 
-require "json"
+Vagrant.require "json"
 
 #require 'vagrant/util/template_renderer'
 

@@ -1,7 +1,7 @@
 # Copyright (c) HashiCorp, Inc.
 # SPDX-License-Identifier: BUSL-1.1
 
-require "securerandom"
+Vagrant.require "securerandom"
 
 module VagrantPlugins
   module GuestDarwin
