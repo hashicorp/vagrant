@@ -6,6 +6,8 @@ IMPROVEMENTS:
 
 BUG FIXES:
 
+- core: Relax constraint on logger dependency [GH-13532]
+
 VAGRANT-GO:
 
 ## 2.4.2 (November 01, 2024)
