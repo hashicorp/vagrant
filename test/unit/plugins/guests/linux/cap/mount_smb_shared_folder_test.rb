@@ -59,6 +59,7 @@ describe "VagrantPlugins::GuestLinux::Cap::MountSMBSharedFolder" do
       allow(comm).to receive(:execute).with(any_args)
       allow(machine).to receive(:guest).and_return(guest)
       allow(guest).to receive(:capability).with(:shell_expand_guest_path, mount_guest_path).and_return(mount_guest_path)
+      allow(ENV).to receive(:[]).and_call_original
       allow(ENV).to receive(:[]).with("VAGRANT_DISABLE_SMBMFSYMLINKS").and_return(false)
       allow(ENV).to receive(:[]).with("GEM_SKIP").and_return(false)
       allow(cap).to receive(:display_mfsymlinks_warning)
