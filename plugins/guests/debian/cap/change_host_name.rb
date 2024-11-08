@@ -1,9 +1,10 @@
 # Copyright (c) HashiCorp, Inc.
 # SPDX-License-Identifier: BUSL-1.1
 
-require "log4r"
-require 'vagrant/util/guest_hosts'
-require 'vagrant/util/guest_inspection'
+Vagrant.require "log4r"
+Vagrant.require 'vagrant/util/guest_hosts'
+Vagrant.require 'vagrant/util/guest_inspection'
+
 require_relative "../../linux/cap/network_interfaces"
 
 module VagrantPlugins

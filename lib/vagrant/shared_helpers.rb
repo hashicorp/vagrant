@@ -168,7 +168,7 @@ module Vagrant
     if ENV["VAGRANT_ENABLE_RESOLV_REPLACE"]
       if !ENV["VAGRANT_DISABLE_RESOLV_REPLACE"]
         begin
-          require "resolv-replace"
+          Vagrant.require "resolv-replace"
           true
         rescue
           false
@@ -192,7 +192,7 @@ module Vagrant
   # @return [Logger]
   def self.global_logger
     if @_global_logger.nil?
-      require "log4r"
+      Vagrant.require "log4r"
       @_global_logger = Log4r::Logger.new("vagrant::global")
     end
     @_global_logger
@@ -224,6 +224,68 @@ module Vagrant
   def self.default_cli_options
     @_default_cli_options = [] if !@_default_cli_options
     @_default_cli_options.dup
+  end
+
+  # Loads the provided path. If the base of the path
+  # is a Vagrant runtime dependency, the gem will be
+  # activated with the proper constraint first.
+  #
+  # NOTE: This is currently disabled by default and
+  # will transition to enabled by default as more
+  # non-installer based environments are tested.
+  #
+  # @return [nil]
+  def self.require(path)
+    catch(:activation_complete) do
+      # If activation is not enabled, don't attempt activation
+      throw :activation_complete if ENV["VAGRANT_ENABLE_GEM_ACTIVATION"].nil?
+
+      # If it's a vagrant path, don't do anything.
+      throw :activation_complete if path.to_s.start_with?("vagrant/")
+
+      # Attempt to fetch the vagrant specification
+      if @_vagrant_spec.nil?
+        @_vagrant_activated_dependencies = {}
+        begin
+          @_vagrant_spec = Gem::Specification.find_by_name("vagrant")
+        rescue Gem::MissingSpecError
+          # If it couldn't be found, print a warning to stderr and bail
+          if !@_spec_load_failure_warning
+            $stderr.puts "WARN: Failed to locate vagrant specification for dependency loading"
+            @_spec_load_failure_warning = true
+          end
+
+          throw :activation_complete
+        end
+      end
+
+      # Attempt to get the name of the gem by the given path
+      dep_name = Gem::Specification.find_by_path(path)&.name
+
+      # Bail if a dependency name cannot be determined
+      throw :activation_complete if dep_name.nil?
+
+      # Bail if already activated
+      throw :activation_complete if @_vagrant_activated_dependencies[dep_name]
+
+      # Extract the dependency from the runtime dependency list
+      dependency = @_vagrant_spec.runtime_dependencies.detect do |d|
+        d.name == dep_name
+      end
+
+      # If the dependency isn't found, bail
+      throw :activation_complete if dependency.nil?
+
+      # Activate the gem
+      gem(dependency.name, dependency.requirement.as_list)
+puts "Activated: #{dependency.name}"
+      @_vagrant_activated_dependencies[dependency.name] = true
+    end
+
+    # Finally, require the provided path.
+    ::Kernel.require(path)
+
+    nil
   end
 
   # Check if Vagrant is running in server mode

@@ -1,8 +1,8 @@
 # Copyright (c) HashiCorp, Inc.
 # SPDX-License-Identifier: BUSL-1.1
 
-require "digest/md5"
-require "tempfile"
+Vagrant.require "digest/md5"
+Vagrant.require "tempfile"
 
 module VagrantPlugins
   module DockerProvider

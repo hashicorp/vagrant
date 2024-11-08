@@ -1,9 +1,9 @@
 # Copyright (c) HashiCorp, Inc.
 # SPDX-License-Identifier: BUSL-1.1
 
-require "log4r"
+Vagrant.require "log4r"
 
-require "vagrant/util/ansi_escape_code_remover"
+Vagrant.require "vagrant/util/ansi_escape_code_remover"
 
 module VagrantPlugins
   module DockerProvider

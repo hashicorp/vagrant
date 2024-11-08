@@ -1,11 +1,11 @@
 # Copyright (c) HashiCorp, Inc.
 # SPDX-License-Identifier: BUSL-1.1
 
-require "tempfile"
-require "fileutils"
-require "pathname"
-require "vagrant/util/directory"
-require "vagrant/util/subprocess"
+Vagrant.require "tempfile"
+Vagrant.require "fileutils"
+Vagrant.require "pathname"
+Vagrant.require "vagrant/util/directory"
+Vagrant.require "vagrant/util/subprocess"
 
 module Vagrant
   module Util

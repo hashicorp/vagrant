@@ -1,23 +1,23 @@
 # Copyright (c) HashiCorp, Inc.
 # SPDX-License-Identifier: BUSL-1.1
 
-require 'etc'
-require 'logger'
-require 'pathname'
-require 'stringio'
-require 'thread'
-require 'timeout'
+Vagrant.require 'etc'
+Vagrant.require 'logger'
+Vagrant.require 'pathname'
+Vagrant.require 'stringio'
+Vagrant.require 'thread'
+Vagrant.require 'timeout'
 
-require 'log4r'
-require 'net/ssh'
-require 'net/ssh/proxy/command'
-require 'net/scp'
+Vagrant.require 'log4r'
+Vagrant.require 'net/ssh'
+Vagrant.require 'net/ssh/proxy/command'
+Vagrant.require 'net/scp'
 
-require 'vagrant/util/ansi_escape_code_remover'
-require 'vagrant/util/file_mode'
-require 'vagrant/util/keypair'
-require 'vagrant/util/platform'
-require 'vagrant/util/retryable'
+Vagrant.require 'vagrant/util/ansi_escape_code_remover'
+Vagrant.require 'vagrant/util/file_mode'
+Vagrant.require 'vagrant/util/keypair'
+Vagrant.require 'vagrant/util/platform'
+Vagrant.require 'vagrant/util/retryable'
 
 module VagrantPlugins
   module CommunicatorSSH

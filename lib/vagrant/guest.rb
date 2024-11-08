@@ -1,9 +1,8 @@
 # Copyright (c) HashiCorp, Inc.
 # SPDX-License-Identifier: BUSL-1.1
 
-require "log4r"
-
-require "vagrant/capability_host"
+Vagrant.require "log4r"
+Vagrant.require "vagrant/capability_host"
 
 module Vagrant
   # This class handles guest-OS specific interactions with a machine.

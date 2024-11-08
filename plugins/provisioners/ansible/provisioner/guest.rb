@@ -1,7 +1,7 @@
 # Copyright (c) HashiCorp, Inc.
 # SPDX-License-Identifier: BUSL-1.1
 
-require "tempfile"
+Vagrant.require "tempfile"
 
 require_relative "base"
 

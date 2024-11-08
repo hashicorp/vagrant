@@ -1,7 +1,7 @@
 # Copyright (c) HashiCorp, Inc.
 # SPDX-License-Identifier: BUSL-1.1
 
-require "vagrant/util/platform"
+Vagrant.require "vagrant/util/platform"
 
 module Vagrant
   module Util

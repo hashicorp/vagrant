@@ -1,7 +1,7 @@
 # Copyright (c) HashiCorp, Inc.
 # SPDX-License-Identifier: BUSL-1.1
 
-require "vagrant/registry"
+Vagrant.require "vagrant/registry"
 
 module Vagrant
   module Config

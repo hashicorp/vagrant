@@ -1,16 +1,16 @@
 # Copyright (c) HashiCorp, Inc.
 # SPDX-License-Identifier: BUSL-1.1
 
-require "digest/sha1"
-require "log4r"
-require "pathname"
-require "uri"
+Vagrant.require "digest/sha1"
+Vagrant.require "log4r"
+Vagrant.require "pathname"
+Vagrant.require "uri"
 
-require "vagrant/box_metadata"
-require "vagrant/util/downloader"
-require "vagrant/util/file_checksum"
-require "vagrant/util/file_mutex"
-require "vagrant/util/platform"
+Vagrant.require "vagrant/box_metadata"
+Vagrant.require "vagrant/util/downloader"
+Vagrant.require "vagrant/util/file_checksum"
+Vagrant.require "vagrant/util/file_mutex"
+Vagrant.require "vagrant/util/platform"
 
 module Vagrant
   module Action

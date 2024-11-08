@@ -1,10 +1,10 @@
 # Copyright (c) HashiCorp, Inc.
 # SPDX-License-Identifier: BUSL-1.1
 
-require "cgi"
-require "uri"
+Vagrant.require "cgi"
+Vagrant.require "uri"
+Vagrant.require "vagrant/util/credential_scrubber"
 
-require "vagrant/util/credential_scrubber"
 require_relative "./add_authentication"
 
 require Vagrant.source_root.join("plugins/commands/cloud/client/client")

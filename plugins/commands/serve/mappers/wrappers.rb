@@ -1,7 +1,7 @@
 # Copyright (c) HashiCorp, Inc.
 # SPDX-License-Identifier: BUSL-1.1
 
-require "google/protobuf/wrappers_pb"
+Vagrant.require "google/protobuf/wrappers_pb"
 
 module VagrantPlugins
   module CommandServe

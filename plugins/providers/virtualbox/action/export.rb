@@ -1,8 +1,8 @@
 # Copyright (c) HashiCorp, Inc.
 # SPDX-License-Identifier: BUSL-1.1
 
-require "fileutils"
-require 'vagrant/util/platform'
+Vagrant.require "fileutils"
+Vagrant.require 'vagrant/util/platform'
 
 module VagrantPlugins
   module ProviderVirtualBox

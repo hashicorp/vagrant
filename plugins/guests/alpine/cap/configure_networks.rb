@@ -7,10 +7,10 @@
 #
 # FIXME: address disabled warnings
 #
-require 'set'
-require 'tempfile'
-require 'pathname'
-require 'vagrant/util/template_renderer'
+Vagrant.require 'set'
+Vagrant.require 'tempfile'
+Vagrant.require 'pathname'
+Vagrant.require 'vagrant/util/template_renderer'
 
 module VagrantPlugins
   module GuestAlpine

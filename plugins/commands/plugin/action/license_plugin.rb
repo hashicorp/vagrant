@@ -1,12 +1,12 @@
 # Copyright (c) HashiCorp, Inc.
 # SPDX-License-Identifier: BUSL-1.1
 
-require "fileutils"
-require "pathname"
-require "rubygems"
-require "set"
+Vagrant.require "fileutils"
+Vagrant.require "pathname"
+Vagrant.require "rubygems"
+Vagrant.require "set"
 
-require "log4r"
+Vagrant.require "log4r"
 
 module VagrantPlugins
   module CommandPlugin

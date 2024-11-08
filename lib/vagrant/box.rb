@@ -1,17 +1,17 @@
 # Copyright (c) HashiCorp, Inc.
 # SPDX-License-Identifier: BUSL-1.1
 
-require 'fileutils'
-require "tempfile"
+Vagrant.require 'fileutils'
+Vagrant.require "tempfile"
 
-require "json"
-require "log4r"
+Vagrant.require "json"
+Vagrant.require "log4r"
 
-require "vagrant/box_metadata"
-require "vagrant/util/downloader"
-require "vagrant/util/platform"
-require "vagrant/util/safe_chdir"
-require "vagrant/util/subprocess"
+Vagrant.require "vagrant/box_metadata"
+Vagrant.require "vagrant/util/downloader"
+Vagrant.require "vagrant/util/platform"
+Vagrant.require "vagrant/util/safe_chdir"
+Vagrant.require "vagrant/util/subprocess"
 
 module Vagrant
   # Represents a "box," which is a package Vagrant environment that is used

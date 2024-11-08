@@ -1,8 +1,8 @@
 # Copyright (c) HashiCorp, Inc.
 # SPDX-License-Identifier: BUSL-1.1
 
-require "pathname"
-require "set"
+Vagrant.require "pathname"
+Vagrant.require "set"
 
 require_relative "../bundler"
 require_relative "../shared_helpers"

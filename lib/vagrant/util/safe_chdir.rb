@@ -1,7 +1,7 @@
 # Copyright (c) HashiCorp, Inc.
 # SPDX-License-Identifier: BUSL-1.1
 
-require 'thread'
+Vagrant.require 'thread'
 
 module Vagrant
   module Util

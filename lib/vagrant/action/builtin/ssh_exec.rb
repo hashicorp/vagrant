@@ -1,9 +1,9 @@
 # Copyright (c) HashiCorp, Inc.
 # SPDX-License-Identifier: BUSL-1.1
 
-require "pathname"
+Vagrant.require "pathname"
 
-require "vagrant/util/ssh"
+Vagrant.require "vagrant/util/ssh"
 
 module Vagrant
   module Action

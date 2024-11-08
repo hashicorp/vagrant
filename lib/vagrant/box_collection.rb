@@ -1,15 +1,13 @@
 # Copyright (c) HashiCorp, Inc.
 # SPDX-License-Identifier: BUSL-1.1
 
-require "digest/sha1"
-require "fileutils"
-require "monitor"
-require "tmpdir"
-
-require "log4r"
-
-require "vagrant/util/platform"
-require "vagrant/util/subprocess"
+Vagrant.require "digest/sha1"
+Vagrant.require "fileutils"
+Vagrant.require "monitor"
+Vagrant.require "tmpdir"
+Vagrant.require "log4r"
+Vagrant.require "vagrant/util/platform"
+Vagrant.require "vagrant/util/subprocess"
 
 module Vagrant
   # Represents a collection a boxes found on disk. This provides methods

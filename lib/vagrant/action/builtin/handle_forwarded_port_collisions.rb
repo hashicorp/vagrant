@@ -1,13 +1,12 @@
 # Copyright (c) HashiCorp, Inc.
 # SPDX-License-Identifier: BUSL-1.1
 
-require "set"
+Vagrant.require "set"
+Vagrant.require "log4r"
+Vagrant.require "socket"
 
-require "log4r"
-require "socket"
-
-require "vagrant/util/is_port_open"
-require "vagrant/util/ipv4_interfaces"
+Vagrant.require "vagrant/util/is_port_open"
+Vagrant.require "vagrant/util/ipv4_interfaces"
 
 module Vagrant
   module Action

@@ -1,7 +1,7 @@
 # Copyright (c) HashiCorp, Inc.
 # SPDX-License-Identifier: BUSL-1.1
 
-require 'digest/sha1'
+Vagrant.require 'digest/sha1'
 
 module VagrantPlugins
   module ContainerProvisioner

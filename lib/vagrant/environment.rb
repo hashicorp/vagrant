@@ -1,20 +1,20 @@
 # Copyright (c) HashiCorp, Inc.
 # SPDX-License-Identifier: BUSL-1.1
 
-require 'fileutils'
-require 'json'
-require 'pathname'
-require 'set'
-require 'thread'
+Vagrant.require 'fileutils'
+Vagrant.require 'json'
+Vagrant.require 'pathname'
+Vagrant.require 'set'
+Vagrant.require 'thread'
 
-require 'log4r'
+Vagrant.require 'log4r'
 
-require 'vagrant/util/file_mode'
-require 'vagrant/util/platform'
-require 'vagrant/util/hash_with_indifferent_access'
-require "vagrant/util/silence_warnings"
-require "vagrant/vagrantfile"
-require "vagrant/version"
+Vagrant.require 'vagrant/util/file_mode'
+Vagrant.require 'vagrant/util/platform'
+Vagrant.require 'vagrant/util/hash_with_indifferent_access'
+Vagrant.require "vagrant/util/silence_warnings"
+Vagrant.require "vagrant/vagrantfile"
+Vagrant.require "vagrant/version"
 
 module Vagrant
   # A "Vagrant environment" represents a configuration of how Vagrant

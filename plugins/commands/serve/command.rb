@@ -1,7 +1,7 @@
 # Copyright (c) HashiCorp, Inc.
 # SPDX-License-Identifier: BUSL-1.1
 
-require "optparse"
+Vagrant.require "optparse"
 
 module VagrantPlugins
   module CommandServe
@@ -25,9 +25,9 @@ module VagrantPlugins
       # the command is actually executed.
       def load_dependencies!
         return if @dependencies_loaded
-        require 'grpc'
-        require 'grpc/health/checker'
-        require 'grpc/health/v1/health_services_pb'
+        Vagrant.require 'grpc'
+        Vagrant.require 'grpc/health/checker'
+        Vagrant.require 'grpc/health/v1/health_services_pb'
 
         # Add conversion patches
         require Vagrant.source_root.join("plugins/commands/serve/util/direct_conversions.rb").to_s

@@ -1,8 +1,7 @@
 # Copyright (c) HashiCorp, Inc.
 # SPDX-License-Identifier: BUSL-1.1
 
-require "log4r"
-require "vagrant"
+Vagrant.require "log4r"
 
 module VagrantPlugins
   module CFEngine

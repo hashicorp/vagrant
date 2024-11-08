@@ -1,8 +1,8 @@
 # Copyright (c) HashiCorp, Inc.
 # SPDX-License-Identifier: BUSL-1.1
 
-require "ipaddr"
-require "vagrant/action/builtin/mixin_synced_folders"
+Vagrant.require "ipaddr"
+Vagrant.require "vagrant/action/builtin/mixin_synced_folders"
 
 module VagrantPlugins
   module ProviderVirtualBox

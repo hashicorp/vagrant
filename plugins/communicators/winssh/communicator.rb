@@ -3,7 +3,7 @@
 
 require File.expand_path("../../ssh/communicator", __FILE__)
 
-require 'net/sftp'
+Vagrant.require "net/sftp"
 
 module VagrantPlugins
   module CommunicatorWinSSH

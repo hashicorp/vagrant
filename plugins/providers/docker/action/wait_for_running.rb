@@ -1,9 +1,8 @@
 # Copyright (c) HashiCorp, Inc.
 # SPDX-License-Identifier: BUSL-1.1
 
-require "thread"
-
-require "log4r"
+Vagrant.require "thread"
+Vagrant.require "log4r"
 
 module VagrantPlugins
   module DockerProvider

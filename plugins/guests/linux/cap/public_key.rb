@@ -1,9 +1,9 @@
 # Copyright (c) HashiCorp, Inc.
 # SPDX-License-Identifier: BUSL-1.1
 
-require "tempfile"
+Vagrant.require "tempfile"
 
-require "vagrant/util/shell_quote"
+Vagrant.require "vagrant/util/shell_quote"
 
 module VagrantPlugins
   module GuestLinux

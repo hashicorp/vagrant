@@ -1,7 +1,7 @@
 # Copyright (c) HashiCorp, Inc.
 # SPDX-License-Identifier: BUSL-1.1
 
-require 'optparse'
+Vagrant.require 'optparse'
 
 module VagrantPlugins
   module CommandValidate
@@ -59,7 +59,7 @@ module VagrantPlugins
       #
       # return [String] tmp_data_dir - Temporary dir used to store guest metadata during validation
       def mockup_providers!
-        require 'log4r'
+        Vagrant.require 'log4r'
         logger = Log4r::Logger.new("vagrant::validate")
         logger.debug("Overriding all registered provider classes for validate")
 

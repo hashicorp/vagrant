@@ -1,9 +1,9 @@
 # Copyright (c) HashiCorp, Inc.
 # SPDX-License-Identifier: BUSL-1.1
 
-require "log4r"
-require "vagrant/plugin/manager"
-require "vagrant/util/platform"
+Vagrant.require "log4r"
+Vagrant.require "vagrant/plugin/manager"
+Vagrant.require "vagrant/util/platform"
 
 module VagrantPlugins
   module CommandPlugin

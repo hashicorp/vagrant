@@ -1,7 +1,7 @@
 # Copyright (c) HashiCorp, Inc.
 # SPDX-License-Identifier: BUSL-1.1
 
-require "shellwords"
+Vagrant.require "shellwords"
 
 module VagrantPlugins
   module CommunicatorWinRM

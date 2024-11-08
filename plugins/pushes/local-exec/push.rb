@@ -1,9 +1,9 @@
 # Copyright (c) HashiCorp, Inc.
 # SPDX-License-Identifier: BUSL-1.1
 
-require "fileutils"
-require "tempfile"
-require "vagrant/util/safe_exec"
+Vagrant.require "fileutils"
+Vagrant.require "tempfile"
+Vagrant.require "vagrant/util/safe_exec"
 
 require_relative "errors"
 

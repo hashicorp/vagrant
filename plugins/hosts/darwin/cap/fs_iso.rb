@@ -1,8 +1,8 @@
 # Copyright (c) HashiCorp, Inc.
 # SPDX-License-Identifier: BUSL-1.1
 
-require "pathname"
-require "vagrant/util/caps"
+Vagrant.require "pathname"
+Vagrant.require "vagrant/util/caps"
 
 module VagrantPlugins
   module HostDarwin

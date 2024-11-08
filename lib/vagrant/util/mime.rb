@@ -1,8 +1,8 @@
 # Copyright (c) HashiCorp, Inc.
 # SPDX-License-Identifier: BUSL-1.1
 
-require 'mime/types'
-require 'securerandom'
+Vagrant.require 'mime/types'
+Vagrant.require 'securerandom'
 
 module Vagrant
   module Util

@@ -1,11 +1,11 @@
 # Copyright (c) HashiCorp, Inc.
 # SPDX-License-Identifier: BUSL-1.1
 
-require "log4r"
+Vagrant.require "log4r"
 
-require "vagrant/util"
-require "vagrant/util/shell_quote"
-require "vagrant/util/which"
+Vagrant.require "vagrant/util"
+Vagrant.require "vagrant/util/shell_quote"
+Vagrant.require "vagrant/util/which"
 
 module VagrantPlugins
   module HostBSD

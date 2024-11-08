@@ -1,12 +1,11 @@
 # Copyright (c) HashiCorp, Inc.
 # SPDX-License-Identifier: BUSL-1.1
 
-require "digest/md5"
-require "securerandom"
+Vagrant.require "digest/md5"
+Vagrant.require "securerandom"
+Vagrant.require "log4r"
 
-require "log4r"
-
-require "vagrant/action/builtin/mixin_synced_folders"
+Vagrant.require "vagrant/action/builtin/mixin_synced_folders"
 
 module VagrantPlugins
   module DockerProvider

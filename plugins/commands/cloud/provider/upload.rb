@@ -1,8 +1,8 @@
 # Copyright (c) HashiCorp, Inc.
 # SPDX-License-Identifier: BUSL-1.1
 
-require 'optparse'
-require "vagrant/util/uploader"
+Vagrant.require 'optparse'
+Vagrant.require "vagrant/util/uploader"
 
 module VagrantPlugins
   module CloudCommand

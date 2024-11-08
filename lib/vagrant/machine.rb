@@ -4,10 +4,9 @@
 require_relative "./util/ssh"
 require_relative "./action/builtin/mixin_synced_folders"
 
-require "digest/md5"
-require "thread"
-
-require "log4r"
+Vagrant.require "digest/md5"
+Vagrant.require "thread"
+Vagrant.require "log4r"
 
 module Vagrant
   # This represents a machine that Vagrant manages. This provides a singular

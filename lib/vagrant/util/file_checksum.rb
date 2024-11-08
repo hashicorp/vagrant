@@ -6,7 +6,7 @@
 # the moment, and this class isn't directly used. It is merely here for
 # documentation of structure of the class.
 
-require "vagrant/errors"
+Vagrant.require "vagrant/errors"
 
 class DigestClass
   def update(string); end

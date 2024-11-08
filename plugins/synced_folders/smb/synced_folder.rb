@@ -1,13 +1,13 @@
 # Copyright (c) HashiCorp, Inc.
 # SPDX-License-Identifier: BUSL-1.1
 
-require "digest/md5"
-require "json"
+Vagrant.require "digest/md5"
+Vagrant.require "json"
 
-require "log4r"
+Vagrant.require "log4r"
 
-require "vagrant/util/platform"
-require "vagrant/util/powershell"
+Vagrant.require "vagrant/util/platform"
+Vagrant.require "vagrant/util/powershell"
 
 require_relative "errors"
 

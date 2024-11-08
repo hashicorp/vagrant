@@ -1,8 +1,8 @@
 # Copyright (c) HashiCorp, Inc.
 # SPDX-License-Identifier: BUSL-1.1
 
-require "tempfile"
-require "yaml"
+Vagrant.require "tempfile"
+Vagrant.require "yaml"
 
 module VagrantPlugins
   module GuestCoreOS

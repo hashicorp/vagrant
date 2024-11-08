@@ -1,7 +1,7 @@
 # Copyright (c) HashiCorp, Inc.
 # SPDX-License-Identifier: BUSL-1.1
 
-require "vagrant/config/v1/root"
+Vagrant.require "vagrant/config/v1/root"
 
 module Vagrant
   module Config

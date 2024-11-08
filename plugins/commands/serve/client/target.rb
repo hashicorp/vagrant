@@ -1,7 +1,7 @@
 # Copyright (c) HashiCorp, Inc.
 # SPDX-License-Identifier: BUSL-1.1
 
-require "time"
+Vagrant.require "time"
 
 module VagrantPlugins
   module CommandServe
