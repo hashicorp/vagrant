@@ -37,7 +37,7 @@ Gem::Specification.new do |s|
   s.add_dependency "rexml", "~> 3.2"
   s.add_dependency "rgl", "~> 0.5.10"
   s.add_dependency "rubyzip", "~> 2.3.2"
-  s.add_dependency "vagrant_cloud", "~> 3.1.1"
+  s.add_dependency "vagrant_cloud", "~> 3.1.2"
   s.add_dependency "wdm", "~> 0.1.1"
   s.add_dependency "winrm", ">= 2.3.9", "< 3.0"
   s.add_dependency "winrm-elevated", ">= 1.2.3", "< 2.0"
@@ -56,7 +56,7 @@ Gem::Specification.new do |s|
   s.add_development_dependency "rspec", "~> 3.11"
   s.add_development_dependency "rspec-its", "~> 1.3.0"
   s.add_development_dependency "fake_ftp", "~> 0.3.0"
-  s.add_development_dependency "webrick", "~> 1.7.0"
+  s.add_development_dependency "webrick", "~> 1.7"
 
   # The following block of code determines the files that should be included
   # in the gem. It does this by reading all the files in the directory where

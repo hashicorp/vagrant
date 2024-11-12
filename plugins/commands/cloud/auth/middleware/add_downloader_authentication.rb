@@ -5,9 +5,8 @@ Vagrant.require "cgi"
 Vagrant.require "uri"
 Vagrant.require "vagrant/util/credential_scrubber"
 
-require_relative "./add_authentication"
-
 require Vagrant.source_root.join("plugins/commands/cloud/client/client")
+require_relative "./add_authentication"
 
 # Similar to AddAuthentication this middleware will add authentication for interacting
 # with Vagrant cloud. It does this by adding Authentication headers to a
@@ -54,6 +53,8 @@ module VagrantPlugins
               else
                 env[:downloader].headers << "Authorization: Bearer #{token}"
               end
+            else
+              @logger.debug("Not adding authentication header, host mismatch #{target_url.host} != #{server_uri.host}")
             end
 
             env[:downloader]
