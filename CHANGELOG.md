@@ -1,4 +1,4 @@
-## 2.4.3.dev (UNRELEASED)
+## 2.4.3 (November 12, 2024)
 
 IMPROVEMENTS:
 
