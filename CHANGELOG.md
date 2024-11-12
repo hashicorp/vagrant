@@ -4,6 +4,8 @@ FEATURES:
 
 IMPROVEMENTS:
 
+- command/cloud: Support HCP authentication [GH-13540]
+
 BUG FIXES:
 
 - core: Relax constraint on logger dependency [GH-13532]
