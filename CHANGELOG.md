@@ -1,7 +1,5 @@
 ## 2.4.3.dev (UNRELEASED)
 
-FEATURES:
-
 IMPROVEMENTS:
 
 - command/cloud: Support HCP authentication [GH-13540]
@@ -9,8 +7,6 @@ IMPROVEMENTS:
 BUG FIXES:
 
 - core: Relax constraint on logger dependency [GH-13532]
-
-VAGRANT-GO:
 
 ## 2.4.2 (November 01, 2024)
 
