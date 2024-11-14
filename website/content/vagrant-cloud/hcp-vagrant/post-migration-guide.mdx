@@ -26,10 +26,10 @@ The format of the composite access token is:
 <VAGRANT_CLOUD_TOKEN>;<HCP_TOKEN>
 ```
 
-If all organizations have been migrated to HCP Vagrant Registry the Vagrant Cloud access token will not be needed. The format of the access token is:
+If all organizations have been migrated to HCP Vagrant Registry the Vagrant Cloud access token will not be needed. The format of the access token is simply the access token:
 
 ```
-;<HCP_TOKEN>
+<HCP_TOKEN>
 ```
 
 ### HCP Access Token
@@ -65,11 +65,20 @@ The `hcp` command can also be used to provide the HCP access token to reduce the
 export VAGRANT_CLOUD_TOKEN="<VAGRANT_CLOUD_TOKEN>;$(hcp auth print-access-token)"
 ```
 
-If all organizations have been migrated to HCP Vagrant Registry, only the HCP access token will be needed:
+If all organizations have been migrated to HCP Vagrant Registry, only authentication with HCP will be required. This can be done by providing the HCP access token in the `VAGRANT_CLOUD_TOKEN` environment variable:
 
 ```
-export VAGRANT_CLOUD_TOKEN=";$(hcp auth print-access-token)"
+export VAGRANT_CLOUD_TOKEN="$(hcp auth print-access-token)"
 ```
+
+Or, if using Vagrant v2.4.3 or later, by setting the `HCP_CLIENT_ID` and `HCP_CLIENT_SECRET` environment variables:
+
+```
+export HCP_CLIENT_ID="<CLIENT_ID>"`
+export HCP_CLIENT_SECRET="<CLIENT_SECRET>"`
+```
+
+If these variables are set, and the `VAGRANT_CLOUD_TOKEN` environment variable is unset, access tokens will be generated as needed when performing requests.
 
 # Packer
 
