@@ -14,7 +14,7 @@ require (
 	github.com/gorilla/handlers v1.5.1
 	github.com/h2non/filetype v1.1.3
 	github.com/hashicorp/go-argmapper v0.2.4
-	github.com/hashicorp/go-getter v1.7.1
+	github.com/hashicorp/go-getter v1.7.5
 	github.com/hashicorp/go-hclog v1.5.0
 	github.com/hashicorp/go-memdb v1.3.4
 	github.com/hashicorp/go-multierror v1.1.1
