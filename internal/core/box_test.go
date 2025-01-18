@@ -27,7 +27,7 @@ func hashicorpBionicBoxData() *vagrant_server.Box {
 		Version:     "0.0.282",
 		Directory:   "/tmp/boxes",
 		Metadata:    testMetadata,
-		MetadataUrl: "https://app.vagrantup.com/hashicorp/boxes/bionic64.json",
+		MetadataUrl: "https://vagrantcloud.com/hashicorp/boxes/bionic64.json",
 		Name:        "hashicorp/bionic64",
 		LastUpdate:  timestamppb.Now(),
 	}

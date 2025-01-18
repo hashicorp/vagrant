@@ -56,7 +56,7 @@ enabled_providers.each do |provider_name|
     box_path = File.join(File.dirname(__FILE__), "./boxes/#{guest_box.sub('/', '_')}.#{provider_name}.#{box_version}.box")
     if !File.exist?(box_path)
       $stderr.puts "Downloading guest box #{guest_box}"
-      cmd = "curl -Lf -o #{box_path} https://app.vagrantup.com/#{box_owner}/boxes/#{box_name}/versions/#{box_version}/providers/#{provider_name}.box"
+      cmd = "curl -Lf -o #{box_path} https://vagrantcloud.com/#{box_owner}/boxes/#{box_name}/versions/#{box_version}/providers/#{provider_name}.box"
       if vagrantcloud_token
         cmd += "?access_token=#{vagrantcloud_token}"
       end
