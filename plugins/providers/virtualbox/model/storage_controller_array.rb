@@ -35,7 +35,7 @@ module VagrantPlugins
 
           if !controller
             raise Vagrant::Errors::VirtualBoxDisksNoSupportedControllers,
-              supported_types: supported_types.join(" ,")
+              supported_types: supported_types.join(", ")
           end
 
           controller
@@ -67,7 +67,7 @@ module VagrantPlugins
           controller = ordered.first
           if !controller
             raise Vagrant::Errors::VirtualBoxDisksNoSupportedControllers,
-              supported_types: supported_types.join(" ,")
+              supported_types: supported_types.join(", ")
           end
 
           controller
