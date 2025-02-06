@@ -1,0 +1,14 @@
+# engineering and web presence get notified of, and can approve changes to web tooling, but not content.
+
+/website/               @hashicorp/web-presence @hashicorp/terraform-devex
+/website/data/
+/website/public/
+/website/content/
+
+# education and engineering get notified of, and can approve changes to web content.
+
+/website/data/          @hashicorp/team-docs-packer-and-terraform @hashicorp/terraform-devex
+/website/content/       @hashicorp/team-docs-packer-and-terraform @hashicorp/terraform-devex
+/website/public/        @hashicorp/team-docs-packer-and-terraform @hashicorp/terraform-devex
+/website/README.md      @hashicorp/team-docs-packer-and-terraform @hashicorp/terraform-devex
+/website/redirects.js   @hashicorp/team-docs-packer-and-terraform @hashicorp/terraform-devex
