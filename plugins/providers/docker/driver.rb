@@ -225,8 +225,9 @@ module VagrantPlugins
         execute('docker', 'rmi', id)
         return true
       rescue => e
-        return false if e.to_s.include?("is using it")
-        return false if e.to_s.include?("is being used")
+        return false if e.to_s.include?("is using it") or
+                        e.to_s.include?("is being used") or
+                        e.to_s.include?("is in use")
         raise if !e.to_s.include?("No such image")
       end
 
