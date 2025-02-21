@@ -91,7 +91,7 @@ Please check the [HashiCorp Status Site](http://status.hashicorp.com) for more i
 
 ## Creating a usable box from scratch
 
--> This assumes that you have a valid Vagrant Cloud authentication token. You can [create one via the API](#create-a-token), or [create one on the Vagrant Cloud website](https://app.vagrantup.com/settings/security).
+-> This assumes that you have a valid Vagrant Cloud authentication token. You can [create one via the API](#create-a-token), or [create one on the Vagrant Cloud website](https://vagrantcloud.com/settings/security).
 
 In order to create a usable box on Vagrant Cloud, perform the following steps:
 
@@ -112,7 +112,7 @@ curl \
   --request POST \
   --header "Content-Type: application/json" \
   --header "Authorization: Bearer $VAGRANT_CLOUD_TOKEN" \
-  https://app.vagrantup.com/api/v1/boxes \
+  https://vagrantcloud.com/api/v1/boxes \
   --data '{ "box": { "username": "myuser", "name": "test" } }'
 
 # Create a new version
@@ -121,7 +121,7 @@ curl \
   --request POST \
   --header "Content-Type: application/json" \
   --header "Authorization: Bearer $VAGRANT_CLOUD_TOKEN" \
-  https://app.vagrantup.com/api/v1/box/myuser/test/versions \
+  https://vagrantcloud.com/api/v1/box/myuser/test/versions \
   --data '{ "version": { "version": "1.2.3" } }'
 
 # Create a new provider
@@ -130,7 +130,7 @@ curl \
   --request POST \
   --header "Content-Type: application/json" \
   --header "Authorization: Bearer $VAGRANT_CLOUD_TOKEN" \
-  https://app.vagrantup.com/api/v1/box/myuser/test/version/1.2.3/providers \
+  https://vagrantcloud.com/api/v1/box/myuser/test/version/1.2.3/providers \
   --data '{ "provider": { "name": "virtualbox" } }'
 
 # Prepare the provider for upload/get an upload URL
@@ -138,7 +138,7 @@ curl \
 response=$(curl \
     --request GET \
     --header "Authorization: Bearer $VAGRANT_CLOUD_TOKEN" \
-    https://app.vagrantup.com/api/v1/box/myuser/test/version/1.2.3/provider/virtualbox/upload)
+    https://vagrantcloud.com/api/v1/box/myuser/test/version/1.2.3/provider/virtualbox/upload)
 
 # Extract the upload URL from the response (requires the jq command)
 
@@ -153,7 +153,7 @@ curl --request PUT "${upload_path}" --upload-file virtualbox-1.2.3.box
 curl \
   --request PUT \
   --header "Authorization: Bearer $VAGRANT_CLOUD_TOKEN" \
-  https://app.vagrantup.com/api/v1/box/myuser/test/version/1.2.3/release
+  https://vagrantcloud.com/api/v1/box/myuser/test/version/1.2.3/release
 
 ```
 
@@ -164,7 +164,7 @@ curl \
 # gem install http, or add `gem "http"` to your Gemfile
 require "http"
 
-api = HTTP.persistent("https://app.vagrantup.com").headers(
+api = HTTP.persistent("https://vagrantcloud.com").headers(
   "Content-Type" => "application/json",
   "Authorization" => "Bearer #{ENV['VAGRANT_CLOUD_TOKEN']}"
 )
@@ -232,7 +232,7 @@ Creates a new token for the given user.
 curl \
   --request POST \
   --header "Content-Type: application/json" \
-  https://app.vagrantup.com/api/v1/authenticate \
+  https://vagrantcloud.com/api/v1/authenticate \
   --data '
     {
       "token": {
@@ -253,7 +253,7 @@ curl \
 # gem install http, or add `gem "http"` to your Gemfile
 require "http"
 
-api = HTTP.persistent("https://app.vagrantup.com").headers(
+api = HTTP.persistent("https://vagrantcloud.com").headers(
 "Content-Type" => "application/json"
 )
 
@@ -298,7 +298,7 @@ Responds [`200 OK`](#200-ok) if the authentication request was successful, other
 curl \
   --request GET \
   --header "Authorization: Bearer $VAGRANT_CLOUD_TOKEN" \
-  https://app.vagrantup.com/api/v1/authenticate
+  https://vagrantcloud.com/api/v1/authenticate
 ```
 
 </Tab>
@@ -308,7 +308,7 @@ curl \
 # gem install http, or add `gem "http"` to your Gemfile
 require "http"
 
-api = HTTP.persistent("https://app.vagrantup.com").headers(
+api = HTTP.persistent("https://vagrantcloud.com").headers(
   "Authorization" => "Bearer #{ENV['VAGRANT_CLOUD_TOKEN']}"
 )
 
@@ -339,7 +339,7 @@ Responds [`204 OK`](#204-no-content) if the deletion request was successful, oth
 curl \
   --request DELETE \
   --header "Authorization: Bearer $VAGRANT_CLOUD_TOKEN" \
-  https://app.vagrantup.com/api/v1/authenticate
+  https://vagrantcloud.com/api/v1/authenticate
 ```
 
 </Tab>
@@ -349,7 +349,7 @@ curl \
 # gem install http, or add `gem "http"` to your Gemfile
 require "http"
 
-api = HTTP.persistent("https://app.vagrantup.com").headers(
+api = HTTP.persistent("https://vagrantcloud.com").headers(
   "Authorization" => "Bearer #{ENV['VAGRANT_CLOUD_TOKEN']}"
 )
 
@@ -388,7 +388,7 @@ Sends a 2FA code to the requested delivery method.
 curl \
   --request POST \
   --header "Content-Type: application/json" \
-  https://app.vagrantup.com/api/v1/two-factor/request-code \
+  https://vagrantcloud.com/api/v1/two-factor/request-code \
   --data '
     {
       "two_factor": {
@@ -409,7 +409,7 @@ curl \
 # gem install http, or add `gem "http"` to your Gemfile
 require "http"
 
-api = HTTP.persistent("https://app.vagrantup.com").headers(
+api = HTTP.persistent("https://vagrantcloud.com").headers(
   "Content-Type" => "application/json"
 )
 
@@ -453,7 +453,7 @@ end
 curl \
   --request GET \
   --header "Authorization: Bearer $VAGRANT_CLOUD_TOKEN" \
-  https://app.vagrantup.com/api/v1/user/myuser
+  https://vagrantcloud.com/api/v1/user/myuser
 ```
 
 </Tab>
@@ -463,7 +463,7 @@ curl \
 # gem install http, or add `gem "http"` to your Gemfile
 require "http"
 
-api = HTTP.persistent("https://app.vagrantup.com").headers(
+api = HTTP.persistent("https://vagrantcloud.com").headers(
   "Authorization" => "Bearer #{ENV['VAGRANT_CLOUD_TOKEN']}"
 )
 
@@ -517,7 +517,7 @@ end
 curl \
   --request GET \
   --header "Authorization: Bearer $VAGRANT_CLOUD_TOKEN" \
-  "https://app.vagrantup.com/api/v1/search?q=test&provider=virtualbox"
+  "https://vagrantcloud.com/api/v1/search?q=test&provider=virtualbox"
 ```
 
 </Tab>
@@ -527,7 +527,7 @@ curl \
 # gem install http, or add `gem "http"` to your Gemfile
 require "http"
 
-api = HTTP.persistent("https://app.vagrantup.com").headers(
+api = HTTP.persistent("https://vagrantcloud.com").headers(
   "Authorization" => "Bearer #{ENV['VAGRANT_CLOUD_TOKEN']}"
 )
 
@@ -572,8 +572,8 @@ end
         "created_at": "2017-10-20T15:23:17.184Z",
         "updated_at": "2017-10-20T15:23:53.355Z",
         "number": "1.2.3",
-        "release_url": "https://app.vagrantup.com/api/v1/box/myuser/test/version/1.2.3/release",
-        "revoke_url": "https://app.vagrantup.com/api/v1/box/myuser/test/version/1.2.3/revoke",
+        "release_url": "https://vagrantcloud.com/api/v1/box/myuser/test/version/1.2.3/release",
+        "revoke_url": "https://vagrantcloud.com/api/v1/box/myuser/test/version/1.2.3/revoke",
         "providers": [
           {
             "name": "virtualbox",
@@ -606,7 +606,7 @@ end
 curl \
   --request GET \
   --header "Authorization: Bearer $VAGRANT_CLOUD_TOKEN" \
-  https://app.vagrantup.com/api/v1/box/myuser/test
+  https://vagrantcloud.com/api/v1/box/myuser/test
 ```
 
 </Tab>
@@ -616,7 +616,7 @@ curl \
 # gem install http, or add `gem "http"` to your Gemfile
 require "http"
 
-api = HTTP.persistent("https://app.vagrantup.com").headers(
+api = HTTP.persistent("https://vagrantcloud.com").headers(
   "Authorization" => "Bearer #{ENV['VAGRANT_CLOUD_TOKEN']}"
 )
 
@@ -654,8 +654,8 @@ end
     "created_at": "2017-10-20T15:23:17.184Z",
     "updated_at": "2017-10-20T15:23:53.355Z",
     "number": "1.2.3",
-    "release_url": "https://app.vagrantup.com/api/v1/box/myuser/test/version/1.2.3/release",
-    "revoke_url": "https://app.vagrantup.com/api/v1/box/myuser/test/version/1.2.3/revoke",
+    "release_url": "https://vagrantcloud.com/api/v1/box/myuser/test/version/1.2.3/release",
+    "revoke_url": "https://vagrantcloud.com/api/v1/box/myuser/test/version/1.2.3/revoke",
     "providers": [
       {
         "name": "virtualbox",
@@ -677,8 +677,8 @@ end
       "created_at": "2017-10-20T15:23:17.184Z",
       "updated_at": "2017-10-20T15:23:53.355Z",
       "number": "1.2.3",
-      "release_url": "https://app.vagrantup.com/api/v1/box/myuser/test/version/1.2.3/release",
-      "revoke_url": "https://app.vagrantup.com/api/v1/box/myuser/test/version/1.2.3/revoke",
+      "release_url": "https://vagrantcloud.com/api/v1/box/myuser/test/version/1.2.3/release",
+      "revoke_url": "https://vagrantcloud.com/api/v1/box/myuser/test/version/1.2.3/revoke",
       "providers": [
         {
           "name": "virtualbox",
@@ -718,7 +718,7 @@ curl \
   --request POST \
   --header "Content-Type: application/json" \
   --header "Authorization: Bearer $VAGRANT_CLOUD_TOKEN" \
-  https://app.vagrantup.com/api/v1/boxes \
+  https://vagrantcloud.com/api/v1/boxes \
   --data '
     {
       "box": {
@@ -739,7 +739,7 @@ curl \
 # gem install http, or add `gem "http"` to your Gemfile
 require "http"
 
-api = HTTP.persistent("https://app.vagrantup.com").headers(
+api = HTTP.persistent("https://vagrantcloud.com").headers(
   "Content-Type" => "application/json",
   "Authorization" => "Bearer #{ENV['VAGRANT_CLOUD_TOKEN']}"
 )
@@ -792,7 +792,7 @@ curl \
   --request PUT \
   --header "Content-Type: application/json" \
   --header "Authorization: Bearer $VAGRANT_CLOUD_TOKEN" \
-  https://app.vagrantup.com/api/v1/box/myuser/test \
+  https://vagrantcloud.com/api/v1/box/myuser/test \
   --data '
     {
       "box": {
@@ -812,7 +812,7 @@ curl \
 # gem install http, or add `gem "http"` to your Gemfile
 require "http"
 
-api = HTTP.persistent("https://app.vagrantup.com").headers(
+api = HTTP.persistent("https://vagrantcloud.com").headers(
   "Content-Type" => "application/json",
   "Authorization" => "Bearer #{ENV['VAGRANT_CLOUD_TOKEN']}"
 )
@@ -851,7 +851,7 @@ end
 curl \
   --request DELETE \
   --header "Authorization: Bearer $VAGRANT_CLOUD_TOKEN" \
-  https://app.vagrantup.com/api/v1/box/myuser/test
+  https://vagrantcloud.com/api/v1/box/myuser/test
 ```
 
 </Tab>
@@ -861,7 +861,7 @@ curl \
 # gem install http, or add `gem "http"` to your Gemfile
 require "http"
 
-api = HTTP.persistent("https://app.vagrantup.com").headers(
+api = HTTP.persistent("https://vagrantcloud.com").headers(
   "Authorization" => "Bearer #{ENV['VAGRANT_CLOUD_TOKEN']}"
 )
 
@@ -898,7 +898,7 @@ Response body is identical to [Reading a box](#read-a-box).
 curl \
   --request GET \
   --header "Authorization: Bearer $VAGRANT_CLOUD_TOKEN" \
-  https://app.vagrantup.com/api/v1/box/myuser/test/version/1.2.3
+  https://vagrantcloud.com/api/v1/box/myuser/test/version/1.2.3
 ```
 
 </Tab>
@@ -908,7 +908,7 @@ curl \
 # gem install http, or add `gem "http"` to your Gemfile
 require "http"
 
-api = HTTP.persistent("https://app.vagrantup.com").headers(
+api = HTTP.persistent("https://vagrantcloud.com").headers(
   "Authorization" => "Bearer #{ENV['VAGRANT_CLOUD_TOKEN']}"
 )
 
@@ -937,8 +937,8 @@ end
   "created_at": "2017-10-20T15:23:17.184Z",
   "updated_at": "2017-10-20T15:23:53.355Z",
   "number": "1.2.3",
-  "release_url": "https://app.vagrantup.com/api/v1/box/myuser/test/version/1.2.3/release",
-  "revoke_url": "https://app.vagrantup.com/api/v1/box/myuser/test/version/1.2.3/revoke",
+  "release_url": "https://vagrantcloud.com/api/v1/box/myuser/test/version/1.2.3/release",
+  "revoke_url": "https://vagrantcloud.com/api/v1/box/myuser/test/version/1.2.3/revoke",
   "providers": [
     {
       "name": "virtualbox",
@@ -975,7 +975,7 @@ curl \
   --request POST \
   --header "Content-Type: application/json" \
   --header "Authorization: Bearer $VAGRANT_CLOUD_TOKEN" \
-  https://app.vagrantup.com/api/v1/box/myuser/test/versions \
+  https://vagrantcloud.com/api/v1/box/myuser/test/versions \
   --data '
     {
       "version": {
@@ -993,7 +993,7 @@ curl \
 # gem install http, or add `gem "http"` to your Gemfile
 require "http"
 
-api = HTTP.persistent("https://app.vagrantup.com").headers(
+api = HTTP.persistent("https://vagrantcloud.com").headers(
   "Content-Type" => "application/json",
   "Authorization" => "Bearer #{ENV['VAGRANT_CLOUD_TOKEN']}"
 )
@@ -1041,7 +1041,7 @@ curl \
   --request PUT \
   --header "Content-Type: application/json" \
   --header "Authorization: Bearer $VAGRANT_CLOUD_TOKEN" \
-  https://app.vagrantup.com/api/v1/box/myuser/test/version/1.2.3 \
+  https://vagrantcloud.com/api/v1/box/myuser/test/version/1.2.3 \
   --data '
     {
       "version": {
@@ -1059,7 +1059,7 @@ curl \
 # gem install http, or add `gem "http"` to your Gemfile
 require "http"
 
-api = HTTP.persistent("https://app.vagrantup.com").headers(
+api = HTTP.persistent("https://vagrantcloud.com").headers(
   "Content-Type" => "application/json",
   "Authorization" => "Bearer #{ENV['VAGRANT_CLOUD_TOKEN']}"
 )
@@ -1100,7 +1100,7 @@ Response body is identical to [Reading a version](#read-a-version).
 curl \
   --request DELETE \
   --header "Authorization: Bearer $VAGRANT_CLOUD_TOKEN" \
-  https://app.vagrantup.com/api/v1/box/myuser/test/version/1.2.3
+  https://vagrantcloud.com/api/v1/box/myuser/test/version/1.2.3
 ```
 
 </Tab>
@@ -1110,7 +1110,7 @@ curl \
 # gem install http, or add `gem "http"` to your Gemfile
 require "http"
 
-api = HTTP.persistent("https://app.vagrantup.com").headers(
+api = HTTP.persistent("https://vagrantcloud.com").headers(
   "Authorization" => "Bearer #{ENV['VAGRANT_CLOUD_TOKEN']}"
 )
 
@@ -1145,7 +1145,7 @@ Response body is identical to [Reading a version](#read-a-version).
 curl \
   --request PUT \
   --header "Authorization: Bearer $VAGRANT_CLOUD_TOKEN" \
-  https://app.vagrantup.com/api/v1/box/myuser/test/version/1.2.3/release
+  https://vagrantcloud.com/api/v1/box/myuser/test/version/1.2.3/release
 ```
 
 </Tab>
@@ -1155,7 +1155,7 @@ curl \
 # gem install http, or add `gem "http"` to your Gemfile
 require "http"
 
-api = HTTP.persistent("https://app.vagrantup.com").headers(
+api = HTTP.persistent("https://vagrantcloud.com").headers(
   "Authorization" => "Bearer #{ENV['VAGRANT_CLOUD_TOKEN']}"
 )
 
@@ -1190,7 +1190,7 @@ Response body is identical to [Reading a version](#read-a-version).
 curl \
   --request PUT \
   --header "Authorization: Bearer $VAGRANT_CLOUD_TOKEN" \
-  https://app.vagrantup.com/api/v1/box/myuser/test/version/1.2.3/revoke
+  https://vagrantcloud.com/api/v1/box/myuser/test/version/1.2.3/revoke
 ```
 
 </Tab>
@@ -1200,7 +1200,7 @@ curl \
 # gem install http, or add `gem "http"` to your Gemfile
 require "http"
 
-api = HTTP.persistent("https://app.vagrantup.com").headers(
+api = HTTP.persistent("https://vagrantcloud.com").headers(
   "Authorization" => "Bearer #{ENV['VAGRANT_CLOUD_TOKEN']}"
 )
 
@@ -1237,7 +1237,7 @@ Response body is identical to [Reading a version](#read-a-version).
 curl \
   --request GET \
   --header "Authorization: Bearer $VAGRANT_CLOUD_TOKEN" \
-  https://app.vagrantup.com/api/v1/box/myuser/test/version/1.2.3/provider/virtualbox
+  https://vagrantcloud.com/api/v1/box/myuser/test/version/1.2.3/provider/virtualbox
 ```
 
 </Tab>
@@ -1247,7 +1247,7 @@ curl \
 # gem install http, or add `gem "http"` to your Gemfile
 require "http"
 
-api = HTTP.persistent("https://app.vagrantup.com").headers(
+api = HTTP.persistent("https://vagrantcloud.com").headers(
   "Authorization" => "Bearer #{ENV['VAGRANT_CLOUD_TOKEN']}"
 )
 
@@ -1303,7 +1303,7 @@ curl \
   --request POST \
   --header "Content-Type: application/json" \
   --header "Authorization: Bearer $VAGRANT_CLOUD_TOKEN" \
-  https://app.vagrantup.com/api/v1/box/myuser/test/version/1.2.3/providers \
+  https://vagrantcloud.com/api/v1/box/myuser/test/version/1.2.3/providers \
   --data '
     {
       "provider": {
@@ -1323,7 +1323,7 @@ curl \
 # gem install http, or add `gem "http"` to your Gemfile
 require "http"
 
-api = HTTP.persistent("https://app.vagrantup.com").headers(
+api = HTTP.persistent("https://vagrantcloud.com").headers(
   "Content-Type" => "application/json",
   "Authorization" => "Bearer #{ENV['VAGRANT_CLOUD_TOKEN']}"
 )
@@ -1371,7 +1371,7 @@ curl \
   --request PUT \
   --header "Content-Type: application/json" \
   --header "Authorization: Bearer $VAGRANT_CLOUD_TOKEN" \
-  https://app.vagrantup.com/api/v1/box/myuser/test/version/1.2.3/provider/virtualbox \
+  https://vagrantcloud.com/api/v1/box/myuser/test/version/1.2.3/provider/virtualbox \
   --data '
     {
       "provider": {
@@ -1391,7 +1391,7 @@ curl \
 # gem install http, or add `gem "http"` to your Gemfile
 require "http"
 
-api = HTTP.persistent("https://app.vagrantup.com").headers(
+api = HTTP.persistent("https://vagrantcloud.com").headers(
   "Content-Type" => "application/json",
   "Authorization" => "Bearer #{ENV['VAGRANT_CLOUD_TOKEN']}"
 )
@@ -1432,7 +1432,7 @@ Response body is identical to [Reading a provider](#read-a-provider).
 curl \
   --request DELETE \
   --header "Authorization: Bearer $VAGRANT_CLOUD_TOKEN" \
-  https://app.vagrantup.com/api/v1/box/myuser/test/version/1.2.3/provider/virtualbox
+  https://vagrantcloud.com/api/v1/box/myuser/test/version/1.2.3/provider/virtualbox
 ```
 
 </Tab>
@@ -1442,7 +1442,7 @@ curl \
 # gem install http, or add `gem "http"` to your Gemfile
 require "http"
 
-api = HTTP.persistent("https://app.vagrantup.com").headers(
+api = HTTP.persistent("https://vagrantcloud.com").headers(
   "Authorization" => "Bearer #{ENV['VAGRANT_CLOUD_TOKEN']}"
 )
 
@@ -1481,7 +1481,7 @@ Prepares the provider for upload, and returns a JSON blob containing an `upload_
 response=$(curl \
   --request GET \
   --header "Authorization: Bearer $VAGRANT_CLOUD_TOKEN" \
-  https://app.vagrantup.com/api/v1/box/myuser/test/version/1.2.3/provider/virtualbox/upload)
+  https://vagrantcloud.com/api/v1/box/myuser/test/version/1.2.3/provider/virtualbox/upload)
 
 # Requires the jq command
 upload_path=$(echo "$response" | jq .upload_path)
@@ -1499,7 +1499,7 @@ curl \
 # gem install http, or add `gem "http"` to your Gemfile
 require "http"
 
-api = HTTP.persistent("https://app.vagrantup.com").headers(
+api = HTTP.persistent("https://vagrantcloud.com").headers(
   "Authorization" => "Bearer #{ENV['VAGRANT_CLOUD_TOKEN']}"
 )
 
@@ -1553,7 +1553,7 @@ provided in the `callback` field (complete with authentication header) finalizes
 response=$(curl \
   --request GET \
   --header "Authorization: Bearer $VAGRANT_CLOUD_TOKEN" \
-  https://app.vagrantup.com/api/v1/box/myuser/test/version/1.2.3/provider/virtualbox/upload/direct)
+  https://vagrantcloud.com/api/v1/box/myuser/test/version/1.2.3/provider/virtualbox/upload/direct)
 
 # Requires the jq command
 upload_path=$(echo "$response" | jq .upload_path)
@@ -1578,7 +1578,7 @@ curl
 require "http"
 require "uri"
 
-api = HTTP.persistent("https://app.vagrantup.com").headers(
+api = HTTP.persistent("https://vagrantcloud.com").headers(
   "Authorization" => "Bearer #{ENV['VAGRANT_CLOUD_TOKEN']}"
 )
 
@@ -1606,7 +1606,7 @@ end
 ```json
 {
   "upload_path": "https://remote-storage.example.com/bucket/630e42d9-2364-2412-4121-18266770468e?auth=9023wqfda",
-  "callback": "https://app.vagrantup.com/api/v1/box/myuser/test/version/1.2.3/provider/virtualbox/upload/direct/630e42d9-2364-2412-4121-18266770468e"
+  "callback": "https://vagrantcloud.com/api/v1/box/myuser/test/version/1.2.3/provider/virtualbox/upload/direct/630e42d9-2364-2412-4121-18266770468e"
 }
 ```
 
