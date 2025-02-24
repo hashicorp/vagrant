@@ -146,7 +146,19 @@ describe VagrantPlugins::CommandBox::Command::Outdated do
           "name": "foo",
           "versions": [
             {
-              "version": "1.0"
+              "version": "1.0",
+              "providers": [
+                {
+                  "name": "vmware",
+                  "architecture": "amd64",
+                  "url": "bar"
+                },
+                {
+                  "name": "virtualbox",
+                  "architecture": "unknown",
+                  "url": "foo"
+                }
+              ]
             },
             {
               "version": "1.1",
@@ -159,6 +171,11 @@ describe VagrantPlugins::CommandBox::Command::Outdated do
                 {
                   "name": "virtualbox",
                   "architecture": "unknown",
+                  "url": "foo"
+                },
+                {
+                  "name": "docker",
+                  "architecture": "amd64",
                   "url": "foo"
                 }
               ]
@@ -175,6 +192,11 @@ describe VagrantPlugins::CommandBox::Command::Outdated do
                   "name": "virtualbox",
                   "architecture": "unknown",
                   "url": "bat"
+                },
+                {
+                  "name": "docker",
+                  "architecture": "unknown",
+                  "url": "foo"
                 }
               ]
             }
@@ -184,61 +206,79 @@ describe VagrantPlugins::CommandBox::Command::Outdated do
         }
 
 
-      context "when latest version is available for provider with unknown architecture" do
-        let(:box) do
-          box_dir = test_iso_env.box3("foo", "1.0", :virtualbox, architecture: "arm64")
-          box = Vagrant::Box.new(
-            "foo", :virtualbox, "1.0", box_dir, metadata_url: "foo", architecture: "arm64")
-          allow(box).to receive(:load_metadata).and_return(md)
-          box
+        context "when latest version is available for provider with unknown architecture" do
+          let(:box) do
+            box_dir = test_iso_env.box3("foo", "1.0", :virtualbox)
+            box = Vagrant::Box.new(
+              "foo", :virtualbox, "1.0", box_dir, metadata_url: "foo")
+            allow(box).to receive(:load_metadata).and_return(md)
+            box
+          end
+
+          it "displays the latest version" do
+            allow(iso_env).to receive(:boxes).and_return(collection)
+
+            expect(I18n).to receive(:t).with(/box_outdated$/, hash_including(latest: "1.2"))
+
+            subject.outdated_global({})
+          end
         end
 
-        it "displays the latest version" do
-          allow(iso_env).to receive(:boxes).and_return(collection)
 
-          expect(I18n).to receive(:t).with(/box_outdated$/, hash_including(latest: "1.2"))
+        context "when latest version isn't available for provider with explicit architecture" do
+          let(:box) do
+            box_dir = test_iso_env.box3("foo", "1.0", :vmware, architecture: "amd64")
+            box = Vagrant::Box.new(
+              "foo", :vmware, "1.0", box_dir, metadata_url: "foo", architecture: "amd64")
+            allow(box).to receive(:load_metadata).and_return(md)
+            box
+          end
 
-          subject.outdated_global({})
+          it "displays the latest version" do
+            allow(iso_env).to receive(:boxes).and_return(collection)
+
+            expect(I18n).to receive(:t).with(/box_outdated$/, hash_including(latest: "1.1"))
+
+            subject.outdated_global({})
+          end
+        end
+
+        context "when no versions are available provider with explicit architecture" do
+          let(:box) do
+            box_dir = test_iso_env.box3("foo", "1.1", :vmware)
+            box = Vagrant::Box.new(
+              "foo", :vmware, "1.1", box_dir, metadata_url: "foo", architecture: "amd64")
+            allow(box).to receive(:load_metadata).and_return(md)
+            box
+          end
+
+          it "displays up to date message" do
+            allow(iso_env).to receive(:boxes).and_return(collection)
+
+            expect(I18n).to receive(:t).with(/box_up_to_date$/, hash_including(version: "1.1"))
+
+            subject.outdated_global({})
+          end
+        end
+
+        context "when newer version does not have an explicit architecture" do
+          let(:box) do
+            box_dir = test_iso_env.box3("foo", "1.1", :docker)
+            box = Vagrant::Box.new(
+              "foo", :docker, "1.1", box_dir, metadata_url: "foo", architecture: :auto)
+            allow(box).to receive(:load_metadata).and_return(md)
+            box
+          end
+
+          it "displays up to date message" do
+            allow(iso_env).to receive(:boxes).and_return(collection)
+
+            expect(I18n).to receive(:t).with(/box_up_to_date$/, hash_including(version: "1.1"))
+
+            subject.outdated_global({})
+          end
         end
       end
-
-
-      context "when latest version isn't available for provider with explicit architecture" do
-        let(:box) do
-          box_dir = test_iso_env.box3("foo", "1.0", :vmware, architecture: "amd64")
-          box = Vagrant::Box.new(
-            "foo", :vmware, "1.0", box_dir, metadata_url: "foo", architecture: "amd64")
-          allow(box).to receive(:load_metadata).and_return(md)
-          box
-        end
-
-        it "displays the latest version" do
-          allow(iso_env).to receive(:boxes).and_return(collection)
-
-          expect(I18n).to receive(:t).with(/box_outdated$/, hash_including(latest: "1.1"))
-
-          subject.outdated_global({})
-        end
-      end
-
-      context "when no versions are available provider with explicit architecture" do
-        let(:box) do
-          box_dir = test_iso_env.box3("foo", "1.1", :vmware)
-          box = Vagrant::Box.new(
-            "foo", :vmware, "1.1", box_dir, metadata_url: "foo", architecture: "amd64")
-          allow(box).to receive(:load_metadata).and_return(md)
-          box
-        end
-
-        it "displays up to date message" do
-          allow(iso_env).to receive(:boxes).and_return(collection)
-
-          expect(I18n).to receive(:t).with(/box_up_to_date$/, hash_including(version: "1.1"))
-
-          subject.outdated_global({})
-        end
-      end
-    end
     end
   end
 end

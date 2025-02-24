@@ -203,7 +203,8 @@ module Vagrant
       version += "> #{@version}"
       md      = self.load_metadata(download_options)
       newer   = md.version(version, provider: @provider, architecture: @architecture)
-      return nil if !newer
+      
+      return nil if newer == nil || !md.compatible_version_update?(@version, newer.version, provider: @provider, architecture: @architecture)
 
       [md, newer, newer.provider(@provider, @architecture)]
     end
