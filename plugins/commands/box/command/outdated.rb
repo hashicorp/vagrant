@@ -57,7 +57,6 @@ module VagrantPlugins
         end
 
         def outdated_global(download_options)
-          boxes = {}
           @env.boxes.all.reverse.each do |name, version, provider|
             box = @env.boxes.find(name, provider, version)
             if !box.metadata_url
@@ -81,7 +80,7 @@ module VagrantPlugins
             end
 
             current = Gem::Version.new(box.version)
-            box_versions = md.versions(provider: box.provider)
+            box_versions = md.versions(provider: box.provider, architecture: box.architecture)
 
             if box_versions.empty?
               latest_box_version = box_versions.last.to_i
