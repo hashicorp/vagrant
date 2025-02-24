@@ -149,10 +149,11 @@ module Vagrant
         # on architecture and return match if found. If
         # no match is found and architecture wasn't automatically
         # detected, return nil as an explicit match is
-        # being requested
+        # being requested. If the box architecture is unknown, return that as well.
         if arch_name
           match = @provider_map[name].detect do |p|
-            p.architecture == arch_name
+            p.architecture == arch_name || 
+              p.architecture == "unknown"
           end
 
           return match if match || architecture != :auto

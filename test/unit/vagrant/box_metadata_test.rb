@@ -292,6 +292,58 @@ describe Vagrant::BoxMetadata do
           expect(result).to be_nil
         end
       end
+
+      context "with unknown architecture" do 
+        let(:raw) do
+          {
+            name: "foo",
+            description: "bar",
+            versions: [
+              {
+                version: "1.0.0",
+                providers: [
+                  {
+                    name: "virtualbox",
+                    default_architecture: true,
+                    architecture: "amd64"
+                  },
+                  {
+                    name: "virtualbox",
+                    default_architecture: false,
+                    architecture: "arm64"
+                  },
+                  {
+                    name: "vmware",
+                    default_architecture: true,
+                    architecture: "arm64"
+                  },
+                  {
+                    name: "vmware",
+                    default_architecture: false,
+                    architecture: "amd64"
+                  }
+                ],
+              },
+              {
+                version: "2.0.0",
+                providers: [
+                  {
+                    name: "vmware",
+                    architecture: "unknown",
+                    default_architecture: true,
+                  }
+                ]
+              }
+            ]
+          }.to_json
+        end
+
+        it "matches the version despite host architecture" do 
+          result = subject.version("> 0", architecture: "arm64")
+          expect(result).to be_kind_of(Vagrant::BoxMetadata::Version)
+          expect(result.version).to eq("2.0.0")
+        end
+      end
     end
 
     describe "#versions" do

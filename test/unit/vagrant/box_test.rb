@@ -276,6 +276,40 @@ describe Vagrant::Box, :skip_windows do
         expect(result[2].url).to eq("bar")
       end
 
+      it "returns updated box if architecture is unknown" do
+        metadata = Vagrant::BoxMetadata.new(
+          {
+            name: "foo",
+            versions: [
+              {version: "1.0"},
+              {
+                version: "1.1",
+                providers: [
+                  {
+                    name: "virtualbox",
+                    url: "bar",
+                    architecture: "unknown",
+                  }
+                ]
+              }
+            ]
+          }.to_json
+        )
+
+        allow(subject).to receive(:load_metadata).and_return(metadata)
+
+        result = subject.has_update?
+        expect(result).to_not be_nil
+
+        expect(result[0]).to be_kind_of(Vagrant::BoxMetadata)
+        expect(result[1]).to be_kind_of(Vagrant::BoxMetadata::Version)
+        expect(result[2]).to be_kind_of(Vagrant::BoxMetadata::Provider)
+
+        expect(result[0].name).to eq("foo")
+        expect(result[1].version).to eq("1.1")
+        expect(result[2].url).to eq("bar")
+      end
+
       it "returns nil if update does not support architecture" do
         metadata = Vagrant::BoxMetadata.new(
           {
