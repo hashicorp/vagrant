@@ -59,11 +59,11 @@ module VagrantPlugins
         def outdated_global(download_options)
           @env.boxes.all.reverse.each do |name, version, provider|
             box = @env.boxes.find(name, provider, version)
-            if !box.metadata_url
+            if !box&.metadata_url
               @env.ui.output(I18n.t(
                 "vagrant.box_outdated_no_metadata",
-                name: box.name,
-                provider: box.provider))
+                name: name,
+                provider: provider))
               next
             end
 
