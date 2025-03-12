@@ -181,6 +181,8 @@ module VagrantPlugins
           raise Errors::SSLError, message: exception.message
         when HTTPClient::TimeoutError
           raise Errors::ConnectionTimeout, message: exception.message
+        when IO::TimeoutError
+          raise Errors::ConnectionTimeout
         when Errno::ETIMEDOUT
           raise Errors::ConnectionTimeout
           # This is raised if the connection timed out

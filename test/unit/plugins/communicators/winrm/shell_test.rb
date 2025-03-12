@@ -173,6 +173,12 @@ describe VagrantPlugins::CommunicatorWinRM::WinRMShell do
         expect(subject.cmd("dir").exitcode).to eq(0)
       end
     end
+
+    it "should catch timeout errors" do
+      expect(connection).to receive(:shell).with(:cmd, { })
+      expect(shell).to receive(:run).with("hostname").and_raise(IO::TimeoutError)
+      expect { subject.cmd("hostname") }.to raise_error(VagrantPlugins::CommunicatorWinRM::Errors::ConnectionTimeout)
+    end
   end
 
   describe ".wql" do
