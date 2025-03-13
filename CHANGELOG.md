@@ -7,6 +7,8 @@ IMPROVEMENTS:
 BUG FIXES:
 
 - command/box: Fix architecture constraints in outdated/updated command [GH-13601]
+- communicators/winrm: Catch IO::Timeout when waiting for communicator [GH-13606]
+- communicators/ssh: Catch IO::Timeout when waiting for communicator [GH-13606]
 
 VAGRANT-GO:
 
