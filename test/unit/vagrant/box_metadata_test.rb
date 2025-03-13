@@ -119,6 +119,46 @@ describe Vagrant::BoxMetadata do
         ["1.0.0", "1.1.0"])
     end
   end
+  
+  describe "#compatible_version_update?" do 
+    let(:raw) do
+      {
+        name: "foo",
+        description: "bar",
+        versions: [
+          {
+            version: "1.0.0",
+            providers: [
+              { name: "virtualbox" },
+              { name: "vmware" }
+            ],
+          },
+          {
+            version: "1.1.5",
+            providers: [
+              { name: "virtualbox" }
+            ]
+          },
+          {
+            version: "1.1.0",
+            providers: [
+              { name: "virtualbox" },
+              { name: "vmware" }
+            ]
+          }
+        ]
+      }.to_json
+    end
+
+    it "is compatible if current version is older than new version" do
+      expect(subject.compatible_version_update?("1.0.0", "1.1.0", provider: "virtualbox")).to be true
+      expect(subject.compatible_version_update?("1.1.5", "1.1.0", provider: "virtualbox")).to be false
+    end
+
+    it "is compatible if architecture is set and isn't defined in metadata" do
+      expect(subject.compatible_version_update?("1.0.0", "1.1.0", provider: "virtualbox", architecture: :auto)).to be true
+    end
+  end
 
   context "with architecture" do
     let(:raw) do
@@ -325,6 +365,94 @@ describe Vagrant::BoxMetadata do
       end
     end
 
+    describe "#compatible_version_update?" do
+      let(:raw) do
+        {
+          name: "foo",
+          description: "bar",
+          versions: [
+            {
+              version: "1.0.0",
+              providers: [
+                {
+                  name: "vmware",
+                  default_architecture: true,
+                  architecture: "arm64"
+                },
+                {
+                  name: "docker",
+                  default_architecture: true,
+                  architecture: "unknown"
+                },
+                {
+                  name: "virtualbox",
+                  default_architecture: true,
+                  architecture: "unknown"
+                },
+                {
+                  name: "other",
+                  default_architecture: true,
+                  architecture: "amd64"
+                }
+              ]
+            },
+            {
+              version: "2.0.0",
+              providers: [
+                {
+                  name: "vmware",
+                  architecture: "arm64",
+                  default_architecture: true,
+                },
+                {
+                  name: "docker",
+                  default_architecture: true,
+                  architecture: "unknown"
+                },
+                {
+                  name: "virtualbox",
+                  default_architecture: true,
+                  architecture: "amd64"
+                },
+                {
+                  name: "other",
+                  default_architecture: true,
+                  architecture: "unknown"
+                },
+                {
+                  name: "missing",
+                  default_architecture: true,
+                  architecture: "unknown"
+                }
+              ]
+            }
+          ]
+        }.to_json
+      end
+
+      it "is compatible if architectures match" do
+        expect(subject.compatible_version_update?("1.0.0", "2.0.0", provider: "vmware", architecture: "arm64")).to be true
+      end
+
+      it "is compatible if current arch is unknown, but newer arch matches system" do
+        expect(subject.compatible_version_update?("1.0.0", "2.0.0", provider: "virtualbox", architecture: :auto)).to be true
+      end
+
+      it "is compatible if current architecture is unknown" do
+        expect(subject.compatible_version_update?("1.0.0", "2.0.0", provider: "docker", architecture: :auto)).to be true
+      end
+
+      it "is compatible if current_version is not available from metadata" do
+        expect(subject.compatible_version_update?("1.0.0", "2.0.0", provider: "missing", architecture: :auto)).to be true
+      end
+
+      it "is not compatible if current architecture is defined, but newer architecture is unknown" do
+        expect(subject.compatible_version_update?("1.0.0", "2.0.0", provider: "other", architecture: :auto)).to be false
+      end
+      it "is compatible if current architecture is defined, but newer architecture is unknown, and architecture is set to nil" do
+        expect(subject.compatible_version_update?("1.0.0", "2.0.0", provider: "other", architecture: nil)).to be true
+      end
+    end
   end
 end
 

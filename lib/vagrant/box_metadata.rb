@@ -116,6 +116,29 @@ module Vagrant
       }.keys.sort.map(&:to_s)
     end
 
+    def compatible_version_update?(current_version, new_version, **opts) 
+      return false if Gem::Version.new(new_version) <= Gem::Version.new(current_version)
+
+      architecture = opts[:architecture]
+      provider = opts[:provider]
+      # If the specific provider isn't available, there is nothing further to check for compatibility
+      return true if provider.nil?
+
+      # If the current_provider isn't found in the metadata, it cannot be compared against. Default to allowing updates
+      current_provider  = version(current_version.to_s, provider: provider, architecture: architecture)&.provider(provider, architecture)
+      return true if current_provider.nil? 
+
+      # If the new provider isn't found, the new version isn't compatible
+      new_provider = version(new_version.to_s, provider: provider, architecture: architecture)&.provider(provider, architecture)
+      return false if new_provider.nil?
+
+      # Disallow updates from a known architecture to an unknown architecture, because it can not be verified, unless architecture is explicitly set to `nil`
+      return false if !architecture.nil? &&  new_provider.architecture == "unknown" && current_provider.architecture != "unknown"
+
+      # New version is compatible
+      return true
+    end 
+
     # Represents a single version within the metadata.
     class Version
       # The version that this Version object represents.
