@@ -6,6 +6,8 @@ IMPROVEMENTS:
 
 BUG FIXES:
 
+- command/box: Fix architecture constraints in outdated/updated command [GH-13601]
+
 VAGRANT-GO:
 
 ## 2.4.3 (November 12, 2024)
