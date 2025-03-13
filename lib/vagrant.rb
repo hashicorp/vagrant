@@ -11,6 +11,7 @@ Vagrant.require "log4r"
 Vagrant.require "vagrant/patches/log4r"
 Vagrant.require "vagrant/patches/net-ssh"
 Vagrant.require "vagrant/patches/rubygems"
+Vagrant.require "vagrant/patches/timeout_error"
 
 # Set our log levels and include trace
 Vagrant.require 'log4r/configurator'

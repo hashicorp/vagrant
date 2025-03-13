@@ -539,7 +539,7 @@ module VagrantPlugins
         rescue Errno::EACCES
           # This happens on connect() for unknown reasons yet...
           raise Vagrant::Errors::SSHConnectEACCES
-        rescue Errno::ETIMEDOUT, Timeout::Error
+        rescue Errno::ETIMEDOUT, Timeout::Error, IO::TimeoutError
           # This happens if we continued to timeout when attempting to connect.
           raise Vagrant::Errors::SSHConnectionTimeout
         rescue Net::SSH::AuthenticationFailed
