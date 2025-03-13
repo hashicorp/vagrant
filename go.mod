@@ -5,7 +5,7 @@ go 1.20
 require (
 	github.com/armon/circbuf v0.0.0-20190214190532-5111143e8da2
 	github.com/bmatcuk/doublestar v1.3.4
-	github.com/fatih/color v1.15.0
+	github.com/fatih/color v1.16.0
 	github.com/fatih/structs v1.1.0
 	github.com/fatih/structtag v1.2.0
 	github.com/glebarez/sqlite v1.8.0
@@ -15,11 +15,11 @@ require (
 	github.com/h2non/filetype v1.1.3
 	github.com/hashicorp/go-argmapper v0.2.4
 	github.com/hashicorp/go-getter v1.7.1
-	github.com/hashicorp/go-hclog v1.5.0
+	github.com/hashicorp/go-hclog v1.6.3
 	github.com/hashicorp/go-memdb v1.3.4
 	github.com/hashicorp/go-multierror v1.1.1
 	github.com/hashicorp/go-plugin v1.4.10
-	github.com/hashicorp/go-retryablehttp v0.7.4
+	github.com/hashicorp/go-retryablehttp v0.7.7
 	github.com/hashicorp/go-version v1.6.0
 	github.com/hashicorp/hcl/v2 v2.17.0
 	github.com/hashicorp/vagrant-plugin-sdk v0.0.0-20230908002302-5b51f0768f72
@@ -42,7 +42,7 @@ require (
 	github.com/stretchr/testify v1.8.4
 	github.com/zclconf/go-cty v1.13.2
 	github.com/zclconf/go-cty-yaml v1.0.3
-	golang.org/x/sys v0.8.0
+	golang.org/x/sys v0.20.0
 	golang.org/x/text v0.9.0
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20230530153820-e85fd2cbaebc
 	google.golang.org/grpc v1.56.2
@@ -115,7 +115,7 @@ require (
 	github.com/kylelemons/godebug v1.1.0 // indirect
 	github.com/lab47/vterm v0.0.0-20211107042118-80c3d2849f9c // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect
-	github.com/mattn/go-isatty v0.0.19 // indirect
+	github.com/mattn/go-isatty v0.0.20 // indirect
 	github.com/mattn/go-runewidth v0.0.14 // indirect
 	github.com/mitchellh/copystructure v1.2.0 // indirect
 	github.com/mitchellh/reflectwalk v1.0.2 // indirect
