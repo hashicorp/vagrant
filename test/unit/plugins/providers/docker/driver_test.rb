@@ -579,6 +579,15 @@ describe VagrantPlugins::DockerProvider::Driver do
         subject.rmi(id)
       end
     end
+
+    context 'image is in use by a container' do
+      before { allow(subject).to receive(:execute).and_raise("image is in use by a container") }
+
+      it 'does not remove the image' do
+        expect(subject.rmi(id)).to eq(false)
+        subject.rmi(id)
+      end
+    end
   end
 
   describe '#inspect_container' do
