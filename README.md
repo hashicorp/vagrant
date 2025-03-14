@@ -1,3 +1,6 @@
+**NOTE** This branch contains the alpha vagrant-go implementation. Work on the implementation
+was de-prioritized and is now no longer being actively moved forward. 
+
 # Vagrant
 
 - Website: [https://www.vagrantup.com/](https://www.vagrantup.com/)
