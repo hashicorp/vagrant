@@ -16,7 +16,17 @@ This command validates your [Vagrantfile](/vagrant/docs/vagrantfile/).
 
 ## Examples
 
+Validate the syntax of the Vagrantfile to ensure it is correctly structured and free of errors
+
 ```shell-session
 $ vagrant validate
+Vagrantfile validated successfully.
+```
+
+Ensure that the Vagrantfile is correctly structured while ignoring provider-specific configuration options:
+
+```shell-session
+$ vagrant validate --ignore-provider virtualbox
+==> default: Ignoring provider config for validation...
 Vagrantfile validated successfully.
 ```
