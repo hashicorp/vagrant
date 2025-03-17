@@ -23,8 +23,6 @@ module Vagrant
   class Guest
     include CapabilityHost
 
-    autoload :Remote, "vagrant/guest/remote"
-
     def initialize(machine, guests, capabilities)
       @capabilities = capabilities
       @guests       = guests

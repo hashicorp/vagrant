@@ -10,7 +10,6 @@ Vagrant.require "vagrant/util/safe_puts"
 
 module Vagrant
   module UI
-    autoload :Remote, "vagrant/ui/remote"
     # Vagrant UIs handle communication with the outside world (typically
     # through a shell). They must respond to the following methods:
     #

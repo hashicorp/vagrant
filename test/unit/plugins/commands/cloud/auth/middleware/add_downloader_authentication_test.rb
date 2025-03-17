@@ -26,6 +26,7 @@ describe VagrantPlugins::CloudCommand::AddDownloaderAuthentication do
     allow(Vagrant).to receive(:server_url).and_return(server_url)
     stub_env("ATLAS_TOKEN" => nil)
     stub_env("VAGRANT_SERVER_ACCESS_TOKEN_BY_URL" => nil)
+    VagrantPlugins::CloudCommand::Client.class_variable_set(:@@client, nil)
   end
 
   describe "#call" do

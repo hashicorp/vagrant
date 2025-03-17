@@ -1746,8 +1746,6 @@ en:
         Path: %{path}
         Line number: %{line}
         Message: %{message}
-      vagrant_remote_error: |-
-        %{msg}
       vagrantfile_syntax_error: |-
         There is a syntax error in the following Vagrantfile. The syntax error
         message is reproduced below for convenience:

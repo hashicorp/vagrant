@@ -3,11 +3,6 @@
 
 module Vagrant
   module Util
-    module Remote
-      autoload :SafePuts, 'vagrant/util/remote/safe_puts'
-      autoload :SSH, 'vagrant/util/remote/ssh'
-    end
-
     autoload :ANSIEscapeCodeRemover,     'vagrant/util/ansi_escape_code_remover'
     autoload :Busy,                      'vagrant/util/busy'
     autoload :Caps,                      'vagrant/util/caps'

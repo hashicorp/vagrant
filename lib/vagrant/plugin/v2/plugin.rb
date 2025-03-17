@@ -32,21 +32,6 @@ module Vagrant
           @_manager ||= Manager.new
         end
 
-        def self.remote_manager
-          @_remote_manager ||= Remote::Manager.new(local_manager)
-        end
-
-        def self.enable_remote_manager(client, core_client: nil)
-          Remote::Manager.client = client
-          Remote::Manager.core_client = core_client
-          @manager = remote_manager
-        end
-
-        def self.disable_remote_manager
-          Remote::Manager.client = nil
-          @manager = local_manager
-        end
-
         # Returns the {Components} for this plugin.
         #
         # @return [Components]

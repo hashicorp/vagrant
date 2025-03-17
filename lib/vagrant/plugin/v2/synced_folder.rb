@@ -49,8 +49,6 @@ module Vagrant
 
         include CapabilityHost
 
-        autoload :Remote, "vagrant/plugin/v2/synced_folder/remote"
-
         # This is called early when the synced folder is set to determine
         # if this implementation can be used for this machine. This should
         # return true or false.

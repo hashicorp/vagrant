@@ -19,9 +19,6 @@ module Vagrant
       # provide shell execution. This sort of thing will come in a future
       # version.
       class Communicator
-
-        autoload :Remote, "vagrant/plugin/remote/communicator"
-        
         # This returns true/false depending on if the given machine
         # can be communicated with using this communicator. If this returns
         # `true`, then this class will be used as the primary communication
