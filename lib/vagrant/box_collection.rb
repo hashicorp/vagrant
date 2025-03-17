@@ -18,8 +18,6 @@ module Vagrant
     VAGRANT_SLASH = "-VAGRANTSLASH-".freeze
     VAGRANT_COLON = "-VAGRANTCOLON-".freeze
 
-    autoload :Remote, "vagrant/box_collection/remote"
-
     # The directory where the boxes in this collection are stored.
     #
     # A box collection matches a very specific folder structure that Vagrant

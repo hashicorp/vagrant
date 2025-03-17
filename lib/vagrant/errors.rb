@@ -967,10 +967,6 @@ module Vagrant
       error_key(:vagrantfile_name_error)
     end
 
-    class VagrantRemoteError < VagrantError
-      error_key(:vagrant_remote_error)
-    end
-
     class VagrantfileSyntaxError < VagrantError
       error_key(:vagrantfile_syntax_error)
     end

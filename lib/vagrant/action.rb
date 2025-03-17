@@ -14,11 +14,6 @@ module Vagrant
     # Builtin contains middleware classes that are shipped with Vagrant-core
     # and are thus available to all plugins as a "standard library" of sorts.
     module Builtin
-      module Remote
-        autoload :MixinSyncedFolders, "vagrant/action/builtin/remote/mixin_synced_folders"
-        autoload :SSHRun, "vagrant/action/builtin/remote/ssh_run"
-      end
-
       autoload :BoxAdd,    "vagrant/action/builtin/box_add"
       autoload :BoxCheckOutdated, "vagrant/action/builtin/box_check_outdated"
       autoload :BoxRemove, "vagrant/action/builtin/box_remove"

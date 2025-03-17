@@ -22,8 +22,6 @@ module Vagrant
   # etc. In day-to-day usage, every `vagrant` invocation typically
   # leads to a single Vagrant environment.
   class Environment
-    autoload :Remote, "vagrant/environment/remote"
-
     # This is the current version that this version of Vagrant is
     # compatible with in the home directory.
     #

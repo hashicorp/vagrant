@@ -52,7 +52,7 @@ module VagrantPlugins
 
       # Execute the script, raising an exception if it fails.
       def execute!(*cmd)
-        if Vagrant::Util::Platform.windows? || Vagrant.server_mode?
+        if Vagrant::Util::Platform.windows?
           execute_subprocess!(*cmd)
         else
           execute_exec!(*cmd)
@@ -84,7 +84,7 @@ module VagrantPlugins
           end
         end
 
-        Kernel.exit(result.exit_code) unless Vagrant.server_mode?
+        Kernel.exit(result.exit_code)
       end
     end
   end

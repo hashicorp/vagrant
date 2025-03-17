@@ -12,8 +12,6 @@ module Vagrant
   class Host
     include CapabilityHost
 
-    autoload :Remote, "vagrant/host/remote"
-
     def initialize(host, hosts, capabilities, env)
       initialize_capabilities!(host, hosts, capabilities, env)
     end

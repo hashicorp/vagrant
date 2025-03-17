@@ -15,8 +15,6 @@ module Vagrant
   # loading the configuration of a specific machine/provider combo,
   # etc.
   class Vagrantfile
-    autoload :Remote, "vagrant/vagrantfile/remote"
-
     # This is the configuration loaded as-is given the loader and
     # keys to #initialize.
     attr_reader :config

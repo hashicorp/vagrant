@@ -1,8 +1,0 @@
-#!/nix/store/ilgf30winx4zw3acm5pk79cvhzkjch0f-bash-4.4-p23/bin/bash
-#
-# An example hook script to prepare a packed repository for use over
-# dumb transports.
-#
-# To enable this hook, rename this file to "post-update".
-
-exec git update-server-info

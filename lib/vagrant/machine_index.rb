@@ -40,7 +40,6 @@ module Vagrant
   #   }
   #
   class MachineIndex
-    autoload :Remote, "vagrant/machine_index/remote"
 
     include Enumerable
 
@@ -359,8 +358,6 @@ module Vagrant
 
     # An entry in the MachineIndex.
     class Entry
-      autoload :Remote, "vagrant/machine_index/remote"
-
       # The unique ID for this entry. This is _not_ the ID for the
       # machine itself (which is provider-specific and in the data directory).
       #

@@ -8,9 +8,6 @@ module Vagrant
   # it should have, a description of it, the versions it has, and
   # more.
   class BoxMetadata
-
-    autoload :Remote, "vagrant/box_metadata/remote"
-
     # The name that the box should be if it is added.
     #
     # @return [String]

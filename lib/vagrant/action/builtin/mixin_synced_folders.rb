@@ -9,8 +9,6 @@ module Vagrant
   module Action
     module Builtin
       module MixinSyncedFolders
-        autoload :Remote, "vagrant/action/builtin/remote/mixin_synced_folders"
-
         include Vagrant::Util::ScopedHashOverride
 
         # This goes over all the registered synced folder types and returns

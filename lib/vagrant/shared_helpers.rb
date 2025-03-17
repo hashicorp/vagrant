@@ -278,7 +278,7 @@ module Vagrant
 
       # Activate the gem
       gem(dependency.name, dependency.requirement.as_list)
-puts "Activated: #{dependency.name}"
+
       @_vagrant_activated_dependencies[dependency.name] = true
     end
 
@@ -287,87 +287,4 @@ puts "Activated: #{dependency.name}"
 
     nil
   end
-
-  # Check if Vagrant is running in server mode
-  #
-  # @return [Boolean]
-  def self.server_mode?
-    !!@_server_mode
-  end
-
-  # Flag Vagrant as running in server mode
-  #
-  # @return [true]
-  def self.enable_server_mode!
-    if !server_mode?
-      Util::HCLogOutputter.new("hclog")
-      Log4r::Outputter["hclog"].formatter = Util::HCLogFormatter.new
-      Log4r::Outputter.stderr.formatter = Log4r::Outputter["hclog"].formatter
-      Log4r::RootLogger.instance.outputters = Log4r::Outputter["hclog"]
-      Log4r::Logger.each_logger do |l|
-        l.outputters = Log4r::Outputter["hclog"] #if l.parent&.is_root?
-      end
-
-      Log4r::Logger::Repository.class_eval do
-        def self.[]=(n, l)
-          self.synchronize do
-            l.outputters = Log4r::Outputter["hclog"] # if l.parent&.is_root?
-            instance.loggers[n] = l
-          end
-        end
-      end
-
-      # By default only display error logs from the mappers unless explicitly
-      # requested due to their verbosity
-      if ENV["VAGRANT_LOG_MAPPER"].to_s == ""
-        l = Log4r::Logger.factory("vagrantplugins::commandserve::mappers")
-        l.level = Log4r::ERROR
-      end
-    end
-    Log4r::Logger.factory("vagrant").trace("service logger initialization")
-    Log4r::Logger.factory("vagrantplugins").trace("service logger initialization")
-
-    load_vagrant_proto!
-    SERVER_MODE_CALLBACKS.each(&:call)
-
-    @_server_mode = true
-  end
-
-  # Load the vagrant proto messages
-  def self.load_vagrant_proto!
-    return if @_vagrant_proto_loaded
-    # Update the load path so our protos can be located
-    $LOAD_PATH << Vagrant.source_root.join("lib/vagrant/protobufs").to_s
-    $LOAD_PATH << Vagrant.source_root.join("lib/vagrant/protobufs/proto").to_s
-    $LOAD_PATH << Vagrant.source_root.join("lib/vagrant/protobufs/proto/vagrant_plugin_sdk").to_s
-
-    # Load our protos so they are available
-    require 'vagrant/protobufs/proto/vagrant_server/server_pb'
-    require 'vagrant/protobufs/proto/vagrant_server/server_services_pb'
-    require 'vagrant/protobufs/proto/ruby_vagrant/ruby-server_pb'
-    require 'vagrant/protobufs/proto/ruby_vagrant/ruby-server_services_pb'
-    require 'vagrant/protobufs/proto/vagrant_plugin_sdk/plugin_pb'
-    require 'vagrant/protobufs/proto/vagrant_plugin_sdk/plugin_services_pb'
-    require 'vagrant/protobufs/proto/plugin/grpc_broker_pb'
-    require 'vagrant/protobufs/proto/plugin/grpc_broker_services_pb'
-    @_vagrant_proto_loaded = true
-  end
-
-  SERVER_MODE_CALLBACKS = [
-    ->{ Vagrant::Box.prepend(Vagrant::Box::Remote) },
-    ->{ Vagrant::BoxCollection.prepend(Vagrant::BoxCollection::Remote) },
-    ->{ Vagrant::BoxMetadata.prepend(Vagrant::BoxMetadata::Remote) },
-    ->{ Vagrant::Guest.prepend(Vagrant::Guest::Remote) },
-    ->{ Vagrant::Host.prepend(Vagrant::Host::Remote) },
-    ->{ Vagrant::Machine.prepend(Vagrant::Machine::Remote) },
-    ->{ Vagrant::Environment.prepend(Vagrant::Environment::Remote) },
-    ->{ Vagrant::MachineIndex.prepend(Vagrant::MachineIndex::Remote) },
-    ->{ Vagrant::MachineIndex::Entry.prepend(Vagrant::MachineIndex::Entry::Remote::InstanceMethods) },
-    ->{ Vagrant::MachineIndex::Entry.extend(Vagrant::MachineIndex::Entry::Remote::ClassMethods) },
-    ->{ Vagrant::Action::Builtin::MixinSyncedFolders.prepend(Vagrant::Action::Builtin::Remote::MixinSyncedFolders) },
-    ->{ Vagrant::Action::Builtin::SSHRun.prepend(Vagrant::Action::Builtin::Remote::SSHRun) },
-    ->{ Vagrant::Vagrantfile.prepend(Vagrant::Vagrantfile::Remote) },
-    ->{ Vagrant::Util::SSH.prepend(Vagrant::Util::Remote::SSH) },
-    ->{ Vagrant::Util::SafePuts.prepend(Vagrant::Util::Remote::SafePuts) },
-  ].freeze
 end

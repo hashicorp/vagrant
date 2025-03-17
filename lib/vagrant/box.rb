@@ -19,8 +19,6 @@ module Vagrant
   class Box
     include Comparable
 
-    autoload :Remote, "vagrant/box/remote"
-
     # The required fields in a boxes `metadata.json` file
     REQUIRED_METADATA_FIELDS = ["provider"]
 
