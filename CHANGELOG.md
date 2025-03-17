@@ -13,6 +13,8 @@ BUG FIXES:
 
 VAGRANT-GO:
 
+- Removed with work archived to vagrant-go branch [GH-13622]
+
 ## 2.4.3 (November 12, 2024)
 
 IMPROVEMENTS:
