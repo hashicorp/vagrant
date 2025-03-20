@@ -1,0 +1,41 @@
+[connection]
+id=<%= options[:interface_name] %>
+uuid=<%= options[:uuid] %>
+type=ethernet
+autoconnect-priority=-100
+autoconnect-retries=1
+interface-name=<%= options[:interface_name] %>
+
+[ethernet]
+<% if options[:mac_address] -%>
+mac-address=<%= options[:mac_address] %>
+<% end -%>
+
+<% if options[:ipv4] -%>
+[ipv4]
+<% if options[:type] == "dhcp" -%>
+dhcp-timeout=90
+method=auto
+required-timeout=20000
+<% elsif options[:ipv4] -%>
+method=manual
+addresses=<%= options[:ipv4] %>/<%= options[:ipv4_mask] %>
+gateway=<%= options[:ipv4_gateway] %>
+<% end -%>
+<% end -%>
+
+<% if options[:ipv6] -%>
+[ipv6]
+<% if options[:type] == "dhcp" -%>
+addr-gen-mode=eui64
+dhcp-timeout=90
+method=auto
+<% elsif options[:ipv6] -%>
+method=manual
+addresses=<%= options[:ipv6] %>/<%= options[:ipv6_mask] %>
+gateway=<%= options[:ipv6_gateway] %>
+<% end -%>
+<% end -%>
+
+[user]
+org.freedesktop.NetworkManager.origin=vagrant

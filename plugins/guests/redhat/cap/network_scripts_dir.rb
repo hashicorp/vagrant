@@ -6,7 +6,11 @@ module VagrantPlugins
     module Cap
       class NetworkScriptsDir
         def self.network_scripts_dir(machine)
-          "/etc/sysconfig/network-scripts"
+          if machine.communicate.test("test -d /etc/sysconfig/network-scripts")
+            "/etc/sysconfig/network-scripts"
+          else
+            "/etc/NetworkManager/system-connections"
+          end
         end
       end
     end
