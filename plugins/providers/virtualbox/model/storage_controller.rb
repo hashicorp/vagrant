@@ -9,7 +9,7 @@ module VagrantPlugins
       class StorageController
         IDE_CONTROLLER_TYPES = ["PIIX4", "PIIX3", "ICH6"].map(&:freeze).freeze
         SATA_CONTROLLER_TYPES = ["IntelAhci"].map(&:freeze).freeze
-        SCSI_CONTROLLER_TYPES = [ "LsiLogic", "BusLogic"].map(&:freeze).freeze
+        SCSI_CONTROLLER_TYPES = ["LsiLogic", "BusLogic", "VirtioSCSI"].map(&:freeze).freeze
 
         IDE_DEVICES_PER_PORT = 2.freeze
         SATA_DEVICES_PER_PORT = 1.freeze
