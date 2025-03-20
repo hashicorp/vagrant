@@ -4,6 +4,7 @@ FEATURES:
 
 IMPROVEMENTS:
 
+- host/darwin: Remove HFS from ISO creation [GH-13561]
 - provider/virtualbox: Add VirtioSCSI storage controller support [GH-13587]
 
 BUG FIXES:
