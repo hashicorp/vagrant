@@ -27,7 +27,7 @@ describe VagrantPlugins::HostDarwin::Cap::FsISO do
 
     it "builds an iso" do
       expect(Vagrant::Util::Subprocess).to receive(:execute).with(
-        "hdiutil", "makehybrid", "-hfs", "-iso", "-joliet", "-ov", "-o", /.iso/, /\/foo\/src/
+        "hdiutil", "makehybrid", "-iso", "-joliet", "-ov", "-o", /.iso/, /\/foo\/src/
       ).and_return(double(exit_code: 0))
       expect(FileUtils).to receive(:mkdir_p).with(Pathname.new(file_destination).dirname)
 
@@ -37,7 +37,7 @@ describe VagrantPlugins::HostDarwin::Cap::FsISO do
 
     it "builds an iso with volume_id" do
       expect(Vagrant::Util::Subprocess).to receive(:execute).with(
-        "hdiutil", "makehybrid", "-hfs", "-iso", "-joliet", "-ov", "-default-volume-name", "cidata", "-o", /.iso/, /\/foo\/src/
+        "hdiutil", "makehybrid", "-iso", "-joliet", "-ov", "-default-volume-name", "cidata", "-o", /.iso/, /\/foo\/src/
       ).and_return(double(exit_code: 0))
       expect(FileUtils).to receive(:mkdir_p).with(Pathname.new(file_destination).dirname)
 
@@ -47,7 +47,7 @@ describe VagrantPlugins::HostDarwin::Cap::FsISO do
 
     it "builds an iso given a file destination without an extension" do
       expect(Vagrant::Util::Subprocess).to receive(:execute).with(
-        "hdiutil", "makehybrid", "-hfs", "-iso", "-joliet", "-ov", "-o", /.iso/, /\/foo\/src/
+        "hdiutil", "makehybrid", "-iso", "-joliet", "-ov", "-o", /.iso/, /\/foo\/src/
       ).and_return(double(exit_code: 0))
       expect(FileUtils).to receive(:mkdir_p).with(Pathname.new("/woo/out_dir"))
 
@@ -61,7 +61,7 @@ describe VagrantPlugins::HostDarwin::Cap::FsISO do
       allow(file_destination).to receive(:path).and_return(file_destination)
       allow(file_destination).to receive(:delete)
       expect(Vagrant::Util::Subprocess).to receive(:execute).with(
-        "hdiutil", "makehybrid", "-hfs", "-iso", "-joliet", "-ov", "-o", /.iso/, /\/foo\/src/
+        "hdiutil", "makehybrid", "-iso", "-joliet", "-ov", "-o", /.iso/, /\/foo\/src/
       ).and_return(double(exit_code: 0))
       # Should create a directory wherever Tempfile creates files by default
       expect(FileUtils).to receive(:mkdir_p).with(Pathname.new(file_destination).dirname)

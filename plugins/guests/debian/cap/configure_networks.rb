@@ -68,7 +68,7 @@ module VagrantPlugins
             renderer = "networkd"
             ethernets.keys.each do |k|
               if nm_controlled?(comm, k)
-                render = "NetworkManager"
+                renderer = "NetworkManager"
                 if !nmcli?(comm)
                   raise Vagrant::Errors::NetworkManagerNotInstalled, device: k
                 end
@@ -94,7 +94,6 @@ module VagrantPlugins
 
         # Configure guest networking using networkd
         def self.configure_networkd(machine, interfaces, comm, networks)
-          root_device = interfaces.first
           networks.each do |network|
             dev_name = interfaces[network[:interface]]
             net_conf = []
