@@ -4,6 +4,8 @@ FEATURES:
 
 IMPROVEMENTS:
 
+- provider/virtualbox: Add VirtioSCSI storage controller support [GH-13587]
+
 BUG FIXES:
 
 - command/box: Fix architecture constraints in outdated/updated command [GH-13601]
