@@ -143,7 +143,6 @@ describe VagrantPlugins::Kernel_V2::SSHConnectConfig do
         to eq(described_class.const_get(:DEFAULT_SSH_CONNECT_TIMEOUT))
     end
 
-
     it "should be set to provided value" do
       subject.connect_timeout = timeout_value
       subject.finalize!
@@ -187,6 +186,125 @@ describe VagrantPlugins::Kernel_V2::SSHConnectConfig do
 
       it "should not validate" do
         subject.connnect_timeout = timeout_value
+        subject.finalize!
+        expect(subject.validate(machine)).not_to be_empty
+      end
+    end
+  end
+
+  describe "#connect_retries" do
+    let(:retry_value) { 1 }
+
+    it "should default to the default value" do
+      subject.finalize!
+      expect(subject.connect_retries).
+        to eq(described_class.const_get(:DEFAULT_SSH_CONNECT_RETRIES))
+    end
+
+    it "should be set to the provided value" do
+      subject.connect_retries = retry_value
+      subject.finalize!
+      expect(subject.connect_retries).to eq(retry_value)
+    end
+
+    it "should properly validate" do
+      subject.connect_retries = retry_value
+      subject.finalize!
+      expect(subject.validate(machine)).to be_empty
+    end
+
+    context "when value is a float" do
+      let(:retry_value) { 2.3 }
+
+      it "should not raise an error" do
+        subject.connect_retries = retry_value
+        expect { subject.finalize! }.not_to raise_error
+      end
+
+      it "should not validate" do
+        subject.connect_retries = retry_value
+        subject.finalize!
+        expect(subject.validate(machine)).not_to be_empty
+      end
+    end
+
+    context "when value is not numeric" do
+      let(:retry_value) { "2" }
+
+      it "should not raise an error" do
+        subject.connect_retries = retry_value
+        expect { subject.finalize! }.not_to raise_error
+      end
+
+      it "should not validate" do
+        subject.connect_retries = retry_value
+        subject.finalize!
+        expect(subject.validate(machine)).not_to be_empty
+      end
+    end
+
+    context "when value is less than 0" do
+      let(:retry_value) { -1 }
+
+      it "should not validate" do
+        subject.connect_retries = retry_value
+        subject.finalize!
+        expect(subject.validate(machine)).not_to be_empty
+      end
+    end
+  end
+
+  describe "#connect_retry_delay" do
+    let(:delay_value) { 1 }
+
+    it "should default to the default value" do
+      subject.finalize!
+      expect(subject.connect_retry_delay).
+        to eq(described_class.const_get(:DEFAULT_SSH_CONNECT_RETRY_DELAY))
+    end
+
+    it "should be set to the provided value" do
+      subject.connect_retry_delay = delay_value
+      subject.finalize!
+      expect(subject.connect_retry_delay).to eq(delay_value)
+    end
+
+    it "should properly validate" do
+      subject.connect_retry_delay = delay_value
+      subject.finalize!
+      expect(subject.validate(machine)).to be_empty
+    end
+
+    context "when value is a float" do
+      let(:delay_value) { 2.3 }
+
+      it "should validate" do
+        subject.connect_retry_delay = delay_value
+        subject.finalize!
+        expect(subject.validate(machine)).to be_empty
+      end
+    end
+
+    context "when value is not numeric" do
+      let(:delay_value) { "2" }
+
+      it "should not raise an error" do
+        subject.connect_retry_delay = delay_value
+        expect { subject.finalize! }.not_to raise_error
+      end
+
+      it "should not validate" do
+        subject.connect_retry_delay = delay_value
+        subject.finalize!
+        expect(subject.validate(machine)).not_to be_empty
+      end
+    end
+
+    context "when value is less than 0" do
+      let(:delay_value) { -1 }
+
+      it "should not validate" do
+        subject.connect_retry_delay = delay_value
         subject.finalize!
         expect(subject.validate(machine)).not_to be_empty
       end

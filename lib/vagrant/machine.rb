@@ -487,6 +487,8 @@ module Vagrant
       info[:forward_x11] = @config.ssh.forward_x11
       info[:forward_env] = @config.ssh.forward_env
       info[:connect_timeout] = @config.ssh.connect_timeout
+      info[:connect_retries] = @config.ssh.connect_retries
+      info[:connect_retry_delay] = @config.ssh.connect_retry_delay
 
       info[:ssh_command] = @config.ssh.ssh_command if @config.ssh.ssh_command
 

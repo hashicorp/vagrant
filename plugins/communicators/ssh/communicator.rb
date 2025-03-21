@@ -458,7 +458,8 @@ module VagrantPlugins
         raise Vagrant::Errors::SSHNotReady if ssh_info.nil?
 
         # Default some options
-        opts[:retries] = 5 if !opts.key?(:retries)
+        opts[:retries] = ssh_info[:connect_retries] if !opts.key?(:retries)
+        opts[:retry_delay] = ssh_info[:connect_retry_delay] if !opts.key?(:retry_delay)
 
         # Set some valid auth methods. We disable the auth methods that
         # we're not using if we don't have the right auth info.
@@ -487,7 +488,7 @@ module VagrantPlugins
           timeout = 60
 
           @logger.info("Attempting SSH connection...")
-          connection = retryable(tries: opts[:retries], on: SSH_RETRY_EXCEPTIONS) do
+          connection = retryable(tries: opts[:retries], on: SSH_RETRY_EXCEPTIONS, sleep: opts[:retry_delay]) do
             Timeout.timeout(timeout) do
               begin
                 # This logger will get the Net-SSH log data for us.
