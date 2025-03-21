@@ -12,12 +12,13 @@ Gem::Specification.new do |s|
   s.summary       = "Build and distribute virtualized development environments."
   s.description   = "Vagrant is a tool for building and distributing virtualized development environments."
 
-  s.required_ruby_version     = ">= 3.0", "< 3.4"
+  s.required_ruby_version     = ">= 3.0", "< 3.5"
   s.required_rubygems_version = ">= 1.3.6"
 
   s.add_dependency "base64", "~> 0.2.0"
   s.add_dependency "bcrypt_pbkdf", "~> 1.1"
-  s.add_dependency "childprocess", "~> 5.0.0"
+  s.add_dependency "childprocess", "~> 5.1"
+  s.add_dependency "csv", "~> 3.3"
   s.add_dependency "ed25519", "~> 1.3.0"
   s.add_dependency "erubi"
   s.add_dependency 'googleapis-common-protos-types', '~> 1.3'
