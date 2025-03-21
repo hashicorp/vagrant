@@ -21,6 +21,12 @@ defaults are typically fine, but you can fine tune whatever you would like.
   compression setting when ssh'ing into a machine. If this is not set, it will
   default to `true` and `Compression=yes` will be enabled with ssh.
 
+- `config.ssh.connect_retries` (integer) - Number of times to attempt to establish an
+  an SSH connection to the guest. Defaults to `5`.
+
+- `config.ssh.connect_retry_delay` (numeric) - Number of seconds to wait between
+  retries when attempting to establish an SSH connection to the guest. Defaults to `2`.
+
 - `config.ssh.connect_timeout` (integer) - Number of seconds to wait for establishing
   an SSH connection to the guest. Defaults to `15`.
 

@@ -4,11 +4,15 @@
 module VagrantPlugins
   module Kernel_V2
     class SSHConnectConfig < Vagrant.plugin("2", :config)
+      DEFAULT_SSH_CONNECT_RETRIES = 5
+      DEFAULT_SSH_CONNECT_RETRY_DELAY = 2
       DEFAULT_SSH_CONNECT_TIMEOUT = 15
 
       attr_accessor :host
       attr_accessor :port
       attr_accessor :config
+      attr_accessor :connect_retries
+      attr_accessor :connect_retry_delay
       attr_accessor :connect_timeout
       attr_accessor :private_key_path
       attr_accessor :username
@@ -28,6 +32,8 @@ module VagrantPlugins
         @host             = UNSET_VALUE
         @port             = UNSET_VALUE
         @config           = UNSET_VALUE
+        @connect_retries  = UNSET_VALUE
+        @connect_retry_delay = UNSET_VALUE
         @connect_timeout  = UNSET_VALUE
         @private_key_path = UNSET_VALUE
         @username         = UNSET_VALUE
@@ -61,6 +67,8 @@ module VagrantPlugins
         @config           = nil if @config == UNSET_VALUE
         @disable_deprecated_algorithms = false if @disable_deprecated_algorithms == UNSET_VALUE
         @connect_timeout  = DEFAULT_SSH_CONNECT_TIMEOUT if @connect_timeout == UNSET_VALUE
+        @connect_retries  = DEFAULT_SSH_CONNECT_RETRIES if @connect_retries == UNSET_VALUE
+        @connect_retry_delay = DEFAULT_SSH_CONNECT_RETRY_DELAY if @connect_retry_delay == UNSET_VALUE
 
         if @private_key_path && !@private_key_path.is_a?(Array)
           @private_key_path = [@private_key_path]
@@ -145,6 +153,30 @@ module VagrantPlugins
           errors << I18n.t(
             "vagrant.config.ssh.connect_timeout_invalid_value",
             given: @connect_timeout.to_s)
+        end
+
+        if !@connect_retries.is_a?(Integer)
+          errors << I18n.t(
+            "vagrant.config.ssh.connect_retries_invalid_type",
+            given: @connect_retries.class.name
+          )
+        elsif @connect_retries < 0
+          errors << I18n.t(
+            "vagrant.config.ssh.connect_retries_invalid_value",
+            given: @connect_retries.to_s
+          )
+        end
+
+        if !@connect_retry_delay.is_a?(Numeric)
+          errors << I18n.t(
+            "vagrant.config.ssh.connect_retry_delay_invalid_type",
+            given: @connect_retry_delay.class.name
+          )
+        elsif @connect_retry_delay < 0
+          errors << I18n.t(
+            "vagrant.config.ssh.connect_retry_delay_invalid_value",
+            given: @connect_retry_delay.to_s
+          )
         end
 
         if @key_type != :auto && !Vagrant::Util::Keypair.valid_type?(@key_type)

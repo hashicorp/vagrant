@@ -2070,7 +2070,17 @@ en:
           The `connect_timeout` key only accepts values of Integer type. Received
           `%{given}` type which cannot be converted to an Integer type.
         connect_timeout_invalid_value: |-
-          The `connect_timeout` key only accepts values greater than 1 (received `%{given}`)
+          The `connect_timeout` key only accepts values greater than or equal to 1 (received `%{given}`)
+        connect_retries_invalid_type: |-
+          The `connect_retries` key only accepts values of Integer type. Received
+          `%{given}` type which cannot be converted to an Integer type.
+        connect_retries_invalid_value: |-
+          The `connect_retries` key only accepts values greater than or equal to 0 (received `%{given}`)
+        connect_retry_delay_invalid_type: |-
+          The `connect_retry_delay` key only accepts values of Numeric type. Received
+          `%{given}` type which cannot be converted to a Numeric type.
+        connect_retry_delay_invalid_value: |-
+          The `connect_retry_delay` key only accepts values greater than or equal to 0 (received `%{given}`)
         connect_invalid_key_type: |-
           Invalid SSH key type set ('%{given}'). Supported types: %{supported}
       triggers:

@@ -1028,6 +1028,74 @@ describe VagrantPlugins::CommunicatorSSH::Communicator do
         communicator.send(:connect)
       end
     end
+
+    context "with connect_retries configured" do
+      before do
+        expect(machine).to receive(:ssh_info).and_return(
+          host: '127.0.0.1',
+          port: 2222,
+          connect_retries: 3
+        )
+      end
+
+      it "should retry the connect three times" do
+        expect(Net::SSH).to receive(:start).and_raise(Errno::EACCES).twice
+        expect(Net::SSH).to receive(:start)
+
+        communicator.send(:connect)
+      end
+
+      it "should override from passed options" do
+        expect(Net::SSH).to receive(:start).and_raise(Errno::EACCES).thrice
+        expect(Net::SSH).to receive(:start)
+
+        communicator.send(:connect, retries: 4)
+      end
+    end
+
+    context "with connect_retry_delay configured" do
+      let(:retries) { 3 }
+      let(:sleep_delay) { 5 }
+
+      before do
+        expect(machine).to receive(:ssh_info).and_return(
+          host: '127.0.0.1',
+          port: 2222,
+          connect_retries: retries,
+          connect_retry_delay: sleep_delay
+        )
+      end
+
+      it "should sleep twice while retrying" do
+        expect(Net::SSH).to receive(:start).and_raise(Errno::EACCES).twice
+        expect(Net::SSH).to receive(:start)
+
+        expect(communicator).to receive(:sleep).with(sleep_delay).twice
+
+        communicator.send(:connect)
+      end
+
+      it "should overrride from passed options" do
+        expect(Net::SSH).to receive(:start).and_raise(Errno::EACCES).twice
+        expect(Net::SSH).to receive(:start)
+
+        expect(communicator).to receive(:sleep).with(20).twice
+
+        communicator.send(:connect, retry_delay: 20)
+      end
+
+      context "when no retries are configured" do
+        let(:retries) { 0 }
+
+        it "should not sleep" do
+          expect(Net::SSH).to receive(:start).and_raise(Errno::EACCES)
+          expect(communicator).not_to receive(:sleep)
+
+          expect { communicator.send(:connect) }.to raise_error(Vagrant::Errors::SSHConnectEACCES)
+        end
+      end
+
+    end
   end
 
   describe "#insecure_key?" do
