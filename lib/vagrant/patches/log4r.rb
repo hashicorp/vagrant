@@ -6,7 +6,7 @@
 # information should be included in the output, we
 # make some modifications to allow the trace check to
 # still work while also supporting trace as a valid level
-Vagrant.require "log4r/loggerfactory"
+require "log4r/loggerfactory"
 
 if !Log4r::Logger::LoggerFactory.respond_to?(:fake_define_methods)
   class Log4r::Logger::LoggerFactory

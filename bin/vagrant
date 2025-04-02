@@ -187,12 +187,6 @@ begin
     argv += argv_extra
   end
 
-  sub_cmd = Class.new(Vagrant.plugin("2", :command)) {
-    def sub_command
-      split_main_and_subcommand(@argv)[1]
-    end
-  }.new(argv.dup, nil).sub_command
-
   # Create the environment, which is the cwd of wherever the
   # `vagrant` command was invoked from
   logger.debug("Creating Vagrant environment")
@@ -209,9 +203,17 @@ begin
     end
   end
 
-  if !Vagrant.in_installer? && !Vagrant.very_quiet?
-    # If we're not in the installer, warn.
-    env.ui.warn(I18n.t("vagrant.general.not_in_installer") + "\n", prefix: false)
+  # If not being run from the installer, check if expected tools
+  # are available.
+  if !Vagrant.in_installer?
+    missing_tools = Vagrant.detect_missing_tools
+
+    if !missing_tools.empty?
+      env.ui.warn(
+        I18n.t("vagrant.general.not_in_installer", tools: missing_tools.sort.join(", ")) + "\n",
+        prefix: false
+      )
+    end
   end
 
   # Acceptable experimental flag values include:

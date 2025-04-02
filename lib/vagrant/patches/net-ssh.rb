@@ -1,8 +1,8 @@
 # Copyright (c) HashiCorp, Inc.
 # SPDX-License-Identifier: BUSL-1.1
 
-Vagrant.require "net/ssh"
-Vagrant.require "net/ssh/buffer"
+require "net/ssh"
+require "net/ssh/buffer"
 
 # Set the version requirement for when net-ssh should be patched
 NET_SSH_PATCH_REQUIREMENT = Gem::Requirement.new(">= 7.0.0", "<= 7.3")

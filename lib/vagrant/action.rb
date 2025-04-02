@@ -1,7 +1,7 @@
 # Copyright (c) HashiCorp, Inc.
 # SPDX-License-Identifier: BUSL-1.1
 
-Vagrant.require 'vagrant/action/builder'
+require 'vagrant/action/builder'
 
 module Vagrant
   module Action

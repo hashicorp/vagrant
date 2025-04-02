@@ -1,17 +1,17 @@
 # Copyright (c) HashiCorp, Inc.
 # SPDX-License-Identifier: BUSL-1.1
 
-Vagrant.require "pathname"
-Vagrant.require "securerandom"
-Vagrant.require "set"
+require "pathname"
+require "securerandom"
+require "set"
 
-Vagrant.require "vagrant"
-Vagrant.require "vagrant/action/builtin/mixin_synced_folders"
-Vagrant.require "vagrant/config/v2/util"
-Vagrant.require "vagrant/util/platform"
-Vagrant.require "vagrant/util/presence"
-Vagrant.require "vagrant/util/experimental"
-Vagrant.require "vagrant/util/map_command_options"
+require "vagrant"
+require "vagrant/action/builtin/mixin_synced_folders"
+require "vagrant/config/v2/util"
+require "vagrant/util/platform"
+require "vagrant/util/presence"
+require "vagrant/util/experimental"
+require "vagrant/util/map_command_options"
 
 require File.expand_path("../vm_provisioner", __FILE__)
 require File.expand_path("../vm_subvm", __FILE__)

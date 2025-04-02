@@ -1,9 +1,9 @@
 # Copyright (c) HashiCorp, Inc.
 # SPDX-License-Identifier: BUSL-1.1
 
-Vagrant.require "fileutils"
-Vagrant.require 'optparse'
-Vagrant.require "pathname"
+require "fileutils"
+require 'optparse'
+require "pathname"
 
 module VagrantPlugins
   module CommandBox

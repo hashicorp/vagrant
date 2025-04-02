@@ -1,9 +1,9 @@
 # Copyright (c) HashiCorp, Inc.
 # SPDX-License-Identifier: BUSL-1.1
 
-Vagrant.require 'optparse'
+require 'optparse'
 
-Vagrant.require "vagrant/action/builtin/mixin_synced_folders"
+require "vagrant/action/builtin/mixin_synced_folders"
 
 require_relative "../helper"
 

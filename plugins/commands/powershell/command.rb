@@ -1,7 +1,7 @@
 # Copyright (c) HashiCorp, Inc.
 # SPDX-License-Identifier: BUSL-1.1
 
-Vagrant.require "optparse"
+require "optparse"
 
 require "vagrant/util/powershell"
 require_relative "../../communicators/winrm/helper"

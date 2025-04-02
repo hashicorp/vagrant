@@ -1,12 +1,12 @@
 # Copyright (c) HashiCorp, Inc.
 # SPDX-License-Identifier: BUSL-1.1
 
-Vagrant.require "log4r"
+require "log4r"
 
 # We don't autoload components because if we're loading anything in the
 # V2 namespace anyways, then we're going to need the Components class.
-Vagrant.require "vagrant/plugin/v2/components"
-Vagrant.require "vagrant/plugin/v2/errors"
+require "vagrant/plugin/v2/components"
+require "vagrant/plugin/v2/errors"
 
 module Vagrant
   module Plugin

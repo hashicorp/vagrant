@@ -1,8 +1,8 @@
 # Copyright (c) HashiCorp, Inc.
 # SPDX-License-Identifier: BUSL-1.1
 
-Vagrant.require 'open-uri'
-Vagrant.require 'digest'
+require 'open-uri'
+require 'digest'
 
 require_relative "./errors"
 

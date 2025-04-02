@@ -1,11 +1,11 @@
 # Copyright (c) HashiCorp, Inc.
 # SPDX-License-Identifier: BUSL-1.1
 
-Vagrant.require "base64"
-Vagrant.require "ed25519"
-Vagrant.require "securerandom"
+require "base64"
+require "ed25519"
+require "securerandom"
 
-Vagrant.require "vagrant/util/retryable"
+require "vagrant/util/retryable"
 
 module Vagrant
   module Util

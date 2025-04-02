@@ -1,7 +1,7 @@
 # Copyright (c) HashiCorp, Inc.
 # SPDX-License-Identifier: BUSL-1.1
 
-Vagrant.require 'optparse'
+require 'optparse'
 
 require_relative "base"
 require_relative "mixin_install_opts"

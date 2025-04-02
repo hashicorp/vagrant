@@ -1,8 +1,8 @@
 # Copyright (c) HashiCorp, Inc.
 # SPDX-License-Identifier: BUSL-1.1
 
-Vagrant.require 'json'
-Vagrant.require 'optparse'
+require 'json'
+require 'optparse'
 
 require Vagrant.source_root.join("plugins/commands/up/start_mixins")
 

@@ -1,8 +1,8 @@
 # Copyright (c) HashiCorp, Inc.
 # SPDX-License-Identifier: BUSL-1.1
 
-Vagrant.require "fileutils"
-Vagrant.require "shellwords"
+require "fileutils"
+require "shellwords"
 
 require_relative "../../../synced_folders/unix_mount_helpers"
 
