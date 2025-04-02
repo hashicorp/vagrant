@@ -1,17 +1,17 @@
 # Copyright (c) HashiCorp, Inc.
 # SPDX-License-Identifier: BUSL-1.1
 
-Vagrant.require "log4r"
-Vagrant.require 'optparse'
-Vagrant.require "thread"
+require "log4r"
+require 'optparse'
+require "thread"
 
-Vagrant.require "vagrant/action/builtin/mixin_synced_folders"
-Vagrant.require "vagrant/util/busy"
-Vagrant.require "vagrant/util/platform"
+require "vagrant/action/builtin/mixin_synced_folders"
+require "vagrant/util/busy"
+require "vagrant/util/platform"
 
 require_relative "../helper"
 
-Vagrant.require "listen"
+require "listen"
 
 module VagrantPlugins
   module SyncedFolderRSync

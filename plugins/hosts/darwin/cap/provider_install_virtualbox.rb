@@ -1,12 +1,12 @@
 # Copyright (c) HashiCorp, Inc.
 # SPDX-License-Identifier: BUSL-1.1
 
-Vagrant.require "pathname"
-Vagrant.require "tempfile"
+require "pathname"
+require "tempfile"
 
-Vagrant.require "vagrant/util/downloader"
-Vagrant.require "vagrant/util/file_checksum"
-Vagrant.require "vagrant/util/subprocess"
+require "vagrant/util/downloader"
+require "vagrant/util/file_checksum"
+require "vagrant/util/subprocess"
 
 module VagrantPlugins
   module HostDarwin

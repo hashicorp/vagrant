@@ -132,19 +132,19 @@ describe "vagrant bin" do
 
     before do
       expect(Vagrant).to receive(:in_installer?).and_return(false)
-      allow(I18n).to receive(:t).with(/not_in_installer/).and_return(warning)
+      allow(I18n).to receive(:t).with(/not_in_installer/, any_args).and_return(warning)
     end
 
-    context "when vagrant is not very quiet" do
-      before { expect(Vagrant).to receive(:very_quiet?).and_return(false) }
+    context "when tool is missing" do
+      before { expect(Vagrant).to receive(:detect_missing_tools).and_return(["tool"]) }
 
       it "should output a warning" do
         expect(env.ui).to receive(:warn).with(/#{warning}/, any_args)
       end
     end
 
-    context "when vagrant is very quiet" do
-      before { expect(Vagrant).to receive(:very_quiet?).and_return(true) }
+    context "when tool is not missing" do
+      before { expect(Vagrant).to receive(:detect_missing_tools).and_return([]) }
 
       it "should not output a warning" do
         expect(env.ui).not_to receive(:warn).with(/#{warning}/, any_args)

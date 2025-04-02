@@ -1,10 +1,10 @@
 # Copyright (c) HashiCorp, Inc.
 # SPDX-License-Identifier: BUSL-1.1
 
-Vagrant.require "fileutils"
-Vagrant.require "ipaddr"
-Vagrant.require "shellwords"
-Vagrant.require "tmpdir"
+require "fileutils"
+require "ipaddr"
+require "shellwords"
+require "tmpdir"
 
 require "vagrant/util/platform"
 require "vagrant/util/subprocess"

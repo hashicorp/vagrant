@@ -1,9 +1,9 @@
 # Copyright (c) HashiCorp, Inc.
 # SPDX-License-Identifier: BUSL-1.1
 
-Vagrant.require "log4r"
-Vagrant.require "tempfile"
-Vagrant.require "timeout"
+require "log4r"
+require "tempfile"
+require "timeout"
 
 require_relative "helper"
 require_relative "shell"

@@ -1,13 +1,13 @@
 # Copyright (c) HashiCorp, Inc.
 # SPDX-License-Identifier: BUSL-1.1
 
-Vagrant.require 'fileutils'
-Vagrant.require 'thread'
-Vagrant.require 'zlib'
+require 'fileutils'
+require 'thread'
+require 'zlib'
 
-Vagrant.require "log4r"
+require "log4r"
 
-Vagrant.require "vagrant/util/platform"
+require "vagrant/util/platform"
 
 module VagrantPlugins
   module SyncedFolderNFS

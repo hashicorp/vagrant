@@ -1,10 +1,10 @@
 # Copyright (c) HashiCorp, Inc.
 # SPDX-License-Identifier: BUSL-1.1
 
-Vagrant.require "json"
-Vagrant.require "log4r"
+require "json"
+require "log4r"
 
-Vagrant.require "vagrant/util/powershell"
+require "vagrant/util/powershell"
 
 require_relative "plugin"
 

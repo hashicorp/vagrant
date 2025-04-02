@@ -1,8 +1,8 @@
 # Copyright (c) HashiCorp, Inc.
 # SPDX-License-Identifier: BUSL-1.1
 
-Vagrant.require "set"
-Vagrant.require "log4r"
+require "set"
+require "log4r"
 
 module Vagrant
   module Plugin

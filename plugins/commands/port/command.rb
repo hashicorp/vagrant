@@ -3,7 +3,7 @@
 
 require "vagrant/util/presence"
 
-Vagrant.require "optparse"
+require "optparse"
 
 module VagrantPlugins
   module CommandPort

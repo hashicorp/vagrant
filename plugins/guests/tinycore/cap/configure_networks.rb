@@ -1,7 +1,7 @@
 # Copyright (c) HashiCorp, Inc.
 # SPDX-License-Identifier: BUSL-1.1
 
-Vagrant.require "ipaddr"
+require "ipaddr"
 
 module VagrantPlugins
   module GuestTinyCore

@@ -1,10 +1,10 @@
 # Copyright (c) HashiCorp, Inc.
 # SPDX-License-Identifier: BUSL-1.1
 
-Vagrant.require "log4r"
-Vagrant.require "securerandom"
+require "log4r"
+require "securerandom"
 
-Vagrant.require "vagrant/util/numeric"
+require "vagrant/util/numeric"
 
 module VagrantPlugins
   module Kernel_V2

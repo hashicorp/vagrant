@@ -1,9 +1,9 @@
 # Copyright (c) HashiCorp, Inc.
 # SPDX-License-Identifier: BUSL-1.1
 
-Vagrant.require "vagrant_cloud"
-Vagrant.require "vagrant/util/downloader"
-Vagrant.require "vagrant/util/presence"
+require "vagrant_cloud"
+require "vagrant/util/downloader"
+require "vagrant/util/presence"
 
 require Vagrant.source_root.join("plugins/commands/cloud/errors")
 

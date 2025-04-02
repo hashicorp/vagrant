@@ -1,7 +1,7 @@
 # Copyright (c) HashiCorp, Inc.
 # SPDX-License-Identifier: BUSL-1.1
 
-Vagrant.require "vagrant/plugin/manager"
+require "vagrant/plugin/manager"
 
 module VagrantPlugins
   module CommandPlugin

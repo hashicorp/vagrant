@@ -1,9 +1,9 @@
 # Copyright (c) HashiCorp, Inc.
 # SPDX-License-Identifier: BUSL-1.1
 
-Vagrant.require "json"
-Vagrant.require "set"
-Vagrant.require 'vagrant/util/scoped_hash_override'
+require "json"
+require "set"
+require 'vagrant/util/scoped_hash_override'
 
 module Vagrant
   module Action

@@ -1,7 +1,7 @@
 # Copyright (c) HashiCorp, Inc.
 # SPDX-License-Identifier: BUSL-1.1
 
-Vagrant.require "json"
+require "json"
 
 module Vagrant
   # BoxMetadata represents metadata about a box, including the name

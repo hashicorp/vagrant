@@ -1,11 +1,11 @@
 # Copyright (c) HashiCorp, Inc.
 # SPDX-License-Identifier: BUSL-1.1
 
-Vagrant.require 'pathname'
+require 'pathname'
 
-Vagrant.require 'vagrant'
-Vagrant.require 'vagrant/util/presence'
-Vagrant.require 'vagrant/util/subprocess'
+require 'vagrant'
+require 'vagrant/util/presence'
+require 'vagrant/util/subprocess'
 
 require_relative "base"
 

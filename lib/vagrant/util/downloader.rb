@@ -1,18 +1,18 @@
 # Copyright (c) HashiCorp, Inc.
 # SPDX-License-Identifier: BUSL-1.1
 
-Vagrant.require "cgi"
-Vagrant.require "uri"
+require "cgi"
+require "uri"
 
-Vagrant.require "log4r"
-Vagrant.require "digest"
-Vagrant.require "digest/md5"
-Vagrant.require "digest/sha1"
-Vagrant.require "vagrant/util/busy"
-Vagrant.require "vagrant/util/platform"
-Vagrant.require "vagrant/util/subprocess"
-Vagrant.require "vagrant/util/curl_helper"
-Vagrant.require "vagrant/util/file_checksum"
+require "log4r"
+require "digest"
+require "digest/md5"
+require "digest/sha1"
+require "vagrant/util/busy"
+require "vagrant/util/platform"
+require "vagrant/util/subprocess"
+require "vagrant/util/curl_helper"
+require "vagrant/util/file_checksum"
 
 module Vagrant
   module Util

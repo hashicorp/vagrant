@@ -1,8 +1,8 @@
 # Copyright (c) HashiCorp, Inc.
 # SPDX-License-Identifier: BUSL-1.1
 
-Vagrant.require 'log4r'
-Vagrant.require "vagrant/util/safe_puts"
+require 'log4r'
+require "vagrant/util/safe_puts"
 
 module Vagrant
   module Plugin
