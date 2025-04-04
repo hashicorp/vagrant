@@ -1628,9 +1628,8 @@ function slack() {
         )
 
     debug "sending slack message with payload: %s" "${payload}"
-    if ! curl -SsL --fail -X POST -H "Content-Type: application/json" -d "${payload}" "${webhook}"; then
-        echo "ERROR: Failed to send slack notification" >&2
-    fi
+    wrap curl -SsL --fail -X POST -H "Content-Type: application/json" -d "${payload}" "${webhook}" \
+        "Failed to send slack notification"
 }
 
 # Install internal HashiCorp tools. These tools are expected to
@@ -1911,7 +1910,7 @@ function github_release_assets() {
 
         github_request "${req_args[@]}" -o "${artifact}" "${asset}" ||
             "Failed to download asset (${artifact}) in release ${release_name} for ${repository}"
-        printf "downloaded release asset %s from release %s on %s" "${artifact}" "${release_name}" "${repository}"
+        printf "downloaded release asset %s from release %s on %s\n" "${artifact}" "${release_name}" "${repository}"
     done
 
     repository="${repository_bak}" # restore the repository value
@@ -3008,6 +3007,7 @@ function github_request() {
     fi
 
     local ratelimit_reset
+    local ratelimit_remaining
     local response_content=""
 
     # Read the response into lines for processing
@@ -3041,6 +3041,10 @@ function github_request() {
             ratelimit_reset="${line##*ratelimit-reset: }"
             debug "ratelimit reset time found: %s" "${ratelimit_reset}"
         fi
+        if [[ "${line}" == "x-ratelimit-remaining"* ]]; then
+            ratelimit_remaining="${line##*ratelimit-remaining: }"
+            debug "ratelimit requests remaining: %d" "${ratelimit_remaining}"
+        fi
     done
 
     # If the status was not detected, force an error
@@ -3062,10 +3066,14 @@ function github_request() {
 
         # If the ratelimit reset was not detected force an error
         if [ -z "${ratelimit_reset}" ]; then
-            if [ "${status}" = "403" ]; then
-                failure "Request failed with 403 status response"
-            fi
             failure "Failed to detect rate limit reset time for GitHub request"
+        fi
+
+        # If there are requests still available against the ratelimt
+        # and the status is a 403, then it's an actual 403 and not
+        # a ratelimit
+        if [[ "${status}" = "403" ]] && [[ "${ratelimit_remaining}" -gt 0 ]]; then
+            failure "Request failed with 403 status response"
         fi
 
         debug "rate limiting has been detected on request"
