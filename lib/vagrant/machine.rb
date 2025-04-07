@@ -348,6 +348,7 @@ module Vagrant
           end
         end
       else
+        @logger.debug("machine ID has been unset, deregistering machine and removing data directory")
         # Delete the file, since the machine is now destroyed
         id_file.delete if id_file && id_file.file?
         uid_file.delete if uid_file && uid_file.file?
