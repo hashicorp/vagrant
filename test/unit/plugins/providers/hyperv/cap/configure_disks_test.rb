@@ -27,34 +27,50 @@ describe VagrantPlugins::HyperV::Cap::ConfigureDisks do
     double(:state)
   end
 
-  let(:defined_disks) { [double("disk", name: "vagrant_primary", size: "5GB", primary: true, type: :disk),
-                         double("disk", name: "disk-0", size: "5GB", primary: false, type: :disk),
-                         double("disk", name: "disk-1", size: "5GB", primary: false, type: :disk),
-                         double("disk", name: "disk-2", size: "5GB", primary: false, type: :disk)] }
+  let(:defined_disks) do
+    [
+      double("disk", name: "vagrant_primary", size: "5GB", primary: true, type: :disk),
+      double("disk", name: "disk-0", size: "5GB", primary: false, type: :disk),
+      double("disk", name: "disk-1", size: "5GB", primary: false, type: :disk),
+      double("disk", name: "disk-2", size: "5GB", primary: false, type: :disk)
+    ]
+  end
 
   let(:subject) { described_class }
 
-  let(:all_disks) { [{"UUID"=>"12345",
-          "Path"=>"C:/Users/vagrant/disks/ubuntu-18.04-amd64-disk001.vhdx",
-          "ControllerLocation"=>0,
-          "ControllerNumber"=>0},
-         {"UUID"=>"67890",
-          "Name"=>"disk-0",
-          "Path"=>"C:/Users/vagrant/disks/disk-0.vhdx",
-          "ControllerLocation"=>1,
-          "ControllerNumber"=>0},
-         {"UUID"=>"324bbb53-d5ad-45f8-9bfa-1f2468b199a8",
-          "Path"=>"C:/Users/vagrant/disks/disk-1.vhdx",
-          "Name"=>"disk-1",
-          "ControllerLocation"=>2,
-          "ControllerNumber"=>0}] }
-
-  before do
-    allow(Vagrant::Util::Experimental).to receive(:feature_enabled?).and_return(true)
+  let(:all_disks) do
+    [
+      {
+        "UUID"=>"12345",
+        "Path"=>"C:/Users/vagrant/disks/ubuntu-18.04-amd64-disk001.vhdx",
+        "ControllerLocation"=>0,
+        "ControllerNumber"=>0
+      },
+      {
+        "UUID"=>"67890",
+        "Name"=>"disk-0",
+        "Path"=>"C:/Users/vagrant/disks/disk-0.vhdx",
+        "ControllerLocation"=>1,
+        "ControllerNumber"=>0
+      },
+      {
+        "UUID"=>"324bbb53-d5ad-45f8-9bfa-1f2468b199a8",
+        "Path"=>"C:/Users/vagrant/disks/disk-1.vhdx",
+        "Name"=>"disk-1",
+        "ControllerLocation"=>2,
+        "ControllerNumber"=>0
+      }
+    ]
   end
 
   context "#configure_disks" do
-    let(:dsk_data) { {"UUID"=>"1234", "Name"=>"disk", "Path"=> "C:/Users/vagrant/storage.vhdx"} }
+    let(:dsk_data) do
+      {
+        "UUID"=>"1234",
+        "Name"=>"disk",
+        "Path"=> "C:/Users/vagrant/storage.vhdx"
+      }
+    end
 
     it "configures disks and returns the disks defined" do
       allow(driver).to receive(:list_hdds).and_return([])
@@ -67,6 +83,22 @@ describe VagrantPlugins::HyperV::Cap::ConfigureDisks do
       let(:defined_disks) { {} }
       it "returns empty hash if no disks to configure" do
         expect(subject.configure_disks(machine, defined_disks)).to eq({})
+      end
+    end
+
+    context "with dvd" do
+      before do
+        defined_disks.push(
+          double("dvd", name: "test-dvd", type: :dvd, file: "test.iso")
+        )
+      end
+
+      it "should configure the dvd disk" do
+        allow(driver).to receive(:list_hdds).and_return([])
+        allow(subject).to receive(:handle_configure_disk).and_return({})
+        expect(subject).to receive(:handle_configure_dvd).and_return({})
+
+        subject.configure_disks(machine, defined_disks)
       end
     end
   end
@@ -89,14 +121,126 @@ describe VagrantPlugins::HyperV::Cap::ConfigureDisks do
     end
   end
 
+  context "#handle_configure_dvd" do
+    let(:scsi_controllers_current) do
+      [
+        {
+          "ControllerNumber" => 0,
+          "Name" => "SCSI Controller",
+          "Drives" => drives_current
+        }
+      ]
+    end
+    let(:drives_current) { [] }
+    let(:scsi_controllers_updated) do
+      [
+        {
+          "ControllerNumber" => 0,
+          "Name" => "SCSI Controller",
+          "Drives" => drives_updated
+        }
+      ]
+    end
+    let(:drives_updated) do
+      [
+        {
+          "DvdMediaType" => 1,
+          "Path" => "test.iso",
+          "ControllerLocation" => 1,
+          "ControllerNumber" => 0,
+          "ControllerType" => 1
+        }
+      ]
+    end
+
+    let(:defined_disk) do
+      double("dvd", name: "test-dvd", type: :dvd, file: "test.iso")
+    end
+
+    it "should add disk to guest" do
+      expect(driver).to receive(:read_scsi_controllers).and_return(scsi_controllers_current)
+      expect(driver).to receive(:read_scsi_controllers).and_return(scsi_controllers_updated)
+      expect(driver).to receive(:attach_dvd).with(/test.iso$/)
+
+      subject.handle_configure_dvd(machine, defined_disk)
+    end
+
+    context "when disk is already attached" do
+      let(:drives_current) do
+        [
+          {
+            "DvdMediaType" => 1,
+            "Path" => "test.iso",
+            "ControllerLocation" => 1,
+            "ControllerNumber" => 0,
+            "ControllerType" => 1
+          }
+        ]
+      end
+
+      it "should not add disk to guest" do
+        expect(driver).to receive(:read_scsi_controllers).and_return(scsi_controllers_current)
+        expect(driver).not_to receive(:attach_dvd)
+
+        subject.handle_configure_dvd(machine, defined_disk)
+      end
+
+      context "when additional disk is defined" do
+        let(:defined_disk) do
+          double("dvd", name: "other-dvd", type: :dvd, file: "other-test.iso")
+        end
+
+        let(:drives_updated) do
+          [
+            {
+              "DvdMediaType" => 1,
+              "Path" => "test.iso",
+              "ControllerLocation" => 1,
+              "ControllerNumber" => 0,
+              "ControllerType" => 1
+            },
+            {
+              "DvdMediaType" => 1,
+              "Path" => "other-test.iso",
+              "ControllerLocation" => 2,
+              "ControllerNumber" => 0,
+              "ControllerType" => 1
+            }
+          ]
+        end
+
+
+        it "should add disk to guest" do
+          expect(driver).to receive(:read_scsi_controllers).and_return(scsi_controllers_current)
+          expect(driver).to receive(:read_scsi_controllers).and_return(scsi_controllers_updated)
+          expect(driver).to receive(:attach_dvd).with(/other-test.iso$/)
+
+          subject.handle_configure_dvd(machine, defined_disk)
+        end
+      end
+    end
+  end
+
   context "#handle_configure_disk" do
     describe "when creating a new disk" do
-      let(:all_disks) { [{"UUID"=>"12345",
-              "Path"=>"C:/Users/vagrant/disks/ubuntu-18.04-amd64-disk001.vhdx",
-              "ControllerLocation"=>0,
-              "ControllerNumber"=>0}] }
+      let(:all_disks) do
+        [
+          {
+            "UUID"=>"12345",
+            "Path"=>"C:/Users/vagrant/disks/ubuntu-18.04-amd64-disk001.vhdx",
+            "ControllerLocation"=>0,
+            "ControllerNumber"=>0
+          }
+        ]
+      end
 
-      let(:disk_meta) { {"UUID"=>"12345", "Name"=>"vagrant_primary", "Path"=>"C:/Users/vagrant/disks/ubuntu-18.04-amd64-disk001.vhdx" } }
+      let(:disk_meta) do
+        {
+          "UUID" => "12345",
+          "Name" => "vagrant_primary",
+          "Path" => "C:/Users/vagrant/disks/ubuntu-18.04-amd64-disk001.vhdx"
+        }
+      end
 
       it "creates a new disk if it doesn't yet exist" do
         expect(subject).to receive(:create_disk).with(machine, defined_disks[1])
@@ -107,20 +251,29 @@ describe VagrantPlugins::HyperV::Cap::ConfigureDisks do
     end
 
     describe "when a disk needs to be resized" do
-      let(:all_disks) { [{"UUID"=>"12345",
-              "Path"=>"C:/Users/vagrant/disks/ubuntu-18.04-amd64-disk001.vhdx",
-              "ControllerLocation"=>0,
-              "ControllerNumber"=>0},
-             {"UUID"=>"67890",
-              "Name"=>"disk-0",
-              "Path"=>"C:/Users/vagrant/disks/disk-0.vhdx",
-              "ControllerLocation"=>1,
-              "ControllerNumber"=>0},
-             {"UUID"=>"324bbb53-d5ad-45f8-9bfa-1f2468b199a8",
-              "Path"=>"C:/Users/vagrant/disks/disk-1.vhdx",
-              "Name"=>"disk-1",
-              "ControllerLocation"=>2,
-              "ControllerNumber"=>0}] }
+      let(:all_disks) do
+        [
+          {"UUID"=>"12345",
+           "Path"=>"C:/Users/vagrant/disks/ubuntu-18.04-amd64-disk001.vhdx",
+           "ControllerLocation"=>0,
+           "ControllerNumber"=>0
+          },
+          {
+            "UUID"=>"67890",
+            "Name"=>"disk-0",
+            "Path"=>"C:/Users/vagrant/disks/disk-0.vhdx",
+            "ControllerLocation"=>1,
+            "ControllerNumber"=>0
+          },
+          {
+            "UUID"=>"324bbb53-d5ad-45f8-9bfa-1f2468b199a8",
+            "Path"=>"C:/Users/vagrant/disks/disk-1.vhdx",
+            "Name"=>"disk-1",
+            "ControllerLocation"=>2,
+            "ControllerNumber"=>0
+          }
+        ]
+      end
 
       it "resizes a disk" do
         expect(subject).to receive(:get_current_disk).
@@ -137,20 +290,30 @@ describe VagrantPlugins::HyperV::Cap::ConfigureDisks do
     end
 
     describe "if no additional disk configuration is required" do
-      let(:all_disks) { [{"UUID"=>"12345",
-              "Path"=>"C:/Users/vagrant/disks/ubuntu-18.04-amd64-disk001.vhdx",
-              "ControllerLocation"=>0,
-              "ControllerNumber"=>0},
-             {"UUID"=>"67890",
-              "Name"=>"disk-0",
-              "Path"=>"C:/Users/vagrant/disks/disk-0.vhdx",
-              "ControllerLocation"=>1,
-              "ControllerNumber"=>0},
-             {"UUID"=>"324bbb53-d5ad-45f8-9bfa-1f2468b199a8",
-              "Path"=>"C:/Users/vagrant/disks/disk-1.vhdx",
-              "Name"=>"disk-1",
-              "ControllerLocation"=>2,
-              "ControllerNumber"=>0}] }
+      let(:all_disks) do
+        [
+          {
+            "UUID"=>"12345",
+            "Path"=>"C:/Users/vagrant/disks/ubuntu-18.04-amd64-disk001.vhdx",
+            "ControllerLocation"=>0,
+            "ControllerNumber"=>0
+          },
+          {
+            "UUID"=>"67890",
+            "Name"=>"disk-0",
+            "Path"=>"C:/Users/vagrant/disks/disk-0.vhdx",
+            "ControllerLocation"=>1,
+            "ControllerNumber"=>0
+          },
+          {
+            "UUID"=>"324bbb53-d5ad-45f8-9bfa-1f2468b199a8",
+            "Path"=>"C:/Users/vagrant/disks/disk-1.vhdx",
+            "Name"=>"disk-1",
+            "ControllerLocation"=>2,
+            "ControllerNumber"=>0
+          }
+        ]
+      end
 
       it "does nothing if all disks are properly configured" do
         expect(subject).to receive(:get_current_disk).
@@ -165,19 +328,43 @@ describe VagrantPlugins::HyperV::Cap::ConfigureDisks do
   end
 
   context "#compare_disk_size" do
-    let(:disk_config_small) { double("disk", name: "disk-0", size: 41824.0, primary: false, type: :disk) }
-    let(:disk_config_large) { double("disk", name: "disk-0", size: 123568719476736.0, primary: false, type: :disk) }
+    let(:disk_config_small) do
+      double("disk",
+        name: "disk-0",
+        size: 41824.0,
+        primary: false,
+        type: :disk
+      )
+    end
+    let(:disk_config_large) do
+      double("disk",
+        name: "disk-0",
+        size: 123568719476736.0,
+        primary: false,
+        type: :disk
+      )
+    end
 
-    let(:disk_large) { [{"UUID"=>"12345",
-                        "Path"=>"C:/Users/vagrant/disks/ubuntu-18.04-amd64-disk001.vhdx",
-                        "ControllerLocation"=>0,
-                        "ControllerNumber"=>0}] }
+    let(:disk_large) do
+      [
+        {
+          "UUID" => "12345",
+          "Path" => "C:/Users/vagrant/disks/ubuntu-18.04-amd64-disk001.vhdx",
+          "ControllerLocation" => 0,
+          "ControllerNumber" => 0
+        }
+      ]
+    end
 
-    let(:disk_small) { {"UUID"=>"67890",
-                         "Path"=>"C:/Users/vagrant/disks/small_disk.vhd",
-                         "Size"=>1073741824.0,
-                         "ControllerLocation"=>1,
-                         "ControllerNumber"=>0} }
+    let(:disk_small) do
+      {
+        "UUID" => "67890",
+        "Path" => "C:/Users/vagrant/disks/small_disk.vhd",
+        "Size" => 1073741824.0,
+        "ControllerLocation" => 1,
+        "ControllerNumber" => 0
+      }
+    end
 
     it "shows a warning if user attempts to shrink size of a vhd disk" do
       expect(machine.ui).to receive(:warn)
@@ -194,19 +381,30 @@ describe VagrantPlugins::HyperV::Cap::ConfigureDisks do
 
   context "#create_disk" do
     let(:disk_provider_config) { {} }
-    let(:disk_config) { double("disk", name: "disk-0", size: 1073741824.0,
-                               primary: false, type: :disk, disk_ext: "vhdx",
-                               provider_config: disk_provider_config,
-                               file: nil) }
+    let(:disk_config) do
+      double("disk",
+        name: "disk-0",
+        size: 1073741824.0,
+        primary: false,
+        type: :disk,
+        disk_ext: "vhdx",
+        provider_config: disk_provider_config,
+        file: nil
+      )
+    end
 
     let(:disk_file) { "C:/Users/vagrant/disks/Virtual Hard Disks/disk-0.vhdx" }
 
     let(:data_dir) { Pathname.new("C:/Users/vagrant/disks") }
 
-    let(:disk) { {"DiskIdentifier"=>"12345",
-                   "Path"=>"C:/Users/vagrant/disks/Virtual Hard Disks/disk-0.vhdx",
-                   "ControllerLocation"=>1,
-                   "ControllerNumber"=>0} }
+    let(:disk) do
+      {
+        "DiskIdentifier" => "12345",
+        "Path" => "C:/Users/vagrant/disks/Virtual Hard Disks/disk-0.vhdx",
+        "ControllerLocation" => 1,
+        "ControllerNumber" => 0
+      }
+    end
 
     it "creates a disk and attaches it to a guest" do
       expect(machine).to receive(:data_dir).and_return(data_dir)
@@ -220,7 +418,14 @@ describe VagrantPlugins::HyperV::Cap::ConfigureDisks do
   end
 
   context "#convert_size_vars!" do
-    let(:disk_provider_config) { {BlockSizeBytes: "128MB", LogicalSectorSizeBytes: 512, PhysicalSectorSizeBytes: 4096 } }
+    let(:disk_provider_config) do
+      {
+        BlockSizeBytes: "128MB",
+        LogicalSectorSizeBytes: 512,
+        PhysicalSectorSizeBytes: 4096
+      }
+    end
+
     it "converts certain powershell arguments into something usable" do
       updated_config = subject.convert_size_vars!(disk_provider_config)
 
@@ -231,15 +436,26 @@ describe VagrantPlugins::HyperV::Cap::ConfigureDisks do
   end
 
   context "#resize_disk" do
-    let(:disk_config) { double("disk", name: "disk-0", size: 1073741824.0,
-                               primary: false, type: :disk, disk_ext: "vhdx",
-                               provider_config: nil,
-                               file: nil) }
+    let(:disk_config) do
+      double("disk",
+        name: "disk-0",
+        size: 1073741824.0,
+        primary: false,
+        type: :disk,
+        disk_ext: "vhdx",
+        provider_config: nil,
+        file: nil
+      )
+    end
 
-    let(:disk) { {"DiskIdentifier"=>"12345",
-                   "Path"=>"C:/Users/vagrant/disks/disk-0.vhdx",
-                   "ControllerLocation"=>1,
-                   "ControllerNumber"=>0} }
+    let(:disk) do
+      {
+        "DiskIdentifier" => "12345",
+        "Path" => "C:/Users/vagrant/disks/disk-0.vhdx",
+        "ControllerLocation" => 1,
+        "ControllerNumber" => 0
+      }
+    end
 
     let(:disk_file) { "C:/Users/vagrant/disks/disk-0.vhdx" }
 
@@ -251,3 +467,71 @@ describe VagrantPlugins::HyperV::Cap::ConfigureDisks do
     end
   end
 end
+
+val =<<-EOF
+{
+    "ControllerNumber":  0,
+    "IsTemplate":  false,
+    "Drives":  [
+                   {
+                       "Path":  "C:\\Users\\vagrant\\project\\.vagrant\\machines\\default\\hyperv\\Virtual Hard Disks\\ubuntu-18.04-amd64.vhdx",
+                       "DiskNumber":  null,
+                       "MaximumIOPS":  0,
+                       "MinimumIOPS":  0,
+                       "QoSPolicyID":  "00000000-0000-0000-0000-000000000000",
+                       "SupportPersistentReservations":  false,
+                       "WriteHardeningMethod":  0,
+                       "ControllerLocation":  0,
+                       "ControllerNumber":  0,
+                       "ControllerType":  1,
+                       "Name":  "Hard Drive on SCSI controller number 0 at location 0",
+                       "PoolName":  "Primordial",
+                       "Id":  "Microsoft:6F225311-B793-49CF-98A3-0A32108E49BB\\6AEC67E1-3135-401C-BB23-9FE1C4E34560\\0\\0\\D",
+                       "VMId":  "6f225311-b793-49cf-98a3-0a32108e49bb",
+                       "VMName":  "project_default_1744059721263_2993",
+                       "VMSnapshotId":  "00000000-0000-0000-0000-000000000000",
+                       "VMSnapshotName":  "",
+                       "CimSession":  {
+                                          "ComputerName":  null,
+                                          "InstanceId":  "899e8c1f-5c4f-4ba4-86a4-f72dc887885f"
+                                      },
+                       "ComputerName":  "DESKTOP-GICAJ17",
+                       "IsDeleted":  false
+                   },
+                   {
+                       "DvdMediaType":  1,
+                       "Path":  "C:\\Users\\Vagrant\\deb2.iso",
+                       "ControllerLocation":  2,
+                       "ControllerNumber":  0,
+                       "ControllerType":  1,
+                       "Name":  "DVD Drive on SCSI controller number 0 at location 2",
+                       "PoolName":  "Primordial",
+                       "Id":  "Microsoft:6F225311-B793-49CF-98A3-0A32108E49BB\\6AEC67E1-3135-401C-BB23-9FE1C4E34560\\0\\2\\D",
+                       "VMId":  "6f225311-b793-49cf-98a3-0a32108e49bb",
+                       "VMName":  "project_default_1744059721263_2993",
+                       "VMSnapshotId":  "00000000-0000-0000-0000-000000000000",
+                       "VMSnapshotName":  "",
+                       "CimSession":  {
+                                          "ComputerName":  null,
+                                          "InstanceId":  "899e8c1f-5c4f-4ba4-86a4-f72dc887885f"
+                                      },
+                       "ComputerName":  "DESKTOP-GICAJ17",
+                       "IsDeleted":  false
+                   }
+               ],
+    "Name":  "SCSI Controller",
+    "Id":  "Microsoft:6F225311-B793-49CF-98A3-0A32108E49BB\\6AEC67E1-3135-401C-BB23-9FE1C4E34560\\0",
+    "VMId":  "6f225311-b793-49cf-98a3-0a32108e49bb",
+    "VMName":  "project_default_1744059721263_2993",
+    "VMSnapshotId":  "00000000-0000-0000-0000-000000000000",
+    "VMSnapshotName":  "",
+    "CimSession":  {
+                       "ComputerName":  null,
+                       "InstanceId":  "899e8c1f-5c4f-4ba4-86a4-f72dc887885f"
+                   },
+    "ComputerName":  "DESKTOP-GICAJ17",
+    "IsDeleted":  false,
+    "VMCheckpointId":  "00000000-0000-0000-0000-000000000000",
+    "VMCheckpointName":  ""
+}
+EOF

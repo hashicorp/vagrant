@@ -27,13 +27,13 @@ module VagrantPlugins
           defined_disks.each do |disk|
             if disk.type == :disk
               disk_data = handle_configure_disk(machine, disk, current_disks)
-              configured_disks[:disk] << disk_data unless disk_data.empty?
+              configured_disks[:disk] << disk_data if !disk_data.empty?
             elsif disk.type == :floppy
               # TODO: Write me
               machine.ui.info(I18n.t("vagrant.cap.configure_disks.floppy_not_supported", name: disk.name))
             elsif disk.type == :dvd
-              # TODO: Write me
-              machine.ui.info(I18n.t("vagrant.cap.configure_disks.dvd_not_supported", name: disk.name))
+              disk_data = handle_configure_dvd(machine, disk)
+              configured_disks[:dvd] << disk_data if !disk_data.empty?
             end
           end
 
@@ -96,6 +96,46 @@ module VagrantPlugins
           end
 
           disk_metadata
+        end
+
+        def self.handle_configure_dvd(machine, dvd)
+          dvd_location = File.expand_path(dvd.file)
+
+          find_dvd_disk = proc {
+            catch(:found) do
+              machine.provider.driver.read_scsi_controllers.each do |controller|
+                controller["Drives"].each do |disk|
+                  throw :found, disk if File.expand_path(disk["Path"]) == dvd_location
+                end
+              end
+
+              nil
+            end
+          }
+
+          generate_dvd_metadata = proc { |disk|
+            disk.slice(
+              "Name", "Id", "Path",
+              "ControllerLocation", "ControllerNumber",
+              "ControllerType"
+            )
+          }
+
+          # If the disk is already attached just
+          # return the information
+          if dvd_attached = find_dvd_disk.call
+            return generate_dvd_metadata.call(dvd_attached)
+          end
+
+          # Attach the disk
+          machine.provider.driver.attach_dvd(dvd_location)
+
+          # Find disk and return information
+          disk = find_dvd_disk.call
+          return generate_dvd_metadata.call(disk) if disk
+
+          LOGGER.warn("failed to locate dvd on controller, stubbing")
+          {"Path" => dvd_location}
         end
 
         # Check to see if current disk is configured based on defined_disks

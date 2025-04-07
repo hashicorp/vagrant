@@ -267,6 +267,27 @@ module VagrantPlugins
         execute(:get_vhd, DiskFilePath: disk_file_path)
       end
 
+      # Add a DVD drive to VM
+      #
+      # @param [String] iso_path
+      # @return [nil]
+      def attach_dvd(iso_path)
+        execute(:add_dvd, VmId: vm_id, ISOPath: iso_path)
+      end
+
+      # Remove a DVD drive from VM
+      #
+      # @param [Integer] controller_location
+      # @param [Integer] controller_number
+      # @return [nil]
+      def detach_dvd(controller_location, controller_number)
+        execute(:remove_dvd,
+          VmId: vm_id,
+          ControllerLocation: controller_location,
+          ControllerNumber: controller_number
+        )
+      end
+
       # @return [Array[Hash]]
       def list_hdds
         execute(:list_hdds, VmId: @vm_id)
@@ -303,6 +324,15 @@ module VagrantPlugins
         if !result.nil?
           @logger.debug("EnhancedSessionTransportType is not supported by this version of hyperv, ignoring")
         end
+      end
+
+      # Get SCSI controllers attached to VM
+      #
+      # @return [Array<Hash>]
+      def read_scsi_controllers
+        result = execute(:get_scsi_controller, VmId: vm_id)
+        return result if result.is_a?(Array)
+        [result]
       end
 
       protected
