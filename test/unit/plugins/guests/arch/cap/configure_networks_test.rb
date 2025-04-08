@@ -29,6 +29,7 @@ describe "VagrantPlugins::GuestArch::Cap::ConfigureNetworks" do
       allow(guest).to receive(:capability).with(:network_interfaces)
         .and_return(["eth1", "eth2"])
       allow(cap).to receive(:systemd_networkd?).and_return(true)
+      allow(cap).to receive(:systemd_network_manager?).and_return(false)
     end
 
     let(:network_1) do
@@ -79,6 +80,18 @@ describe "VagrantPlugins::GuestArch::Cap::ConfigureNetworks" do
         expect(comm.received_commands[0]).to match(/ip link set 'eth2' down/)
         expect(comm.received_commands[0]).to match(/netctl restart 'eth2'/)
         expect(comm.received_commands[0]).to match(/netctl enable 'eth2'/)
+      end
+    end
+
+    context "network is controlled by NetworkManager via systemd" do
+      before do
+        expect(cap).to receive(:systemd_network_manager?).and_return(true)
+      end
+
+      it "should configure for network manager" do
+        expect(cap).to receive(:configure_network_manager).with(machine, [network_1])
+
+        cap.configure_networks(machine, [network_1])
       end
     end
   end
