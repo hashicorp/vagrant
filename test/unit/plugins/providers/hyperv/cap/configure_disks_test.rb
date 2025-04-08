@@ -119,6 +119,72 @@ describe VagrantPlugins::HyperV::Cap::ConfigureDisks do
       disk = subject.get_current_disk(machine, defined_disks[3], all_disks)
       expect(disk).to be_nil
     end
+
+    context "when primary disk is not located at 0 0" do
+      let(:all_disks) do
+        [
+          {
+            "UUID"=>"12345",
+            "Path"=>"C:/Users/vagrant/disks/ubuntu-18.04-amd64-disk001.vhdx",
+            "ControllerLocation"=>1,
+            "ControllerNumber"=>0
+          },
+          {
+            "UUID"=>"67890",
+            "Name"=>"disk-0",
+            "Path"=>"C:/Users/vagrant/disks/disk-0.vhdx",
+            "ControllerLocation"=>2,
+            "ControllerNumber"=>0
+          },
+          {
+            "UUID"=>"324bbb53-d5ad-45f8-9bfa-1f2468b199a8",
+            "Path"=>"C:/Users/vagrant/disks/disk-1.vhdx",
+            "Name"=>"disk-1",
+            "ControllerLocation"=>3,
+            "ControllerNumber"=>0
+          }
+        ]
+      end
+
+      it "should return the primary disk" do
+        expect(driver).to receive(:get_disk).with(all_disks.first["Path"]).and_return(all_disks.first)
+        primary_disk = subject.get_current_disk(machine, defined_disks.first, all_disks)
+        expect(primary_disk).to eq(all_disks.first)
+      end
+
+      context "when disks are unsorted" do
+        let(:all_disks) do
+          [
+            {
+              "UUID"=>"67890",
+              "Name"=>"disk-0",
+              "Path"=>"C:/Users/vagrant/disks/disk-0.vhdx",
+              "ControllerLocation"=>2,
+              "ControllerNumber"=>0
+            },
+            {
+              "UUID"=>"12345",
+              "Path"=>"C:/Users/vagrant/disks/ubuntu-18.04-amd64-disk001.vhdx",
+              "ControllerLocation"=>1,
+              "ControllerNumber"=>0
+            },
+            {
+              "UUID"=>"324bbb53-d5ad-45f8-9bfa-1f2468b199a8",
+              "Path"=>"C:/Users/vagrant/disks/disk-1.vhdx",
+              "Name"=>"disk-1",
+              "ControllerLocation"=>3,
+              "ControllerNumber"=>0
+            }
+          ]
+        end
+
+        it "should return the primary disk" do
+          expect(driver).to receive(:get_disk).with(all_disks[1]["Path"]).and_return(all_disks[1])
+          primary_disk = subject.get_current_disk(machine, defined_disks.first, all_disks)
+          expect(primary_disk).to eq(all_disks[1])
+        end
+      end
+    end
   end
 
   context "#handle_configure_dvd" do
