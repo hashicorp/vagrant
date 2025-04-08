@@ -356,6 +356,16 @@ module VagrantPlugins
             dhcp_options[:dhcp_upper] = options[:dhcp_upper] || (ip_range.last(2).first).to_s
           end
 
+          # Find the hostonly interface name if display name was
+          # provided
+          if options[:name]
+            hostif = @env[:machine].provider.driver.read_host_only_networks.detect { |interface|
+              interface[:name] == options[:name] ||
+                interface[:vboxnetworkname] == options[:name]
+            }
+            options[:name] = hostif[:name] if hostif
+          end
+
           return {
             adapter_ip:  options[:adapter_ip],
             auto_config: options[:auto_config],
