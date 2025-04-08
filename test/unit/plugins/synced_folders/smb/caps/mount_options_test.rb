@@ -71,7 +71,7 @@ describe VagrantPlugins::SyncedFolderSMB::Cap::MountOptions do
 
       it "generates the expected default mount command" do
         out_opts, out_uid, out_gid = cap.mount_options(machine, mount_name, mount_guest_path, folder_options)
-        expect(out_opts).to eq("sec=ntlmssp,credentials=/etc/smb_creds_vagrant,uid=1000,gid=1000,_netdev,nofail")
+        expect(out_opts).to eq("sec=ntlmssp,credentials=/etc/smb_creds_vagrant,uid=1000,gid=1000,_netdev")
         expect(out_uid).to eq(mount_uid)
         expect(out_gid).to eq(mount_gid)
       end
@@ -79,7 +79,7 @@ describe VagrantPlugins::SyncedFolderSMB::Cap::MountOptions do
       it "includes provided mount options" do
         folder_options[:mount_options] =["ro"]
         out_opts, out_uid, out_gid = cap.mount_options(machine, mount_name, mount_guest_path, folder_options)
-        expect(out_opts).to eq("sec=ntlmssp,credentials=/etc/smb_creds_vagrant,uid=1000,gid=1000,_netdev,ro,nofail")
+        expect(out_opts).to eq("sec=ntlmssp,credentials=/etc/smb_creds_vagrant,uid=1000,gid=1000,_netdev,ro")
         expect(out_uid).to eq(mount_uid)
         expect(out_gid).to eq(mount_gid)
       end
@@ -87,7 +87,7 @@ describe VagrantPlugins::SyncedFolderSMB::Cap::MountOptions do
       it "overwrites default mount options" do
         folder_options[:mount_options] =["ro", "sec=custom"]
         out_opts, out_uid, out_gid = cap.mount_options(machine, mount_name, mount_guest_path, folder_options)
-        expect(out_opts).to eq("sec=custom,credentials=/etc/smb_creds_vagrant,uid=1000,gid=1000,_netdev,ro,nofail")
+        expect(out_opts).to eq("sec=custom,credentials=/etc/smb_creds_vagrant,uid=1000,gid=1000,_netdev,ro")
         expect(out_uid).to eq(mount_uid)
         expect(out_gid).to eq(mount_gid)
       end
@@ -95,7 +95,7 @@ describe VagrantPlugins::SyncedFolderSMB::Cap::MountOptions do
       it "does not add mfsymlinks option if env var VAGRANT_DISABLE_SMBMFSYMLINKS exists" do
         expect(ENV).to receive(:[]).with("VAGRANT_DISABLE_SMBMFSYMLINKS").and_return(false)
         out_opts, out_uid, out_gid = cap.mount_options(machine, mount_name, mount_guest_path, folder_options)
-        expect(out_opts).to eq("sec=ntlmssp,credentials=/etc/smb_creds_vagrant,uid=1000,gid=1000,mfsymlinks,_netdev,nofail")
+        expect(out_opts).to eq("sec=ntlmssp,credentials=/etc/smb_creds_vagrant,uid=1000,gid=1000,mfsymlinks,_netdev")
         expect(out_uid).to eq(mount_uid)
         expect(out_gid).to eq(mount_gid)
       end
