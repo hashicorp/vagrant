@@ -9,6 +9,7 @@ IMPROVEMENTS:
 - guest/amazonlinux: Support networkd based configuration [GH-13626]
 - guest/rhel: Fix networking setup in recent versions [GH-13625]
 - host/darwin: Remove HFS from ISO creation [GH-13561]
+- provider/hyperv: Add dvd disk support [GH-13642]
 - provider/virtualbox: Add VirtioSCSI storage controller support [GH-13587]
 
 BUG FIXES:
