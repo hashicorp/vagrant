@@ -17,7 +17,8 @@ module VagrantPlugins
           return if disk_meta_file.values.flatten.empty?
 
           handle_cleanup_disk(machine, defined_disks, disk_meta_file["disk"])
-          # TODO: Floppy and DVD disks
+          handle_cleanup_dvd(machine, defined_disks, disk_meta_file["dvd"])
+          # TODO: Floppy disks
         end
 
         protected
@@ -47,6 +48,42 @@ module VagrantPlugins
                 machine.provider.driver.remove_disk(disk_actual["ControllerType"], disk_actual["ControllerNumber"], disk_actual["ControllerLocation"], disk_actual["Path"])
               end
             end
+          end
+        end
+
+        def self.handle_cleanup_dvd(machine, defined_disks, disk_meta)
+          # Get a list of all attached DVD drives
+          attached = machine.provider.driver.read_scsi_controllers.map do |controller|
+            controller["Drives"].map do |drive|
+              drive if drive["DvdMediaType"].to_i == 1
+            end.compact
+          end.flatten.compact
+
+          # Generate list of dvd disks that previously
+          # existed but are no longer defined
+          orphan_attachments = disk_meta.find_all do |mdisk|
+            defined_disks.none? do |defined_disk|
+              defined_disk.type == :dvd &&
+                File.expand_path(mdisk["Path"]) == File.expand_path(defined_disk.file)
+            end
+          end
+
+          # Remove any entries that are not currently
+          # attached
+          orphan_attachments.delete_if do |mdisk|
+            attached.any? do |attachment|
+              File.expand_path(attachment["Path"]) == mdisk["Path"]
+            end
+          end
+
+          # Now remove any orphan attachments that remain
+          orphan_attachments.each do |mdisk|
+            LOGGER.debug("removing dvd attachment: #{mdisk}")
+
+            machine.provider.driver.detach_dvd(
+              mdisk["ControllerLocation"],
+              mdisk["ControllerNumber"]
+            )
           end
         end
       end
