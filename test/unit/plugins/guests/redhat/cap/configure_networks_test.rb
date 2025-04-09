@@ -28,20 +28,6 @@ describe "VagrantPlugins::GuestRedHat::Cap::ConfigureNetworks" do
   context "with systems-connections network configuration path" do
     let(:cap) { caps.get(:configure_networks) }
 
-    before do
-      allow(guest).to receive(:capability)
-                        .with(:flavor)
-                        .and_return(:rhel)
-
-      allow(guest).to receive(:capability)
-                        .with(:network_scripts_dir)
-                        .and_return("/system-connections")
-
-      allow(guest).to receive(:capability)
-                        .with(:network_interfaces)
-                        .and_return(["eth1", "eth2", "eth3"])
-    end
-
     let(:network_1) do
       {
         interface: 0,
@@ -59,108 +45,20 @@ describe "VagrantPlugins::GuestRedHat::Cap::ConfigureNetworks" do
       }
     end
 
-    let(:network_3) do
-      {
-        interface: 2,
-        type: "static",
-        ip: "33.33.33.11",
-        netmask: "255.255.0.0",
-        gateway: "33.33.0.1",
-      }
+    before do
+      allow(guest).to receive(:capability)
+                        .with(:flavor)
+                        .and_return(:rhel)
+
+      allow(guest).to receive(:capability)
+                        .with(:network_scripts_dir)
+                        .and_return("/system-connections")
     end
 
-    it "should fetch mac address for devices" do
-      cap.configure_networks(machine, [network_1, network_2, network_3])
-
-      expect(comm.received_commands).to include(%r{/net/eth1/address})
-      expect(comm.received_commands).to include(%r{/net/eth2/address})
-      expect(comm.received_commands).to include(%r{/net/eth3/address})
+    it "should configure with network manager" do
+      expect(cap).to receive(:configure_network_manager).with(machine, [network_1])
+      cap.configure_networks(machine, [network_1])
     end
-
-    it "should change ownership of files" do
-      cap.configure_networks(machine, [network_1, network_2, network_3])
-
-      expect(comm.received_commands).to include(%r{chown root:root '/tmp/vagrant.*eth1.*'})
-      expect(comm.received_commands).to include(%r{chown root:root '/tmp/vagrant.*eth2.*'})
-      expect(comm.received_commands).to include(%r{chown root:root '/tmp/vagrant.*eth3.*'})
-    end
-
-    it "should change mode of files" do
-      cap.configure_networks(machine, [network_1, network_2, network_3])
-
-      expect(comm.received_commands).to include(%r{chmod 0600 '/tmp/vagrant.*eth1.*'})
-      expect(comm.received_commands).to include(%r{chmod 0600 '/tmp/vagrant.*eth2.*'})
-      expect(comm.received_commands).to include(%r{chmod 0600 '/tmp/vagrant.*eth3.*'})
-    end
-
-    it "should move configuration files" do
-      cap.configure_networks(machine, [network_1, network_2, network_3])
-
-      expect(comm.received_commands).to include(%r{mv '/tmp/vagrant.*eth1.*' '/system-connections/eth1.nmconnection'})
-      expect(comm.received_commands).to include(%r{mv '/tmp/vagrant.*eth2.*' '/system-connections/eth2.nmconnection'})
-      expect(comm.received_commands).to include(%r{mv '/tmp/vagrant.*eth3.*' '/system-connections/eth3.nmconnection'})
-    end
-
-    it "should move configuration files" do
-      cap.configure_networks(machine, [network_1, network_2, network_3])
-
-      expect(comm.received_commands).to include(%r{mv '/tmp/vagrant.*eth1.*' '/system-connections/eth1.nmconnection'})
-      expect(comm.received_commands).to include(%r{mv '/tmp/vagrant.*eth2.*' '/system-connections/eth2.nmconnection'})
-      expect(comm.received_commands).to include(%r{mv '/tmp/vagrant.*eth3.*' '/system-connections/eth3.nmconnection'})
-    end
-
-    it "should move load new configuration files" do
-      cap.configure_networks(machine, [network_1, network_2, network_3])
-
-      expect(comm.received_commands).to include("nmcli c load '/system-connections/eth1.nmconnection'")
-      expect(comm.received_commands).to include("nmcli c load '/system-connections/eth2.nmconnection'")
-      expect(comm.received_commands).to include("nmcli c load '/system-connections/eth3.nmconnection'")
-    end
-
-    it "should connect new devices" do
-      cap.configure_networks(machine, [network_1, network_2, network_3])
-
-      expect(comm.received_commands).to include("nmcli d connect 'eth1'")
-      expect(comm.received_commands).to include("nmcli d connect 'eth2'")
-      expect(comm.received_commands).to include("nmcli d connect 'eth3'")
-    end
-
-    context "network configuration file" do
-      let(:networks){ [[:public_network, network_1], [:private_network, network_2], [:private_network, network_3]] }
-
-      let(:tempfile) { double("tempfile") }
-
-      before do
-        allow(tempfile).to receive(:binmode)
-        allow(tempfile).to receive(:write)
-        allow(tempfile).to receive(:fsync)
-        allow(tempfile).to receive(:close)
-        allow(tempfile).to receive(:path)
-        allow(Tempfile).to receive(:open).and_yield(tempfile)
-      end
-
-      it "should generate two configuration files" do
-        expect(Tempfile).to receive(:open).twice
-        cap.configure_networks(machine, [network_1, network_2])
-      end
-
-      it "should generate three configuration files" do
-        expect(Tempfile).to receive(:open).thrice
-        cap.configure_networks(machine, [network_1, network_2, network_3])
-      end
-
-      it "should generate configuration with network_2 IP address" do
-        expect(tempfile).to receive(:write).with(/#{network_2[:ip]}/)
-        cap.configure_networks(machine, [network_1, network_2, network_3])
-      end
-
-      it "should generate configuration with network_3 IP address" do
-        expect(tempfile).to receive(:write).with(/#{network_3[:ip]}/)
-        cap.configure_networks(machine, [network_1, network_2, network_3])
-      end
-    end
-
-
   end
 
   describe ".configure_networks" do

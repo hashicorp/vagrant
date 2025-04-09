@@ -21,6 +21,7 @@ module Vagrant
     autoload :FileMutex,                 'vagrant/util/file_mutex'
     autoload :GuestHosts,                'vagrant/util/guest_hosts'
     autoload :GuestInspection,           'vagrant/util/guest_inspection'
+    autoload :GuestNetworks,             'vagrant/util/guest_networks'
     autoload :HashWithIndifferentAccess, 'vagrant/util/hash_with_indifferent_access'
     autoload :HCLogFormatter,            'vagrant/util/logging_formatter'
     autoload :HCLogOutputter,            'vagrant/util/logging_formatter'

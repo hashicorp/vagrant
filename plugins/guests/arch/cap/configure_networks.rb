@@ -13,9 +13,13 @@ module VagrantPlugins
       class ConfigureNetworks
         include Vagrant::Util
         extend Vagrant::Util::GuestInspection::Linux
+        extend Vagrant::Util::GuestNetworks::Linux
 
         def self.configure_networks(machine, networks)
           comm = machine.communicate
+
+          return configure_network_manager(machine, networks) if systemd_network_manager?(comm)
+
           commands = []
           uses_systemd_networkd = systemd_networkd?(comm)
 
