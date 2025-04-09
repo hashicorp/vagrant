@@ -17,6 +17,7 @@ IMPROVEMENTS:
 BUG FIXES:
 
 - command/box: Fix architecture constraints in outdated/updated command [GH-13601]
+- command/box: Fix architecture constraint on provider matches [GH-13647]
 - communicators/winrm: Catch IO::Timeout when waiting for communicator [GH-13606]
 - communicators/ssh: Catch IO::Timeout when waiting for communicator [GH-13606]
 - guest/alpine: Fix DHCP assigned default route behavior [GH-13633]
