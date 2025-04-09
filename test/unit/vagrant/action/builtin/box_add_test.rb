@@ -1033,6 +1033,57 @@ describe Vagrant::Action::Builtin::BoxAdd, :skip_windows, :bsdtar do
           subject.call(env)
         end
 
+        it "adds the latest version of a box with multiple providers and only one provider matching architecture" do
+          box_path = iso_env.box2_file(:virtualbox)
+          tf = Tempfile.new(["vagrant-box-latest-version", ".json"]).tap do |f|
+            # NOTE: The order of the providers here matters. The correct match needs
+            # to be last in order to trigger the error this test was written for to
+            # catch any regression.
+            f.write(
+              {
+                name: "foo/bar",
+                versions: [
+                  {
+                    version: "0.5",
+                  },
+                  {
+                    version: "0.7",
+                    providers: [
+                      {
+                        name: "virtualbox",
+                        url: "/dev/null/invalid.path",
+                        architecture: "amd64",
+                        default_architecture: true,
+                      },
+                      {
+                        name: "hyperv",
+                        url: "#{box_path}",
+                        architecture: "test-arch",
+                        default_architecture: true,
+                      }
+                    ]
+                  }
+                ]
+              }.to_json
+            )
+            f.close
+          end
+
+          env[:box_url] = tf.path
+          expect(box_collection).to receive(:add).with(any_args) { |path, name, version, opts|
+            expect(checksum(path)).to eq(checksum(box_path))
+            expect(name).to eq("foo/bar")
+            expect(version).to eq("0.7")
+            expect(opts[:metadata_url]).to eq("file://#{tf.path}")
+            expect(opts[:architecture]).to eq("test-arch")
+            true
+          }.and_return(box)
+
+          expect(app).to receive(:call).with(env)
+
+          subject.call(env)
+        end
+
         it "adds the latest version of a box with only one provider and unknown architecture set as default" do
           box_path = iso_env.box2_file(:virtualbox)
           tf = Tempfile.new(["vagrant-box-latest-version", ".json"]).tap do |f|

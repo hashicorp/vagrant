@@ -292,7 +292,7 @@ module Vagrant
             # If we have only one provider in the metadata, just use that
             # provider.
             metadata_provider = metadata_version.provider(
-              metadata_version.providers.first, architecture)
+              metadata_version.providers(architecture).first, architecture)
           else
             providers = metadata_version.providers(architecture).sort
 
