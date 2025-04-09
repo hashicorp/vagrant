@@ -7,6 +7,7 @@ IMPROVEMENTS:
 - communicator/ssh: Update connect retry behavior, make configurable [GH-13628]
 - core: Better behavior outside installers [GH-13636]
 - guest/amazonlinux: Support networkd based configuration [GH-13626]
+- guest/arch: Update networking for recent versions [GH-13640]
 - guest/rhel: Fix networking setup in recent versions [GH-13625]
 - host/darwin: Remove HFS from ISO creation [GH-13561]
 - provider/hyperv: Add dvd disk support [GH-13642]
