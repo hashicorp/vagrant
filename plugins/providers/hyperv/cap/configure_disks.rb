@@ -51,9 +51,16 @@ module VagrantPlugins
           if disk.primary
             # Ensure we grab the proper primary disk
             # We can't rely on the order of `all_disks`, as they will not
-            # always come in port order, but primary should always be Location 0 Number 0.
+            # always come in port order, but primary should always be the
+            # first disk.
 
-            current_disk = all_disks.detect { |d| d["ControllerLocation"] == 0 && d["ControllerNumber"] == 0 }
+            sorted_disks = all_disks.sort_by { |d|
+              [d["ControllerNumber"].to_i, d["ControllerLocation"].to_i]
+            }
+
+            LOGGER.debug("sorted disks for primary detection: #{sorted_disks}")
+
+            current_disk = sorted_disks.first
 
             # Need to get actual disk info to obtain UUID instead of what's returned
             #
