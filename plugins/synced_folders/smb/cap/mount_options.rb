@@ -39,7 +39,6 @@ module VagrantPlugins
           end
           mnt_opts << "_netdev"
           mnt_opts = merge_mount_options(mnt_opts, options[:mount_options] || [])
-          mnt_opts << "nofail"
           mount_options = mnt_opts.join(",")
           return mount_options, mount_uid, mount_gid
         end
