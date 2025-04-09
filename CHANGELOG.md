@@ -21,6 +21,7 @@ BUG FIXES:
 - communicators/ssh: Catch IO::Timeout when waiting for communicator [GH-13606]
 - guest/alpine: Fix DHCP assigned default route behavior [GH-13633]
 - provider/docker: Handle variation in error text during image removal [GH-13564]
+- provider/virtualbox: Use interface name for hostonly configuration [GH-13644]
 
 VAGRANT-GO:
 
