@@ -11,6 +11,7 @@ IMPROVEMENTS:
 - guest/rhel: Fix networking setup in recent versions [GH-13625]
 - host/darwin: Remove HFS from ISO creation [GH-13561]
 - provider/hyperv: Add dvd disk support [GH-13642]
+- provider/hyperv: Update primary disk detection [GH-13643]
 - provider/virtualbox: Add VirtioSCSI storage controller support [GH-13587]
 
 BUG FIXES:
