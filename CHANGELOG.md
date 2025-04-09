@@ -22,6 +22,7 @@ BUG FIXES:
 - guest/alpine: Fix DHCP assigned default route behavior [GH-13633]
 - provider/docker: Handle variation in error text during image removal [GH-13564]
 - provider/virtualbox: Use interface name for hostonly configuration [GH-13644]
+- synced_folder/smb: Remove `nofail` mount option [GH-13645]
 
 VAGRANT-GO:
 
