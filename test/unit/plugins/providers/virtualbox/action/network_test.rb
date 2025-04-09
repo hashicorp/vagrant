@@ -84,6 +84,52 @@ describe VagrantPlugins::ProviderVirtualBox::Action::Network do
         end
       end
     end
+
+    context "when name is provided as interface name" do
+      let(:options) {
+        {
+          type: type,
+          ip: address,
+          name: name
+        }
+      }
+      let(:name) { "hostonly_ifname" }
+      let(:display_name) { "HostInterfaceNetworking-hostonly_ifname" }
+      let(:hostonly_networks) do
+        [
+          {
+            name: name,
+            vboxnetworkname: display_name
+          }
+        ]
+      end
+
+      before { allow(driver).to receive(:read_host_only_networks).and_return(hostonly_networks) }
+
+      it "should lookup host only networks" do
+        expect(driver).to receive(:read_host_only_networks).and_return(hostonly_networks)
+
+        subject.hostonly_config(options)
+      end
+
+      it "should not change the name" do
+        expect(subject.hostonly_config(options)[:name]) == name
+      end
+
+      context "when display name is provided in options" do
+        let(:options) {
+          {
+            type: type,
+            ip: address,
+            name: display_name
+          }
+        }
+
+        it "should change the name to the interface name" do
+          expect(subject.hostonly_config(options)[:name]) == name
+        end
+      end
+    end
   end
 
   describe "#validate_hostonly_ip!" do
