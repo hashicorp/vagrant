@@ -13,6 +13,7 @@ IMPROVEMENTS:
 - provider/hyperv: Add dvd disk support [GH-13642]
 - provider/hyperv: Update primary disk detection [GH-13643]
 - provider/virtualbox: Add VirtioSCSI storage controller support [GH-13587]
+- util/powershell: Prefer using pwsh when available [GH-13648]
 
 BUG FIXES:
 
