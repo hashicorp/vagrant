@@ -19,7 +19,7 @@ module Vagrant
       # Number of seconds to wait while attempting to get powershell version
       DEFAULT_VERSION_DETECTION_TIMEOUT = 30
       # Names of the powershell executable
-      POWERSHELL_NAMES = ["powershell", "pwsh"].map(&:freeze).freeze
+      POWERSHELL_NAMES = ["pwsh", "powershell"].map(&:freeze).freeze
       # Paths to powershell executable
       POWERSHELL_PATHS = [
         "%SYSTEMROOT%/System32/WindowsPowerShell/v1.0",
@@ -33,11 +33,29 @@ module Vagrant
       # @return [String|nil] a powershell executable, depending on environment
       def self.executable
         if !defined?(@_powershell_executable)
+          prefer_name = ENV["VAGRANT_PREFERRED_POWERSHELL"].to_s.sub(".exe", "")
+          if !POWERSHELL_NAMES.include?(prefer_name)
+            prefer_name = POWERSHELL_NAMES.first
+          end
+
+          LOGGER.debug("preferred powershell executable name: #{prefer_name}")
+
           # First start with detecting executable on configured path
-          POWERSHELL_NAMES.detect do |psh|
-            return @_powershell_executable = psh if Which.which(psh)
-            psh += ".exe"
-            return @_powershell_executable = psh if Which.which(psh)
+          found_shells = Hash.new.tap do |found|
+            POWERSHELL_NAMES.each do |psh|
+              psh_path = Which.which(psh)
+              psh_path = Which.which(psh + ".exe") if !psh_path
+              next if !psh_path
+
+              LOGGER.debug("detected powershell for #{psh.inspect} - #{psh_path}")
+              found[psh] = psh_path
+            end
+          end
+
+          # Done if preferred shell was found
+          if found_shells.key?(prefer_name)
+            LOGGER.debug("using preferred powershell #{prefer_name.inspect} - #{found_shells[prefer_name]}")
+            return @_powershell_executable = found_shells[prefer_name]
           end
 
           # Now attempt with paths
@@ -48,16 +66,28 @@ module Vagrant
 
           paths.each do |psh_path|
             POWERSHELL_NAMES.each do |psh|
+              next if found_shells.key?(psh)
+
               path = File.join(psh_path, psh)
-              return @_powershell_executable = path if Which.which(path)
-
-              path += ".exe"
-              return @_powershell_executable = path if Which.which(path)
-
-              # Finally test the msys2 style path
-              path = path.sub(/^([A-Za-z]):/, "/mnt/\\1")
-              return @_powershell_executable = path if Which.which(path)
+              [path, "#{path}.exe", path.sub(/^([A-Za-z]):/, "/mnt/\\1")].each do |full_path|
+                if File.executable?(full_path)
+                  found_shells[psh] = full_path
+                  break
+                end
+              end
             end
+          end
+
+          # Done if preferred shell was found
+          if found_shells.key?(prefer_name)
+            LOGGER.debug("using preferred powershell #{prefer_name.inspect} - #{found_shells[prefer_name]}")
+            return @_powershell_executable = found_shells[prefer_name]
+          end
+
+          # Iterate names and return first found
+          POWERSHELL_NAMES.each do |psh|
+            LOGGER.debug("using powershell #{prefer_name.inspect} - #{found_shells[prefer_name]}")
+            return @_powershell_executable = found_shells[psh] if found_shells.key?(psh)
           end
         end
         @_powershell_executable
@@ -94,6 +124,7 @@ module Vagrant
             "-NoProfile",
             "-NonInteractive",
             "-ExecutionPolicy", "Bypass",
+            "-Command",
             "#{env}&('#{path}')",
             args
           ].flatten
