@@ -49,6 +49,7 @@ describe Vagrant::Util::PowerShell do
 
   describe ".executable" do
     before do
+      allow(ENV).to receive(:[]).with("VAGRANT_PREFERRED_POWERSHELL").and_return(nil)
       allow(Vagrant::Util::Which).to receive(:which).and_return(nil)
       allow(Vagrant::Util::Subprocess).to receive(:execute) do |*args|
         Vagrant::Util::Subprocess::Result.new(0, args.last.sub("echo ", ""), "")
@@ -57,7 +58,7 @@ describe Vagrant::Util::PowerShell do
 
     context "when powershell found in PATH" do
       before{ expect(Vagrant::Util::Which).to receive(:which).
-          with("powershell").and_return(true) }
+          with("powershell").and_return("powershell") }
 
       it "should return powershell string" do
         expect(described_class.executable).to eq("powershell")
@@ -66,7 +67,7 @@ describe Vagrant::Util::PowerShell do
 
     context "when pwsh found in PATH" do
       before { expect(Vagrant::Util::Which).to receive(:which).
-          with("pwsh").and_return(true) }
+          with("pwsh").and_return("pwsh") }
 
       it "should return pwsh string" do
         expect(described_class.executable).to eq("pwsh")
@@ -74,6 +75,8 @@ describe Vagrant::Util::PowerShell do
     end
 
     context "when not found in PATH" do
+      before { allow(File).to receive(:executable?) }
+
       it "should return nil" do
         expect(described_class.executable).to be_nil
       end
@@ -85,13 +88,44 @@ describe Vagrant::Util::PowerShell do
 
       it "should return powershell.exe when found" do
         expect(Vagrant::Util::Which).to receive(:which).
-          with("powershell.exe").and_return(true)
+          with("powershell.exe").and_return("powershell.exe")
         expect(described_class.executable).to eq("powershell.exe")
       end
 
       it "should check for powershell with full path" do
-        expect(Vagrant::Util::Which).to receive(:which).with(/WindowsPowerShell\/v1.0\/powershell.exe/)
+        expect(File).to receive(:executable?).with(/WindowsPowerShell\/v1.0\/powershell.exe/)
         described_class.executable
+      end
+    end
+
+    context "powershell preference" do
+      before do
+        allow(Vagrant::Util::Which).to receive(:which)
+        allow(File).to receive(:executable?)
+      end
+
+      it "should prefer pwsh found on in the PATH" do
+        expect(Vagrant::Util::Which).to receive(:which).with("pwsh.exe").and_return("pwsh.exe")
+        expect(described_class.executable).to eq("pwsh.exe")
+      end
+
+      it "should use powershell.exe when found on PATH and pwsh.exe is not" do
+        expect(Vagrant::Util::Which).to receive(:which).with("pwsh.exe").and_return("powershell.exe")
+        expect(described_class.executable).to eq("powershell.exe")
+      end
+
+      it "should prefer powershell.exe when env var is set and powershell.exe and pwsh.exe are on PATH" do
+        expect(ENV).to receive(:[]).with("VAGRANT_PREFERRED_POWERSHELL").and_return("powershell")
+        expect(Vagrant::Util::Which).to receive(:which).with("pwsh.exe").and_return("pwsh.exe")
+        expect(Vagrant::Util::Which).to receive(:which).with("powershell.exe").and_return("powershell.exe")
+        expect(described_class.executable).to eq("powershell.exe")
+      end
+
+      it "should use pwsh.exe when env var is set to powershell but only pwsh.exe is avaialble" do
+        expect(ENV).to receive(:[]).with("VAGRANT_PREFERRED_POWERSHELL").and_return("powershell")
+        expect(Vagrant::Util::Which).to receive(:which).with("pwsh.exe").and_return("pwsh.exe")
+        expect(Vagrant::Util::Which).to receive(:which).with("powershell.exe").and_return(nil)
+        expect(described_class.executable).to eq("pwsh.exe")
       end
     end
   end
