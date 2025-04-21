@@ -1,3 +1,4 @@
+name: Vagrant Release
 on:
   push:
     tags: 'v*'

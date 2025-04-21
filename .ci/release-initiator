@@ -109,7 +109,7 @@ printf "%s\n" "${dev_version}" > version.txt
 
 debug "Updating CHANGELOG"
 
-printf "## %s (UNRELEASED)\n\nFEATURES:\n\nIMPROVEMENTS:\n\nBUG FIXES:\n\nVAGRANT-GO:\n\n" "${dev_version}" > .CHANGELOG.md.new
+printf "## %s (UNRELEASED)\n\nFEATURES:\n\nIMPROVEMENTS:\n\nBUG FIXES:\n\n" "${dev_version}" > .CHANGELOG.md.new
 cat CHANGELOG.md >> .CHANGELOG.md.new
 
 mv .CHANGELOG.md.new CHANGELOG.md ||
