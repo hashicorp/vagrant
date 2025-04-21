@@ -1,4 +1,4 @@
-## 2.4.4.dev (UNRELEASED)
+## 2.4.4 (April 21, 2025)
 
 FEATURES:
 
