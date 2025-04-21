@@ -1,3 +1,4 @@
+name: Vagrant Nightly Builds
 on:
   schedule:
     - cron: 30 4 * * *
