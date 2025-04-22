@@ -2,6 +2,8 @@
 
 FEATURES:
 
+- communicator/none: Add experimental none communicator [GH-13651]
+
 IMPROVEMENTS:
 
 BUG FIXES:
