@@ -6,6 +6,8 @@ IMPROVEMENTS:
 
 BUG FIXES:
 
+- core/bundler: Handle multiple versions for system specifications [GH-13652]
+
 ## 2.4.4 (April 21, 2025)
 
 FEATURES:
