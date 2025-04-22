@@ -549,8 +549,10 @@ module Vagrant
         @logger.debug("Disabling strict dependency enforcement")
       end
 
-      @logger.debug("Dependency list for installation:\n - " \
-        "#{plugin_deps.map{|d| "#{d.name} #{d.requirement}"}.join("\n - ")}")
+      dep_list = plugin_deps.sort_by(&:name).map { |d|
+        "#{d.name} #{d.requirement}"
+      }.join("\n - ")
+      @logger.debug("Dependency list for installation:\n - #{dep_list}")
 
       all_sources = source_list.values.flatten.uniq
       default_sources = DEFAULT_GEM_SOURCES & all_sources
@@ -680,11 +682,11 @@ module Vagrant
       directories = [spec_dir]
       if Vagrant.in_bundler?
         Gem::Specification.find_all{true}.each do |spec|
-          list[spec.full_name] = spec
+          list[spec.name] = spec
         end
       else
         builtin_specs.each do |spec|
-          list[spec.full_name] = spec
+          list[spec.name] = spec
         end
       end
       if Vagrant.in_installer?
@@ -693,8 +695,8 @@ module Vagrant
         end
       end
       Gem::Specification.each_spec(directories) do |spec|
-        if !list[spec.full_name]
-          list[spec.full_name] = spec
+        if !list[spec.name] || list[spec.name].version < spec.version
+          list[spec.name] = spec
         end
       end
       list.values
