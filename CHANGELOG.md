@@ -1,3 +1,11 @@
+## 2.4.6.dev (UNRELEASED)
+
+FEATURES:
+
+IMPROVEMENTS:
+
+BUG FIXES:
+
 ## 2.4.5 (April 23, 2025)
 
 FEATURES:
