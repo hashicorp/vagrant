@@ -83,18 +83,16 @@ module VagrantPlugins
             opts.separator ""
             opts.separator "The cloud command can be used for taking actions against"
             opts.separator "Vagrant Cloud like searching or uploading a Vagrant Box"
-            if !Vagrant.server_mode?
-              opts.separator ""
-              opts.separator "Available subcommands:"
-  
-              # Add the available subcommands as separators in order to print them
-              # out as well.
-              keys = []
-              @subcommands.each { |key, value| keys << key.to_s }
-  
-              keys.sort.each do |key|
-                opts.separator "     #{key.ljust(15)} #{@subcommand_helptext[key.to_sym]}"
-              end
+            opts.separator ""
+            opts.separator "Available subcommands:"
+
+            # Add the available subcommands as separators in order to print them
+            # out as well.
+            keys = []
+            @subcommands.each { |key, value| keys << key.to_s }
+
+            keys.sort.each do |key|
+              opts.separator "     #{key.ljust(15)} #{@subcommand_helptext[key.to_sym]}"
             end
             opts.separator ""
             opts.separator "For help on any individual subcommand run `vagrant cloud <subcommand> -h`"
