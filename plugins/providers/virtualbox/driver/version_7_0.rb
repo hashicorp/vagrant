@@ -215,26 +215,6 @@ module VagrantPlugins
           end
         end
 
-        # Generate list of host only networks
-        def read_host_only_networks
-          networks = []
-          current = nil
-          execute("list", "hostonlynets", retryable: true).split("\n").each do |line|
-            line.chomp!
-            next if line.empty?
-            key, value = line.split(":", 2).map(&:strip)
-            key = key.downcase
-            if key == "name"
-              networks.push(current) if !current.nil?
-              current = Vagrant::Util::HashWithIndifferentAccess.new
-            end
-            current[key] = value
-          end
-          networks.push(current) if !current.nil?
-
-          networks
-        end
-
         # The initial VirtualBox 7.0 release has an issue with displaying port
         # forward information. When a single port forward is defined, the forwarding
         # information can be found in the `showvminfo` output. Once more than a
@@ -280,6 +260,29 @@ module VagrantPlugins
           end
 
           results
+        end
+
+        protected
+
+        # Generate list of host only networks
+        # NOTE: This is darwin specific
+        def read_host_only_networks
+          networks = []
+          current = nil
+          execute("list", "hostonlynets", retryable: true).split("\n").each do |line|
+            line.chomp!
+            next if line.empty?
+            key, value = line.split(":", 2).map(&:strip)
+            key = key.downcase
+            if key == "name"
+              networks.push(current) if !current.nil?
+              current = Vagrant::Util::HashWithIndifferentAccess.new
+            end
+            current[key] = value
+          end
+          networks.push(current) if !current.nil?
+
+          networks
         end
 
         private

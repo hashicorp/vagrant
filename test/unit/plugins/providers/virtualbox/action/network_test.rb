@@ -99,15 +99,15 @@ describe VagrantPlugins::ProviderVirtualBox::Action::Network do
         [
           {
             name: name,
-            vboxnetworkname: display_name
+            display_name: display_name
           }
         ]
       end
 
-      before { allow(driver).to receive(:read_host_only_networks).and_return(hostonly_networks) }
+      before { allow(driver).to receive(:read_host_only_interfaces).and_return(hostonly_networks) }
 
       it "should lookup host only networks" do
-        expect(driver).to receive(:read_host_only_networks).and_return(hostonly_networks)
+        expect(driver).to receive(:read_host_only_interfaces).and_return(hostonly_networks)
 
         subject.hostonly_config(options)
       end

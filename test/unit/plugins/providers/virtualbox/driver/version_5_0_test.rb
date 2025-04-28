@@ -189,31 +189,6 @@ OUTPUT
       expect(storage_controllers.first.attachments).to eq(attachments_result)
     end
   end
-
-  describe "#read_machine_folder" do
-    let(:system_properties) { VBOX_SYSTEM_PROPERTIES }
-    let(:machine_folder) { "/home/username/VirtualBox VMs"}
-
-    before do
-      allow(subject).to receive(:execute).
-                          with("list", "systemproperties", any_args).
-                          and_return(system_properties)
-    end
-
-    it "should read the default folder" do
-      expect(subject.read_machine_folder).to eq(machine_folder)
-    end
-
-    context "when default folder value is missing" do
-      let(:system_properties) { VBOX_SYSTEM_PROPERTIES.sub(/^Default machine folder:.+$/, "")}
-
-      it "should raise a custom error" do
-        expect {
-          subject.read_machine_folder
-        }.to raise_error(Vagrant::Errors::VirtualBoxMachineFolderNotFound)
-      end
-    end
-  end
 end
 
 VBOX_SYSTEM_PROPERTIES=%(

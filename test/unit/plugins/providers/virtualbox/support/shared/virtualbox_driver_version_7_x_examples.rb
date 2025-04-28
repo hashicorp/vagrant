@@ -524,11 +524,11 @@ shared_examples "a version 7.x virtualbox driver" do |opts|
     end
 
     it "should return defined networks" do
-      expect(subject.read_host_only_networks.size).to eq(2)
+      expect(subject.send(:read_host_only_networks).size).to eq(2)
     end
 
     it "should return expected network information" do
-      result = subject.read_host_only_networks
+      result = subject.send(:read_host_only_networks)
       expect(result.first[:name]).to eq("vagrantnet-vbox1")
       expect(result.first[:lowerip]).to eq("192.168.61.0")
       expect(result.first[:networkmask]).to eq("255.255.255.0")

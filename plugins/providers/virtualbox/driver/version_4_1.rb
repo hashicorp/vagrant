@@ -447,6 +447,8 @@ module VagrantPlugins
                 info[:ipv6_prefix] = $1.to_s.strip
               elsif status = line[/^Status:\s+(.+?)$/, 1]
                 info[:status] = status
+              elsif line =~ /^VBoxNetworkName:\s+(.+?)$/
+                info[:display_name] = $1.to_s
               end
             end
 
