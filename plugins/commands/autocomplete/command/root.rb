@@ -43,18 +43,16 @@ module VagrantPlugins
         def help
           opts = OptionParser.new do |opts|
             opts.banner = "Usage: vagrant autocomplete <subcommand>"
-            if !Vagrant.server_mode?
-              opts.separator ""
-              opts.separator "Available subcommands:"
+            opts.separator ""
+            opts.separator "Available subcommands:"
 
-              # Add the available subcommands as separators in order to print them
-              # out as well.
-              keys = []
-              keys = @subcommands.keys.map(&:to_s)
+            # Add the available subcommands as separators in order to print them
+            # out as well.
+            keys = []
+            keys = @subcommands.keys.map(&:to_s)
 
-              keys.sort.each do |key|
-                opts.separator "     #{key}"
-              end
+            keys.sort.each do |key|
+              opts.separator "     #{key}"
             end
 
             opts.separator ""
