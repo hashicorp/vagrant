@@ -6,6 +6,8 @@ IMPROVEMENTS:
 
 BUG FIXES:
 
+- command: Remove server mode checks [GH-13657]
+
 ## 2.4.5 (April 23, 2025)
 
 FEATURES:
