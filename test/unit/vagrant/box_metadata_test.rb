@@ -30,7 +30,7 @@ describe Vagrant::BoxMetadata do
           version: "1.1.0",
           providers: [
             { name: "virtualbox" },
-            { name: "vmware" }
+            { name: "vmware", architecture: "test-arch" }
           ]
         }
       ]
@@ -117,6 +117,19 @@ describe Vagrant::BoxMetadata do
     it "filters versions by matching provider" do
       expect(subject.versions(provider: :vmware)).to eq(
         ["1.0.0", "1.1.0"])
+    end
+
+    it "filters versions by architecture" do
+      expect(subject.versions(architecture: "test-arch")).to eq(["1.1.0"])
+    end
+
+    it "filters versions by provider and architecture" do
+      expect(subject.versions(architecture: "test-arch", provider: "virtualbox")).to eq([])
+      expect(subject.versions(architecture: "test-arch", provider: "vmware")).to eq(["1.1.0"])
+    end
+
+    it "filters versions by multiple providers" do
+      expect(subject.versions(provider: ["vmware", "my-virt"])).to eq(["1.0.0", "1.1.0"])
     end
   end
   
