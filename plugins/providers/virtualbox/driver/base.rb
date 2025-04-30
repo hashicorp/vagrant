@@ -256,10 +256,11 @@ module VagrantPlugins
         # Each interface is represented as a Hash with the following details:
         #
         # {
-        #  :name    => String, # interface name, e.g. "vboxnet0"
-        #  :ip      => String, # IP address of the interface, e.g. "172.28.128.1"
-        #  :netmask => String, # netmask associated with the interface, e.g. "255.255.255.0"
-        #  :status  => String, # status of the interface, e.g. "Up", "Down"
+        #  :name         => String, # interface name, e.g. "vboxnet0"
+        #  :ip           => String, # IP address of the interface, e.g. "172.28.128.1"
+        #  :netmask      => String, # netmask associated with the interface, e.g. "255.255.255.0"
+        #  :status       => String, # status of the interface, e.g. "Up", "Down"
+        #  :display_name => String, # user friendly display name if available
         # }
         #
         # @return [Array<Hash>] See comment above for details

@@ -134,6 +134,7 @@ module VagrantPlugins
           :read_guest_ip,
           :read_guest_property,
           :read_host_only_interfaces,
+          :read_host_only_networks,
           :read_mac_address,
           :read_mac_addresses,
           :read_machine_folder,

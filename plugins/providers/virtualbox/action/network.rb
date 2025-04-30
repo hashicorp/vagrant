@@ -359,9 +359,9 @@ module VagrantPlugins
           # Find the hostonly interface name if display name was
           # provided
           if options[:name]
-            hostif = @env[:machine].provider.driver.read_host_only_networks.detect { |interface|
+            hostif = @env[:machine].provider.driver.read_host_only_interfaces.detect { |interface|
               interface[:name] == options[:name] ||
-                interface[:vboxnetworkname] == options[:name]
+                interface[:display_name] == options[:name]
             }
             options[:name] = hostif[:name] if hostif
           end
