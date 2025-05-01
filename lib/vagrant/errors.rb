@@ -139,6 +139,18 @@ module Vagrant
       error_key(:box_add_no_matching_provider)
     end
 
+    class BoxAddNoArchitectureSupport < VagrantError
+      error_key(:box_add_no_architecture_support)
+    end
+
+    class BoxAddNoMatchingArchitecture < VagrantError
+      error_key(:box_add_no_matching_architecture)
+    end
+
+    class BoxAddNoMatchingProviderVersion < VagrantError
+      error_key(:box_add_no_matching_provider_version)
+    end
+
     class BoxAddNoMatchingVersion < VagrantError
       error_key(:box_add_no_matching_version)
     end

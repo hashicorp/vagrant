@@ -49,6 +49,9 @@ module Vagrant
     #
     # @param [String] version The version to return, this can also
     #   be a constraint.
+    # @option [Symbol, Array<Symbol>] :provider Provider filter
+    # @option [Symbol] :architecture Architecture filter
+    #
     # @return [Version] The matching version or nil if a matching
     #   version was not found.
     def version(version, **opts)
@@ -90,10 +93,13 @@ module Vagrant
     # latest version. Optionally filter versions by a matching
     # provider.
     #
+    # @option [Symbol, Array<Symbol>] :provider Provider filter
+    # @option [Symbol] :architecture Architecture filter
+    #
     # @return[Array<String>]
     def versions(**opts)
       architecture = opts[:architecture]
-      provider = opts[:provider].to_sym if opts[:provider]
+      provider = Array(opts[:provider]).map(&:to_sym) if opts[:provider]
 
       # Return full version list if no filters provided
       if provider.nil? && architecture.nil?
@@ -109,7 +115,7 @@ module Vagrant
       end
 
       @version_map.select { |_, version|
-        version.provider(provider, architecture)
+        provider.any? { |pv| version.provider(pv, architecture) }
       }.keys.sort.map(&:to_s)
     end
 

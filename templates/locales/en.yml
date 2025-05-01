@@ -510,6 +510,41 @@ en:
         Name: %{name}
         Address: %{url}
         Requested provider: %{requested}
+      box_add_no_architecture_support: |-
+        The box you're attempting to add doesn't support the requested
+        architecture. Please find an alternate box that support the
+        requested architecture.
+
+        Box: %{name}
+        Address: %{url}
+        Architecture: %{architecture}
+      box_add_no_matching_architecture: |-
+        The box you're attempting to add doesn't support the requested
+        architecture with the current provider. The following providers
+        support the requested architecture for this box:
+
+          %{supported_providers}
+
+        If the above providers cannot be used, please find and alternate
+        box that supports the requested architecture.
+
+        Box: %{name}
+        Address: %{url}
+        Architecture: %{architecture}
+        Provider: %{provider}
+      box_add_no_matching_provider_version: |-
+        The box you're attempting to add has no available version that
+        matches the constraints you requested with support for the
+        required provider and architecture. Versions of the box that
+        support the required provider and architecture are listed
+        below.
+
+        Box: %{name}
+        Address: %{url}
+        Constraints: %{constraints}
+        Architecture: %{architecture}
+        Provider: %{provider}
+        Supported versions: %{versions}
       box_add_no_matching_version: |-
         The box you're attempting to add has no available version that
         matches the constraints you requested. Please double-check your

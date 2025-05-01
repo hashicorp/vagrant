@@ -263,20 +263,64 @@ module Vagrant
             provider: provider,
             architecture: architecture,
           )
+
           if !metadata_version
-            if provider && !metadata.version(">= 0", provider: provider, architecture: architecture)
-              raise Errors::BoxAddNoMatchingProvider,
+            if provider
+              # If no version found that supports the provider, then the
+              # box has no support for the provider
+              if !metadata.version(">= 0", provider: provider)
+                raise Errors::BoxAddNoMatchingProvider,
+                  name: metadata.name,
+                  requested: Array(provider).join(", "),
+                  url: display_url
+              end
+
+              # Get all versions that support the provider and architecture
+              available_versions = metadata.versions(
+                provider: provider,
+                architecture: architecture
+              )
+
+              # If no versions are found, then the box does not provide
+              # support for the requested architecture using the requested
+              # architecture
+              if available_versions.empty?
+                supported_providers = metadata.versions(architecture: architecture).map do |v|
+                  metadata.version(v).providers(architecture)
+                end.compact.uniq.sort
+
+                # If no providers are found, then the box does not
+                # have any support for the requested architecture
+                if supported_providers.empty?
+                  raise Errors::BoxAddNoArchitectureSupport,
+                    architecture: display_architecture,
+                    name: metadata.name,
+                    url: display_url
+                end
+
+                raise Errors::BoxAddNoMatchingArchitecture,
+                  provider: Array(provider).join(", "),
+                  architecture: display_architecture,
+                  name: metadata.name,
+                  url: display_url,
+                  supported_providers: supported_providers
+              end
+
+              raise Errors::BoxAddNoMatchingProviderVersion,
+                constraints: version || ">= 0",
+                provider: Array(provider).join(", "),
+                architecture: display_architecture,
                 name: metadata.name,
-                requested: [provider,
-                  display_architecture ? "(#{display_architecture})" : nil
-                ].compact.join(" "),
-                url: display_url
+                url: display_url,
+                versions: available_versions.reverse.join(", ")
             else
+              # Report that no version can match the constraints requested
+              # but show what versions are supported
               raise Errors::BoxAddNoMatchingVersion,
                 constraints: version || ">= 0",
                 name: metadata.name,
                 url: display_url,
-                versions: metadata.versions.join(", ")
+                versions: metadata.versions(architecture: architecture).reverse.join(", ")
             end
           end
 
