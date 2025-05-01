@@ -4,6 +4,8 @@ FEATURES:
 
 IMPROVEMENTS:
 
+- core: Improve error messages on box add failures [GH-13660]
+
 BUG FIXES:
 
 - command: Remove server mode checks [GH-13657]
