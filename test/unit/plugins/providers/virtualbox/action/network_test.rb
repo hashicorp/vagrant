@@ -138,56 +138,103 @@ describe VagrantPlugins::ProviderVirtualBox::Action::Network do
     let(:vbox_version) { "6.1.28" }
 
     before do
-      allow(subject).to receive(:load_net_conf).and_return(net_conf)
       expect(subject).to receive(:validate_hostonly_ip!).and_call_original
     end
 
-    it "should load net configuration" do
-      expect(subject).to receive(:load_net_conf).and_return(net_conf)
-      subject.validate_hostonly_ip!(address, driver)
-    end
-
-    context "when address is within ranges" do
-      it "should not error" do
-        subject.validate_hostonly_ip!(address, driver)
-      end
-    end
-
-    context "when address is not found within ranges" do
-      let(:net_conf) { [IPAddr.new("127.0.0.1/20")] }
-
-      it "should raise an error" do
-        expect {
-          subject.validate_hostonly_ip!(address, driver)
-        }.to raise_error(Vagrant::Errors::VirtualBoxInvalidHostSubnet)
-      end
-    end
-
-    context "when virtualbox version does not restrict range" do
-      let(:vbox_version) { "6.1.20" }
-
-      it "should not error" do
-        subject.validate_hostonly_ip!(address, driver)
-      end
-
-      it "should not attempt to load network configuration" do
-        expect(subject).not_to receive(:load_net_conf)
-        subject.validate_hostonly_ip!(address, driver)
-      end
-    end
-
-    context "when platform is windows" do
+    context "when configuration file exists" do
       before do
-        allow(Vagrant::Util::Platform).to receive(:windows?).and_return(true)
+        allow(subject).to receive(:load_net_conf).and_return(net_conf)
       end
 
-      it "should not error" do
+      it "should load net configuration" do
+        expect(subject).to receive(:load_net_conf).and_return(net_conf)
         subject.validate_hostonly_ip!(address, driver)
       end
 
-      it "should not attempt to load network configuration" do
-        expect(subject).not_to receive(:load_net_conf)
-        subject.validate_hostonly_ip!(address, driver)
+      context "when address is within ranges" do
+        it "should not error" do
+          subject.validate_hostonly_ip!(address, driver)
+        end
+      end
+
+      context "when address is not found within ranges" do
+        let(:net_conf) { [IPAddr.new("127.0.0.1/20")] }
+
+        it "should raise an error" do
+          expect {
+            subject.validate_hostonly_ip!(address, driver)
+          }.to raise_error(Vagrant::Errors::VirtualBoxInvalidHostSubnet)
+        end
+      end
+
+      context "when virtualbox version does not restrict range" do
+        let(:vbox_version) { "6.1.20" }
+
+        it "should not error" do
+          subject.validate_hostonly_ip!(address, driver)
+        end
+
+        it "should not attempt to load network configuration" do
+          expect(subject).not_to receive(:load_net_conf)
+          subject.validate_hostonly_ip!(address, driver)
+        end
+      end
+
+      context "when platform is windows" do
+        before do
+          allow(Vagrant::Util::Platform).to receive(:windows?).and_return(true)
+        end
+
+        it "should not error" do
+          subject.validate_hostonly_ip!(address, driver)
+        end
+
+        it "should not attempt to load network configuration" do
+          expect(subject).not_to receive(:load_net_conf)
+          subject.validate_hostonly_ip!(address, driver)
+        end
+      end
+    end
+
+    context "when configuration file does not exist" do
+      before do
+        allow(File).to receive(:exist?).with(described_class.const_get(:VBOX_NET_CONF)).and_return(false)
+      end
+
+      context "when ipv4 address is within range" do
+        let(:address) { "192.168.59.120" }
+
+        it "should not error" do
+          subject.validate_hostonly_ip!(address, driver)
+        end
+      end
+
+      context "when ipv4 address is not within range" do
+        let(:address) { "192.168.33.22" }
+
+        it "should raise an error" do
+          expect {
+            subject.validate_hostonly_ip!(address, driver)
+          }.to raise_error(Vagrant::Errors::VirtualBoxInvalidHostSubnet)
+        end
+      end
+
+      context "when ipv6 address is within range" do
+        let(:address) { "fe80:77:43:99:974:222:115:20" }
+
+        it "should not error" do
+          subject.validate_hostonly_ip!(address, driver)
+        end
+      end
+
+      context "when ipv6 address not within range" do
+        let(:address) { "33:77:43:99:974:222:115:20" }
+
+        it "should raise an error" do
+          expect {
+            subject.validate_hostonly_ip!(address, driver)
+          }.to raise_error(Vagrant::Errors::VirtualBoxInvalidHostSubnet)
+        end
       end
     end
   end

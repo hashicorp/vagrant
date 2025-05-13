@@ -28,7 +28,7 @@ module VagrantPlugins
         DARWIN_IGNORE_HOSTONLY_VALIDATE_VERSION = Gem::Version.new("7.0.0")
         # Default valid range for hostonly networks
         HOSTONLY_DEFAULT_RANGE = [
-          IPAddr.new("192.168.56.0/21").freeze
+          IPAddr.new("192.168.56.0/21").freeze,
           IPAddr.new("fe80::/10").freeze
         ].freeze
 
