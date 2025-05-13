@@ -27,7 +27,10 @@ module VagrantPlugins
         # Version of VirtualBox on darwin platform that ignores restrictions
         DARWIN_IGNORE_HOSTONLY_VALIDATE_VERSION = Gem::Version.new("7.0.0")
         # Default valid range for hostonly networks
-        HOSTONLY_DEFAULT_RANGE = [IPAddr.new("192.168.56.0/21").freeze].freeze
+        HOSTONLY_DEFAULT_RANGE = [
+          IPAddr.new("192.168.56.0/21").freeze,
+          IPAddr.new("fe80::/10").freeze
+        ].freeze
 
         include Vagrant::Util::NetworkIP
         include Vagrant::Util::ScopedHashOverride
