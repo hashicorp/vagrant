@@ -5,6 +5,7 @@ FEATURES:
 IMPROVEMENTS:
 
 - core: Improve error messages on box add failures [GH-13660]
+- provider/virtualbox: Allow link-local IPv6 addresses for hostonly [GH-12653]
 
 BUG FIXES:
 
