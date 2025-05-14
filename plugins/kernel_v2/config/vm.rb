@@ -47,6 +47,7 @@ module VagrantPlugins
       attr_accessor :box_download_insecure
       attr_accessor :box_download_location_trusted
       attr_accessor :box_download_options
+      attr_accessor :cloud_init_first_boot_only
       attr_accessor :communicator
       attr_accessor :graceful_halt_timeout
       attr_accessor :guest
@@ -87,6 +88,7 @@ module VagrantPlugins
         @box_version                   = UNSET_VALUE
         @allow_hosts_modification      = UNSET_VALUE
         @clone                         = UNSET_VALUE
+        @cloud_init_first_boot_only    = UNSET_VALUE
         @communicator                  = UNSET_VALUE
         @graceful_halt_timeout         = UNSET_VALUE
         @guest                         = UNSET_VALUE
@@ -536,6 +538,7 @@ module VagrantPlugins
         @box_extra_download_options = Vagrant::Util::MapCommandOptions.map_to_command_options(@box_download_options)
         @allow_hosts_modification = true if @allow_hosts_modification == UNSET_VALUE
         @clone = nil if @clone == UNSET_VALUE
+        @cloud_init_first_boot_only = @cloud_init_first_boot_only == UNSET_VALUE ? true : !!@cloud_init_first_boot_only
         @communicator = nil if @communicator == UNSET_VALUE
         @graceful_halt_timeout = 60 if @graceful_halt_timeout == UNSET_VALUE
         @guest = nil if @guest == UNSET_VALUE

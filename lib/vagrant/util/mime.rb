@@ -70,7 +70,7 @@ module Vagrant
         # @param [String] type of the entity content
         def initialize(content, content_type)
           if !MIME::Types.include?(content_type)
-            MIME::Types.add(MIME::Type.new(content_type))
+            MIME::Types.add(MIME::Type.new("content-type" => content_type))
           end
           @content = content
           @content_type = MIME::Types[content_type].first

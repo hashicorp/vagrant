@@ -27,7 +27,10 @@ module Vagrant
             end
           end
 
-          write_disk_metadata(machine, configured_disks) unless configured_disks.empty?
+          # Always write the disk metadata even if the configured
+          # disks is empty. This ensure that old entries are not
+          # orphaned in the metadata file.
+          write_disk_metadata(machine, configured_disks)
 
           # Continue On
           @app.call(env)

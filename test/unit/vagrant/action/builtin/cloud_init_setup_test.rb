@@ -6,7 +6,8 @@ require "vagrant/util/mime"
 
 describe Vagrant::Action::Builtin::CloudInitSetup do
   let(:app) { lambda { |env| } }
-  let(:vm) { double("vm", disk: disk, disks: disks) }
+  let(:vm) { double("vm", disk: disk, disks: disks, cloud_init_first_boot_only: first_boot_only) }
+  let(:first_boot_only) { true }
   let(:disk) { double("disk") }
   let(:disks) { double("disk") }
   let(:config) { double("config", vm: vm) }
@@ -59,9 +60,68 @@ describe Vagrant::Action::Builtin::CloudInitSetup do
 
       expect(subject).not_to receive(:setup_user_data)
       expect(subject).not_to receive(:write_cfg_iso)
-      expect(subject).not_to receive(:attack_disk_config)
+      expect(subject).not_to receive(:attach_disk_config)
 
       subject.call(env)
+    end
+
+    context "sentinel file" do
+      let(:sentinel) { double("sentinel") }
+      let(:sentinel_exists) { false }
+      let(:sentinel_contents) { "" }
+
+      before do
+        allow(machine).to receive_message_chain(:data_dir, :join).with("action_cloud_init").and_return(sentinel)
+        allow(sentinel).to receive(:file?).and_return(sentinel_exists)
+        allow(sentinel).to receive(:read).and_return(sentinel_contents)
+        allow(sentinel).to receive(:unlink)
+
+        allow(vm).to receive(:cloud_init_configs).and_return(cloud_init_configs)
+        allow(subject).to receive(:setup_user_data)
+        allow(subject).to receive(:write_cfg_iso)
+      end
+
+      context "when file exists" do
+        let(:sentinel_exists) { true }
+
+        context "when file contains machine id" do
+          let(:sentinel_contents) { machine.id.to_s }
+
+          it "should not write iso configuration" do
+            expect(subject).not_to receive(:write_cfg_iso)
+
+            subject.call(env)
+          end
+
+          context "when configuration enables on all boots" do
+            let(:first_boot_only) { false }
+
+            it "should write the iso configuration" do
+              expect(subject).to receive(:write_cfg_iso)
+              subject.call(env)
+            end
+
+            it "should remove sentinel file" do
+              expect(sentinel).to receive(:unlink)
+              subject.call(env)
+            end
+          end
+        end
+
+        context "when file does not contain machine id" do
+          let(:sentinel_contents) { "unknown-id" }
+
+          it "should write iso configuration" do
+            expect(subject).to receive(:write_cfg_iso)
+            subject.call(env)
+          end
+
+          it "should remove sentinel file" do
+            expect(sentinel).to receive(:unlink)
+            subject.call(env)
+          end
+        end
+      end
     end
   end
 
@@ -117,9 +177,18 @@ describe Vagrant::Action::Builtin::CloudInitSetup do
     let(:iso_path) { Pathname.new("fake/iso/path") }
     let(:source_dir) { Pathname.new("fake/source/path") }
     let(:meta_data_file) { double("meta_data_file") }
+    let(:sentinel) { double("sentinel") }
+    let(:sentinel_exists) { false }
+    let(:file_checksum) { double("file_checksum", checksum: checksum) }
+    let(:checksum) { "DUMMY-CHECKSUM-VALUE" }
 
     before do
       allow(meta_data_file).to receive(:write).and_return(true)
+      allow(machine).to receive_message_chain(:data_dir, :join).with("action_cloud_init_iso").and_return(sentinel)
+      allow(sentinel).to receive(:file?).and_return(sentinel_exists)
+      allow(sentinel).to receive(:write)
+      allow(Vagrant::Util::FileChecksum).to receive(:new).with(iso_path, :sha256).and_return(file_checksum)
+      allow(Vagrant::Util::FileChecksum).to receive(:new).with(iso_path.to_s, :sha256).and_return(file_checksum)
     end
 
     it "raises an error if the host capability is not supported" do
@@ -140,7 +209,110 @@ describe Vagrant::Action::Builtin::CloudInitSetup do
       expect(vm.disks).to receive(:each)
       expect(meta_data).to receive(:to_yaml)
 
+
       subject.write_cfg_iso(machine, env, message, meta_data)
+    end
+
+    context "sentinel file" do
+      let(:user_data) { double("user_data") }
+      let(:sentinel_contents) { "" }
+
+      before do
+        allow(sentinel).to receive(:read).and_return(sentinel_contents)
+        allow(sentinel).to receive(:unlink)
+
+        allow(host).to receive(:capability?).with(:create_iso).and_return(true)
+        allow(Dir).to receive(:mktmpdir).and_return(source_dir)
+        allow(File).to receive(:open).with("#{source_dir}/user-data", 'w').and_return(true)
+        allow(File).to receive(:open).with("#{source_dir}/meta-data", 'w').and_yield(meta_data_file)
+        allow(FileUtils).to receive(:remove_entry).with(source_dir).and_return(true)
+        allow(FileUtils).to receive(:remove_entry).with(source_dir).and_return(true)
+        allow(host).to receive(:capability).with(:create_iso, source_dir, volume_id: "cidata").and_return(iso_path)
+        allow(subject).to receive(:attach_disk_config)
+      end
+
+      context "when file exists" do
+        let(:sentinel_exists) { true }
+
+        context "when file contents is iso path" do
+          let(:sentinel_contents) { "#{checksum}:#{iso_path}" }
+
+          context "when file contents path exists" do
+            before do
+              expect(File).to receive(:exist?).with(iso_path.to_s).and_return(true)
+            end
+
+            it "should not create iso" do
+              expect(host).not_to receive(:capability)
+              subject.write_cfg_iso(machine, env, user_data, meta_data)
+            end
+
+            it "should attach with the iso path" do
+              expect(subject).to receive(:attach_disk_config).with(machine, env, iso_path.to_path)
+              subject.write_cfg_iso(machine, env, user_data, meta_data)
+            end
+
+            it "should not write the sentinel file" do
+              expect(sentinel).not_to receive(:write)
+              subject.write_cfg_iso(machine, env, user_data, meta_data)
+            end
+          end
+
+          context "when file contents path does not exist" do
+            before do
+              expect(File).to receive(:exist?).with(iso_path.to_s).and_return(false)
+            end
+
+            it "should create iso" do
+              expect(host).to receive(:capability).with(:create_iso, source_dir, volume_id: "cidata").and_return(iso_path)
+              subject.write_cfg_iso(machine, env, user_data, meta_data)
+            end
+
+            it "should remove the sentinel file" do
+              expect(sentinel).to receive(:unlink)
+              subject.write_cfg_iso(machine, env, user_data, meta_data)
+            end
+
+            it "should write the sentinel file" do
+              expect(sentinel).to receive(:write).with("#{checksum}:#{iso_path}")
+              subject.write_cfg_iso(machine, env, user_data, meta_data)
+            end
+          end
+
+          context "when file contents checksum does not match existing file checksum" do
+            let(:sentinel_contents) { "BAD-CHECKSUM-VALUE:#{iso_path}" }
+
+            it "should create iso" do
+              expect(host).to receive(:capability).with(:create_iso, source_dir, volume_id: "cidata").and_return(iso_path)
+              subject.write_cfg_iso(machine, env, user_data, meta_data)
+            end
+
+            it "should remove the sentinel file" do
+              expect(sentinel).to receive(:unlink)
+              subject.write_cfg_iso(machine, env, user_data, meta_data)
+            end
+
+            it "should write the sentinel file" do
+              expect(sentinel).to receive(:write).with("#{checksum}:#{iso_path}")
+              subject.write_cfg_iso(machine, env, user_data, meta_data)
+            end
+          end
+        end
+      end
+
+      context "when file does not exist" do
+        let(:sentinel_exists) { false }
+
+        it "should create iso" do
+          expect(host).to receive(:capability).with(:create_iso, source_dir, volume_id: "cidata").and_return(iso_path)
+          subject.write_cfg_iso(machine, env, user_data, meta_data)
+        end
+
+        it "should write the sentinel file" do
+          expect(sentinel).to receive(:write).with("#{checksum}:#{iso_path}")
+          subject.write_cfg_iso(machine, env, user_data, meta_data)
+        end
+      end
     end
   end
 

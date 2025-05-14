@@ -121,6 +121,12 @@ the name of the synced folder plugin.
 - `config.vm.cloud_init` - Stores various [cloud_init](/vagrant/docs/cloud-init) configurations
   on the machine.
 
+- `config.vm.cloud_init_first_boot_only` - (boolean) - If true then the cloud-init 
+  configuration will only be generated and attached on the first successful boot of 
+  the machine. Subsequent boots of the machine will not generate the cloud-init 
+  configuration and the `cloud-init wait` command will not be executed. Defaults 
+  to `true`.
+
 - `config.vm.communicator` (string) - The communicator type to use to connect to the
   guest box. By default this is `"ssh"`, but should be changed to `"winrm"` for
   Windows guests.
