@@ -82,22 +82,14 @@ module VagrantPlugins
           b.use ForwardPorts
           b.use SetHostname
           b.use SaneDefaults
-          b.use Call, IsEnvSet, :cloud_init do |env, b2|
-            if env[:result]
-              b2.use CloudInitSetup
-            end
-          end
+          b.use CloudInitSetup
           b.use CleanupDisks
           b.use Disk
           b.use Customize, "pre-boot"
           b.use Boot
           b.use Customize, "post-boot"
           b.use WaitForCommunicator, [:starting, :running, :paused]
-          b.use Call, IsEnvSet, :cloud_init do |env, b2|
-            if env[:result]
-              b2.use CloudInitWait
-            end
-          end
+          b.use CloudInitWait
           b.use Customize, "post-comm"
           b.use CheckGuestAdditions
         end
@@ -424,7 +416,6 @@ module VagrantPlugins
             end
           end
 
-          b.use EnvSet, cloud_init: true
           b.use action_start
         end
       end

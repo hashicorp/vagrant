@@ -34,14 +34,14 @@ describe Vagrant::Action::Builtin::Disk do
       subject.call(env)
     end
 
-    it "continues on if no disk config present" do
+    it "writes a disk_meta file if no disk config is present" do
       allow(vm).to receive(:disks).and_return([])
       subject = described_class.new(app, env)
 
       expect(app).to receive(:call).with(env).ordered
       expect(machine.provider).not_to receive(:capability).with(:configure_disks, disks)
 
-      expect(subject).not_to receive(:write_disk_metadata)
+      expect(subject).to receive(:write_disk_metadata)
 
       subject.call(env)
     end
@@ -50,6 +50,7 @@ describe Vagrant::Action::Builtin::Disk do
       allow(vm).to receive(:disks).and_return(disks)
       allow(machine.provider).to receive(:capability?).with(:configure_disks).and_return(false)
       subject = described_class.new(app, env)
+      allow(subject).to receive(:write_disk_metadata)
 
       expect(app).to receive(:call).with(env).ordered
       expect(machine.provider).not_to receive(:capability).with(:configure_disks, disks)
