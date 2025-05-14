@@ -5,11 +5,13 @@ FEATURES:
 IMPROVEMENTS:
 
 - core: Improve error messages on box add failures [GH-13660]
+- core: Only generate and attach ISO for cloud-init on first boot [GH-13666]
 - provider/virtualbox: Allow link-local IPv6 addresses for hostonly [GH-12653]
 
 BUG FIXES:
 
 - command: Remove server mode checks [GH-13657]
+- core: Prevent cloud-init from regenerating and attaching ISO [GH-13666]
 - provider/virtualbox: Fix VirtualBox private network setup [GH-13659]
 
 ## 2.4.5 (April 23, 2025)
