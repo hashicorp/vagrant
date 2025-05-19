@@ -64,9 +64,17 @@ module VagrantPlugins
           machine.communicate.test("test -f /etc/fstab")
         end
 
+        def self.contains_vagrant_data?(machine)
+          machine.communicate.test("grep '#VAGRANT-BEGIN' /etc/fstab")
+        end
+
         def self.remove_vagrant_managed_fstab(machine)
           if fstab_exists?(machine)
-            machine.communicate.sudo("sed -i '/\#VAGRANT-BEGIN/,/\#VAGRANT-END/d' /etc/fstab")
+            if contains_vagrant_data?(machine)
+                machine.communicate.sudo("sed -i '/\#VAGRANT-BEGIN/,/\#VAGRANT-END/d' /etc/fstab")
+            else
+                @@logger.info("no vagrant data in fstab file, carrying on")
+            end
           else
             @@logger.info("no fstab file found, carrying on")
           end
