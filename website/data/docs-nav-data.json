@@ -763,10 +763,6 @@
       {
         "title": "Feature Flags",
         "path": "experimental"
-      },
-      {
-        "title": "Vagrant Go",
-        "path": "experimental/vagrant_go"
       }
     ]
   },
