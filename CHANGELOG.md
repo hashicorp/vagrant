@@ -1,4 +1,4 @@
-## 2.4.6.dev (UNRELEASED)
+## 2.4.6 (May 21, 2025)
 
 IMPROVEMENTS:
 
