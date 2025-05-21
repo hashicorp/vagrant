@@ -72,12 +72,23 @@ module VagrantPlugins
             "VMName" => env[:machine].provider_config.vmname,
           }
 
-
           env[:ui].detail("Creating and registering the VM...")
           server = env[:machine].provider.driver.import(options)
 
+          @logger.debug("import result value: #{server.inspect}")
+
+          sid = case server["id"]
+                when String
+                  server["id"]
+                when Array
+                  server["id"].first
+                else
+                  raise TypeError,
+                    "Expected String or Array value, received: #{server["id"].class}"
+                end
+
           env[:ui].detail("Successfully imported VM")
-          env[:machine].id = server["id"]
+          env[:machine].id = sid
           @app.call(env)
         end
       end

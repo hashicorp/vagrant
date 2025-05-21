@@ -98,6 +98,17 @@ describe VagrantPlugins::HyperV::Action::Import do
       subject.call(env)
     end
 
+    context "VM ID result is Array" do
+      before do
+        expect(driver).to receive(:import).and_return("id" => "VMID")
+      end
+
+      it "should properly set the machine ID" do
+        expect(machine).to receive(:id=).with("VMID")
+        subject.call(env)
+      end
+    end
+
     context "with no vmcx support" do
       before do
         expect(driver).to receive(:has_vmcx_support?).and_return(false)
