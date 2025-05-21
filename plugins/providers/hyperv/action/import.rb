@@ -70,8 +70,10 @@ module VagrantPlugins
             "LinkedClone" => !!env[:machine].provider_config.linked_clone,
             "SourcePath" => Vagrant::Util::Platform.wsl_to_windows_path(image_path).gsub("/", "\\"),
             "VMName" => env[:machine].provider_config.vmname,
+            "Memory" => env[:machine].provider_config.memory,
+            "MaxMemory" => env[:machine].provider_config.maxmemory,
+            "Processors" => env[:machine].provider_config.cpus,
           }
-
 
           env[:ui].detail("Creating and registering the VM...")
           server = env[:machine].provider.driver.import(options)
