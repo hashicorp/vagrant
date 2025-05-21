@@ -14,6 +14,7 @@ BUG FIXES:
 - command: Remove server mode checks [GH-13657]
 - core: Prevent cloud-init from regenerating and attaching ISO [GH-13666]
 - provider/hyperv: Extract machine ID if collection returned [GH-13669]
+- provider/hyperv: Fix import failure due to lack of resources [GH-13670]
 - provider/virtualbox: Fix VirtualBox private network setup [GH-13659]
 
 ## 2.4.5 (April 23, 2025)
