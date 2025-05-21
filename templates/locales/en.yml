@@ -1250,6 +1250,14 @@ en:
         get an ID of a target machine from `vagrant global-status` to run
         this command on. A final option is to change to a directory with a
         Vagrantfile and to try again.
+      oscdimg_command_missing: |-
+        Vagrant failed to locate the oscdimg.exe executable which is required
+        for creating ISO files. Please ensure the oscdimg.exe executable is
+        available on the configured PATH. If the oscdimg.exe executable is
+        not found on the local system, it can be installed with the Windows
+        Assessment and Deployment Kit:
+
+          https://go.microsoft.com/fwlink/?linkid=2196127
       plugin_gem_not_found: |-
         The plugin '%{name}' could not be installed because it could not
         be found. Please double check the name and try again.
