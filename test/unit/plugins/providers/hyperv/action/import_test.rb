@@ -15,7 +15,10 @@ describe VagrantPlugins::HyperV::Action::Import do
   let(:provider_config){
     double("provider_config",
       linked_clone: false,
-      vmname: "VMNAME"
+      vmname: "VMNAME",
+      cpus: nil,
+      memory: nil,
+      maxmemory: nil,
     )
   }
   let(:box){ double("box", directory: box_directory) }

@@ -33,6 +33,12 @@ function New-VagrantVM {
         [string] $SourcePath,
         [parameter (Mandatory=$false)]
         [bool] $LinkedClone = $false,
+        [parameter (Mandatory=$false)]
+        [int] $Memory = $null,
+        [parameter (Mandatory=$false)]
+        [int] $MaxMemory = $null,
+        [parameter (Mandatory=$false)]
+        [int] $CPUCount = $null,
         [parameter(Mandatory=$false)]
         [string] $VMName
     )
@@ -93,6 +99,12 @@ function New-VagrantVMVMCX {
         [string] $SourcePath,
         [parameter (Mandatory=$false)]
         [bool] $LinkedClone = $false,
+        [parameter (Mandatory=$false)]
+        [int] $Memory = $null,
+        [parameter (Mandatory=$false)]
+        [int] $MaxMemory = $null,
+        [parameter (Mandatory=$false)]
+        [int] $CPUCount = $null,
         [parameter(Mandatory=$false)]
         [string] $VMName
     )
@@ -126,6 +138,16 @@ function New-VagrantVMVMCX {
 
     # Disconnect adapters from switches
     Hyper-V\Get-VMNetworkAdapter -VM $VM | Hyper-V\Disconnect-VMNetworkAdapter
+
+    # If we have a memory value provided, set it here
+    if($Memory -ne $null) {
+        Set-VagrantVMMemory -VM $VM -Memory $Memory -MaxMemory $MaxMemory
+    }
+
+    # If we have a CPU count provided, set it here
+    if($CPUCount -ne $null) {
+        Set-VagrantVMCPUS -VM $VM -CPUCount $CPUCount
+    }
 
     # Verify new VM
     $Report = Hyper-V\Compare-VM -CompatibilityReport $VMConfig
