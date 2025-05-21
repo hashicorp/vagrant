@@ -7,6 +7,7 @@ IMPROVEMENTS:
 - core: Improve error messages on box add failures [GH-13660]
 - core: Only generate and attach ISO for cloud-init on first boot [GH-13666]
 - host/windows: Add basic oscdimg detection on Windows [GH-13668]
+- provider/hyperv: Enable cloud-init support [GH-13671]
 - provider/virtualbox: Allow link-local IPv6 addresses for hostonly [GH-12653]
 
 BUG FIXES:
