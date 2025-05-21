@@ -619,6 +619,10 @@ module Vagrant
       error_key(:no_env)
     end
 
+    class OscdimgCommandMissingError < VagrantError
+      error_key(:oscdimg_command_missing)
+    end
+
     class PackageIncludeMissing < VagrantError
       error_key(:include_file_missing, "vagrant.actions.general.package")
     end
