@@ -1,7 +1,5 @@
 ## 2.4.6.dev (UNRELEASED)
 
-FEATURES:
-
 IMPROVEMENTS:
 
 - core: Improve error messages on box add failures [GH-13660]
