@@ -224,6 +224,12 @@ function New-VagrantVMXML {
         [string] $SourcePath,
         [parameter (Mandatory=$false)]
         [bool] $LinkedClone = $false,
+        [parameter (Mandatory=$false)]
+        [int] $Memory = $null,
+        [parameter (Mandatory=$false)]
+        [int] $MaxMemory = $null,
+        [parameter (Mandatory=$false)]
+        [int] $CPUCount = $null,
         [parameter(Mandatory=$false)]
         [string] $VMName
     )
@@ -327,7 +333,11 @@ function New-VagrantVMXML {
 
     # Apply original VM configuration to new VM instance
 
-    $processors = $VMConfig.configuration.settings.processors.count."#text"
+    if($CPUCount -ne $null) {
+        $processors = $CPUCount
+    } else {
+        $processors = $VMConfig.configuration.settings.processors.count."#text"
+    }
     $notes = (Select-Xml -XML $VMConfig -XPath "//notes").node."#text"
     $memory = (Select-Xml -XML $VMConfig -XPath "//memory").node.Bank
     if ($memory.dynamic_memory_enabled."#text" -eq "True") {
@@ -336,10 +346,22 @@ function New-VagrantVMXML {
     else {
         $dynamicmemory = $False
     }
-    # Memory values need to be in bytes
-    $MemoryMaximumBytes = ($memory.limit."#text" -as [int]) * 1MB
-    $MemoryStartupBytes = ($memory.size."#text" -as [int]) * 1MB
-    $MemoryMinimumBytes = ($memory.reservation."#text" -as [int]) * 1MB
+
+
+    if($Memory -ne $null) {
+        $MemoryMaximumBytes = $Memory * 1MB
+        $MemoryStartupBytes = $Memory * 1MB
+        $MemoryMinimumBytes = $Memory * 1MB
+    } else {
+        $MemoryMaximumBytes = ($memory.limit."#text" -as [int]) * 1MB
+        $MemoryStartupBytes = ($memory.size."#text" -as [int]) * 1MB
+        $MemoryMinimumBytes = ($memory.reservation."#text" -as [int]) * 1MB
+    }
+
+    if($MaxMemory -ne $null) {
+        $dynamicmemory = $true
+        $MemoryMaximumBytes = $MaxMemory * 1MB
+    }
 
     $Config = @{
         ProcessorCount = $processors;
