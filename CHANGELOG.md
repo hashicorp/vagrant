@@ -6,6 +6,8 @@ IMPROVEMENTS:
 
 BUG FIXES:
 
+- provider/hyperv: Fix import for XML based configuration [GH-13674]
+
 ## 2.4.6 (May 21, 2025)
 
 IMPROVEMENTS:
