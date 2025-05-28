@@ -1,0 +1,41 @@
+---
+layout: docs
+page_title: VirtualBox Provider
+description: |-
+  Vagrant comes with support out of the box for VirtualBox, a free,
+  cross-platform consumer virtualization product.
+---
+
+# VirtualBox
+
+Vagrant comes with support out of the box for [VirtualBox](https://www.virtualbox.org), a free, cross-platform consumer virtualization product.
+
+The VirtualBox provider is compatible with VirtualBox versions 4.0.x, 4.1.x, 4.2.x, 4.3.x, 5.0.x, 5.1.x, 5.2.x, 6.0.x, 6.1.x, 7.0.x, and 7.1.x. Other versions are unsupported and the provider will display an error message. Please note that beta and pre-release versions VirtualBox are not supported and may not be well-behaved.
+
+VirtualBox must be installed on its own prior to using the provider, or the provider will display an error message asking you to install it. VirtualBox can be installed by [downloading](https://www.virtualbox.org/wiki/Downloads) a package or installer for your operating system and using standard procedures to install that package.
+
+## Usage
+
+The Vagrant VirtualBox provider is used just like any other provider. Please read the general [basic usage](/vagrant/docs/providers/basic_usage) page for providers.
+
+The value to use for the `--provider` flag is `virtualbox`.
+
+The Vagrant VirtualBox provider does not support parallel execution at this time. Specifying the `--parallel` option will have no effect.
+
+## Networking
+
+Refer to the [networking](/vagrant/docs/define/networking/virtualbox) page for more information.
+
+## Common Issues
+
+This section lists some common issues people run into with Vagrant and VirtualBox as well as solutions for those issues.
+
+### Hanging on Windows
+
+If Vagrant commands are hanging on Windows because they're communicating to VirtualBox, this may be caused by a permissions issue with VirtualBox. This is easy to fix. Starting VirtualBox as a normal user or as an administrator will prevent you from using it in the opposite way. Please keep in mind that when Vagrant interacts with VirtualBox, it will interact with it with the same access level as the console running Vagrant.
+
+To fix this issue, completely shut down all VirtualBox machines and GUIs. Wait a few seconds. Then, launch VirtualBox only with the access level you wish to use.
+
+### DNS not working
+
+If DNS is not working within your VM, then you may need to enable a DNS proxy (built-in to VirtualBox). Please refer to the [StackOverflow answers here](https://serverfault.com/questions/453185/vagrant-virtualbox-dns-10-0-2-3-not-working) for a guide on how to do that.

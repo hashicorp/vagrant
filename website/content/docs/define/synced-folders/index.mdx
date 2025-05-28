@@ -1,0 +1,57 @@
+---
+layout: docs
+page_title: Synced Folders
+description: |-
+  Synced folders enable Vagrant to sync a folder on the host machine to the
+  guest machine, allowing you to continue working on your project's files
+  on your host machine, but use the resources in the guest machine to
+  compile or run your project.
+---
+
+# Synced folders
+
+Synced folders enable Vagrant to sync a folder on the host machine to the guest machine, letting you continue working on your project's files on your host machine, but use the resources in the guest machine to compile or run your project.
+
+By default, Vagrant shares your project directory (the directory with the [Vagrantfile](/vagrant/docs/vagrantfile/)) to `/vagrant`.
+
+### Symbolic links
+
+Support for symbolic links across synced folder implementations and host/guest combinations is inconsistent. Vagrant does its best to make sure symbolic links work by configuring various hypervisors (such as VirtualBox), but some host/guest combinations still do not work properly. This can affect some development environments that rely on symbolic links.
+
+We recommend you test symbolic links on all the host/guest combinations you sync folders on.
+
+## Enable synced folders
+
+Synced folders are automatically setup during `vagrant up` and `vagrant reload`.
+
+## Disable synced folders
+
+You can disable synced folders by adding the `disabled` option to any definition.
+
+```ruby
+Vagrant.configure("2") do |config|
+  config.vm.synced_folder "src/", "/srv/website", disabled: true
+end
+```
+
+You can disable the default `/vagrant` share by adding the `disabled` option to the definition.
+
+```ruby
+config.vm.synced_folder ".", "/vagrant", disabled: true
+```
+
+## Modify the owner/group
+
+If you need to mount folders with a different owner/group than the default SSH user, use the `owner` and `group` options. Keep in mind that these options will only affect the synced folder itself. 
+
+```ruby
+config.vm.synced_folder "src/", "/srv/website",
+  owner: "root", group: "root"
+```
+
+Owner and group IDs defined within `mount_options` will have precedence over the `owner` and `group` options. For example, given the following configuration, the user with ID `1234` and the group with ID `1234` will own the synced folder. Vagrant ignores the `owner` and `group` options.
+
+```ruby
+config.vm.synced_folder ".", "/vagrant", owner: "vagrant",
+  group: "vagrant", mount_options: ["uid=1234", "gid=1234"]
+```

@@ -1,0 +1,100 @@
+---
+layout: docs
+page_title: Basic Usage - Provisioning
+description: |-
+  While Vagrant offers multiple options for how you are able to provision
+  your machine, there is a standard usage pattern as well as some important
+  points common to all provisioners that are important to know.
+---
+
+# Configure provisioners
+
+While Vagrant offers multiple options for how you are able to provision
+your machine, there is a standard usage pattern as well as some important
+points common to all provisioners that are important to know.
+
+
+## Configuration
+
+First, every provisioner is configured within your
+[Vagrantfile](/vagrant/docs/vagrantfile/)
+using the `config.vm.provision` method call. For example, the Vagrantfile
+below enables shell provisioning:
+
+```ruby
+Vagrant.configure("2") do |config|
+  # ... other configuration
+
+  config.vm.provision "shell", inline: "echo hello"
+end
+```
+
+Every provisioner has a type, such as `"shell"`, used as the first
+parameter to the provisioning configuration. Following that is basic key/value
+for configuring that specific provisioner. Instead of basic key/value, you
+can also use a Ruby block for a syntax that is more like variable assignment.
+The following is effectively the same as the prior example:
+
+```ruby
+Vagrant.configure("2") do |config|
+  # ... other configuration
+
+  config.vm.provision "shell" do |s|
+    s.inline = "echo hello"
+  end
+end
+```
+
+The benefit of the block-based syntax is that with more than a couple options
+it can greatly improve readability. Additionally, some provisioners, like
+the Chef provisioner, have special methods that can be called within that
+block to ease configuration that cannot be done with the key/value approach,
+or you can use this syntax to pass arguments to a shell script.
+
+The attributes that can be set in a single-line are the attributes that
+are set with the `=` style, such as `inline = "echo hello"` above. If the
+style is instead more of a function call, such as `add_recipe "foo"`, then
+this cannot be specified in a single line.
+
+Provisioners can also be named (since 1.7.0). These names are used cosmetically for output
+as well as overriding provisioner settings (covered further below). An example
+of naming provisioners is shown below:
+
+```ruby
+Vagrant.configure("2") do |config|
+  # ... other configuration
+
+  config.vm.provision "bootstrap", type: "shell" do |s|
+    s.inline = "echo hello"
+  end
+end
+```
+
+Naming provisioners is simple. The first argument to `config.vm.provision`
+becomes the name, and then a `type` option is used to specify the provisioner
+type, such as `type: "shell"` above.
+
+## Options
+
+Every Vagrant provisioner accepts a few base options. The only required
+option is what type a provisioner is:
+
+- `name` (string) - The name of the provisioner. Note: if no `type` option is given,
+  this option _must_ be the type of provisioner it is. If you wish to give it a
+  different name you must also set the `type` option to define the kind of provisioner.
+- `type` (string) - The class of provisioner to configure. (i.e. `"shell"` or `"file"`)
+- `before` (string or symbol) - The exact name of an already defined provisioner
+  that _this_ provisioner should run before. If defined as a symbol, its only valid
+  values are `:each` or `:all`, which makes the provisioner run before each and
+  every root provisioner, or before all provisioners respectively.
+- `after` (string or symbol) - The exact name of an already defined provisioner
+  that _this_ provisioner should run after. If defined as a symbol, its only valid
+  values are `:each` or `:all`, which makes the provisioner run after each and
+  every root provisioner, or before all provisioners respectively.
+- `communicator_required` (boolean) - Specifies the machine must be accessible by
+  Vagrant in order to run the provisioner. If set to true, the provisioner will
+  only run if Vagrant can establish communication with the guest. If set to false
+  the provisioner will run regardless of Vagrant's ability to communicate with the
+  guest. Defaults to true.
+
+More information about how to use `before` and `after` options can be read [below](#dependency-provisioners).
