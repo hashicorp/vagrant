@@ -5,6 +5,7 @@ module VagrantPlugins
   module DockerProvider
     module Action
       class Create
+        VAGRANTCONTAINER = "VAGRANTCONTAINER-".freeze
         def initialize(app, env)
           @app = app
         end
@@ -91,9 +92,7 @@ module VagrantPlugins
         def create_params
           container_name = @provider_config.name
           if !container_name
-            container_name = "#{@env[:root_path].basename.to_s}_#{@machine.name}"
-            container_name.gsub!(/[^-a-z0-9_]/i, "")
-            container_name << "_#{Time.now.to_i}"
+            container_name = container_name()
           end
 
           image = @env[:create_image]
@@ -156,6 +155,16 @@ module VagrantPlugins
 
           result
         end
+
+        def container_name
+          base = @env[:root_path].basename.to_s
+          base = base.sub(/^[_-]/, VAGRANTCONTAINER)
+          container_name = "#{base}_#{@machine.name}"
+          container_name.gsub!(/[^-a-z0-9_]/i, "")
+          container_name << "_#{Time.now.to_i}"
+          container_name
+        end
+
       end
     end
   end
