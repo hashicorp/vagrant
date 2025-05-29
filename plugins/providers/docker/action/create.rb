@@ -158,7 +158,7 @@ module VagrantPlugins
 
         def container_name
           base = @env[:root_path].basename.to_s
-          base = base.sub(/^[_-]/, VAGRANTCONTAINER)
+          base = base.sub(/^[^a-zA-Z0-9]/, VAGRANTCONTAINER)
           container_name = "#{base}_#{@machine.name}"
           container_name.gsub!(/[^-a-z0-9_]/i, "")
           container_name << "_#{Time.now.to_i}"
