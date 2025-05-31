@@ -55,4 +55,16 @@ describe VagrantPlugins::DockerProvider::Action::Create do
       expect(result).to eq(["8125:8125", "8125:8125/udp"])
     end
   end
+
+  describe "#generate_container_name" do
+    it "generates a unique container name" do
+      subject.instance_variable_set(:@env, { root_path: Pathname.new("/path/to/__--root-test-1_1--") })
+      subject.instance_variable_set(:@machine, machine)
+
+      name = subject.generate_container_name
+
+      expect(name).to match(/^root-test-1_1--_.*$/)
+    end
+  end
+
 end
