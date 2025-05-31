@@ -5,7 +5,6 @@ module VagrantPlugins
   module DockerProvider
     module Action
       class Create
-        VAGRANTCONTAINER = "VAGRANTCONTAINER-".freeze
         def initialize(app, env)
           @app = app
         end
