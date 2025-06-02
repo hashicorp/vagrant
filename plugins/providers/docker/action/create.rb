@@ -158,7 +158,7 @@ module VagrantPlugins
         def generate_container_name
           container_name = "#{@env[:root_path].basename.to_s}_#{@machine.name}"
           # Remove leading -/_ and any non-alphanumeric, non-hyphen/underscore characters
-          container_name.gsub!(/\A[-_]+|[^-a-z0-9_]/i, "")
+          container_name.gsub!(/\A[^a-zA-Z0-9]+|[^-a-z0-9_]/i, "")
           container_name << "_#{Time.now.to_i}"
           container_name
         end
