@@ -91,9 +91,7 @@ module VagrantPlugins
         def create_params
           container_name = @provider_config.name
           if !container_name
-            container_name = "#{@env[:root_path].basename.to_s}_#{@machine.name}"
-            container_name.gsub!(/[^-a-z0-9_]/i, "")
-            container_name << "_#{Time.now.to_i}"
+            container_name = generate_container_name
           end
 
           image = @env[:create_image]
@@ -156,6 +154,15 @@ module VagrantPlugins
 
           result
         end
+
+        def generate_container_name
+          container_name = "#{@env[:root_path].basename.to_s}_#{@machine.name}"
+          # Remove leading -/_ and any non-alphanumeric, non-hyphen/underscore characters
+          container_name.gsub!(/\A[^a-zA-Z0-9]+|[^-a-z0-9_]/i, "")
+          container_name << "_#{Time.now.to_i}"
+          container_name
+        end
+
       end
     end
   end
