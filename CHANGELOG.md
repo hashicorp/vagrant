@@ -6,6 +6,7 @@ IMPROVEMENTS:
 
 BUG FIXES:
 
+- provider/docker: Fix auto generated container names [GH-13678]
 - provider/hyperv: Fix import for XML based configuration [GH-13674]
 
 ## 2.4.6 (May 21, 2025)
