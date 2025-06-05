@@ -6,6 +6,7 @@ IMPROVEMENTS:
 
 BUG FIXES:
 
+- guests/linux: Fix /etc/fstab clean up behavior [GH-13681]
 - provider/docker: Fix auto generated container names [GH-13678]
 - provider/hyperv: Fix import for XML based configuration [GH-13674]
 
