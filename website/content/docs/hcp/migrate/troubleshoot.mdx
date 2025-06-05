@@ -1,0 +1,20 @@
+---
+layout: vagrant-cloud
+page_title: Migration Troubleshooting
+description: 'HCP Migration troubleshooting guide'
+---
+
+# Troubleshooting
+
+### Inactive HCP Session
+
+You may see a warning in the Migration Wizard if your HCP Session is inactive. The wizard will attempt to reload your page automatically within 5 seconds or you may attempt to refresh your session by reloading manually. The error will persist if you are not logged into HCP, log in from another window and refresh.
+
+### Missing Boxes or Registries
+
+In the rare case that an inoperable box was successfully uploaded (e.g legacy box improperly ported from Atlas) that box will not be migrated to HCP Vagrant. Any failed boxes will be listed in the Migration Status page.
+
+### Retrying Migrations
+
+If a migration fails, a `retry` icon will appear beside the name of that organization on the [migration status](https://app.vagrantup.com/migration/status) page. Failed migrations can be retried once.
+In the event of a second failure, please [contact support](/vagrant/intro/support) with a description of your issue. Our team will be happy to help you complete your migration or reset your organization state.

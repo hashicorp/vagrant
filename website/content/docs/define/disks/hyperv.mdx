@@ -1,0 +1,65 @@
+---
+layout: docs
+page_title: Disks for Hyper-V Provider
+description: |-
+  Vagrant comes with support out of the box for Hyper-V, a free,
+  cross-platform consumer virtualization product.
+---
+
+# Hyper-V
+
+Because of how Hyper-V handles disk management, a Vagrant guest _must_ be powered off for any changes to be applied to a guest. If you make a configuration change with a guests disk, you will need to `vagrant reload` the guest for any changes to be applied.
+
+# Usage
+
+For more information on how to use Hyper-V to configure disks for a guest, refer to the [Disks examples](/vagrant/docs/define/disks#examples) and [configuration](/vagrant/docs/vagrantfile/vm/disk) guide for more information.
+
+## `provider_config` options
+
+Most options are used for either creating or attaching a hard disk to your guest. Vagrant supports most options for these operations. You should be able to define the PowerShell specific argument to a given Hyper-V command in the `provider_config` hash, and Vagrant should properly pass it along to the command.
+
+### New-VHD supported options
+
+For more information about each option, visit the [New-VHD Hyper-V documentation](https://docs.microsoft.com/en-us/powershell/module/hyper-v/new-vhd?view=win10-ps).
+
+<Note>
+
+By default, all Hyper-V disks are defined as a dynamic virtual hard disk. If you wish to make the disk a fixed size, set the `Fixed` option when creating a new disk.
+
+</Note>
+
+- `BlockSizeBytes` (string) - Optional argument, i.e. `"128MB"`
+- `Differencing` (bool) - If set, the disk will be used to store differencing changes from parent disk (must set `ParentPath`)
+- `Fixed` (bool) - If set, the disk will be a fixed size, not dynamically allocated.
+- `LogicalSectorSizeBytes` (int) - Optional argument, must be either `512` or `4096`
+- `ParentPath` (string) - The parent disk path used if a `Differencing` disk is defined
+- `PhysicalSectorSizeBytes` (string) - Optional argument, must be either `512` or `4096`
+- `SourceDisk` (int) - Existing disk to use as a source for the new disk
+
+### Add-VMHardDiskDrive supported options
+
+For more information about each option, visit the [Add-VMHardDiskDrive Hyper-V documentation](https://docs.microsoft.com/en-us/powershell/module/hyper-v/add-vmharddiskdrive?view=win10-ps).
+
+Most users do not need to set these options. Vagrant can attach disks for you without these options.
+
+Only use these options if you are sure you know what you are doing and you need to specify a specific location for a disk.
+
+- `ControllerLocation` (int) - The location that the disk should be attached to on the controller
+- `ControllerNumber` (int) - The controller to use for attaching the disk
+- `ControllerType` (string) - The kind of controller to use when attaching the a disk. Only `"IDE"` and `"SCSI"` are valid.
+
+## Common issues and troubleshooting
+
+This section lists some common issues people run into with Vagrant and Hyper-V as well as solutions for those issues.
+
+### Are my disks attached?
+
+A handy way to figure out what disks are attached (or not attached) to your guest is to open up the Hyper-V GUI and select the guest. When selecting a guest on the GUI, it should open more information about the guest, including storage information. Here you should see a list of disks attached to your guest.
+
+### Apply Vagrant disk configuration changes to guests
+
+Due to how Hyper-V works, you must reload your guest for any disk config changes to be applied. If you update your Vagrantfile to update or remove disks, reload your guest for these changes to be applied.
+
+```shell-session
+$ vagrant reload
+```
