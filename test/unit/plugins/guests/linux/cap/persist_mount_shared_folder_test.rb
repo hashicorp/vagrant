@@ -137,4 +137,40 @@ describe "VagrantPlugins::GuestLinux::Cap::PersistMountSharedFolder" do
       end
     end
   end
+  describe ".remove_vagrant_managed_fstab" do
+    let(:fstab_exists) { true }
+
+    before do
+      allow(comm).to receive(:sudo).with(any_args)
+      allow(cap).to receive(:fstab_exists?).and_return(fstab_exists)
+    end
+
+    it "removes vagrant managed fstab entries" do
+      expect(cap).to receive(:contains_vagrant_data?).and_return(true)
+      expect(comm).to receive(:sudo).with("sed -i '/#VAGRANT-BEGIN/,/#VAGRANT-END/d' /etc/fstab")
+      cap.remove_vagrant_managed_fstab(machine)
+    end
+
+    context "fstab does not exist" do
+      let(:fstab_exists) { false }
+
+      it "does not try to remove fstab entries" do
+        expect(cap).not_to receive(:contains_vagrant_data?)
+        expect(comm).not_to receive(:sudo).with("sed -i '/#VAGRANT-BEGIN/,/#VAGRANT-END/d' /etc/fstab")
+        cap.remove_vagrant_managed_fstab(machine)
+      end
+    end
+
+    context "fstab does not contain vagrant data" do
+      before do
+        expect(comm).to receive(:test).with("grep '#VAGRANT-BEGIN' /etc/fstab").and_return(false)
+      end
+
+      it "does not try to remove fstab entries" do
+        expect(comm).not_to receive(:sudo).with("sed -i '/#VAGRANT-BEGIN/,/#VAGRANT-END/d' /etc/fstab")
+        cap.remove_vagrant_managed_fstab(machine)
+      end
+    end
+
+  end
 end
