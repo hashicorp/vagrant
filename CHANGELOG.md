@@ -1,9 +1,5 @@
 ## 2.4.7.dev (UNRELEASED)
 
-FEATURES:
-
-IMPROVEMENTS:
-
 BUG FIXES:
 
 - guests/linux: Fix /etc/fstab clean up behavior [GH-13681]
