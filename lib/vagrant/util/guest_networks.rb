@@ -19,8 +19,12 @@ module Vagrant
           current_devs = Hash.new.tap do |cd|
             comm.execute("nmcli -t c show") do |type, data|
               if type == :stdout
-                _, id, _, dev = data.strip.split(":")
-                cd[dev] = id
+                data.strip.split("\n").each do |line|
+                  if not line.empty?
+                    _, id, _, dev = line.split(":")
+                    cd[dev] = id
+                  end
+                end
               end
             end
           end
