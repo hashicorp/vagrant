@@ -16,18 +16,7 @@ module Vagrant
           net_configs = machine.config.vm.networks.find_all { |type, _| type.to_s.end_with?("_network") }.map(&:last)
 
           # Get IDs of currently configured devices
-          current_devs = Hash.new.tap do |cd|
-            comm.execute("nmcli -t c show") do |type, data|
-              if type == :stdout
-                data.strip.split("\n").each do |line|
-                  if not line.empty?
-                    _, id, _, dev = line.split(":")
-                    cd[dev] = id
-                  end
-                end
-              end
-            end
-          end
+          current_devs = get_current_devices(comm)
 
           networks.each.with_index do |network, i|
             net_opts = (net_configs[i] || {}).merge(network)
@@ -102,6 +91,21 @@ module Vagrant
               "nmcli d connect '#{net_opts[:device]}'"
             ].each do |cmd|
               comm.sudo(cmd)
+            end
+          end
+        end
+
+        def get_current_devices(comm)
+          {}.tap do |cd|
+            comm.execute('nmcli -t c show') do |type, data|
+              if type == :stdout
+                data.strip.lines.map(&:chomp).each do |line|
+                  unless line.strip.empty?
+                    _, id, _, dev = line.strip.split(':')
+                    cd[dev] = id
+                  end
+                end
+              end
             end
           end
         end
