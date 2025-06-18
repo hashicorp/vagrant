@@ -135,12 +135,12 @@ describe Vagrant::Util::GuestNetworks::Linux do
       end
 
       it "should generate configuration with network_2 IP address" do
-        expect(tempfile).to receive(:write).with(/#{network_2[:ip]}/)
+        expect(tempfile).to receive(:write).with(/#{Regexp.escape(network_2[:ip])}/)
         subject.configure_network_manager(machine, [network_1, network_2, network_3])
       end
 
       it "should generate configuration with network_3 IP address" do
-        expect(tempfile).to receive(:write).with(/#{network_3[:ip]}/)
+        expect(tempfile).to receive(:write).with(/#{Regexp.escape(network_3[:ip])}/)
         subject.configure_network_manager(machine, [network_1, network_2, network_3])
       end
     end
@@ -148,19 +148,19 @@ describe Vagrant::Util::GuestNetworks::Linux do
 
   describe ".get_current_devices" do
     it "should return a hash of current devices" do
-      expect(comm).to receive(:execute).with('nmcli -t c show').and_yield(:stderr, "").and_yield(:stdout, "1:eth1:ethernet:eth1\n2:eth2:ethernet:eth2\n3:eth3:ethernet:eth3\n")
+      expect(comm).to receive(:execute).with("nmcli -t c show").and_yield(:stderr, "").and_yield(:stdout, "1:eth1:ethernet:eth1\n2:eth2:ethernet:eth2\n3:eth3:ethernet:eth3\n")
       result = subject.get_current_devices(comm)
       expect(result).to eq({"eth1" => "eth1", "eth2" => "eth2", "eth3" => "eth3"})
     end
 
     it "should return an empty hash if no devices are found" do
-      expect(comm).to receive(:execute).with('nmcli -t c show').and_yield(:stderr, "some error").and_yield(:stdout, "")
+      expect(comm).to receive(:execute).with("nmcli -t c show").and_yield(:stderr, "some error").and_yield(:stdout, "")
       result = subject.get_current_devices(comm)
       expect(result).to eq({})
     end
 
     it "should ignore empty lines in the output" do
-      expect(comm).to receive(:execute).with('nmcli -t c show').and_yield(:stderr, "").and_yield(:stdout, "1:eth1:ethernet:eth1\n\n2:eth2:ethernet:eth2\n\n3:eth3:ethernet:eth3\n")
+      expect(comm).to receive(:execute).with("nmcli -t c show").and_yield(:stderr, "").and_yield(:stdout, "1:eth1:ethernet:eth1\n\n2:eth2:ethernet:eth2\n\n3:eth3:ethernet:eth3\n")
       result = subject.get_current_devices(comm)
       expect(result).to eq({"eth1" => "eth1", "eth2" => "eth2", "eth3" => "eth3"})
     end

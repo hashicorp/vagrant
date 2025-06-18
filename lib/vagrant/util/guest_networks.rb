@@ -97,13 +97,12 @@ module Vagrant
 
         def get_current_devices(comm)
           {}.tap do |cd|
-            comm.execute('nmcli -t c show') do |type, data|
+            comm.execute("nmcli -t c show") do |type, data|
               if type == :stdout
                 data.strip.lines.map(&:chomp).each do |line|
-                  unless line.strip.empty?
-                    _, id, _, dev = line.strip.split(':')
-                    cd[dev] = id
-                  end
+                  next if line.strip.empty?
+                  _, id, _, dev = line.strip.split(':')
+                  cd[dev] = id
                 end
               end
             end
