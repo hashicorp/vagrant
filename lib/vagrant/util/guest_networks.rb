@@ -95,6 +95,9 @@ module Vagrant
           end
         end
 
+        # Get all network devices currently managed by NetworkManager.
+        # @param [Vagrant::Plugin::V2::Communicator] comm Guest communicator
+        # @return [Hash] A hash of current device names and their associated IDs.
         def get_current_devices(comm)
           {}.tap do |cd|
             comm.execute("nmcli -t c show") do |type, data|
