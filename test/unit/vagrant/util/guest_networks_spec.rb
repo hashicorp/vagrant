@@ -53,7 +53,7 @@ describe Vagrant::Util::GuestNetworks::Linux do
       gateway: "33.33.0.1",
     }
   end
-  describe ".configure_network_manager" do
+  describe "#configure_network_manager" do
     it "should fetch mac address for devices" do
       subject.configure_network_manager(machine, [network_1, network_2, network_3])
 
@@ -146,7 +146,7 @@ describe Vagrant::Util::GuestNetworks::Linux do
     end
   end
 
-  describe ".get_current_devices" do
+  describe "#get_current_devices" do
     it "should return a hash of current devices" do
       expect(comm).to receive(:execute).with("nmcli -t c show").and_yield(:stderr, "").and_yield(:stdout, "1:eth1:ethernet:eth1\n2:eth2:ethernet:eth2\n3:eth3:ethernet:eth3\n")
       result = subject.get_current_devices(comm)
