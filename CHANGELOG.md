@@ -6,7 +6,7 @@ IMPROVEMENTS:
 
 BUG FIXES:
 
-fix(networking): Fix guest network configuration when more than one network interface is present [GH-13686]
+- core: Fix guest network configuration when more than one network interface is present [GH-13686]
 
 ## 2.4.7 (June 17, 2025)
 
