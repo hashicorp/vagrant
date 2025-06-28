@@ -289,10 +289,10 @@ function New-VagrantVMXML {
     if($Gen -gt 1) {
         if($SecureBoot -eq "True") {
             Hyper-V\Set-VMFirmware -VM $VM -EnableSecureBoot On
-            if ( 
+            if (
                     ( ![System.String]::IsNullOrEmpty($SecureBootTemplate) )`
                      -and`
-                    ( (Get-Command Hyper-V\Set-VMFirmware).Parameters.Keys.Contains("secureboottemplate") ) 
+                    ( (Get-Command Hyper-V\Set-VMFirmware).Parameters.Keys.Contains("secureboottemplate") )
                 ) {
                     Hyper-V\Set-VMFirmware -VM $VM -SecureBootTemplate $SecureBootTemplate
                 }
@@ -339,8 +339,8 @@ function New-VagrantVMXML {
         $processors = $VMConfig.configuration.settings.processors.count."#text"
     }
     $notes = (Select-Xml -XML $VMConfig -XPath "//notes").node."#text"
-    $memory = (Select-Xml -XML $VMConfig -XPath "//memory").node.Bank
-    if ($memory.dynamic_memory_enabled."#text" -eq "True") {
+    $memory_entry = (Select-Xml -XML $VMConfig -XPath "//memory").node.Bank
+    if ($memory_entry.dynamic_memory_enabled."#text" -eq "True") {
         $dynamicmemory = $True
     }
     else {
@@ -353,9 +353,9 @@ function New-VagrantVMXML {
         $MemoryStartupBytes = $Memory * 1MB
         $MemoryMinimumBytes = $Memory * 1MB
     } else {
-        $MemoryMaximumBytes = ($memory.limit."#text" -as [int]) * 1MB
-        $MemoryStartupBytes = ($memory.size."#text" -as [int]) * 1MB
-        $MemoryMinimumBytes = ($memory.reservation."#text" -as [int]) * 1MB
+        $MemoryMaximumBytes = ($memory_entry.limit."#text" -as [int]) * 1MB
+        $MemoryStartupBytes = ($memory_entry.size."#text" -as [int]) * 1MB
+        $MemoryMinimumBytes = ($memory_entry.reservation."#text" -as [int]) * 1MB
     }
 
     if($MaxMemory -ne $null) {
