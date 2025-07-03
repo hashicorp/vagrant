@@ -96,7 +96,7 @@ running either `vagrant destroy` or `vagrant halt` would stop tinyproxy.
 
 Triggers can also be defined to run Ruby, rather than bash or PowerShell. An
 example of this might be using a Ruby option to get more information from the `VBoxManage`
-tool. In this case, we are printing the `ostype` defined for thte guest after
+tool. In this case, we are printing the `ostype` defined for the guest after
 it has been brought up.
 
 ```ruby
@@ -196,3 +196,46 @@ config.trigger.before :"Vagrant::Action::Builtin::GracefulHalt", type: :action d
   t.warn = "Vagrant is halting your guest..."
 end
 ```
+
+#### Provision action
+
+The provision stack works little different than the other action stacks. The Vagrant
+stack is made up of middlewares that are run in a specific order. generally it tend to
+to perform their operation and call to the next item but in some cases will continue to
+do things once the next item completes. In the Provision action, the next item in the
+stack is executed [here](https://github.com/hashicorp/vagrant/blob/main/lib/vagrant/action/builtin/provision.rb#L82-L83).but the actual provisioning happens at the end [here](https://github.com/hashicorp/vagrant/blob/main/lib/vagrant/action/builtin/provision.rb#L129-L133), after the rest of the stack
+has executed and exited.
+
+
+```
+Vagrant.configure("2") do |config|
+  config.vm.box = "ubuntu"
+
+  # Provisioners:
+  config.vm.provision "PROVISIONER1", type: :shell, inline: "echo executing first provisioner"
+  config.vm.provision "PROVISIONER2", type: :shell, inline: "echo executing second provisioner"
+
+  # Triggers:
+
+  config.trigger.before :machine_action_provision, type: :hook,
+    name: "HOOK TRIGGER BEFORE machine_action_provision",
+    info: "INSIDE BEFORE machine_action_provision HOOK TRIGGER"
+
+  config.trigger.before Vagrant::Action::Builtin::Provision, type: :action,
+    name: "ACTION TRIGGER BEFORE Vagrant::Action::Builtin::Provision",
+    info: "INSIDE BEFORE Vagrant::Action::Builtin::Provision TRIGGER"
+
+  config.trigger.after Vagrant::Action::Builtin::Provision, type: :action,
+    name: "ACTION TRIGGER AFTER Vagrant::Action::Builtin::Provision",
+    info: "INSIDE AFTER Vagrant::Action::Builtin::Provision TRIGGER"
+
+  config.trigger.after :machine_action_provision, type: :hook,
+    name: "HOOK TRIGGER AFTER machine_action_provision",
+    info: "INSIDE AFTER machine_action_provision HOOK TRIGGER"
+
+end
+```
+
+When running `vagrant provision` or `vagrant up`, the before and after triggers
+will run before the provisioning of the box happens.
+
