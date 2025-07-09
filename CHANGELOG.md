@@ -4,6 +4,8 @@ FEATURES:
 
 IMPROVEMENTS:
 
+- core: Improve error message on box add failures [GH-13687]
+
 BUG FIXES:
 
 - core: Fix guest network configuration when more than one network interface is present [GH-13686]
