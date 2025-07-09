@@ -556,11 +556,10 @@ en:
         Constraints: %{constraints}
         Available versions: %{versions}
       box_add_short_not_found: |-
-        The box '%{name}' could not be found or
-        could not be accessed in the remote catalog. If this is a private
-        box on HashiCorp's Vagrant Cloud, please verify you're logged in via
-        `vagrant login`. Also, please double-check the name. The expanded
-        URL and error message are shown below:
+        The box '%{name}' could not be found or could not be accessed in the remote catalog. 
+        If this is a private box on the HashiCorp Vagrant Public Registry, please verify 
+        you're logged in via `vagrant cloud auth login`. Also, please double-check the name. 
+        The expanded URL and error message are shown below:
 
         URL: %{url}
         Error: %{error}
