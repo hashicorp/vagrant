@@ -333,7 +333,7 @@ function New-VagrantVMXML {
 
     # Apply original VM configuration to new VM instance
 
-    if($CPUCount -ne $null) {
+    if($CPUCount -ne $null -and $CPUCount -gt 0) {
         $processors = $CPUCount
     } else {
         $processors = $VMConfig.configuration.settings.processors.count."#text"
@@ -348,7 +348,7 @@ function New-VagrantVMXML {
     }
 
 
-    if($Memory -ne $null) {
+    if($Memory -ne $null -and $Memory -gt 0) {
         $MemoryMaximumBytes = $Memory * 1MB
         $MemoryStartupBytes = $Memory * 1MB
         $MemoryMinimumBytes = $Memory * 1MB
@@ -358,7 +358,7 @@ function New-VagrantVMXML {
         $MemoryMinimumBytes = ($memoryNode.reservation."#text" -as [int]) * 1MB
     }
 
-    if($MaxMemory -ne $null) {
+    if($MaxMemory -ne $null -and $MaxMemory -gt 0) {
         $dynamicmemory = $true
         $MemoryMaximumBytes = $MaxMemory * 1MB
     }
