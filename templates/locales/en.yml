@@ -1294,7 +1294,7 @@ en:
         versions of dependencies. To fix this problem please remove and re-install
         all plugins. Vagrant can attempt to do this automatically by running:
 
-          vagrant plugin expunge --reinstall
+          vagrant plugin expunge --reinstall --local
 
         Or you may want to try updating the installed plugins to their latest
         versions:
