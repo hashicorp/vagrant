@@ -8,6 +8,7 @@ IMPROVEMENTS:
 
 BUG FIXES:
 
+- provider/hyperv: Fix XML configuration parsing logic, and add additional checks for minimum amount of memory and CPU [GH-13691]
 - core: Fix guest network configuration when more than one network interface is present [GH-13686]
 
 ## 2.4.7 (June 17, 2025)
