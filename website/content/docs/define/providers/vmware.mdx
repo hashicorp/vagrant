@@ -1,0 +1,148 @@
+---
+layout: docs
+page_title: VMware Provider
+description: |-
+  HashiCorp develops an official VMware Fusion and VMware Workstation provider
+  for Vagrant. This provider allows Vagrant to power VMware based machines and
+  take advantage of the improved stability and performance that VMware software
+  offers.
+---
+
+# VMware
+
+HashiCorp develops an official [VMware Fusion](https://www.vmware.com/products/fusion/overview.html) and [VMware Workstation](https://www.vmware.com/products/workstation/) [provider](/vagrant/docs/providers/) for Vagrant. This provider allows Vagrant to power VMware based machines and take advantage of the improved stability and performance that VMware software offers.
+
+The Vagrant VMware plugin is now open sourced under the MPL. The code repository for the Vagrant VMware plugin is available on [GitHub](https://github.com/hashicorp/vagrant-vmware-desktop).
+
+This provider is a drop-in replacement for VirtualBox. However, there are some VMware-specific things such as box formats, configurations, etc. that are documented here.
+
+Please note that VMware Fusion and VMware Workstation are third-party products that must be purchased and installed separately prior to using the provider.
+
+## Install the provider
+
+If you are upgrading from the Vagrant VMware Workstation or Vagrant VMware Fusion plugins, please halt or destroy all VMware VMs currently being managed by Vagrant. Then continue with the instructions below.
+
+Installation of the Vagrant VMware provider requires two steps. First the Vagrant VMware Utility must be installed. This can be done by downloading and installing the correct system package from the [Vagrant VMware Utility downloads page](/vagrant/downloads/vmware).
+
+Next, install the Vagrant VMware provider plugin using the standard plugin installation procedure:
+
+```shell-session
+$ vagrant plugin install vagrant-vmware-desktop
+```
+
+For more information on plugin installation, refer to the [Vagrant plugin usage documentation](/vagrant/docs/plugins/usage).
+
+## Upgrade to v1.x
+
+It is **extremely important** that the VMware plugin is upgraded to 1.0.0 or above. This release resolved critical security vulnerabilities. To learn more, please [read our release announcement](https://www.hashicorp.com/blog/introducing-the-vagrant-vmware-desktop-plugin).
+
+After upgrading, please verify that the following paths are empty. The upgrade process should remove these for you, but for security reasons it is important to double check. If you're a new user or installing the VMware provider on a new machine, you may skip this step. If you're a Windows user, you may skip this step as well.
+
+The path `~/.vagrant.d/gems/*/vagrant-vmware-{fusion,workstation}` should no longer exist. The gem `vagrant-vmware-desktop` may exist since this is the name of the new plugin. If the old directories exist, remove them. An example for a Unix-like shell is shown below:
+
+```shell-session
+# Check if they exist and verify that they're the correct paths as shown below.
+$ ls ~/.vagrant.d/gems/*/vagrant-vmware-{fusion,workstation}
+...
+
+# Remove them
+$ rm -rf ~/.vagrant.d/gems/*/vagrant-vmware-{fusion,workstation}
+```
+
+## Update the Vagrant VMware Desktop plugin
+
+The Vagrant VMware Desktop plugin can be updated directly from Vagrant. Run the following command to update Vagrant to the latest version of the Vagrant VMware Desktop plugin:
+
+```shell-session
+$ vagrant plugin update vagrant-vmware-desktop
+```
+
+## Usage
+
+The Vagrant VMware provider is used just like any other provider. Please read the general [basic usage](/vagrant/docs/providers/basic_usage) page for providers.
+
+The value to use for the `--provider` flag is `vmware_desktop`. For compatibility with older versions of the plugin, `vmware_fusion` can be used for VMware Fusion, and `vmware_workstation` for VMware Workstation.
+
+The Vagrant VMware provider does not support parallel execution at this time. Specifying the `--parallel` option will have no effect.
+
+To get started, create a new `Vagrantfile` that points to a VMware box:
+
+```ruby
+# vagrant init hashicorp/bionic64
+Vagrant.configure("2") do |config|
+  config.vm.box = "hashicorp/bionic64"
+end
+```
+
+Then run:
+
+```shell-session
+$ vagrant up --provider vmware_desktop
+```
+
+This will download and bring up a new VMware Fusion/Workstation virtual machine in Vagrant.
+
+## Known issues
+
+This section tracks some known issues or limitations of the VMware provider. Note that none of these are generally blockers to using the provider, but are good to know.
+
+### Network disconnect
+
+When Vagrant applies port forwarding rules while bring up a guest instance, other running VMware VMs may experience a loss of network connectivity. The cause of this connectivity issue is the restarting of the VMware NAT service to apply new port forwarding rules. Since new rules cannot be applied to the NAT service while it is running, it is required to restart the service, which results in the loss of connectivity.
+
+### Forwarded ports fail in Workstation on Windows
+
+VMware Workstation has a bug on Windows where forwarded ports do not work properly. Vagrant actually works around this bug and makes them work. However, if you run the virtual network editor on Windows, the forwarded ports will suddenly stop working.
+
+In this case, run `vagrant reload` and things will begin working again.
+
+This issue has been reported to VMware, but a fix has not been released yet.
+
+### Create network devices (Big Sur)
+
+Starting with the Big Sur release VMware Fusion is no longer able to create network devices with custom subnet and mask settings to attach to guests. This means custom IP addresses are not valid when creating a private network. When creating a private network device to attach to a guest, simply define it with no options:
+
+```ruby
+Vagrant.configure("2") do |config|
+  config.vm.box = "hashicorp/bionic64"
+  config.vm.network :private_network
+end
+```
+
+### Port forwarding (Big Sur)
+
+VMware Fusion currently does not support port forwarding to the localhost. To work around this issue, the vagrant-vmware-utility provides functionality to simulate port forwarding behavior available within VMware Fusion prior to Big Sur. The port forward management is contained to the vagrant-vmware-utility and is not accessible via the VMware Fusion networking UI.
+
+### DHCP reservations (Big Sur)
+
+Due VMware Fusion no longer utilizing its own service for DHCP, defining DHCP reservations is currently not working with VMware Fusion on Big Sur.
+
+## Frequently asked questions (FAQs)
+
+This section tracks some frequently asked questions about the VMware provider.
+
+### How do I use the VMware Fusion Tech Preview?
+
+The Vagrant VMware utility expects VMware Fusion to be installed in a specific path on macOS. Since the VMware Fusion Tech Preview installs into a different path, the Vagrant VMware utility will fail to detect the installation and will not start. To resolve this you can create a symlink from the VMware Fusion Tech Preview installation path to the normal VMware Fusion installation path:
+
+```shell-session
+sudo ln -s /Applications/VMware\ Fusion\ Tech\ Preview.app /Applications/VMware\ Fusion.app
+```
+
+## Q: How do I upgrade my currently installed Vagrant VMware plugin?
+
+You can update the Vagrant VMware plugin to the latest version by re-running the install command:
+
+```shell-session
+$ vagrant plugin install vagrant-vmware-desktop
+```
+
+To upgrade the Vagrant VMware utility, download the latest version from the [Vagrant VMware utility downloads page](/vagrant/downloads/vmware) and install the system package to your local system.
+
+## Q: Do I need a license for the Vagrant VMware plugin?
+
+No, the Vagrant VMware plugin has been open sourced under the MPL. A license is no longer required for using the Vagrant VMware plugin. If the plugin you are using still requires a license, simply upgrade your plugin:
+
+```shell-session
+$ vagrant plugin update vagrant-vmware-desktop
+```
