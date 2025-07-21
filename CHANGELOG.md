@@ -4,6 +4,7 @@ FEATURES:
 
 IMPROVEMENTS:
 
+- core: Improve error message when no matching provider is found for a box [GH-13693]
 - core: Improve error message on box add failures [GH-13687]
 
 BUG FIXES:
