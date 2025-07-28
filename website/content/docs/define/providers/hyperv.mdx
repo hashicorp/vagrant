@@ -1,0 +1,48 @@
+---
+layout: docs
+page_title: Hyper-V Provider
+description: |-
+  Vagrant comes with support out of the box for Hyper-V, a native hypervisor
+  written by Microsoft. Hyper-V is available by default for almost all
+  Windows 8.1 and later installs.
+---
+
+# Hyper-V
+
+Vagrant comes with support out of the box for [Hyper-V](https://en.wikipedia.org/wiki/Hyper-V), a native hypervisor written by Microsoft. Hyper-V is available by default for almost all Windows 8.1 and later installs.
+
+The Hyper-V provider is compatible with Windows 8.1 and later only. Prior versions of Hyper-V do not include the necessary APIs for Vagrant to work.
+
+Hyper-V must be enabled prior to using the provider. Most Windows installations will not have Hyper-V enabled by default. Hyper-V is available by default for almost all Windows Enterprise, Professional, or Education 8.1 and later installs. To enable Hyper-V, go to "Programs and Features", click on "Turn Windows features on or off" and check the box next to "Hyper-V". Or install via PowerShell with:
+
+```powershell
+Enable-WindowsOptionalFeature -Online -FeatureName Microsoft-Hyper-V -All
+```
+
+Refer to official documentation [here](https://docs.microsoft.com/en-us/virtualization/hyper-v-on-windows/quick-start/enable-hyper-v).
+
+## Usage
+
+The Vagrant Hyper-V provider is used just like any other provider. Refer to the general [basic usage](/vagrant/docs/providers/basic_usage) page for providers.
+
+The value to use for the `--provider` flag is `hyperv`.
+
+Hyper-V also requires that you execute Vagrant with administrative privileges. Creating and managing virtual machines with Hyper-V requires admin rights. Vagrant will show you an error if it does not have the proper permissions.
+
+You can find boxes for Hyper-V on [HashiCorp's Vagrant Cloud](https://vagrantcloud.com/boxes/search). To get started, you might want to try the `hashicorp/bionic64` box.
+
+## Limitations
+
+The Vagrant Hyper-V provider works in almost every way like the VirtualBox or VMware provider would, but has some limitations that are inherent to Hyper-V itself.
+
+### Limited networking
+
+Vagrant does not yet know how to create and configure new networks for Hyper-V. When launching a machine with Hyper-V, Vagrant will prompt you asking what virtual switch you want to connect the virtual machine to.
+
+A result of this is that networking configurations in the Vagrantfile are completely ignored with Hyper-V. Vagrant cannot enforce a static IP or automatically configure a NAT.
+
+However, the IP address of the machine will be reported as part of the `vagrant up`, and you can use that IP address as if it were a host only network.
+
+### Snapshots
+
+Restoring snapshot VMs using `vagrant snapshot pop` or `vagrant snapshot restore` will sometimes raise errors when mounting SMB shared folders, however these mounts will still work inside the guest.
