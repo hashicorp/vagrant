@@ -181,8 +181,8 @@ module Vagrant
           end
 
           provider = env[:box_provider]
-          
           provider = Array(provider) if provider
+
           box_add(
             urls,
             name,

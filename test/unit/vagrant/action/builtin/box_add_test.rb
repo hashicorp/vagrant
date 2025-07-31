@@ -114,11 +114,13 @@ describe Vagrant::Action::Builtin::BoxAdd, :skip_windows, :bsdtar do
 
       env[:box_name] = "foo"
       env[:box_url] = box_path.to_s
+      env[:box_architecture] = "x86_64"
 
       expect(box_collection).to receive(:add).with(any_args) { |path, name, version, opts|
         expect(checksum(path)).to eq(checksum(box_path))
         expect(name).to eq("foo")
         expect(version).to eq("0")
+        expect(opts[:architecture]).to eq("x86_64")
         expect(opts[:metadata_url]).to be_nil
         true
       }.and_return(box)
