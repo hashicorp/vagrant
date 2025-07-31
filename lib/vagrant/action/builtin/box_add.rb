@@ -181,8 +181,8 @@ module Vagrant
           end
 
           provider = env[:box_provider]
+          
           provider = Array(provider) if provider
-
           box_add(
             urls,
             name,
@@ -192,7 +192,7 @@ module Vagrant
             env,
             checksum: env[:box_checksum],
             checksum_type: env[:box_checksum_type],
-            architecture: env[:architecture]
+            architecture: env[:box_architecture]
           )
         end
 
