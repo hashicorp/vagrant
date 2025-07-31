@@ -192,7 +192,7 @@ module Vagrant
             env,
             checksum: env[:box_checksum],
             checksum_type: env[:box_checksum_type],
-            architecture: env[:architecture]
+            architecture: env[:box_architecture]
           )
         end
 
