@@ -1,7 +1,5 @@
 ## 2.4.8.dev (UNRELEASED)
 
-FEATURES:
-
 IMPROVEMENTS:
 
 - core: Improve error message when no matching provider is found for a box [GH-13693]
