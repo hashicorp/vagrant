@@ -1,4 +1,4 @@
-## 2.4.8.dev (UNRELEASED)
+## 2.4.8 (August 05, 2025)
 
 IMPROVEMENTS:
 
