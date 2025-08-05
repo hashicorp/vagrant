@@ -32,4 +32,9 @@
     permanent: true,
   },
   */
+ {
+  source: '/vagrant/vmware',
+  destination: '/vagrant/docs/providers/vmware',
+  permanent: true
+ }
 ]

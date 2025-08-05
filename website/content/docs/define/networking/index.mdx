@@ -1,0 +1,71 @@
+---
+layout: docs
+page_title: Networking
+description: |-
+  In order to access the Vagrant environment created, Vagrant exposes
+  some high-level networking options for things such as forwarded ports,
+  connecting to a public network, or creating a private network.
+---
+
+# Networking
+
+In order to access the Vagrant environment created, Vagrant exposes some high-level networking options for things such as forwarded ports, connecting to a public network, or creating a private network.
+
+The high-level networking options are meant to define an abstraction that works across multiple [providers](/vagrant/docs/providers/). This means that you can take your Vagrantfile you used to spin up a VirtualBox machine and you can reasonably expect that Vagrantfile to behave the same with something like VMware.
+
+Vagrant assumes there is an available NAT device on `eth0`. This ensures that Vagrant always has a way of communicating with the guest machine. It is possible to change this manually (outside of Vagrant), however, this may lead to inconsistent behavior. Providers might have additional assumptions. For example, in VirtualBox, this assumption means that network adapter 1 is a NAT device.
+
+Vagrant offers multiple options for how you are able to connect your guest machines to the network, but there is a standard usage pattern as well as some points common to all network configurations that are important to know.
+
+## Configure your network
+
+All networks are configured within your [Vagrantfile](/vagrant/docs/vagrantfile/) using the `config.vm.network` method call. For example, the Vagrantfile below defines some port forwarding:
+
+```ruby
+Vagrant.configure("2") do |config|
+  # ...
+  config.vm.network "forwarded_port", guest: 80, host: 8080
+end
+```
+
+Every network type has an identifier such as `"forwarded_port"` in the above example. Following this is a set of configuration arguments that can differ for each network type. In the case of forwarded ports, two numeric arguments are expected: the port on the guest followed by the port on the host that the guest port can be accessed by.
+
+## Define multiple networks
+
+Multiple networks can be defined by having multiple `config.vm.network` calls within the Vagrantfile. The exact meaning of this can differ for each [provider](/vagrant/docs/providers/), but in general the order specifies the order in which the networks are enabled.
+
+## Enable networks
+
+Networks are automatically configured and enabled after they've been defined in the Vagrantfile as part of the `vagrant up` or `vagrant reload` process.
+
+## Set hostname
+
+A hostname may be defined for a Vagrant VM using the `config.vm.hostname` setting. By default, this will modify `/etc/hosts`, adding the hostname on a loopback interface that is not in use. The following example will add the entry `127.0.X.1 myhost myhost.local` to `/etc/hosts`.
+
+```ruby
+Vagrant.configure("2") do |config|
+  # ...
+  config.vm.hostname = "myhost.local"
+end
+```
+
+A public or private network with an assigned IP may be flagged for hostname. In this case, the hostname will be added to the flagged network. Note, that if there are multiple networks only one may be flagged for hostname. The following example will add the entry `192.168.0.1 myhost myhost.local` to `/etc/hosts`.
+
+```ruby
+Vagrant.configure("2") do |config|
+  # ...
+  config.vm.hostname = "myhost.local"
+  config.vm.network "public_network", ip: "192.168.0.1", hostname: true
+  config.vm.network "public_network", ip: "192.168.0.2"
+end
+```
+
+## Advanced configuration
+
+In some cases, these options are _too_ high-level, and you may want to more finely tune and configure the network interfaces of the underlying machine. Most providers expose [provider-specific configuration](/vagrant/docs/providers/configuration) to do this, so please read the documentation for your specific provider to see what options are available.
+
+<Tip heading="For beginners">
+
+We strongly recommend you use only the high-level networking options until you are comfortable with the Vagrant workflow and have things working at a basic level. Provider-specific network configuration can very quickly lock you out of your guest machine if improperly done.
+
+</Tip>
