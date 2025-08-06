@@ -22,7 +22,7 @@ describe VagrantPlugins::Ansible::Cap::Guest::RedHat::AnsibleInstall do
 
   before do
     allow(machine).to receive(:communicate).and_return(communicator)
-    allow(communicator).to receive(:execute).with("rpm -E %dist").and_return(dist)
+    allow(communicator).to receive(:execute).with("rpm -E %dist").and_yield(:stdout, dist)
   end
 
   describe "#ansible_epel_download_url" do

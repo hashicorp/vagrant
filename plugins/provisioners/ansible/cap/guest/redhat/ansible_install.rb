@@ -68,9 +68,13 @@ module VagrantPlugins
             end
 
             def self.ansible_epel_download_url(machine)
-              dist = machine.communicate.execute("rpm -E %dist")
+              dist = ""
+              machine.communicate.execute("rpm -E %dist") do |type, data|
+                dist << data if type == :stdout
+              end
+              dist.strip!
               dist_major_version = dist.match(/.*el(\d+).*/)&.captures&.first
-              return "https://dl.fedoraproject.org/pub/epel/epel-release-latest-#{dist_major_version}.noarch.rpm"
+              "https://dl.fedoraproject.org/pub/epel/epel-release-latest-#{dist_major_version}.noarch.rpm"
             end
           end
         end
