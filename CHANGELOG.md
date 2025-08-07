@@ -6,6 +6,8 @@ IMPROVEMENTS:
 
 BUG FIXES:
 
+- provisioner/ansible: Fix OS version detection, when installing Ansible on RHEL-like operating systems [GH-13701]
+
 ## 2.4.8 (August 05, 2025)
 
 IMPROVEMENTS:
