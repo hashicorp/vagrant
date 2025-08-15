@@ -1,0 +1,82 @@
+---
+layout: docs
+page_title: Providers
+description: |-
+  While Vagrant ships out of the box with support for VirtualBox, Hyper-V, and
+  Docker. Vagrant has the ability to manage other types of machines as well.
+  This is done by using other providers with Vagrant.
+---
+
+# Providers
+
+While Vagrant ships out of the box with support for [VirtualBox](https://www.virtualbox.org), [Hyper-V](https://learn.microsoft.com/en-us/virtualization/hyper-v-on-windows/about/), and [Docker](https://www.docker.io), Vagrant has the ability to manage other types of machines as well. This is done by using other _providers_ with Vagrant.
+
+Alternate providers can offer different features that make more sense in your use case. For example, if you are using Vagrant for any real work, [VMware](https://www.vmware.com) providers are recommended since they're well supported and generally more stable and performant than VirtualBox.
+
+Before you can use another provider, you must install it. Installation of other providers is done via the Vagrant plugin system.
+
+Once the provider is installed, usage is straightforward and simple, as you would expect with Vagrant. Read into the relevant subsections found in the navigation to the left for more information.
+
+## Install a provider
+
+Providers are distributed as Vagrant plugins. After installing a plugin which contains a provider, the provider should immediately be available.
+
+<Warning>
+
+3rd party plugins can introduce instabilities into Vagrant due to the nature of them being written by non-core users.
+
+</Warning>
+
+You can install plugins using `vagrant plugin install`.
+
+Use the following command to install a plugin from a known gem source.
+
+```shell-session
+$ vagrant plugin install my-plugin
+```
+
+If you want to install a plugin from a local file source, use the following command.
+
+```shell-session
+$ vagrant plugin install /path/to/my-plugin.gem
+```
+
+Once you install a plugin, Vagrant will automatically load it. If Vagrant cannot load a plugin, Vagrant will show an error message instead of crashing Vagrant.
+
+## Usage
+
+Once a plugin is installed, you should refer to the plugin's documentation to see exactly how to use it. Plugins which add commands should be instantly available via `vagrant`, provisioners should be available via `config.vm.provision`, etc.
+
+<Note>
+
+In the future, the `vagrant plugin` command will include a subcommand that will document the components that each plugin installs.
+
+</Note>
+
+## Update plugin
+
+Plugins can be updated by running `vagrant plugin update`. This will update every installed plugin to the latest version. You can update a specific plugin by calling `vagrant plugin update NAME`. Vagrant will output what plugins were updated and to what version.
+
+To determine the changes in a specific version of a plugin, refer to the plugin's homepage (usually a GitHub page or similar). It is the plugin author's responsibility to provide a change log if he or she chooses to.
+
+## Uninstall plugin
+
+Uninstalling a plugin is as easy as installing it. Just use the `vagrant plugin uninstall` command and the plugin will be removed. Example:
+
+```shell-session
+$ vagrant plugin uninstall my-plugin
+```
+
+## List plugins
+
+To view what plugins are installed into your Vagrant environment at any time, use the `vagrant plugin list` command. This will list the plugins
+that are installed along with their version.
+
+
+## Default Provider
+
+By default, VirtualBox is the default provider for Vagrant. VirtualBox is still the most accessible platform to use Vagrant: it is free, cross-platform, and has been supported by Vagrant for years. With VirtualBox as the default provider, it provides the lowest friction for new users to get started with Vagrant.
+
+However, you may find after using Vagrant for some time that you prefer to use another provider as your default. In fact, this is quite common. To make this experience better, Vagrant allows specifying the default provider to use by setting the `VAGRANT_DEFAULT_PROVIDER` environmental variable.
+
+Just set `VAGRANT_DEFAULT_PROVIDER` to the provider you wish to be the default. For example, if you use Vagrant with VMware Fusion, you can set the environmental variable to `vmware_desktop` and it will be your default.

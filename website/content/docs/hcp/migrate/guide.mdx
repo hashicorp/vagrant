@@ -1,0 +1,86 @@
+---
+layout: vagrant-cloud
+page_title: Migrate to HCP Vagrant Registry
+description: "Use Vagrant Cloud's migration tools to move all your artifacts to HashiCorp Cloud Platform (HCP)."
+---
+
+# Migrate to HCP Vagrant Registry
+
+Your Vagrant Cloud Organization will be put into a read-only state and marked `Migrating` until the migration is complete. During this time boxes will be available in searches and to download, but write functionality like uploading new boxes, releasing versions, and managing settings for your Vagrant Cloud Organization will be unavailable. Your new HCP Registry will not be available until the migration is complete.
+
+When you migrate your default organization your Profile Settings (user name, gravatar url, etc) will no longer be available to manage in Vagrant Cloud and should be managed from your [HCP Settings](https://portal.cloud.hashicorp.com/account-settings).
+
+## Overview
+
+HCP [Vagrant Registry](https://portal.cloud.hashicorp.com/vagrant/discover), like Vagrant Cloud, is a public, searchable index of Vagrant boxes that allows box owners to host and share artifacts.
+
+To take advantage of shared infrastructure and platform investments available on the Hashicorp Cloud Platform (HCP), Hashicorp is migrating all existing boxes to HCP Vagrant Registry and retiring the current Vagrant Cloud application at the end of July 2024.
+
+Migrated organizations will be permanently accessible at their original Vagrant Cloud URLs and won’t require changes to user workflows. Migrated registries will have access to the modern HCP Vagrant Registry UI, an improved search experience, and free private boxes.
+
+Those who take no action will have their boxes migrated as part of the site wide migration. The Vagrant team will maintain redirects to ensure users can expect all existing URLs and workflows to operate as usual after migration regardless of how boxes are migrated.
+
+## Prerequisites
+
+Before you continue with this guide, you should familiarize yourself with a few new resource management concepts in HCP and HCP Vagrant Registry.
+
+###### Registries
+
+The collection that holds a user’s boxes, the registry name is incorporated into the first half of resource names. For example, `hashicorp/atlas`.
+
+~> Note: An HCP registry is analogous to an Organization in Vagrant Cloud. A given HCP project may have an unlimited number of registries.
+
+##### HCP Organizations
+
+[HCP organizations](/hcp/docs/hcp/admin/orgs) are parent-level entities that can have up to ten projects. A single HCP account can be a member of multiple organizations, as an invited user, but can only create and own a single organization.
+
+##### HCP Projects
+
+[HCP projects](/hcp/docs/hcp/admin/orgs) allow organization owners to segment resources by team, environment, etc. Resources such as HCP Vagrant Registries, Hashicorp Virtual Private Networks (HPN). Each organization is assigned a `default-project` at creation and may have up to 10 projects.
+
+#### Create an HCP Vagrant Registry account
+
+To use the Vagrant Cloud migration tool, you must define an organization and project within an HCP account and be signed into an active session on that account.
+
+Your HCP account must use the email address associated with your Vagrant Cloud account. Check under `Settings → Profile` if you are unsure what email address you use for Vagrant Cloud.
+
+1. Sign up for a (free) [HCP account](https://portal.cloud.hashicorp.com/orgs/create), with your primary Vagrant Cloud organization email address. You must verify your account and sign into HCP.
+2. At first log-in, use the wizard to create an HCP organization.
+3. On creation of your organization, you will be directed to the dashboard for your `default-project`. You can create an additional project from the Projects page.
+4. Now that you have a project in an HCP Account that uses the same email address as your Vagrant Cloud account, you can begin the migration process.
+
+## Migrate to HCP Vagrant Registry
+
+#### 1. Sign in to both accounts and open the migration tool
+
+Once you have signed into both your HCP and Vagrant Cloud accounts, you can access the [migration tool](https://app.vagrantup.com/migration).
+
+#### 2. Select a Vagrant Cloud organization to migrate
+
+Select a single organization from the dropdown to migrate or select the checkbox `Migrate all organizations` to migrate them all at once to a single HCP Project.
+
+##### 3. Select a destination project in HCP
+
+If you have multiple projects in HCP, select the project you want from the HCP Project dropdown. If you have not created a second project the `default-project` will be auto-selected.
+
+When preparing for migration it is worth noting the following:
+
+- Your Vagrant Cloud Organization will be put into a read-only state and marked `Migrating` until the migration is complete. During this time boxes will be available in searches and to download, but write functionality like uploading new boxes, releasing versions, and managing settings for your Vagrant Cloud Organization will be unavailable.
+- Your new HCP Registry will not be available until the migration is complete.
+- When you migrate your default organization your Profile Settings (user name, gravatar url, etc) will no longer be available to manage in Vagrant Cloud and should be managed from your [HCP Settings](https://portal.cloud.hashicorp.com/account-settings).
+
+#### 4. Start the migration
+
+After you press the `Migrate` button you will be redirected to a status page that will keep you updated on the progress of your migration.
+
+#### 5. Visit your Registry in HCP
+
+Once your migration is complete you can view your new Registry in HCP.
+
+To view your registries , click on [Vagrant Registry](https://portal.cloud.hashicorp.com/services/vagrant/registries) in the side panel or by visiting [https://portal.cloud.hashicorp.com/services/vagrant/registries](https://portal.cloud.hashicorp.com/services/vagrant/registries).
+
+It is important to note that while a migrated organization will no longer be available in Vagrant Cloud the status of the migration will be visible from the `Status` tab on the [Migration](https://app.vagrantup.com/migration) page.
+
+## Conclusion
+
+If for some reason you are unable to access your new HCP Registry or your migration does not complete successfully, review the [Migration Troubleshooting](/vagrant/vagrant-cloud/hcp-vagrant/troubleshooting) guide or [contact support](/vagrant/intro/support) . Our team will be happy to help you complete your migration or reset your organization state.

@@ -1,0 +1,110 @@
+---
+layout: docs
+page_title: Vagrant Disks
+description: Introduction to Vagrant Disks
+---
+
+# Vagrant Disks
+
+Vagrant Disks is a feature that allows users to define what mediums should be attached
+to their guests, as well as allowing users to resize their primary disk.
+
+For examples on how to achieve this, among other use cases, please refer to the [usage](/vagrant/docs/disks/usage)
+guide for more information!
+
+For more information about what options are available for configuring disks, see the
+[configuration section](/vagrant/docs/disks/configuration).
+
+## Supported providers
+
+Currently, only VirtualBox is supported. Please refer to the [VirtualBox documentation](/vagrant/docs/disks/virtualbox) for more information on using disks with the VirtualBox provider!
+
+## Examples
+
+The following examples show how to use Vagrant Disks with the VirtualBox provider.
+
+### Resize your primary disk
+
+Sometimes, the primary disk for a guest is not large enough and you will need to add more space. To resize a disk, you can simply add a config like this below to expand the size of your guests drive.
+
+```ruby
+config.vm.disk :disk, size: "100GB", primary: true
+```
+
+The `primary: true` is what tells Vagrant to expand the guests main drive. Without this option, Vagrant will instead attach a _new_ disk to the guest.
+
+The following example shows how to resize the primary disk for an Ubuntu guest. This guest will now come with 100GB of space, rather than the default.
+
+```ruby
+Vagrant.configure("2") do |config|
+  config.vm.define "hashicorp" do |h|
+    h.vm.box = "hashicorp/bionic64"
+    h.vm.provider :virtualbox
+
+    h.vm.disk :disk, size: "100GB", primary: true
+  end
+end
+```
+
+Due to how VirtualBox functions, it is not possible to shrink the size of a disk.
+
+### Attaching new hard disks
+
+Vagrant can attach multiple disks to a guest using the VirtualBox provider. The following example shows how to attach a single disk to a guest with 10 GB of storage.
+
+```ruby
+Vagrant.configure("2") do |config|
+  config.vm.define "hashicorp" do |h|
+    h.vm.box = "hashicorp/bionic64"
+    h.vm.provider :virtualbox
+
+    h.vm.disk :disk, size: "10GB", name: "extra_storage"
+  end
+end
+```
+
+Optionally, if you need to attach many disks, you can use Ruby to generate multiple disks for Vagrant to create and attach to your guest.
+
+```ruby
+Vagrant.configure("2") do |config|
+  config.vm.define "hashicorp" do |h|
+    h.vm.box = "hashicorp/bionic64"
+    h.vm.provider :virtualbox
+
+    (0..3).each do |i|
+      h.vm.disk :disk, size: "5GB", name: "disk-#{i}"
+    end
+  end
+end
+```
+
+VirtualBox has a hard limit on the number of disks that can be attached to a given storage controller, which is defined by the controller type. Attempting to configure more disks than are supported by the primary controller will result in a Vagrant error.
+
+### Attach optical drives
+
+Vagrant can attach `.iso` files as optical drives using the VirtualBox provider. The following example shows how to attach an optical drive to a guest.
+
+```ruby
+Vagrant.configure("2") do |config|
+  config.vm.define "hashicorp" do |h|
+    h.vm.box = "hashicorp/bionic64"
+    h.vm.provider :virtualbox
+
+    h.vm.disk :dvd, name: "installer", file: "./installer.iso"
+  end
+end
+```
+
+As with hard disks, configuring more disks than are supported by your VM's
+storage controller arrangement will result in a Vagrant error.
+
+### Remove disks
+
+If you have removed a disk from your Vagrant config and wish for it to be detached from the guest, you will need to `vagrant reload` your guest to apply these changes. 
+
+<Note>
+
+Removing virtual hard disks created by Vagrant will also delete the medium from your hard drive.
+
+</Note>
+
