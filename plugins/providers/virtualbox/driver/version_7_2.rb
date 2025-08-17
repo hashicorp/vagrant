@@ -6,7 +6,7 @@ require File.expand_path("../version_7_0", __FILE__)
 module VagrantPlugins
   module ProviderVirtualBox
     module Driver
-      # Driver for VirtualBox 7.1.x
+      # Driver for VirtualBox 7.2.x
       class Version_7_2 < Version_7_1
         def initialize(uuid)
           super
