@@ -4,6 +4,8 @@ FEATURES:
 
 IMPROVEMENTS:
 
+- docs: Remove outdated link for Vagrant Cloud [GH-13710]
+
 BUG FIXES:
 
 - provisioner/ansible: Fix OS version detection, when installing Ansible on RHEL-like operating systems [GH-13701]
