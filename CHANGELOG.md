@@ -2,6 +2,8 @@
 
 FEATURES:
 
+- provider/virtualbox: Add support for VirtualBox 7.2 [GH-13709]
+
 IMPROVEMENTS:
 
 - docs: Remove outdated link for Vagrant Cloud [GH-13710]
