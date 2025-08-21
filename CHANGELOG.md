@@ -1,3 +1,11 @@
+## 2.4.10.dev (UNRELEASED)
+
+FEATURES:
+
+IMPROVEMENTS:
+
+BUG FIXES:
+
 ## 2.4.9 (August 21, 2025)
 
 FEATURES:
