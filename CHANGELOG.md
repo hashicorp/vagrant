@@ -6,6 +6,7 @@ FEATURES:
 
 IMPROVEMENTS:
 
+- docs: Update the node version for the docs site [GH-13713]
 - docs: Remove outdated link for Vagrant Cloud [GH-13710]
 
 BUG FIXES:
