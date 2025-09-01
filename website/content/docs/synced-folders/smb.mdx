@@ -84,6 +84,9 @@ The SMB synced folder type has a variety of options it accepts:
   Windows username. If you sign into a domain, specify it as `user@domain`.
   If this option is not specified, Vagrant will prompt you for it.
 
+- `smb_id` (string) - The name for the mount point of this synced folder in the
+  guest machine. This shows up when you run `mount` in the guest machine.
+
 ## Example
 
 The following is an example of using SMB to sync a folder:
