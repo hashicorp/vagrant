@@ -144,7 +144,7 @@ module Vagrant
           private_key = rsa_key.to_pem
 
           if password
-            cipher      = OpenSSL::Cipher.new('des3')
+            cipher      = OpenSSL::Cipher.new('aes-256-cbc')
             private_key = rsa_key.to_pem(cipher, password)
           end
 
