@@ -856,6 +856,23 @@ VF
       end
     end
 
+    describe "with an identity file path containing spaces and a custom inventory_path" do
+      before do
+        ssh_info[:private_key_path] = ['/path/with a space/key']
+        # When inventory_path is provided, the provisioner will add IdentityFile
+        # entries to ANSIBLE_SSH_ARGS even if there's a single key. Use a value
+        # containing spaces to reproduce the problematic scenario.
+        config.inventory_path = '/some inventory/with spaces/inv'
+      end
+
+      it "wraps the IdentityFile path in double quotes inside ANSIBLE_SSH_ARGS" do
+        expect(Vagrant::Util::Subprocess).to receive(:execute).with('ansible-playbook', any_args) { |*args|
+          cmd_opts = args.last
+          expect(cmd_opts[:env]['ANSIBLE_SSH_ARGS']).to include("-o IdentityFile=\"/path/with a space/key\"")
+        }.and_return(default_execute_result)
+      end
+    end
+
     describe "with an identity file containing `%`" do
       before do
         ssh_info[:private_key_path] = ['/foo%bar/key', '/bar%%buz/key']
