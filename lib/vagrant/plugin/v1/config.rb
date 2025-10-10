@@ -104,7 +104,7 @@ module Vagrant
         #
         # @param [Environment] env Vagrant::Environment object of the
         #   environment that this configuration has been loaded into. This
-        #   gives you convenient access to things like the the root path
+        #   gives you convenient access to things like the root path
         #   and so on.
         # @param [ErrorRecorder] errors
         def validate(env, errors)

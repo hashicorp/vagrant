@@ -160,7 +160,7 @@ module Vagrant
         insert(index + 1, middleware, *args, &block)
       end
 
-      # Replaces the given middlware object or index with the new
+      # Replaces the given middleware object or index with the new
       # middleware.
       def replace(index, middleware, *args, **keywords, &block)
         if index.is_a?(Integer)

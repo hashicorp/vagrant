@@ -253,7 +253,7 @@ BUG FIXES:
 - provider/virtualbox: Adjust hostnet DHCP configuration, ignore invalid devices [GH-13004]
 - provisioner/ansible: Fix install package names on older debian (and derivatives) versions [GH-13017]
 
-## 2.3.3 (November 15, 2022) 
+## 2.3.3 (November 15, 2022)
 
 IMPROVEMENTS:
 
@@ -320,7 +320,7 @@ IMPROVEMENTS:
 - guest/suse: Add fallback shutdown for versions without systemd [GH-12489]
 - provider/virtualbox: Validate VirtualBox hostonly network range [GH-12564]
 
-BUG FIXES
+BUG FIXES:
 
 - guest/atomic: Update detection to prevent matching on non-atomic guests [GH-12575]
 - guest/coreos: Fix configure network capability [GH-12575]
@@ -536,7 +536,7 @@ BUG FIXES:
 
 - core/bundler: Properly handle plugin install with available specification [GH-11592]
 - provisioners/docker: Fix CentOS docker install and start service capabilities [GH-11581]
-- provisioners/podman: Seperate RHEL install from CentOS install [GH-11584]
+- provisioners/podman: Separate RHEL install from CentOS install [GH-11584]
 
 ## 2.2.8 (May 04, 2020)
 
@@ -947,9 +947,9 @@ BUG FIXES:
 
 - communicator/ssh: Update ssh private key file permission handling on Windows [GH-9923, GH-9900]
 - core: Display plugin commands in help [GH-9808]
-- core: Ensure guestpath or name is set with synced_folder option and dont set guestpath if not provided [GH-9692]
+- core: Ensure guestpath or name is set with synced_folder option and don't set guestpath if not provided [GH-9692]
 - guest/debian: Fix netplan generation when using DHCP [GH-9855]
-- guest/debain: Update priority of network configuration file when using networkd [GH-9867]
+- guest/debian: Update priority of network configuration file when using networkd [GH-9867]
 - guest/ubuntu: Update netplan config generation to detect NetworkManager [GH-9824]
 - guest/ubuntu: Fix failing Ansible installation from PPA on Bionic Beaver (18.04 LTS) [GH-9796]
 - host/windows: Prevent processing of last SMB line when using net share [GH-9917]
@@ -1556,7 +1556,7 @@ BUG FIXES:
   - guests/debian: Ensure newline when inserting public key [GH-7456]
   - guests/linux: Ensure NFS retries during mounting [GH-7492]
   - guests/redhat: Use `/sbin/ip` to list and configure networks for
-      compatability with older versions of CentOS [GH-7482]
+      compatibility with older versions of CentOS [GH-7482]
   - guests/redhat: Ensure newline when inserting public key [GH-7598, GH-7605]
   - guests/ubuntu: Use /etc/os-release to detect [GH-7524]
   - guests/ubuntu: Use short hostname [GH-7488, GH-7605]
@@ -4384,7 +4384,7 @@ Note: 0.8.3 and 0.8.4 was yanked due to RubyGems encoding issue.
     uselessness after the VM is destroyed. This should result in more accurate
     checks.
   - Networks are no longer disabled upon halt/destroy. With the above
-    change, its unnecessary.
+    change, it's unnecessary.
   - Puppet supports `module_path` configuration to mount local modules directory
     as a shared folder and configure puppet with it. [GH-270]
   - `ssh-config` now outputs `127.0.0.1` as the host instead of `localhost`.

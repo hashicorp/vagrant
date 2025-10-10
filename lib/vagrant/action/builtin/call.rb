@@ -5,7 +5,7 @@ module Vagrant
   module Action
     module Builtin
       # This middleware class allows a sort of "conditional" run within
-      # a single middlware sequence. It takes another middleware runnable,
+      # a single middleware sequence. It takes another middleware runnable,
       # runs it with the same environment, then yields the resulting env to a block,
       # allowing that block to determine the next course of action in the
       # middleware sequence.

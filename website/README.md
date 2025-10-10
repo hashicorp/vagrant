@@ -88,7 +88,7 @@ The significant keys in the YAML frontmatter are:
 
 ### Validating Content
 
-Content changes are automatically validated against a set of rules as part of the pull request process. If you want to run these checks locally to validate your content before comitting your changes, you can run the following command:
+Content changes are automatically validated against a set of rules as part of the pull request process. If you want to run these checks locally to validate your content before committing your changes, you can run the following command:
 
 ```
 npm run content-check
@@ -116,7 +116,7 @@ There are several custom markdown plugins that are available by default that enh
   - `this` is a list item that begins with inline code
   ```
 
-  Its worth noting that _only the inline code at the beginning of the list item_ will cause problems if changed. So if you changed the above markup to...
+  It's worth noting that _only the inline code at the beginning of the list item_ will cause problems if changed. So if you changed the above markup to...
 
   ```markdown
   - lsdhfhksdjf
