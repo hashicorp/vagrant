@@ -883,7 +883,7 @@ module Vagrant
 
       # Create the version file that we use to track the structure of
       # the home directory. If we have an old version, we need to explicitly
-      # upgrade it. Otherwise, we just mark that its the current version.
+      # upgrade it. Otherwise, we just mark that it's the current version.
       version_file = @home_path.join("setup_version")
       if version_file.file?
         version = version_file.read.chomp
