@@ -164,7 +164,7 @@ module VagrantPlugins
             @command_arguments << "--limit=#{@machine.name}"
           end
 
-          @command_arguments << "--inventory-file=#{inventory_path}"
+          @command_arguments << "--inventory=#{inventory_path}"
           @command_arguments << "--extra-vars=#{extra_vars_argument}" if config.extra_vars
           @command_arguments << "--#{@lexicon[:become]}" if config.become
           @command_arguments << "--#{@lexicon[:become_user]}=#{config.become_user}" if config.become_user

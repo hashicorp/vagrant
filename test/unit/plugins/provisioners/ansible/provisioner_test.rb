@@ -96,7 +96,7 @@ VF
         expect(args[1]).to eq("--connection=ssh")
         expect(args[2]).to eq("--timeout=30")
 
-        inventory_count = args.count { |x| x.match(/^--inventory-file=.+$/) if x.is_a?(String) }
+        inventory_count = args.count { |x| x.match(/^--inventory=.+$/) if x.is_a?(String) }
         expect(inventory_count).to be > 0
 
         expect(args[args.length-2]).to eq("playbook.yml")
@@ -200,9 +200,9 @@ VF
 
     it "sets as ansible inventory the directory containing the auto-generated inventory file" do
       expect(Vagrant::Util::Subprocess).to receive(:execute).with('ansible-playbook', any_args) { |*args|
-        inventory_index = args.rindex("--inventory-file=#{generated_inventory_dir}")
+        inventory_index = args.rindex("--inventory=#{generated_inventory_dir}")
         expect(inventory_index).to be > 0
-        expect(find_last_argument_after(inventory_index, args, /--inventory-file=\w+/)).to be(false)
+        expect(find_last_argument_after(inventory_index, args, /--inventory=\w+/)).to be(false)
       }.and_return(default_execute_result)
     end
   end
@@ -621,7 +621,7 @@ VF
                                 "-l localhost",
                                 "--limit=foo",
                                 "--limit=bar",
-                                "--inventory-file=/forget/it/my/friend",
+                                "--inventory=/forget/it/my/friend",
                                 "--user=lion",
                                 "--new-arg=yeah"]
       end
@@ -639,7 +639,7 @@ VF
       it "sets raw arguments after arguments related to supported options" do
         expect(Vagrant::Util::Subprocess).to receive(:execute).with('ansible-playbook', any_args) { |*args|
           expect(args.index("--user=lion")).to be > args.index("--user=testuser")
-          expect(args.index("--inventory-file=/forget/it/my/friend")).to be > args.index("--inventory-file=#{generated_inventory_dir}")
+          expect(args.index("--inventory=/forget/it/my/friend")).to be > args.index("--inventory=#{generated_inventory_dir}")
           expect(args.index("--limit=bar")).to be > args.index("--limit=all")
           expect(args.index("--skip-tags=ignored")).to be > args.index("--skip-tags=foo,bar")
         }.and_return(default_execute_result)
@@ -736,8 +736,8 @@ VF
 
       it "does not generate the inventory and uses given inventory path instead" do
         expect(Vagrant::Util::Subprocess).to receive(:execute).with('ansible-playbook', any_args) { |*args|
-          expect(args).to include("--inventory-file=#{existing_file}")
-          expect(args).not_to include("--inventory-file=#{generated_inventory_file}")
+          expect(args).to include("--inventory=#{existing_file}")
+          expect(args).not_to include("--inventory=#{generated_inventory_file}")
           expect(File.exist?(generated_inventory_file)).to be(false)
         }.and_return(default_execute_result)
       end
@@ -912,7 +912,7 @@ VF
 
           it "shows the ansible-playbook command and set verbosity to '-#{verbose_option}' level" do
             expect(machine.env.ui).to receive(:detail)
-              .with("PYTHONUNBUFFERED=1 ANSIBLE_FORCE_COLOR=true ANSIBLE_HOST_KEY_CHECKING=false ANSIBLE_SSH_ARGS='-o UserKnownHostsFile=/dev/null -o IdentitiesOnly=yes -o ControlMaster=auto -o ControlPersist=60s' ansible-playbook --connection=ssh --timeout=30 --limit=\"machine1\" --inventory-file=#{generated_inventory_dir} -#{verbose_option} playbook.yml")
+              .with("PYTHONUNBUFFERED=1 ANSIBLE_FORCE_COLOR=true ANSIBLE_HOST_KEY_CHECKING=false ANSIBLE_SSH_ARGS='-o UserKnownHostsFile=/dev/null -o IdentitiesOnly=yes -o ControlMaster=auto -o ControlPersist=60s' ansible-playbook --connection=ssh --timeout=30 --limit=\"machine1\" --inventory=#{generated_inventory_dir} -#{verbose_option} playbook.yml")
           end
         end
 
@@ -926,7 +926,7 @@ VF
 
           it "shows the ansible-playbook command and set verbosity to '-#{verbose_option}' level" do
             expect(machine.env.ui).to receive(:detail)
-              .with("PYTHONUNBUFFERED=1 ANSIBLE_FORCE_COLOR=true ANSIBLE_HOST_KEY_CHECKING=false ANSIBLE_SSH_ARGS='-o UserKnownHostsFile=/dev/null -o IdentitiesOnly=yes -o ControlMaster=auto -o ControlPersist=60s' ansible-playbook --connection=ssh --timeout=30 --limit=\"machine1\" --inventory-file=#{generated_inventory_dir} -#{verbose_option} playbook.yml")
+              .with("PYTHONUNBUFFERED=1 ANSIBLE_FORCE_COLOR=true ANSIBLE_HOST_KEY_CHECKING=false ANSIBLE_SSH_ARGS='-o UserKnownHostsFile=/dev/null -o IdentitiesOnly=yes -o ControlMaster=auto -o ControlPersist=60s' ansible-playbook --connection=ssh --timeout=30 --limit=\"machine1\" --inventory=#{generated_inventory_dir} -#{verbose_option} playbook.yml")
           end
         end
       end
@@ -941,7 +941,7 @@ VF
 
         it "shows the ansible-playbook command and set verbosity to '-v' level" do
           expect(machine.env.ui).to receive(:detail)
-            .with("PYTHONUNBUFFERED=1 ANSIBLE_FORCE_COLOR=true ANSIBLE_HOST_KEY_CHECKING=false ANSIBLE_SSH_ARGS='-o UserKnownHostsFile=/dev/null -o IdentitiesOnly=yes -o ControlMaster=auto -o ControlPersist=60s' ansible-playbook --connection=ssh --timeout=30 --limit=\"machine1\" --inventory-file=#{generated_inventory_dir} -v playbook.yml")
+            .with("PYTHONUNBUFFERED=1 ANSIBLE_FORCE_COLOR=true ANSIBLE_HOST_KEY_CHECKING=false ANSIBLE_SSH_ARGS='-o UserKnownHostsFile=/dev/null -o IdentitiesOnly=yes -o ControlMaster=auto -o ControlPersist=60s' ansible-playbook --connection=ssh --timeout=30 --limit=\"machine1\" --inventory=#{generated_inventory_dir} -v playbook.yml")
         end
       end
 
@@ -1172,7 +1172,7 @@ VF
 
       it "shows the ansible-playbook command, with additional quotes when required" do
         expect(machine.env.ui).to receive(:detail)
-          .with(%Q(PYTHONUNBUFFERED=1 ANSIBLE_FORCE_COLOR=true ANSIBLE_ROLES_PATH='/up/to the stars' ANSIBLE_CONFIG='#{existing_file}' ANSIBLE_HOST_KEY_CHECKING=true ANSIBLE_SSH_ARGS='-o IdentitiesOnly=yes -o IdentityFile=/my/key1 -o IdentityFile=/my/key2 -o ForwardAgent=yes -o ControlMaster=no -o ControlMaster=auto -o ControlPersist=60s' ansible-playbook --connection=ssh --timeout=30 --ask-sudo-pass --ask-vault-pass --limit="machine*:&vagrant:!that_one" --inventory-file=#{generated_inventory_dir} --extra-vars=\\{\\"var1\\":\\"string\\ with\\ \\'apo\\$trophe\\$\\',\\ \\\\\\\\,\\ \\\\\\"\\ and\\ \\=\\",\\"var2\\":\\{\\"x\\":42\\}\\} --sudo --sudo-user=deployer -vvv --vault-password-file=#{existing_file} --tags=db,www --skip-tags=foo,bar --start-at-task="joe's awesome task" --why-not --su-user=foot --ask-su-pass --limit=all --private-key=./myself.key --extra-vars='{\"var3\":\"foo\"}' playbook.yml))
+          .with(%Q(PYTHONUNBUFFERED=1 ANSIBLE_FORCE_COLOR=true ANSIBLE_ROLES_PATH='/up/to the stars' ANSIBLE_CONFIG='#{existing_file}' ANSIBLE_HOST_KEY_CHECKING=true ANSIBLE_SSH_ARGS='-o IdentitiesOnly=yes -o IdentityFile=/my/key1 -o IdentityFile=/my/key2 -o ForwardAgent=yes -o ControlMaster=no -o ControlMaster=auto -o ControlPersist=60s' ansible-playbook --connection=ssh --timeout=30 --ask-sudo-pass --ask-vault-pass --limit="machine*:&vagrant:!that_one" --inventory=#{generated_inventory_dir} --extra-vars=\\{\\"var1\\":\\"string\\ with\\ \\'apo\\$trophe\\$\\',\\ \\\\\\\\,\\ \\\\\\"\\ and\\ \\=\\",\\"var2\\":\\{\\"x\\":42\\}\\} --sudo --sudo-user=deployer -vvv --vault-password-file=#{existing_file} --tags=db,www --skip-tags=foo,bar --start-at-task="joe's awesome task" --why-not --su-user=foot --ask-su-pass --limit=all --private-key=./myself.key --extra-vars='{\"var3\":\"foo\"}' playbook.yml))
       end
     end
 
