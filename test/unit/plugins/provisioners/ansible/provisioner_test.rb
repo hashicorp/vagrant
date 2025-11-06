@@ -85,6 +85,17 @@ VF
     end
   end
 
+  def self.it_should_check_ansible_core_version
+    it "execute 'Python ansible-core version check before executing 'ansible-playbook'" do
+      expect(Vagrant::Util::Subprocess).to receive(:execute)
+        .once.with('python3', '-c', "import importlib.metadata; print('ansible-core ' + importlib.metadata.version('ansible-core'))", { notify: %i[
+                     stdout stderr
+                   ] })
+      expect(Vagrant::Util::Subprocess).to receive(:execute)
+        .once.with('ansible-playbook', any_args)
+    end
+  end
+
   def self.it_should_set_arguments_and_environment_variables(
     expected_args_count = 5,
     expected_vars_count = 4,
@@ -96,7 +107,7 @@ VF
         expect(args[1]).to eq("--connection=ssh")
         expect(args[2]).to eq("--timeout=30")
 
-        inventory_count = args.count { |x| x.match(/^--inventory=.+$/) if x.is_a?(String) }
+        inventory_count = args.count { |x| x.match(/^--inventory-file=.+$/) if x.is_a?(String) }
         expect(inventory_count).to be > 0
 
         expect(args[args.length-2]).to eq("playbook.yml")
@@ -200,9 +211,9 @@ VF
 
     it "sets as ansible inventory the directory containing the auto-generated inventory file" do
       expect(Vagrant::Util::Subprocess).to receive(:execute).with('ansible-playbook', any_args) { |*args|
-        inventory_index = args.rindex("--inventory=#{generated_inventory_dir}")
+        inventory_index = args.rindex("--inventory-file=#{generated_inventory_dir}")
         expect(inventory_index).to be > 0
-        expect(find_last_argument_after(inventory_index, args, /--inventory=\w+/)).to be(false)
+        expect(find_last_argument_after(inventory_index, args, /--inventory-file=\w+/)).to be(false)
       }.and_return(default_execute_result)
     end
   end
@@ -286,6 +297,7 @@ VF
 
     describe "with default options" do
       it_should_check_ansible_version
+      it_should_check_ansible_core_version
       it_should_set_arguments_and_environment_variables
       it_should_create_and_use_generated_inventory
 
@@ -383,6 +395,7 @@ VF
       end
 
       it_should_check_ansible_version
+      it_should_check_ansible_core_version
       it_should_create_and_use_generated_inventory
 
       it "doesn't warn about compatibility mode auto-detection" do
@@ -621,7 +634,7 @@ VF
                                 "-l localhost",
                                 "--limit=foo",
                                 "--limit=bar",
-                                "--inventory=/forget/it/my/friend",
+                                "--inventory-file=/forget/it/my/friend",
                                 "--user=lion",
                                 "--new-arg=yeah"]
       end
@@ -639,7 +652,7 @@ VF
       it "sets raw arguments after arguments related to supported options" do
         expect(Vagrant::Util::Subprocess).to receive(:execute).with('ansible-playbook', any_args) { |*args|
           expect(args.index("--user=lion")).to be > args.index("--user=testuser")
-          expect(args.index("--inventory=/forget/it/my/friend")).to be > args.index("--inventory=#{generated_inventory_dir}")
+          expect(args.index("--inventory-file=/forget/it/my/friend")).to be > args.index("--inventory-file=#{generated_inventory_dir}")
           expect(args.index("--limit=bar")).to be > args.index("--limit=all")
           expect(args.index("--skip-tags=ignored")).to be > args.index("--skip-tags=foo,bar")
         }.and_return(default_execute_result)
@@ -736,8 +749,8 @@ VF
 
       it "does not generate the inventory and uses given inventory path instead" do
         expect(Vagrant::Util::Subprocess).to receive(:execute).with('ansible-playbook', any_args) { |*args|
-          expect(args).to include("--inventory=#{existing_file}")
-          expect(args).not_to include("--inventory=#{generated_inventory_file}")
+          expect(args).to include("--inventory-file=#{existing_file}")
+          expect(args).not_to include("--inventory-file=#{generated_inventory_file}")
           expect(File.exist?(generated_inventory_file)).to be(false)
         }.and_return(default_execute_result)
       end
@@ -912,7 +925,7 @@ VF
 
           it "shows the ansible-playbook command and set verbosity to '-#{verbose_option}' level" do
             expect(machine.env.ui).to receive(:detail)
-              .with("PYTHONUNBUFFERED=1 ANSIBLE_FORCE_COLOR=true ANSIBLE_HOST_KEY_CHECKING=false ANSIBLE_SSH_ARGS='-o UserKnownHostsFile=/dev/null -o IdentitiesOnly=yes -o ControlMaster=auto -o ControlPersist=60s' ansible-playbook --connection=ssh --timeout=30 --limit=\"machine1\" --inventory=#{generated_inventory_dir} -#{verbose_option} playbook.yml")
+              .with("PYTHONUNBUFFERED=1 ANSIBLE_FORCE_COLOR=true ANSIBLE_HOST_KEY_CHECKING=false ANSIBLE_SSH_ARGS='-o UserKnownHostsFile=/dev/null -o IdentitiesOnly=yes -o ControlMaster=auto -o ControlPersist=60s' ansible-playbook --connection=ssh --timeout=30 --limit=\"machine1\" --inventory-file=#{generated_inventory_dir} -#{verbose_option} playbook.yml")
           end
         end
 
@@ -926,7 +939,7 @@ VF
 
           it "shows the ansible-playbook command and set verbosity to '-#{verbose_option}' level" do
             expect(machine.env.ui).to receive(:detail)
-              .with("PYTHONUNBUFFERED=1 ANSIBLE_FORCE_COLOR=true ANSIBLE_HOST_KEY_CHECKING=false ANSIBLE_SSH_ARGS='-o UserKnownHostsFile=/dev/null -o IdentitiesOnly=yes -o ControlMaster=auto -o ControlPersist=60s' ansible-playbook --connection=ssh --timeout=30 --limit=\"machine1\" --inventory=#{generated_inventory_dir} -#{verbose_option} playbook.yml")
+              .with("PYTHONUNBUFFERED=1 ANSIBLE_FORCE_COLOR=true ANSIBLE_HOST_KEY_CHECKING=false ANSIBLE_SSH_ARGS='-o UserKnownHostsFile=/dev/null -o IdentitiesOnly=yes -o ControlMaster=auto -o ControlPersist=60s' ansible-playbook --connection=ssh --timeout=30 --limit=\"machine1\" --inventory-file=#{generated_inventory_dir} -#{verbose_option} playbook.yml")
           end
         end
       end
@@ -941,7 +954,7 @@ VF
 
         it "shows the ansible-playbook command and set verbosity to '-v' level" do
           expect(machine.env.ui).to receive(:detail)
-            .with("PYTHONUNBUFFERED=1 ANSIBLE_FORCE_COLOR=true ANSIBLE_HOST_KEY_CHECKING=false ANSIBLE_SSH_ARGS='-o UserKnownHostsFile=/dev/null -o IdentitiesOnly=yes -o ControlMaster=auto -o ControlPersist=60s' ansible-playbook --connection=ssh --timeout=30 --limit=\"machine1\" --inventory=#{generated_inventory_dir} -v playbook.yml")
+            .with("PYTHONUNBUFFERED=1 ANSIBLE_FORCE_COLOR=true ANSIBLE_HOST_KEY_CHECKING=false ANSIBLE_SSH_ARGS='-o UserKnownHostsFile=/dev/null -o IdentitiesOnly=yes -o ControlMaster=auto -o ControlPersist=60s' ansible-playbook --connection=ssh --timeout=30 --limit=\"machine1\" --inventory-file=#{generated_inventory_dir} -v playbook.yml")
         end
       end
 
@@ -1172,7 +1185,7 @@ VF
 
       it "shows the ansible-playbook command, with additional quotes when required" do
         expect(machine.env.ui).to receive(:detail)
-          .with(%Q(PYTHONUNBUFFERED=1 ANSIBLE_FORCE_COLOR=true ANSIBLE_ROLES_PATH='/up/to the stars' ANSIBLE_CONFIG='#{existing_file}' ANSIBLE_HOST_KEY_CHECKING=true ANSIBLE_SSH_ARGS='-o IdentitiesOnly=yes -o IdentityFile=/my/key1 -o IdentityFile=/my/key2 -o ForwardAgent=yes -o ControlMaster=no -o ControlMaster=auto -o ControlPersist=60s' ansible-playbook --connection=ssh --timeout=30 --ask-sudo-pass --ask-vault-pass --limit="machine*:&vagrant:!that_one" --inventory=#{generated_inventory_dir} --extra-vars=\\{\\"var1\\":\\"string\\ with\\ \\'apo\\$trophe\\$\\',\\ \\\\\\\\,\\ \\\\\\"\\ and\\ \\=\\",\\"var2\\":\\{\\"x\\":42\\}\\} --sudo --sudo-user=deployer -vvv --vault-password-file=#{existing_file} --tags=db,www --skip-tags=foo,bar --start-at-task="joe's awesome task" --why-not --su-user=foot --ask-su-pass --limit=all --private-key=./myself.key --extra-vars='{\"var3\":\"foo\"}' playbook.yml))
+          .with(%Q(PYTHONUNBUFFERED=1 ANSIBLE_FORCE_COLOR=true ANSIBLE_ROLES_PATH='/up/to the stars' ANSIBLE_CONFIG='#{existing_file}' ANSIBLE_HOST_KEY_CHECKING=true ANSIBLE_SSH_ARGS='-o IdentitiesOnly=yes -o IdentityFile=/my/key1 -o IdentityFile=/my/key2 -o ForwardAgent=yes -o ControlMaster=no -o ControlMaster=auto -o ControlPersist=60s' ansible-playbook --connection=ssh --timeout=30 --ask-sudo-pass --ask-vault-pass --limit="machine*:&vagrant:!that_one" --inventory-file=#{generated_inventory_dir} --extra-vars=\\{\\"var1\\":\\"string\\ with\\ \\'apo\\$trophe\\$\\',\\ \\\\\\\\,\\ \\\\\\"\\ and\\ \\=\\",\\"var2\\":\\{\\"x\\":42\\}\\} --sudo --sudo-user=deployer -vvv --vault-password-file=#{existing_file} --tags=db,www --skip-tags=foo,bar --start-at-task="joe's awesome task" --why-not --su-user=foot --ask-su-pass --limit=all --private-key=./myself.key --extra-vars='{\"var3\":\"foo\"}' playbook.yml))
       end
     end
 
@@ -1262,5 +1275,52 @@ VF
         }.and_return(default_execute_result)
       end
     end
+
+    describe '#get_inventory_argument' do
+      context 'when ansible version is not detected' do
+        before do
+          config.version = nil
+          allow(subject).to receive(:gather_ansible_version).and_return("ansible #{config.version}\n...\n")
+          allow(subject).to receive(:gather_ansible_version).with("ansible-core").and_return("ansible #{config.version}\n...\n")
+        end
+
+        it 'returns the default inventory command' do 
+          expect(Vagrant::Util::Subprocess).to receive(:execute).with('ansible-playbook', any_args) { |*args|
+            expect(args).to include("--inventory-file=#{generated_inventory_dir}")
+          }.and_return(default_execute_result)
+        end
+      end
+
+      context 'when ansible version is detected' do
+        describe 'version >= 2.19' do
+          before do
+            config.version = "2.19.0"
+            allow(subject).to receive(:gather_ansible_version).with("ansible").and_return("ansible #{config.version}\n...\n")
+            allow(subject).to receive(:gather_ansible_version).with("ansible-core").and_return("ansible-core #{config.version}\n...\n")
+          end
+          
+          it 'returns --inventory as the inventory command' do
+            expect(Vagrant::Util::Subprocess).to receive(:execute).with('ansible-playbook', any_args) { |*args|
+              expect(args).to include("--inventory=#{generated_inventory_dir}")
+            }.and_return(default_execute_result)
+          end
+        end
+
+        describe 'version < 2.19' do
+          before do
+            config.version = "2.18.5"
+            allow(subject).to receive(:gather_ansible_version).with("ansible").and_return("ansible #{config.version}\n...\n")
+            allow(subject).to receive(:gather_ansible_version).with("ansible-core").and_return("ansible-core #{config.version}\n...\n")
+          end
+
+          it 'returns --inventory-file as the inventory command' do
+            expect(Vagrant::Util::Subprocess).to receive(:execute).with('ansible-playbook', any_args) { |*args|
+              expect(args).to include("--inventory-file=#{generated_inventory_dir}")
+            }.and_return(default_execute_result)
+          end
+        end
+      end
+    end
+
   end
 end
