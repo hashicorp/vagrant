@@ -427,11 +427,11 @@ gathered version stdout version:
         def set_gathered_ansible_package_version(ansible_package, stdout_output)
           if !stdout_output.empty?
             first_line = stdout_output.lines[0]
-            ansible_version_pattern = first_line.match(/(^#{ansible_package}\s+)(.+)$/)
+            ansible_version_pattern = first_line.match(/^#{ansible_package}\s+(.+)$/)
             if ansible_version_pattern
-              _, gathered_version, _ = ansible_version_pattern.captures
+              gathered_version = ansible_version_pattern.captures.first
               gathered_version.strip!
-              if gathered_version
+              if !gathered_version.empty?
                 gathered_version_major = gathered_version.match(/(\d+)\..+$/).captures[0].to_i
                 gathered_version_minor = gathered_version.match(/\d+\.(\d+)\..+$/).captures[0].to_i
                 @ansible_package_version_map[ansible_package] = {
