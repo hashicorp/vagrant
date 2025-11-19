@@ -53,16 +53,24 @@ module VagrantPlugins
           @gathered_version_stdout = nil
           @gathered_version_major = nil
           @gathered_version = nil
+
+          @ansible_package_version_map = {}
         end
 
         def set_and_check_compatibility_mode
           begin
-            set_gathered_ansible_version(gather_ansible_version)
+            set_gathered_ansible_version(gather_ansible_version("ansible"))
           rescue StandardError => e
             # Nothing to do here, as the fallback on safe compatibility_mode is done below
             @logger.error("Error while gathering the ansible version: #{e.to_s}")
           end
 
+          begin
+            set_gathered_ansible_package_version("ansible-core", gather_ansible_version("ansible-core"))
+          rescue StandardError => e
+             @logger.error("Error while gathering the ansible-core version: #{e}")
+          end
+          
           if @gathered_version_major
             if config.compatibility_mode == Ansible::COMPATIBILITY_MODE_AUTO
               detect_compatibility_mode
@@ -164,7 +172,7 @@ module VagrantPlugins
             @command_arguments << "--limit=#{@machine.name}"
           end
 
-          @command_arguments << "--inventory-file=#{inventory_path}"
+          @command_arguments << get_inventory_argument(inventory_path)
           @command_arguments << "--extra-vars=#{extra_vars_argument}" if config.extra_vars
           @command_arguments << "--#{@lexicon[:become]}" if config.become
           @command_arguments << "--#{@lexicon[:become_user]}=#{config.become_user}" if config.become_user
@@ -173,6 +181,22 @@ module VagrantPlugins
           @command_arguments << "--tags=#{Helpers::as_list_argument(config.tags)}" if config.tags
           @command_arguments << "--skip-tags=#{Helpers::as_list_argument(config.skip_tags)}" if config.skip_tags
           @command_arguments << "--start-at-task=#{config.start_at_task}" if config.start_at_task
+        end
+
+        def get_inventory_argument(inventory_path)
+          ansible_core_version = @ansible_package_version_map["ansible-core"]
+          # Default to --inventory-file if version info is not available
+          return "--inventory-file=#{inventory_path}" if ansible_core_version.nil? || ansible_core_version.empty?
+          
+          major = ansible_core_version[:major].to_i
+          minor = ansible_core_version[:minor].to_i
+          
+          # Use --inventory for ansible-core >= 2.19
+          if major > 2 || (major == 2 && minor >= 19)
+            "--inventory=#{inventory_path}"
+          else
+            "--inventory-file=#{inventory_path}"
+          end
         end
 
         def prepare_common_environment_variables
@@ -394,6 +418,26 @@ gathered version stdout version:
               @gathered_version.strip!
               if @gathered_version
                 @gathered_version_major = @gathered_version.match(/(\d+)\..+$/).captures[0].to_i
+              end
+            end
+          end
+        end
+
+        def set_gathered_ansible_package_version(ansible_package, stdout_output)
+          if !stdout_output.empty?
+            first_line = stdout_output.lines[0]
+            ansible_version_pattern = first_line.match(/^#{ansible_package}\s+(.+)$/)
+            if ansible_version_pattern
+              gathered_version = ansible_version_pattern.captures.first
+              gathered_version.strip!
+              if !gathered_version.empty?
+                gathered_version_major = gathered_version.match(/(\d+)\..+$/).captures[0].to_i
+                gathered_version_minor = gathered_version.match(/\d+\.(\d+)\..+$/).captures[0].to_i
+                @ansible_package_version_map[ansible_package] = {
+                  version: gathered_version,
+                  major: gathered_version_major,
+                  minor: gathered_version_minor
+                }
               end
             end
           end
