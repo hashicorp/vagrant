@@ -68,10 +68,9 @@ module VagrantPlugins
           begin
             set_gathered_ansible_package_version("ansible-core", gather_ansible_version("ansible-core"))
           rescue StandardError => e
-             @logger.error("Error while gathering the ansible-core version: #{e.to_s}")
+             @logger.error("Error while gathering the ansible-core version: #{e}")
           end
           
-
           if @gathered_version_major
             if config.compatibility_mode == Ansible::COMPATIBILITY_MODE_AUTO
               detect_compatibility_mode

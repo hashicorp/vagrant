@@ -86,7 +86,7 @@ VF
   end
 
   def self.it_should_check_ansible_core_version
-    it "execute 'Python ansible-core version check before executing 'ansible-playbook'" do
+    it "executes 'Python ansible-core version check before executing 'ansible-playbook'" do
       expect(Vagrant::Util::Subprocess).to receive(:execute)
         .once.with('python3', '-c', "import importlib.metadata; print('ansible-core ' + importlib.metadata.version('ansible-core'))", { notify: %i[
                      stdout stderr
@@ -1284,7 +1284,7 @@ VF
           allow(subject).to receive(:gather_ansible_version).with("ansible-core").and_return("ansible #{config.version}\n...\n")
         end
 
-        it 'returns the default inventory command' do 
+        it 'returns the default inventory command' do
           expect(Vagrant::Util::Subprocess).to receive(:execute).with('ansible-playbook', any_args) { |*args|
             expect(args).to include("--inventory-file=#{generated_inventory_dir}")
           }.and_return(default_execute_result)
