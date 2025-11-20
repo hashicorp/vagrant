@@ -4,6 +4,9 @@ FEATURES:
 
 IMPROVEMENTS:
 
+- provisioner/ansible: Add support for dynamically selecting ansible-playbook inventory argument option based on ansible core version [GH-13740]
+- docs: Add deprecation notice for documentation under website directory [GH-13746]
+
 BUG FIXES:
 
 ## 2.4.9 (August 21, 2025)

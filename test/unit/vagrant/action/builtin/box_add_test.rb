@@ -410,7 +410,7 @@ describe Vagrant::Action::Builtin::BoxAdd, :skip_windows, :bsdtar do
           }.and_return(box)
 
           allow(env[:ui]).to receive(:detail).and_call_original
-          expect(env[:ui]).to receive(:detail).with(%r{.*http://(?!#{username}).+?:(?!#{password}).+?@127\.0\.0\.1:#{port}/#{box_path.basename}.*}).
+          expect(env[:ui]).to receive(:detail).with(/.*http:\/\/\*+(?::\*+)?@127\.0\.0\.1:#{port}\/#{box_path.basename}.*/).
             and_call_original
           expect(app).to receive(:call).with(env)
 

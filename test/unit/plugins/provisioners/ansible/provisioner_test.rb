@@ -85,6 +85,17 @@ VF
     end
   end
 
+  def self.it_should_check_ansible_core_version
+    it "executes 'Python ansible-core version check before executing 'ansible-playbook'" do
+      expect(Vagrant::Util::Subprocess).to receive(:execute)
+        .once.with('python3', '-c', "import importlib.metadata; print('ansible-core ' + importlib.metadata.version('ansible-core'))", { notify: %i[
+                     stdout stderr
+                   ] })
+      expect(Vagrant::Util::Subprocess).to receive(:execute)
+        .once.with('ansible-playbook', any_args)
+    end
+  end
+
   def self.it_should_set_arguments_and_environment_variables(
     expected_args_count = 5,
     expected_vars_count = 4,
@@ -286,6 +297,7 @@ VF
 
     describe "with default options" do
       it_should_check_ansible_version
+      it_should_check_ansible_core_version
       it_should_set_arguments_and_environment_variables
       it_should_create_and_use_generated_inventory
 
@@ -383,6 +395,7 @@ VF
       end
 
       it_should_check_ansible_version
+      it_should_check_ansible_core_version
       it_should_create_and_use_generated_inventory
 
       it "doesn't warn about compatibility mode auto-detection" do
@@ -1262,5 +1275,52 @@ VF
         }.and_return(default_execute_result)
       end
     end
+
+    describe '#get_inventory_argument' do
+      context 'when ansible version is not detected' do
+        before do
+          config.version = nil
+          allow(subject).to receive(:gather_ansible_version).and_return("ansible #{config.version}\n...\n")
+          allow(subject).to receive(:gather_ansible_version).with("ansible-core").and_return("ansible #{config.version}\n...\n")
+        end
+
+        it 'returns the default inventory command' do
+          expect(Vagrant::Util::Subprocess).to receive(:execute).with('ansible-playbook', any_args) { |*args|
+            expect(args).to include("--inventory-file=#{generated_inventory_dir}")
+          }.and_return(default_execute_result)
+        end
+      end
+
+      context 'when ansible version is detected' do
+        describe 'version >= 2.19' do
+          before do
+            config.version = "2.19.0"
+            allow(subject).to receive(:gather_ansible_version).with("ansible").and_return("ansible #{config.version}\n...\n")
+            allow(subject).to receive(:gather_ansible_version).with("ansible-core").and_return("ansible-core #{config.version}\n...\n")
+          end
+          
+          it 'returns --inventory as the inventory command' do
+            expect(Vagrant::Util::Subprocess).to receive(:execute).with('ansible-playbook', any_args) { |*args|
+              expect(args).to include("--inventory=#{generated_inventory_dir}")
+            }.and_return(default_execute_result)
+          end
+        end
+
+        describe 'version < 2.19' do
+          before do
+            config.version = "2.18.5"
+            allow(subject).to receive(:gather_ansible_version).with("ansible").and_return("ansible #{config.version}\n...\n")
+            allow(subject).to receive(:gather_ansible_version).with("ansible-core").and_return("ansible-core #{config.version}\n...\n")
+          end
+
+          it 'returns --inventory-file as the inventory command' do
+            expect(Vagrant::Util::Subprocess).to receive(:execute).with('ansible-playbook', any_args) { |*args|
+              expect(args).to include("--inventory-file=#{generated_inventory_dir}")
+            }.and_return(default_execute_result)
+          end
+        end
+      end
+    end
+
   end
 end

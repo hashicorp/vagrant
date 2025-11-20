@@ -74,11 +74,11 @@ module VagrantPlugins
           end
         end
 
-        def gather_ansible_version
+        def gather_ansible_version(package = 'ansible')
           raw_output = ""
 
           result = @machine.communicate.execute(
-            "python3 -c \"import importlib.metadata; print('ansible ' + importlib.metadata.version('ansible'))\"",
+            "python3 -c \"import importlib.metadata; print('#{package} ' + importlib.metadata.version('#{package}'))\"",
             error_class: Ansible::Errors::AnsibleNotFoundOnGuest,
             error_key: :ansible_not_found_on_guest) do |type, output|
             if type == :stdout && output.lines[0]
