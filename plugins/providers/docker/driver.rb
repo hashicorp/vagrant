@@ -32,7 +32,7 @@ module VagrantPlugins
         # from standard docker
         matches = result.scan(/writing image .+:([^\s]+)/i).last
         if !matches
-          # Check for outout of docker using containerd backend store
+          # Check for output of docker using containerd backend store
           matches = result.scan(/exporting manifest list .+:([^\s]+)/i).last
         end
         if !matches
@@ -263,12 +263,12 @@ module VagrantPlugins
         if output =~ /^\s+inet ([0-9.]+)\/[0-9]+\s+/
           return $1.to_s
         else
-          # TODO: Raise an user friendly message
+          # TODO: Raise a user-friendly message
           raise 'Unable to fetch docker bridge IP!'
         end
       end
 
-      # @param [String] network - name of network to connect conatiner to
+      # @param [String] network - name of network to connect container to
       # @param [String] cid - container id
       # @param [Array]  opts - An array of flags used for listing networks
       def connect_network(network, cid, opts=nil)
