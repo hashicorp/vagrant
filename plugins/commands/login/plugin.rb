@@ -13,7 +13,15 @@ module VagrantPlugins
 
       command(:login) do
         require File.expand_path("../../cloud/auth/login", __FILE__)
+        init!
         VagrantPlugins::CloudCommand::AuthCommand::Command::Login
+      end
+
+      def self.init!
+        return if defined?(@_init)
+        I18n.load_path << File.expand_path("../../cloud/locales/en.yml", __FILE__)
+        I18n.reload!
+        @_init = true
       end
     end
   end
