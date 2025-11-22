@@ -239,6 +239,9 @@ module VagrantPlugins
 
           # Store updated metadata
           disk_metadata = {UUID: disk_info["DiskIdentifier"], Name: disk_config.name, Path: disk_info["Path"]}
+          if disk_config.primary
+            disk_metadata[:primary] = true
+          end
 
           disk_metadata
         end
