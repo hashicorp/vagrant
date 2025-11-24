@@ -7,7 +7,10 @@ IMPROVEMENTS:
 - provisioner/ansible: Add support for dynamically selecting ansible-playbook inventory argument option based on ansible-core version [GH-13740]
 - docs: Add deprecation notice for documentation under website directory [GH-13746]
 - docs: Fix typos and lingustic issues in various places [GH-13731]
+
 BUG FIXES:
+
+- core: Fix issue with missing translations when running vagrant login [GH-13747]
 
 ## 2.4.9 (August 21, 2025)
 
