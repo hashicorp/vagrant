@@ -11,6 +11,7 @@ IMPROVEMENTS:
 BUG FIXES:
 
 - core: Fix issue with missing translations when running vagrant login [GH-13747]
+- provider/hyperv: Preserve primary disk when resizing disks [GH-13748]
 
 ## 2.4.9 (August 21, 2025)
 
