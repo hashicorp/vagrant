@@ -1,4 +1,4 @@
-# Copyright (c) HashiCorp, Inc.
+# Copyright IBM Corp. 2010, 2025
 # SPDX-License-Identifier: BUSL-1.1
 
 # This tests that VM is up as a linked clone
