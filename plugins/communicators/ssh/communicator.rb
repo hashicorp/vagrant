@@ -871,7 +871,7 @@ module VagrantPlugins
         end
 
         # Convert the options into a Hash for easy access
-        opts = Hash[*list.split("\n").map{|line| line.split(" ", 2)}.flatten]
+        opts = Hash[*list.split("\n").filter_map{|line| line.split(" ", 2) if line.include? " "}.flatten]
 
         # Define the option names to check for in preferred order
         # NOTE: pubkeyacceptedkeytypes has been renamed to pubkeyacceptedalgorithms
