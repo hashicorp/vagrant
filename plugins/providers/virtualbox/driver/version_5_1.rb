@@ -1,4 +1,4 @@
-# Copyright (c) HashiCorp, Inc.
+# Copyright IBM Corp. 2010, 2025
 # SPDX-License-Identifier: BUSL-1.1
 
 require File.expand_path("../version_5_0", __FILE__)
