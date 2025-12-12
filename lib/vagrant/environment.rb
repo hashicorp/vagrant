@@ -523,7 +523,7 @@ module Vagrant
 
     # Loads another environment for the given Vagrantfile, sharing as much
     # useful state from this Environment as possible (such as UI and paths).
-    # Any initialization options can be overidden using the opts hash.
+    # Any initialization options can be overridden using the opts hash.
     #
     # @param [String] vagrantfile Path to a Vagrantfile
     # @return [Environment]
@@ -567,7 +567,7 @@ module Vagrant
 
       # Determine the host class to use. ":detect" is an old Vagrant config
       # that shouldn't be valid anymore, but we respect it here by assuming
-      # its old behavior. No need to deprecate this because I thin it is
+      # its old behavior. No need to deprecate this because I think it is
       # fairly harmless.
       host_klass = vagrantfile.config.vagrant.host
       host_klass = nil if host_klass == :detect
@@ -883,7 +883,7 @@ module Vagrant
 
       # Create the version file that we use to track the structure of
       # the home directory. If we have an old version, we need to explicitly
-      # upgrade it. Otherwise, we just mark that its the current version.
+      # upgrade it. Otherwise, we just mark that it's the current version.
       version_file = @home_path.join("setup_version")
       if version_file.file?
         version = version_file.read.chomp
@@ -1059,7 +1059,7 @@ module Vagrant
         end
         ui.info("\n")
         # Force halt after installation and require command to be run again. This
-        # will proper load any new locally installed plugins which are now available.
+        # will properly load any new locally installed plugins which are now available.
         ui.warn(I18n.t("vagrant.plugins.local.install_rerun_command"))
         exit(-1)
       end

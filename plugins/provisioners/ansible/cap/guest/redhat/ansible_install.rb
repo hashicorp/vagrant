@@ -1,4 +1,4 @@
-# Copyright (c) HashiCorp, Inc.
+# Copyright IBM Corp. 2010, 2025
 # SPDX-License-Identifier: BUSL-1.1
 
 require_relative "../facts"
@@ -31,7 +31,7 @@ module VagrantPlugins
 
               epel = machine.communicate.execute "#{rpm_package_manager} repolist epel | grep -q epel", error_check: false
               if epel != 0
-                machine.communicate.sudo 'sudo rpm -i https://dl.fedoraproject.org/pub/epel/epel-release-latest-`rpm -E %dist | sed -n \'s/.*el\([0-9]\).*/\1/p\'`.noarch.rpm'
+                machine.communicate.sudo "sudo rpm -i #{ansible_epel_download_url(machine)}"
               end
               machine.communicate.sudo "#{rpm_package_manager} -y --enablerepo=epel install ansible"
             end
@@ -67,6 +67,15 @@ module VagrantPlugins
               })
             end
 
+            def self.ansible_epel_download_url(machine)
+              dist = ""
+              machine.communicate.execute("rpm -E %dist") do |type, data|
+                dist << data if type == :stdout
+              end
+              dist.strip!
+              dist_major_version = dist.match(/.*el(\d+).*/)&.captures&.first
+              "https://dl.fedoraproject.org/pub/epel/epel-release-latest-#{dist_major_version}.noarch.rpm"
+            end
           end
         end
       end

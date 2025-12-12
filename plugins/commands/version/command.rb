@@ -39,7 +39,7 @@ module VagrantPlugins
           "vagrant.version_latest", version: latest))
         @env.ui.machine("version-latest", latest)
 
-        # Determine if its a new version, and if so, output some more
+        # Determine if it's a new version, and if so, output some more
         # information.
         current = Gem::Version.new(Vagrant::VERSION)
         latest  = Gem::Version.new(latest)

@@ -504,7 +504,7 @@ en:
         provider. Double-check your requested provider to verify you didn't
         simply misspell it.
 
-        If you're adding a box from HashiCorp's Vagrant Cloud, make sure the box is
+        If you're adding a box from HashiCorp's Vagrant Public Registry, make sure the box is
         released.
 
         Name: %{name}

@@ -1,13 +1,44 @@
-## 2.4.8.dev (UNRELEASED)
+## 2.4.10.dev (UNRELEASED)
 
 FEATURES:
 
 IMPROVEMENTS:
 
+- provisioner/ansible: Add support for dynamically selecting ansible-playbook inventory argument option based on ansible-core version [GH-13740]
+- docs: Add deprecation notice for documentation under website directory [GH-13746]
+- docs: Fix typos and lingustic issues in various places [GH-13731]
+
+BUG FIXES:
+
+- core: Fix issue with missing translations when running vagrant login [GH-13747]
+- provider/hyperv: Preserve primary disk when resizing disks [GH-13748]
+
+## 2.4.9 (August 21, 2025)
+
+FEATURES:
+
+- provider/virtualbox: Add support for VirtualBox 7.2 [GH-13709]
+
+IMPROVEMENTS:
+
+- docs: Update the node version for the docs site [GH-13713]
+- docs: Remove outdated link for Vagrant Cloud [GH-13710]
+
+BUG FIXES:
+
+- provisioner/ansible: Fix OS version detection, when installing Ansible on RHEL-like operating systems [GH-13701]
+
+## 2.4.8 (August 05, 2025)
+
+IMPROVEMENTS:
+
+- core: Improve error message when no matching provider is found for a box [GH-13693]
 - core: Improve error message on box add failures [GH-13687]
 
 BUG FIXES:
 
+- core: Fix box add action when adding a box directly from a file [GH-13699]
+- provider/hyperv: Fix XML configuration parsing logic, and add additional checks for minimum amount of memory and CPU [GH-13691]
 - core: Fix guest network configuration when more than one network interface is present [GH-13686]
 
 ## 2.4.7 (June 17, 2025)

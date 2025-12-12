@@ -1,4 +1,4 @@
-# Copyright (c) HashiCorp, Inc.
+# Copyright IBM Corp. 2010, 2025
 # SPDX-License-Identifier: BUSL-1.1
 
 require "thread"
@@ -110,10 +110,10 @@ module VagrantPlugins
           end
         end
 
-        def gather_ansible_version
+        def gather_ansible_version(package = 'ansible')
           raw_output = ''
           command = ['python3', '-c',
-                     "import importlib.metadata; print('ansible ' + importlib.metadata.version('ansible'))"]
+                     "import importlib.metadata; print('#{package} ' + importlib.metadata.version('#{package}'))"]
 
           command << {
             notify: [:stdout, :stderr]

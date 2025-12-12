@@ -68,13 +68,13 @@ variable to point to the proper test directory inside of the Vagrant source.
 ### How to run specific tests
 
 Sometimes when debugging, it's useful to only run a small subset of tests, instead of
-waiting for evetything to run. This can be achieved by passing along arugments
+waiting for everything to run. This can be achieved by passing along arguments
 using the `VAGRANT_SPEC_ARGS` environment variable:
 
 For example, here is what you could set to only run cli tests
 
 ```shell
-VAGRANT__SPEC_ARGS="--component cli"
+VAGRANT_SPEC_ARGS="--component cli"
 ```
 
 Or with the full command....
