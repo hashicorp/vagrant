@@ -2,6 +2,8 @@
 
 FEATURES:
 
+- provider/virtualbox: Add support for LSI Logic SAS storage controller [GH-13692]
+
 IMPROVEMENTS:
 
 - provisioner/ansible: Add support for dynamically selecting ansible-playbook inventory argument option based on ansible-core version [GH-13740]
