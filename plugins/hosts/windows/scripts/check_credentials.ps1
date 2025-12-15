@@ -20,7 +20,7 @@ if ( $DSContext.ValidateCredentials( $username, $password ) ) {
 
 $DSContext = New-Object System.DirectoryServices.AccountManagement.PrincipalContext(
     [System.DirectoryServices.AccountManagement.ContextType]::Domain,
-    $env:COMPUTERNAME
+    $env:USERDOMAIN
 )
 if ( $DSContext.ValidateCredentials( $username, $password ) ) {
     exit 0
@@ -35,3 +35,4 @@ if ( $DSContext.ValidateCredentials( $username, $password ) ) {
 } 
 
 exit 1
+
