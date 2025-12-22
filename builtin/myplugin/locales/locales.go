@@ -1,4 +1,4 @@
-// Copyright (c) HashiCorp, Inc.
+// Copyright IBM Corp. 2010, 2025
 // SPDX-License-Identifier: BUSL-1.1
 
 // Code generated for package locales by go-bindata DO NOT EDIT. (@generated)
