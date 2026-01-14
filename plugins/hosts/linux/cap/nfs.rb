@@ -117,7 +117,10 @@ module VagrantPlugins
           composite_ids = valid_ids.map do |v_id|
             "#{user} #{v_id}"
           end
-          remove_ids = editor.keys - composite_ids
+
+          #Fix for issue 9070, pruning other users' NFS exports
+          #remove_ids = editor.keys - composite_ids
+          remove_ids = editor.cur_user_keys - composite_ids
 
           logger.debug("Known valid NFS export IDs: #{valid_ids}")
           logger.debug("Composite valid NFS export IDs with user: #{composite_ids}")
