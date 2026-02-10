@@ -63,6 +63,36 @@ describe Vagrant::Util::Downloader do
       end
     end
 
+    context "when server returns 401 with Authorization header" do
+      let(:source) { "http://example.org/vagrant.box" }
+      let(:options) { {headers: ["Authorization: Bearer expired"]} }
+
+      let(:subprocess_401) do
+        double("subprocess_401").tap do |result|
+          allow(result).to receive(:exit_code).and_return(22)
+          allow(result).to receive(:stderr).and_return("curl: (22) The requested URL returned error: 401")
+        end
+      end
+
+      it "retries without the Authorization header and succeeds" do
+        first_call = ["-q", "--fail", "--location", "--max-redirs", "10",
+                      "--verbose", "--user-agent", described_class::USER_AGENT,
+                      "-H", "Authorization: Bearer expired",
+                      "--output", destination, source, {}]
+        second_call = ["-q", "--fail", "--location", "--max-redirs", "10",
+                       "--verbose", "--user-agent", described_class::USER_AGENT,
+                       "--output", destination, source, {}]
+
+        expect(Vagrant::Util::Subprocess).to receive(:execute).
+          with("curl", *first_call).ordered.and_return(subprocess_401)
+
+        expect(Vagrant::Util::Subprocess).to receive(:execute).
+          with("curl", *second_call).ordered.and_return(subprocess_result)
+
+        expect(subject.download!).to be(true)
+      end
+    end
+
     context "with UI" do
       let(:ui) { Vagrant::UI::Silent.new }
       let(:options) { {ui: ui} }
@@ -319,6 +349,47 @@ describe Vagrant::Util::Downloader do
         with("curl", *curl_options).and_return(subprocess_result)
 
       expect(subject.head).to eq("foo")
+    end
+
+    context "when server returns 401 with Authorization header" do
+      let(:source) { "http://example.org/metadata.json" }
+      let(:options) { {headers: ["Authorization: Bearer expired"]} }
+
+      let(:subprocess_401) do
+        double("subprocess_401").tap do |result|
+          allow(result).to receive(:exit_code).and_return(22)
+          allow(result).to receive(:stderr).and_return("curl: (22) The requested URL returned error: 401")
+          allow(result).to receive(:stdout).and_return("")
+        end
+      end
+
+      let(:subprocess_ok) do
+        double("subprocess_ok").tap do |result|
+          allow(result).to receive(:exit_code).and_return(0)
+          allow(result).to receive(:stderr).and_return("")
+          allow(result).to receive(:stdout).and_return("HTTP/1.1 200 OK\nContent-Type: application/json")
+        end
+      end
+
+      it "retries without the Authorization header and succeeds" do
+        # First attempt should include Authorization header and fail with 401
+        first_call = ["-q", "-I", "--fail", "--location", "--max-redirs", "10",
+                      "--verbose", "--user-agent", described_class::USER_AGENT,
+                      "-H", "Authorization: Bearer expired",
+                      source, {}]
+        expect(Vagrant::Util::Subprocess).to receive(:execute).
+          with("curl", *first_call).ordered.and_return(subprocess_401)
+
+        # Second attempt should exclude Authorization header and succeed
+        second_call = ["-q", "-I", "--fail", "--location", "--max-redirs", "10",
+                       "--verbose", "--user-agent", described_class::USER_AGENT,
+                       source, {}]
+        expect(Vagrant::Util::Subprocess).to receive(:execute).
+          with("curl", *second_call).ordered.and_return(subprocess_ok)
+
+        # Should not raise and should return the successful output
+        expect(subject.head).to include("Content-Type: application/json")
+      end
     end
   end
 
