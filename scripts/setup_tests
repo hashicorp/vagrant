@@ -10,10 +10,17 @@ if ! bsdtar --version
 then
   apt-get install -y bsdtar &&
     bsdtar --version || {
-      echo 'Failed to install bsdtar' >&2
-      exit 1
+      echo 'Failed to install bsdtar. Checking if it is avalialbe from another source.' >&2
     }
 fi
+if ! bsdtar --version 
+then 
+  apt-get install -y libarchive-tools &&
+    bsdtar --version || {
+      echo 'Failed to install libarchive-tools.' >&2
+      exit 1
+    }
+fi 
 
 # Install next-to-last Ruby that complies with Vagrant's version
 # constraint
