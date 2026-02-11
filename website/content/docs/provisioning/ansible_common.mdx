@@ -145,9 +145,9 @@ Some of these options are for advanced usage only and should not be used unless 
 
   Setting `limit = "all"` can be used to make Ansible connect to all machines from the inventory file.
 
-- `playbook_command` (string) - The command used to run playbooks.
+- `playbook_command` (array of strings) - The command used to run playbooks.
 
-  The default value is `ansible-playbook`
+  The default value is `ansible-playbook` . If subcommands are necessary when executing the ansible-playbook like `pipenv run ansible-playbook`, please separate the elements of the array.
 
 - `raw_arguments` (array of strings) - a list of additional `ansible-playbook` arguments.
 
