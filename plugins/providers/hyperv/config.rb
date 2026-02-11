@@ -53,6 +53,8 @@ module VagrantPlugins
       attr_accessor :vm_integration_services
       # @return [Boolean] Enable Enhanced session mode
       attr_accessor :enable_enhanced_session_mode
+      # @return [Boolean] Enable IPv4 only for connection to guest
+      attr_accessor :ipv4_only
 
       def initialize
         @ip_address_timeout = UNSET_VALUE
@@ -71,6 +73,7 @@ module VagrantPlugins
         @enable_checkpoints = UNSET_VALUE
         @vm_integration_services = {}
         @enable_enhanced_session_mode = UNSET_VALUE
+        @ipv4_only = UNSET_VALUE
       end
 
       def finalize!
@@ -110,6 +113,10 @@ module VagrantPlugins
         @enable_checkpoints ||= @enable_automatic_checkpoints
 
         @enable_enhanced_session_mode = false if @enable_enhanced_session_mode == UNSET_VALUE
+
+        if @ipv4_only == UNSET_VALUE
+          @ipv4_only = Vagrant::Util::Platform.wsl? ? true : false
+        end
       end
 
       def validate(machine)

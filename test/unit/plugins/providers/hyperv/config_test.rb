@@ -245,7 +245,6 @@ describe VagrantPlugins::HyperV::Config do
     end
   end
 
-
   describe "#enable_enhanced_session_mode" do
     it "is false by default" do
       subject.finalize!
@@ -256,6 +255,32 @@ describe VagrantPlugins::HyperV::Config do
       subject.enable_enhanced_session_mode = true
       subject.finalize!
       expect(subject.enable_enhanced_session_mode).to eq(true)
+    end
+  end
+
+  describe "#ipv4_only" do
+    context "within the WSL" do
+      before{ allow(Vagrant::Util::Platform).to receive(:wsl?).and_return(true) }
+
+      it "is true by default when in WSL" do
+        subject.finalize!
+        expect(subject.ipv4_only).to eq(true)
+      end
+    end
+
+    context "not within the WSL" do
+      before{ allow(Vagrant::Util::Platform).to receive(:wsl?).and_return(false) }
+
+      it "is false by default" do
+        subject.finalize!
+        expect(subject.ipv4_only).to eq(false)
+      end
+    end
+
+    it "can be set" do
+      subject.ipv4_only = true
+      subject.finalize!
+      expect(subject.ipv4_only).to eq(true)
     end
   end
 end
