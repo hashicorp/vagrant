@@ -644,6 +644,10 @@
         ]
       },
       {
+        "title": "Parallels Provider",
+        "path": "providers/parallels"
+      },
+      {
         "title": "Custom Provider",
         "path": "providers/custom"
       }
