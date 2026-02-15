@@ -13,6 +13,7 @@ require "vagrant/util/platform"
 require "vagrant/util/subprocess"
 require "vagrant/util/curl_helper"
 require "vagrant/util/file_checksum"
+require "set"
 
 module Vagrant
   module Util
@@ -20,6 +21,44 @@ module Vagrant
     # to cURL. cURL is a much more capable and complete download tool than
     # a hand-rolled Ruby library, so we defer to its expertise.
     class Downloader
+      UNSAFE_CURL_OPTIONS = Set.new(%w[
+        -O --remote-name
+        -K --config
+        -T --upload-file
+        -o --output
+        -F --form
+        --form-string
+        -X --request
+        --proxy
+        -x
+        --socks4
+        --socks4a
+        --socks5
+        --socks5-hostname
+        -w --write-out
+        --libcurl
+        --stderr
+        -D --dump-header
+        --trace
+        --trace-ascii
+        -b --cookie
+        -c --cookie-jar
+        --create-dirs
+        --output-dir
+        -d --data
+        --data-ascii
+        --data-binary
+        --data-raw
+        --data-urlencode
+        --dns-servers
+        --doh-url
+        --resolve
+        --connect-to
+        -n --netrc
+        --netrc-file
+        --netrc-optional
+      ]).freeze
+
       # Custom user agent provided to cURL so that requests to URL shorteners
       # are properly tracked.
       #
@@ -68,7 +107,7 @@ module Vagrant
           :sha384 => options[:sha384],
           :sha512 => options[:sha512]
         }.compact
-        @extra_download_options = options[:box_extra_download_options] || []
+        @extra_download_options = validate_extra_options!(options[:box_extra_download_options] || [])
         # If on Windows SSL revocation checks should be best effort. More context
         # for this usage can be found in the following links:
         #
@@ -171,6 +210,18 @@ module Vagrant
       # @option checksums [String] :md5 Compare MD5 checksum
       # @option checksums [String] :sha1 Compare SHA1 checksum
       # @return [Boolean]
+      def validate_extra_options!(opts)
+        opts = Array(opts).map(&:to_s)
+        opts.each do |opt|
+          normalized = opt.split("=", 2).first
+          if UNSAFE_CURL_OPTIONS.include?(normalized)
+            raise Errors::DownloaderError,
+              message: "Unsafe option in box_extra_download_options: #{opt}"
+          end
+        end
+        opts
+      end
+
       def validate_download!(source, path, checksums)
         checksums.each do |type, expected|
           actual = FileChecksum.new(path, type).checksum
@@ -258,6 +309,11 @@ module Vagrant
 
         if @headers
           Array(@headers).each do |header|
+            header = header.to_s
+            if header.start_with?("-")
+              raise Errors::DownloaderError,
+                message: "Invalid header value: #{header}"
+            end
             options << "-H" << header
           end
         end
