@@ -15,9 +15,13 @@ module VagrantPlugins
 
         def call(env)
           timeout = env[:machine].provider_config.ip_address_timeout
+          ipv4_only = env[:machine].provider_config.ipv4_only
 
           env[:ui].output("Waiting for the machine to report its IP address...")
           env[:ui].detail("Timeout: #{timeout} seconds")
+          if ipv4_only
+            env[:ui].detail("Waiting for IPv4 address only")
+          end
 
           guest_ip = nil
           Timeout.timeout(timeout) do
@@ -32,8 +36,8 @@ module VagrantPlugins
 
                 if guest_ip
                   begin
-                    IPAddr.new(guest_ip)
-                    break
+                    ip = IPAddr.new(guest_ip)
+                    break unless ipv4_only && !ip.ipv4?()
                   rescue IPAddr::InvalidAddressError
                     # Ignore, continue looking.
                     @logger.warn("Invalid IP address returned: #{guest_ip}")
