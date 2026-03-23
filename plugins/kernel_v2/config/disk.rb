@@ -85,7 +85,7 @@ module VagrantPlugins
       # - `provider__diskoption: value`
       # - `{provider: {diskoption: value, otherdiskoption: value, ...}`
       #
-      # Duplicates will be overriden
+      # Duplicates will be overridden
       #
       # @param [Hash] options
       def add_provider_config(**options, &block)
