@@ -422,7 +422,12 @@ module VagrantPlugins
         def self.recover_from_resize(machine, disk_info, backup_disk_location, original_disk, vdi_disk_file, controller)
           begin
             # move backup to original name
-            FileUtils.mv(backup_disk_location, original_disk[:location], force: true)
+            if Vagrant::Util::Platform.wsl?
+              machine.provider.driver.execute("modifymedium","disk", dbackup_disk_location, "--move", original_disk[:location])
+              machine.provider.driver.execute("internalcommands", "sethduuid", original_disk[:location], original_info[:uuid])
+            else
+              FileUtils.mv(backup_disk_location, original_disk[:location], force: true)
+            end
             # Attach disk
             machine.provider.driver.attach_disk(controller.name,
                                                 disk_info[:port],
