@@ -48,6 +48,11 @@ module VagrantPlugins
         require_relative "cap/rsync"
         Cap::RSync
       end
+
+      guest_capability(:suse, :flavor) do
+        require_relative "cap/flavor"
+        Cap::Flavor
+      end
     end
   end
 end
