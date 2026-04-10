@@ -94,6 +94,16 @@ EOF
         cap.mount_virtualbox_shared_folder(machine, mount_name, mount_guest_path, folder_options)
       end
     end
+
+    context "already mounted" do
+      it "skips mounting if already mounted" do
+        expect(folder_plugin).to receive(:capability).with(:mount_type).and_return("vboxsf")
+        expect(comm).to receive(:test).with("mountpoint -q #{mount_guest_path}").and_return(true)
+        expect(comm).not_to receive(:sudo).with(/mount/)
+
+        cap.mount_virtualbox_shared_folder(machine, mount_name, mount_guest_path, folder_options)
+      end
+    end
   end
 
   describe ".unmount_virtualbox_shared_folder" do
