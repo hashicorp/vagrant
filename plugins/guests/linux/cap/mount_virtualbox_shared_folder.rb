@@ -21,6 +21,11 @@ module VagrantPlugins
 
           @@logger.debug("Mounting #{name} (#{options[:hostpath]} to #{guestpath})")
 
+          if mounted?(machine, guest_path)
+            @@logger.info("Skipping mount: #{guest_path} is already mounted")
+            return
+          end
+
           builtin_mount_type = "-cit #{mount_type}"
           addon_mount_type = "-t #{mount_type}"
 
@@ -71,6 +76,10 @@ module VagrantPlugins
           if result == 0
             machine.communicate.sudo("rmdir #{guest_path}", error_check: false)
           end
+        end
+
+        def self.mounted?(machine, guest_path)
+          machine.communicate.test("mountpoint -q #{guest_path}")
         end
       end
     end
