@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Copyright IBM Corp. 2019, 2025
+# Copyright IBM Corp. 2024, 2026
 # SPDX-License-Identifier: MPL-2.0
 
 csource="${BASH_SOURCE[0]}"
