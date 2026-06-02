@@ -217,30 +217,26 @@ Vagrant.configure("2") do |config|
       ansible.verbose        = true
       ansible.install        = true
       ansible.limit          = "all" # or only "nodes" group, etc.
-      ansible.inventory_path = "inventory"
+      ansible.groups         = {
+        "nodes" => ["node1", "node2"],
+        "localhost" => ["controller"]
+      }
+      ansible.host_vars      = {
+        "node1" => {
+          "ansible_user"                 => "vagrant",
+          "ansible_host"                 => "172.17.177.21",
+          "ansible_ssh_private_key_file" => "/vagrant/.vagrant/machines/node1/virtualbox/private_key",
+          "ansible_host_key_checking"    => false
+        },
+        "node2" => {
+          "ansible_user"                 => "vagrant",
+          "ansible_host"                 => "172.17.177.22",
+          "ansible_ssh_private_key_file" => "/vagrant/.vagrant/machines/node2/virtualbox/private_key",
+          "ansible_host_key_checking"    => false
+        },
+      }
     end
   end
 
 end
-```
-
-You need to create a static `inventory` file that corresponds to your `Vagrantfile` machine definitions:
-
-```
-controller ansible_connection=local
-node1      ansible_host=172.17.177.21 ansible_ssh_private_key_file=/vagrant/.vagrant/machines/node1/virtualbox/private_key
-node2      ansible_host=172.17.177.22 ansible_ssh_private_key_file=/vagrant/.vagrant/machines/node2/virtualbox/private_key
-
-[nodes]
-node[1:2]
-```
-
-And finally, you also have to create an [`ansible.cfg` file](https://docs.ansible.com/intro_configuration.html#openssh-specific-settings) to fully disable SSH host key checking. More SSH configurations can be added to the `ssh_args` parameter (e.g. agent forwarding, etc.)
-
-```
-[defaults]
-host_key_checking = no
-
-[ssh_connection]
-ssh_args = -o ControlMaster=auto -o ControlPersist=60s -o UserKnownHostsFile=/dev/null -o IdentitiesOnly=yes
 ```
