@@ -45,6 +45,16 @@ module Vagrant
         end
       end
 
+      # This returns the keys (or ids) that are in the string regarding current user only (fix for issue 9070).
+      #
+      # @return [<Array<String>]
+      def cur_user_keys
+        regexp = /^#\s*VAGRANT-BEGIN:\s*(#{Process.uid}\s.+?)$\r?\n?(.*)$\r?\n?^#\s*VAGRANT-END:\s(\1)$/m
+        @value.scan(regexp).map do |match|
+          match[0]
+        end
+      end
+
       # This deletes the block with the given key if it exists.
       def delete(key)
         key    = Regexp.quote(key)
