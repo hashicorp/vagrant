@@ -296,8 +296,42 @@ describe Vagrant::Util::Platform do
     end
   end
 
-  describe ".windows_hyperv_admin?" do
+  describe ".powershell_constrained_language_mode?" do
     before { allow(Vagrant::Util::PowerShell).to receive(:execute_cmd).and_return(nil) }
+
+    context "when LanguageMode is FullLanguage" do
+      it "should return false" do
+        expect(Vagrant::Util::PowerShell).to receive(:execute_cmd)
+          .with('$ExecutionContext.SessionState.LanguageMode')
+          .and_return('FullLanguage')
+        expect(Vagrant::Util::Platform.powershell_constrained_language_mode?).to be_falsey
+      end
+    end
+
+    context "when LanguageMode is ConstrainedLanguage" do
+      it "should return true" do
+        expect(Vagrant::Util::PowerShell).to receive(:execute_cmd)
+          .with('$ExecutionContext.SessionState.LanguageMode')
+          .and_return('ConstrainedLanguage')
+        expect(Vagrant::Util::Platform.powershell_constrained_language_mode?).to be_truthy
+      end
+    end
+
+    context "when LanguageMode check returns nil" do
+      it "should return false" do
+        expect(Vagrant::Util::PowerShell).to receive(:execute_cmd)
+          .with('$ExecutionContext.SessionState.LanguageMode')
+          .and_return(nil)
+        expect(Vagrant::Util::Platform.powershell_constrained_language_mode?).to be_falsey
+      end
+    end
+  end
+
+  describe ".windows_hyperv_admin?" do
+    before do
+      allow(Vagrant::Util::Platform).to receive(:powershell_constrained_language_mode?).and_return(false)
+      allow(Vagrant::Util::PowerShell).to receive(:execute_cmd).and_return(nil)
+    end
 
     it "should return false when user is not in groups and cannot access Hyper-V" do
       expect(Vagrant::Util::Platform.windows_hyperv_admin?).to be_falsey

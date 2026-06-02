@@ -1,6 +1,7 @@
 # Copyright IBM Corp. 2010, 2025
 # SPDX-License-Identifier: BUSL-1.1
 
+require "csv"
 require "rbconfig"
 require "shellwords"
 require "tempfile"
@@ -93,6 +94,22 @@ module Vagrant
           return @_windows
         end
 
+        # Checks if PowerShell is running in Constrained Language Mode.
+        # CLM is enforced by AppLocker/WDAC policies in enterprise environments.
+        #
+        # @return [Boolean]
+        def powershell_constrained_language_mode?
+          return @_ps_clm if defined?(@_ps_clm)
+
+          @_ps_clm = -> {
+            ps_cmd = '$ExecutionContext.SessionState.LanguageMode'
+            output = Vagrant::Util::PowerShell.execute_cmd(ps_cmd)
+            return output.to_s.strip == 'ConstrainedLanguage'
+          }.call
+
+          return @_ps_clm
+        end
+
         # Checks if the user running Vagrant on Windows has administrative
         # privileges.
         #
@@ -104,9 +121,19 @@ module Vagrant
           return @_windows_admin if defined?(@_windows_admin)
 
           @_windows_admin = -> {
-            ps_cmd = '(new-object System.Security.Principal.WindowsPrincipal([System.Security.Principal.WindowsIdentity]::GetCurrent())).IsInRole([System.Security.Principal.WindowsBuiltInRole]::Administrator)'
-            output = Vagrant::Util::PowerShell.execute_cmd(ps_cmd)
-            return output == 'True'
+            if !powershell_constrained_language_mode?
+              ps_cmd = '(new-object System.Security.Principal.WindowsPrincipal([System.Security.Principal.WindowsIdentity]::GetCurrent())).IsInRole([System.Security.Principal.WindowsBuiltInRole]::Administrator)'
+              output = Vagrant::Util::PowerShell.execute_cmd(ps_cmd)
+              return output == 'True'
+            else
+              # CLM mode: use net session (requires admin privileges to succeed)
+              begin
+                result = Vagrant::Util::Subprocess.execute("net", "session")
+                return result.exit_code == 0
+              rescue Errors::CommandUnavailable
+                return false
+              end
+            end
           }.call
 
           return @_windows_admin
@@ -131,30 +158,54 @@ module Vagrant
             return @_windows_hyperv_admin = true
           end
 
-          ps_cmd = "Write-Output ([System.Security.Principal.WindowsIdentity]::GetCurrent().Groups | " \
-            "Select-Object Value | ConvertTo-JSON)"
-          output = Vagrant::Util::PowerShell.execute_cmd(ps_cmd)
-          if output
-            groups = begin
-                       JSON.load(output)
-                     rescue JSON::ParserError
-                       []
-                     end
-            admin_group = groups.detect do |g|
-              g["Value"].to_s == "S-1-5-32-578" ||
-                (g["Value"].start_with?("S-1-5-21") && g["Value"].to_s.end_with?("-512"))
+          if !powershell_constrained_language_mode?
+            ps_cmd = "Write-Output ([System.Security.Principal.WindowsIdentity]::GetCurrent().Groups | " \
+              "Select-Object Value | ConvertTo-JSON)"
+            output = Vagrant::Util::PowerShell.execute_cmd(ps_cmd)
+            if output
+              groups = begin
+                         JSON.load(output)
+                       rescue JSON::ParserError
+                         []
+                       end
+              admin_group = groups.detect do |g|
+                g["Value"].to_s == "S-1-5-32-578" ||
+                  (g["Value"].start_with?("S-1-5-21") && g["Value"].to_s.end_with?("-512"))
+              end
+
+              if admin_group
+                return @_windows_hyperv_admin = true
+              end
             end
 
-            if admin_group
-              return @_windows_hyperv_admin = true
+            ps_cmd = "$x = (Get-VMHost).Name; if($x -eq [System.Net.Dns]::GetHostName()){ Write-Output 'true' }"
+            output = Vagrant::Util::PowerShell.execute_cmd(ps_cmd)
+            return @_windows_hyperv_admin = (output == "true")
+          else
+            # CLM mode: use whoami /groups to check group membership
+            begin
+              result = Vagrant::Util::Subprocess.execute("whoami", "/groups", "/fo", "csv")
+              if result.exit_code == 0
+                csv = CSV.parse(result.stdout, headers: true)
+                csv.each do |row|
+                  sid = row["SID"].to_s.strip
+                  if sid == "S-1-5-32-578"
+                    return @_windows_hyperv_admin = true
+                  end
+                  if sid.match?(/\AS-1-5-21-\d+-\d+-\d+-512\z/)
+                    return @_windows_hyperv_admin = true
+                  end
+                end
+              end
+            rescue Errors::CommandUnavailable
+              # whoami unavailable
             end
+
+            # Fallback: test Hyper-V access directly (cmdlets work in CLM)
+            ps_cmd = "$h = Get-VMHost -ErrorAction SilentlyContinue; if($h){ Write-Output 'true' }"
+            output = Vagrant::Util::PowerShell.execute_cmd(ps_cmd)
+            return @_windows_hyperv_admin = (output == "true")
           end
-
-          ps_cmd = "$x = (Get-VMHost).Name; if($x -eq [System.Net.Dns]::GetHostName()){ Write-Output 'true'}"
-          output = Vagrant::Util::PowerShell.execute_cmd(ps_cmd)
-          result = output == "true"
-
-          return @_windows_hyperv_admin = result
         end
 
         # Checks if Hyper-V is enabled on the host system and returns true

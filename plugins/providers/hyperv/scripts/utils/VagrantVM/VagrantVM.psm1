@@ -1,6 +1,8 @@
 # Copyright IBM Corp. 2010, 2025
 # SPDX-License-Identifier: BUSL-1.1
 
+#Requires -Modules VagrantWinCLM
+
 # Always stop when errors are encountered unless instructed not to
 $ErrorActionPreference = "Stop"
 
@@ -42,7 +44,7 @@ function New-VagrantVM {
         [parameter(Mandatory=$false)]
         [string] $VMName
     )
-    if([IO.Path]::GetExtension($VMConfigFile).ToLower() -eq ".xml") {
+    if((Get-VagrantFileExtension -Path $VMConfigFile) -eq ".xml") {
         return New-VagrantVMXML @PSBoundParameters
     } else {
         return New-VagrantVMVMCX @PSBoundParameters
@@ -162,7 +164,9 @@ function New-VagrantVMVMCX {
         }
         foreach($Controller in $Controllers) {
             foreach($Drive in $Controller.Drives) {
-                if([System.IO.Path]::GetFileName($Drive.Path) -eq [System.IO.Path]::GetFileName($SourcePath)) {
+                $driveFileName = Get-VagrantFileName -Path $Drive.Path
+                $sourceFileName = Get-VagrantFileName -Path $SourcePath
+                if($driveFileName -eq $sourceFileName) {
                     $Path = $Drive.Path
                     Hyper-V\Remove-VMHardDiskDrive $Drive
                     Hyper-V\New-VHD -Path $DestinationPath -ParentPath $SourcePath -Differencing
@@ -234,7 +238,7 @@ function New-VagrantVMXML {
         [string] $VMName
     )
 
-    $DestinationDirectory = [System.IO.Path]::GetDirectoryName($DestinationPath)
+    $DestinationDirectory = Get-VagrantDirectoryName -Path $DestinationPath
     New-Item -ItemType Directory -Force -Path $DestinationDirectory
 
     if($LinkedClone){
@@ -278,7 +282,7 @@ function New-VagrantVMXML {
     }
 
     # Generation parameter in PS4 so validate before using
-    if((Get-Command Hyper-V\New-VM).Parameters.Keys.Contains("generation")) {
+    if((Get-Command Hyper-V\New-VM).Parameters.Keys -contains "generation") {
         $NewVMConfig.Generation = $Gen
     }
 
@@ -289,10 +293,10 @@ function New-VagrantVMXML {
     if($Gen -gt 1) {
         if($SecureBoot -eq "True") {
             Hyper-V\Set-VMFirmware -VM $VM -EnableSecureBoot On
-            if ( 
+            if (
                     ( ![System.String]::IsNullOrEmpty($SecureBootTemplate) )`
                      -and`
-                    ( (Get-Command Hyper-V\Set-VMFirmware).Parameters.Keys.Contains("secureboottemplate") ) 
+                    ( (Get-Command Hyper-V\Set-VMFirmware).Parameters.Keys -contains "secureboottemplate" )
                 ) {
                     Hyper-V\Set-VMFirmware -VM $VM -SecureBootTemplate $SecureBootTemplate
                 }
@@ -792,14 +796,15 @@ function Check-VagrantHyperVAccess {
     )
     $acl = Get-ACL -Path $Path
     $systemACL = $acl.Access | where {
-        try { return $_.IdentityReference.Translate([System.Security.Principal.SecurityIdentifier]).Value -eq "S-1-5-18" } catch { return $false } -and
+        (Test-VagrantSystemAccount $_.IdentityReference) -and
         $_.FileSystemRights -eq "FullControl" -and
         $_.AccessControlType -eq "Allow" -and
         $_.IsInherited -eq $true}
     if($systemACL) {
         return $true
     }
-    return $false
+    # fallback to SDDL SYSTEM(SY) Allow(A) FullControl(FA) Inherited(ID)
+    return ($acl.Sddl -match '\(A;[^;]*ID[^;]*;FA;;;SY\)')
 <#
 .SYNOPSIS
 
