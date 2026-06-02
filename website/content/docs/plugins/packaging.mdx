@@ -29,10 +29,10 @@ comfortable with Ruby should approach.
 
 The best way to describe packaging and distribution is to look at
 how another plugin does it. The best example plugin available for this
-is [vagrant-aws](https://github.com/mitchellh/vagrant-aws).
+is [vagrant-google](https://github.com/mitchellh/vagrant-google).
 
 By using [Bundler](http://bundler.io) and Rake, building a new
-vagrant-aws package is easy. By simply calling `rake package`, a
+vagrant-google package is easy. By simply calling `rake package`, a
 `gem` file is dropped into the directory. By calling `rake release`,
 the gem is built and it is uploaded to the central [RubyGems](https://rubygems.org)
 repository so that it can be installed using `vagrant plugin install`.
@@ -46,7 +46,7 @@ To setup your project, run `bundle gem vagrant-my-plugin`. This will create a
 `vagrant-my-plugin` directory that has the initial layout to be a RubyGem.
 
 You should modify the `vagrant-my-plugin.gemspec` file to add any
-dependencies and change any metadata. View the [vagrant-aws.gemspec](https://github.com/mitchellh/vagrant-aws/blob/master/vagrant-aws.gemspec)
+dependencies and change any metadata. View the [vagrant-google.gemspec](https://github.com/mitchellh/vagrant-google/blob/master/vagrant-google.gemspec)
 for a good example.
 
 ~> **Do not depend on Vagrant** for your gem. Vagrant is no longer distributed
@@ -94,7 +94,7 @@ If you run `rake -T` now, which lists all the available rake tasks,
 you should see that you have the `package` and `release` tasks. You
 can now develop your plugin and build it!
 
-You can view the [vagrant-aws Rakefile](https://github.com/mitchellh/vagrant-aws/blob/master/Rakefile)
+You can view the [vagrant-google Rakefile](https://github.com/mitchellh/vagrant-google/blob/master/Rakefile)
 for a more comprehensive example that includes testing.
 
 ## Testing Your Plugin
