@@ -1,3 +1,6 @@
+# Copyright IBM Corp. 2024, 2026
+# SPDX-License-Identifier: BUSL-1.1
+
 require File.expand_path("../../../../base", __FILE__)
 
 describe Vagrant::Action::Builtin::WaitForCommunicator do
