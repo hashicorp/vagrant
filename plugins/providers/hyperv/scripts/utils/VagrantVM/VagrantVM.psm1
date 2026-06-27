@@ -509,13 +509,14 @@ function Set-VagrantVMMemory {
         $MemoryMaximumBytes = ($ConfigMemory.Maximum)
     } else {
         $MemoryStartupBytes = $Memory * 1MB
-        $MemoryMinimumBytes = $Memory * 1MB
-        $MemoryMaximumBytes = $Memory * 1MB
+        $MemoryMinimumBytes = $MemoryStartupBytes
+        $MemoryMaximumBytes = $MemoryStartupBytes
     }
 
     if($MaxMemory) {
         $DynamicMemory = $true
-        $MemoryMaximumBytes = $MaxMemory * 1MB
+        $MemoryStartupBytes = $MaxMemory * 1MB
+        $MemoryMaximumBytes = $MemoryStartupBytes
     }
 
     if($DynamicMemory) {
