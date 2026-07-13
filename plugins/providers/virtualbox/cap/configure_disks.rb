@@ -128,8 +128,24 @@ module VagrantPlugins
             # associated with the guest, since disk names are not unique
             # globally to VirtualBox.
             primary = storage_controllers.get_primary_attachment
+
+            # Determine candidate directories for the primary disk. When a VM
+            # has snapshots, VirtualBox may place snapshot differencing disks
+            # under a 'Snapshots' subdirectory while original disks live in the
+            # parent VM folder. For example:
+            #  - /.../test_default_xxx/data.vdi
+            #  - /.../test_default_xxx/Snapshots/{uuid}.vdi
+            # In that case, primary[:location] may point to the Snapshots path
+            # so we should also consider the parent directory when attempting
+            # to match existing extra disks by location.
+            primary_dir = File.dirname(primary[:location])
+            primary_dir_candidates = [primary_dir]
+            if File.basename(primary_dir) == "Snapshots"
+              primary_dir_candidates << File.dirname(primary_dir)
+            end
+
             existing_disk = machine.provider.driver.list_hdds.detect do |d|
-              File.dirname(d["Location"]) == File.dirname(primary[:location]) &&
+              primary_dir_candidates.include?(File.dirname(d["Location"])) &&
                 d["Disk Name"] == disk.name
             end
 
