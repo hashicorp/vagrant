@@ -2664,6 +2664,7 @@ en:
           setting: "Setting hostname..."
         import:
           importing: Importing base box '%{name}'...
+          importing_with_version: Importing base box '%{name}' (v%{version})...
           failure: |-
             The VM import failed! Try running `VBoxManage import` on the box file
             manually for more verbose error output.

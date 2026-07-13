@@ -50,8 +50,9 @@ module VagrantPlugins
         end
 
         def import(env)
-          env[:ui].info I18n.t("vagrant.actions.vm.import.importing",
-                               name: env[:machine].box.name)
+          env[:ui].info I18n.t("vagrant.actions.vm.import.importing_with_version",
+                               name: env[:machine].box.name,
+                               version: env[:machine].box.version))
 
           # Import the virtual machine
           ovf_file = env[:machine].box.directory.join("box.ovf").to_s
