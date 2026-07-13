@@ -9,15 +9,24 @@ param(
 )
 
 # Make sure the exception type is loaded
-try
-{
-    # Microsoft.HyperV.PowerShell is present on all versions of Windows with HyperV
-    [void][System.Reflection.Assembly]::LoadWithPartialName('Microsoft.HyperV.PowerShell, Culture=neutral, PublicKeyToken=31bf3856ad364e35')
-    # Microsoft.HyperV.PowerShell.Objects is only present on Windows >= 10.0, so this will fail, and we ignore it since the needed exception
-    # type was loaded in Microsoft.HyperV.PowerShell
-    [void][System.Reflection.Assembly]::LoadWithPartialName('Microsoft.HyperV.PowerShell.Objects, Culture=neutral, PublicKeyToken=31bf3856ad364e35')
-} catch {
-  # Empty catch ok, since if we didn't load the types, we will fail in the next block
+if ($ExecutionContext.SessionState.LanguageMode -ne 'ConstrainedLanguage') {
+    try
+    {
+        # Microsoft.HyperV.PowerShell is present on all versions of Windows with HyperV
+        [void][System.Reflection.Assembly]::LoadWithPartialName('Microsoft.HyperV.PowerShell, Culture=neutral, PublicKeyToken=31bf3856ad364e35')
+        # Microsoft.HyperV.PowerShell.Objects is only present on Windows >= 10.0, so this will fail, and we ignore it since the needed exception
+        # type was loaded in Microsoft.HyperV.PowerShell
+        [void][System.Reflection.Assembly]::LoadWithPartialName('Microsoft.HyperV.PowerShell.Objects, Culture=neutral, PublicKeyToken=31bf3856ad364e35')
+    } catch {
+      # Empty catch ok, since if we didn't load the types, we will fail in the next block
+    }
+} else {
+    # CLM mode: use Import-Module instead
+    try {
+        Import-Module Hyper-V -ErrorAction SilentlyContinue
+    } catch {
+        # Module might already be loaded or unavailable
+    }
 }
 
 $VmmsPath = if ([environment]::Is64BitProcess) { "$($env:SystemRoot)\System32\vmms.exe" } else { "$($env:SystemRoot)\Sysnative\vmms.exe" }
@@ -33,7 +42,7 @@ try {
     $State = $VM.state
     $Status = $VM.status
 } catch [Exception] {
-    if($_.Exception.GetType() -eq $ExceptionType)
+    if($ExceptionType -and ($_.Exception -is $ExceptionType))
     {
         $State = "not_created"
         $Status = $State
