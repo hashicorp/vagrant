@@ -22,6 +22,26 @@ DATA
     end
   end
 
+  describe "#cur_user_keys" do
+    it "should return only keys of current user" do
+      other_uid = Process.uid+1
+      data = <<DATA
+# VAGRANT-BEGIN: #{Process.uid} foo
+value
+# VAGRANT-END: #{Process.uid} foo
+# VAGRANT-BEGIN: #{Process.uid} foo2
+value2
+# VAGRANT-END: #{Process.uid} foo2
+another
+# VAGRANT-BEGIN: #{other_uid} bar
+content
+# VAGRANT-END: #{other_uid} bar
+DATA
+
+      expect(described_class.new(data).cur_user_keys).to eq(["#{Process.uid} foo", "#{Process.uid} foo2"])
+    end
+  end
+
   describe "#delete" do
     it "should delete nothing if the key doesn't exist" do
       data = "foo"

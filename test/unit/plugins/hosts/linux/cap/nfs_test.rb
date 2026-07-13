@@ -231,6 +231,39 @@ EOH
       expect(exports_content).to include("/var")
       expect(exports_content).not_to include("/tmp")
     end
+
+    it "should remove only own Process.uid entries that are no longer valid" do
+      invalid_id = SecureRandom.uuid
+      valid_id = SecureRandom.uuid
+      other_uid = Process.uid+1
+      invalid_id2 = SecureRandom.uuid
+      valid_id2 = SecureRandom.uuid
+      content =<<-EOH
+# VAGRANT-BEGIN: #{Process.uid} #{invalid_id}
+"/tmp" 127.0.0.1(rw,no_subtree_check,all_squash,anonuid=,anongid=,fsid=)
+# VAGRANT-END: #{Process.uid} #{invalid_id}
+# VAGRANT-BEGIN: #{Process.uid} #{valid_id}
+"/var" 127.0.0.1(rw,no_subtree_check,all_squash,anonuid=,anongid=,fsid=)
+# VAGRANT-END: #{Process.uid} #{valid_id}
+# VAGRANT-BEGIN: #{other_uid} #{invalid_id2}
+"/data" 127.0.0.2(rw,no_subtree_check,all_squash,anonuid=,anongid=,fsid=)
+# VAGRANT-END: #{other_uid} #{invalid_id2}
+# VAGRANT-BEGIN: #{other_uid} #{valid_id2}
+"/somedir" 127.0.0.2(rw,no_subtree_check,all_squash,anonuid=,anongid=,fsid=)
+# VAGRANT-END: #{other_uid} #{valid_id2}
+EOH
+      File.write(exports_path, content)
+      cap.nfs_prune(env, ui, [valid_id])
+      exports_content = File.read(exports_path)
+      expect(exports_content).not_to include("#{Process.uid} #{invalid_id}")
+      expect(exports_content).to include("#{Process.uid} #{valid_id}")
+      expect(exports_content).to include("#{other_uid} #{valid_id2}")
+      expect(exports_content).to include("#{other_uid} #{invalid_id2}")
+      expect(exports_content).not_to include("/tmp")
+      expect(exports_content).to include("/var")
+      expect(exports_content).to include("/data")
+      expect(exports_content).to include("/somedir")
+    end
   end
 
   describe ".nfs_write_exports" do
