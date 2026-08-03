@@ -583,6 +583,8 @@ none on /run/shm type tmpfs (rw,nosuid,nodev,noatime)
 none on /run/user type tmpfs (rw,nosuid,nodev,noexec,noatime,mode=755)
 binfmt_misc on /proc/sys/fs/binfmt_misc type binfmt_misc (rw,noatime)
 C: on /mnt/c type drvfs (rw,noatime)
+drvfs on /mnt/d type 9p (rw,noatime,dirsync,anme=drvfs;path=D:\\)
+/dev/sdc on /mnt/e type ext4 (rw,relatime,data=ordered)
 EOF
       }
 
@@ -592,7 +594,7 @@ EOF
       end
 
       it "should locate DrvFs mount path" do
-        expect(subject.wsl_drvfs_mounts).to eq(["/mnt/c"])
+        expect(subject.wsl_drvfs_mounts).to eq(["/mnt/c", "/mnt/d", "/mnt/e"])
       end
 
       context "when no DrvFs mounts exist" do
