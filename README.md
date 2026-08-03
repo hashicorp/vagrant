@@ -1,4 +1,10 @@
-# Vagrant
+<p align="left">
+    <img alt="Vagrant Logo" src="./website/public/img/logo-text.svg" width=500" />
+</p>
+
+<h1 align="left">Vagrant</h1>
+
+<p align="left">Vagrant is a tool for building and distributing development environments.</p>
 
 > [!IMPORTANT]
 > **HCP Vagrant** is in the process of being deprecated and limited features will be available from the community edition effective March 15, 2027. Click [here](https://developer.hashicorp.com/hcp/docs/vagrant/hcp-vagrant-eol) for more information.
@@ -9,7 +15,6 @@
 - Source: [https://github.com/hashicorp/vagrant](https://github.com/hashicorp/vagrant)
 - HashiCorp Discuss: [https://discuss.hashicorp.com/c/vagrant/24](https://discuss.hashicorp.com/c/vagrant/24)
 
-Vagrant is a tool for building and distributing development environments.
 
 Development environments managed by Vagrant can run on local virtualized
 platforms such as VirtualBox or VMware, in the cloud via AWS or OpenStack,
