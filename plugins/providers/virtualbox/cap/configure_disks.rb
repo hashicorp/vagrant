@@ -345,7 +345,6 @@ module VagrantPlugins
             # original disk information in case anything goes wrong during clone/resize
             original_disk = defined_disk
             backup_disk_location = "#{original_disk[:location]}.backup"
-
             # clone disk to vdi formatted disk
             vdi_disk_file = machine.provider.driver.vmdk_to_vdi(defined_disk[:location])
             # resize vdi
@@ -357,8 +356,12 @@ module VagrantPlugins
               machine.provider.driver.remove_disk(controller.name, defined_disk[:port], defined_disk[:device])
               # Create a backup of the original disk if something goes wrong
               LOGGER.warn("Making a backup of the original disk at #{defined_disk[:location]}")
-              FileUtils.mv(defined_disk[:location], backup_disk_location)
-
+              # tha - has to be fixed
+              if Vagrant::Util::Platform.wsl?
+                machine.provider.driver.clone_disk(defined_disk[:location], backup_disk_location, "VMDK")
+              else
+                FileUtils.mv(defined_disk[:location], backup_disk_location)
+              end
               # we have to close here, otherwise we can't re-clone after
               # resizing the vdi disk
               machine.provider.driver.close_medium(defined_disk[:uuid])
@@ -379,7 +382,11 @@ module VagrantPlugins
               raise
             ensure
               # Remove backup disk file if all goes well
-              FileUtils.remove(backup_disk_location, force: true)
+              if Vagrant::Util::Platform.wsl?
+                machine.provider.driver.close_medium(backup_disk_location)
+              else
+                FileUtils.remove(backup_disk_location, force: true)
+              end
             end
 
             # Remove cloned resized volume format
@@ -415,7 +422,12 @@ module VagrantPlugins
         def self.recover_from_resize(machine, disk_info, backup_disk_location, original_disk, vdi_disk_file, controller)
           begin
             # move backup to original name
-            FileUtils.mv(backup_disk_location, original_disk[:location], force: true)
+            if Vagrant::Util::Platform.wsl?
+              machine.provider.driver.execute("modifymedium","disk", dbackup_disk_location, "--move", original_disk[:location])
+              machine.provider.driver.execute("internalcommands", "sethduuid", original_disk[:location], original_info[:uuid])
+            else
+              FileUtils.mv(backup_disk_location, original_disk[:location], force: true)
+            end
             # Attach disk
             machine.provider.driver.attach_disk(controller.name,
                                                 disk_info[:port],
