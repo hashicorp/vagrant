@@ -104,6 +104,53 @@ describe "VagrantPlugins::GuestLinux::Cap::PersistMountSharedFolder" do
       end
     end
 
+    context "fstab modified with systemd" do
+      before do
+        allow(cap).to receive(:systemd?).and_return(true)
+      end
+
+      it "reloads systemd daemon" do
+        expect(comm).to receive(:sudo).with("systemctl daemon-reload")
+        cap.persist_mount_shared_folder(machine, folders)
+      end
+    end
+
+    context "fstab modified without systemd" do
+      before do
+        allow(cap).to receive(:systemd?).and_return(false)
+        allow(cap).to receive(:contains_vagrant_data?).and_return(false)
+      end
+
+      it "does not reload systemd daemon" do
+        expect(comm).not_to receive(:sudo).with("systemctl daemon-reload")
+        cap.persist_mount_shared_folder(machine, folders)
+      end
+    end
+
+    context "fstab not modified with systemd" do
+      before do
+        allow(cap).to receive(:systemd?).and_return(true)
+        allow(cap).to receive(:contains_vagrant_data?).and_return(false)
+      end
+
+      it "does not reload systemd daemon" do
+        expect(comm).not_to receive(:sudo).with("systemctl daemon-reload")
+        cap.persist_mount_shared_folder(machine, nil)
+      end
+    end
+
+    context "fstab not modified without systemd" do
+      before do
+        allow(cap).to receive(:systemd?).and_return(false)
+        allow(cap).to receive(:contains_vagrant_data?).and_return(false)
+      end
+
+      it "does not reload systemd daemon" do
+        expect(comm).not_to receive(:sudo).with("systemctl daemon-reload")
+        cap.persist_mount_shared_folder(machine, nil)
+      end
+    end
+
     context "smb folder" do
       let (:fstab_folders) {
         Vagrant::Plugin::V2::SyncedFolder::Collection[
