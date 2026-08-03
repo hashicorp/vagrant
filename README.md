@@ -1,5 +1,10 @@
 # Vagrant
 
+> [!IMPORTANT]
+> **HCP Vagrant** is in the process of being deprecated and limited features will be available from the community edition effective March 15, 2027. Click [here](https://developer.hashicorp.com/hcp/docs/vagrant/hcp-vagrant-eol) for more information.
+> 
+> **This change is only for HCP Vagrant and does not apply to Vagrant CLI.**
+
 - Website: [https://www.vagrantup.com/](https://www.vagrantup.com/)
 - Source: [https://github.com/hashicorp/vagrant](https://github.com/hashicorp/vagrant)
 - HashiCorp Discuss: [https://discuss.hashicorp.com/c/vagrant/24](https://discuss.hashicorp.com/c/vagrant/24)
