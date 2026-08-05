@@ -302,7 +302,18 @@ module VagrantPlugins
           # Multiple Private Keys
           unless !config.inventory_path && @ssh_info[:private_key_path].size == 1
             @ssh_info[:private_key_path].each do |key|
-              ssh_options += ["-o", "IdentityFile=%s" % [key.gsub('%', '%%')]]
+              # Escape any '%' characters to avoid formatting issues when
+              # building the final command string for Ansible. If the path
+              # contains spaces, wrap it in double quotes so the OpenSSH
+              # client invoked by Ansible treats the whole path as a single
+              # argument (otherwise the path would be split on spaces and
+              # could be interpreted as a hostname or separate option).
+              escaped = key.gsub('%', '%%')
+              if escaped.include?(' ')
+                ssh_options += ["-o", "IdentityFile=\"%s\"" % [escaped]]
+              else
+                ssh_options += ["-o", "IdentityFile=%s" % [escaped]]
+              end
             end
           end
 
