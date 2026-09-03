@@ -86,7 +86,7 @@ VAGRANT_SPEC_ARGS="--component cli" VAGRANT_CLOUD_TOKEN=REAL_TOKEN_HERE VAGRANT_
 ### About Vagrantfile.spec
 
 This Vagrantfile expects the box used to end in a specific "platform", so that it can associate
-a provision script with the correct plaform. Because some boxes might not end in
+a provision script with the correct platform. Because some boxes might not end in
 their platform (like `hashicorp-vagrant/ubuntu-16.04` versus `hashicorp/bionic64`),
 there is a hash defined called `PLATFORM_SCRIPT_MAPPING` that will tell vagrant
 which platform script to provision with rather than relying on the box ending with
