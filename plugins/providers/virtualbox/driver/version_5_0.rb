@@ -938,9 +938,12 @@ module VagrantPlugins
         # @param [String] defined_disk_path
         # @return [String] destination - The cloned disk
         def vmdk_to_vdi(defined_disk_path)
+
           source = defined_disk_path
           destination = File.join(File.dirname(source), File.basename(source, ".*")) + ".vdi"
-
+          if Vagrant::Util::Platform.windows? || Vagrant::Util::Platform.wsl?
+            destination = destination.sub(/^\.\/+/, '')
+          end
           clone_disk(source, destination, 'VDI')
 
           destination
@@ -952,7 +955,9 @@ module VagrantPlugins
         def vdi_to_vmdk(defined_disk_path)
           source = defined_disk_path
           destination = File.join(File.dirname(source), File.basename(source, ".*")) + ".vmdk"
-
+          if Vagrant::Util::Platform.windows? || Vagrant::Util::Platform.wsl?
+            destination = destination.sub(/^\.\/+/, '')
+          end
           clone_disk(source, destination, 'VMDK')
 
           destination
