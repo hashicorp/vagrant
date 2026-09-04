@@ -250,6 +250,9 @@ module VagrantPlugins
 
           guest_info = machine.provider.driver.show_vm_info
           guest_folder = File.dirname(guest_info["CfgFile"])
+          if Vagrant::Util::Platform.wsl?
+            guest_folder = File.dirname(Vagrant::Util::Platform.unix_windows_path(guest_info["CfgFile"]))
+          end
 
           disk_ext = disk_config.disk_ext
           disk_file = File.join(guest_folder, disk_config.name) + ".#{disk_ext}"
