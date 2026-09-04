@@ -4,15 +4,34 @@
 require "tempfile"
 
 require_relative "../../../../lib/vagrant/util/template_renderer"
+require_relative "../../../../lib/vagrant/util/guest_inspection"
+require_relative "../../../../lib/vagrant/util/guest_networks"
 
 module VagrantPlugins
   module GuestSUSE
     module Cap
       class ConfigureNetworks
         extend Vagrant::Util::Retryable
+        extend Vagrant::Util::GuestInspection::Linux
+        extend Vagrant::Util::GuestNetworks::Linux
         include Vagrant::Util
 
         def self.configure_networks(machine, networks)
+          @logger = Log4r::Logger.new("vagrant::guest::suse::configurenetworks")
+          
+          # Determine which configuration method to use
+          if VagrantPlugins::GuestSUSE::Guest.leap_16_or_newer?(machine) && 
+             VagrantPlugins::GuestSUSE::Guest.network_manager_available?(machine)
+            @logger.info("Using NetworkManager for OpenSUSE Leap 16+")
+            configure_network_manager(machine, networks)
+          else
+            @logger.info("Using legacy ifup/ifdown for OpenSUSE")
+            configure_networks_legacy(machine, networks)
+          end
+        end
+
+        # Legacy network configuration using ifup/ifdown
+        def self.configure_networks_legacy(machine, networks)
           comm = machine.communicate
 
           network_scripts_dir = machine.guest.capability(:network_scripts_dir)
