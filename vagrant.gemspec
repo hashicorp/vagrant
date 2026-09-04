@@ -12,7 +12,7 @@ Gem::Specification.new do |s|
   s.summary       = "Build and distribute virtualized development environments."
   s.description   = "Vagrant is a tool for building and distributing virtualized development environments."
 
-  s.required_ruby_version     = ">= 3.0", "< 3.5"
+  s.required_ruby_version     = ">= 3.0"
   s.required_rubygems_version = ">= 1.3.6"
 
   s.add_dependency "base64", "~> 0.2.0"
