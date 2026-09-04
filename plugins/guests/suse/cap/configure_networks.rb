@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: BUSL-1.1
 
 require "tempfile"
+require "securerandom"
 
 require_relative "../../../../lib/vagrant/util/template_renderer"
 
@@ -10,9 +11,24 @@ module VagrantPlugins
     module Cap
       class ConfigureNetworks
         extend Vagrant::Util::Retryable
+        extend Vagrant::Util::GuestNetworks::Linux
         include Vagrant::Util
 
         def self.configure_networks(machine, networks)
+          network_scripts_dir = machine.guest.capability(:network_scripts_dir)
+
+          # The legacy configuration will handle guests using wicked
+          # (SLES/Leap 15.x and earlier, Tumbleweed). Guests without
+          # wicked (SLES/Leap 16 and later, MicroOS) are configured
+          # via NetworkManager.
+          if network_scripts_dir.end_with?("sysconfig/network")
+            configure_networks_legacy(machine, networks)
+          else
+            configure_network_manager(machine, networks)
+          end
+        end
+
+        def self.configure_networks_legacy(machine, networks)
           comm = machine.communicate
 
           network_scripts_dir = machine.guest.capability(:network_scripts_dir)
