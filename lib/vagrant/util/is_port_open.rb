@@ -17,8 +17,10 @@ module Vagrant
       #   otherwise.
       def is_port_open?(host, port)
         begin
-          Socket.tcp(host, port, connect_timeout: 0.1).close
-          true
+          socket = Socket.tcp(host, port, connect_timeout: 0.1)
+          error = socket.getsockopt(Socket::SOL_SOCKET, Socket::SO_ERROR).int
+          socket.close
+          error.zero?
         rescue Errno::ETIMEDOUT, Errno::ECONNREFUSED, Errno::EHOSTUNREACH, \
             Errno::ENETUNREACH, Errno::EACCES, Errno::ENOTCONN, Errno::EALREADY
           false
