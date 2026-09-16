@@ -494,7 +494,9 @@ None.
 function Set-VagrantVMMemory {
     param (
         [parameter (Mandatory=$true)]
-        [Microsoft.HyperV.PowerShell.VirtualMachine] $VM,
+        [ValidateNotNull()]
+        [PSTypeName("Microsoft.HyperV.PowerShell.VirtualMachine")]
+        $VM,
         [parameter (Mandatory=$false)]
         [int] $Memory,
         [parameter (Mandatory=$false)]
@@ -568,7 +570,9 @@ VirtualMachine.
 function Set-VagrantVMCPUS {
     param (
         [parameter (Mandatory=$true)]
-        [Microsoft.HyperV.PowerShell.VirtualMachine] $VM,
+        [ValidateNotNull()]
+        [PSTypeName("Microsoft.HyperV.PowerShell.VirtualMachine")]
+        $VM,
         [parameter (Mandatory=$false)]
         [int] $CPUCount
     )
@@ -603,7 +607,9 @@ VirtualMachine.
 function Set-VagrantVMVirtExtensions {
     param (
         [parameter (Mandatory=$true)]
-        [Microsoft.HyperV.PowerShell.VirtualMachine] $VM,
+        [ValidateNotNull()]
+        [PSTypeName("Microsoft.HyperV.PowerShell.VirtualMachine")]
+        $VM,
         [parameter (Mandatory=$false)]
         [bool] $Enabled=$false
     )
@@ -641,7 +647,9 @@ VirtualMachine.
 function Set-VagrantVMAutoActions {
     param (
         [parameter (Mandatory=$true)]
-        [Microsoft.HyperV.PowerShell.VirtualMachine] $VM,
+        [ValidateNotNull()]
+        [PSTypeName("Microsoft.HyperV.PowerShell.VirtualMachine")]
+        $VM,
         [parameter (Mandatory=$false)]
         [string] $AutoStartAction="Nothing",
         [parameter (Mandatory=$false)]
@@ -682,7 +690,9 @@ VirtualMachine.
 function Set-VagrantVMService {
     param (
         [parameter (Mandatory=$true)]
-        [Microsoft.HyperV.PowerShell.VirtualMachine] $VM,
+        [ValidateNotNull()]
+        [PSTypeName("Microsoft.HyperV.PowerShell.VirtualMachine")]
+        $VM,
         [parameter (Mandatory=$true)]
         [string] $Id,
         [parameter (Mandatory=$true)]
@@ -755,7 +765,9 @@ Name of VMSwitch.
 function Set-VagrantVMSwitch {
     param (
         [parameter (Mandatory=$true)]
-        [Microsoft.HyperV.PowerShell.VirtualMachine] $VM,
+        [ValidateNotNull()]
+        [PSTypeName("Microsoft.HyperV.PowerShell.VirtualMachine")]
+        $VM,
         [parameter (Mandatory=$true)]
         [String] $SwitchName
     )
