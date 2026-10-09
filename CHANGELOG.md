@@ -14,6 +14,7 @@ BUG FIXES:
 
 - core: Fix issue with missing translations when running vagrant login [GH-13747]
 - provider/hyperv: Preserve primary disk when resizing disks [GH-13748]
+- guest/windows: Remove each bootstrap public key supplied during WinSSH key rotation while preserving unrelated keys and ACLs [GH-13849]
 
 ## 2.4.9 (August 21, 2025)
 
