@@ -12,7 +12,7 @@ module VagrantPlugins
           def self.chef_installed(machine, product, version)
             product_name = product == 'chef-workstation' ? 'chef-workstation' : 'chef'
             verify_bin = product_name == 'chef-workstation' ? 'chef' : 'chef-client'
-            verify_path = "/opt/#{product_name}/bin/#{verify_bin}"
+            verify_path = "/opt/#{product}/bin/#{verify_bin}"
             command = "test -x #{verify_path}"
 
             if version != :latest
