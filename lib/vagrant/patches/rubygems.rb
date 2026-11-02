@@ -1,5 +1,5 @@
 # Copyright IBM Corp. 2010, 2025
-# SPDX-License-Identifier: BUSL-1.1
+# SPDX-License-Identifier: MIT
 
 # This allows for effective monkey patching of the MakeMakefile
 # module when building gem extensions. When gem extensions are

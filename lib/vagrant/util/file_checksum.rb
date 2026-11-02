@@ -1,5 +1,5 @@
 # Copyright IBM Corp. 2010, 2025
-# SPDX-License-Identifier: BUSL-1.1
+# SPDX-License-Identifier: MIT
 
 # This is an "interface" that should be implemented by any digest class
 # passed into FileChecksum. Note that this isn't strictly enforced at
