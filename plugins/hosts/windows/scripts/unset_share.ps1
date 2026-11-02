@@ -1,5 +1,5 @@
 # Copyright (c) HashiCorp, Inc.
-# SPDX-License-Identifier: BUSL-1.1
+# SPDX-License-Identifier: MIT
 
 ForEach ($share_name in $args) {
     $result = net share $share_name /DELETE /YES

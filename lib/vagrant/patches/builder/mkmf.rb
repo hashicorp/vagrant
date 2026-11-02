@@ -1,5 +1,5 @@
 # Copyright (c) HashiCorp, Inc.
-# SPDX-License-Identifier: BUSL-1.1
+# SPDX-License-Identifier: MIT
 
 # This custom mkmf.rb file is used on Windows platforms
 # to handle common path related build failures where

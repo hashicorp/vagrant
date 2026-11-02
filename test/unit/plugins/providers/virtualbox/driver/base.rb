@@ -1,5 +1,5 @@
 # Copyright (c) HashiCorp, Inc.
-# SPDX-License-Identifier: BUSL-1.1
+# SPDX-License-Identifier: MIT
 
 require_relative "../base"
 require Vagrant.source_root.join("plugins/providers/virtualbox/driver/base")

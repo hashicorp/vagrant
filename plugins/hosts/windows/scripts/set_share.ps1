@@ -1,5 +1,5 @@
 # Copyright (c) HashiCorp, Inc.
-# SPDX-License-Identifier: BUSL-1.1
+# SPDX-License-Identifier: MIT
 
 # The names of the user are language dependent!
 $objSID = New-Object System.Security.Principal.SecurityIdentifier("S-1-1-0")

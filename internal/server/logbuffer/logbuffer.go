@@ -1,5 +1,5 @@
 // Copyright (c) HashiCorp, Inc.
-// SPDX-License-Identifier: BUSL-1.1
+// SPDX-License-Identifier: MIT
 
 // Package logbuffer provides a structure and API for efficiently reading
 // and writing logs that may be streamed to a server.

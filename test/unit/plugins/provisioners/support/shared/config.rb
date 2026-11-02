@@ -1,5 +1,5 @@
 # Copyright (c) HashiCorp, Inc.
-# SPDX-License-Identifier: BUSL-1.1
+# SPDX-License-Identifier: MIT
 
 def get_provisioner_option_names(provisioner_class)
   config_options = provisioner_class.instance_methods(true).find_all { |i| i.to_s.end_with?('=') }

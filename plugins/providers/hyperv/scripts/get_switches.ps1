@@ -1,5 +1,5 @@
 # Copyright (c) HashiCorp, Inc.
-# SPDX-License-Identifier: BUSL-1.1
+# SPDX-License-Identifier: MIT
 
 #Requires -Modules VagrantMessages
 # This will have a SwitchType property. As far as I know the values are:

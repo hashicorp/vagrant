@@ -1,5 +1,5 @@
 # Copyright (c) HashiCorp, Inc.
-# SPDX-License-Identifier: BUSL-1.1
+# SPDX-License-Identifier: MIT
 
 # This tests the basic functionality of a provider: that it can run
 # a machine, provide SSH access, and destroy that machine.

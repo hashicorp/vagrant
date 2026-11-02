@@ -1,5 +1,5 @@
 # Copyright (c) HashiCorp, Inc.
-# SPDX-License-Identifier: BUSL-1.1
+# SPDX-License-Identifier: MIT
 
 # Always stop when errors are encountered unless instructed not to
 $ErrorActionPreference = "Stop"

@@ -1,5 +1,5 @@
 // Copyright (c) HashiCorp, Inc.
-// SPDX-License-Identifier: BUSL-1.1
+// SPDX-License-Identifier: MIT
 
 // Package state manages the state that the singleprocess server has, providing
 // operations to mutate that state safely as needed.
