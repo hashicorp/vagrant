@@ -1,6 +1,6 @@
 #!/bin/bash
 # Copyright IBM Corp. 2010, 2025
-# SPDX-License-Identifier: BUSL-1.1
+# SPDX-License-Identifier: MIT
 
 
 export VAGRANT_EXPERIMENTAL="${VAGRANT_EXPERIMENTAL:-1}"

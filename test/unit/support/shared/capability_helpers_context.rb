@@ -1,5 +1,5 @@
 # Copyright IBM Corp. 2010, 2025
-# SPDX-License-Identifier: BUSL-1.1
+# SPDX-License-Identifier: MIT
 
 shared_context "capability_helpers" do
   def detect_class(result)

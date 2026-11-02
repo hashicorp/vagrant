@@ -1,5 +1,5 @@
 # Copyright IBM Corp. 2010, 2025
-# SPDX-License-Identifier: BUSL-1.1
+# SPDX-License-Identifier: MIT
 
 # Load the shared helpers first to make the custom
 # require helper available.
