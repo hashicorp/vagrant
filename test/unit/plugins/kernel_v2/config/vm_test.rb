@@ -12,6 +12,9 @@ describe VagrantPlugins::Kernel_V2::VMConfig do
 
   let(:provider) { double("provider") }
   let(:machine) { double("machine", provider: provider, provider_name: "provider", name: "default") }
+  let(:fs_config){ double("fs_config", vm: double("fs_vm", allowed_synced_folder_types: nil)) }
+  let(:synced_folder_impl) { double("synced_folder_impl", new: double("synced_folder_inst", usable?: true, _initialize: true)) }
+  let(:synced_folders ) { {sf_impl: [synced_folder_impl, 1] } }
 
   def assert_invalid
     errors = subject.validate(machine)
@@ -40,12 +43,16 @@ describe VagrantPlugins::Kernel_V2::VMConfig do
     allow(machine).to receive(:env).and_return(env)
     allow(machine).to receive(:provider_config).and_return(nil)
     allow(machine).to receive(:provider_options).and_return({})
+    allow(machine).to receive(:config).and_return(fs_config)
     allow(machine).to receive_message_chain(:synced_folders, :types).and_return( {} )
     allow(provider).to receive(:capability?).with(:validate_disk_ext).and_return(true)
     allow(provider).to receive(:capability).with(:validate_disk_ext, "vdi").and_return(true)
     allow(provider).to receive(:capability?).with(:set_default_disk_ext).and_return(true)
     allow(provider).to receive(:capability).with(:set_default_disk_ext).and_return("vdi")
 
+    allow(synced_folder_impl).to receive(:respond_to?).with(:wsl_allow_non_drvfs?).and_return(true)
+    allow(synced_folder_impl).to receive(:wsl_allow_non_drvfs?).and_return(true)
+    allow(Vagrant.plugin("2").manager).to receive(:synced_folders).and_return(synced_folders)
     subject.box = "foo"
   end
 
@@ -790,10 +797,8 @@ describe VagrantPlugins::Kernel_V2::VMConfig do
     context "WSL host paths" do
       let(:valid_path){ "/mnt/c/path" }
       let(:invalid_path){ "/home/vagrant/path" }
-      let(:synced_folder_impl){ double("synced_folder_impl", new: double("synced_folder_inst", usable?: true, _initialize: true)) }
-      let(:fs_config){ double("fs_config", vm: double("fs_vm", allowed_synced_folder_types: nil)) }
       let(:plugin){ double("plugin", manager: manager) }
-      let(:manager){ double("manager", synced_folders: {sf_impl: [synced_folder_impl, 1]}) }
+      let(:manager){ double("manager", synced_folders: synced_folders) }
 
       let(:stub_pathname){ double("stub_pathname", directory?: true, relative?: false) }
 
@@ -803,8 +808,9 @@ describe VagrantPlugins::Kernel_V2::VMConfig do
         allow(Vagrant::Util::Platform).to receive(:wsl?).and_return(true)
         allow(Vagrant::Util::Platform).to receive(:wsl_drvfs_path?).with(valid_path).and_return(true)
         allow(Vagrant::Util::Platform).to receive(:wsl_drvfs_path?).with(invalid_path).and_return(false)
-        allow(machine).to receive(:config).and_return(fs_config)
         allow(Vagrant).to receive(:plugin).with("2").and_return(plugin)
+        allow(synced_folder_impl).to receive(:respond_to?).with(:wsl_allow_non_drvfs?).and_return(true)
+        allow(synced_folder_impl).to receive(:wsl_allow_non_drvfs?).and_return(false)
         subject.synced_folder(".", "/vagrant", disabled: true)
       end
 
