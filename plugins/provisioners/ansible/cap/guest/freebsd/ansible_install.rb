@@ -14,7 +14,7 @@ module VagrantPlugins
               if install_mode != :default
                 raise Ansible::Errors::AnsiblePipInstallIsNotSupported
               else
-                machine.communicate.sudo "pkg install -qy py37-ansible"
+                machine.communicate.sudo "pkg install -qy sysutils/ansible"
               end
             end
 
