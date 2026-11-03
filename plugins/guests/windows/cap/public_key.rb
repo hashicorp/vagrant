@@ -25,7 +25,10 @@ module VagrantPlugins
         def self.remove_public_key(machine, contents)
           if machine.communicate.is_a?(CommunicatorWinSSH::Communicator)
             winssh_modify_authorized_keys machine do |keys|
-              keys.delete(contents)
+              contents.each_line do |line|
+                key = line.strip
+                keys.delete(key) unless key.empty?
+              end
             end
           else
             raise Vagrant::Errors::SSHInsertKeyUnsupported
