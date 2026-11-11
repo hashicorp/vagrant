@@ -1,0 +1,23 @@
+---
+layout: docs
+page_title: Boxes - Docker Provider
+description: |-
+  The Docker provider does not require a Vagrant box. The "config.vm.box"
+  setting is completely optional.
+# START AUTO GENERATED METADATA, DO NOT EDIT
+created_at: 2025-11-20T11:55:22-05:00
+last_modified: 2025-11-20T11:55:22-05:00
+# END AUTO GENERATED METADATA
+---
+
+# Docker Boxes
+
+The Docker provider does not require a Vagrant box. The `config.vm.box`
+setting is completely optional.
+
+A box can still be used and specified, however, to provide defaults.
+Because the `Vagrantfile` within a box is loaded as part of the
+configuration loading sequence, it can be used to configure the
+foundation of a development environment.
+
+In general, however, you will not need a box with the Docker provider.

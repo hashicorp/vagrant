@@ -1,0 +1,24 @@
+---
+layout: docs
+page_title: Disks for VMware Provider
+description: |-
+  HashiCorp develops an official VMware Fusion and VMware Workstation provider
+  for Vagrant. This provider allows Vagrant to power VMware based machines and
+  take advantage of the improved stability and performance that VMware software
+  offers.
+# START AUTO GENERATED METADATA, DO NOT EDIT
+created_at: 2025-11-20T11:55:22-05:00
+last_modified: 2025-11-20T11:55:22-05:00
+# END AUTO GENERATED METADATA
+---
+
+# VMware
+
+Because of how VMware handles disk management, a Vagrant guest _must_ be powered
+off for any changes to be applied to a guest. If you make a configuration change
+with a guests disk, you will need to `vagrant reload` the guest for any changes
+to be applied.
+
+For more information on how to use VMware to configure disks for a guest, refer
+to the [general usage](/vagrant/docs/disks/usage) and [configuration](/vagrant/docs/disks/configuration)
+guide for more information.

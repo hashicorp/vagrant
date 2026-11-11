@@ -1,0 +1,27 @@
+---
+layout: vagrant-cloud
+page_title: Find and Use Boxes
+description: "Discover Vagrant boxes that contain the technologies you need for a Vagrant environment."
+# START AUTO GENERATED METADATA, DO NOT EDIT
+created_at: 2025-11-20T11:55:22-05:00
+last_modified: 2025-11-20T11:55:22-05:00
+# END AUTO GENERATED METADATA
+---
+
+# Finding and Using Boxes
+
+@include "@global/vagrant-eol.mdx"
+
+A primary use case of Vagrant Cloud by HashiCorp is to be able to easily find
+boxes you can use with Vagrant that contain the technologies you need
+for a Vagrant environment. We've made it extremely easy to do that:
+
+1. Go to the [Discover page](https://app.vagrantup.com/boxes/search), and search for
+   any box you want.
+
+1. Once you find a box, click its name to learn more about it.
+
+1. When you're ready to use it, copy the name, such as "hashicorp/bionic64"
+   and initialize your Vagrant project with `vagrant init hashicorp/bionic64`.
+   Or, if you already have a Vagrant project created, modify the Vagrantfile
+   to use the box: `config.vm.box = "hashicorp/bionic64"`

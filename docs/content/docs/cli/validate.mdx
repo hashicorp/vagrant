@@ -1,0 +1,36 @@
+---
+layout: docs
+page_title: vagrant validate - Command-Line Interface
+description: The "vagrant validate" command is used to validate your Vagrantfile.
+# START AUTO GENERATED METADATA, DO NOT EDIT
+created_at: 2025-11-20T11:55:22-05:00
+last_modified: 2025-11-20T11:55:22-05:00
+# END AUTO GENERATED METADATA
+---
+
+# Validate
+
+**Command: `vagrant validate`**
+
+This command validates your [Vagrantfile](/vagrant/docs/vagrantfile/).
+
+## Options
+
+- `--ignore-provider` - Ignores provider config options.
+
+## Examples
+
+Validate the syntax of the Vagrantfile to ensure it is correctly structured and free of errors
+
+```shell-session
+$ vagrant validate
+Vagrantfile validated successfully.
+```
+
+Ensure that the Vagrantfile is correctly structured while ignoring provider-specific configuration options:
+
+```shell-session
+$ vagrant validate --ignore-provider virtualbox
+==> default: Ignoring provider config for validation...
+Vagrantfile validated successfully.
+```
