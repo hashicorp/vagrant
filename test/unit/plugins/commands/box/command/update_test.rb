@@ -197,6 +197,27 @@ describe VagrantPlugins::CommandBox::Command::Update do
         let(:argv) { ["--box", "foo" ].concat(download_options) }
 
         it "passes down download options" do
+          allow_any_instance_of(Vagrant::Box).
+            to receive(:load_metadata).
+                 and_return(
+                   Vagrant::BoxMetadata.new(
+                     StringIO.new(
+                       {
+                         versions: [
+                           {
+                             version: "2.2",
+                             providers: [
+                               {
+                                 name: "virtualbox",
+                                 url: "bar",
+                               }
+                             ]
+                           }
+                         ]
+                       }.to_json
+                     )
+                   )
+                 )
           metadata_url.open("w") do |f|
             f.write(
              {

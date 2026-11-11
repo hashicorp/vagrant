@@ -72,6 +72,7 @@ describe VagrantPlugins::DockerProvider::Driver::Compose do
     allow(env).to receive(:lock).and_yield
     allow(Pathname).to receive(:new).with(local_data_path).and_return(local_data_path)
     allow(Pathname).to receive(:new).with('/host/path').and_call_original
+    allow(Pathname).to receive(:new).with('cwd').and_call_original
     allow(local_data_path).to receive(:join).and_return(data_directory)
     allow(data_directory).to receive(:mkpath)
     allow(FileUtils).to receive(:mv)

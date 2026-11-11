@@ -661,8 +661,10 @@ describe Vagrant::Bundler do
       it "should activate spec of deps already loaded" do
         spec = Gem.loaded_specs.first
         deps = [spec[0]]
-        specs = [spec[1].dup, spec[1].dup]
-        specs[0].version = Gem::Version::new('0.0.1')
+        specs = [
+          Gem::Specification.new(spec[1].name, Gem::Version.new('0.0.1')),
+          Gem::Specification.new(spec[1].name, spec[1].version),
+        ]
         # make sure haven't accidentally modified both
         expect(specs[0].version).to_not eq(specs[1].version)
 
