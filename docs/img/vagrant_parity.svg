@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="592" height="210" fill="none" viewBox="0 0 592 210">
+  <filter id="a" width="190" height="151" x="113" y="32" color-interpolation-filters="sRGB" filterUnits="userSpaceOnUse">
+    <feFlood flood-opacity="0" result="BackgroundImageFix"/>
+    <feBlend in="SourceGraphic" in2="BackgroundImageFix" result="shape"/>
+    <feGaussianBlur result="effect1_foregroundBlur" stdDeviation="10"/>
+  </filter>
+  <path fill="#fff" d="M0 0h592v210H0z"/>
+  <g filter="url(#a)" opacity=".08">
+    <path fill="#000" d="M133 52h150v111H133z"/>
+  </g>
+  <path fill="#000" d="M120 39h176v120H120z"/>
+  <path fill="#2e71e5" d="M120 39h176v10H120z"/>
+  <path stroke="#b8d9ff" stroke-width="3" d="M140 69.5h36m8 0h25m8 0h15m-92 12h69m31 0h36m-59 0h15m-92 12h36m64 0h18m-74 0h48m-92 12h36m64 0h18m-74 0h25m8 0h15m-92 12h69m31 0h36m-59 0h15m-92 12h36m8 0h25m8 0h15"/>
+  <rect width="56" height="80" x="435" y="129" fill="#000" rx="2"/>
+  <rect width="56" height="80" x="435" y="13" fill="#000" rx="2"/>
+  <rect width="56" height="80" x="421" y="117" fill="#d2f8fe" rx="2"/>
+  <rect width="56" height="80" x="421" y="1" fill="#d6ebff" rx="2"/>
+  <path fill="#000" d="M429 13h40v10h-40zm0 50h26v2h-26zm38 0h2v2h-2zm-38 4h26v2h-26zm38 0h2v2h-2zm0 4h2v2h-2zm-4-8h2v2h-2zm0 4h2v2h-2zm0 4h2v2h-2zm-4-8h2v2h-2zm0 4h2v2h-2zm0 4h2v2h-2zm-30 58h40v10h-40zm0 50h40v2h-40zm0 4h40v2h-40zm0 4h40v2h-40z"/>
+  <path stroke="#343536" stroke-linejoin="round" stroke-width="2" d="M406 157h-42a8 8 0 0 1-8-8v-21m-50-29h42a8 8 0 0 1 8 8v21"/>
+  <path fill="#fff" stroke="#343536" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M306 99a3 3 0 1 1 6 0 3 3 0 0 1-6 0"/>
+  <path fill="#343536" d="m407.7 157.002-8.7 5.1v-10.2z"/>
+  <path stroke="#343536" stroke-linejoin="round" stroke-width="2" d="M406 41h-42a8 8 0 0 0-8 8v21m-50 29h42a8 8 0 0 0 8-8V70"/>
+  <path fill="#fff" stroke="#343536" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M306 99a3 3 0 1 0 6 0 3 3 0 0 0-6 0"/>
+  <path fill="#343536" d="m407.7 40.998-8.7-5.1v10.2z"/>
+</svg>

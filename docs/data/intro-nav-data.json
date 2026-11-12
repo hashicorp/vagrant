@@ -1,0 +1,39 @@
+[
+  {
+    "title": "What is Vagrant?",
+    "path": ""
+  },
+  {
+    "title": "Vagrant vs. Other Software",
+    "routes": [
+      {
+        "title": "Overview",
+        "path": "vs"
+      },
+      {
+        "title": "CLI Tools",
+        "path": "vs/cli-tools"
+      },
+      {
+        "title": "Docker",
+        "path": "vs/docker"
+      },
+      {
+        "title": "Terraform",
+        "path": "vs/terraform"
+      }
+    ]
+  },
+  {
+    "title": "Getting Started",
+    "href": "https://developer.hashicorp.com/vagrant/tutorials/get-started"
+  },
+  {
+    "title": "Contributing",
+    "path": "contributing-guide"
+  },
+  {
+    "title": "Support",
+    "path": "support"
+  }
+]
