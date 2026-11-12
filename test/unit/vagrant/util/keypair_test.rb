@@ -47,9 +47,8 @@ describe Vagrant::Util::Keypair do
 
         privkey = Net::SSH::Authentication::ED25519::PrivKey.read(ossh_privkey, "").sign_key
         pubkey = Ed25519::VerifyKey.new(pubkey)
-
         message = "vagrant test"
-        signature = privkey.sign(message)
+        signature = privkey.sign(nil, message)
         expect(pubkey.verify(signature, message)).to be_truthy
       end
 
