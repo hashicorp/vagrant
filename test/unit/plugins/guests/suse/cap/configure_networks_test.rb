@@ -25,13 +25,6 @@ describe "VagrantPlugins::GuestSUSE::Cap::ConfigureNetworks" do
   describe ".configure_networks" do
     let(:cap) { caps.get(:configure_networks) }
 
-    before do
-      allow(guest).to receive(:capability).with(:network_scripts_dir)
-        .and_return("/scripts")
-      allow(guest).to receive(:capability).with(:network_interfaces)
-        .and_return(["eth1", "eth2"])
-    end
-
     let(:network_1) do
       {
         interface: 0,
@@ -49,12 +42,33 @@ describe "VagrantPlugins::GuestSUSE::Cap::ConfigureNetworks" do
       }
     end
 
-    it "creates and starts the networks" do
-      cap.configure_networks(machine, [network_1, network_2])
-      expect(comm.received_commands[0]).to match(/\/sbin\/ifdown 'eth1'/)
-      expect(comm.received_commands[0]).to match(/\/sbin\/ifup 'eth1'/)
-      expect(comm.received_commands[0]).to match(/\/sbin\/ifdown 'eth2'/)
-      expect(comm.received_commands[0]).to match(/\/sbin\/ifup 'eth2'/)
+    context "with wicked network configuration path" do
+      before do
+        allow(guest).to receive(:capability).with(:network_scripts_dir)
+          .and_return("/etc/sysconfig/network")
+        allow(guest).to receive(:capability).with(:network_interfaces)
+          .and_return(["eth1", "eth2"])
+      end
+
+      it "creates and starts the networks" do
+        cap.configure_networks(machine, [network_1, network_2])
+        expect(comm.received_commands[0]).to match(/\/sbin\/ifdown 'eth1'/)
+        expect(comm.received_commands[0]).to match(/\/sbin\/ifup 'eth1'/)
+        expect(comm.received_commands[0]).to match(/\/sbin\/ifdown 'eth2'/)
+        expect(comm.received_commands[0]).to match(/\/sbin\/ifup 'eth2'/)
+      end
+    end
+
+    context "with system-connections network configuration path" do
+      before do
+        allow(guest).to receive(:capability).with(:network_scripts_dir)
+          .and_return("/etc/NetworkManager/system-connections")
+      end
+
+      it "should configure with network manager" do
+        expect(cap).to receive(:configure_network_manager).with(machine, [network_1, network_2])
+        cap.configure_networks(machine, [network_1, network_2])
+      end
     end
   end
 end
