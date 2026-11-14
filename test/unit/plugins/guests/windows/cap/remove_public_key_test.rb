@@ -58,6 +58,18 @@ describe "VagrantPlugins::GuestWindows::Cap::RemovePublicKey" do
         expect(File.read(@tempfile.path)).to include(public_key_other)
         expect(File.read(@tempfile.path)).to_not include(public_key_insecure)
       end
+
+      it "removes each supplied bootstrap key while preserving other keys and the ACL update" do
+        ed25519 = "ssh-ed25519...insecure"
+        @tempfile.seek(0, IO::SEEK_END)
+        @tempfile.write(ed25519 + "\r\n")
+        @tempfile.flush
+        expect(comm).to receive(:download)
+        expect(comm).to receive(:upload)
+        expect(comm).to receive(:execute).with(/Set-Acl .*/, shell: "powershell")
+        cap.remove_public_key(machine, "\r\n " + public_key_insecure + " \r\n" + ed25519 + "\r\n\n")
+        expect(File.read(@tempfile.path).split(/[\r\n]+/)).to eq([public_key_other])
+      end
     end
 
     context "when authorized_keys does not exist on guest" do
