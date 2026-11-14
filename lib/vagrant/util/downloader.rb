@@ -104,6 +104,7 @@ module Vagrant
         @logger.info("  -- Destination: #{@destination}")
 
         retried = false
+        retried_auth = false
         begin
           # Get the command line args and the subprocess opts based
           # on our downloader settings.
@@ -118,9 +119,23 @@ module Vagrant
           execute_curl(options, subprocess_options, &data_proc)
         rescue Errors::DownloaderError => e
           # If we already retried, raise it.
-          raise if retried
+          if retried && retried_auth
+            raise
+          end
 
           @logger.error("Exit code: #{e.extra_data[:code]}")
+
+          # If a 401 is returned and we included an Authorization header,
+          # retry once without the Authorization header. This allows access
+          # to public resources when a stale/expired token is present.
+          if !retried_auth && Array(@headers).any? { |h| h =~ /^Authorization\b/i } &&
+             e.extra_data[:message].to_s.include?("401")
+            @logger.warn("Download received 401 with Authorization header present. Retrying without Authorization header.")
+            # Remove Authorization header for retry
+            @headers = Array(@headers).reject { |h| h =~ /^Authorization\b/i }
+            retried_auth = true
+            retry
+          end
 
           # If its any error other than 33, it is an error.
           raise if e.extra_data[:code].to_i != 33
@@ -156,8 +171,30 @@ module Vagrant
         options << @source
 
         @logger.info("HEAD: #{@source}")
-        result = execute_curl(options, subprocess_options)
-        result.stdout
+        begin
+          result = execute_curl(options, subprocess_options)
+          return result.stdout
+        rescue Errors::DownloaderError => e
+          # If a 401 is returned and we included an Authorization header,
+          # retry once without the Authorization header. This allows access
+          # to public resources when a stale/expired token is present.
+          if Array(@headers).any? { |h| h =~ /^Authorization\b/i } &&
+             e.extra_data[:message].to_s.include?("401")
+            @logger.warn("HEAD request received 401 with Authorization header present. Retrying without Authorization header.")
+            begin
+              # Remove Authorization header and retry
+              @headers = Array(@headers).reject { |h| h =~ /^Authorization\b/i }
+              options, subprocess_options = self.options
+              options.unshift("-I")
+              options << @source
+              result = execute_curl(options, subprocess_options)
+              return result.stdout
+            ensure
+              # Keep Authorization removed after a 401 to avoid repeated failures
+            end
+          end
+          raise
+        end
       end
 
       protected
