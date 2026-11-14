@@ -47,7 +47,7 @@ module VagrantPlugins
           stderr_data_buffer = ''
 
           @logger.debug("Base SSH exec command: #{command}")
-          command = "$ProgressPreference = 'SilentlyContinue';Write-Output #{CMD_GARBAGE_MARKER};[Console]::Error.WriteLine('#{CMD_GARBAGE_MARKER}');#{command}"
+          command = "$ProgressPreference = 'SilentlyContinue';Write-Output #{CMD_GARBAGE_MARKER};[Console]::Error.WriteLine('#{CMD_GARBAGE_MARKER}');#{command};$?"
 
           ch.exec(command) do |ch2, _|
             # Setup the channel callbacks so we can get data and exit status
@@ -99,6 +99,9 @@ module VagrantPlugins
               # probably done. This fixes up issues with hanging.
               ch.close
             end
+            
+            # Send eof to let server know we're done
+            ch2.eof!
 
           end
         end
