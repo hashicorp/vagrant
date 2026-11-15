@@ -16,12 +16,15 @@ module Vagrant
       # @return [Boolean] `true` if the port is open (listening), `false`
       #   otherwise.
       def is_port_open?(host, port)
+        s = nil
         begin
-          Socket.tcp(host, port, connect_timeout: 0.1).close
-          true
+          s = Socket.tcp(host, port, connect_timeout: 0.1)
+          s.getsockopt(Socket::SOL_SOCKET, Socket::SO_ERROR).int == 0
         rescue Errno::ETIMEDOUT, Errno::ECONNREFUSED, Errno::EHOSTUNREACH, \
-            Errno::ENETUNREACH, Errno::EACCES, Errno::ENOTCONN, Errno::EALREADY
+            Errno::ENETUNREACH, Errno::EACCES, Errno::ENOTCONN, Errno::EALREADY, Errno::EINVAL
           false
+        ensure
+          s.close if s
         end
       end
 

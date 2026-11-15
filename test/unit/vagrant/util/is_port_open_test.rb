@@ -63,4 +63,24 @@ describe Vagrant::Util::IsPortOpen do
     expect(Socket).to receive(:tcp).with("0.0.0.0", closed_port, any_args).and_raise(Errno::EALREADY)
     expect(subject.is_port_open?("0.0.0.0", closed_port)).to be(false)
   end
+
+    it "should report port closed when SO_ERROR indicates connection failure" do
+    socket = double("socket")
+    status = double("status", int: Errno::ECONNREFUSED::Errno)
+    expect(Socket).to receive(:tcp).with("0.0.0.0", closed_port, any_args).and_return(socket)
+    expect(socket).to receive(:getsockopt).with(Socket::SOL_SOCKET, Socket::SO_ERROR).and_return(status)
+    expect(socket).to receive(:close)
+
+    expect(subject.is_port_open?("0.0.0.0", closed_port)).to be(false)
+  end
+
+  it "should report port open when SO_ERROR is zero" do
+    socket = double("socket")
+    status = double("status", int: 0)
+    expect(Socket).to receive(:tcp).with("0.0.0.0", open_port, any_args).and_return(socket)
+    expect(socket).to receive(:getsockopt).with(Socket::SOL_SOCKET, Socket::SO_ERROR).and_return(status)
+    expect(socket).to receive(:close)
+
+    expect(subject.is_port_open?("0.0.0.0", open_port)).to be(true)
+  end
 end
