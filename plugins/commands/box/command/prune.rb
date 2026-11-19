@@ -102,7 +102,7 @@ module VagrantPlugins
 
           # Track if we removed anything so the user can be informed
           removed_any_box = false
-          boxes.each do |name, version, provider|
+          boxes.each do |name, version, provider, architecture|
             next if !newest_boxes.has_key?(name) or !newest_boxes[name].has_key?(provider)
 
             current = Gem::Version.new(version)
@@ -112,12 +112,17 @@ module VagrantPlugins
 
               # Use the remove box action
               if dry_run
-                @env.ui.info("Would remove #{name} #{provider} #{version}")
+                @env.ui.info("Would remove #{name} #{provider} #{version}#{" #{architecture}" if architecture}")
               else
                 @env.action_runner.run(Vagrant::Action.action_box_remove, {
                     box_name: name,
                     box_provider: provider,
                     box_version: version,
+                    # A version can be installed for several architectures,
+                    # and each one is listed separately here. Name it so the
+                    # remove action does not stop and ask for --architecture,
+                    # which prune does not have.
+                    box_architecture: architecture,
                     force_confirm_box_remove: skip_confirm,
                     keep_used_boxes: keep_used_boxes,
                     box_remove_all_versions: false,
