@@ -156,6 +156,13 @@ module VagrantPlugins
             if download_options[:insecure].nil?
               download_options[:insecure] = machine.config.vm.box_download_insecure
             end
+            # Extra curl options from `config.vm.box_download_options`. The
+            # metadata request and the box download both need them, for
+            # example for HTTP basic auth on a private box server.
+            extra = machine.config.vm.box_extra_download_options
+            if download_options[:box_extra_download_options].nil? && extra && !extra.empty?
+              download_options[:box_extra_download_options] = extra
+            end
 
             begin
               box_update(box, version, machine.ui, download_options, force)
@@ -197,7 +204,8 @@ module VagrantPlugins
             box_download_client_cert: download_options[:client_cert],
             box_download_ca_cert: download_options[:ca_cert],
             box_download_ca_path: download_options[:ca_path],
-            box_download_insecure: download_options[:insecure]
+            box_download_insecure: download_options[:insecure],
+            box_extra_download_options: download_options[:box_extra_download_options]
           })
         end
       end
