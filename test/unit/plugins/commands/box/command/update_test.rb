@@ -573,6 +573,31 @@ describe VagrantPlugins::CommandBox::Command::Update do
             subject.execute
           end
 
+          context "machine has extra download options" do
+            before do
+              # What finalize! derives from `config.vm.box_download_options = {user: "u:p"}`
+              allow(machine.config.vm).to receive(:box_extra_download_options).
+                and_return(["--user", "u:p"])
+            end
+
+            it "uses them for the metadata request and the box download" do
+              expect(box).to receive(:has_update?).
+                with(machine.config.vm.box_version,
+                     {download_options:
+                       {ca_cert: "oof", ca_path: "rab", client_cert: "zab",
+                        insecure: false,
+                        box_extra_download_options: ["--user", "u:p"]}}).
+                and_return([md, md.version("1.1"), md.version("1.1").provider("virtualbox")])
+
+              expect(action_runner).to receive(:run).with(any_args) { |action, opts|
+                expect(opts[:box_extra_download_options]).to eq(["--user", "u:p"])
+                true
+              }
+
+              subject.execute
+            end
+          end
+
           context "download options are specified on the command line" do
             let(:argv) { download_options }
 
