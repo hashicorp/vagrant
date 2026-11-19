@@ -63,6 +63,18 @@ describe VagrantPlugins::CommandBox::Command::Prune do
         expect(output).to include("Removing box 'foobox' (v1.0) with provider 'virtualbox'...")
       end
 
+      it "removes an old version that is installed for several architectures" do
+        iso_env.box3("foobox", "1.0", :virtualbox, architecture: "amd64")
+        iso_env.box3("foobox", "1.0", :virtualbox, architecture: "arm64")
+        iso_env.box3("foobox", "1.1", :virtualbox, architecture: "amd64")
+        iso_env.box3("foobox", "1.1", :virtualbox, architecture: "arm64")
+
+        allow(iso_vagrant_env.ui).to receive(:info)
+        expect(iso_vagrant_env.boxes.all.count).to eq(4)
+        expect(subject.execute).to eq(0)
+        expect(iso_vagrant_env.boxes.all.map { |b| b[1] }).to eq(["1.1", "1.1"])
+      end
+
       it "removes nothing" do
         # Let's put some things in the index
         iso_env.box3("foobox", "1.0", :virtualbox);
